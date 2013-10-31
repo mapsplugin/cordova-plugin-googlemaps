@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSManagedObjectModel_CurrentVersionName</key>
+	<string>Storage</string>
+	<key>NSManagedObjectModel_VersionHashes</key>
+	<dict>
+		<key>Storage</key>
+		<dict>
+			<key>GMSCacheProperty</key>
+			<data>
+			QaoIkcym3itula0F304pZa3x432niQez51fLRsScFMw=
+			</data>
+			<key>GMSCachedObject</key>
+			<data>
+			QSOFyJYNNqHN5xlbUj9GIZC+F35CGWBGHNhd2/Z0cQA=
+			</data>
+			<key>GMSCachedObjectBlob</key>
+			<data>
+			noK2ayPbzw+yZIq2ekMRGSILYZyxs7oE4dZjuknRPrk=
+			</data>
+			<key>GMSCachedTile</key>
+			<data>
+			6GLdEuCbhqgrpr/FNSMyfhXYz0OsfUtbp/2zzxPZFpU=
+			</data>
+			<key>GMSCachedTileBlob</key>
+			<data>
+			GOwOTZdLt947wADRzN4reePTdqMZWEYvUjuniL9EgdI=
+			</data>
+		</dict>
+	</dict>
+</dict>
+</plist>
