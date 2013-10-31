@@ -1,49 +1,149 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-    // Application Constructor
-    initialize: function() {
-        this.bindEvents();
-    },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicity call 'app.receivedEvent(...);'
-    onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+function onMapReady(map) {
+  $("button").removeAttr("disabled");
+  $("#showBtn").click(function(){
+    onShowBtn(map);
+  })
+  $(".changeMapTypeBtn").click(function(){
+    onChangeMapTypeBtn(map, $(this).attr('typeId'));
+  })
+  $("#addMarkerBtn").click(function(){
+    onAddMarkerBtn(map);
+  })
+  $("#addIconMarkerBtn").click(function(){
+    onAddIconMarkerBtn(map);
+  })
+  $("#addCircleBtn").click(function(){
+    onAddCircleBtn(map);
+  })
+  
+  map.show();
+  map.setCenter(GOOGLE);
+  map.setMyLocationEnabled(true);
+  map.setIndoorEnabled(true);
+  map.setTrafficEnabled(true);
+  map.on('click', onMapClick);
+  map.on('long_click', onMapLongClick);
+}
 
-        console.log('Received Event: ' + id);
-    }
+function onShowBtn(map) {
+  map.show();
+}
+
+function onChangeMapTypeBtn(map, typeId) {
+  map.show();
+  var mapTypeId = plugin.google.maps.MapTypeId.NORMAL
+  if (typeId === "HYBRID") {
+    mapTypeId = plugin.google.maps.MapTypeId.HYBRID;
+  }
+  map.setMapTypeId(mapTypeId);
+}
+function onMapClick(latLng) {
+  alert("Map was clicked.\n" + latLng.toString());
+}
+function onMapLongClick(latLng) {
+  alert("Map was long clicked.\n" + latLng.toString());
+}
+
+function onAddMarkerBtn(map) {
+  map.show();
+  
+  map.addMarker({
+      'position': GOOGLE,
+      'title': "Hello GoogleMap on Cordova(Android)!",
+      'snippet': "click me!",
+      'draggable': true,
+      'markerClick': function(marker) {
+        onMarkerClicked(map, marker);
+      },
+      'infoClick': function(marker) {
+        onMarkerClicked(map, marker);
+      }
+    }, function(marker) {
+      marker.showInfoWindow();
+    });
+  
+  setTimeout(function() {
+    map.animateCamera({
+      'target': GOOGLE,
+      'tilt': 60,
+      'zoom': 16,
+      'bearing': 140
+    })
+  }, 1000);
+}
+function onAddIconMarkerBtn(map) {
+  map.show();
+  
+  map.addMarker({
+    'position': GOOGLE_TOKYO,
+    'title': 'Google Tokyo!',
+    'draggable': true,
+    'icon': 'www/images/google_tokyo_icon.png'
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
+  
+  setTimeout(function() {
+    map.animateCamera({
+      'target': GOOGLE_TOKYO,
+      'tilt': 60,
+      'zoom': 14,
+      'bearing': 0
+    });
+  }, 1000);
+}
+
+function onMarkerClicked(map, marker) {
+  marker.hideInfoWindow();
+  marker.getPosition(function(latLng) {
+    map.animateCamera({
+      'target': latLng,
+      'tilt': 60,
+      'zoom': 18,
+      'bearing': 140
+    }, function() {
+      marker.setTitle('Google!');
+      marker.setSnippet("1600 Amphitheatre Parkway,\n Mountain View, CA 94043");
+      marker.showInfoWindow();
+    })
+  });
+}
+
+function onAddCircleBtn(map) {
+  map.show();
+  map.addCircle({
+    'center': GOOGLE,
+    'radius': 300,
+    'strokeColor' : '#AA00FF00',
+    'strokeWidth': 5,
+    'fillColor' : '#880000FF'
+  });
+  map.animateCamera({
+    'target': GOOGLE,
+    'zoom': 13
+  })
 };
+
+
+function onInitBtnClicked() {
+  
+  button = document.getElementById('addMarkerBtn');
+  button.addEventListener('click', function(){
+    onAddMarkerBtn(map);
+  }, false);
+  
+  button = document.getElementById('addCircleBtn');
+  button.addEventListener('click', function(){
+    onCircleBtn(map);
+  }, false);
+}
+
+$(document).on('deviceready',  function() {
+  var map = plugin.google.maps.Map.getMap();
+  map.bind('map_ready', onMapReady);
+});
+
+$("button").attr("disabled", "disabled");
