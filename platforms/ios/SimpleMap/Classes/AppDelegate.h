@@ -28,7 +28,6 @@
 #import <UIKit/UIKit.h>
 
 #import <Cordova/CDVViewController.h>
-#import <GoogleMaps/GoogleMaps.h>
 
 @interface AppDelegate : NSObject <UIApplicationDelegate>{}
 

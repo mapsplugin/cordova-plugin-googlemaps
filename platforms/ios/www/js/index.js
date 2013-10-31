@@ -144,6 +144,7 @@ function onInitBtnClicked() {
 $(document).on('deviceready',  function() {
                var map = plugin.google.maps.Map.getMap();
                map.bind('map_ready', onMapReady);
+               console.log("ok");
                });
 
 $("button").attr("disabled", "disabled");

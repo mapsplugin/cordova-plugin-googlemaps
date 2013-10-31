@@ -88,7 +88,6 @@
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
 
-    [GMSServices provideAPIKey:@"AIzaSyADns99mO62aBapBN4_cnCJQnYdh-j6-ug"];
     return YES;
 }
 
