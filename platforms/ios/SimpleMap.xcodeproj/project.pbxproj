@@ -491,8 +491,7 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/wf9a5m75/Documents/workspace/phonegap-googlemaps-plugin/platforms/ios",
-					"/Users/masashi/Documents/workspace/phonegap-googlemaps-plugin/platforms/ios",
+					"$(SRCROOT)",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -504,7 +503,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/wf9a5m75/Documents/workspace/phonegap-googlemaps-plugin/platforms/ios/GoogleMaps.framework",
+					"$(SRCROOT)/GoogleMaps.framework",
 				);
 				OTHER_LDFLAGS = (
 					"-weak_framework",
@@ -533,8 +532,7 @@
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/wf9a5m75/Documents/workspace/phonegap-googlemaps-plugin/platforms/ios",
-					"/Users/masashi/Documents/workspace/phonegap-googlemaps-plugin/platforms/ios",
+					"$(SRCROOT)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SimpleMap/SimpleMap-Prefix.pch";
@@ -544,7 +542,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/wf9a5m75/Documents/workspace/phonegap-googlemaps-plugin/platforms/ios/GoogleMaps.framework",
+					"$(SRCROOT)/GoogleMaps.framework",
 				);
 				OTHER_LDFLAGS = (
 					"-weak_framework",
