@@ -7,6 +7,7 @@
 //
 
 #import <Cordova/CDV.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 @interface GoogleMaps : CDVPlugin
 
