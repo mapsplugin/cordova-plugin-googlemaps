@@ -574,7 +574,7 @@ public class GoogleMaps extends CordovaPlugin {
 
             Runnable runnable = new Runnable(){ 
                 public void run() {
-                    myWebView.loadUrl("javascript:plugin.google.maps.Map._onMarkerClick('"+marker.getId()+"')");
+                    myWebView.loadUrl("javascript:plugin.google.maps.Map._onMarkerClick("+marker.hashCode()+")");
                 }
             };
             cordova.getActivity().runOnUiThread(runnable);
@@ -585,7 +585,7 @@ public class GoogleMaps extends CordovaPlugin {
         public void onInfoWindowClick(final Marker marker) {
             Runnable runnable = new Runnable(){ 
                 public void run() {
-                    myWebView.loadUrl("javascript:plugin.google.maps.Map._onInfoWndClick('"+marker.getId()+"')");
+                    myWebView.loadUrl("javascript:plugin.google.maps.Map._onInfoWndClick('"+marker.hashCode()+"')");
                 }
             };
             cordova.getActivity().runOnUiThread(runnable);

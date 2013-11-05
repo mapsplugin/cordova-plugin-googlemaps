@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MarkerManager extends HashMap<String, Marker> {
+public class MarkerManager extends HashMap<Integer, Marker> {
     private CordovaInterface cordova;
     public MarkerManager(CordovaInterface cordovaInterface) {
         super();
@@ -53,7 +53,7 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 Marker marker = map.addMarker(markerOptions);
-                MarkerManager.this.put(marker.getId(), marker);
+                MarkerManager.this.put(marker.hashCode(), marker);
                 
                 if (iconUrl != null) {
                     Log.d("CordovaLog", iconUrl);
@@ -66,9 +66,9 @@ public class MarkerManager extends HashMap<String, Marker> {
                 }
                 JSONObject result = new JSONObject();
                 try {
-                    result.put("id", marker.getId());
+                    Log.d("addMarker", "hashCode=" + marker.hashCode());
                     result.put("hashCode", marker.hashCode());
-                    callbackContext.success(result);
+                    callbackContext.success(marker.hashCode());
                 } catch (JSONException e) {
                     e.printStackTrace();
                     callbackContext.error(e.getMessage());
@@ -82,9 +82,9 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
+                    int hashCode = args.getInt(0);
                     String title = args.getString(1);
-                    Marker marker = MarkerManager.this.get(id);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.setTitle(title);
                     callbackContext.success();
                 } catch (Exception e) {
@@ -100,9 +100,9 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
+                    int hashCode = args.getInt(0);
                     String snippet = args.getString(1);
-                    Marker marker = MarkerManager.this.get(id);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.setSnippet(snippet);
                     callbackContext.success();
                 } catch (Exception e) {
@@ -120,8 +120,8 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
-                    Marker marker = MarkerManager.this.get(id);
+                  int hashCode = args.getInt(0);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.showInfoWindow();
                     callbackContext.success();
                 } catch (Exception e) {
@@ -137,8 +137,8 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
-                    Marker marker = MarkerManager.this.get(id);
+                    int hashCode = args.getInt(0);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.hideInfoWindow();
                     callbackContext.success();
                 } catch (Exception e) {
@@ -155,8 +155,8 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
-                    Marker marker = MarkerManager.this.get(id);
+                    int hashCode = args.getInt(0);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     LatLng position = marker.getPosition();
                     
                     JSONArray result = new JSONArray();
@@ -176,8 +176,8 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
-                    Marker marker = MarkerManager.this.get(id);
+                    int hashCode = args.getInt(0);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     Boolean isInfoWndShown = marker.isInfoWindowShown();
                     
                     callbackContext.success(isInfoWndShown ? 1 : 0);
@@ -194,8 +194,8 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
-                    Marker marker = MarkerManager.this.get(id);
+                    int hashCode = args.getInt(0);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.remove();
                     callbackContext.success();
                 } catch (Exception e) {
@@ -211,10 +211,10 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
+                    int hashCode = args.getInt(0);
                     float anchorU = (float)args.getDouble(1);
                     float anchorV = (float)args.getDouble(2);
-                    Marker marker = MarkerManager.this.get(id);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.setAnchor(anchorU, anchorV);
                     callbackContext.success();
                 } catch (Exception e) {
@@ -230,9 +230,9 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
+                    int hashCode = args.getInt(0);
                     Boolean draggable = args.getBoolean(1);
-                    Marker marker = MarkerManager.this.get(id);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     marker.setDraggable(draggable);
                     callbackContext.success();
                 } catch (Exception e) {
@@ -248,10 +248,10 @@ public class MarkerManager extends HashMap<String, Marker> {
         Runnable runnable = new Runnable(){ 
             public void run() {
                 try {
-                    String id = args.getString(0);
+                    int hashCode = args.getInt(0);
                     String iconUrl = args.getString(1);
                     
-                    Marker marker = MarkerManager.this.get(id);
+                    Marker marker = MarkerManager.this.get(hashCode);
                     if (iconUrl.indexOf("http") == 0) {
                         MarkerSetIcon task = new MarkerSetIcon(marker);
                         task.execute(iconUrl);

@@ -60,14 +60,7 @@ public class CircleManager extends HashMap<String, Circle> {
             public void run() {
                 Circle circle = map.addCircle(circleOptions);
                 CircleManager.this.put(circle.getId(), circle);
-                
-                JSONObject result = new JSONObject();
-                try {
-                    result.put("id", circle.getId());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                callbackContext.success(result);
+                callbackContext.success(circle.getId());
             }
         };
         cordova.getActivity().runOnUiThread(runnable);
