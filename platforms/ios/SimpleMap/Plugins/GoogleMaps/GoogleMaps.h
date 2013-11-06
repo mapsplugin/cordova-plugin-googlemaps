@@ -8,7 +8,9 @@
 
 #import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
+#import "GoogleMapsViewController.h"
 
+@class MyViewController;
 @interface GoogleMaps : CDVPlugin
 
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
