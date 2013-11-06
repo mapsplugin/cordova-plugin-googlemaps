@@ -69,8 +69,9 @@ UIView *pluginView;
 }
 
 - (void)GoogleMap_setMyLocationEnabled:(CDVInvokedUrlCommand *)command {
-    Boolean isEnable = [[command.arguments objectAtIndex:0] boolValue];
-    mapView_.settings.myLocationButton = isEnable;
+    Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
+    mapView_.settings.myLocationButton = isEnabled;
+    mapView_.myLocationEnabled = isEnabled;
   
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -78,8 +79,8 @@ UIView *pluginView;
 }
 
 - (void)GoogleMap_setIndoorEnabled:(CDVInvokedUrlCommand *)command {
-    Boolean isEnable = [[command.arguments objectAtIndex:0] boolValue];
-    mapView_.settings.indoorPicker = isEnable;
+    Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
+    mapView_.settings.indoorPicker = isEnabled;
   
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -87,7 +88,8 @@ UIView *pluginView;
 }
 
 - (void)GoogleMap_setTrafficEnabled:(CDVInvokedUrlCommand *)command {
-    NSLog(@"setTrafficEnabled is ignored in iOS");
+    Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
+    mapView_.trafficEnabled = isEnabled;
   
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -95,8 +97,54 @@ UIView *pluginView;
 }
 
 - (void)GoogleMap_setCompassEnabled:(CDVInvokedUrlCommand *)command {
-    Boolean isEnable = [[command.arguments objectAtIndex:0] boolValue];
-    mapView_.settings.compassButton = isEnable;
+    Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
+    mapView_.settings.compassButton = isEnabled;
+  
+    CDVPluginResult* pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)GoogleMap_setTilt:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult* pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Change the zoom level
+ */
+- (void)GoogleMap_setZoom:(CDVInvokedUrlCommand *)command {
+    float zoom = [[command.arguments objectAtIndex:0] floatValue];
+    CLLocationCoordinate2D center = [mapView_.projection coordinateForPoint:mapView_.center];
+  
+    [mapView_ setCamera:[GMSCameraPosition cameraWithTarget:center zoom:zoom]];
+  
+    CDVPluginResult* pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Change the Map Type
+ */
+- (void)GoogleMap_setMapTypeId:(CDVInvokedUrlCommand *)command {
+    NSString *typeStr = [command.arguments objectAtIndex:0];
+    NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
+      ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
+      ^() {return kGMSTypeSatellite; }, @"MAP_TYPE_SATELLITE",
+      ^() {return kGMSTypeTerrain; }, @"MAP_TYPE_TERRAIN",
+      ^() {return kGMSTypeNormal; }, @"MAP_TYPE_NORMAL",
+      ^() {return kGMSTypeNone; }, @"MAP_TYPE_NONE",
+      nil];
+  
+    typedef GMSMapViewType (^CaseBlock)();
+    GMSMapViewType mapType = kGMSTypeNormal;
+    CaseBlock c = mapTypes[typeStr];
+    if (c) {
+      mapType = c();
+    }
+    mapView_.mapType = mapType;
   
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
