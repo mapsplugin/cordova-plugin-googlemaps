@@ -6,7 +6,14 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <title>Hello World</title>
         
-        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript">
+          var platform = window.platform = navigator.platform;
+          platform = platform.match(/(iphone|ipad|ios)/i) != null ? 'ios' : 'android';
+          document.write('<');
+          document.write('script type="text/javascript" src="js/cordova-' + platform + '.js">');
+          document.write('</');
+          document.write('script>');
+        </script>
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
         <script type="text/javascript" src="googlemaps/GoogleMaps.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
@@ -31,6 +38,5 @@
         <ul id="circleList">
           <li><button id='addCircleBtn'>Add a circle</button></li>
         </ul>
-        
     </body>
 </html>

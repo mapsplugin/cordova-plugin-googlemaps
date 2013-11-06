@@ -26,7 +26,6 @@
 //
 
 #import "MainViewController.h"
-#import <GoogleMaps/GoogleMaps.h>
 
 @implementation MainViewController
 
@@ -106,8 +105,7 @@
 {
     // Black base color for background matches the native apps
     theWebView.backgroundColor = [UIColor blackColor];
-    [GMSServices provideAPIKey:@"AIzaSyADns99mO62aBapBN4_cnCJQnYdh-j6-ug"];
-
+    
     return [super webViewDidFinishLoad:theWebView];
 }
 

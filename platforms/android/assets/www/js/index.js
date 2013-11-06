@@ -23,7 +23,8 @@ function onMapReady(map) {
   map.setCenter(GOOGLE);
   map.setMyLocationEnabled(true);
   map.setIndoorEnabled(true);
-  map.setTrafficEnabled(true);
+  //map.setTrafficEnabled(true);
+  map.setCompassEnabled(true);
   map.on('click', onMapClick);
   map.on('long_click', onMapLongClick);
 }
@@ -132,3 +133,16 @@ $(document).on('deviceready',  function() {
 });
 
 $("button").attr("disabled", "disabled");
+
+window.onerror = function(message, file, line) {
+  console.error('---[error]');
+  if (typeof message == "object") {
+    var keys = Object.keys(message);
+    keys.forEach(function(key) {
+      console.error('[' + key + '] ' + message[key]);
+    });
+  } else {
+    console.log(line + ' at ' + file);
+    console.error(message);
+  }
+};

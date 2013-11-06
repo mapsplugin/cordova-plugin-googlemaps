@@ -141,6 +141,10 @@
     enabled = Boolean(enabled);
     cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setTrafficEnabled', [enabled]);
   };
+  App.prototype.setCompassEnabled = function(enabled) {
+    enabled = Boolean(enabled);
+    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setCompassEnabled', [enabled]);
+  };
   //-------------
   // Marker
   //-------------
