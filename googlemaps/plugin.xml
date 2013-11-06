@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="plugin.google.maps"
+    version="0.0.1">
+  
+  <name>Google Maps Plugin</name>
+  
+  <description>This plugin allows you to handle Google Maps SDK from your JavaScript code.</description>
+  
+  <author>Masashi Katsumata</author>
+  
+  <keywords>google,maps</keywords>
+  
+  <license>Apache 2.0 License</license>
+  
+  <js-module src="www/GoogleMaps.js" name="GoogleMaps" >
+    <clobbers target="GoogleMaps" />
+  </js-module>
+  
+  <preference name="API_KEY" />
+  
+  <platform name="android">
+    
+    <config-file target="res/xml/config.xml" parent="plugins">
+      <feature name="GoogleMaps" >
+        <param name="android-package" value="plugin.google.maps.GoogleMaps"/>
+      </feature>
+      <plugin name="GoogleMaps" value="plugin.google.maps.GoogleMaps"/>
+    </config-file>
+    
+    <engines>
+      <engine name="cordova" version=">=2.5.0" />
+    </engines>
+    
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="17" />
+      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+      <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+      <uses-permission android:name="android.permission.INTERNET" />
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+      <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+      <uses-permission android:name="com.example.simple.permission.MAPS_RECEIVE" />
+      <permission android:name="$PACKAGE_NAME.permission.MAPS_RECEIVE" android:protectionLevel="signature" />
+      <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+      
+      <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="$API_KEY" />
+    </config-file>
+    
+    
+    <source-file src="src/android/googlermania/src/GoogleMaps.java" target-dir="src/plugin/google/maps" />
+    <source-file src="src/android/googlermania/src/CircleManager.java" target-dir="src/plugin/google/maps" />
+    <source-file src="src/android/googlermania/src/MarkerManager.java" target-dir="src/plugin/google/maps" />
+    <source-file src="src/android/googlermania/src/MarkerSetIcon.java" target-dir="src/plugin/google/maps" />
+    <source-file src="src/android/googlermania/layout/googlemap.xml" target-dir="res/layout" />
+    <source-file src="src/android/libs/android-support-v4.jar" target-dir="libs/" />
+    <source-file src="src/android/libs/google-play-services_lib_for_floyo.jar" target-dir="libs/" />
+  </platform>
+</plugin>
