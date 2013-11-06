@@ -2,8 +2,6 @@
   const SERVICE = 'GoogleMaps';
   var MARKERS = {};
   var CIRCLES = {};
-  var MARKERS_CNT = 0;
-  var CIRCLES_CNT = 0;
   
   /**
    * Google Maps model.
