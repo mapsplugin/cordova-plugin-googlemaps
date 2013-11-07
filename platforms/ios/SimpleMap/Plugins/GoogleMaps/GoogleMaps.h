@@ -34,4 +34,5 @@
 - (void)Marker_getPosition:(CDVInvokedUrlCommand*)command;
 - (void)Marker_setSnippet:(CDVInvokedUrlCommand*)command;
 - (void)Marker_setTitle:(CDVInvokedUrlCommand*)command;
+- (void)Marker_remove:(CDVInvokedUrlCommand*)command;
 @end

@@ -13,18 +13,25 @@
 GoogleMapsViewController *mapCtrl;
 
 - (void)GoogleMap_getMap:(CDVInvokedUrlCommand *)command {
+  dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps", NULL);
+  
   // Create a map view
-  mapCtrl = [[GoogleMapsViewController alloc] init];
-  mapCtrl.webView = self.webView;
+  dispatch_sync(gueue, ^{
+    mapCtrl = [[GoogleMapsViewController alloc] init];
+    mapCtrl.webView = self.webView;
+  });
   
   // Create a close button
-  CGRect screenSize = [[UIScreen mainScreen] bounds];
-  CGRect pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
-  UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  closeButton.frame = CGRectMake(0, pluginRect.size.height * 0.9, 50, 30);
-  [closeButton setTitle:@"Close" forState:UIControlStateNormal];
-  [closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
-  [mapCtrl.view addSubview:closeButton];
+  dispatch_sync(gueue, ^{
+    CGRect screenSize = [[UIScreen mainScreen] bounds];
+    CGRect pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+    UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    closeButton.frame = CGRectMake(0, pluginRect.size.height * 0.9, 50, 30);
+    [closeButton setTitle:@"Close" forState:UIControlStateNormal];
+    [closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
+    [mapCtrl.view addSubview:closeButton];
+  });
+  dispatch_release(gueue);
   
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -238,6 +245,12 @@ GoogleMapsViewController *mapCtrl;
     if ([[json valueForKey:@"visible"] boolValue]) {
       marker.map = mapCtrl.map;
     }
+    NSString *iconPath = [json valueForKey:@"icon"];
+    NSLog(@"icon = %@", iconPath);
+    if (iconPath) {
+      marker.icon  = [UIImage imageNamed:iconPath];
+    }
+  
   
     marker.title = [json valueForKey:@"title"];
     marker.snippet = [json valueForKey:@"snippet"];
@@ -323,6 +336,20 @@ GoogleMapsViewController *mapCtrl;
   NSString *markerKey = [command.arguments objectAtIndex:0];
   GMSMarker *marker = [mapCtrl.markerManager objectForKey:markerKey];
   marker.snippet = [command.arguments objectAtIndex:1];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Remove the specified marker
+ * @params MarkerKey
+ */
+-(void)Marker_remove:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:0];
+  GMSMarker *marker = [mapCtrl.markerManager objectForKey:markerKey];
+  marker.map = nil;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
