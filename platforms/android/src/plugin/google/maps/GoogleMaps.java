@@ -9,20 +9,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Bundle;
+import android.graphics.Color;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
+import android.widget.LinearLayout;
 
-import com.example.simple.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -33,14 +30,14 @@ import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
-public class GoogleMaps extends CordovaPlugin {
+public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
   private final String TAG = "GoogleMapsPlugin";
   
   private enum METHODS {
@@ -82,21 +79,20 @@ public class GoogleMaps extends CordovaPlugin {
 
   }
 
-  public MapFragment mapView = null;
-  public SupportMapFragment mapFragment = null;
+  public MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
+  private FrameLayout baseLayer;
+  private ViewGroup root;
 
-  private View xmlView = null;
-  private CordovaWebView myWebView;
   private JavaScriptInterface jsInterface;
   private MarkerManager markerManager;
   private CircleManager circleManager;
 
+  @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
-    myWebView = webView;
     markerManager = new MarkerManager(cordova);
     circleManager = new CircleManager(cordova);
     jsInterface = new JavaScriptInterface(activity);
@@ -241,40 +237,63 @@ public class GoogleMaps extends CordovaPlugin {
       callbackContext.error(e.getMessage());
       return false;
     }
-
-    final FragmentManager myFragmentManager = activity.getFragmentManager();
-    final DialogFragment dialogFragment = new DialogFragment() {
-
+    
+    
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
-      public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+      public void run() {
+    
+        
+        //base layout
+        baseLayer = new FrameLayout(activity);
+        baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        
+        // window layout
+        LinearLayout windowLayer = new LinearLayout(activity);
+        windowLayer.setPadding(25, 25, 25, 25);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+        windowLayer.setLayoutParams(layoutParams);
+        baseLayer.addView(windowLayer);
+        
+        // dialog window layer
+        FrameLayout dialogLayer = new FrameLayout(activity);
+        dialogLayer.setLayoutParams(layoutParams);
+        dialogLayer.setPadding(25, 25, 25, 0);
+        dialogLayer.setBackgroundColor(Color.LTGRAY);
+        windowLayer.addView(dialogLayer);
 
-        LayoutInflater inflater = activity.getLayoutInflater();
-        xmlView = inflater.inflate(R.layout.googlemap, null, false);
-        mapView = (MapFragment) myFragmentManager.findFragmentById(R.id.map);
+        // map frame
+        LinearLayout mapFrame = new LinearLayout(activity);
+        mapFrame.setPadding(0, 0, 0, 75);
+        dialogLayer.addView(mapFrame);
+        
+        // map
+        mapView = new MapView(activity, new GoogleMapOptions());
+        mapView.onCreate(null);
+        mapView.onResume();
         map = mapView.getMap();
+        mapFrame.addView(mapView);
+        
+        
+        // button frame
+        LinearLayout buttonFrame = new LinearLayout(activity);
+        buttonFrame.setGravity(Gravity.BOTTOM);
+        LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        buttonFrame.setLayoutParams(buttonFrameParams);
+        dialogLayer.addView(buttonFrame);
+        
+        //close button
+        Button btn= new Button(activity);  
+        btn.setText("Close");
+        btn.setOnClickListener(GoogleMaps.this);
+        buttonFrame.addView(btn);
 
-        builder.setView(xmlView);
-        Dialog dialog = builder.create();
-
-        map.setOnMarkerClickListener(jsInterface);
-        map.setOnInfoWindowClickListener(jsInterface);
-        map.setOnMapClickListener(jsInterface);
-        map.setOnMapLongClickListener(jsInterface);
-        map.setMyLocationEnabled(true);
         callbackContext.success();
-        this.dismiss();
-        return dialog;
       }
+    });
+    
 
-      @Override
-      public void onDismiss(DialogInterface d) {
-        super.onDismiss(d);
-        ((ViewGroup) xmlView.getParent()).removeView(xmlView);
-      }
-    };
-
-    dialogFragment.show(myFragmentManager, "dialog");
     return true;
   }
 
@@ -441,35 +460,16 @@ public class GoogleMaps extends CordovaPlugin {
     Runnable runnable = new Runnable() {
       public void run() {
 
-        final FragmentManager myFragmentManager = activity.getFragmentManager();
-        DialogFragment dialogFragment = new DialogFragment() {
-
-          @Override
-          public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            // builder.setTitle("Title");
-            builder.setPositiveButton("OK", null);
-            // builder.setNegativeButton("Cancel", null);
-
-            builder.setView(xmlView);
-            Dialog dialog = builder.create();
-            dialog.getWindow().setFlags(0,
-                WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-
-            callbackContext.success();
-            return dialog;
-          }
-
-          @Override
-          public void onDismiss(DialogInterface d) {
-            super.onDismiss(d);
-            ((ViewGroup) xmlView.getParent()).removeView(xmlView);
-          }
-        };
-
-        dialogFragment.show(myFragmentManager, "dialog");
+        root = (ViewGroup) webView.getParent();
+        root.removeView(webView);
+        baseLayer.addView(webView, 0);
+        activity.setContentView(baseLayer);
+        
+        callbackContext.success();
       }
     };
+    
+    Log.d("CordovaLog", "showDialog");
     cordova.getActivity().runOnUiThread(runnable);
     return true;
   }
@@ -604,7 +604,7 @@ public class GoogleMaps extends CordovaPlugin {
 
       Runnable runnable = new Runnable() {
         public void run() {
-          myWebView.loadUrl("javascript:plugin.google.maps.Map._onMarkerClick("
+          webView.loadUrl("javascript:plugin.google.maps.Map._onMarkerClick("
               + marker.hashCode() + ")");
         }
       };
@@ -616,7 +616,7 @@ public class GoogleMaps extends CordovaPlugin {
     public void onInfoWindowClick(final Marker marker) {
       Runnable runnable = new Runnable() {
         public void run() {
-          myWebView
+          webView
               .loadUrl("javascript:plugin.google.maps.Map._onInfoWndClick('"
                   + marker.hashCode() + "')");
         }
@@ -637,11 +637,47 @@ public class GoogleMaps extends CordovaPlugin {
     private void onClicked(final String callback, final LatLng point) {
       Runnable runnable = new Runnable() {
         public void run() {
-          myWebView.loadUrl("javascript:plugin.google.maps.Map._" + callback
+          webView.loadUrl("javascript:plugin.google.maps.Map._" + callback
               + "('" + point.latitude + "," + point.longitude + "')");
         }
       };
       cordova.getActivity().runOnUiThread(runnable);
     }
+  }
+
+  @Override
+  public void onPause(boolean multitasking) {
+      if (mapView != null) {
+          mapView.onPause();
+      }
+      super.onPause(multitasking);
+  }
+
+  @Override
+  public void onResume(boolean multitasking) {
+      if (mapView != null) {
+          mapView.onResume();
+      }
+      super.onResume(multitasking);
+  }
+
+  @Override
+  public void onDestroy() {
+      if (mapView != null) {
+          mapView.onDestroy();
+      }
+      super.onDestroy();
+  }
+
+  @Override
+  public void onClick(View v) {
+    Runnable runnable = new Runnable() {
+      public void run() {
+        root.removeView(baseLayer);
+        baseLayer.removeView(webView);
+        activity.setContentView(webView);
+      }
+    };
+    cordova.getActivity().runOnUiThread(runnable);
   }
 }

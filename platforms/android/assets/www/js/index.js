@@ -23,7 +23,7 @@ function onMapReady(map) {
   map.setCenter(GOOGLE);
   map.setMyLocationEnabled(true);
   map.setIndoorEnabled(true);
-  //map.setTrafficEnabled(true);
+  map.setTrafficEnabled(true);
   map.setCompassEnabled(true);
   map.on('click', onMapClick);
   map.on('long_click', onMapLongClick);
