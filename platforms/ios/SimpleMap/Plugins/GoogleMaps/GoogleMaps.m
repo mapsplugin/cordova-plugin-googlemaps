@@ -235,5 +235,25 @@ GoogleMapsViewController *mapCtrl;
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+-(void)GoogleMap_addMarker:(CDVInvokedUrlCommand *)command
+{
+    NSDictionary *json = [command.arguments objectAtIndex:0];
+  
+    float latitude = [[json valueForKey:@"lat"] floatValue];
+    float longitude = [[json valueForKey:@"lng"] floatValue];
+    CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
+    GMSMarker *marker = [GMSMarker markerWithPosition:position];
+    marker.map = mapCtrl.map;
+  
+    marker.title = [json valueForKey:@"title"];
+    marker.snippet = [json valueForKey:@"snippet"];
+    marker.draggable = [[json valueForKey:@"draggable"] boolValue];
+  
+  
+    CDVPluginResult* pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:marker.hash];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 
 @end
