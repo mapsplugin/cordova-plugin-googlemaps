@@ -196,11 +196,12 @@
     markerOptions.position = markerOptions.position || null;
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable || false;
-    markerOptions.icon = markerOptions.icon || null;
+    markerOptions.icon = markerOptions.icon || "";
     markerOptions.snippet = markerOptions.snippet || "";
     markerOptions.title = markerOptions.title || "";
     markerOptions.visible = markerOptions.visible || true;
     markerOptions.flat = markerOptions.flat || false;
+    markerOptions.rotation = markerOptions.rotation || 0;
  
     cordova.exec(function(hashCode) {
       var marker = new Marker(hashCode, markerOptions);

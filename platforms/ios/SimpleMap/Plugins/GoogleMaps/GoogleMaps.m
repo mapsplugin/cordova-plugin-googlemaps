@@ -13,7 +13,7 @@
 GoogleMapsViewController *mapCtrl;
 
 - (void)GoogleMap_getMap:(CDVInvokedUrlCommand *)command {
-  dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps", NULL);
+  dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_getMap", NULL);
   
   // Create a map view
   dispatch_sync(gueue, ^{
@@ -237,7 +237,6 @@ GoogleMapsViewController *mapCtrl;
 -(void)GoogleMap_addMarker:(CDVInvokedUrlCommand *)command
 {
     NSDictionary *json = [command.arguments objectAtIndex:0];
-  
     float latitude = [[json valueForKey:@"lat"] floatValue];
     float longitude = [[json valueForKey:@"lng"] floatValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
@@ -245,20 +244,33 @@ GoogleMapsViewController *mapCtrl;
     if ([[json valueForKey:@"visible"] boolValue]) {
       marker.map = mapCtrl.map;
     }
-    NSString *iconPath = [json valueForKey:@"icon"];
-    NSLog(@"icon = %@", iconPath);
-    if (iconPath) {
-      marker.icon  = [UIImage imageNamed:iconPath];
-    }
-  
-  
+
     marker.title = [json valueForKey:@"title"];
     marker.snippet = [json valueForKey:@"snippet"];
     marker.draggable = [[json valueForKey:@"draggable"] boolValue];
     marker.flat = [[json valueForKey:@"flat"] boolValue];
-  
+    marker.rotation = [[json valueForKey:@"flat"] floatValue];
+    
     NSString *key = [NSString stringWithFormat:@"marker%d", marker.hash];
     [mapCtrl.markerManager setObject:marker forKey: key];
+  
+    // Create icon
+    NSString *iconPath = [json valueForKey:@"icon"];
+    if (iconPath) {
+      NSRange range = [iconPath rangeOfString:@"http"];
+      if (range.location == NSNotFound) {
+        marker.icon  = [UIImage imageNamed:iconPath];
+      } else {
+        dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
+        dispatch_sync(gueue, ^{
+          NSURL *url = [NSURL URLWithString:iconPath];
+          NSData *data = [NSData dataWithContentsOfURL:url];
+          marker.icon = [UIImage imageWithData:data];
+        });
+        dispatch_release(gueue);
+      }
+    }
+  
   
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

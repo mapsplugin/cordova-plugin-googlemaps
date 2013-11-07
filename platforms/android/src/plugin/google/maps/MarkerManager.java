@@ -38,12 +38,15 @@ public class MarkerManager extends HashMap<Integer, Marker> {
             }
             if (opts.has("visible")) {
               markerOptions.visible(opts.getBoolean("visible"));
-          }
+            }
+            if (opts.has("rotation")) {
+              markerOptions.rotation((float)opts.getDouble("rotaion"));
+            }
             if (opts.has("flat")) {
               markerOptions.flat(opts.getBoolean("flat"));
-          }
+            }
             if (opts.has("icon")) {
-                iconVal = opts.getString("icon");
+              iconVal = opts.getString("icon");
             }
         } catch (Exception e) {
             e.printStackTrace();

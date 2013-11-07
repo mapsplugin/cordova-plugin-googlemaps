@@ -57,7 +57,8 @@ function onAddMarkerBtn(map) {
     'snippet': "click me!",
     'draggable': true,
     'markerClick': onMarkerClicked,
-    'infoClick': onMarkerClicked
+    'infoClick': onMarkerClicked,
+    'rotation': 25
   }, function(marker) {
     
     // move the map with animation in 3000ms
@@ -81,7 +82,8 @@ function onAddIconMarkerBtn(map) {
     'position': GOOGLE_TOKYO,
     'title': 'Google Tokyo!',
     'draggable': true,
-    'icon': 'www/images/google_tokyo_icon.png'
+    'icon': 'www/images/google_tokyo_icon.png',
+    //'icon': 'https://pbs.twimg.com/profile_images/918010027/search-100.gif'
   }, function(marker) {
     map.animateCamera({
       'target': GOOGLE_TOKYO,
