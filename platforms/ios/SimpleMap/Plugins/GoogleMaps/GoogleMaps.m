@@ -149,4 +149,14 @@ GoogleMapsViewController *mapCtrl;
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+-(void)GoogleMap_animateCamera:(CDVInvokedUrlCommand *)command
+{
+    NSMutableDictionary *json = [command.arguments objectAtIndex:0];
+    NSLog(@"%@", json);
+  
+    CDVPluginResult* pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end
