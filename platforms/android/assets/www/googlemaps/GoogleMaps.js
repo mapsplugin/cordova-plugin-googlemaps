@@ -191,20 +191,30 @@
     var self = this;
     markerOptions.lat = markerOptions.position.lat;
     markerOptions.lng = markerOptions.position.lng;
-    
+ 
+ 
+    markerOptions.position = markerOptions.position || null;
+    markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
+    markerOptions.draggable = markerOptions.draggable || false;
+    markerOptions.icon = markerOptions.icon || null;
+    markerOptions.snippet = markerOptions.snippet || "";
+    markerOptions.title = markerOptions.title || "";
+    markerOptions.visible = markerOptions.visible || true;
+    markerOptions.flat = markerOptions.flat || false;
+ 
     cordova.exec(function(hashCode) {
       var marker = new Marker(hashCode, markerOptions);
       MARKERS[hashCode] = marker;
       
+
       if (typeof markerOptions.markerClick === "function") {
         marker.on('marker_click', markerOptions.markerClick);
       }
       if (typeof markerOptions.infoClick === "function") {
         marker.on('info_click', markerOptions.infoClick);
       }
-      
-      if (callback) {
-        callback(marker);
+      if (typeof callback === "function") {
+        callback.call(marker, marker);
       }
     }, errorHandler, SERVICE, 'GoogleMap_addMarker', [markerOptions]);
   };
@@ -225,8 +235,6 @@
   App.prototype._onMapClick = function(pointStr) {
     var point = pointStr.split(',');
     var latlng = new LatLng(parseFloat(point[0], 10), parseFloat(point[1], 10));
-    console.log('--->_onMapClick');
-    console.log(pointStr);
     this.trigger('click', latlng);
   };
   App.prototype._onMapLongClick = function(pointStr) {
@@ -242,8 +250,12 @@
     var self = this;
     circleOptions.lat = circleOptions.center.lat;
     circleOptions.lng = circleOptions.center.lng;
-    circleOptions.strokeColor = circleOptions.strokeColor;
-    circleOptions.fillColor = circleOptions.fillColor;
+    circleOptions.strokeColor = circleOptions.strokeColor || "#FF000000";
+    circleOptions.fillColor = circleOptions.fillColor || "#00000000";
+    circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
+    circleOptions.visible = circleOptions.visible || true;
+    circleOptions.zIndex = circleOptions.zIndex || 0.0;
+ 
     
     cordova.exec(function(circleId) {
       var circle = new Circle(circleId, circleOptions);
@@ -274,14 +286,16 @@
     BaseClass.apply(this);
     
     var self = this;
-    self.set("position", markerOptions.position || null);
-    self.set("anchor", markerOptions.anchor || [0.5, 0.5]);
-    self.set("draggable", markerOptions.draggable || false);
-    self.set("icon", markerOptions.icon || null);
-    self.set("snippet", markerOptions.snippet || "");
-    self.set("title", markerOptions.title || "");
-    self.set("visible", markerOptions.visible || true);
+    self.set("position", markerOptions.position);
+    self.set("anchor", markerOptions.anchor);
+    self.set("draggable", markerOptions.draggable);
+    self.set("icon", markerOptions.icon);
+    self.set("snippet", markerOptions.snippet);
+    self.set("title", markerOptions.title);
+    self.set("visible", markerOptions.visible);
+    self.set("flat", markerOptions.flat);
     self.set("hashCode", hashCode);
+
     self.type = "Marker";
   };
   Marker.prototype = new BaseClass();
@@ -297,7 +311,7 @@
   Marker.prototype.getSnippet = function() {
     return this.get('snippet');
   };
-  Marker.prototype.hashCode = function() {
+  Marker.prototype.getHashCode = function() {
     return this.get('hashCode');
   };
   Marker.prototype.hideInfoWindow = function() {
@@ -326,6 +340,11 @@
     this.set('draggable', draggable);
     cordova.exec(null, errorHandler, SERVICE, 'Marker_setDraggable', [this.get("hashCode"), draggable]);
   };
+  Marker.prototype.setFlat = function(flat) {
+    flat = Boolean(flat);
+    this.set('flat', flat);
+    cordova.exec(null, errorHandler, SERVICE, 'Marker_setFlat', [this.get("hashCode"), flat]);
+  };
   Marker.prototype.setIcon = function(url) {
     cordova.exec(null, errorHandler, SERVICE, 'Marker_setIcon', [this.get("hashCode"), url]);
   };
@@ -352,13 +371,13 @@
     BaseClass.apply(this);
     
     var self = this;
-    self.set("center", circleOptions.center || null);
-    self.set("fillColor", circleOptions.fillColor || "#00000000");
-    self.set("radius", circleOptions.radius || 0);
-    self.set("strokeColor", circleOptions.strokeColor || "#FF000000");
-    self.set("strokeWidth", circleOptions.width || 10);
-    self.set("visible", circleOptions.visible || true);
-    self.set("zIndex", circleOptions.zIndex || 0.0);
+    self.set("center", circleOptions.center);
+    self.set("fillColor", circleOptions.fillColor);
+    self.set("radius", circleOptions.radius);
+    self.set("strokeColor", circleOptions.strokeColor);
+    self.set("strokeWidth", circleOptions.width);
+    self.set("visible", circleOptions.visible);
+    self.set("zIndex", circleOptions.zIndex);
     self.set("id", circleId);
     self.type = "Circle";
   };

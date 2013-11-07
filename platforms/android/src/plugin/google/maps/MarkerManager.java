@@ -37,8 +37,11 @@ public class MarkerManager extends HashMap<Integer, Marker> {
                 markerOptions.snippet(opts.getString("snippet"));
             }
             if (opts.has("visible")) {
-                markerOptions.visible(opts.getBoolean("visible"));
-            }
+              markerOptions.visible(opts.getBoolean("visible"));
+          }
+            if (opts.has("flat")) {
+              markerOptions.flat(opts.getBoolean("flat"));
+          }
             if (opts.has("icon")) {
                 iconVal = opts.getString("icon");
             }

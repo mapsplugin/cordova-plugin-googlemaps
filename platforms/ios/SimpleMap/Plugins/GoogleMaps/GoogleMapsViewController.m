@@ -29,6 +29,11 @@
 {
     [super viewDidLoad];
   
+    //------------
+    // Initialize
+    //------------
+    self.markerManager = [NSMutableDictionary dictionary];
+  
     //------------------
     // Create a map view
     //------------------
@@ -62,7 +67,22 @@
 
 - (void)mapView:(GMSMapView *)mapView willMove:(BOOL)gesture {
 NSLog(@"willMove gesture=%hhd", gesture);
-  [mapView clear];
+  //[mapView clear];
 }
+
+- (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerClick(\"marker%d\");", marker.hash];
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+
+	return YES;
+}
+/*
+-(UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker*)marker
+{
+    UIView *view = [[UIView alloc]init];
+    //customize the UIView, for example, in your case, add a UILabel as the subview of the view
+    return view;
+}
+*/
 
 @end

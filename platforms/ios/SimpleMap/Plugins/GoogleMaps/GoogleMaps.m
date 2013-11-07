@@ -27,8 +27,7 @@ GoogleMapsViewController *mapCtrl;
   [mapCtrl.view addSubview:closeButton];
   
   
-  CDVPluginResult* pluginResult = nil;
-  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -46,8 +45,7 @@ GoogleMapsViewController *mapCtrl;
     [self.webView addSubview:mapCtrl.view];
   
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -61,8 +59,7 @@ GoogleMapsViewController *mapCtrl;
   
     [mapCtrl.map animateToLocation:CLLocationCoordinate2DMake(latitude, longitude)];
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -71,8 +68,7 @@ GoogleMapsViewController *mapCtrl;
     mapCtrl.map.settings.myLocationButton = isEnabled;
     mapCtrl.map.myLocationEnabled = isEnabled;
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -81,8 +77,7 @@ GoogleMapsViewController *mapCtrl;
     mapCtrl.map.settings.indoorPicker = isEnabled;
     mapCtrl.map.indoorEnabled = isEnabled;
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -90,8 +85,7 @@ GoogleMapsViewController *mapCtrl;
     Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
     mapCtrl.map.trafficEnabled = isEnabled;
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -99,16 +93,14 @@ GoogleMapsViewController *mapCtrl;
     Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
     mapCtrl.map.settings.compassButton = isEnabled;
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)GoogleMap_setTilt:(CDVInvokedUrlCommand *)command {
 
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -121,8 +113,7 @@ GoogleMapsViewController *mapCtrl;
   
     [mapCtrl.map setCamera:[GMSCameraPosition cameraWithTarget:center zoom:zoom]];
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -186,8 +177,7 @@ GoogleMapsViewController *mapCtrl;
       [CATransaction setAnimationDuration: duration];
       
       [CATransaction setCompletionBlock:^{
-        CDVPluginResult* pluginResult = nil;
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
       
@@ -220,8 +210,7 @@ GoogleMapsViewController *mapCtrl;
                                                            viewingAngle:angle];
   
     [mapCtrl.map setCamera:cameraPosition];
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -230,11 +219,14 @@ GoogleMapsViewController *mapCtrl;
  */
 -(void)getLicenseInfo:(CDVInvokedUrlCommand *)command
 {
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * @param marker options
+ * @return marker key
+ */
 -(void)GoogleMap_addMarker:(CDVInvokedUrlCommand *)command
 {
     NSDictionary *json = [command.arguments objectAtIndex:0];
@@ -243,17 +235,97 @@ GoogleMapsViewController *mapCtrl;
     float longitude = [[json valueForKey:@"lng"] floatValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
     GMSMarker *marker = [GMSMarker markerWithPosition:position];
-    marker.map = mapCtrl.map;
+    if ([[json valueForKey:@"visible"] boolValue]) {
+      marker.map = mapCtrl.map;
+    }
   
     marker.title = [json valueForKey:@"title"];
     marker.snippet = [json valueForKey:@"snippet"];
     marker.draggable = [[json valueForKey:@"draggable"] boolValue];
+    marker.flat = [[json valueForKey:@"flat"] boolValue];
   
+    NSString *key = [NSString stringWithFormat:@"marker%d", marker.hash];
+    [mapCtrl.markerManager setObject:marker forKey: key];
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:marker.hash];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Show the infowindow of the current marker
+ * @params MarkerKey
+ */
+-(void)Marker_showInfoWindow:(CDVInvokedUrlCommand *)command
+{
+  
+    NSString *hashCode = [command.arguments objectAtIndex:0];
+  
+    GMSMarker *marker = [mapCtrl.markerManager objectForKey:hashCode];
+    if (marker) {
+      mapCtrl.map.selectedMarker = marker;
+    }
+  
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+}
+/**
+ * Hide current infowindow
+ * @params MarkerKey
+ */
+-(void)Marker_hideInfoWindow:(CDVInvokedUrlCommand *)command
+{
+  mapCtrl.map.selectedMarker = nil;
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+/**
+ * @params MarkerKey
+ * @return current marker position with array(latitude, longitude)
+ */
+-(void)Marker_getPosition:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:0];
+  
+  GMSMarker *marker = [mapCtrl.markerManager objectForKey:markerKey];
+  NSNumber *latitude = @0.0;
+  NSNumber *longitude = @0.0;
+  if (marker) {
+    latitude = [NSNumber numberWithFloat: marker.position.latitude];
+    longitude = [NSNumber numberWithFloat: marker.position.longitude];
+  }
+  NSArray *latlng = @[latitude, longitude];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:latlng];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set title to the specified marker
+ * @params MarkerKey
+ */
+-(void)Marker_setTitle:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:0];
+  GMSMarker *marker = [mapCtrl.markerManager objectForKey:markerKey];
+  marker.title = [command.arguments objectAtIndex:1];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set title to the specified marker
+ * @params MarkerKey
+ */
+-(void)Marker_setSnippet:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:0];
+  GMSMarker *marker = [mapCtrl.markerManager objectForKey:markerKey];
+  marker.snippet = [command.arguments objectAtIndex:1];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 @end

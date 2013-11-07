@@ -52,27 +52,27 @@ function onAddMarkerBtn(map) {
   map.show();
   
   map.addMarker({
-      'position': GOOGLE,
-      'title': "Hello GoogleMap on Cordova(Android)!",
-      'snippet': "click me!",
-      'draggable': true,
-      'markerClick': onMarkerClicked,
-      'infoClick': onMarkerClicked
-    }, function(marker) {
-      marker.showInfoWindow();
-    });
-  
-  // move the map with animation in 5000ms
-  setTimeout(function() {
+    'position': GOOGLE,
+    'title': "Hello GoogleMap on Cordova(Android)!",
+    'snippet': "click me!",
+    'draggable': true,
+    'markerClick': onMarkerClicked,
+    'infoClick': onMarkerClicked
+  }, function(marker) {
+    
+    // move the map with animation in 3000ms
     map.animateCamera({
       'target': GOOGLE,
       'tilt': 60,
       'zoom': 16,
       'bearing': 140
-    }, 5000, function() {
-      alert("OK");
+    }, function() {
+      marker.showInfoWindow();
     });
-  }, 1000);
+    
+  });
+  
+  
 }
 function onAddIconMarkerBtn(map) {
   map.show();
@@ -83,17 +83,18 @@ function onAddIconMarkerBtn(map) {
     'draggable': true,
     'icon': 'www/images/google_tokyo_icon.png'
   }, function(marker) {
-    marker.showInfoWindow();
-  });
-  
-  setTimeout(function() {
     map.animateCamera({
       'target': GOOGLE_TOKYO,
       'tilt': 60,
       'zoom': 14,
       'bearing': 0
+    }, 3000, function() {
+      marker.showInfoWindow();
     });
+    
   });
+  
+  
 }
 
 function onMarkerClicked(map) {

@@ -28,4 +28,10 @@
 - (void)GoogleMap_setIndoorEnabled:(CDVInvokedUrlCommand*)command;
 - (void)GoogleMap_setTrafficEnabled:(CDVInvokedUrlCommand*)command;
 - (void)GoogleMap_setCompassEnabled:(CDVInvokedUrlCommand*)command;
+
+- (void)Marker_showInfoWindow:(CDVInvokedUrlCommand*)command;
+- (void)Marker_hideInfoWindow:(CDVInvokedUrlCommand*)command;
+- (void)Marker_getPosition:(CDVInvokedUrlCommand*)command;
+- (void)Marker_setSnippet:(CDVInvokedUrlCommand*)command;
+- (void)Marker_setTitle:(CDVInvokedUrlCommand*)command;
 @end
