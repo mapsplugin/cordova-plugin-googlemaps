@@ -515,7 +515,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     int mapTypeId = 0;
     try {
       String typeStr = args.getString(0);
-      mapTypeId = GoogleMap.MAP_TYPE_NORMAL;
+      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
+          : mapTypeId;
       mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
           : mapTypeId;
       mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
@@ -525,6 +526,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
       mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
           : mapTypeId;
 
+      if (mapTypeId == 0) {
+        callbackContext.error("Unknow MapTypeID is specified:" + typeStr);
+        return false;
+      }
     } catch (Exception e) {
       e.printStackTrace();
       callbackContext.error(e.getMessage());

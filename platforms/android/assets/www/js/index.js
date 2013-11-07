@@ -62,12 +62,15 @@ function onAddMarkerBtn(map) {
       marker.showInfoWindow();
     });
   
+  // move the map with animation in 5000ms
   setTimeout(function() {
     map.animateCamera({
       'target': GOOGLE,
       'tilt': 60,
       'zoom': 16,
       'bearing': 140
+    }, 5000, function() {
+      alert("OK");
     });
   }, 1000);
 }
@@ -90,7 +93,7 @@ function onAddIconMarkerBtn(map) {
       'zoom': 14,
       'bearing': 0
     });
-  }, 1000);
+  });
 }
 
 function onMarkerClicked(map) {

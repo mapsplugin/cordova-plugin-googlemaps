@@ -79,6 +79,7 @@ GoogleMapsViewController *mapCtrl;
 - (void)GoogleMap_setIndoorEnabled:(CDVInvokedUrlCommand *)command {
     Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
     mapCtrl.map.settings.indoorPicker = isEnabled;
+    mapCtrl.map.indoorEnabled = isEnabled;
   
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -104,6 +105,8 @@ GoogleMapsViewController *mapCtrl;
 }
 
 - (void)GoogleMap_setTilt:(CDVInvokedUrlCommand *)command {
+
+  
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -127,6 +130,8 @@ GoogleMapsViewController *mapCtrl;
  * Change the Map Type
  */
 - (void)GoogleMap_setMapTypeId:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult* pluginResult = nil;
+
     NSString *typeStr = [command.arguments objectAtIndex:0];
     NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
       ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
@@ -137,26 +142,56 @@ GoogleMapsViewController *mapCtrl;
       nil];
   
     typedef GMSMapViewType (^CaseBlock)();
-    GMSMapViewType mapType = kGMSTypeNormal;
-    CaseBlock c = mapTypes[typeStr];
-    if (c) {
-      mapType = c();
+    GMSMapViewType mapType;
+    CaseBlock caseBlock = mapTypes[typeStr];
+    if (caseBlock) {
+      // Change the map type
+      mapType = caseBlock();
+      mapCtrl.map.mapType = mapType;
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+      // Error : User specifies unknow map type id
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                      messageAsString:[NSString
+                                                       stringWithFormat:@"Unknow MapTypeID is specified:%@", typeStr]];
     }
-    mapCtrl.map.mapType = mapType;
-  
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Move the map camera with animation
+ */
 -(void)GoogleMap_animateCamera:(CDVInvokedUrlCommand *)command
 {
-    NSMutableDictionary *json = [command.arguments objectAtIndex:0];
-    NSLog(@"%@", json);
+    NSDictionary *json = [command.arguments objectAtIndex:0];
   
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    float latitude = [[json valueForKey:@"lat"] floatValue];
+    float longitude = [[json valueForKey:@"lng"] floatValue];
+    int bearing = [[json valueForKey:@"bearing"] integerValue];
+    double angle = [[json valueForKey:@"tilt"] doubleValue];
+    int zoom = [[json valueForKey:@"zoom"] integerValue];
+  
+    float duration = 1.0f;
+    if (command.arguments.count == 2) {
+      duration = [[command.arguments objectAtIndex:1] floatValue] / 1000;
+    }
+  
+    GMSCameraPosition *cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
+                                                           longitude:longitude
+                                                           zoom:zoom
+                                                           bearing:bearing
+                                                           viewingAngle:angle];
+  
+    [CATransaction begin]; {
+      [CATransaction setAnimationDuration: duration];
+      
+      [CATransaction setCompletionBlock:^{
+        CDVPluginResult* pluginResult = nil;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+      
+      [mapCtrl.map animateToCameraPosition: cameraPosition];
+    }[CATransaction commit];
 }
-
 @end

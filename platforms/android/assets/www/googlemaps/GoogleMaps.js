@@ -4,6 +4,15 @@
   var CIRCLES = {};
   
   /**
+   * @name CameraPosition
+   * @class This class represents new camera positino
+   * @property {LatLng} target The location where you want to show
+   * @property {Number} [tilt] View angle
+   * @property {Number} [zoom] Zoom level
+   * @property {Number} [bearing] Map orientation
+   */
+ 
+  /**
    * Google Maps model.
    */
   var BaseClass = function() {
@@ -86,6 +95,16 @@
     this.set('zoom', zoom);
     cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setZoom', [zoom]);
   };
+ 
+  /**
+   * @desc Change the map type
+   * @param {String} mapTypeId   Specifies the one of the follow strings:
+   *                               MAP_TYPE_HYBRID
+   *                               MAP_TYPE_SATELLITE
+   *                               MAP_TYPE_TERRAIN
+   *                               MAP_TYPE_NORMAL
+   *                               MAP_TYPE_NONE
+   */
   App.prototype.setMapTypeId = function(mapTypeId) {
     if (mapTypeId != plugin.google.maps.MapTypeId[mapTypeId.replace("MAP_TYPE_", '')]) {
       return errorHandler("Invalid MapTypeId was specified.");
@@ -93,30 +112,50 @@
     this.set('mapTypeId', mapTypeId);
     cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setMapTypeId', [mapTypeId]);
   };
+ 
+  /**
+   * @desc Change the map view angle
+   * @param {Number} tilt  The angle
+   */
   App.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
     cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setTilt', [tilt]);
   };
+ 
+  /**
+   * @desc Open the map dialog
+   */
   App.prototype.show = function() {
     cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_show', []);
   };
+ 
+ 
+  /**
+   * @desc   Move the map camera with animation
+   * @params {CameraPosition} cameraPosition New camera position
+   * @params {Number} [durationMs = 1000] Animate duration
+   * @params {Function} [callback] This callback is involved when the animation is completed.
+   */
   App.prototype.animateCamera = function(cameraPosition, durationMs, callback) {
-    var argsLength = arguments.length;
+    var myCallback = null,
+        self = this,
+        params = [],
+        lastParam;
+ 
     if (cameraPosition.target) {
       cameraPosition.lat = cameraPosition.target.lat;
       cameraPosition.lng = cameraPosition.target.lng;
     }
-    var params = [cameraPosition];
-    if (argsLength === 3) {
+    params.push(cameraPosition);
+ 
+    myCallback = typeof durationMs == "function" ? durationMs : myCallback;
+    myCallback = typeof callback == "function" ? callback : myCallback;
+ 
+    if (typeof durationMs === "number") {
       params.push(durationMs);
     }
-    cordova.exec(function() {
-      if (typeof callback === "function" && argsLength === 3) {
-        callback();
-      } else if (typeof durationMs === "function"  && argsLength === 2) {
-        durationMs();
-      }
-    }, errorHandler, SERVICE, 'GoogleMap_animateCamera', params);
+ 
+    cordova.exec(myCallback, errorHandler, SERVICE, 'GoogleMap_animateCamera', params);
   };
   App.prototype.moveCamera = function(cameraPosition, callback) {
     var argsLength = arguments.length;
