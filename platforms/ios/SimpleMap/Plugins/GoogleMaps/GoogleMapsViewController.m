@@ -58,4 +58,11 @@
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
+#pragma mark - GMSMapViewDelegate
+
+- (void)mapView:(GMSMapView *)mapView willMove:(BOOL)gesture {
+NSLog(@"willMove gesture=%hhd", gesture);
+  [mapView clear];
+}
+
 @end
