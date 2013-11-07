@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -259,7 +260,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
         // dialog window layer
         FrameLayout dialogLayer = new FrameLayout(activity);
         dialogLayer.setLayoutParams(layoutParams);
-        dialogLayer.setPadding(25, 25, 25, 0);
+        dialogLayer.setPadding(15, 15, 15, 0);
         dialogLayer.setBackgroundColor(Color.LTGRAY);
         windowLayer.addView(dialogLayer);
 
@@ -284,11 +285,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
         dialogLayer.addView(buttonFrame);
         
         //close button
-        Button btn= new Button(activity);  
-        btn.setText("Close");
-        btn.setOnClickListener(GoogleMaps.this);
-        buttonFrame.addView(btn);
-
+        TextView closeText = new TextView(activity);
+        closeText.setText("Close");
+        closeText.setTextColor(Color.BLUE);
+        closeText.setTextSize(20);
+        closeText.setPadding(0, 0, 0, 20);
+        closeText.setOnClickListener(GoogleMaps.this);
+        buttonFrame.addView(closeText);
+        
         callbackContext.success();
       }
     });
