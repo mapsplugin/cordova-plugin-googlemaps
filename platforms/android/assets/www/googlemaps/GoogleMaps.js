@@ -256,6 +256,7 @@
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
     circleOptions.visible = circleOptions.visible || true;
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
+    circleOptions.radius = circleOptions.radius || 1;
  
     
     cordova.exec(function(circleId) {

@@ -33,6 +33,7 @@
     // Initialize
     //------------
     self.markerManager = [NSMutableDictionary dictionary];
+    self.circleManager = [NSMutableDictionary dictionary];
   
     //------------------
     // Create a map view
