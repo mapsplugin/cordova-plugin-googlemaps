@@ -194,4 +194,32 @@ GoogleMapsViewController *mapCtrl;
       [mapCtrl.map animateToCameraPosition: cameraPosition];
     }[CATransaction commit];
 }
+
+/**
+ * Move the map camera
+ */
+-(void)GoogleMap_moveCamera:(CDVInvokedUrlCommand *)command
+{
+    NSDictionary *json = [command.arguments objectAtIndex:0];
+  
+    float latitude = [[json valueForKey:@"lat"] floatValue];
+    float longitude = [[json valueForKey:@"lng"] floatValue];
+    int bearing = [[json valueForKey:@"bearing"] integerValue];
+    double angle = [[json valueForKey:@"tilt"] doubleValue];
+    int zoom = [[json valueForKey:@"zoom"] integerValue];
+  
+    float duration = 1.0f;
+    if (command.arguments.count == 2) {
+      duration = [[command.arguments objectAtIndex:1] floatValue] / 1000;
+    }
+  
+    GMSCameraPosition *cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
+                                                           longitude:longitude
+                                                           zoom:zoom
+                                                           bearing:bearing
+                                                           viewingAngle:angle];
+  
+    [mapCtrl.map setCamera:cameraPosition];
+}
+
 @end
