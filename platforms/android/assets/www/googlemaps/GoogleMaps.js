@@ -1,5 +1,5 @@
 (function(window){
-  const SERVICE = 'GoogleMaps';
+  const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
   var CIRCLES = {};
   
@@ -71,29 +71,29 @@
       setTimeout(function() {
         self.trigger('map_ready', self);
       }, 100);
-    }, errorHandler, SERVICE, 'GoogleMap_getMap', []);
+    }, errorHandler, PLUGIN_NAME, 'getMap', []);
     return self;
   };
   
   App.prototype.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
       callback(null, txt);
-    }, errorHandler, SERVICE, 'getLicenseInfo', []);
+    }, errorHandler, PLUGIN_NAME, 'getLicenseInfo');
   };
   App.prototype.show = function(callback) {
-    cordova.exec(null, errorHandler, SERVICE, 'show', []);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showMap', []);
   };
   
   
   App.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
     cordova.exec(null, errorHandler,
-      SERVICE, 'GoogleMap_setCenter', [latLng.lat, latLng.lng]);
+      PLUGIN_NAME, 'exec', ['Map.setCenter', latLng.lat, latLng.lng]);
   };
   
   App.prototype.setZoom = function(zoom) {
     this.set('zoom', zoom);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setZoom', [zoom]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
   };
  
   /**
@@ -110,7 +110,7 @@
       return errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setMapTypeId', [mapTypeId]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setMapTypeId', mapTypeId]);
   };
  
   /**
@@ -119,14 +119,14 @@
    */
   App.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setTilt', [tilt]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setTilt', tilt]);
   };
  
   /**
    * @desc Open the map dialog
    */
   App.prototype.show = function() {
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_show', []);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showMap', []);
   };
  
  
@@ -139,7 +139,7 @@
   App.prototype.animateCamera = function(cameraPosition, durationMs, callback) {
     var myCallback = null,
         self = this,
-        params = [],
+        params = ['Map.animateCamera'],
         lastParam;
  
     if (cameraPosition.target) {
@@ -155,7 +155,7 @@
       params.push(durationMs);
     }
  
-    cordova.exec(myCallback, errorHandler, SERVICE, 'GoogleMap_animateCamera', params);
+    cordova.exec(myCallback, errorHandler, PLUGIN_NAME, 'exec', params);
   };
   App.prototype.moveCamera = function(cameraPosition, callback) {
     var argsLength = arguments.length;
@@ -165,24 +165,24 @@
     }
     cordova.exec(function() {
       callback();
-    }, errorHandler, SERVICE, 'GoogleMap_moveCamera', [cameraPosition]);
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
   };
   
   App.prototype.setMyLocationEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setMyLocationEnabled', [enabled]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
   };
   App.prototype.setIndoorEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setIndoorEnabled', [enabled]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);
   };
   App.prototype.setTrafficEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setTrafficEnabled', [enabled]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setTrafficEnabled', enabled]);
   };
   App.prototype.setCompassEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, SERVICE, 'GoogleMap_setCompassEnabled', [enabled]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
   };
   //-------------
   // Marker
@@ -209,7 +209,7 @@
       
 
       if (typeof markerOptions.markerClick === "function") {
-        marker.on('marker_click', markerOptions.markerClick);
+        marker.on('Marker.click', markerOptions.markerClick);
       }
       if (typeof markerOptions.infoClick === "function") {
         marker.on('info_click', markerOptions.infoClick);
@@ -217,13 +217,13 @@
       if (typeof callback === "function") {
         callback.call(marker, marker);
       }
-    }, errorHandler, SERVICE, 'GoogleMap_addMarker', [markerOptions]);
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
   };
   
   App.prototype._onMarkerClick = function(hashCode) {
     var marker = MARKERS[hashCode] || null;
     if (marker) {
-      marker.trigger('marker_click', this, marker);
+      marker.trigger('Marker.click', this, marker);
     }
   };
   
@@ -266,7 +266,7 @@
       if (callback) {
         callback(circle);
       }
-    }, errorHandler, SERVICE, 'GoogleMap_addCircle', [circleOptions]);
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
   
   /**
@@ -305,7 +305,7 @@
   Marker.prototype.getPosition = function(callback) {
     cordova.exec(function(latlng) {
       callback(new LatLng(latlng[0], latlng[1]));
-    }, errorHandler, SERVICE, 'Marker_getPosition', [this.get("hashCode")]);
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.get("hashCode")]);
   };
   Marker.prototype.getTitle = function() {
     return this.get('title');
@@ -317,7 +317,7 @@
     return this.get('hashCode');
   };
   Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_hideInfoWindow', [this.get("hashCode")]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
   };
   Marker.prototype.isDraggable = function() {
     return this.get('draggable');
@@ -325,44 +325,44 @@
   Marker.prototype.isInfoWindowShown = function(callback) {
     cordova.exec(function(isVisible) {
       callback(isVisible == 1);
-    }, errorHandler, SERVICE, 'Marker_isInfoWindowShown', [this.get("hashCode")]);
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.get("hashCode")]);
   };
   Marker.prototype.isVisible = function() {
     return this.get('visible');
   };
   Marker.prototype.remove = function(callback) {
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_remove', [this.get("hashCode")]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.get("hashCode")]);
   };
   Marker.prototype.setAnchor = function(anchorU, anchorV) {
     this.set('anchor', [anchorU, anchorV]);
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_setAnchor', [this.get("hashCode"), anchorU, anchorV]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.get("hashCode"), anchorU, anchorV]);
   };
   Marker.prototype.setDraggable = function(draggable) {
     draggable = Boolean(draggable);
     this.set('draggable', draggable);
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_setDraggable', [this.get("hashCode"), draggable]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.get("hashCode"), draggable]);
   };
   Marker.prototype.setFlat = function(flat) {
     flat = Boolean(flat);
     this.set('flat', flat);
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_setFlat', [this.get("hashCode"), flat]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.get("hashCode"), flat]);
   };
   Marker.prototype.setIcon = function(url) {
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_setIcon', [this.get("hashCode"), url]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.get("hashCode"), url]);
   };
   Marker.prototype.setTitle = function(title) {
     this.set('title', title);
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_setTitle', [this.get("hashCode"), title]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.get("hashCode"), title]);
   };
   Marker.prototype.setSnippet = function(snippet) {
     this.set('snippet', snippet);
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_setSnippet', [this.get("hashCode"), snippet]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.get("hashCode"), snippet]);
   };
   Marker.prototype.showInfoWindow = function() {
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_showInfoWindow', [this.get("hashCode")]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.get("hashCode")]);
   };
   Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, errorHandler, SERVICE, 'Marker_hideInfoWindow', [this.get("hashCode")]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
   };
   
   
@@ -405,11 +405,11 @@
     return this.get('zIndex');
   };
   Circle.prototype.remove = function() {
-    cordova.exec(null, errorHandler, SERVICE, 'Circle_remove', [this.get('id')]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.get('id')]);
   };
   Circle.prototype.setCenter = function(center) {
     this.set('center', center);
-    cordova.exec(null, errorHandler, SERVICE, 'Circle_setCenter', [this.get('id'), center.lat, center.lng]);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
   };
   
   window.plugin = window.plugin || {};

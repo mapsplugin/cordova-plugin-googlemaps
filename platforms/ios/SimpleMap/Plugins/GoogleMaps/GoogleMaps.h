@@ -9,32 +9,17 @@
 #import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
 #import "GoogleMapsViewController.h"
+#import "Map.h"
 
-@class MyViewController;
 @interface GoogleMaps : CDVPlugin
 
-- (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setTilt:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_getMap:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setCenter:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setZoom:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setMapTypeId:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_addMarker:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_addCircle:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_show:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_animateCamera:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_moveCamera:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setMyLocationEnabled:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setIndoorEnabled:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setTrafficEnabled:(CDVInvokedUrlCommand*)command;
-- (void)GoogleMap_setCompassEnabled:(CDVInvokedUrlCommand*)command;
+@property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
+@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 
-- (void)Marker_showInfoWindow:(CDVInvokedUrlCommand*)command;
-- (void)Marker_hideInfoWindow:(CDVInvokedUrlCommand*)command;
-- (void)Marker_getPosition:(CDVInvokedUrlCommand*)command;
-- (void)Marker_setSnippet:(CDVInvokedUrlCommand*)command;
-- (void)Marker_setTitle:(CDVInvokedUrlCommand*)command;
-- (void)Marker_remove:(CDVInvokedUrlCommand*)command;
+- (void)exec:(CDVInvokedUrlCommand*)command;
+- (void)showMap:(CDVInvokedUrlCommand*)command;
+- (void)getMap:(CDVInvokedUrlCommand*)command;
+- (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 
 //@http://cocoamatic.blogspot.com/2010/07/uicolor-macro-with-hex-values.html
 //RGB color macro

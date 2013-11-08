@@ -34,6 +34,9 @@
 		698CBE6F182300C600F9B989 /* GoogleMaps.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 698CBE6E182300C600F9B989 /* GoogleMaps.framework */; };
 		698CBE711823013F00F9B989 /* GoogleMaps.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 698CBE701823013F00F9B989 /* GoogleMaps.bundle */; };
 		698CBE7A182303DB00F9B989 /* GoogleMaps.m in Sources */ = {isa = PBXBuildFile; fileRef = 698CBE79182303DB00F9B989 /* GoogleMaps.m */; };
+		69AEC791182D649300F2AABD /* Marker.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC790182D649300F2AABD /* Marker.m */; };
+		69AEC794182D742C00F2AABD /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC793182D742C00F2AABD /* Map.m */; };
+		69AEC79B182D9AAD00F2AABD /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC79A182D9AAD00F2AABD /* Circle.m */; };
 		69D4D8BB182AED74000C8451 /* GoogleMapsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */; };
 		A039ADB118223CB700B32D98 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADB018223CB700B32D98 /* AVFoundation.framework */; };
 		A039ADB318223CBF00B32D98 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADB218223CBF00B32D98 /* CoreData.framework */; };
@@ -100,6 +103,13 @@
 		698CBE701823013F00F9B989 /* GoogleMaps.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GoogleMaps.bundle; path = GoogleMaps.framework/Versions/A/Resources/GoogleMaps.bundle; sourceTree = "<group>"; };
 		698CBE78182303DB00F9B989 /* GoogleMaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleMaps.h; sourceTree = "<group>"; };
 		698CBE79182303DB00F9B989 /* GoogleMaps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleMaps.m; sourceTree = "<group>"; };
+		69AEC78F182D649300F2AABD /* Marker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Marker.h; sourceTree = "<group>"; };
+		69AEC790182D649300F2AABD /* Marker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Marker.m; sourceTree = "<group>"; };
+		69AEC792182D742C00F2AABD /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		69AEC793182D742C00F2AABD /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
+		69AEC798182D94D700F2AABD /* MyPlgunProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyPlgunProtocol.h; sourceTree = "<group>"; };
+		69AEC799182D9AAD00F2AABD /* Circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Circle.h; sourceTree = "<group>"; };
+		69AEC79A182D9AAD00F2AABD /* Circle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Circle.m; sourceTree = "<group>"; };
 		69D4D8B9182AED74000C8451 /* GoogleMapsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleMapsViewController.h; sourceTree = "<group>"; };
 		69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleMapsViewController.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SimpleMap-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "SimpleMap-Info.plist"; path = "../SimpleMap-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
@@ -313,6 +323,13 @@
 				69D4D8B9182AED74000C8451 /* GoogleMapsViewController.h */,
 				69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */,
 				698CBE79182303DB00F9B989 /* GoogleMaps.m */,
+				69AEC78F182D649300F2AABD /* Marker.h */,
+				69AEC790182D649300F2AABD /* Marker.m */,
+				69AEC792182D742C00F2AABD /* Map.h */,
+				69AEC793182D742C00F2AABD /* Map.m */,
+				69AEC798182D94D700F2AABD /* MyPlgunProtocol.h */,
+				69AEC799182D9AAD00F2AABD /* Circle.h */,
+				69AEC79A182D9AAD00F2AABD /* Circle.m */,
 			);
 			path = GoogleMaps;
 			sourceTree = "<group>";
@@ -438,8 +455,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				69AEC794182D742C00F2AABD /* Map.m in Sources */,
+				69AEC791182D649300F2AABD /* Marker.m in Sources */,
 				698CBE7A182303DB00F9B989 /* GoogleMaps.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
+				69AEC79B182D9AAD00F2AABD /* Circle.m in Sources */,
 				69D4D8BB182AED74000C8451 /* GoogleMapsViewController.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 			);
