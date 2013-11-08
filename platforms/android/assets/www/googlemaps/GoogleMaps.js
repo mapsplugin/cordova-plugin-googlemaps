@@ -2,6 +2,8 @@
   const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
   var CIRCLES = {};
+  var COLORS = {
+  };
   
   /**
    * @name CameraPosition
@@ -251,8 +253,8 @@
     var self = this;
     circleOptions.lat = circleOptions.center.lat;
     circleOptions.lng = circleOptions.center.lng;
-    circleOptions.strokeColor = circleOptions.strokeColor || "#FF000000";
-    circleOptions.fillColor = circleOptions.fillColor || "#00000000";
+    circleOptions.strokeColor = HTMLColor2RGB(circleOptions.strokeColor || "#FF000000");
+    circleOptions.fillColor = HTMLColor2RGB(circleOptions.fillColor || "#00000000");
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
     circleOptions.visible = circleOptions.visible || true;
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
@@ -411,7 +413,38 @@
     this.set('center', center);
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
   };
-  
+ 
+  //---------------------------
+  // Convert HTML color to RGB
+  //---------------------------
+  var colorDiv = document.createElement("div");
+  document.head.appendChild(colorDiv);
+ 
+  function HTMLColor2RGB(colorStr) {
+    var result = {
+      r: 0,
+      g: 0,
+      b: 0
+    };
+    colorDiv.style.color = colorStr;
+    if (window.getComputedStyle) {
+      var compStyle = window.getComputedStyle(colorDiv, null);
+      try {
+        var value = compStyle.getPropertyCSSValue ("color");
+        var valueType = value.primitiveType;
+        if (valueType == CSSPrimitiveValue.CSS_RGBCOLOR) {
+          var rgb = value.getRGBColorValue ();
+          result.r = rgb.red.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
+          result.g = rgb.green.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
+          result.b = rgb.blue.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
+        }
+      } catch (e) {
+        console.log("The browser does not support the getPropertyCSSValue method!");
+      }
+    }
+    return [result.r, result.g, result.b];
+  }
+ 
   window.plugin = window.plugin || {};
   window.plugin.google = window.plugin.google || {};
   window.plugin.google.maps = window.plugin.google.maps || {};
@@ -426,5 +459,6 @@
     'TERRAIN': 'MAP_TYPE_TERRAIN',
     'NONE': 'MAP_TYPE_NONE'
   };
+ 
   
 })(window);

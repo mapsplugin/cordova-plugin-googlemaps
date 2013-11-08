@@ -122,9 +122,9 @@ function onAddCircleBtn(map) {
   map.addCircle({
     'center': GOOGLE,
     'radius': 300,
-    'strokeColor' : '#AA00FF00',
+    'strokeColor' : '#AA00FF',
     'strokeWidth': 5,
-    'fillColor' : '#880000FF'
+    'fillColor' : '#880000'
   });
   map.animateCamera({
     'target': GOOGLE,

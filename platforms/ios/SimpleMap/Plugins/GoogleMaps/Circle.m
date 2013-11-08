@@ -26,18 +26,18 @@
   if ([[json valueForKey:@"visible"] boolValue]) {
     circle.map = self.mapCtrl.map;
   }
-  NSScanner* pScanner = [NSScanner scannerWithString: [json objectForKey:@"fillColor"]];
-  unsigned int fillColor;
-  [pScanner scanHexInt: &fillColor];
-  circle.fillColor = UIColorFromRGB(fillColor);
-  
-  /*
-   circleOptions.strokeColor = circleOptions.strokeColor || "#FF000000";
-   circleOptions.fillColor = circleOptions.fillColor || "#00000000";
-   circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
-   circleOptions.visible = circleOptions.visible || true;
-   circleOptions.zIndex = circleOptions.zIndex || 0.0;
-   */
+  NSArray *rgbColor = [json valueForKey:@"fillColor"];
+  circle.fillColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
+                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
+                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
+                              alpha:0.75];
+  rgbColor = [json valueForKey:@"strokeColor"];
+  circle.strokeColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
+                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
+                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
+                              alpha:0.75];
+  circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
+  circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
   NSString *key = [NSString stringWithFormat:@"circle%d", circle.hash];
   [self.mapCtrl.circleManager setObject:circle forKey: key];
