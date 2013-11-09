@@ -19,7 +19,18 @@
   [super loadView];
   
   CGRect screenSize = [[UIScreen mainScreen] bounds];
-  CGRect pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+  CGRect pluginRect;
+  
+  int direction = self.interfaceOrientation;
+  if (direction == UIInterfaceOrientationLandscapeLeft ||
+      direction == UIInterfaceOrientationLandscapeRight) {
+    pluginRect = CGRectMake(screenSize.size.height * 0.05, screenSize.size.width * 0.05, screenSize.size.height * 0.9, screenSize.size.width * 0.9);
+      
+  } else {
+    pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+  }
+  
+  
   [self.view setFrame:pluginRect];
   self.view.backgroundColor = [UIColor lightGrayColor];
   

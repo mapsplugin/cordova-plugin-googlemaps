@@ -13,7 +13,6 @@
 - (void)pluginInitialize
 {
   self.plugins = [NSMutableDictionary dictionary];
-  
 }
 
 /**
@@ -41,7 +40,19 @@
     // Create a close button
     dispatch_sync(gueue, ^{
       CGRect screenSize = [[UIScreen mainScreen] bounds];
-      CGRect pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+      NSLog(@"width=%f height=%f", screenSize.size.width, screenSize.size.height);
+      
+      CGRect pluginRect;
+      int direction = self.viewController.interfaceOrientation;
+      if (direction == UIInterfaceOrientationLandscapeLeft ||
+          direction == UIInterfaceOrientationLandscapeRight) {
+          pluginRect = CGRectMake(screenSize.size.height * 0.05, screenSize.size.width * 0.05, screenSize.size.height * 0.9, screenSize.size.width * 0.9);
+      
+      } else {
+        pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+      }
+      
+      
       UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
       closeButton.frame = CGRectMake(0, pluginRect.size.height * 0.9, 50, 30);
       [closeButton setTitle:@"Close" forState:UIControlStateNormal];
