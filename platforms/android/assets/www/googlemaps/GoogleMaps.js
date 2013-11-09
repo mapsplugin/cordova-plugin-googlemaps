@@ -461,6 +461,6 @@
   };
  
   window.addEventListener('orientationchange', function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'resize', []);
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'resizeMap', []);
   }, false);
 })(window);
