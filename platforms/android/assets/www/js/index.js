@@ -132,7 +132,6 @@ function onAddCircleBtn(map) {
   });
 };
 
-
 $(document).on('deviceready',  function() {
   var map = plugin.google.maps.Map.getMap();
   map.on('map_ready', onMapReady);
