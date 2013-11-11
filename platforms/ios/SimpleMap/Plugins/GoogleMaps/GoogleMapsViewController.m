@@ -55,7 +55,7 @@
                                 longitude:0
                                 zoom:0];
     CGRect pluginRect = self.view.frame;
-    CGRect mapRect = CGRectMake(pluginRect.size.width * 0.05, pluginRect.size.height * 0.05, pluginRect.size.width * 0.9, pluginRect.size.height * 0.9 - 30);
+    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height - 30);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

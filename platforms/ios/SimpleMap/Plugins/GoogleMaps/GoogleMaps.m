@@ -10,6 +10,8 @@
 
 @implementation GoogleMaps
 
+UIButton *closeButton;
+
 - (void)pluginInitialize
 {
   self.plugins = [NSMutableDictionary dictionary];
@@ -40,8 +42,6 @@
     // Create a close button
     dispatch_sync(gueue, ^{
       CGRect screenSize = [[UIScreen mainScreen] bounds];
-      NSLog(@"width=%f height=%f", screenSize.size.width, screenSize.size.height);
-      
       CGRect pluginRect;
       int direction = self.viewController.interfaceOrientation;
       if (direction == UIInterfaceOrientationLandscapeLeft ||
@@ -53,8 +53,9 @@
       }
       
       
-      UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-      closeButton.frame = CGRectMake(0, pluginRect.size.height * 0.9, 50, 30);
+      closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+      closeButton.frame = CGRectMake(0, pluginRect.size.height - 30, 50, 30);
+      closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
       [closeButton setTitle:@"Close" forState:UIControlStateNormal];
       [closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
       [self.mapCtrl.view addSubview:closeButton];
@@ -151,15 +152,5 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-/**
- * Resize the map window
- */
-- (void)resizeMap:(CDVInvokedUrlCommand *)command {
-  
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
 
 @end

@@ -18,7 +18,6 @@
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showMap:(CDVInvokedUrlCommand*)command;
-- (void)resizeMap:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 @end

@@ -460,7 +460,4 @@
     'NONE': 'MAP_TYPE_NONE'
   };
  
-  window.addEventListener('orientationchange', function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'resizeMap', []);
-  }, false);
 })(window);
