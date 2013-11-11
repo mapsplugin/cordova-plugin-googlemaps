@@ -421,14 +421,43 @@
   document.head.appendChild(colorDiv);
  
   function HTMLColor2RGB(colorStr) {
-    var result = {
-      r: 0,
-      g: 0,
-      b: 0
-    };
+    var alpha = 1,
+        matches,
+        compStyle,
+        result = {
+          r: 0,
+          g: 0,
+          b: 0
+        };
+    if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
+      alpha = colorStr.substr(4, 1);
+      alpha = parseInt(alpha + alpha, 16) / 255;
+      colorStr = colorStr.substr(0, 4);
+    }
+
+    if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
+      alpha = colorStr.substr(7, 2);
+      alpha = parseInt(alpha, 16) / 255;
+      colorStr = colorStr.substring(0, 7);
+    }
+    
+    // convert rgba() -> rgb()
+    if (colorStr.match(/^rgba\([\d,.\s]+\)$/)) {
+      matches = colorStr.match(/([\d.]+)/g);
+      alpha = parseFloat(matches.pop());
+      matches = "rgb(" +  matches.join(",") + ")";
+    }
+
+    // convert hsla() -> hsl()
+    if (colorStr.match(/^hsla\([\d%,.\s]+\)$/)) {
+      matches = colorStr.match(/([\d%.]+)/g);
+      alpha = parseFloat(matches.pop());
+      matches = "hsl(" +  matches.join(",") + ")";
+    }
+ 
     colorDiv.style.color = colorStr;
     if (window.getComputedStyle) {
-      var compStyle = window.getComputedStyle(colorDiv, null);
+      compStyle = window.getComputedStyle(colorDiv, null);
       try {
         var value = compStyle.getPropertyCSSValue ("color");
         var valueType = value.primitiveType;
@@ -442,7 +471,7 @@
         console.log("The browser does not support the getPropertyCSSValue method!");
       }
     }
-    return [result.r, result.g, result.b];
+    return [result.r, result.g, result.b, alpha];
   }
  
   window.plugin = window.plugin || {};
