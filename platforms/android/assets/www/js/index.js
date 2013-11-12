@@ -25,8 +25,8 @@ function onMapReady(map) {
   map.setIndoorEnabled(true);
   map.setTrafficEnabled(true);
   map.setCompassEnabled(true);
-  map.on('click', onMapClick);
-  map.on('long_click', onMapLongClick);
+  map.on(plugin.google.maps.event.MAP_CLICK, onMapClick);
+  map.on(plugin.google.maps.event.MAP_LONG_CLICK, onMapLongClick);
 }
 
 function onShowBtn(map) {
@@ -81,8 +81,7 @@ function onAddIconMarkerBtn(map) {
     'position': GOOGLE_TOKYO,
     'title': 'Google Tokyo!',
     'draggable': true,
-    //'icon': 'www/images/google_tokyo_icon.png',
-    'icon': 'https://pbs.twimg.com/profile_images/918010027/search-100.gif'
+    'icon': 'www/images/google_tokyo_icon.png'
   }, function(marker) {
     map.animateCamera({
       'target': GOOGLE_TOKYO,
@@ -133,7 +132,7 @@ function onAddCircleBtn(map) {
 
 $(document).on('deviceready',  function() {
   var map = plugin.google.maps.Map.getMap();
-  map.on('map_ready', onMapReady);
+  map.on(plugin.google.maps.event.MAP_READY, onMapReady);
 });
 
 $("button").attr("disabled", "disabled");

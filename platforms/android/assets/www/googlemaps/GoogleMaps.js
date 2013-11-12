@@ -1,9 +1,6 @@
 (function(window){
   const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
-  var CIRCLES = {};
-  var COLORS = {
-  };
   
   /**
    * @name CameraPosition
@@ -67,6 +64,43 @@
     App.trigger('error', msg);
     return false;
   };
+  
+  /*
+   * Callback from Native
+   */
+  App.prototype._onMarkerEvent = function(eventName, hashCode) {
+    var marker = MARKERS[hashCode] || null;
+    if (marker) {
+      marker.trigger(eventName, this, marker);
+    }
+  };
+  
+  /**
+   * Map events listener
+   */
+  App.prototype._onMapEvent = function(eventName, points) {
+    if (points) {
+      var latlng = new LatLng(points[0], points[1]);
+      this.trigger(eventName, latlng);
+    } else {
+      this.trigger(eventName);
+    }
+  };
+  /**
+   * Callback from Native
+   */
+  App.prototype._onMyLocationChange = function(params) {
+    var location = new Location(params);
+    this.trigger('my_location_change', location);
+  };
+  /**
+   * Callback from Native
+   */
+  App.prototype._onCameraChange = function(params) {
+    var cameraPosition = new CameraPosition(params);
+    this.trigger('camera_change', cameraPosition);
+  };
+
   
   App.prototype.getMap = function() {
     var self = this;
@@ -205,7 +239,7 @@
     markerOptions.visible = markerOptions.visible || true;
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
-    markerOptions.alpha = parseFloat("" + markerOptions.alpha, 10) || 0;
+    markerOptions.alpha = parseFloat("" + markerOptions.alpha, 10) || 1;
  
     cordova.exec(function(hashCode) {
       var marker = new Marker(hashCode, markerOptions);
@@ -213,10 +247,10 @@
       
 
       if (typeof markerOptions.markerClick === "function") {
-        marker.on('Marker.click', markerOptions.markerClick);
+        marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
       }
       if (typeof markerOptions.infoClick === "function") {
-        marker.on('info_click', markerOptions.infoClick);
+        marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
       }
       if (typeof callback === "function") {
         callback.call(marker, marker);
@@ -224,29 +258,6 @@
     }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
   };
   
-  App.prototype._onMarkerClick = function(hashCode) {
-    var marker = MARKERS[hashCode] || null;
-    if (marker) {
-      marker.trigger('Marker.click', this, marker);
-    }
-  };
-  
-  App.prototype._onInfoWndClick = function(hashCode) {
-    var marker = MARKERS[hashCode] || null;
-    if (marker) {
-      marker.trigger('info_click', this, marker);
-    }
-  };
-  App.prototype._onMapClick = function(pointStr) {
-    var point = pointStr.split(',');
-    var latlng = new LatLng(parseFloat(point[0], 10), parseFloat(point[1], 10));
-    this.trigger('click', latlng);
-  };
-  App.prototype._onMapLongClick = function(pointStr) {
-    var point = pointStr.split(',');
-    var latlng = new LatLng(parseFloat(point[0], 10), parseFloat(point[1], 10));
-    this.trigger('long_click', latlng);
-  };
   
   //-------------
   // Circle
@@ -273,9 +284,35 @@
     }, errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
   
-  /**
-   * LatLng Model
-   */
+  /*****************************************************************************
+   * CameraPosition Class
+   *****************************************************************************/
+  var CameraPosition = function(params) {
+    var self = this;
+    self.zoom = params.zoom;
+    self.tilt = params.tilt;
+    self.target = params.target;
+    self.bearing = params.bearing;
+    self.hashCode = params.hashCode;
+  };
+  /*****************************************************************************
+   * Location Class
+   *****************************************************************************/
+  var Location = function(params) {
+    var self = this;
+    self.latLng = new LatLng(params.latitude, params.longitude);
+    self.elapsedRealtimeNanos = params.elapsedRealtimeNanos;
+    self.time = params.time;
+    self.accuracy = params.accuracy || null;
+    self.bearing = params.bearing || null;
+    self.altitude = params.altitude || null;
+    self.speed = params.speed || null;
+    self.provider = params.provider;
+    self.hashCode = params.hashCode;
+  };
+  /*****************************************************************************
+   * Location Class
+   *****************************************************************************/
   var LatLng = function(latitude, longitude) {
     var self = this;
     self.lat = parseFloat(latitude || 0, 10);
@@ -285,9 +322,9 @@
     };
   };
   
-  /**
-   * Marker Model
-   */
+  /*****************************************************************************
+   * Marker Class
+   *****************************************************************************/
   var Marker = function(hashCode, markerOptions) {
     BaseClass.apply(this);
     
@@ -306,6 +343,7 @@
     self.type = "Marker";
   };
   Marker.prototype = new BaseClass();
+  
   
   Marker.prototype.getPosition = function(callback) {
     cordova.exec(function(latlng) {
@@ -378,9 +416,9 @@
   };
   
   
-  /**
-   * Circle Model
-   */
+  /*****************************************************************************
+   * Circle Class
+   *****************************************************************************/
   var Circle = function(circleId, circleOptions) {
     BaseClass.apply(this);
     
@@ -424,6 +462,9 @@
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
   };
  
+  /*****************************************************************************
+   * Private functions
+   *****************************************************************************/
   //---------------------------
   // Convert HTML color to RGB
   //---------------------------
@@ -484,9 +525,26 @@
     return [result.r, result.g, result.b, alpha];
   }
  
+  /*****************************************************************************
+   * Name space
+   *****************************************************************************/
   window.plugin = window.plugin || {};
   window.plugin.google = window.plugin.google || {};
   window.plugin.google.maps = window.plugin.google.maps || {};
+  window.plugin.google.maps.event = {
+    MAP_CLICK: 'click',
+    MAP_LONG_CLICK: 'long_click',
+    MY_LOCATION_CHANGE: 'my_location_change',
+    MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
+    CAMERA_CHANGE: 'camera_change',
+    MAP_READY: 'map_ready',
+    MAP_loaded: 'map_loaded',
+    MARKER_CLICK: 'click',
+    INFO_CLICK: 'info_click',
+    MARKER_DRAG: 'drag',
+    MARKER_DRAG_START: 'drag_start',
+    MARKER_DRAG_END: 'drag_end'
+  };
   window.plugin.google.maps.Map = new App();
   window.plugin.google.maps.LatLng = LatLng;
   window.plugin.google.maps.Marker = Marker;

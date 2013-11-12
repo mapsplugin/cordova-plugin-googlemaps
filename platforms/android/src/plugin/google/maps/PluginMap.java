@@ -22,23 +22,23 @@ import com.google.android.gms.maps.model.LatLng;
 public class PluginMap extends CordovaPlugin implements MyPlugin  {
   private final String TAG = "PluginMap";
   public GoogleMap map = null;
-  private Activity activity;
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     Log.d(TAG, "Map class initializing");
-    this.activity = cordova.getActivity();
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
     String[] params = args.getString(0).split("\\.");
     try {
       Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-      return (Boolean) method.invoke(this, args, callbackContext);
+      method.invoke(this, args, callbackContext);
+      return true;
     } catch (Exception e) {
       e.printStackTrace();
+      callbackContext.error(e.getMessage());
+      return false;
     }
-    return true;
   }
 
   public void setMap(GoogleMap map) {
@@ -49,77 +49,62 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    * Set center location of the marker
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setCenter(JSONArray args, CallbackContext callbackContext) {
+  private void setCenter(JSONArray args, CallbackContext callbackContext) throws JSONException {
     double lat, lng;
 
-    try {
-      lat = args.getDouble(1);
-      lng = args.getDouble(2);
-      Log.d(TAG, "lat=" + lat + ", lng=" + lng);
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
+    lat = args.getDouble(1);
+    lng = args.getDouble(2);
 
     LatLng latLng = new LatLng(lat, lng);
     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
     this.myMoveCamera(cameraUpdate, callbackContext);
-    return true;
   }
 
   /**
    * Set angle of the map view
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setTilt(final JSONArray args, final CallbackContext callbackContext) {
+  private void setTilt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float tilt = -1;
-    try {
-      tilt = (float) args.getDouble(1);
+    tilt = (float) args.getDouble(1);
 
-      if (tilt > 0 && tilt <= 90) {
-        CameraPosition currentPos = map.getCameraPosition();
-        CameraPosition newPosition = new CameraPosition.Builder()
-            .target(currentPos.target).bearing(currentPos.bearing)
-            .zoom(currentPos.zoom).tilt(tilt).build();
-        myMoveCamera(newPosition, callbackContext);
-      } else {
-        callbackContext.error("Invalid tilt angle(" + tilt + ")");
-      }
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
+    if (tilt > 0 && tilt <= 90) {
+      CameraPosition currentPos = map.getCameraPosition();
+      CameraPosition newPosition = new CameraPosition.Builder()
+          .target(currentPos.target).bearing(currentPos.bearing)
+          .zoom(currentPos.zoom).tilt(tilt).build();
+      myMoveCamera(newPosition, callbackContext);
+    } else {
+      callbackContext.error("Invalid tilt angle(" + tilt + ")");
     }
-    return true;
   }
 
   /**
    * Move the camera with animation
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean animateCamera(JSONArray args, CallbackContext callbackContext) {
-    return this.updateCameraPosition("animateCamera", args, callbackContext);
+  private void animateCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    this.updateCameraPosition("animateCamera", args, callbackContext);
   }
   
   /**
    * Move the camera without animation
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean moveCamera(JSONArray args, CallbackContext callbackContext) {
-    return this.updateCameraPosition("moveCamera", args, callbackContext);
+  private void moveCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    this.updateCameraPosition("moveCamera", args, callbackContext);
   }
   
   /**
@@ -127,74 +112,62 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    * @param action
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
-  private Boolean updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) {
-    try {
-      float tilt, bearing, zoom;
-      LatLng target;
-      int durationMS = 0;
-      JSONObject cameraPos = args.getJSONObject(1);
-      CameraPosition currentPos = map.getCameraPosition();
-      if (cameraPos.has("tilt")) {
-        tilt = (float) cameraPos.getDouble("tilt");
-      } else {
-        tilt = currentPos.tilt;
-      }
-      if (cameraPos.has("bearing")) {
-        bearing = (float) cameraPos.getDouble("bearing");
-      } else {
-        bearing = currentPos.bearing;
-      }
-      if (cameraPos.has("zoom")) {
-        zoom = (float) cameraPos.getDouble("zoom");
-      } else {
-        zoom = currentPos.zoom;
-      }
-      if (cameraPos.has("lat") && cameraPos.has("lng")) {
-        target = new LatLng(cameraPos.getDouble("lat"),
-            cameraPos.getDouble("lng"));
-      } else {
-        target = currentPos.target;
-      }
-
-      CameraPosition newPosition = new CameraPosition.Builder()
-          .target(target).bearing(bearing).zoom(zoom).tilt(tilt).build();
-
-      if (args.length() == 3) {
-        durationMS = args.getInt(2);
-      }
-      if (action.equals("moveCamera")) {
-        myMoveCamera(newPosition, callbackContext);
-      } else {
-        myAnimateCamera(newPosition, durationMS, callbackContext);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
+  private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    
+    float tilt, bearing, zoom;
+    LatLng target;
+    int durationMS = 0;
+    JSONObject cameraPos = args.getJSONObject(1);
+    CameraPosition currentPos = map.getCameraPosition();
+    if (cameraPos.has("tilt")) {
+      tilt = (float) cameraPos.getDouble("tilt");
+    } else {
+      tilt = currentPos.tilt;
     }
-    return true;
+    if (cameraPos.has("bearing")) {
+      bearing = (float) cameraPos.getDouble("bearing");
+    } else {
+      bearing = currentPos.bearing;
+    }
+    if (cameraPos.has("zoom")) {
+      zoom = (float) cameraPos.getDouble("zoom");
+    } else {
+      zoom = currentPos.zoom;
+    }
+    if (cameraPos.has("lat") && cameraPos.has("lng")) {
+      target = new LatLng(cameraPos.getDouble("lat"),
+          cameraPos.getDouble("lng"));
+    } else {
+      target = currentPos.target;
+    }
+
+    CameraPosition newPosition = new CameraPosition.Builder()
+        .target(target).bearing(bearing).zoom(zoom).tilt(tilt).build();
+
+    if (args.length() == 3) {
+      durationMS = args.getInt(2);
+    }
+    if (action.equals("moveCamera")) {
+      myMoveCamera(newPosition, callbackContext);
+    } else {
+      myAnimateCamera(newPosition, durationMS, callbackContext);
+    }
   }
 
   /**
    * Set zoom of the map
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setZoom(JSONArray args, CallbackContext callbackContext) {
+  private void setZoom(JSONArray args, CallbackContext callbackContext) throws JSONException {
     Long zoom;
-    try {
-      zoom = args.getLong(1);
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
+    zoom = args.getLong(1);
 
     this.myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
-    return true;
   }
 
   /**
@@ -203,8 +176,7 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    * @param callbackContext
    */
   private void myMoveCamera(CameraPosition cameraPosition, final CallbackContext callbackContext) {
-    CameraUpdate cameraUpdate = CameraUpdateFactory
-        .newCameraPosition(cameraPosition);
+    CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
     this.myMoveCamera(cameraUpdate, callbackContext);
   }
 
@@ -222,114 +194,82 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    * Enable MyLocation feature if set true
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) {
+  private void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean isEnable = false;
-    try {
-      isEnable = args.getBoolean(1);
-      map.setMyLocationEnabled(isEnable);
-      callbackContext.success();
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-  }
+    isEnable = args.getBoolean(1);
+    map.setMyLocationEnabled(isEnable);
+    callbackContext.success();
+}
 
   /**
    * Enable Indoor map feature if set true
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) {
-    Boolean isEnable = false;
-    try {
-      isEnable = args.getBoolean(1);
-      map.setIndoorEnabled(isEnable);
-      callbackContext.success();
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
+  private void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Boolean isEnable = args.getBoolean(1);
+    map.setIndoorEnabled(isEnable);
+    callbackContext.success();
   }
 
   /**
    * Enable the traffic layer if set true
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) {
-    Boolean isEnable = false;
-    try {
-      isEnable = args.getBoolean(1);
-      map.setTrafficEnabled(isEnable);
-      callbackContext.success();
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
+  private void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Boolean isEnable = args.getBoolean(1);
+    map.setTrafficEnabled(isEnable);
+    callbackContext.success();
   }
 
   /**
    * This feature is not available for Android
    * @param args
    * @param callbackContext
-   * @return
    */
   @SuppressWarnings("unused")
-  private Boolean setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) {
+  private void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) {
     Log.d(TAG, "setCompassEnabled is not available in Android");
     callbackContext.success();
-    return true;
   }
 
   /**
    * Change the map type id of the map
    * @param args
    * @param callbackContext
-   * @return
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private Boolean setMapTypeId(JSONArray args, final CallbackContext callbackContext) {
+  private void setMapTypeId(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     int mapTypeId = 0;
-    try {
-      String typeStr = args.getString(1);
-      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
-          : mapTypeId;
+    String typeStr = args.getString(1);
+    mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
+        : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
+        : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
+        : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
+        : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
+        : mapTypeId;
 
-      if (mapTypeId == 0) {
-        callbackContext.error("Unknow MapTypeID is specified:" + typeStr);
-        return false;
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
+    if (mapTypeId == 0) {
+      callbackContext.error("Unknow MapTypeID is specified:" + typeStr);
+      return;
     }
 
     final int myMapTypeId = mapTypeId;
     map.setMapType(myMapTypeId);
     callbackContext.success();
-    return true;
   }
 
   /**

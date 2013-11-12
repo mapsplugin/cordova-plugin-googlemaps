@@ -7,6 +7,7 @@ import java.net.URL;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -22,6 +23,8 @@ public class MarkerSetIcon extends AsyncTask<String, Void, Bitmap> {
   protected Bitmap doInBackground(String... urls) {
     try {
       URL url= new URL(urls[0]);
+      Log.d("PluginMarker", "doInBackground");
+      Log.d("PluginMarker", "urls[0]=" + urls[0]);
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setDoInput(true);
       connection.connect();
@@ -36,8 +39,12 @@ public class MarkerSetIcon extends AsyncTask<String, Void, Bitmap> {
 
   protected void onPostExecute(Bitmap image) {
     if (image != null) {
+      Log.d("PluginMarker", "image is not null");
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       marker.setIcon(bitmapDescriptor);
+    } else {
+      Log.d("PluginMarker", "image is null");
+      
     }
   }
 }
