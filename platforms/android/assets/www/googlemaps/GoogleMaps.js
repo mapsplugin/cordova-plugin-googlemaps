@@ -50,6 +50,7 @@
       }, false);
       _listeners[eventName].push(listener);
     };
+    return self;
   };
   var App = function() {
     BaseClass.apply(this);
@@ -204,6 +205,7 @@
     markerOptions.visible = markerOptions.visible || true;
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
+    markerOptions.alpha = parseFloat("" + markerOptions.alpha, 10) || 0;
  
     cordova.exec(function(hashCode) {
       var marker = new Marker(hashCode, markerOptions);
@@ -253,8 +255,8 @@
     var self = this;
     circleOptions.lat = circleOptions.center.lat;
     circleOptions.lng = circleOptions.center.lng;
-    circleOptions.strokeColor = HTMLColor2RGB(circleOptions.strokeColor || "#FF000000");
-    circleOptions.fillColor = HTMLColor2RGB(circleOptions.fillColor || "#00000000");
+    circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
+    circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
     circleOptions.visible = circleOptions.visible || true;
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
@@ -298,6 +300,7 @@
     self.set("title", markerOptions.title);
     self.set("visible", markerOptions.visible);
     self.set("flat", markerOptions.flat);
+    self.set("alpha", markerOptions.alpha);
     self.set("hashCode", hashCode);
 
     self.type = "Marker";
@@ -308,6 +311,9 @@
     cordova.exec(function(latlng) {
       callback(new LatLng(latlng[0], latlng[1]));
     }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.get("hashCode")]);
+  };
+  Marker.prototype.getAlpha = function() {
+    return this.get('alpha');
   };
   Marker.prototype.getTitle = function() {
     return this.get('title');
@@ -334,6 +340,10 @@
   };
   Marker.prototype.remove = function(callback) {
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.get("hashCode")]);
+  };
+  Marker.prototype.setAlpha = function(alpha) {
+    this.set('alpha');
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.get("hashCode"), alpha]);
   };
   Marker.prototype.setAnchor = function(anchorU, anchorV) {
     this.set('anchor', [anchorU, anchorV]);
@@ -420,8 +430,8 @@
   var colorDiv = document.createElement("div");
   document.head.appendChild(colorDiv);
  
-  function HTMLColor2RGB(colorStr) {
-    var alpha = 1,
+  function HTMLColor2RGBA(colorStr) {
+    var alpha = 255,
         matches,
         compStyle,
         result = {
@@ -431,27 +441,27 @@
         };
     if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
       alpha = colorStr.substr(4, 1);
-      alpha = parseInt(alpha + alpha, 16) / 255;
+      alpha = parseInt(alpha + alpha, 16);
       colorStr = colorStr.substr(0, 4);
     }
 
     if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
       alpha = colorStr.substr(7, 2);
-      alpha = parseInt(alpha, 16) / 255;
+      alpha = parseInt(alpha, 16);
       colorStr = colorStr.substring(0, 7);
     }
     
     // convert rgba() -> rgb()
     if (colorStr.match(/^rgba\([\d,.\s]+\)$/)) {
       matches = colorStr.match(/([\d.]+)/g);
-      alpha = parseFloat(matches.pop());
+      alpha = Math.floor(parseFloat(matches.pop()) * 256);
       matches = "rgb(" +  matches.join(",") + ")";
     }
 
     // convert hsla() -> hsl()
     if (colorStr.match(/^hsla\([\d%,.\s]+\)$/)) {
       matches = colorStr.match(/([\d%.]+)/g);
-      alpha = parseFloat(matches.pop());
+      alpha = Math.floor(parseFloat(matches.pop()) * 256);
       matches = "hsl(" +  matches.join(",") + ")";
     }
  
