@@ -276,7 +276,6 @@
     
     cordova.exec(function(circleId) {
       var circle = new Circle(circleId, circleOptions);
-      CIRCLES[circleId] = circle;
       
       if (callback) {
         callback(circle);
