@@ -1,9 +1,13 @@
 package plugin.google.maps;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginEntry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +19,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.LinearLayout;
@@ -40,46 +43,14 @@ import com.google.android.gms.maps.model.Marker;
 
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
   private final String TAG = "GoogleMapsPlugin";
+  private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   
   private enum METHODS {
-    getLicenseInfo,
-    GoogleMap_setTilt,
-    GoogleMap_getMap,
-    GoogleMap_setCenter,
-    GoogleMap_setZoom,
-    GoogleMap_setMapTypeId,
-    GoogleMap_addMarker,
-    GoogleMap_addCircle,
-    GoogleMap_show,
-    GoogleMap_animateCamera,
-    GoogleMap_moveCamera,
-    GoogleMap_setMyLocationEnabled,
-    GoogleMap_setIndoorEnabled,
-    GoogleMap_setTrafficEnabled,
-    GoogleMap_setCompassEnabled,
-
-    Marker_setAnchor,
-    Marker_setDraggable,
-    Marker_setTitle,
-    Marker_setSnippet,
-    Marker_showInfoWindow,
-    Marker_hideInfoWindow,
-    Marker_getPosition,
-    Marker_isInfoWindowShown,
-    Marker_remove,
-    Marker_setIcon,
-
-    Circle_remove,
-    Circle_setCenter,
-    Circle_setFillColor,
-    Circle_setRadius,
-    Circle_setStrokeColor,
-    Circle_setStrokeWidth,
-    Circle_setVisible,
-    Circle_setZIndex
-
+    getMap,
+    showMap,
+    exec
   }
-
+  
   public MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
@@ -106,10 +77,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
   }
 
   @Override
-  public boolean execute(String action, JSONArray args,
-      CallbackContext callbackContext) throws JSONException {
+  public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Log.d("CordovaLog", "action=" + action);
-
+/*
     activity = cordova.getActivity();
     if (action.equals("GoogleMap_getMap") == false
         && action.equals("getLicenseInfo") == false && this.map == null) {
@@ -117,189 +87,55 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
       callbackContext.error("Map is null");
       return false;
     }
+    */
 
-    switch (METHODS.valueOf(action)) {
-    case getLicenseInfo:
-      return this.getLicenseInfo(args, callbackContext);
-
-      /*---------------
-       * Map
-       *---------------*/
-    case GoogleMap_getMap:
-      return this.getMap(args, callbackContext);
-    case GoogleMap_setTilt:
-      return this.setTilt(args, callbackContext);
-    case GoogleMap_setCenter:
-      return this.setCenter(args, callbackContext);
-    case GoogleMap_setZoom:
-      return this.setZoom(args, callbackContext);
-    case GoogleMap_setMapTypeId:
-      return this.setMapTypeId(args, callbackContext);
-    case GoogleMap_show:
-      return this.showDialog(args, callbackContext);
-    case GoogleMap_setMyLocationEnabled:
-      return this.setMyLocationEnabled(args, callbackContext);
-    case GoogleMap_setIndoorEnabled:
-      return this.setIndoorEnabled(args, callbackContext);
-    case GoogleMap_setTrafficEnabled:
-      return this.setTrafficEnabled(args, callbackContext);
-    case GoogleMap_setCompassEnabled:
-      return this.setCompassEnabled(args, callbackContext);
-    case GoogleMap_animateCamera:
-      return this.updateCameraPosition("animateCamera", args, callbackContext);
-    case GoogleMap_moveCamera:
-      return this.updateCameraPosition("moveCamera", args, callbackContext);
-
-      /*---------------
-       * Marker
-       *---------------*/
-    case GoogleMap_addMarker:
-      return this.markerManager.addMarker(map, args, callbackContext);
-    case Marker_getPosition:
-      return markerManager.getPosition(args, callbackContext);
-    case Marker_isInfoWindowShown:
-      return markerManager.isInfoWindowShown(args, callbackContext);
-    case Marker_setAnchor:
-      return markerManager.setAnchor(args, callbackContext);
-    case Marker_setDraggable:
-      return markerManager.setDraggable(args, callbackContext);
-    case Marker_setIcon:
-      return markerManager.setIcon(args, callbackContext);
-    case Marker_setTitle:
-      return markerManager.setTitle(args, callbackContext);
-    case Marker_setSnippet:
-      return markerManager.setSnippet(args, callbackContext);
-    case Marker_showInfoWindow:
-      return markerManager.showInfoWindow(args, callbackContext);
-    case Marker_hideInfoWindow:
-      return markerManager.hideInfoWindow(args, callbackContext);
-    case Marker_remove:
-      return markerManager.remove(args, callbackContext);
-
-      /*---------------
-       * Circle
-       *---------------*/
-    case GoogleMap_addCircle:
-      return this.circleManager.addCircle(map, args, callbackContext);
-    case Circle_remove:
-      return circleManager.remove(args, callbackContext);
-    case Circle_setCenter:
-      return circleManager.setCenter(args, callbackContext);
-    case Circle_setFillColor:
-      return circleManager.setFillColor(args, callbackContext);
-    case Circle_setRadius:
-      return circleManager.setRadius(args, callbackContext);
-    case Circle_setStrokeColor:
-      return circleManager.setStrokeColor(args, callbackContext);
-    case Circle_setStrokeWidth:
-      return circleManager.setStrokeWidth(args, callbackContext);
-    case Circle_setVisible:
-      return circleManager.setVisible(args, callbackContext);
-    case Circle_setZIndex:
-      return circleManager.setZIndex(args, callbackContext);
-
-    default:
-      break;
-    }
-    return false;
-  }
-
-  private Boolean getMap(JSONArray args, final CallbackContext callbackContext) {
-    if (map != null) {
-      callbackContext.success();
-      return true;
-    }
-    // ------------------------------
-    // Check of Google Play Services
-    // ------------------------------
-    int checkGooglePlayServices = GooglePlayServicesUtil
-        .isGooglePlayServicesAvailable(activity);
-    if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-      // google play services is missing!!!!
-      /*
-       * Returns status code indicating whether there was an error. Can be one
-       * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
-       * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
-       */
-      GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity,
-          1122).show();
-
-      callbackContext.error("google play services is missing!!!!");
-      return false;
-    }
-
-    // ------------------------------
-    // Initialize Google Maps SDK
-    // ------------------------------
-    try {
-      MapsInitializer.initialize(activity);
-    } catch (GooglePlayServicesNotAvailableException e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-    
-    
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
+    Runnable runnable = new Runnable() {
       public void run() {
-    
+        switch(METHODS.valueOf(action)) {
+        case getMap:
+          GoogleMaps.this.getMap(args, callbackContext);
+          break;
+        case showMap:
+          GoogleMaps.this.showMap(args, callbackContext);
+          break;
+        case exec:
+          try {
+            String classMethod = args.getString(0);
+            String[] params = classMethod.split("\\.", 0);
+            Log.d(TAG, "param[0] = " + params[0]);
+            
+            PluginEntry entry = GoogleMaps.this.plugins.get(params[0]);
+            if (params.length == 2 && entry != null) { 
+              entry.plugin.execute("execute", args, callbackContext);
+            }
+            
+            callbackContext.success();
+          } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error(action + "is not defined.");
+          }
+          break;
         
-        //base layout
-        baseLayer = new FrameLayout(activity);
-        baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        
-        // window layout
-        LinearLayout windowLayer = new LinearLayout(activity);
-        windowLayer.setPadding(25, 25, 25, 25);
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
-        windowLayer.setLayoutParams(layoutParams);
-        baseLayer.addView(windowLayer);
-        
-        // dialog window layer
-        FrameLayout dialogLayer = new FrameLayout(activity);
-        dialogLayer.setLayoutParams(layoutParams);
-        dialogLayer.setPadding(15, 15, 15, 0);
-        dialogLayer.setBackgroundColor(Color.LTGRAY);
-        windowLayer.addView(dialogLayer);
-
-        // map frame
-        LinearLayout mapFrame = new LinearLayout(activity);
-        mapFrame.setPadding(0, 0, 0, 75);
-        dialogLayer.addView(mapFrame);
-        
-        // map
-        mapView = new MapView(activity, new GoogleMapOptions());
-        mapView.onCreate(null);
-        mapView.onResume();
-        map = mapView.getMap();
-        mapFrame.addView(mapView);
-        
-        
-        // button frame
-        LinearLayout buttonFrame = new LinearLayout(activity);
-        buttonFrame.setGravity(Gravity.BOTTOM);
-        LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        buttonFrame.setLayoutParams(buttonFrameParams);
-        dialogLayer.addView(buttonFrame);
-        
-        //close button
-        TextView closeText = new TextView(activity);
-        closeText.setText("Close");
-        closeText.setTextColor(Color.BLUE);
-        closeText.setTextSize(20);
-        closeText.setPadding(0, 0, 0, 20);
-        closeText.setOnClickListener(GoogleMaps.this);
-        buttonFrame.addView(closeText);
-        
-        callbackContext.success();
+        default:
+          callbackContext.error(action + "is not defined.");
+          break;
+        }
       }
-    });
+    };
+    cordova.getActivity().runOnUiThread(runnable);
     
-
+    /*
+    if (action.equals("getMap")) {
+      
+      PluginEntry entry = this.plugins.get("Map");
+      entry.plugin.execute(action, args, callbackContext);
+    }
+    */
+    
+    
     return true;
   }
+
 
   private Boolean setTilt(final JSONArray args,
       final CallbackContext callbackContext) {
@@ -386,6 +222,112 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     return true;
   }
 
+  private void getMap(JSONArray args, final CallbackContext callbackContext) {
+    if (map != null) {
+      callbackContext.success();
+      return;
+    }
+    // ------------------------------
+    // Check of Google Play Services
+    // ------------------------------
+    int checkGooglePlayServices = GooglePlayServicesUtil
+        .isGooglePlayServicesAvailable(activity);
+    if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
+      // google play services is missing!!!!
+      /*
+       * Returns status code indicating whether there was an error. Can be one
+       * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
+       * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
+       */
+      GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity,
+          1122).show();
+
+      callbackContext.error("google play services is missing!!!!");
+      return;
+    }
+
+    // ------------------------------
+    // Initialize Google Maps SDK
+    // ------------------------------
+    try {
+      MapsInitializer.initialize(activity);
+    } catch (GooglePlayServicesNotAvailableException e) {
+      e.printStackTrace();
+      callbackContext.error(e.getMessage());
+      return;
+    }
+    
+    //base layout
+    baseLayer = new FrameLayout(activity);
+    baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    
+    // window layout
+    LinearLayout windowLayer = new LinearLayout(activity);
+    windowLayer.setPadding(25, 25, 25, 25);
+    LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+    windowLayer.setLayoutParams(layoutParams);
+    baseLayer.addView(windowLayer);
+    
+    // dialog window layer
+    FrameLayout dialogLayer = new FrameLayout(activity);
+    dialogLayer.setLayoutParams(layoutParams);
+    dialogLayer.setPadding(15, 15, 15, 0);
+    dialogLayer.setBackgroundColor(Color.LTGRAY);
+    windowLayer.addView(dialogLayer);
+
+    // map frame
+    LinearLayout mapFrame = new LinearLayout(activity);
+    mapFrame.setPadding(0, 0, 0, 75);
+    dialogLayer.addView(mapFrame);
+    
+    // map
+    mapView = new MapView(activity, new GoogleMapOptions());
+    mapView.onCreate(null);
+    mapView.onResume();
+    map = mapView.getMap();
+    mapFrame.addView(mapView);
+    
+    
+    // button frame
+    LinearLayout buttonFrame = new LinearLayout(activity);
+    buttonFrame.setGravity(Gravity.BOTTOM);
+    LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    buttonFrame.setLayoutParams(buttonFrameParams);
+    dialogLayer.addView(buttonFrame);
+    
+    //close button
+    TextView closeText = new TextView(activity);
+    closeText.setText("Close");
+    closeText.setTextColor(Color.BLUE);
+    closeText.setTextSize(20);
+    closeText.setPadding(0, 0, 0, 20);
+    closeText.setOnClickListener(GoogleMaps.this);
+    buttonFrame.addView(closeText);
+    
+    
+    //-----------------------------------
+    // Create the instance of Map class
+    //-----------------------------------
+    try {
+      @SuppressWarnings("rawtypes")
+      Class pluginCls = Class.forName("plugin.google.maps.Map");
+      
+      CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
+      PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
+      this.plugins.put("Map", pluginEntry);
+      plugin.initialize((CordovaInterface) activity, webView);
+      ((MyPlugin)plugin).setMap(map);
+      
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    callbackContext.success();
+    return;
+  }
+  
+  
   private Boolean getLicenseInfo(JSONArray args, CallbackContext callbackContext) {
     // Activity context = this.cordova.getActivity();
     String msg = GooglePlayServicesUtil
@@ -395,106 +337,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     return true;
   }
 
-  private Boolean setMyLocationEnabled(final JSONArray args,
-      final CallbackContext callbackContext) {
-    Runnable runnable = new Runnable() {
-      public void run() {
-        Boolean isEnable = false;
-        try {
-          isEnable = args.getBoolean(0);
-          map.setMyLocationEnabled(isEnable);
-          callbackContext.success();
-        } catch (Exception e) {
-          e.printStackTrace();
-          callbackContext.error(e.getMessage());
-        }
-      }
-    };
-    cordova.getActivity().runOnUiThread(runnable);
-    return true;
-  }
-
-  private Boolean setIndoorEnabled(final JSONArray args,
-      final CallbackContext callbackContext) {
-    Runnable runnable = new Runnable() {
-      public void run() {
-        Boolean isEnable = false;
-        try {
-          isEnable = args.getBoolean(0);
-          map.setIndoorEnabled(isEnable);
-          callbackContext.success();
-        } catch (Exception e) {
-          e.printStackTrace();
-          callbackContext.error(e.getMessage());
-        }
-      }
-    };
-    cordova.getActivity().runOnUiThread(runnable);
-    return true;
-  }
-
-  private Boolean setTrafficEnabled(final JSONArray args,
-      final CallbackContext callbackContext) {
-    Runnable runnable = new Runnable() {
-      public void run() {
-        Boolean isEnable = false;
-        try {
-          isEnable = args.getBoolean(0);
-          map.setTrafficEnabled(isEnable);
-          callbackContext.success();
-        } catch (Exception e) {
-          e.printStackTrace();
-          callbackContext.error(e.getMessage());
-        }
-      }
-    };
-    cordova.getActivity().runOnUiThread(runnable);
-    return true;
-  }
-
-  private Boolean setCompassEnabled(final JSONArray args,
-      final CallbackContext callbackContext) {
-    Log.d(TAG, "setCompassEnabled is not available in Android");
+  private void showMap(final JSONArray args, final CallbackContext callbackContext) {
+    root = (ViewGroup) webView.getParent();
+    root.removeView(webView);
+    baseLayer.addView(webView, 0);
+    activity.setContentView(baseLayer);
     callbackContext.success();
-    return true;
   }
 
-  private Boolean showDialog(final JSONArray args,
-      final CallbackContext callbackContext) {
-    Runnable runnable = new Runnable() {
-      public void run() {
-
-        root = (ViewGroup) webView.getParent();
-        root.removeView(webView);
-        baseLayer.addView(webView, 0);
-        activity.setContentView(baseLayer);
-        
-        callbackContext.success();
-      }
-    };
-    
-    Log.d("CordovaLog", "showDialog");
-    cordova.getActivity().runOnUiThread(runnable);
-    return true;
-  }
-
-  private Boolean setCenter(JSONArray args, CallbackContext callbackContext) {
-    double lat, lng;
-
-    try {
-      lat = args.getDouble(0);
-      lng = args.getDouble(1);
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-
-    LatLng latLng = new LatLng(lat, lng);
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
-    this.myMoveCamera(cameraUpdate, callbackContext);
-    return true;
-  }
 
   private Boolean setZoom(JSONArray args, CallbackContext callbackContext) {
     Long zoom;
