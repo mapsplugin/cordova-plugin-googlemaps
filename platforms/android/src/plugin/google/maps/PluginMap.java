@@ -16,6 +16,7 @@ import android.util.Log;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -231,13 +232,17 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
   }
 
   /**
-   * This feature is not available for Android
+   * Enable the compass if set true
    * @param args
    * @param callbackContext
+   * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) {
-    Log.d(TAG, "setCompassEnabled is not available in Android");
+  private void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Boolean isEnable = args.getBoolean(1);
+    UiSettings uiSettings = map.getUiSettings();
+    uiSettings.setCompassEnabled(isEnable);
+    
     callbackContext.success();
   }
 

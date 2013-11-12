@@ -20,7 +20,6 @@ function onMapReady(map) {
   });
   
   map.show();
-  map.setCenter(GOOGLE);
   map.setMyLocationEnabled(true);
   map.setIndoorEnabled(true);
   map.setTrafficEnabled(true);
@@ -131,7 +130,20 @@ function onAddCircleBtn(map) {
 };
 
 $(document).on('deviceready',  function() {
-  var map = plugin.google.maps.Map.getMap();
+  var map = plugin.google.maps.Map.getMap({
+    'compass': true,
+    'gestures': {
+      'scroll': true,
+      'tilt': true,
+      'rotate': true
+    },
+    'camera': {
+      'latLng': GOOGLE,
+      'tilt': 30,
+      'zoom': 13,
+      'bearing': 50
+    }
+  });
   map.on(plugin.google.maps.event.MAP_READY, onMapReady);
 });
 

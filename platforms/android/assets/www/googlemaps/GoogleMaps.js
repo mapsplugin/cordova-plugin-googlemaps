@@ -102,13 +102,14 @@
   };
 
   
-  App.prototype.getMap = function() {
+  App.prototype.getMap = function(params) {
+    params = params || {};
     var self = this;
     cordova.exec(function() {
       setTimeout(function() {
         self.trigger('map_ready', self);
       }, 100);
-    }, errorHandler, PLUGIN_NAME, 'getMap', []);
+    }, errorHandler, PLUGIN_NAME, 'getMap', [params]);
     return self;
   };
   

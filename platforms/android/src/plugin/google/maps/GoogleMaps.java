@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -41,7 +42,9 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -88,16 +91,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
 
     Runnable runnable = new Runnable() {
       public void run() {
-        switch(METHODS.valueOf(action)) {
-        case getMap:
-          GoogleMaps.this.getMap(args, callbackContext);
-          break;
-        case showMap:
-          GoogleMaps.this.showMap(args, callbackContext);
-          break;
-        case exec:
+        try {
+          switch(METHODS.valueOf(action)) {
+          case getMap:
+            GoogleMaps.this.getMap(args, callbackContext);
+            break;
+          case showMap:
+            GoogleMaps.this.showMap(args, callbackContext);
+            break;
+          case exec:
           
-          try {
             String classMethod = args.getString(0);
             String[] params = classMethod.split("\\.", 0);
             
@@ -113,15 +116,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
             } else {
               callbackContext.error(action + " parameter is invalid length.");
             }
-          } catch (Exception e) {
-            e.printStackTrace();
-            callbackContext.error(action + "is not defined.");
-          }
           break;
         
-        default:
+          default:
+            callbackContext.error(action + "is not defined.");
+            break;
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
           callbackContext.error(action + "is not defined.");
-          break;
         }
       }
     };
@@ -131,7 +134,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
   }
 
 
-  private void getMap(JSONArray args, final CallbackContext callbackContext) {
+  private void getMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (map != null) {
       callbackContext.success();
       return;
@@ -165,7 +168,51 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
       callbackContext.error(e.getMessage());
       return;
     }
-    mapView = new MapView(activity, new GoogleMapOptions());
+    GoogleMapOptions options = new GoogleMapOptions();
+    JSONObject params = args.getJSONObject(0);
+    if (params.has("compass")) {
+      options.compassEnabled(params.getBoolean("compass"));
+    }
+    if (params.has("gestures")) {
+      JSONObject gestures = params.getJSONObject("gestures");
+
+      if (params.has("tilt")) {
+        options.tiltGesturesEnabled(gestures.getBoolean("tilt"));
+      }
+      if (params.has("scroll")) {
+        options.scrollGesturesEnabled(gestures.getBoolean("scroll"));
+      }
+      if (params.has("rotate")) {
+        options.rotateGesturesEnabled(gestures.getBoolean("rotate"));
+      }
+    }
+    if (params.has("controls")) {
+      JSONObject controls = params.getJSONObject("controls");
+
+      if (controls.has("zoom")) {
+        options.zoomControlsEnabled(controls.getBoolean("zoom"));
+      }
+    }
+    if (params.has("camera")) {
+      JSONObject camera = params.getJSONObject("camera");
+      Builder builder = CameraPosition.builder();
+      if (camera.has("bearing")) {
+        builder.bearing((float) camera.getDouble("bearing"));
+      }
+      if (camera.has("latLng")) {
+        JSONObject latLng = camera.getJSONObject("latLng");
+        builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+      }
+      if (camera.has("tilt")) {
+        builder.tilt((float) camera.getDouble("tilt"));
+      }
+      if (camera.has("zoom")) {
+        builder.zoom((float) camera.getDouble("zoom"));
+      }
+      options.camera(builder.build());
+    }
+    
+    mapView = new MapView(activity, options);
     mapView.onCreate(null);
     mapView.onResume();
     map = mapView.getMap();
