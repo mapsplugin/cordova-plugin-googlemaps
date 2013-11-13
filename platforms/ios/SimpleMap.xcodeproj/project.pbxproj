@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -51,6 +50,7 @@
 		A039ADC518223D1E00B32D98 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADC418223D1E00B32D98 /* SystemConfiguration.framework */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 		F840E1F1165FE0F500CFE078 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = F840E1F0165FE0F500CFE078 /* config.xml */; };
+		815C8254AA554CE380A5FA22 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9568FA667045ED82E21A54 /* CDVLogger.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +126,8 @@
 		A039ADC418223D1E00B32D98 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x~iphone.png"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = SimpleMap/config.xml; sourceTree = "<group>"; };
+		8C9568FA667045ED82E21A54 /* CDVLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVLogger.m"; path = "org.apache.cordova.console/CDVLogger.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		C31A2F8D16A0401F98F2C9F0 /* CDVLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVLogger.h"; path = "org.apache.cordova.console/CDVLogger.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -270,6 +272,8 @@
 			isa = PBXGroup;
 			children = (
 				698CBE77182303DB00F9B989 /* GoogleMaps */,
+				8C9568FA667045ED82E21A54 /* CDVLogger.m */,
+				C31A2F8D16A0401F98F2C9F0 /* CDVLogger.h */,
 			);
 			name = Plugins;
 			path = SimpleMap/Plugins;
@@ -362,7 +366,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 500;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "SimpleMap" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -462,6 +466,7 @@
 				69AEC79B182D9AAD00F2AABD /* Circle.m in Sources */,
 				69D4D8BB182AED74000C8451 /* GoogleMapsViewController.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
+				815C8254AA554CE380A5FA22 /* CDVLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
