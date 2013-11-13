@@ -17,5 +17,6 @@
 @property (nonatomic, strong) NSMutableDictionary* circleManager;
 
 - (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
+- (id)initWithOptions:(NSDictionary *) options;
 
 @end

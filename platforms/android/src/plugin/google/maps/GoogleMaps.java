@@ -170,29 +170,53 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     }
     GoogleMapOptions options = new GoogleMapOptions();
     JSONObject params = args.getJSONObject(0);
-    if (params.has("compass")) {
-      options.compassEnabled(params.getBoolean("compass"));
-    }
-    if (params.has("gestures")) {
-      JSONObject gestures = params.getJSONObject("gestures");
-
-      if (params.has("tilt")) {
-        options.tiltGesturesEnabled(gestures.getBoolean("tilt"));
-      }
-      if (params.has("scroll")) {
-        options.scrollGesturesEnabled(gestures.getBoolean("scroll"));
-      }
-      if (params.has("rotate")) {
-        options.rotateGesturesEnabled(gestures.getBoolean("rotate"));
-      }
-    }
+    //controls
     if (params.has("controls")) {
       JSONObject controls = params.getJSONObject("controls");
 
+      if (controls.has("compass")) {
+        options.compassEnabled(controls.getBoolean("compass"));
+      }
       if (controls.has("zoom")) {
         options.zoomControlsEnabled(controls.getBoolean("zoom"));
       }
     }
+    
+    //gestures
+    if (params.has("gestures")) {
+      JSONObject gestures = params.getJSONObject("gestures");
+
+      if (gestures.has("tilt")) {
+        options.tiltGesturesEnabled(gestures.getBoolean("tilt"));
+      }
+      if (gestures.has("scroll")) {
+        options.scrollGesturesEnabled(gestures.getBoolean("scroll"));
+      }
+      if (gestures.has("rotate")) {
+        options.rotateGesturesEnabled(gestures.getBoolean("rotate"));
+      }
+    }
+    
+    // map type
+    if (params.has("mapType")) {
+      String typeStr = params.getString("mapType");
+      int mapTypeId = 0;
+      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
+          : mapTypeId;
+      if (mapTypeId != 0) {
+        options.mapType(mapTypeId);
+      }
+    }
+
+    // initial camera position
     if (params.has("camera")) {
       JSONObject camera = params.getJSONObject("camera");
       Builder builder = CameraPosition.builder();
@@ -216,6 +240,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     mapView.onCreate(null);
     mapView.onResume();
     map = mapView.getMap();
+    
+    //controls
+    if (params.has("controls")) {
+      JSONObject controls = params.getJSONObject("controls");
+
+      if (controls.has("myLocationButton")) {
+        map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
+      }
+    }
     
     // Set event listener
     map.setOnCameraChangeListener(jsInterface);

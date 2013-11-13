@@ -131,7 +131,13 @@ function onAddCircleBtn(map) {
 
 $(document).on('deviceready',  function() {
   var map = plugin.google.maps.Map.getMap({
-    'compass': true,
+    'mapType': plugin.google.maps.MapTypeId.HYBRID,
+    'controls': {
+      'compass': true,
+      'myLocationButton': true,
+      'indoorPicker': true,  // 'indoorPicker' field is for iOS
+      'zoom': true  // 'zoom' field is for Android
+    },
     'gestures': {
       'scroll': true,
       'tilt': true,
@@ -140,7 +146,7 @@ $(document).on('deviceready',  function() {
     'camera': {
       'latLng': GOOGLE,
       'tilt': 30,
-      'zoom': 13,
+      'zoom': 15,
       'bearing': 50
     }
   });

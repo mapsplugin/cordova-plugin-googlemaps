@@ -25,9 +25,14 @@ UIButton *closeButton;
   if (!self.mapCtrl) {
     dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
     
+    
+    
+    
     // Create a map view
     dispatch_sync(gueue, ^{
-      self.mapCtrl = [[GoogleMapsViewController alloc] init];
+      //self.mapCtrl = [[GoogleMapsViewController alloc] init];
+      NSDictionary *options = [command.arguments objectAtIndex:0];
+      self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
       self.mapCtrl.webView = self.webView;
     });
     
