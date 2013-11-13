@@ -55,9 +55,9 @@ NSDictionary *initOptions;
     //------------------
     // Create a map view
     //------------------
-    [GMSServices provideAPIKey:@"AIzaSyADns99mO62aBapBN4_cnCJQnYdh-j6-ug"];
-    NSLog(@"-------initOptions");
-    NSLog(@"%@", initOptions);
+    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+    NSLog(@"APIKey=%@", APIKey);
+    [GMSServices provideAPIKey:APIKey];
   
     //Intial camera position
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
