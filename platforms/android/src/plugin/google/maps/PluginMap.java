@@ -313,4 +313,27 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
       map.animateCamera(cameraUpdate, callback);
     }
   }
+  
+
+  /**
+   * Return the current position of the camera
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void getCameraPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    CameraPosition camera = map.getCameraPosition();
+    JSONObject json = new JSONObject();
+    JSONArray latlng = new JSONArray();
+    latlng.put(camera.target.latitude);
+    latlng.put(camera.target.longitude);
+    json.put("target", latlng);
+    json.put("zoom", camera.zoom);
+    json.put("tilt", camera.tilt);
+    json.put("bearing", camera.bearing);
+    json.put("hashCode", camera.hashCode());
+    
+    callbackContext.success(json);
+  }
 }

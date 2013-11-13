@@ -17,7 +17,7 @@
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
-- (void)showMap:(CDVInvokedUrlCommand*)command;
+- (void)showDialog:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 @end

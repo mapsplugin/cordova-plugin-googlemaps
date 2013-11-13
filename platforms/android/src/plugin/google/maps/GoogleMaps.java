@@ -48,13 +48,16 @@ import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
-public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
+public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
+      OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
+      OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
+      OnMyLocationButtonClickListener, OnMyLocationChangeListener {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   
   private enum METHODS {
     getMap,
-    showMap,
+    showDialog,
     exec
   }
   
@@ -66,19 +69,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
 
-  private JavaScriptInterface jsInterface;
-
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
-    jsInterface = new JavaScriptInterface(activity);
-    Runnable runnable = new Runnable() {
-      public void run() {
-        webView.addJavascriptInterface(jsInterface, "jsInterface");
-      }
-    };
-    cordova.getActivity().runOnUiThread(runnable);
   }
 
   @Override
@@ -96,8 +90,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
           case getMap:
             GoogleMaps.this.getMap(args, callbackContext);
             break;
-          case showMap:
-            GoogleMaps.this.showMap(args, callbackContext);
+          case showDialog:
+            GoogleMaps.this.showDialog(args, callbackContext);
             break;
           case exec:
           
@@ -251,14 +245,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     }
     
     // Set event listener
-    map.setOnCameraChangeListener(jsInterface);
-    map.setOnMapClickListener(jsInterface);
-    map.setOnInfoWindowClickListener(jsInterface);
-    map.setOnMapLoadedCallback(jsInterface);
-    map.setOnMapLongClickListener(jsInterface);
-    map.setOnMarkerDragListener(jsInterface);
-    map.setOnMyLocationButtonClickListener(jsInterface);
-    map.setOnMyLocationChangeListener(jsInterface);
+    map.setOnCameraChangeListener(this);
+    map.setOnMapClickListener(this);
+    map.setOnInfoWindowClickListener(this);
+    map.setOnMapLoadedCallback(this);
+    map.setOnMapLongClickListener(this);
+    map.setOnMarkerDragListener(this);
+    map.setOnMyLocationButtonClickListener(this);
+    map.setOnMyLocationChangeListener(this);
     
     // Load PluginMap class
     this.loadPlugin("Map");
@@ -366,7 +360,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     return true;
   }
 
-  private void showMap(final JSONArray args, final CallbackContext callbackContext) {
+  private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
     root = (ViewGroup) webView.getParent();
     root.removeView(webView);
     baseLayer.addView(webView, 0);
@@ -374,176 +368,155 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     callbackContext.success();
   }
 
-
-
-  public class JavaScriptInterface implements OnMarkerClickListener,
-      OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
-      OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, OnMyLocationChangeListener {
+  private void closeWindow() {
+    root.removeView(baseLayer);
+    baseLayer.removeView(webView);
+    activity.setContentView(webView);
+  }
+  
+  private void showLicenseText() {
+    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
     
-    Context mContext;
-
-    /** Instantiate the interface and set the context */
-    JavaScriptInterface(Context context) {
-      mContext = context;
-    }
-
-    /**
-     * Notify marker event to JS
-     * @param eventName
-     * @param marker
-     */
-    private void onMarkerEvent(final String eventName, final Marker marker) {
-      Runnable runnable = new Runnable() {
-        public void run() {
-          webView.loadUrl(
-              "javascript:plugin.google.maps.Map." +
-                  "_onMarkerEvent('" + eventName + "'," + marker.hashCode() + ")");
+    alertDialogBuilder
+      .setMessage(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity))
+      .setCancelable(false)
+      .setPositiveButton("Close",new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog,int id) {
+          dialog.dismiss();
         }
-      };
-      cordova.getActivity().runOnUiThread(runnable);
-    }
+      });
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-      this.onMarkerEvent("click", marker);
-      return false;
-    }
-    
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-      this.onMarkerEvent("info_click", marker);
-    }
+    // create alert dialog
+    AlertDialog alertDialog = alertDialogBuilder.create();
 
-    @Override
-    public void onMarkerDrag(Marker marker) {
-      this.onMarkerEvent("drag", marker);
-    }
+    // show it
+    alertDialog.show();
+  }
+  
+  /********************************************************
+   * Callbacks
+   ********************************************************/
 
-    @Override
-    public void onMarkerDragEnd(Marker marker) {
-      this.onMarkerEvent("drag_end", marker);
-    }
+  /**
+   * Notify marker event to JS
+   * @param eventName
+   * @param marker
+   */
+  private void onMarkerEvent(final String eventName, final Marker marker) {
+    webView.loadUrl("javascript:plugin.google.maps.Map." +
+                "_onMarkerEvent('" + eventName + "'," + marker.hashCode() + ")");
+  }
 
-    @Override
-    public void onMarkerDragStart(Marker marker) {
-      this.onMarkerEvent("drag_start", marker);
-    }
+  @Override
+  public boolean onMarkerClick(Marker marker) {
+    this.onMarkerEvent("click", marker);
+    return false;
+  }
+  
+  @Override
+  public void onInfoWindowClick(Marker marker) {
+    this.onMarkerEvent("info_click", marker);
+  }
 
-    /**
-     * Notify map event to JS
-     * @param eventName
-     * @param point
-     */
-    private void onMapEvent(final String eventName, final LatLng point) {
-      Runnable runnable = new Runnable() {
-        public void run() {
-          webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent(" +
-              "'" + eventName + "', [" + point.latitude + "," + point.longitude + "])");
-        }
-      };
-      cordova.getActivity().runOnUiThread(runnable);
-    }
+  @Override
+  public void onMarkerDrag(Marker marker) {
+    this.onMarkerEvent("drag", marker);
+  }
 
-    @Override
-    public void onMapLongClick(LatLng point) {
-      this.onMapEvent("long_click", point);
-    }
+  @Override
+  public void onMarkerDragEnd(Marker marker) {
+    this.onMarkerEvent("drag_end", marker);
+  }
 
-    @Override
-    public void onMapClick(LatLng point) {
-      this.onMapEvent("click", point);
-    }
-    
-    /**
-     * Notify the myLocationChange event to JS
-     */
-    @SuppressLint("NewApi")
-    @Override
-    public void onMyLocationChange(Location location) {
-      JSONObject params = new JSONObject();
-      String paramsStr = "";
-      try {
-        params.put("latitude", location.getLatitude());
-        params.put("longitude", location.getLongitude());
-        params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
-        params.put("time", location.getTime());
-        if (location.hasAccuracy()) {
-          params.put("accuracy", location.getAccuracy());
-        }
-        if (location.hasBearing()) {
-          params.put("bearing", location.getBearing());
-        }
-        if (location.hasAltitude()) {
-          params.put("altitude", location.getAltitude());
-        }
-        if (location.hasSpeed()) {
-          params.put("speed", location.getSpeed());
-        }
-        params.put("provider", location.getProvider());
-        params.put("hashCode", location.hashCode());
-        paramsStr = params.toString();
-      } catch (JSONException e) {
-        e.printStackTrace();
+  @Override
+  public void onMarkerDragStart(Marker marker) {
+    this.onMarkerEvent("drag_start", marker);
+  }
+
+  /**
+   * Notify map event to JS
+   * @param eventName
+   * @param point
+   */
+  private void onMapEvent(final String eventName, final LatLng point) {
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent(" +
+            "'" + eventName + "', new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + "))");
+  }
+
+  @Override
+  public void onMapLongClick(LatLng point) {
+    this.onMapEvent("long_click", point);
+  }
+
+  @Override
+  public void onMapClick(LatLng point) {
+    this.onMapEvent("click", point);
+  }
+  
+  /**
+   * Notify the myLocationChange event to JS
+   */
+  @SuppressLint("NewApi")
+  @Override
+  public void onMyLocationChange(Location location) {
+    JSONObject params = new JSONObject();
+    String jsonStr = "";
+    try {
+      params.put("latitude", location.getLatitude());
+      params.put("longitude", location.getLongitude());
+      params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
+      params.put("time", location.getTime());
+      if (location.hasAccuracy()) {
+        params.put("accuracy", location.getAccuracy());
       }
-      final String jsonStr = paramsStr;
-      
-      Runnable runnable = new Runnable() {
-        public void run() {
-          webView.loadUrl("javascript:plugin.google.maps.Map._onMyLocationChange(" + jsonStr + ")");
-        }
-      };
-      cordova.getActivity().runOnUiThread(runnable);
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-      Runnable runnable = new Runnable() {
-        public void run() {
-          webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('my_location_button_click')");
-        }
-      };
-      cordova.getActivity().runOnUiThread(runnable);
-      return false;
-    }
-
-
-    @Override
-    public void onMapLoaded() {
-      Runnable runnable = new Runnable() {
-        public void run() {
-          webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('map_loaded')");
-        }
-      };
-      cordova.getActivity().runOnUiThread(runnable);
-    }
-
-    /**
-     * Notify the myLocationChange event to JS
-     */
-    @Override
-    public void onCameraChange(CameraPosition position) {
-      JSONObject params = new JSONObject();
-      String paramsStr = "";
-      try {
-        params.put("hashCode", position.hashCode());
-        params.put("bearing", position.bearing);
-        params.put("target", position.target);
-        params.put("tilt", position.tilt);
-        params.put("zoom", position.zoom);
-        paramsStr = params.toString();
-      } catch (JSONException e) {
-        e.printStackTrace();
+      if (location.hasBearing()) {
+        params.put("bearing", location.getBearing());
       }
-      final String jsonStr = paramsStr;
-      
-      Runnable runnable = new Runnable() {
-        public void run() {
-          webView.loadUrl("javascript:plugin.google.maps.Map._onCameraChange(" + jsonStr + ")");
-        }
-      };
-      cordova.getActivity().runOnUiThread(runnable);
+      if (location.hasAltitude()) {
+        params.put("altitude", location.getAltitude());
+      }
+      if (location.hasSpeed()) {
+        params.put("speed", location.getSpeed());
+      }
+      params.put("provider", location.getProvider());
+      params.put("hashCode", location.hashCode());
+      jsonStr = params.toString();
+    } catch (JSONException e) {
+      e.printStackTrace();
     }
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMyLocationChange(" + jsonStr + ")");
+  }
+
+  @Override
+  public boolean onMyLocationButtonClick() {
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('my_location_button_click')");
+    return false;
+  }
+
+
+  @Override
+  public void onMapLoaded() {
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('map_loaded')");
+  }
+
+  /**
+   * Notify the myLocationChange event to JS
+   */
+  @Override
+  public void onCameraChange(CameraPosition position) {
+    JSONObject params = new JSONObject();
+    String jsonStr = "";
+    try {
+      params.put("hashCode", position.hashCode());
+      params.put("bearing", position.bearing);
+      params.put("target", position.target);
+      params.put("tilt", position.tilt);
+      params.put("zoom", position.zoom);
+      jsonStr = params.toString();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+    webView.loadUrl("javascript:plugin.google.maps.Map._onCameraEvent('camera_change', " + jsonStr + ")");
   }
 
   @Override
@@ -570,30 +543,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     super.onDestroy();
   }
   
-  private void closeWindow() {
-    root.removeView(baseLayer);
-    baseLayer.removeView(webView);
-    activity.setContentView(webView);
-  }
-  
-  private void showLicenseText() {
-    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-    
-    alertDialogBuilder
-      .setMessage(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity))
-      .setCancelable(false)
-      .setPositiveButton("Close",new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog,int id) {
-          dialog.dismiss();
-        }
-      });
-
-    // create alert dialog
-    AlertDialog alertDialog = alertDialogBuilder.create();
-
-    // show it
-    alertDialog.show();
-  }
 
   @Override
   public void onClick(View view) {

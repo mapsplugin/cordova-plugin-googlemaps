@@ -1,15 +1,6 @@
 (function(window){
   const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
-  
-  /**
-   * @name CameraPosition
-   * @class This class represents new camera positino
-   * @property {LatLng} target The location where you want to show
-   * @property {Number} [tilt] View angle
-   * @property {Number} [zoom] Zoom level
-   * @property {Number} [bearing] Map orientation
-   */
  
   /**
    * Google Maps model.
@@ -71,34 +62,34 @@
   App.prototype._onMarkerEvent = function(eventName, hashCode) {
     var marker = MARKERS[hashCode] || null;
     if (marker) {
-      marker.trigger(eventName, this, marker);
+      marker.trigger(eventName, marker, this);
     }
   };
   
   /**
-   * Map events listener
+   * Callback from Native
    */
-  App.prototype._onMapEvent = function(eventName, points) {
-    if (points) {
-      var latlng = new LatLng(points[0], points[1]);
-      this.trigger(eventName, latlng);
-    } else {
-      this.trigger(eventName);
+  App.prototype._onMapEvent = function(eventName) {
+    var args = [eventName];
+    for (var i = 1; i < arguments.length; i++) {
+      args.push(arguments[i]);
     }
+    args.push(this);
+    this.trigger.apply(this, args);
   };
   /**
    * Callback from Native
    */
   App.prototype._onMyLocationChange = function(params) {
     var location = new Location(params);
-    this.trigger('my_location_change', location);
+    this.trigger('my_location_change', location, this);
   };
   /**
    * Callback from Native
    */
-  App.prototype._onCameraChange = function(params) {
+  App.prototype._onCameraEvent = function(eventName, params) {
     var cameraPosition = new CameraPosition(params);
-    this.trigger('camera_change', cameraPosition);
+    this.trigger(eventName, cameraPosition, this);
   };
 
   
@@ -118,8 +109,8 @@
       callback(null, txt);
     }, errorHandler, PLUGIN_NAME, 'getLicenseInfo');
   };
-  App.prototype.show = function(callback) {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showMap', []);
+  App.prototype.showDialog = function(callback) {
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
   
   
@@ -163,8 +154,8 @@
   /**
    * @desc Open the map dialog
    */
-  App.prototype.show = function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showMap', []);
+  App.prototype.showDialog = function() {
+    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
  
  
@@ -195,6 +186,12 @@
  
     cordova.exec(myCallback, errorHandler, PLUGIN_NAME, 'exec', params);
   };
+  /**
+   * @desc   Move the map camera without animation
+   * @params {CameraPosition} cameraPosition New camera position
+   * @params {Number} [durationMs = 1000] Animate duration
+   * @params {Function} [callback] This callback is involved when the animation is completed.
+   */
   App.prototype.moveCamera = function(cameraPosition, callback) {
     var argsLength = arguments.length;
     if (cameraPosition.target) {
@@ -221,6 +218,27 @@
   App.prototype.setCompassEnabled = function(enabled) {
     enabled = Boolean(enabled);
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
+  };
+  App.prototype.getMyLocation = function(callback) {
+    cordova.exec(function(latLng) {
+      if (typeof callback === "function") {
+        callback(new LatLng(latLng[0], latLng[1]));
+      }
+    
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Map.getMyLocation']);
+  };
+ 
+  /**
+   * Return the current position of the camera
+   * @return {CameraPosition}
+   */
+  App.prototype.getCameraPosition = function(callback) {
+    cordova.exec(function(camera) {
+      if (typeof callback === "function") {
+        camera.target = new LatLng(camera.target[0], camera.target[1]);
+        callback(camera);
+      }
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
   };
   //-------------
   // Marker
@@ -254,7 +272,7 @@
         marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
       }
       if (typeof callback === "function") {
-        callback.call(marker, marker);
+        callback.call(marker, marker, self);
       }
     }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
   };
@@ -279,14 +297,18 @@
       var circle = new Circle(circleId, circleOptions);
       
       if (callback) {
-        callback(circle);
+        callback.call(circle, circle, self);
       }
     }, errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
-  
-  /*****************************************************************************
-   * CameraPosition Class
-   *****************************************************************************/
+  /********************************************************************************
+   * @name CameraPosition
+   * @class This class represents new camera position
+   * @property {LatLng} target The location where you want to show
+   * @property {Number} [tilt] View angle
+   * @property {Number} [zoom] Zoom level
+   * @property {Number} [bearing] Map orientation
+   *******************************************************************************/
   var CameraPosition = function(params) {
     var self = this;
     self.zoom = params.zoom;
@@ -310,15 +332,53 @@
     self.provider = params.provider;
     self.hashCode = params.hashCode;
   };
-  /*****************************************************************************
-   * Location Class
-   *****************************************************************************/
+   
+  /*******************************************************************************
+   * @name LatLng
+   * @class This class represents new camera position
+   * @param {Number} latitude
+   * @param {Number} longitude
+   ******************************************************************************/
   var LatLng = function(latitude, longitude) {
     var self = this;
+ 
+    /**
+     * @property {Number} latitude
+     */
     self.lat = parseFloat(latitude || 0, 10);
+ 
+    /**
+     * @property {Number} longitude
+     */
     self.lng = parseFloat(longitude || 0, 10);
+ 
+    /**
+     * Comparison function.
+     * @method
+     * @return {Boolean}
+     */
+    self.equals = function(other) {
+      other = other || {};
+      return other.lat === self.lat &&
+             other.lng === self.lng;
+    };
+ 
+    /**
+     * @method
+     * @return {String} latitude,lontitude
+     */
     self.toString = function() {
-      return self.lat.toFixed(6) + "," + self.lng.toFixed(6);
+      return self.lat + "," + self.lng;
+    };
+ 
+    /**
+     * @method
+     * @param {Number}
+     * @return {String} latitude,lontitude
+     */
+    self.toUrlValue = function(precision) {
+      precision = precision || 6;
+      return self.lat.toFixed(precision) + "," + self.lng.toFixed(precision);
     };
   };
   
@@ -534,11 +594,12 @@
   window.plugin.google.maps.event = {
     MAP_CLICK: 'click',
     MAP_LONG_CLICK: 'long_click',
-    MY_LOCATION_CHANGE: 'my_location_change',
+    MY_LOCATION_CHANGE: 'my_location_change', // for Android
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
     CAMERA_CHANGE: 'camera_change',
     MAP_READY: 'map_ready',
-    MAP_loaded: 'map_loaded',
+    MAP_LOADED: 'map_loaded', //for Android
+    MAP_WILL_MOVE: 'will_move', //for iOS
     MARKER_CLICK: 'click',
     INFO_CLICK: 'info_click',
     MARKER_DRAG: 'drag',

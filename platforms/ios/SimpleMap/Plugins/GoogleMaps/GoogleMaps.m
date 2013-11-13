@@ -151,7 +151,7 @@ UIButton *closeButton;
 /**
  * Show the map window
  */
-- (void)showMap:(CDVInvokedUrlCommand *)command {
+- (void)showDialog:(CDVInvokedUrlCommand *)command {
   [self.webView addSubview:self.mapCtrl.view];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

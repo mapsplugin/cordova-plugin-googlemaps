@@ -18,37 +18,41 @@ function onMapReady(map) {
   $("#addCircleBtn").click(function(){
     onAddCircleBtn(map);
   });
+  $("#getCameraPosition").click(function() {
+    map.getCameraPosition(function(camera) {
+      var buff = ["Current camera position:\n",
+                  "latitude:" + camera.target.lat,
+                  "longitude:" + camera.target.lng,
+                  "zoom:" + camera.zoom,
+                  "tilt:" + camera.tilt,
+                  "bearing:" + camera.bearing].join("\n");
+      alert(buff);
+    });
+  });
   
-  map.show();
+  map.showDialog();
   map.setMyLocationEnabled(true);
   map.setIndoorEnabled(true);
   map.setTrafficEnabled(true);
   map.setCompassEnabled(true);
-  map.on(plugin.google.maps.event.MAP_CLICK, onMapClick);
-  map.on(plugin.google.maps.event.MAP_LONG_CLICK, onMapLongClick);
 }
 
 function onShowBtn(map) {
-  map.show();
+  map.showDialog();
 }
 
 function onChangeMapTypeBtn(map, typeId) {
-  map.show();
+  map.showDialog();
   var mapTypeId = plugin.google.maps.MapTypeId.NORMAL;
   if (typeId === "HYBRID") {
     mapTypeId = plugin.google.maps.MapTypeId.HYBRID;
   }
   map.setMapTypeId(mapTypeId);
 }
-function onMapClick(latLng) {
-  alert("Map was clicked.\n" + latLng.toString());
-}
-function onMapLongClick(latLng) {
-  alert("Map was long clicked.\n" + latLng.toString());
-}
+
 
 function onAddMarkerBtn(map) {
-  map.show();
+  map.showDialog();
   
   map.addMarker({
     'position': GOOGLE,
@@ -74,7 +78,7 @@ function onAddMarkerBtn(map) {
   
 }
 function onAddIconMarkerBtn(map) {
-  map.show();
+  map.showDialog();
   
   map.addMarker({
     'position': GOOGLE_TOKYO,
@@ -87,7 +91,7 @@ function onAddIconMarkerBtn(map) {
       'tilt': 60,
       'zoom': 14,
       'bearing': 0
-    }, 3000, function() {
+    }, function() {
       marker.showInfoWindow();
     });
     
@@ -96,9 +100,8 @@ function onAddIconMarkerBtn(map) {
   
 }
 
-function onMarkerClicked(map) {
-  var marker = this;
-  
+// callback: A marker is clicked.
+function onMarkerClicked(marker, map) {
   marker.hideInfoWindow();
   marker.getPosition(function(latLng) {
     map.animateCamera({
@@ -115,17 +118,25 @@ function onMarkerClicked(map) {
 }
 
 function onAddCircleBtn(map) {
-  map.show();
-  map.addCircle({
-    'center': GOOGLE,
-    'radius': 300,
-    'strokeColor' : '#AA00FF',
-    'strokeWidth': 5,
-    'fillColor' : '#880000'
-  });
-  map.animateCamera({
-    'target': GOOGLE,
-    'zoom': 13
+  map.showDialog();
+  
+  map.getMyLocation(function(latLng) {
+    alert(JSON.stringify(latLng));
+    return;
+    map.addCircle({
+      'center': latLng,
+      'radius': 300,
+      'strokeColor' : '#AA00FF',
+      'strokeWidth': 5,
+      'fillColor' : '#880000'
+    });
+    
+    
+    map.animateCamera({
+      'target': latLng,
+      'zoom': 14
+    });
+    
   });
 };
 
@@ -150,8 +161,27 @@ $(document).on('deviceready',  function() {
       'bearing': 50
     }
   });
+  //involved when the map is ready.
   map.on(plugin.google.maps.event.MAP_READY, onMapReady);
+  
+  //involved when the map is clicked.
+  map.on(plugin.google.maps.event.MAP_CLICK, function(latLng) {
+    alert("Map was clicked.\n" + latLng.toUrlValue());
+  });
+  
+  //involved when the map is long clicked.
+  map.on(plugin.google.maps.event.MAP_LONG_CLICK, function(latLng) {
+    alert("Map was long clicked.\n" + latLng.toUrlValue());
+  });
+  
+  // involved when the map camera is moved.
+  //map.on(plugin.google.maps.event.CAMERA_CHANGE, function(camera) {
+  //  console.log("onCameraChange:" + JSON.stringify(camera));
+  //});
+  
 });
+
+
 
 $("button").attr("disabled", "disabled");
 

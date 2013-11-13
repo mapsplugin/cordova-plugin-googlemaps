@@ -7,6 +7,7 @@
 //
 
 #import "GoogleMapsViewController.h"
+#import <Cordova/CDVJSON.h>
 
 @interface GoogleMapsViewController ()
 
@@ -160,27 +161,125 @@ NSDictionary *initOptions;
 
 #pragma mark - GMSMapViewDelegate
 
-- (void)mapView:(GMSMapView *)mapView
-    didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
-  
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapClick(\"%f,%f\");", coordinate.latitude, coordinate.longitude];
+/**
+ * @callback map long_click
+ */
+- (void) mapView:(GMSMapView *)mapView didLongPressAtCoordinate:(CLLocationCoordinate2D)coordinate {
+  [self triggerMapEvent:@"long_click" coordinate:coordinate];
+}
+
+/**
+ * @callback map click
+ */
+- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+  [self triggerMapEvent:@"click" coordinate:coordinate];
+}
+/**
+ * @callback map will_move
+ */
+- (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
+{
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %hhd);", gesture];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
-#pragma mark - GMSMapViewDelegate
 
-- (void)mapView:(GMSMapView *)mapView willMove:(BOOL)gesture {
-NSLog(@"willMove gesture=%hhd", gesture);
-  //[mapView clear];
+/**
+ * @callback map camera_change
+ */
+- (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
+  [self triggerCameraEvent:@"camera_change" position:position];
+}
+/**
+ * @callback map camera_idle
+ */
+- (void) mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position
+{
+  [self triggerCameraEvent:@"camera_idle" position:position];
 }
 
+
+/**
+ * @callback marker info_click
+ */
+- (void) mapView:(GMSMapView *)mapView didTapInfoWindowOfMarker:(GMSMarker *)marker
+{
+  [self triggerMarkerEvent:@"info_click" marker:marker];
+}
+/**
+ * @callback marker drag_start
+ */
+- (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
+{
+  [self triggerMarkerEvent:@"drag_start" marker:marker];
+}
+/**
+ * @callback marker drag_end
+ */
+- (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
+{
+  [self triggerMarkerEvent:@"drag_end" marker:marker];
+}
+/**
+ * @callback marker drag
+ */
+- (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
+{
+  [self triggerMarkerEvent:@"drag" marker:marker];
+}
+
+/**
+ * @callback marker click
+ */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerClick(\"marker%d\");", marker.hash];
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+  [self triggerMarkerEvent:@"click" marker:marker];
 
 	return YES;
 }
+
+/**
+ * Involve App._onMapEvent
+ */
+- (void)triggerMapEvent: (NSString *)eventName coordinate:(CLLocationCoordinate2D)coordinate
+{
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('%@', new window.plugin.google.maps.LatLng(%f,%f));",
+                                      eventName, coordinate.latitude, coordinate.longitude];
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+/**
+ * Involve App._onCameraEvent
+ */
+- (void)triggerCameraEvent: (NSString *)eventName position:(GMSCameraPosition *)position
+{
+
+  NSMutableDictionary *target = [NSMutableDictionary dictionary];
+  [target setObject:[NSNumber numberWithDouble:position.target.latitude] forKey:@"lat"];
+  [target setObject:[NSNumber numberWithDouble:position.target.longitude] forKey:@"lng"];
+
+  NSMutableDictionary *json = [NSMutableDictionary dictionary];
+  [json setObject:[NSNumber numberWithFloat:position.bearing] forKey:@"bearing"];
+  [json setObject:target forKey:@"target"];
+  [json setObject:[NSNumber numberWithDouble:position.viewingAngle] forKey:@"tilt"];
+  [json setObject:[NSNumber numberWithInt:position.hash] forKey:@"hashCode"];
+  
+  
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onCameraEvent('%@', %@);", eventName, [json JSONString]];
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+
+
+/**
+ * Involve App._onMarkerEvent
+ */
+- (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
+{
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker%d');",
+                                      eventName, marker.hash];
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+
 /*
+//future support: custom info window
 -(UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker*)marker
 {
     UIView *view = [[UIView alloc]init];
