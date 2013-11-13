@@ -13,7 +13,9 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.util.Log;
@@ -28,7 +30,6 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -42,7 +43,6 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
@@ -63,8 +63,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
   private Activity activity;
   private FrameLayout baseLayer;
   private ViewGroup root;
-  private int CLOSE_LINK_ID;
-  private int ABOUT_LINK_ID;
+  private final int CLOSE_LINK_ID = 0x7f999990;  //random
+  private final int LICENSE_LINK_ID = 0x7f99991; //random
 
   private JavaScriptInterface jsInterface;
 
@@ -315,20 +315,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     closeLink.setGravity(Gravity.LEFT);
     closeLink.setPadding(10, 0, 0, 10);
     closeLink.setOnClickListener(GoogleMaps.this);
-    CLOSE_LINK_ID = closeLink.getId();
+    closeLink.setId(CLOSE_LINK_ID);
     buttonFrame.addView(closeLink);
-
+    
     //license button
-    TextView aboutLink = new TextView(activity);
-    aboutLink.setText("About");
-    aboutLink.setTextColor(Color.BLUE);
-    aboutLink.setLayoutParams(buttonParams);
-    aboutLink.setTextSize(20);
-    aboutLink.setGravity(Gravity.RIGHT);
-    aboutLink.setPadding(10, 10, 10, 10);
-    aboutLink.setOnClickListener(GoogleMaps.this);
-    ABOUT_LINK_ID = aboutLink.getId();
-    buttonFrame.addView(aboutLink);
+    TextView licenseLink = new TextView(activity);
+    licenseLink.setText("Legal Notices");
+    licenseLink.setTextColor(Color.BLUE);
+    licenseLink.setLayoutParams(buttonParams);
+    licenseLink.setTextSize(20);
+    licenseLink.setGravity(Gravity.RIGHT);
+    licenseLink.setPadding(10, 10, 10, 10);
+    licenseLink.setOnClickListener(GoogleMaps.this);
+    licenseLink.setId(LICENSE_LINK_ID);
+    buttonFrame.addView(licenseLink);
     
     callbackContext.success();
     return;
@@ -575,16 +575,36 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener {
     baseLayer.removeView(webView);
     activity.setContentView(webView);
   }
+  
+  private void showLicenseText() {
+    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+    
+    alertDialogBuilder
+      .setMessage(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity))
+      .setCancelable(false)
+      .setPositiveButton("Close",new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog,int id) {
+          dialog.dismiss();
+        }
+      });
+
+    // create alert dialog
+    AlertDialog alertDialog = alertDialogBuilder.create();
+
+    // show it
+    alertDialog.show();
+  }
 
   @Override
   public void onClick(View view) {
     int viewId = view.getId();
+    Log.d(TAG, "viewId = " + viewId);
     if (viewId == CLOSE_LINK_ID) {
       closeWindow();
       return;
     }
-    if (viewId == ABOUT_LINK_ID) {
-      closeWindow();
+    if (viewId == LICENSE_LINK_ID) {
+      showLicenseText();
       return;
     }
   }
