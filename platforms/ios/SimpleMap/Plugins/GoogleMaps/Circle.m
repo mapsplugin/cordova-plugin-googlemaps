@@ -40,7 +40,7 @@
   circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
   NSString *key = [NSString stringWithFormat:@"circle%d", circle.hash];
-  [self.mapCtrl.circleManager setObject:circle forKey: key];
+  [self.mapCtrl.overlayManager setObject:circle forKey: key];
   
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];

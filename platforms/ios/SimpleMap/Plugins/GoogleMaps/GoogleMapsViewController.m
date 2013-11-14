@@ -50,9 +50,7 @@ NSDictionary *initOptions;
     //------------
     // Initialize
     //------------
-    self.markerManager = [NSMutableDictionary dictionary];
-    self.circleManager = [NSMutableDictionary dictionary];
-    self.polygonManager = [NSMutableDictionary dictionary];
+    self.overlayManager = [NSMutableDictionary dictionary];
   
     //------------------
     // Create a map view

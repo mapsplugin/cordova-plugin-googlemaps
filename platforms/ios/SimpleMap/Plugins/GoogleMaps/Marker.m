@@ -36,7 +36,7 @@
   marker.rotation = [[json valueForKey:@"flat"] floatValue];
   
   NSString *key = [NSString stringWithFormat:@"marker%d", marker.hash];
-  [self.mapCtrl.markerManager setObject:marker forKey: key];
+  [self.mapCtrl.overlayManager setObject:marker forKey: key];
   
   // Create icon
   NSString *iconPath = [json valueForKey:@"icon"];
@@ -69,7 +69,7 @@
   
   NSString *hashCode = [command.arguments objectAtIndex:1];
   
-  GMSMarker *marker = [self.mapCtrl.markerManager objectForKey:hashCode];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:hashCode];
   if (marker) {
     self.mapCtrl.map.selectedMarker = marker;
   }
@@ -96,7 +96,7 @@
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   
-  GMSMarker *marker = [self.mapCtrl.markerManager objectForKey:markerKey];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   NSNumber *latitude = @0.0;
   NSNumber *longitude = @0.0;
   if (marker) {
@@ -116,7 +116,7 @@
 -(void)setTitle:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
-  GMSMarker *marker = [self.mapCtrl.markerManager objectForKey:markerKey];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   marker.title = [command.arguments objectAtIndex:2];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -130,7 +130,7 @@
 -(void)setSnippet:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
-  GMSMarker *marker = [self.mapCtrl.markerManager objectForKey:markerKey];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   marker.snippet = [command.arguments objectAtIndex:2];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -144,8 +144,9 @@
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
-  GMSMarker *marker = [self.mapCtrl.markerManager objectForKey:markerKey];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   marker.map = nil;
+  [self.mapCtrl.overlayManager removeObjectForKey:markerKey];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

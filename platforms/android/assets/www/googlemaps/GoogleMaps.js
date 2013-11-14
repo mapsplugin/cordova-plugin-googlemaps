@@ -220,12 +220,13 @@
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
   };
   App.prototype.getMyLocation = function(callback) {
-    cordova.exec(function(latLng) {
+    cordova.exec(function(location) {
       if (typeof callback === "function") {
-        callback(new LatLng(latLng[0], latLng[1]));
+        location.latLng = new LatLng(location.latLng[0], location.latLng[1]);
+        callback(location);
       }
     
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Map.getMyLocation']);
+    }, errorHandler, PLUGIN_NAME, 'getMyLocation', []);
   };
  
   /**
@@ -293,14 +294,12 @@
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
     circleOptions.radius = circleOptions.radius || 1;
  
-    
     cordova.exec(function(circleId) {
       var circle = new Circle(circleId, circleOptions);
-      
       if (callback) {
         callback.call(circle, circle, self);
       }
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
+    },errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
   //-------------
   // Polygon
@@ -577,7 +576,7 @@
   document.head.appendChild(colorDiv);
  
   function HTMLColor2RGBA(colorStr) {
-    var alpha = 255,
+    var alpha = Math.floor(255 * 0.75),
         matches,
         compStyle,
         result = {

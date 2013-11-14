@@ -77,6 +77,7 @@ UIButton *closeButton;
 
 - (void)exec:(CDVInvokedUrlCommand *)command {
   
+    NSLog(@"exec");
   
   [self.commandDelegate runInBackground:^{
     
@@ -158,4 +159,33 @@ UIButton *closeButton;
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Return the current position based on GPS
+ */
+-(void)getMyLocation:(CDVInvokedUrlCommand *)command
+{
+  
+  CLLocationManager *locationManager = [[CLLocationManager alloc] init];
+  locationManager.distanceFilter = kCLDistanceFilterNone;
+  
+
+  NSMutableDictionary *json = [NSMutableDictionary dictionary];
+  [json setObject:[NSArray
+      arrayWithObjects:[NSNumber numberWithFloat:locationManager.location.coordinate.latitude],
+                       [NSNumber numberWithFloat:locationManager.location.coordinate.longitude],
+                       nil] forKey:@"latLng"];
+  [json setObject:[NSNumber numberWithFloat:[locationManager.location speed]] forKey:@"speed"];
+  [json setObject:[NSNumber numberWithFloat:[locationManager.location altitude]] forKey:@"altitude"];
+  
+  //todo: calcurate the correct accuracy based on horizontalAccuracy and verticalAccuracy
+  [json setObject:[NSNumber numberWithFloat:[locationManager.location horizontalAccuracy]] forKey:@"accuracy"];
+  [json setObject:[NSNumber numberWithDouble:[locationManager.location.timestamp timeIntervalSince1970]] forKey:@"time"];
+  [json setObject:[NSNumber numberWithInteger:[locationManager.location hash]] forKey:@"hashCode"];
+
+  locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
+  [locationManager startUpdatingLocation];
+    
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

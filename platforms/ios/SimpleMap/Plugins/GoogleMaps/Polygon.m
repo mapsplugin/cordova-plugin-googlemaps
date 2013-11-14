@@ -52,7 +52,7 @@
   polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
   NSString *key = [NSString stringWithFormat:@"polygon%d", polygon.hash];
-  [self.mapCtrl.polygonManager setObject:polygon forKey: key];
+  [self.mapCtrl.overlayManager setObject:polygon forKey: key];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

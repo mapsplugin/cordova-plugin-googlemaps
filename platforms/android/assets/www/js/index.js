@@ -6,31 +6,27 @@ function onMapReady(map) {
   $("#showBtn").click(function(){
     onShowBtn(map);
   });
-  $(".changeMapTypeBtn").click(function(){
+  $(".changeMapType").click(function(){
     onChangeMapTypeBtn(map, $(this).attr('typeId'));
   });
-  $("#addMarkerBtn").click(function(){
+  $("#addMarker").click(function(){
     onAddMarkerBtn(map);
   });
-  $("#addIconMarkerBtn").click(function(){
+  $("#addIconMarker").click(function(){
     onAddIconMarkerBtn(map);
   });
-  $("#addCircleBtn").click(function(){
+  $("#addCircle").click(function(){
     onAddCircleBtn(map);
   });
-  $("#addPolygonBtn").click(function(){
+  $("#addPolygon").click(function(){
     onAddPolygonBtn(map);
   });
   $("#getCameraPosition").click(function() {
-    map.getCameraPosition(function(camera) {
-      var buff = ["Current camera position:\n",
-                  "latitude:" + camera.target.lat,
-                  "longitude:" + camera.target.lng,
-                  "zoom:" + camera.zoom,
-                  "tilt:" + camera.tilt,
-                  "bearing:" + camera.bearing].join("\n");
-      alert(buff);
-    });
+    onGetCameraPosition(map);
+  });
+
+  $("#getMyLocation").click(function() {
+    onGetMyLocation(map);
   });
   
   map.showDialog();
@@ -38,6 +34,36 @@ function onMapReady(map) {
   map.setIndoorEnabled(true);
   map.setTrafficEnabled(true);
   map.setCompassEnabled(true);
+}
+
+/**
+ * Show the current location of you
+ */
+function onGetMyLocation(map) {
+  map.getMyLocation(function(location) {
+    var buff = ["Current your location:\n",
+                "latitude:" + location.latLng.lat,
+                "longitude:" + location.latLng.lng,
+                "speed:" + location.speed,
+                "time:" + location.time,
+                "bearing:" + location.speed].join("\n");
+    alert(buff);
+  });
+}
+
+/**
+ * Show the current camera information
+ */
+function onGetCameraPosition(map) {
+  map.getCameraPosition(function(camera) {
+    var buff = ["Current camera position:\n",
+                "latitude:" + camera.target.lat,
+                "longitude:" + camera.target.lng,
+                "zoom:" + camera.zoom,
+                "tilt:" + camera.tilt,
+                "bearing:" + camera.bearing].join("\n");
+    alert(buff);
+  });
 }
 
 function onShowBtn(map) {
@@ -123,21 +149,18 @@ function onMarkerClicked(marker, map) {
 function onAddCircleBtn(map) {
   map.showDialog();
   
-  map.getMyLocation(function(latLng) {
-    map.addCircle({
-      'center': latLng,
-      'radius': 300,
-      'strokeColor' : '#AA00FF',
-      'strokeWidth': 5,
-      'fillColor' : '#880000'
-    });
-    
-    
-    map.animateCamera({
-      'target': latLng,
-      'zoom': 14
-    });
-    
+  map.addCircle({
+    'center': GOOGLE,
+    'radius': 300,
+    'strokeColor' : '#AA00FF',
+    'strokeWidth': 5,
+    'fillColor' : '#880000'
+  });
+  
+  
+  map.animateCamera({
+    'target': GOOGLE,
+    'zoom': 14
   });
 }
 
