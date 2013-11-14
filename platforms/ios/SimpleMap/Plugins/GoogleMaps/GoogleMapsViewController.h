@@ -15,6 +15,7 @@
 @property (nonatomic, strong) UIWebView* webView;
 @property (nonatomic, strong) NSMutableDictionary* markerManager;
 @property (nonatomic, strong) NSMutableDictionary* circleManager;
+@property (nonatomic, strong) NSMutableDictionary* polygonManager;
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;

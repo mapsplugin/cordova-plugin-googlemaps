@@ -283,8 +283,9 @@
   //-------------
   App.prototype.addCircle = function(circleOptions, callback) {
     var self = this;
-    circleOptions.lat = circleOptions.center.lat;
-    circleOptions.lng = circleOptions.center.lng;
+    circleOptions.center = circleOptions.center || {};
+    circleOptions.lat = circleOptions.center.lat || 0.0;
+    circleOptions.lng = circleOptions.center.lng || 0.0;
     circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
     circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
@@ -301,6 +302,27 @@
       }
     }, errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
+  //-------------
+  // Polygon
+  //-------------
+  App.prototype.addPolygon = function(polygonOptions, callback) {
+    var self = this;
+    polygonOptions.points = polygonOptions.points || [];
+    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF0000");
+    polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor || "#000000");
+    polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
+    polygonOptions.visible = polygonOptions.visible || true;
+    polygonOptions.zIndex = polygonOptions.zIndex || 0.0;
+ 
+    
+    cordova.exec(function(polygonId) {
+      var polygon = new Polygon(polygonId, polygonOptions);
+      if (callback) {
+        callback.call(polygon, polygon, self);
+      }
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
+  };
+
   /********************************************************************************
    * @name CameraPosition
    * @class This class represents new camera position
@@ -520,6 +542,29 @@
   Circle.prototype.setCenter = function(center) {
     this.set('center', center);
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
+  };
+ 
+  /*****************************************************************************
+   * Polygon Class
+   *****************************************************************************/
+  var Polygon = function(polygonId, polygonOptions) {
+    BaseClass.apply(this);
+    
+    var self = this;
+    self.set("points", polygonOptions.points);
+    self.set("fillColor", polygonOptions.fillColor);
+    self.set("strokeColor", polygonOptions.strokeColor);
+    self.set("strokeWidth", polygonOptions.width);
+    self.set("visible", polygonOptions.visible);
+    self.set("zIndex", polygonOptions.zIndex);
+    self.set("id", polygonId);
+    self.type = "Polygon";
+  };
+  
+  Polygon.prototype = new BaseClass();
+  
+  Polygon.prototype.getId = function() {
+    return this.id;
   };
  
   /*****************************************************************************

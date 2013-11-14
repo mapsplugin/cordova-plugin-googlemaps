@@ -18,6 +18,9 @@ function onMapReady(map) {
   $("#addCircleBtn").click(function(){
     onAddCircleBtn(map);
   });
+  $("#addPolygonBtn").click(function(){
+    onAddPolygonBtn(map);
+  });
   $("#getCameraPosition").click(function() {
     map.getCameraPosition(function(camera) {
       var buff = ["Current camera position:\n",
@@ -121,8 +124,6 @@ function onAddCircleBtn(map) {
   map.showDialog();
   
   map.getMyLocation(function(latLng) {
-    alert(JSON.stringify(latLng));
-    return;
     map.addCircle({
       'center': latLng,
       'radius': 300,
@@ -138,10 +139,40 @@ function onAddCircleBtn(map) {
     });
     
   });
-};
+}
+
+function onAddPolygonBtn(map) {
+  map.showDialog();
+  
+  map.addPolygon({
+    points: [
+      new plugin.google.maps.LatLng(41.79883, 140.75675),
+      new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
+      new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
+      new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
+      new plugin.google.maps.LatLng(41.79567, 140.75845),
+      new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
+      new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
+      new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
+      new plugin.google.maps.LatLng(41.79576, 140.75475),
+      new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
+      new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
+      new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
+      new plugin.google.maps.LatLng(41.79883, 140.75673)
+    ],
+    'strokeColor' : '#AA00FF',
+    'strokeWidth': 5,
+    'fillColor' : '#880000'
+  });
+  
+  map.animateCamera({
+    'target': new plugin.google.maps.LatLng(41.796868, 140.756794),
+    'zoom': 16
+  });
+}
 
 $(document).on('deviceready',  function() {
-  var map = plugin.google.maps.Map.getMap({
+  var map = plugin.google.maps.Map.getMap(/*{
     'mapType': plugin.google.maps.MapTypeId.HYBRID,
     'controls': {
       'compass': true,
@@ -160,7 +191,7 @@ $(document).on('deviceready',  function() {
       'zoom': 15,
       'bearing': 50
     }
-  });
+  }*/);
   //involved when the map is ready.
   map.on(plugin.google.maps.event.MAP_READY, onMapReady);
   

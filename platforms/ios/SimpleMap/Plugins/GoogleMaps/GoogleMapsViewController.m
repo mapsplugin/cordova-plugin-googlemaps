@@ -52,6 +52,7 @@ NSDictionary *initOptions;
     //------------
     self.markerManager = [NSMutableDictionary dictionary];
     self.circleManager = [NSMutableDictionary dictionary];
+    self.polygonManager = [NSMutableDictionary dictionary];
   
     //------------------
     // Create a map view
