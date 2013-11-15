@@ -12,9 +12,12 @@ public class PluginUtil {
 
   @SuppressLint("NewApi")
   public static JSONObject location2Json(Location location) throws JSONException {
+    JSONObject latLng = new JSONObject();
+    latLng.put("lat", location.getLatitude());
+    latLng.put("lng", location.getLongitude());
+    
     JSONObject params = new JSONObject();
-    params.put("lat", location.getLatitude());
-    params.put("lng", location.getLongitude());
+    params.put("latLng", latLng);
     params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
     params.put("time", location.getTime());
     if (location.hasAccuracy()) {

@@ -24,11 +24,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class PluginMarker extends CordovaPlugin implements MyPlugin  {
+public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginMarker";
-  public GoogleMap map = null;
   private HashMap<Integer, Marker> markers;
 
+  public GoogleMaps mapCtrl = null;
+  public GoogleMap map = null;
+  
+  public void setMapCtrl(GoogleMaps mapCtrl) {
+    this.mapCtrl = mapCtrl;
+    this.map = mapCtrl.map;
+  }
+  
   @SuppressLint("UseSparseArrays")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -47,10 +54,6 @@ public class PluginMarker extends CordovaPlugin implements MyPlugin  {
       callbackContext.error(e.getMessage());
       return false;
     }
-  }
-
-  public void setMap(GoogleMap map) {
-    this.map = map;
   }
   
   /**

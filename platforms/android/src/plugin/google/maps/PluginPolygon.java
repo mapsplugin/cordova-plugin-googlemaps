@@ -20,11 +20,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-public class PluginPolygon extends CordovaPlugin implements MyPlugin  {
+public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginPolygon";
-  public GoogleMap map = null;
   private HashMap<String, Polygon> polygons;
 
+  public GoogleMaps mapCtrl = null;
+  public GoogleMap map = null;
+  
+  public void setMapCtrl(GoogleMaps mapCtrl) {
+    this.mapCtrl = mapCtrl;
+    this.map = mapCtrl.map;
+  }
+  
   @SuppressLint("UseSparseArrays")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -45,10 +52,6 @@ public class PluginPolygon extends CordovaPlugin implements MyPlugin  {
     }
   }
 
-  public void setMap(GoogleMap map) {
-    this.map = map;
-  }
-  
 
   /**
    * Create polygon

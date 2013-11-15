@@ -20,9 +20,15 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-public class PluginMap extends CordovaPlugin implements MyPlugin  {
+public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginMap";
+  public GoogleMaps mapCtrl = null;
   public GoogleMap map = null;
+  
+  public void setMapCtrl(GoogleMaps mapCtrl) {
+    this.mapCtrl = mapCtrl;
+    this.map = mapCtrl.map;
+  }
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -42,9 +48,6 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
     }
   }
 
-  public void setMap(GoogleMap map) {
-    this.map = map;
-  }
 
   /**
    * Set center location of the marker
@@ -199,9 +202,18 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    */
   @SuppressWarnings("unused")
   private void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnable = false;
-    isEnable = args.getBoolean(1);
-    map.setMyLocationEnabled(isEnable);
+    Boolean isEnabled = false;
+    isEnabled = args.getBoolean(1);
+    map.setMyLocationEnabled(isEnabled);
+    if (isEnabled) {
+      if (!mapCtrl.locationClient.isConnected()) {
+        mapCtrl.locationClient.connect();
+      }
+    } else {
+      if (mapCtrl.locationClient.isConnected()) {
+        mapCtrl.locationClient.disconnect();
+      }
+    }
     callbackContext.success();
 }
 
@@ -213,8 +225,8 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    */
   @SuppressWarnings("unused")
   private void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnable = args.getBoolean(1);
-    map.setIndoorEnabled(isEnable);
+    Boolean isEnabled = args.getBoolean(1);
+    map.setIndoorEnabled(isEnabled);
     callbackContext.success();
   }
 
@@ -226,8 +238,8 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    */
   @SuppressWarnings("unused")
   private void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnable = args.getBoolean(1);
-    map.setTrafficEnabled(isEnable);
+    Boolean isEnabled = args.getBoolean(1);
+    map.setTrafficEnabled(isEnabled);
     callbackContext.success();
   }
 
@@ -239,9 +251,9 @@ public class PluginMap extends CordovaPlugin implements MyPlugin  {
    */
   @SuppressWarnings("unused")
   private void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnable = args.getBoolean(1);
+    Boolean isEnabled = args.getBoolean(1);
     UiSettings uiSettings = map.getUiSettings();
-    uiSettings.setCompassEnabled(isEnable);
+    uiSettings.setCompassEnabled(isEnabled);
     
     callbackContext.success();
   }

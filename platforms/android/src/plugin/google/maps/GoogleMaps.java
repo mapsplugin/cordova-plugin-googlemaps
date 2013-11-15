@@ -66,14 +66,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     exec
   }
   
-  public MapView mapView = null;
+  private MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
   private FrameLayout baseLayer;
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private LocationClient locationClient = null;
+  public LocationClient locationClient = null;
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -358,7 +358,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
       this.plugins.put(serviceName, pluginEntry);
       plugin.initialize((CordovaInterface) activity, webView);
-      ((MyPlugin)plugin).setMap(map);
+      ((MyPluginInterface)plugin).setMapCtrl(this);
       if (map == null) {
         Log.e(TAG, "map is null!");
       }
@@ -389,9 +389,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       Location location = this.locationClient.getLastLocation();
       result = PluginUtil.location2Json(location);
     } else {
+      JSONObject latLng = new JSONObject();
+      latLng.put("lat", 0);
+      latLng.put("lng", 0);
+      
       result = new JSONObject();
-      result.put("lat", 0);
-      result.put("lng", 0);
+      result.put("latLng", latLng);
       result.put("speed", null);
       result.put("bearing", null);
       result.put("altitude", 0);
@@ -429,15 +432,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     alertDialog.show();
   }
 
-  /********************************************************
-   * methods for other plugin classes (don't use these)
-   ********************************************************/
-  public void locationClient_connect() {
-    this.locationClient.connect();
-  }
-  public void locationClient_disconnect() {
-    this.locationClient.disconnect();
-  }
   /********************************************************
    * Callbacks
    ********************************************************/
@@ -504,31 +498,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @SuppressLint("NewApi")
   @Override
   public void onMyLocationChange(Location location) {
-    JSONObject params = new JSONObject();
+    JSONObject locationJSON = null;
     String jsonStr = "";
     try {
-      params.put("lat", location.getLatitude());
-      params.put("lng", location.getLongitude());
-      params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
-      params.put("time", location.getTime());
-      if (location.hasAccuracy()) {
-        params.put("accuracy", location.getAccuracy());
-      }
-      if (location.hasBearing()) {
-        params.put("bearing", location.getBearing());
-      }
-      if (location.hasAltitude()) {
-        params.put("altitude", location.getAltitude());
-      }
-      if (location.hasSpeed()) {
-        params.put("speed", location.getSpeed());
-      }
-      params.put("provider", location.getProvider());
-      params.put("hashCode", location.hashCode());
-      jsonStr = params.toString();
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
+      jsonStr = PluginUtil.location2Json(location).toString();
+    } catch (JSONException e) {}
     webView.loadUrl("javascript:plugin.google.maps.Map._onMyLocationChange(" + jsonStr + ")");
   }
 
@@ -582,6 +556,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onDestroy() {
+    this.locationClient.disconnect();
     if (mapView != null) {
       mapView.onDestroy();
     }

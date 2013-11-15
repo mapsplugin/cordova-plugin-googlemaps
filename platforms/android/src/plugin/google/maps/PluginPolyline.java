@@ -21,11 +21,18 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-public class PluginPolyline extends CordovaPlugin implements MyPlugin  {
+public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginPolyline";
-  public GoogleMap map = null;
   private HashMap<String, Polyline> polylines;
 
+  public GoogleMaps mapCtrl = null;
+  public GoogleMap map = null;
+  
+  public void setMapCtrl(GoogleMaps mapCtrl) {
+    this.mapCtrl = mapCtrl;
+    this.map = mapCtrl.map;
+  }
+  
   @SuppressLint("UseSparseArrays")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -44,10 +51,6 @@ public class PluginPolyline extends CordovaPlugin implements MyPlugin  {
       callbackContext.error(e.getMessage());
       return false;
     }
-  }
-
-  public void setMap(GoogleMap map) {
-    this.map = map;
   }
   
 

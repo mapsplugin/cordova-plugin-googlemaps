@@ -20,11 +20,18 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
-public class PluginCircle extends CordovaPlugin implements MyPlugin  {
+public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginCircle";
-  public GoogleMap map = null;
   private HashMap<String, Circle> circles;
 
+  public GoogleMaps mapCtrl = null;
+  public GoogleMap map = null;
+  
+  public void setMapCtrl(GoogleMaps mapCtrl) {
+    this.mapCtrl = mapCtrl;
+    this.map = mapCtrl.map;
+  }
+  
   @SuppressLint("UseSparseArrays")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -43,10 +50,6 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
       callbackContext.error(e.getMessage());
       return false;
     }
-  }
-
-  public void setMap(GoogleMap map) {
-    this.map = map;
   }
   
 
