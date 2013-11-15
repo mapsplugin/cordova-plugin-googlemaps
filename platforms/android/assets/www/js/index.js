@@ -176,7 +176,7 @@ function onAddPolylineBtn(map) {
       new plugin.google.maps.LatLng(37.615223,-122.389979)
     ],
     'color' : '#AA00FF',
-    'width': 5,
+    'width': 10,
     'geodesic': true
   });
 }

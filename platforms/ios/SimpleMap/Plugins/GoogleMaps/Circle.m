@@ -30,12 +30,12 @@
   circle.fillColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
                               green:[[rgbColor objectAtIndex:1] floatValue]/255.0
                               blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:0.75];
+                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
   rgbColor = [json valueForKey:@"strokeColor"];
   circle.strokeColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
                               green:[[rgbColor objectAtIndex:1] floatValue]/255.0
                               blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:0.75];
+                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
   circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
