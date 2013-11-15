@@ -74,11 +74,11 @@ public class PluginPolygon extends CordovaPlugin implements MyPlugin  {
       polygonOptions.add(path);
     }
     if (opts.has("strokeColor")) {
-      color = GoogleMaps.parsePluginColor(opts.getJSONArray("strokeColor"));
+      color = PluginUtil.parsePluginColor(opts.getJSONArray("strokeColor"));
       polygonOptions.strokeColor(color);
     }
     if (opts.has("fillColor")) {
-      color = GoogleMaps.parsePluginColor(opts.getJSONArray("fillColor"));
+      color = PluginUtil.parsePluginColor(opts.getJSONArray("fillColor"));
       polygonOptions.fillColor(color);
     }
     if (opts.has("strokeWidth")) {
@@ -109,7 +109,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPlugin  {
   @SuppressWarnings("unused")
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    int color = GoogleMaps.parsePluginColor(args.getJSONArray(2));
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
     Polygon polygon = this.polygons.get(id);
     polygon.setFillColor(color);
     callbackContext.success();
@@ -124,7 +124,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPlugin  {
   @SuppressWarnings("unused")
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    int color = Color.parseColor(args.getString(2));
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
     Polygon polygon = this.polygons.get(id);
     polygon.setStrokeColor(color);
     callbackContext.success();

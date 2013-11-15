@@ -75,7 +75,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPlugin  {
       polylineOptions.add(path);
     }
     if (opts.has("color")) {
-      color = GoogleMaps.parsePluginColor(opts.getJSONArray("color"));
+      color = PluginUtil.parsePluginColor(opts.getJSONArray("color"));
       polylineOptions.color(color);
     }
     if (opts.has("width")) {
@@ -106,7 +106,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPlugin  {
   @SuppressWarnings("unused")
   private void setColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    int color = Color.parseColor(args.getString(2));
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
     Polyline polyline = this.polylines.get(id);
     polyline.setColor(color);
     callbackContext.success();

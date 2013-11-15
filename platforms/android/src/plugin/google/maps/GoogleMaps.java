@@ -14,10 +14,10 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -28,8 +28,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -51,13 +54,15 @@ import com.google.android.gms.maps.model.Marker;
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, OnMyLocationChangeListener {
+      OnMyLocationButtonClickListener, OnMyLocationChangeListener,
+      ConnectionCallbacks, OnConnectionFailedListener {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   
   private enum METHODS {
     getMap,
     showDialog,
+    getMyLocation,
     exec
   }
   
@@ -68,11 +73,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
+  private LocationClient locationClient = null;
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
+    this.locationClient = new LocationClient(activity, this, this);
   }
 
   @Override
@@ -92,6 +99,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             break;
           case showDialog:
             GoogleMaps.this.showDialog(args, callbackContext);
+            break;
+          case getMyLocation:
+            GoogleMaps.this.getMyLocation(args, callbackContext);
             break;
           case exec:
           
@@ -236,12 +246,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     map = mapView.getMap();
     
     //controls
+    Boolean isEnabled = true;
     if (params.has("controls")) {
       JSONObject controls = params.getJSONObject("controls");
 
       if (controls.has("myLocationButton")) {
-        map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
+        isEnabled = controls.getBoolean("myLocationButton");
+        map.setMyLocationEnabled(isEnabled);
       }
+    }
+    if (isEnabled) {
+      this.locationClient.connect();
     }
     
     // Set event listener
@@ -368,6 +383,27 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    JSONObject result = null;
+    if (this.locationClient.isConnected()) {
+      Location location = this.locationClient.getLastLocation();
+      result = PluginUtil.location2Json(location);
+    } else {
+      result = new JSONObject();
+      result.put("lat", 0);
+      result.put("lng", 0);
+      result.put("speed", null);
+      result.put("bearing", null);
+      result.put("altitude", 0);
+      result.put("accuracy", null);
+      result.put("provider", null);
+      result.put("elapsedRealtimeNanos", System.nanoTime());
+      result.put("time", System.currentTimeMillis());
+      result.put("hashCode", -1);
+    }
+    callbackContext.success(result);
+  }
+
   private void closeWindow() {
     root.removeView(baseLayer);
     baseLayer.removeView(webView);
@@ -392,7 +428,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // show it
     alertDialog.show();
   }
-  
+
+  /********************************************************
+   * methods for other plugin classes (don't use these)
+   ********************************************************/
+  public void locationClient_connect() {
+    this.locationClient.connect();
+  }
+  public void locationClient_disconnect() {
+    this.locationClient.disconnect();
+  }
   /********************************************************
    * Callbacks
    ********************************************************/
@@ -462,8 +507,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     JSONObject params = new JSONObject();
     String jsonStr = "";
     try {
-      params.put("latitude", location.getLatitude());
-      params.put("longitude", location.getLongitude());
+      params.put("lat", location.getLatitude());
+      params.put("lng", location.getLongitude());
       params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
       params.put("time", location.getTime());
       if (location.hasAccuracy()) {
@@ -559,12 +604,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
   
 
-  /**
-   * return color integer value
-   * @param arrayRGBA
-   * @throws JSONException
-   */
-  public static int parsePluginColor(JSONArray arrayRGBA) throws JSONException {
-    return Color.argb(arrayRGBA.getInt(3), arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2));
-  }
+  @Override
+  public void onConnectionFailed(ConnectionResult result) {}
+
+  @Override
+  public void onConnected(Bundle connectionHint) {}
+
+  @Override
+  public void onDisconnected() {}
 }

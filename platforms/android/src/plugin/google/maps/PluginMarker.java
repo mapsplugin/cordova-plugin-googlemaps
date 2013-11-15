@@ -213,9 +213,9 @@ public class PluginMarker extends CordovaPlugin implements MyPlugin  {
     Marker marker = this.markers.get(hashCode);
     LatLng position = marker.getPosition();
     
-    JSONArray result = new JSONArray();
-    result.put(position.latitude);
-    result.put(position.longitude);
+    JSONObject result = new JSONObject();
+    result.put("lat", position.latitude);
+    result.put("lng", position.longitude);
     callbackContext.success(result);
   }
   

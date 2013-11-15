@@ -50,12 +50,16 @@
   App.prototype = new BaseClass();
   
   
-  var errorHandler = function(msg) {
+  App.prototype.errorHandler = function(msg) {
     if (!msg)
       return
     
-    alert(msg);
-    App.trigger('error', msg);
+    console.error(msg);
+    if (this.trigger) {
+      this.trigger('error', msg);
+    } else {
+      alert(msg);
+    }
     return false;
   };
   
@@ -103,29 +107,29 @@
       setTimeout(function() {
         self.trigger('map_ready', self);
       }, 100);
-    }, errorHandler, PLUGIN_NAME, 'getMap', [params]);
+    }, self.errorHandler, PLUGIN_NAME, 'getMap', [params]);
     return self;
   };
   
   App.prototype.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
       callback(null, txt);
-    }, errorHandler, PLUGIN_NAME, 'getLicenseInfo');
+    }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo');
   };
   App.prototype.showDialog = function(callback) {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showDialog', []);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
   
   
   App.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
-    cordova.exec(null, errorHandler,
+    cordova.exec(null, self.errorHandler,
       PLUGIN_NAME, 'exec', ['Map.setCenter', latLng.lat, latLng.lng]);
   };
   
   App.prototype.setZoom = function(zoom) {
     this.set('zoom', zoom);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
   };
  
   /**
@@ -142,7 +146,7 @@
       return errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setMapTypeId', mapTypeId]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMapTypeId', mapTypeId]);
   };
  
   /**
@@ -151,14 +155,14 @@
    */
   App.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setTilt', tilt]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTilt', tilt]);
   };
  
   /**
    * @desc Open the map dialog
    */
   App.prototype.showDialog = function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'showDialog', []);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
  
  
@@ -187,7 +191,7 @@
       params.push(durationMs);
     }
  
-    cordova.exec(myCallback, errorHandler, PLUGIN_NAME, 'exec', params);
+    cordova.exec(myCallback, self.errorHandler, PLUGIN_NAME, 'exec', params);
   };
   /**
    * @desc   Move the map camera without animation
@@ -203,33 +207,33 @@
     }
     cordova.exec(function() {
       callback();
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
   };
   
   App.prototype.setMyLocationEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
   };
   App.prototype.setIndoorEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);
   };
   App.prototype.setTrafficEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setTrafficEnabled', enabled]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTrafficEnabled', enabled]);
   };
   App.prototype.setCompassEnabled = function(enabled) {
     enabled = Boolean(enabled);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
   };
   App.prototype.getMyLocation = function(callback) {
     cordova.exec(function(location) {
       if (typeof callback === "function") {
-        location.latLng = new LatLng(location.latLng[0], location.latLng[1]);
+        location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
         callback(location);
       }
     
-    }, errorHandler, PLUGIN_NAME, 'getMyLocation', []);
+    }, self.errorHandler, PLUGIN_NAME, 'getMyLocation', []);
   };
  
   /**
@@ -239,10 +243,10 @@
   App.prototype.getCameraPosition = function(callback) {
     cordova.exec(function(camera) {
       if (typeof callback === "function") {
-        camera.target = new LatLng(camera.target[0], camera.target[1]);
+        camera.target = new LatLng(camera.target.lat, camera.target.lng);
         callback(camera);
       }
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
   };
   //-------------
   // Marker
@@ -278,7 +282,7 @@
       if (typeof callback === "function") {
         callback.call(marker, marker, self);
       }
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
   };
   
   
@@ -302,7 +306,7 @@
       if (callback) {
         callback.call(circle, circle, self);
       }
-    },errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
+    },self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
   //-------------
   // Polyline
@@ -321,7 +325,7 @@
       if (callback) {
         callback.call(polyline, polyline, self);
       }
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', polylineOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', polylineOptions]);
   };
   //-------------
   // Polygon
@@ -341,7 +345,7 @@
       if (callback) {
         callback.call(polygon, polygon, self);
       }
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
   };
 
   /********************************************************************************
@@ -365,7 +369,7 @@
    *****************************************************************************/
   var Location = function(params) {
     var self = this;
-    self.latLng = new LatLng(params.latitude, params.longitude);
+    self.latLng = params.latLng || new LatLng(params.lat || 0, params.lng || 0);
     self.elapsedRealtimeNanos = params.elapsedRealtimeNanos;
     self.time = params.time;
     self.accuracy = params.accuracy || null;
@@ -455,8 +459,8 @@
   
   Marker.prototype.getPosition = function(callback) {
     cordova.exec(function(latlng) {
-      callback(new LatLng(latlng[0], latlng[1]));
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.get("hashCode")]);
+      callback(new LatLng(latlng.lat, latlng.lng));
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.get("hashCode")]);
   };
   Marker.prototype.getAlpha = function() {
     return this.get('alpha');
@@ -471,7 +475,7 @@
     return this.get('hashCode');
   };
   Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
   };
   Marker.prototype.isDraggable = function() {
     return this.get('draggable');
@@ -479,48 +483,48 @@
   Marker.prototype.isInfoWindowShown = function(callback) {
     cordova.exec(function(isVisible) {
       callback(isVisible == 1);
-    }, errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.get("hashCode")]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.get("hashCode")]);
   };
   Marker.prototype.isVisible = function() {
     return this.get('visible');
   };
   Marker.prototype.remove = function(callback) {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.get("hashCode")]);
   };
   Marker.prototype.setAlpha = function(alpha) {
     this.set('alpha');
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.get("hashCode"), alpha]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.get("hashCode"), alpha]);
   };
   Marker.prototype.setAnchor = function(anchorU, anchorV) {
     this.set('anchor', [anchorU, anchorV]);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.get("hashCode"), anchorU, anchorV]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.get("hashCode"), anchorU, anchorV]);
   };
   Marker.prototype.setDraggable = function(draggable) {
     draggable = Boolean(draggable);
     this.set('draggable', draggable);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.get("hashCode"), draggable]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.get("hashCode"), draggable]);
   };
   Marker.prototype.setFlat = function(flat) {
     flat = Boolean(flat);
     this.set('flat', flat);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.get("hashCode"), flat]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.get("hashCode"), flat]);
   };
   Marker.prototype.setIcon = function(url) {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.get("hashCode"), url]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.get("hashCode"), url]);
   };
   Marker.prototype.setTitle = function(title) {
     this.set('title', title);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.get("hashCode"), title]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.get("hashCode"), title]);
   };
   Marker.prototype.setSnippet = function(snippet) {
     this.set('snippet', snippet);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.get("hashCode"), snippet]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.get("hashCode"), snippet]);
   };
   Marker.prototype.showInfoWindow = function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.get("hashCode")]);
   };
   Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
   };
   
   
@@ -569,11 +573,11 @@
     return this.get('zIndex');
   };
   Circle.prototype.remove = function() {
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.get('id')]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.get('id')]);
   };
   Circle.prototype.setCenter = function(center) {
     this.set('center', center);
-    cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
   };
   /*****************************************************************************
    * Polyline Class

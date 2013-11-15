@@ -69,11 +69,11 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
       circleOptions.radius(opts.getDouble("radius"));
     }
     if (opts.has("strokeColor")) {
-      color = GoogleMaps.parsePluginColor(opts.getJSONArray("strokeColor"));
+      color = PluginUtil.parsePluginColor(opts.getJSONArray("strokeColor"));
       circleOptions.strokeColor(color);
     }
     if (opts.has("fillColor")) {
-      color = GoogleMaps.parsePluginColor(opts.getJSONArray("fillColor"));
+      color = PluginUtil.parsePluginColor(opts.getJSONArray("fillColor"));
       circleOptions.fillColor(color);
     }
     if (opts.has("strokeWidth")) {
@@ -115,7 +115,7 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   @SuppressWarnings("unused")
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    int color = GoogleMaps.parsePluginColor(args.getJSONArray(2));
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
     Circle circle = this.circles.get(id);
     circle.setFillColor(color);
     callbackContext.success();
@@ -130,7 +130,7 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   @SuppressWarnings("unused")
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    int color = Color.parseColor(args.getString(2));
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
     Circle circle = this.circles.get(id);
     circle.setStrokeColor(color);
     callbackContext.success();
