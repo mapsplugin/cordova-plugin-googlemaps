@@ -18,6 +18,9 @@ function onMapReady(map) {
   $("#addCircle").click(function(){
     onAddCircleBtn(map);
   });
+  $("#addPolyline").click(function(){
+    onAddPolylineBtn(map);
+  });
   $("#addPolygon").click(function(){
     onAddPolygonBtn(map);
   });
@@ -161,6 +164,20 @@ function onAddCircleBtn(map) {
   map.animateCamera({
     'target': GOOGLE,
     'zoom': 14
+  });
+}
+
+function onAddPolylineBtn(map) {
+  map.showDialog();
+  
+  map.addPolyline({
+    points: [
+      new plugin.google.maps.LatLng(35.548852,139.784086),
+      new plugin.google.maps.LatLng(37.615223,-122.389979)
+    ],
+    'color' : '#AA00FF',
+    'width': 5,
+    'geodesic': true
   });
 }
 

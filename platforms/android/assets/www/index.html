@@ -14,35 +14,40 @@
           document.write('</');
           document.write('script>');
         </script>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
         <script type="text/javascript" src="googlemaps/GoogleMaps.js"></script>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
     </head>
     <body>
         <h4>Map</h4>
-        <ul id="mapList">
-          <li><button id='showWindow'>Show a map</button></li>
+        <ul>
+          <li><button id='showDialog'>Show the map dialog</button></li>
           <li>
-            <button class='changeMapType' typeId="NORMAL">MapType = NORMAL</button>
-            <button class='changeMapType' typeId="HYBRID">MapType = HYBRID</button>
+            <button class="changeMapType" typeId="normal">MapType = NORMAL</button>
+            <button class="changeMapType" typeId="hybrid">MapType = HYBRID</button>
           </li>
           <li><button id='getCameraPosition'>getCameraPosition</button></li>
           <li><button id='getMyLocation'>getMyLocation</button></li>
         </ul>
         
         <h4>Marker</h4>
-        <ul id="markerList">
+        <ul>
           <li><button id='addMarker'>Add a marker</button></li>
           <li><button id='addIconMarker'>Add a marker with custom icon</button></li>
         </ul>
         
         <h4>Circle</h4>
-        <ul id="circleList">
+        <ul>
           <li><button id='addCircle'>Add a circle</button></li>
         </ul>
         
+        <h4>Polyline</h4>
+        <ul>
+          <li><button id='addPolyline'>Add a polyline</button></li>
+        </ul>
+        
         <h4>Polygon</h4>
-        <ul id="circleList">
+        <ul>
           <li><button id='addPolygon'>Add a polygon</button></li>
         </ul>
     </body>

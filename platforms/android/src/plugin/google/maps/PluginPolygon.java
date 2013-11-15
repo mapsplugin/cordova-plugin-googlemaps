@@ -16,20 +16,20 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
-public class PluginCircle extends CordovaPlugin implements MyPlugin  {
-  private final String TAG = "PluginCircle";
+public class PluginPolygon extends CordovaPlugin implements MyPlugin  {
+  private final String TAG = "PluginPolygon";
   public GoogleMap map = null;
-  private HashMap<String, Circle> circles;
+  private HashMap<String, Polygon> polygons;
 
   @SuppressLint("UseSparseArrays")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    Log.d(TAG, "Circle class initializing");
-    this.circles = new HashMap<String, Circle>();
+    Log.d(TAG, "Polygon class initializing");
+    this.polygons = new HashMap<String, Polygon>();
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -51,61 +51,55 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   
 
   /**
-   * Create circle
+   * Create polygon
    * @param args
    * @param callbackContext
    * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private void createCircle(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final CircleOptions circleOptions = new CircleOptions();
+  private void createPolygon(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final PolygonOptions polygonOptions = new PolygonOptions();
     int color;
     
     JSONObject opts = args.getJSONObject(1);
-    if (opts.has("lat") && opts.has("lng")) {
-      circleOptions.center(new LatLng(opts.getDouble("lat"), opts.getDouble("lng")));
-    }
-    if (opts.has("radius")) {
-      circleOptions.radius(opts.getDouble("radius"));
+    if (opts.has("points")) {
+      JSONArray points = opts.getJSONArray("points");
+      LatLng[] path = new LatLng[points.length()];
+      JSONObject pointJSON;
+      int i = 0;
+      for (i = 0; i < points.length(); i++) {
+        pointJSON = points.getJSONObject(i);
+        path[i] = new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng"));
+      }
+      polygonOptions.add(path);
     }
     if (opts.has("strokeColor")) {
       color = GoogleMaps.parsePluginColor(opts.getJSONArray("strokeColor"));
-      circleOptions.strokeColor(color);
+      polygonOptions.strokeColor(color);
     }
     if (opts.has("fillColor")) {
       color = GoogleMaps.parsePluginColor(opts.getJSONArray("fillColor"));
-      circleOptions.fillColor(color);
+      polygonOptions.fillColor(color);
     }
     if (opts.has("strokeWidth")) {
-      circleOptions.strokeWidth(opts.getInt("strokeWidth"));
+      polygonOptions.strokeWidth(opts.getInt("strokeWidth"));
     }
     if (opts.has("visible")) {
-      circleOptions.visible(opts.getBoolean("visible"));
+      polygonOptions.visible(opts.getBoolean("visible"));
+    }
+    if (opts.has("geodesic")) {
+      polygonOptions.geodesic(opts.getBoolean("geodesic"));
     }
     if (opts.has("zIndex")) {
-      circleOptions.zIndex(opts.getInt("zIndex"));
+      polygonOptions.zIndex(opts.getInt("zIndex"));
     }
     
-    Circle circle = map.addCircle(circleOptions);
-    this.circles.put(circle.getId(), circle);
-    callbackContext.success(circle.getId());
-  }
-
-  /**
-   * set center
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setCenter(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    LatLng center = new LatLng(args.getDouble(2), args.getDouble(3));
-    Circle circle = this.circles.get(id);
-    circle.setCenter(center);
-    callbackContext.success();
+    Polygon polygon = map.addPolygon(polygonOptions);
+    this.polygons.put(polygon.getId(), polygon);
+    callbackContext.success(polygon.getId());
   }
   
+
   /**
    * set fill color
    * @param args
@@ -116,8 +110,8 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = GoogleMaps.parsePluginColor(args.getJSONArray(2));
-    Circle circle = this.circles.get(id);
-    circle.setFillColor(color);
+    Polygon polygon = this.polygons.get(id);
+    polygon.setFillColor(color);
     callbackContext.success();
   }
   
@@ -131,8 +125,8 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = Color.parseColor(args.getString(2));
-    Circle circle = this.circles.get(id);
-    circle.setStrokeColor(color);
+    Polygon polygon = this.polygons.get(id);
+    polygon.setStrokeColor(color);
     callbackContext.success();
   }
   
@@ -146,23 +140,8 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   private void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Circle circle = this.circles.get(id);
-    circle.setStrokeWidth(width);
-    callbackContext.success();
-  }
-  
-  /**
-   * set redius
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float radius = (float) args.getDouble(2);
-    Circle circle = this.circles.get(id);
-    circle.setRadius(radius);
+    Polygon polygon = this.polygons.get(id);
+    polygon.setStrokeWidth(width);
     callbackContext.success();
   }
   
@@ -176,8 +155,8 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Circle circle = this.circles.get(id);
-    circle.setZIndex(zIndex);
+    Polygon polygon = this.polygons.get(id);
+    polygon.setZIndex(zIndex);
     callbackContext.success();
   }
   
@@ -191,13 +170,13 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean visible = args.getBoolean(2);
-    Circle circle = this.circles.get(id);
-    circle.setVisible(visible);
+    Polygon polygon = this.polygons.get(id);
+    polygon.setVisible(visible);
     callbackContext.success();
   }
 
   /**
-   * Remove the circle
+   * Remove the polygon
    * @param args
    * @param callbackContext
    * @throws JSONException
@@ -205,9 +184,9 @@ public class PluginCircle extends CordovaPlugin implements MyPlugin  {
   @SuppressWarnings("unused")
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    Circle circle = this.circles.get(id);
-    this.circles.remove(id);
-    circle.remove();
+    Polygon polygon = this.polygons.get(id);
+    this.polygons.remove(id);
+    polygon.remove();
     callbackContext.success();
   }
 }

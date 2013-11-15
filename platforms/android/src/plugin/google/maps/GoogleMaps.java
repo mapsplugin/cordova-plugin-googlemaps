@@ -113,12 +113,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           break;
         
           default:
-            callbackContext.error(action + "is not defined.");
+            callbackContext.error(action + " is not defined in GoogleMaps plugin.");
             break;
           }
         } catch (Exception e) {
           e.printStackTrace();
-          callbackContext.error(action + "is not defined.");
+          callbackContext.error(action + " is not defined in GoogleMaps plugin.");
         }
       }
     };
@@ -556,5 +556,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       showLicenseText();
       return;
     }
+  }
+  
+
+  /**
+   * return color integer value
+   * @param arrayRGBA
+   * @throws JSONException
+   */
+  public static int parsePluginColor(JSONArray arrayRGBA) throws JSONException {
+    return Color.argb(arrayRGBA.getInt(3), arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2));
   }
 }

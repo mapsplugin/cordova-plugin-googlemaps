@@ -42,7 +42,10 @@
   };
   var App = function() {
     BaseClass.apply(this);
-    this.type = "Map";
+    Object.defineProperty(self, "type", {
+      value: "Map",
+      writable: false
+    });
   };
   App.prototype = new BaseClass();
   
@@ -302,6 +305,25 @@
     },errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
   //-------------
+  // Polyline
+  //-------------
+  App.prototype.addPolyline = function(polylineOptions, callback) {
+    var self = this;
+    polylineOptions.points = polylineOptions.points || [];
+    polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF0000");
+    polylineOptions.width = polylineOptions.width || 10;
+    polylineOptions.visible = polylineOptions.visible || true;
+    polylineOptions.zIndex = polylineOptions.zIndex || 0.0;
+    polylineOptions.geodesic = polylineOptions.geodesic || false;
+    
+    cordova.exec(function(polylineId) {
+      var polyline = new Polyline(polylineId, polylineOptions);
+      if (callback) {
+        callback.call(polyline, polyline, self);
+      }
+    }, errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', polylineOptions]);
+  };
+  //-------------
   // Polygon
   //-------------
   App.prototype.addPolygon = function(polygonOptions, callback) {
@@ -312,7 +334,7 @@
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible || true;
     polygonOptions.zIndex = polygonOptions.zIndex || 0.0;
- 
+    polygonOptions.geodesic = polygonOptions.geodesic || false;
     
     cordova.exec(function(polygonId) {
       var polygon = new Polygon(polygonId, polygonOptions);
@@ -419,9 +441,14 @@
     self.set("visible", markerOptions.visible);
     self.set("flat", markerOptions.flat);
     self.set("alpha", markerOptions.alpha);
-    self.set("hashCode", hashCode);
-
-    self.type = "Marker";
+    Object.defineProperty(self, "hashCode", {
+      value: hashCode,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "Marker",
+      writable: false
+    });
   };
   Marker.prototype = new BaseClass();
   
@@ -508,11 +535,17 @@
     self.set("fillColor", circleOptions.fillColor);
     self.set("radius", circleOptions.radius);
     self.set("strokeColor", circleOptions.strokeColor);
-    self.set("strokeWidth", circleOptions.width);
+    self.set("strokeWidth", circleOptions.strokeWidth);
     self.set("visible", circleOptions.visible);
     self.set("zIndex", circleOptions.zIndex);
-    self.set("id", circleId);
-    self.type = "Circle";
+    Object.defineProperty(self, "id", {
+      value: circleId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "Circle",
+      writable: false
+    });
   };
   
   Circle.prototype = new BaseClass();
@@ -542,6 +575,34 @@
     this.set('center', center);
     cordova.exec(null, errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
   };
+  /*****************************************************************************
+   * Polyline Class
+   *****************************************************************************/
+  var Polyline = function(polylineId, polylineOptions) {
+    BaseClass.apply(this);
+    
+    var self = this;
+    self.set("points", polylineOptions.points);
+    self.set("color", polylineOptions.color);
+    self.set("width", polylineOptions.width);
+    self.set("visible", polylineOptions.visible);
+    self.set("zIndex", polylineOptions.zIndex);
+    self.set("geodesic", polylineOptions.geodesic);
+    Object.defineProperty(self, "id", {
+      value: polylineId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "Polyline",
+      writable: false
+    });
+  };
+  
+  Polyline.prototype = new BaseClass();
+  
+  Polyline.prototype.getId = function() {
+    return this.id;
+  };
  
   /*****************************************************************************
    * Polygon Class
@@ -553,11 +614,18 @@
     self.set("points", polygonOptions.points);
     self.set("fillColor", polygonOptions.fillColor);
     self.set("strokeColor", polygonOptions.strokeColor);
-    self.set("strokeWidth", polygonOptions.width);
+    self.set("strokeWidth", polygonOptions.strokeWidth);
     self.set("visible", polygonOptions.visible);
     self.set("zIndex", polygonOptions.zIndex);
-    self.set("id", polygonId);
-    self.type = "Polygon";
+    self.set("geodesic", polygonOptions.geodesic);
+    Object.defineProperty(self, "id", {
+      value: polygonId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "Polygon",
+      writable: false
+    });
   };
   
   Polygon.prototype = new BaseClass();
