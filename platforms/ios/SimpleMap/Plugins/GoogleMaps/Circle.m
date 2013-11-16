@@ -145,8 +145,8 @@
 {
   NSString *circleKey = [command.arguments objectAtIndex:1];
   GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
-  Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
-  if (isEnabled) {
+  Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
+  if (isVisible) {
     circle.map = self.mapCtrl.map;
   } else {
     circle.map = nil;

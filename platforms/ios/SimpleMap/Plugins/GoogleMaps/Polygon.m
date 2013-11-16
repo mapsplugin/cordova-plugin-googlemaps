@@ -149,8 +149,8 @@
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
   GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
-  Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
-  if (isEnabled) {
+  Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
+  if (isVisible) {
     polygon.map = self.mapCtrl.map;
   } else {
     polygon.map = nil;

@@ -3,7 +3,7 @@ const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 
 function onMapReady(map) {
   $("button").removeAttr("disabled");
-  $("#showBtn").click(function(){
+  $("#showDialog").click(function(){
     onShowBtn(map);
   });
   $(".changeMapType").click(function(){

@@ -132,6 +132,21 @@ public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
   }
 
   /**
+   * Set rotation for the marker
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setRotation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    int hashCode = args.getInt(1);
+    float rotation = (float)args.getDouble(2);
+    Marker marker = this.markers.get(hashCode);
+    marker.setRotation(rotation);
+    callbackContext.success();
+  }
+  
+  /**
    * Set alpha for the marker
    * @param args
    * @param callbackContext
@@ -303,4 +318,20 @@ public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
     }
     callbackContext.success();
   }
+  
+  /**
+   * Set visibility for the marker
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    int hashCode = args.getInt(1);
+    Boolean visible = args.getBoolean(2);
+    Marker marker = this.markers.get(hashCode);
+    marker.setVisible(visible);
+    callbackContext.success();
+  }
+  
 }

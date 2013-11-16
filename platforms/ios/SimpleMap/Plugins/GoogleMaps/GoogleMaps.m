@@ -10,8 +10,6 @@
 
 @implementation GoogleMaps
 
-UIButton *closeButton;
-
 - (void)pluginInitialize
 {
   self.plugins = [NSMutableDictionary dictionary];
@@ -25,7 +23,18 @@ UIButton *closeButton;
   if (!self.mapCtrl) {
     dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
     
+    CGRect screenSize = [[UIScreen mainScreen] bounds];
+    CGRect pluginRect;
+    int direction = self.viewController.interfaceOrientation;
+    if (direction == UIInterfaceOrientationLandscapeLeft ||
+        direction == UIInterfaceOrientationLandscapeRight) {
+      pluginRect = CGRectMake(screenSize.size.height * 0.05, screenSize.size.width * 0.05, screenSize.size.height * 0.9, screenSize.size.width * 0.9);
     
+    } else {
+      pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+    }
+
+
     
     
     // Create a map view
@@ -44,26 +53,27 @@ UIButton *closeButton;
       [self.plugins setObject:mapClass forKey:@"Map"];
     });
     
-    // Create a close button
+    // Create the close button
     dispatch_sync(gueue, ^{
-      CGRect screenSize = [[UIScreen mainScreen] bounds];
-      CGRect pluginRect;
-      int direction = self.viewController.interfaceOrientation;
-      if (direction == UIInterfaceOrientationLandscapeLeft ||
-          direction == UIInterfaceOrientationLandscapeRight) {
-          pluginRect = CGRectMake(screenSize.size.height * 0.05, screenSize.size.width * 0.05, screenSize.size.height * 0.9, screenSize.size.width * 0.9);
       
-      } else {
-        pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
-      }
-      
-      
-      closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+      UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
       closeButton.frame = CGRectMake(0, pluginRect.size.height - 30, 50, 30);
       closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
       [closeButton setTitle:@"Close" forState:UIControlStateNormal];
       [closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
       [self.mapCtrl.view addSubview:closeButton];
+    });
+    
+    
+    // Create the legal notices button
+    dispatch_sync(gueue, ^{
+      
+      UIButton *licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+      licenseButton.frame = CGRectMake(pluginRect.size.width - 110, pluginRect.size.height - 30, 100, 30);
+      licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+      [licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
+      [licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
+      [self.mapCtrl.view addSubview:licenseButton];
     });
     
     dispatch_release(gueue);
@@ -76,8 +86,6 @@ UIButton *closeButton;
 
 
 - (void)exec:(CDVInvokedUrlCommand *)command {
-  
-    NSLog(@"exec");
   
   [self.commandDelegate runInBackground:^{
     
@@ -147,6 +155,18 @@ UIButton *closeButton;
  */
 - (void)onCloseBtn_clicked:(UIButton*)button{
   [self.mapCtrl.view removeFromSuperview];
+}
+
+/**
+ * Show the licenses
+ */
+- (void)onLicenseBtn_clicked:(UIButton*)button{
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Open Source License Info"
+                                            message: [GMSServices openSourceLicenseInfo]
+                                            delegate: self
+                                            cancelButtonTitle: @"Close"
+                                            otherButtonTitles: nil];
+  [alert show];
 }
 
 /**

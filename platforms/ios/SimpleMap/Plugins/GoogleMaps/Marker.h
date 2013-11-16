@@ -22,6 +22,7 @@
 - (void)setFlat:(CDVInvokedUrlCommand*)command;
 - (void)setAnchor:(CDVInvokedUrlCommand*)command;
 - (void)setDraggable:(CDVInvokedUrlCommand*)command;
+- (void)setVisible:(CDVInvokedUrlCommand*)command;
 - (void)setIcon:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand*)command;
 @end

@@ -78,7 +78,6 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-
 /**
  * Set color
  * @params key
@@ -133,8 +132,8 @@
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
-  if (isEnabled) {
+  Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
+  if (isVisible) {
     polyline.map = self.mapCtrl.map;
   } else {
     polyline.map = nil;

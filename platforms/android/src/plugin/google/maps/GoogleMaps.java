@@ -498,7 +498,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @SuppressLint("NewApi")
   @Override
   public void onMyLocationChange(Location location) {
-    JSONObject locationJSON = null;
     String jsonStr = "";
     try {
       jsonStr = PluginUtil.location2Json(location).toString();
