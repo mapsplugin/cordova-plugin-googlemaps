@@ -21,8 +21,10 @@
 -(void)createMarker:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  float latitude = [[json valueForKey:@"lat"] floatValue];
-  float longitude = [[json valueForKey:@"lng"] floatValue];
+  NSDictionary *latLng = [json objectForKey:@"position"];
+  float latitude = [[latLng valueForKey:@"lat"] floatValue];
+  float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
   GMSMarker *marker = [GMSMarker markerWithPosition:position];
   if ([[json valueForKey:@"visible"] boolValue]) {
@@ -40,21 +42,7 @@
   
   // Create icon
   NSString *iconPath = [json valueForKey:@"icon"];
-  if (iconPath) {
-    NSRange range = [iconPath rangeOfString:@"http"];
-    if (range.location == NSNotFound) {
-      marker.icon  = [UIImage imageNamed:iconPath];
-    } else {
-      dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
-      dispatch_sync(gueue, ^{
-        NSURL *url = [NSURL URLWithString:iconPath];
-        NSData *data = [NSData dataWithContentsOfURL:url];
-        marker.icon = [UIImage imageWithData:data];
-      });
-      dispatch_release(gueue);
-      
-    }
-  }
+  [self setIcon_:marker iconPath:iconPath];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -259,6 +247,13 @@
   
   // Create icon
   NSString *iconPath = [command.arguments objectAtIndex:2];
+  [self setIcon_:marker iconPath:iconPath];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+-(void)setIcon_:(GMSMarker *)marker iconPath:(NSString *)iconPath {
   if (iconPath) {
     NSRange range = [iconPath rangeOfString:@"http"];
     if (range.location == NSNotFound) {
@@ -274,8 +269,5 @@
       
     }
   }
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 @end

@@ -116,7 +116,7 @@
       callback(null, txt);
     }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo');
   };
-  App.prototype.showDialog = function(callback) {
+  App.prototype.showDialog = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
   
@@ -178,10 +178,6 @@
         params = ['Map.animateCamera'],
         lastParam;
  
-    if (cameraPosition.target) {
-      cameraPosition.lat = cameraPosition.target.lat;
-      cameraPosition.lng = cameraPosition.target.lng;
-    }
     params.push(cameraPosition);
  
     myCallback = typeof durationMs == "function" ? durationMs : myCallback;
@@ -201,10 +197,6 @@
    */
   App.prototype.moveCamera = function(cameraPosition, callback) {
     var argsLength = arguments.length;
-    if (cameraPosition.target) {
-      cameraPosition.lat = cameraPosition.target.lat;
-      cameraPosition.lng = cameraPosition.target.lng;
-    }
     cordova.exec(function() {
       callback();
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
@@ -253,11 +245,9 @@
   //-------------
   App.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
-    markerOptions.lat = markerOptions.position.lat;
-    markerOptions.lng = markerOptions.position.lng;
- 
- 
-    markerOptions.position = markerOptions.position || null;
+    markerOptions.position = markerOptions.position || {};
+    markerOptions.position.lat = markerOptions.position.lat || 0.0;
+    markerOptions.position.lng = markerOptions.position.lng || 0.0;
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable || false;
     markerOptions.icon = markerOptions.icon || "";
@@ -280,7 +270,7 @@
         marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
       }
       if (typeof callback === "function") {
-        callback.call(marker, marker, self);
+        callback.call(window, marker, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
   };
@@ -292,8 +282,8 @@
   App.prototype.addCircle = function(circleOptions, callback) {
     var self = this;
     circleOptions.center = circleOptions.center || {};
-    circleOptions.lat = circleOptions.center.lat || 0.0;
-    circleOptions.lng = circleOptions.center.lng || 0.0;
+    circleOptions.center.lat = circleOptions.center.lat || 0.0;
+    circleOptions.center.lng = circleOptions.center.lng || 0.0;
     circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
     circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
@@ -304,7 +294,7 @@
     cordova.exec(function(circleId) {
       var circle = new Circle(circleId, circleOptions);
       if (callback) {
-        callback.call(circle, circle, self);
+        callback.call(window, circle, self);
       }
     },self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
@@ -323,7 +313,7 @@
     cordova.exec(function(polylineId) {
       var polyline = new Polyline(polylineId, polylineOptions);
       if (callback) {
-        callback.call(polyline, polyline, self);
+        callback.call(window, polyline, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', polylineOptions]);
   };
@@ -343,7 +333,7 @@
     cordova.exec(function(polygonId) {
       var polygon = new Polygon(polygonId, polygonOptions);
       if (callback) {
-        callback.call(polygon, polygon, self);
+        callback.call(window, polygon, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
   };
@@ -655,7 +645,7 @@
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setPoints', this.get('id'), path]);
   };
   Polyline.prototype.getPoints = function() {
-    return self.get("points");
+    return this.get("points");
   };
   Polyline.prototype.setColor = function(color) {
     this.set('color', color);
@@ -740,7 +730,7 @@
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setPoints', this.get('id'), path]);
   };
   Polygon.prototype.getPoints = function() {
-    return self.get("points");
+    return this.get("points");
   };
   Polygon.prototype.setFillColor = function(color) {
     this.set('fillColor', color);

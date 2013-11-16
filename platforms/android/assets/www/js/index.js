@@ -178,6 +178,12 @@ function onAddPolylineBtn(map) {
     'color' : '#AA00FF',
     'width': 10,
     'geodesic': true
+  }, function(polyline) {
+    
+    map.animateCamera({
+      'target': new plugin.google.maps.LatLng(38.196424,-147.130884),
+      'zoom': 2
+    });
   });
 }
 

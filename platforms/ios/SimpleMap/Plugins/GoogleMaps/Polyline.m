@@ -26,7 +26,6 @@
   NSDictionary *latLng;
   for (i = 0; i < points.count; i++) {
     latLng = [points objectAtIndex:i];
-    NSLog(@"%d -> %f,%f", i, [[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
     [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
 

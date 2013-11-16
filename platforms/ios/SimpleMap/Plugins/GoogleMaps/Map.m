@@ -121,36 +121,7 @@
  */
 -(void)animateCamera:(CDVInvokedUrlCommand *)command
 {
-  NSDictionary *json = [command.arguments objectAtIndex:1];
-  
-  NSLog(@"AnimateCamera");
-  float latitude = [[json valueForKey:@"lat"] floatValue];
-  float longitude = [[json valueForKey:@"lng"] floatValue];
-  int bearing = [[json valueForKey:@"bearing"] integerValue];
-  double angle = [[json valueForKey:@"tilt"] doubleValue];
-  int zoom = [[json valueForKey:@"zoom"] integerValue];
-  
-  float duration = 1.0f;
-  if (command.arguments.count == 3) {
-    duration = [[command.arguments objectAtIndex:2] floatValue] / 1000;
-  }
-  
-  GMSCameraPosition *cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
-                                                                  longitude:longitude
-                                                                       zoom:zoom
-                                                                    bearing:bearing
-                                                               viewingAngle:angle];
-  
-  [CATransaction begin]; {
-    [CATransaction setAnimationDuration: duration];
-    
-    [CATransaction setCompletionBlock:^{
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }];
-    
-    [self.mapCtrl.map animateToCameraPosition: cameraPosition];
-  }[CATransaction commit];
+  [self updateCameraPosition:@"animateCamera" command:command];
 }
 
 /**
@@ -158,28 +129,7 @@
  */
 -(void)moveCamera:(CDVInvokedUrlCommand *)command
 {
-  NSDictionary *json = [command.arguments objectAtIndex:1];
-  
-  float latitude = [[json valueForKey:@"lat"] floatValue];
-  float longitude = [[json valueForKey:@"lng"] floatValue];
-  int bearing = [[json valueForKey:@"bearing"] integerValue];
-  double angle = [[json valueForKey:@"tilt"] doubleValue];
-  int zoom = [[json valueForKey:@"zoom"] integerValue];
-  
-  float duration = 1.0f;
-  if (command.arguments.count == 3) {
-    duration = [[command.arguments objectAtIndex:2] floatValue] / 1000;
-  }
-  
-  GMSCameraPosition *cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
-                                                                  longitude:longitude
-                                                                       zoom:zoom
-                                                                    bearing:bearing
-                                                               viewingAngle:angle];
-  
-  [self.mapCtrl.map setCamera:cameraPosition];
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  [self updateCameraPosition:@"moveCamera" command:command];
 }
 
 -(void)getCameraPosition:(CDVInvokedUrlCommand *)command
@@ -201,6 +151,49 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+-(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
+  NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSDictionary *latLng = [json objectForKey:@"target"];
+  float latitude = [[latLng valueForKey:@"lat"] floatValue];
+  float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  
+  int bearing = [[json valueForKey:@"bearing"] integerValue];
+  double angle = [[json valueForKey:@"tilt"] doubleValue];
+  int zoom = [[json valueForKey:@"zoom"] integerValue];
+  
+  float duration = 2.0f;
+  if (command.arguments.count == 3) {
+    duration = [[command.arguments objectAtIndex:2] floatValue] / 1000;
+  }
+  
+  GMSCameraPosition *cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
+                                                                  longitude:longitude
+                                                                       zoom:zoom
+                                                                    bearing:bearing
+                                                               viewingAngle:angle];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  
+  
+  if ([action  isEqual: @"animateCamera"]) {
+    [CATransaction begin]; {
+      [CATransaction setAnimationDuration: duration];
+      
+      [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+      
+      [CATransaction setCompletionBlock:^{
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+      
+      [self.mapCtrl.map animateToCameraPosition: cameraPosition];
+    }[CATransaction commit];
+  }
+  
+  if ([action  isEqual: @"moveCamera"]) {
+    [self.mapCtrl.map setCamera:cameraPosition];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }
+}
 
 
 @end

@@ -17,8 +17,9 @@
 -(void)createCircle:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  float latitude = [[json valueForKey:@"lat"] floatValue];
-  float longitude = [[json valueForKey:@"lng"] floatValue];
+  NSDictionary *latLng = [json objectForKey:@"position"];
+  float latitude = [[latLng valueForKey:@"lat"] floatValue];
+  float longitude = [[latLng valueForKey:@"lng"] floatValue];
   float radius = [[json valueForKey:@"radius"] floatValue];
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
   GMSCircle *circle = [GMSCircle circleWithPosition:position radius:radius];
