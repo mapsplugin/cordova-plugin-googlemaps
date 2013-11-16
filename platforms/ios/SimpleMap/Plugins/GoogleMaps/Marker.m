@@ -112,6 +112,23 @@
 }
 
 /**
+ * @params MarkerKey
+ * @return boolean
+ */
+-(void)isInfoWindowShown:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  Boolean isOpen = false;
+  if (self.mapCtrl.map.selectedMarker == marker) {
+    isOpen = YES;
+  }
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isOpen];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  * Set title to the specified marker
  * @params MarkerKey
  */
@@ -153,5 +170,91 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+/**
+ * Set anchor
+ * @params MarkerKey
+ */
+-(void)setAnchor:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  float anchorU = [[command.arguments objectAtIndex:2] floatValue];
+  float anchorV = [[command.arguments objectAtIndex:3] floatValue];
+  [marker setInfoWindowAnchor:CGPointMake(anchorU, anchorV)];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
+/**
+ * Set alpha
+ * @params MarkerKey
+ */
+-(void)setAlpha:(CDVInvokedUrlCommand *)command
+{
+  NSLog(@"<Marker.setAlpha> is not available for iOS");
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+/**
+ * Set draggable
+ * @params MarkerKey
+ */
+-(void)setDraggable:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
+  [marker setDraggable:isEnabled];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set flattable
+ * @params MarkerKey
+ */
+-(void)setFlat:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  Boolean isFlat = [[command.arguments objectAtIndex:2] boolValue];
+  [marker setFlat: isFlat];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * set icon
+ * @params MarkerKey
+ */
+-(void)setIcon:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  
+  // Create icon
+  NSString *iconPath = [command.arguments objectAtIndex:2];
+  if (iconPath) {
+    NSRange range = [iconPath rangeOfString:@"http"];
+    if (range.location == NSNotFound) {
+      marker.icon  = [UIImage imageNamed:iconPath];
+    } else {
+      dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
+      dispatch_sync(gueue, ^{
+        NSURL *url = [NSURL URLWithString:iconPath];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        marker.icon = [UIImage imageWithData:data];
+      });
+      dispatch_release(gueue);
+      
+    }
+  }
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

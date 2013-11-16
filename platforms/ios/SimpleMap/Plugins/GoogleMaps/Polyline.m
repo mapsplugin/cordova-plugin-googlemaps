@@ -52,4 +52,125 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+
+
+/**
+ * Set points
+ * @params key
+ */
+-(void)setPoints:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  GMSMutablePath *path = [GMSMutablePath path];
+  
+  NSArray *points = [command.arguments objectAtIndex:2];
+  int i = 0;
+  NSDictionary *latLng;
+  for (i = 0; i < points.count; i++) {
+    latLng = [points objectAtIndex:i];
+    [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+  }
+  [polyline setPath:path];
+  
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
+/**
+ * Set color
+ * @params key
+ */
+-(void)setColor:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+ 
+  NSArray *rgbColor = [command.arguments objectAtIndex:2];
+  [polyline setStrokeColor:[rgbColor parsePluginColor]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set width
+ * @params key
+ */
+-(void)setWidth:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  float width = [[command.arguments objectAtIndex:2] floatValue];
+  [polyline setStrokeWidth:width];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set z-index
+ * @params key
+ */
+-(void)setZIndex:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
+  [polyline setZIndex:zIndex];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set visibility
+ * @params key
+ */
+-(void)setVisible:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
+  if (isEnabled) {
+    polyline.map = self.mapCtrl.map;
+  } else {
+    polyline.map = nil;
+  }
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+/**
+ * Set geodesic
+ * @params key
+ */
+-(void)setGeodesic:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  Boolean isGeodisic = [[command.arguments objectAtIndex:2] boolValue];
+  [polyline setGeodesic:isGeodisic];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Remove the polyline
+ * @params key
+ */
+-(void)remove:(CDVInvokedUrlCommand *)command
+{
+  NSString *polylineKey = [command.arguments objectAtIndex:1];
+  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  polyline.map = nil;
+  [self.mapCtrl.overlayManager removeObjectForKey:polylineKey];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end

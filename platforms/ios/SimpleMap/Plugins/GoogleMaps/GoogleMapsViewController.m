@@ -9,9 +9,6 @@
 #import "GoogleMapsViewController.h"
 #import <Cordova/CDVJSON.h>
 
-@interface GoogleMapsViewController ()
-
-@end
 
 @implementation GoogleMapsViewController
 NSDictionary *initOptions;
@@ -286,5 +283,23 @@ NSDictionary *initOptions;
     return view;
 }
 */
+
+
+
+- (GMSCircle *)getCircleByKey: (NSString *)key {
+  return [self.overlayManager objectForKey:key];
+}
+
+- (GMSMarker *)getMarkerByKey: (NSString *)key {
+  return [self.overlayManager objectForKey:key];
+}
+
+- (GMSPolygon *)getPolygonByKey: (NSString *)key {
+  return [self.overlayManager objectForKey:key];
+}
+
+- (GMSPolyline *)getPolylineByKey: (NSString *)key {
+  return [self.overlayManager objectForKey:key];
+}
 
 @end

@@ -18,4 +18,8 @@
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;
 
+- (GMSCircle *)getCircleByKey: (NSString *)key;
+- (GMSMarker *)getMarkerByKey: (NSString *)key;
+- (GMSPolygon *)getPolygonByKey: (NSString *)key;
+- (GMSPolyline *)getPolylineByKey: (NSString *)key;
 @end

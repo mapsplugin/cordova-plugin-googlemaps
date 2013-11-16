@@ -7,8 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import <Cordova/CDV.h>
 
 @interface NSArray (GoogleMapsPlugin)
 - (UIColor*)parsePluginColor;
+@end
+
+@interface PluginUtil : NSObject
 @end

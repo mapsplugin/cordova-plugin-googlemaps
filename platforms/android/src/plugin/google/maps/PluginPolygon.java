@@ -1,7 +1,9 @@
       package plugin.google.maps;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -12,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -177,6 +178,20 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
     polygon.setVisible(visible);
     callbackContext.success();
   }
+  /**
+   * set geodisic
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setGeodisic(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    boolean isGeodisic = args.getBoolean(2);
+    Polygon polygon = this.polygons.get(id);
+    polygon.setGeodesic(isGeodisic);
+    callbackContext.success();
+  }
 
   /**
    * Remove the polygon
@@ -190,6 +205,30 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
     Polygon polygon = this.polygons.get(id);
     this.polygons.remove(id);
     polygon.remove();
+    callbackContext.success();
+  }
+  /**
+   * Set points
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    Polygon polygon = this.polygons.get(id);
+    
+    JSONArray points = args.getJSONArray(2);
+    List<LatLng> path = new ArrayList<LatLng>();
+    
+    JSONObject pointJSON;
+    int i = 0;
+    for (i = 0; i < points.length(); i++) {
+      pointJSON = points.getJSONObject(i);
+      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng")));
+    }
+    polygon.setPoints(path);
+    
     callbackContext.success();
   }
 }

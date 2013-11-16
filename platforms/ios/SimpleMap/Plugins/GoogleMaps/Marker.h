@@ -14,8 +14,14 @@
 - (void)createMarker:(CDVInvokedUrlCommand*)command;
 - (void)showInfoWindow:(CDVInvokedUrlCommand*)command;
 - (void)hideInfoWindow:(CDVInvokedUrlCommand*)command;
+- (void)isInfoWindowShown:(CDVInvokedUrlCommand*)command;
 - (void)getPosition:(CDVInvokedUrlCommand*)command;
 - (void)setSnippet:(CDVInvokedUrlCommand*)command;
 - (void)setTitle:(CDVInvokedUrlCommand*)command;
+- (void)setAlpha:(CDVInvokedUrlCommand*)command;
+- (void)setFlat:(CDVInvokedUrlCommand*)command;
+- (void)setAnchor:(CDVInvokedUrlCommand*)command;
+- (void)setDraggable:(CDVInvokedUrlCommand*)command;
+- (void)setIcon:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand*)command;
 @end

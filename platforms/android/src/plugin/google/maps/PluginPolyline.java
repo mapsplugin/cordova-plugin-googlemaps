@@ -1,7 +1,9 @@
       package plugin.google.maps;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -17,6 +19,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -172,6 +175,30 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
     Polyline polyline = this.polylines.get(id);
     this.polylines.remove(id);
     polyline.remove();
+    callbackContext.success();
+  }
+  /**
+   * Set points
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    Polyline polyline = this.polylines.get(id);
+    
+    JSONArray points = args.getJSONArray(2);
+    List<LatLng> path = new ArrayList<LatLng>();
+    
+    JSONObject pointJSON;
+    int i = 0;
+    for (i = 0; i < points.length(); i++) {
+      pointJSON = points.getJSONObject(i);
+      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng")));
+    }
+    polyline.setPoints(path);
+    
     callbackContext.success();
   }
 }

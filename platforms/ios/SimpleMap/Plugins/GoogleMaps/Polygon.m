@@ -53,4 +53,140 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+
+/**
+ * Set points
+ * @params key
+ */
+-(void)setPoints:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  GMSMutablePath *path = [GMSMutablePath path];
+  
+  NSArray *points = [command.arguments objectAtIndex:2];
+  int i = 0;
+  NSDictionary *latLng;
+  for (i = 0; i < points.count; i++) {
+    latLng = [points objectAtIndex:i];
+    [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+  }
+  [polygon setPath:path];
+  
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+/**
+ * Set fill color
+ * @params key
+ */
+-(void)setFillColor:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+ 
+  NSArray *rgbColor = [command.arguments objectAtIndex:2];
+  [polygon setFillColor:[rgbColor parsePluginColor]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
+/**
+ * Set stroke color
+ * @params key
+ */
+-(void)setStrokeColor:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+ 
+  NSArray *rgbColor = [command.arguments objectAtIndex:2];
+  [polygon setStrokeColor:[rgbColor parsePluginColor]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set stroke width
+ * @params key
+ */
+-(void)setStrokeWidth:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  float width = [[command.arguments objectAtIndex:2] floatValue];
+  [polygon setStrokeWidth:width];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set z-index
+ * @params key
+ */
+-(void)setZIndex:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
+  [polygon setZIndex:zIndex];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set visibility
+ * @params key
+ */
+-(void)setVisible:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
+  if (isEnabled) {
+    polygon.map = self.mapCtrl.map;
+  } else {
+    polygon.map = nil;
+  }
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+/**
+ * Set geodesic
+ * @params key
+ */
+-(void)setGeodesic:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  Boolean isGeodisic = [[command.arguments objectAtIndex:2] boolValue];
+  [polygon setGeodesic:isGeodisic];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Remove the polygon
+ * @params key
+ */
+-(void)remove:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  polygon.map = nil;
+  [self.mapCtrl.overlayManager removeObjectForKey:polygonKey];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end

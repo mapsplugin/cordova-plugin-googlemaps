@@ -13,5 +13,12 @@
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)createPolyline:(CDVInvokedUrlCommand*)command;
 
+- (void)setColor:(CDVInvokedUrlCommand*)command;
+- (void)setWidth:(CDVInvokedUrlCommand*)command;
+- (void)setPoints:(CDVInvokedUrlCommand*)command;
+- (void)setZIndex:(CDVInvokedUrlCommand*)command;
+- (void)setVisible:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand*)command;
+- (void)setGeodesic:(CDVInvokedUrlCommand*)command;
 
 @end
