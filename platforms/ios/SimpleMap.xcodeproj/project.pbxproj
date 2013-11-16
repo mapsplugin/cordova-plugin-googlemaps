@@ -30,6 +30,7 @@
 		30FC414916E50CA1004E6F35 /* icon-72@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FC414816E50CA1004E6F35 /* icon-72@2x.png */; };
 		5AEE5B35173C68D80009041E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AEE5B34173C68D80009041E /* CoreLocation.framework */; };
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
+		6936FDDD1836ECC800136A2E /* PluginUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6936FDDC1836ECC800136A2E /* PluginUtil.m */; };
 		697744AE1835A8FC00473ED6 /* Polyline.m in Sources */ = {isa = PBXBuildFile; fileRef = 697744AD1835A8FC00473ED6 /* Polyline.m */; };
 		697E88331829DA6B00E7E16A /* www in Resources */ = {isa = PBXBuildFile; fileRef = 697E88321829DA6B00E7E16A /* www */; };
 		698CBE6F182300C600F9B989 /* GoogleMaps.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 698CBE6E182300C600F9B989 /* GoogleMaps.framework */; };
@@ -101,6 +102,8 @@
 		32CA4F630368D1EE00C91783 /* SimpleMap-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SimpleMap-Prefix.pch"; sourceTree = "<group>"; };
 		5AEE5B34173C68D80009041E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		6936FDDB1836ECC800136A2E /* PluginUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginUtil.h; sourceTree = "<group>"; };
+		6936FDDC1836ECC800136A2E /* PluginUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PluginUtil.m; sourceTree = "<group>"; };
 		697744AC1835A8FC00473ED6 /* Polyline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polyline.h; sourceTree = "<group>"; };
 		697744AD1835A8FC00473ED6 /* Polyline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polyline.m; sourceTree = "<group>"; };
 		697E88321829DA6B00E7E16A /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../android/assets/www; sourceTree = "<group>"; };
@@ -345,6 +348,8 @@
 				697744AC1835A8FC00473ED6 /* Polyline.h */,
 				697744AD1835A8FC00473ED6 /* Polyline.m */,
 				69EE80E61834461C0020D4F8 /* Polygon.m */,
+				6936FDDB1836ECC800136A2E /* PluginUtil.h */,
+				6936FDDC1836ECC800136A2E /* PluginUtil.m */,
 			);
 			path = GoogleMaps;
 			sourceTree = "<group>";
@@ -469,6 +474,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6936FDDD1836ECC800136A2E /* PluginUtil.m in Sources */,
 				69EE80E71834461C0020D4F8 /* Polygon.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				69AEC794182D742C00F2AABD /* Map.m in Sources */,

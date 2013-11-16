@@ -103,9 +103,11 @@
     latitude = [NSNumber numberWithFloat: marker.position.latitude];
     longitude = [NSNumber numberWithFloat: marker.position.longitude];
   }
-  NSArray *latlng = @[latitude, longitude];
+  NSMutableDictionary *json = [NSMutableDictionary dictionary];
+  [json setObject:latitude forKey:@"lat"];
+  [json setObject:longitude forKey:@"lng"];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:latlng];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

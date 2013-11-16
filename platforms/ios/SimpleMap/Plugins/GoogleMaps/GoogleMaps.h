@@ -10,6 +10,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import "GoogleMapsViewController.h"
 #import "Map.h"
+#import "PluginUtil.h"
 
 @interface GoogleMaps : CDVPlugin
 

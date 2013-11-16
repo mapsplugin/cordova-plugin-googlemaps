@@ -27,15 +27,11 @@
     circle.map = self.mapCtrl.map;
   }
   NSArray *rgbColor = [json valueForKey:@"fillColor"];
-  circle.fillColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
-                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
-                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
+  circle.fillColor = [rgbColor parsePluginColor];
+  
   rgbColor = [json valueForKey:@"strokeColor"];
-  circle.strokeColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
-                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
-                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
+  circle.strokeColor = [rgbColor parsePluginColor];
+  
   circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   

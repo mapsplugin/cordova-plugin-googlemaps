@@ -39,15 +39,11 @@
     polygon.geodesic = YES;
   }
   NSArray *rgbColor = [json valueForKey:@"fillColor"];
-  polygon.fillColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
-                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
-                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
+  polygon.fillColor = [rgbColor parsePluginColor];
+  
   rgbColor = [json valueForKey:@"strokeColor"];
-  polygon.strokeColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
-                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
-                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
+  polygon.strokeColor = [rgbColor parsePluginColor];
+  
   polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   

@@ -40,10 +40,8 @@
     polyline.geodesic = YES;
   }
   NSArray *rgbColor = [json valueForKey:@"color"];
-  polyline.strokeColor = [UIColor colorWithRed:[[rgbColor objectAtIndex:0] floatValue]/255.0
-                              green:[[rgbColor objectAtIndex:1] floatValue]/255.0
-                              blue:[[rgbColor objectAtIndex:2] floatValue]/255.0
-                              alpha:[[rgbColor objectAtIndex:3] floatValue]/255.0];
+  polyline.strokeColor = [rgbColor parsePluginColor];
+  
   polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
   polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   

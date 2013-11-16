@@ -168,12 +168,12 @@ UIButton *closeButton;
   CLLocationManager *locationManager = [[CLLocationManager alloc] init];
   locationManager.distanceFilter = kCLDistanceFilterNone;
   
+  NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+  [latLng setObject:[NSNumber numberWithFloat:locationManager.location.coordinate.latitude] forKey:@"lat"];
+  [latLng setObject:[NSNumber numberWithFloat:locationManager.location.coordinate.longitude] forKey:@"lng"];
 
   NSMutableDictionary *json = [NSMutableDictionary dictionary];
-  [json setObject:[NSArray
-      arrayWithObjects:[NSNumber numberWithFloat:locationManager.location.coordinate.latitude],
-                       [NSNumber numberWithFloat:locationManager.location.coordinate.longitude],
-                       nil] forKey:@"latLng"];
+  [json setObject:latLng forKey:@"latLng"];
   [json setObject:[NSNumber numberWithFloat:[locationManager.location speed]] forKey:@"speed"];
   [json setObject:[NSNumber numberWithFloat:[locationManager.location altitude]] forKey:@"altitude"];
   

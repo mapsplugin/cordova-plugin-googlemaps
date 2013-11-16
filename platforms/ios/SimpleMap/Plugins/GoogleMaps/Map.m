@@ -185,13 +185,15 @@
 -(void)getCameraPosition:(CDVInvokedUrlCommand *)command
 {
   GMSCameraPosition *camera = self.mapCtrl.map.camera;
+  
+  NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+  [latLng setObject:[NSNumber numberWithFloat:camera.target.latitude] forKey:@"lat"];
+  [latLng setObject:[NSNumber numberWithFloat:camera.target.longitude] forKey:@"lng"];
+  
   NSMutableDictionary *json = [NSMutableDictionary dictionary];
   [json setObject:[NSNumber numberWithFloat:camera.zoom] forKey:@"zoom"];
   [json setObject:[NSNumber numberWithDouble:camera.viewingAngle] forKey:@"tilt"];
-  [json setObject:[NSArray
-      arrayWithObjects:[NSNumber numberWithFloat:camera.target.latitude],
-                       [NSNumber numberWithFloat:camera.target.longitude],
-                       nil] forKey:@"target"];
+  [json setObject:latLng forKey:@"target"];
   [json setObject:[NSNumber numberWithFloat:camera.bearing] forKey:@"bearing"];
   [json setObject:[NSNumber numberWithInt:camera.hash] forKey:@"hashCode"];
 
