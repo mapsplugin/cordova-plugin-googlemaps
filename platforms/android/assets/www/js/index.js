@@ -181,7 +181,7 @@ function onAddPolylineBtn(map) {
   }, function(polyline) {
     
     map.animateCamera({
-      'target': new plugin.google.maps.LatLng(38.196424,-147.130884),
+      'target': polyline.getPoints(),
       'zoom': 2
     });
   });

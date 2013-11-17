@@ -153,27 +153,47 @@
 
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  NSDictionary *latLng = [json objectForKey:@"target"];
-  float latitude = [[latLng valueForKey:@"lat"] floatValue];
-  float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  NSString *targetClsName = [[json objectForKey:@"target"] className];
   
   int bearing = [[json valueForKey:@"bearing"] integerValue];
   double angle = [[json valueForKey:@"tilt"] doubleValue];
   int zoom = [[json valueForKey:@"zoom"] integerValue];
+  
+  NSDictionary *latLng = nil;
+  float latitude;
+  float longitude;
+  GMSCameraPosition *cameraPosition;
+  
+  if ([targetClsName isEqualToString:@"__NSCFArray"]) {
+    int i = 0;
+    NSArray *latLngList = [json objectForKey:@"target"];
+    GMSMutablePath *path = [GMSMutablePath path];
+    for (i = 0; i < [latLngList count]; i++) {
+      latLng = [latLngList objectAtIndex:i];
+      latitude = [[latLng valueForKey:@"lat"] floatValue];
+      longitude = [[latLng valueForKey:@"lng"] floatValue];
+      [path addLatitude:latitude longitude:longitude];
+    }
+    GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+    cameraPosition = [self.mapCtrl.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10, 10, 10, 10)];
+  } else {
+    latLng = [json objectForKey:@"target"];
+    latitude = [[latLng valueForKey:@"lat"] floatValue];
+    longitude = [[latLng valueForKey:@"lng"] floatValue];
+    
+    cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
+                                        longitude:longitude
+                                        zoom:zoom
+                                        bearing:bearing
+                                        viewingAngle:angle];
+  }
   
   float duration = 2.0f;
   if (command.arguments.count == 3) {
     duration = [[command.arguments objectAtIndex:2] floatValue] / 1000;
   }
   
-  GMSCameraPosition *cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
-                                                                  longitude:longitude
-                                                                       zoom:zoom
-                                                                    bearing:bearing
-                                                               viewingAngle:angle];
-  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  
   
   if ([action  isEqual: @"animateCamera"]) {
     [CATransaction begin]; {
@@ -193,6 +213,8 @@
     [self.mapCtrl.map setCamera:cameraPosition];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
+
+  
 }
 
 
