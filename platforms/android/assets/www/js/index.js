@@ -209,12 +209,13 @@ function onAddPolygonBtn(map) {
     'strokeColor' : '#AA00FF',
     'strokeWidth': 5,
     'fillColor' : '#880000'
+  }, function(polygon) {
+  
+    map.animateCamera({
+      'target': polygon.getPoints()
+    });
   });
   
-  map.animateCamera({
-    'target': new plugin.google.maps.LatLng(41.796868, 140.756794),
-    'zoom': 16
-  });
 }
 
 $(document).on('deviceready',  function() {
