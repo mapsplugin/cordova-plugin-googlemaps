@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -18,7 +17,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CameraPositionCreator;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginMap";
@@ -133,19 +135,39 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
     if (cameraPos.has("zoom")) {
       builder.zoom((float) cameraPos.getDouble("zoom"));
     }
+    CameraPosition newPosition;
+    CameraUpdate cameraUpdate = null;
     if (cameraPos.has("target")) {
-      JSONObject target = cameraPos.getJSONObject("target");
-      builder.target(new LatLng(target.getDouble("lat"), target.getDouble("lng")));
+      Object target = cameraPos.get("target");
+      Class targetClass = target.getClass();
+      JSONObject latLng;
+      if ("org.json.JSONArray".equals(targetClass.getName())) {
+        JSONArray points = cameraPos.getJSONArray("target");
+        int i = 0;
+        Builder latLngBuilder = LatLngBounds.builder();
+        
+        for (i = 0; i < points.length(); i++) {
+          latLng = points.getJSONObject(i);
+          latLngBuilder.include(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+        }
+        LatLngBounds bounds = latLngBuilder.build();
+        cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 10);
+        
+      } else {
+        latLng = cameraPos.getJSONObject("target");
+        builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+        newPosition = builder.build();
+        cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
+      }
     }
-    CameraPosition newPosition = builder.build();
 
     if (args.length() == 3) {
       durationMS = args.getInt(2);
     }
     if (action.equals("moveCamera")) {
-      myMoveCamera(newPosition, callbackContext);
+      myMoveCamera(cameraUpdate, callbackContext);
     } else {
-      myAnimateCamera(newPosition, durationMS, callbackContext);
+      myAnimateCamera(cameraUpdate, durationMS, callbackContext);
     }
   }
 
