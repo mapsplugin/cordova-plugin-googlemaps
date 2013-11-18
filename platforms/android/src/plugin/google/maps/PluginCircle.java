@@ -1,4 +1,4 @@
-      package plugin.google.maps;
+package plugin.google.maps;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -65,8 +65,9 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
     int color;
     
     JSONObject opts = args.getJSONObject(1);
-    if (opts.has("lat") && opts.has("lng")) {
-      circleOptions.center(new LatLng(opts.getDouble("lat"), opts.getDouble("lng")));
+    if (opts.has("center")) {
+      JSONObject center = opts.getJSONObject("center");
+      circleOptions.center(new LatLng(center.getDouble("lat"), center.getDouble("lng")));
     }
     if (opts.has("radius")) {
       circleOptions.radius(opts.getDouble("radius"));

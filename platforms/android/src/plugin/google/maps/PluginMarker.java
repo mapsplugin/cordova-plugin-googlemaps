@@ -46,6 +46,7 @@ public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
     String[] params = args.getString(0).split("\\.");
     try {
+      Log.d(TAG, "exec=" + params[0] + "." + params[1]);
       Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
       method.invoke(this, args, callbackContext);
       return true;
@@ -68,8 +69,9 @@ public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
     final MarkerOptions markerOptions = new MarkerOptions();
     String iconUrl = null;
     JSONObject opts = args.getJSONObject(1);
-    if (opts.has("lat") && opts.has("lng")) {
-        markerOptions.position(new LatLng(opts.getDouble("lat"), opts.getDouble("lng")));
+    if (opts.has("position")) {
+        JSONObject position = opts.getJSONObject("position");
+        markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
     }
     if (opts.has("title")) {
         markerOptions.title(opts.getString("title"));

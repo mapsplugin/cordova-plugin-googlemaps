@@ -120,35 +120,24 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
    */
   private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
-    float tilt, bearing, zoom;
-    LatLng target;
     int durationMS = 0;
+    CameraPosition.Builder builder = CameraPosition.builder();
     JSONObject cameraPos = args.getJSONObject(1);
-    CameraPosition currentPos = map.getCameraPosition();
+    Log.d(TAG, cameraPos.toString());
     if (cameraPos.has("tilt")) {
-      tilt = (float) cameraPos.getDouble("tilt");
-    } else {
-      tilt = currentPos.tilt;
+      builder.tilt((float) cameraPos.getDouble("tilt"));
     }
     if (cameraPos.has("bearing")) {
-      bearing = (float) cameraPos.getDouble("bearing");
-    } else {
-      bearing = currentPos.bearing;
+      builder.bearing((float) cameraPos.getDouble("bearing"));
     }
     if (cameraPos.has("zoom")) {
-      zoom = (float) cameraPos.getDouble("zoom");
-    } else {
-      zoom = currentPos.zoom;
+      builder.zoom((float) cameraPos.getDouble("zoom"));
     }
-    if (cameraPos.has("lat") && cameraPos.has("lng")) {
-      target = new LatLng(cameraPos.getDouble("lat"),
-          cameraPos.getDouble("lng"));
-    } else {
-      target = currentPos.target;
+    if (cameraPos.has("target")) {
+      JSONObject target = cameraPos.getJSONObject("target");
+      builder.target(new LatLng(target.getDouble("lat"), target.getDouble("lng")));
     }
-
-    CameraPosition newPosition = new CameraPosition.Builder()
-        .target(target).bearing(bearing).zoom(zoom).tilt(tilt).build();
+    CameraPosition newPosition = builder.build();
 
     if (args.length() == 3) {
       durationMS = args.getInt(2);
