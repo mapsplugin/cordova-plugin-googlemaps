@@ -454,29 +454,30 @@
   Marker.prototype.getPosition = function(callback) {
     cordova.exec(function(latlng) {
       callback(new LatLng(latlng.lat, latlng.lng));
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.get("hashCode")]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.getHashCode()]);
   };
   Marker.prototype.getHashCode = function() {
-    return this.get('hashCode');
-  }
+    return this.hashCode;
+  };
+  
   Marker.prototype.remove = function(callback) {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getHashCode()]);
   };
   Marker.prototype.setAlpha = function(alpha) {
     this.set('alpha');
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.get("hashCode"), alpha]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.getHashCode(), alpha]);
   };
   Marker.prototype.getAlpha = function() {
     return this.get('alpha');
   };
   Marker.prototype.setAnchor = function(anchorU, anchorV) {
     this.set('anchor', [anchorU, anchorV]);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.get("hashCode"), anchorU, anchorV]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.getHashCode(), anchorU, anchorV]);
   };
   Marker.prototype.setDraggable = function(draggable) {
     draggable = parseBoolean(draggable);
     this.set('draggable', draggable);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.get("hashCode"), draggable]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.getHashCode(), draggable]);
   };;
   Marker.prototype.isDraggable = function() {
     return this.get('draggable');
@@ -484,43 +485,43 @@
   Marker.prototype.setFlat = function(flat) {
     flat = parseBoolean(flat);
     this.set('flat', flat);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.get("hashCode"), flat]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.getHashCode(), flat]);
   };
   Marker.prototype.setIcon = function(url) {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.get("hashCode"), url]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.getHashCode(), url]);
   };
   Marker.prototype.setTitle = function(title) {
     this.set('title', title);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.get("hashCode"), title]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.getHashCode(), title]);
   };
   Marker.prototype.getTitle = function() {
     return this.get('title');
   };
   Marker.prototype.setSnippet = function(snippet) {
     this.set('snippet', snippet);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.get("hashCode"), snippet]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.getHashCode(), snippet]);
   };
   Marker.prototype.getSnippet = function() {
     return this.get('snippet');
   };
   Marker.prototype.setRotation = function(rotation) {
     this.set('rotation', rotation);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setRotation', this.get("hashCode"), rotation]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setRotation', this.getHashCode(), rotation]);
   };
   Marker.prototype.getRotation = function() {
     return this.get('rotation');
   };
   Marker.prototype.showInfoWindow = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.getHashCode()]);
   };
   Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.get("hashCode")]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.getHashCode()]);
   };
   Marker.prototype.isInfoWindowShown = function(callback) {
     cordova.exec(function(isVisible) {
       isVisible = parseparseBoolean(isVisible);
       callback(isVisible);
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.get("hashCode")]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.getHashCode()]);
   };
 
   
@@ -572,36 +573,36 @@
     return this.get('visible');
   };
   Circle.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.get('id')]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.getId()]);
   };
   Circle.prototype.setCenter = function(center) {
     this.set('center', center);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.get('id'), center.lat, center.lng]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.getId(), center.lat, center.lng]);
   };
   Circle.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setFillColor', this.get('id'), HTMLColor2RGBA(color)]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setFillColor', this.getId(), HTMLColor2RGBA(color)]);
   };
   Circle.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeColor', this.get('id'), HTMLColor2RGBA(color)]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeColor', this.getId(), HTMLColor2RGBA(color)]);
   };
   Circle.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeWidth', this.get('id'), width]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeWidth', this.getId(), width]);
   };
   Circle.prototype.setVisible = function(visible) {
     visible = parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setVisible', this.get('id'), visible]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setVisible', this.getId(), visible]);
   };
   Circle.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setZIndex', this.get('id'), zIndex]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setZIndex', this.getId(), zIndex]);
   };
   Circle.prototype.setRadius = function(radius) {
     this.set('radius', radius);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setRadius', this.get('id'), radius]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setRadius', this.getId(), radius]);
   };
   /*****************************************************************************
    * Polyline Class
@@ -642,21 +643,21 @@
         "lng": points[i].lng
       });
     }
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setPoints', this.get('id'), path]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setPoints', this.getId(), path]);
   };
   Polyline.prototype.getPoints = function() {
     return this.get("points");
   };
   Polyline.prototype.setColor = function(color) {
     this.set('color', color);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setColor', this.get('id'), HTMLColor2RGBA(color)]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setColor', this.getId(), HTMLColor2RGBA(color)]);
   };
   Polyline.prototype.getColor = function() {
     return this.get('color');
   };
   Polyline.prototype.setWidth = function(width) {
     this.set('width', width);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setWidth', this.get('id'), width]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setWidth', this.getId(), width]);
   };
   Polyline.prototype.getWidth = function() {
     return this.get('width');
@@ -664,7 +665,7 @@
   Polyline.prototype.setVisible = function(visible) {
     visible = parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setVisible', this.get('id'), visible]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setVisible', this.getId(), visible]);
   };
   Polyline.prototype.getVisible = function() {
     return this.get('visible');
@@ -672,20 +673,20 @@
   Polyline.prototype.setGeodesic = function(geodesic) {
     geodesic = parseBoolean(geodesic);
     this.set('geodesic', geodesic);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setGeodesic', this.get('id'), geodesic]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setGeodesic', this.getId(), geodesic]);
   };
   Polyline.prototype.getGeodesic = function() {
     return this.get('geodesic');
   };
   Polyline.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setZIndex', this.get('id'), zIndex]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setZIndex', this.getId(), zIndex]);
   };
   Polyline.prototype.getZIndex = function() {
     return this.get('zIndex');
   };
   Polyline.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.get('id')]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
   };
 
   /*****************************************************************************
@@ -727,28 +728,28 @@
         "lng": points[i].lng
       });
     }
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setPoints', this.get('id'), path]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setPoints', this.getId(), path]);
   };
   Polygon.prototype.getPoints = function() {
     return this.get("points");
   };
   Polygon.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setFillColor', this.get('id'), HTMLColor2RGBA(color)]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setFillColor', this.getId(), HTMLColor2RGBA(color)]);
   };
   Polygon.prototype.getFillColor = function() {
     return this.get('fillColor');
   };
   Polygon.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setStrokeColor', this.get('id'), HTMLColor2RGBA(color)]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setStrokeColor', this.getId(), HTMLColor2RGBA(color)]);
   };
   Polygon.prototype.getStrokeColor = function() {
     return this.get('strokeColor');
   };
   Polygon.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setStrokeWidth', this.get('id'), width]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setStrokeWidth', this.getId(), width]);
   };
   Polygon.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
@@ -756,7 +757,7 @@
   Polygon.prototype.setVisible = function(visible) {
     visible = parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setVisible', this.get('id'), visible]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setVisible', this.getId(), visible]);
   };
   Polygon.prototype.getVisible = function() {
     return this.get('visible');
@@ -764,20 +765,20 @@
   Polygon.prototype.setGeodesic = function(geodesic) {
     geodesic = parseBoolean(geodesic);
     this.set('geodesic', geodesic);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setGeodesic', this.get('id'), geodesic]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setGeodesic', this.getId(), geodesic]);
   };
   Polygon.prototype.getGeodesic = function() {
     return this.get('geodesic');
   };
   Polygon.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setZIndex', this.get('id'), zIndex]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setZIndex', this.getId(), zIndex]);
   };
   Polyline.prototype.getZIndex = function() {
     return this.get('zIndex');
   };
   Polyline.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.get('id')]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
   };
  
   /*****************************************************************************
