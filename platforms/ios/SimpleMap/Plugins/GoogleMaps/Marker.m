@@ -36,6 +36,7 @@
   marker.draggable = [[json valueForKey:@"draggable"] boolValue];
   marker.flat = [[json valueForKey:@"flat"] boolValue];
   marker.rotation = [[json valueForKey:@"flat"] floatValue];
+  marker.opacity = [[json valueForKey:@"alpha"] floatValue];
   
   NSString *key = [NSString stringWithFormat:@"marker%d", marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: key];
@@ -180,7 +181,9 @@
  */
 -(void)setAlpha:(CDVInvokedUrlCommand *)command
 {
-  NSLog(@"<Marker.setAlpha> is not available for iOS");
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  marker.opacity = [[command.arguments objectAtIndex:2] floatValue];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
