@@ -204,7 +204,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // map type
     if (params.has("mapType")) {
       String typeStr = params.getString("mapType");
-      int mapTypeId = 0;
+      int mapTypeId = -1;
       mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
           : mapTypeId;
       mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
@@ -215,7 +215,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           : mapTypeId;
       mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
           : mapTypeId;
-      if (mapTypeId != 0) {
+      if (mapTypeId != -1) {
         options.mapType(mapTypeId);
       }
     }

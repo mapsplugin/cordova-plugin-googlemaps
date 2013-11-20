@@ -139,6 +139,7 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
     CameraUpdate cameraUpdate = null;
     if (cameraPos.has("target")) {
       Object target = cameraPos.get("target");
+      @SuppressWarnings("rawtypes")
       Class targetClass = target.getClass();
       JSONObject latLng;
       if ("org.json.JSONArray".equals(targetClass.getName())) {
@@ -277,7 +278,7 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
    */
   @SuppressWarnings("unused")
   private void setMapTypeId(JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    int mapTypeId = 0;
+    int mapTypeId = -1;
     String typeStr = args.getString(1);
     mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
         : mapTypeId;
@@ -290,11 +291,14 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
     mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
         : mapTypeId;
 
-    if (mapTypeId == 0) {
+    if (mapTypeId == -1) {
       callbackContext.error("Unknow MapTypeID is specified:" + typeStr);
       return;
     }
 
+    Log.d(TAG, "typeStr=" + typeStr);
+    Log.d(TAG, "mapTypeId=" + mapTypeId);
+    
     final int myMapTypeId = mapTypeId;
     map.setMapType(myMapTypeId);
     callbackContext.success();
@@ -306,10 +310,12 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
    * @param durationMS
    * @param callbackContext
    */
+  /*
   private void myAnimateCamera(CameraPosition cameraPosition, int durationMS, final CallbackContext callbackContext) {
     CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
     this.myAnimateCamera(cameraUpdate, durationMS, callbackContext);
   }
+  */
 
   /**
    * Move the camera of the map
