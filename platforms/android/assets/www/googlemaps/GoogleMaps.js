@@ -350,7 +350,7 @@
       return;
     }
     tilelayerOptions.visible = tilelayerOptions.visible || true;
-    tilelayerOptions.zIndex = tilelayerOptions.zIndex || undefined;
+    tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.width = tilelayerOptions.width || 256;
     tilelayerOptions.height = tilelayerOptions.height || 256;
     

@@ -22,4 +22,5 @@
 - (GMSMarker *)getMarkerByKey: (NSString *)key;
 - (GMSPolygon *)getPolygonByKey: (NSString *)key;
 - (GMSPolyline *)getPolylineByKey: (NSString *)key;
+- (GMSTileLayer *)getTileLayerByKey: (NSString *)key;
 @end

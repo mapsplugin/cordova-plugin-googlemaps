@@ -301,5 +301,8 @@ NSDictionary *initOptions;
 - (GMSPolyline *)getPolylineByKey: (NSString *)key {
   return [self.overlayManager objectForKey:key];
 }
+- (GMSTileLayer *)getTileLayerByKey: (NSString *)key {
+  return [self.overlayManager objectForKey:key];
+}
 
 @end

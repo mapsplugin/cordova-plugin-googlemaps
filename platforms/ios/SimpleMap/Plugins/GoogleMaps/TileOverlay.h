@@ -6,8 +6,12 @@
 //
 //
 
-#import <Cordova/Cordova.h>
+#import "GoogleMaps.h"
+#import "MyPlgunProtocol.h"
 
-@interface TileOverlay : CDVPlugin
+@interface TileOverlay : CDVPlugin<MyPlgunProtocol>
+
+@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+- (void)createTileOverlay:(CDVInvokedUrlCommand*)command;
 
 @end
