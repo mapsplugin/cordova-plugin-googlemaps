@@ -22,40 +22,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.UrlTileProvider;
 
-public class PluginTileOverlay extends CordovaPlugin implements MyPluginInterface {
-  private final String TAG = "PluginTileOverlay";
-  private HashMap<String, TileOverlay> overlays;
-
-  public GoogleMaps mapCtrl = null;
-  public GoogleMap map = null;
-
-  public void setMapCtrl(GoogleMaps mapCtrl) {
-    this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
-  }
-
-  @SuppressLint("UseSparseArrays")
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    Log.d(TAG, "TileOverlay class initializing");
-    this.overlays = new HashMap<String, TileOverlay>();
-  }
-
-  @Override
-  public boolean execute(String action, JSONArray args,
-      CallbackContext callbackContext) throws JSONException {
-    String[] params = args.getString(0).split("\\.");
-    try {
-      Method method = this.getClass().getDeclaredMethod(params[1],
-          JSONArray.class, CallbackContext.class);
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-  }
+public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
   /**
    * Create tile overlay
@@ -79,7 +46,6 @@ public class PluginTileOverlay extends CordovaPlugin implements MyPluginInterfac
         String urlStr = tileUrlFormat.replaceAll("<x>", x + "")
                                      .replaceAll("<y>", y + "")
                                      .replaceAll("<zoom>", zoom + "");
-        Log.d(TAG, urlStr);
         URL url = null;
         try {
           url = new URL(urlStr);
@@ -100,7 +66,7 @@ public class PluginTileOverlay extends CordovaPlugin implements MyPluginInterfac
     }
     TileOverlay tileOverlay = this.map.addTileOverlay(options);
     String tileId = tileOverlay.getId();
-    this.overlays.put(tileId, tileOverlay);
+    this.objects.put(tileId, tileOverlay);
     
 
     callbackContext.success(tileId);
@@ -116,7 +82,7 @@ public class PluginTileOverlay extends CordovaPlugin implements MyPluginInterfac
   private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean visible = args.getBoolean(2);
-    TileOverlay tileOverlay = this.overlays.get(id);
+    TileOverlay tileOverlay = this.getTileOverlay(id);
     tileOverlay.setVisible(visible);
     callbackContext.success();
   }

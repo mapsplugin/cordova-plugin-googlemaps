@@ -258,11 +258,10 @@
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.alpha = parseFloat("" + markerOptions.alpha, 10) || 1;
  
-    cordova.exec(function(hashCode) {
-      var marker = new Marker(hashCode, markerOptions);
-      MARKERS[hashCode] = marker;
+    cordova.exec(function(markerId) {
+      var marker = new Marker(markerId, markerOptions);
+      MARKERS[markerId] = marker;
       
-
       if (typeof markerOptions.markerClick === "function") {
         marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
       }
@@ -474,7 +473,11 @@
     self.set("flat", markerOptions.flat);
     self.set("alpha", markerOptions.alpha);
     Object.defineProperty(self, "hashCode", {
-      value: hashCode,
+      value: markerOptions.hashCode,
+      writable: false
+    });
+    Object.defineProperty(self, "id", {
+      value: id,
       writable: false
     });
     Object.defineProperty(self, "type", {
@@ -492,30 +495,33 @@
   Marker.prototype.getPosition = function(callback) {
     cordova.exec(function(latlng) {
       callback(new LatLng(latlng.lat, latlng.lng));
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.getHashCode()]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.getId()]);
+  };
+  Marker.prototype.getId = function() {
+    return this.id;
   };
   Marker.prototype.getHashCode = function() {
     return this.hashCode;
   };
   
   Marker.prototype.remove = function(callback) {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getHashCode()]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
   };
   Marker.prototype.setAlpha = function(alpha) {
     this.set('alpha');
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.getHashCode(), alpha]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.getId(), alpha]);
   };
   Marker.prototype.getAlpha = function() {
     return this.get('alpha');
   };
   Marker.prototype.setAnchor = function(anchorU, anchorV) {
     this.set('anchor', [anchorU, anchorV]);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.getHashCode(), anchorU, anchorV]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.getId(), anchorU, anchorV]);
   };
   Marker.prototype.setDraggable = function(draggable) {
     draggable = parseBoolean(draggable);
     this.set('draggable', draggable);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.getHashCode(), draggable]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.getId(), draggable]);
   };;
   Marker.prototype.isDraggable = function() {
     return this.get('draggable');
@@ -523,43 +529,43 @@
   Marker.prototype.setFlat = function(flat) {
     flat = parseBoolean(flat);
     this.set('flat', flat);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.getHashCode(), flat]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.getId(), flat]);
   };
   Marker.prototype.setIcon = function(url) {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.getHashCode(), url]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.getId(), url]);
   };
   Marker.prototype.setTitle = function(title) {
     this.set('title', title);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.getHashCode(), title]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.getId(), title]);
   };
   Marker.prototype.getTitle = function() {
     return this.get('title');
   };
   Marker.prototype.setSnippet = function(snippet) {
     this.set('snippet', snippet);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.getHashCode(), snippet]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setSnippet', this.getId(), snippet]);
   };
   Marker.prototype.getSnippet = function() {
     return this.get('snippet');
   };
   Marker.prototype.setRotation = function(rotation) {
     this.set('rotation', rotation);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setRotation', this.getHashCode(), rotation]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setRotation', this.getId(), rotation]);
   };
   Marker.prototype.getRotation = function() {
     return this.get('rotation');
   };
   Marker.prototype.showInfoWindow = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.getHashCode()]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.getId()]);
   };
   Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.getHashCode()]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.hideInfoWindow', this.getId()]);
   };
   Marker.prototype.isInfoWindowShown = function(callback) {
     cordova.exec(function(isVisible) {
       isVisible = parseparseBoolean(isVisible);
       callback(isVisible);
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.getHashCode()]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.getId()]);
   };
 
   

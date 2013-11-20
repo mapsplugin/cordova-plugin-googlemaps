@@ -25,39 +25,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  {
-  private final String TAG = "PluginPolyline";
-  private HashMap<String, Polyline> polylines;
-
-  public GoogleMaps mapCtrl = null;
-  public GoogleMap map = null;
-  
-  public void setMapCtrl(GoogleMaps mapCtrl) {
-    this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
-  }
-  
-  @SuppressLint("UseSparseArrays")
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    Log.d(TAG, "Polyline class initializing");
-    this.polylines = new HashMap<String, Polyline>();
-  }
-  @Override
-  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String[] params = args.getString(0).split("\\.");
-    try {
-      Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-  }
-  
-
+public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   /**
    * Create polyline
    * @param args
@@ -96,7 +64,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
     }
     
     Polyline polyline = map.addPolyline(polylineOptions);
-    this.polylines.put(polyline.getId(), polyline);
+    this.objects.put(polyline.getId(), polyline);
     callbackContext.success(polyline.getId());
   }
   
@@ -111,7 +79,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
   private void setColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Polyline polyline = this.polylines.get(id);
+    Polyline polyline = this.getPolyline(id);
     polyline.setColor(color);
     callbackContext.success();
   }
@@ -126,7 +94,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
   private void setWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Polyline polyline = this.polylines.get(id);
+    Polyline polyline = this.getPolyline(id);
     polyline.setWidth(width);
     callbackContext.success();
   }
@@ -141,7 +109,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Polyline polyline = this.polylines.get(id);
+    Polyline polyline = this.getPolyline(id);
     polyline.setZIndex(zIndex);
     callbackContext.success();
   }
@@ -156,7 +124,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
   private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean visible = args.getBoolean(2);
-    Polyline polyline = this.polylines.get(id);
+    Polyline polyline = this.getPolyline(id);
     polyline.setVisible(visible);
     callbackContext.success();
   }
@@ -170,8 +138,8 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
   @SuppressWarnings("unused")
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    Polyline polyline = this.polylines.get(id);
-    this.polylines.remove(id);
+    Polyline polyline = this.getPolyline(id);
+    this.objects.remove(id);
     polyline.remove();
     callbackContext.success();
   }
@@ -184,7 +152,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
   @SuppressWarnings("unused")
   private void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    Polyline polyline = this.polylines.get(id);
+    Polyline polyline = this.getPolyline(id);
     
     JSONArray points = args.getJSONArray(2);
     List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);

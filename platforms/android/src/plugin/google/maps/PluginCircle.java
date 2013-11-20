@@ -1,57 +1,15 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.graphics.Color;
-import android.util.Log;
-
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
-public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
-  private final String TAG = "PluginCircle";
-  private HashMap<String, Circle> circles;
-
-  public GoogleMaps mapCtrl = null;
-  public GoogleMap map = null;
-  
-  public void setMapCtrl(GoogleMaps mapCtrl) {
-    this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
-  }
-  
-  @SuppressLint("UseSparseArrays")
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    Log.d(TAG, "Circle class initializing");
-    this.circles = new HashMap<String, Circle>();
-  }
-  @Override
-  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String[] params = args.getString(0).split("\\.");
-    try {
-      Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-  }
-  
+public class PluginCircle extends MyPlugin  {
 
   /**
    * Create circle
@@ -91,7 +49,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
     }
     
     Circle circle = map.addCircle(circleOptions);
-    this.circles.put(circle.getId(), circle);
+    this.objects.put(circle.getId(), circle);
     callbackContext.success(circle.getId());
   }
 
@@ -105,7 +63,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setCenter(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     LatLng center = new LatLng(args.getDouble(2), args.getDouble(3));
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setCenter(center);
     callbackContext.success();
   }
@@ -120,7 +78,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setFillColor(color);
     callbackContext.success();
   }
@@ -135,7 +93,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setStrokeColor(color);
     callbackContext.success();
   }
@@ -150,7 +108,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setStrokeWidth(width);
     callbackContext.success();
   }
@@ -165,7 +123,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float radius = (float) args.getDouble(2);
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setRadius(radius);
     callbackContext.success();
   }
@@ -180,7 +138,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setZIndex(zIndex);
     callbackContext.success();
   }
@@ -195,7 +153,7 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean visible = args.getBoolean(2);
-    Circle circle = this.circles.get(id);
+    Circle circle = this.getCircle(id);
     circle.setVisible(visible);
     callbackContext.success();
   }
@@ -209,9 +167,9 @@ public class PluginCircle extends CordovaPlugin implements MyPluginInterface  {
   @SuppressWarnings("unused")
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    Circle circle = this.circles.get(id);
-    this.circles.remove(id);
+    Circle circle = this.getCircle(id);
     circle.remove();
+    this.objects.remove(id);
     callbackContext.success();
   }
 }

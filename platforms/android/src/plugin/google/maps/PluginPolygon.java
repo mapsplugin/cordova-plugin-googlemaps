@@ -24,38 +24,7 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
-public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
-  private final String TAG = "PluginPolygon";
-  private HashMap<String, Polygon> polygons;
-
-  public GoogleMaps mapCtrl = null;
-  public GoogleMap map = null;
-  
-  public void setMapCtrl(GoogleMaps mapCtrl) {
-    this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
-  }
-  
-  @SuppressLint("UseSparseArrays")
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    Log.d(TAG, "Polygon class initializing");
-    this.polygons = new HashMap<String, Polygon>();
-  }
-  @Override
-  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String[] params = args.getString(0).split("\\.");
-    try {
-      Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-  }
-
+public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
   /**
    * Create polygon
@@ -99,7 +68,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
     }
     
     Polygon polygon = map.addPolygon(polygonOptions);
-    this.polygons.put(polygon.getId(), polygon);
+    this.objects.put(polygon.getId(), polygon);
     callbackContext.success(polygon.getId());
   }
   
@@ -114,7 +83,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     polygon.setFillColor(color);
     callbackContext.success();
   }
@@ -129,7 +98,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     polygon.setStrokeColor(color);
     callbackContext.success();
   }
@@ -144,7 +113,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     polygon.setStrokeWidth(width);
     callbackContext.success();
   }
@@ -159,7 +128,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     polygon.setZIndex(zIndex);
     callbackContext.success();
   }
@@ -174,7 +143,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean visible = args.getBoolean(2);
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     polygon.setVisible(visible);
     callbackContext.success();
   }
@@ -188,7 +157,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private void setGeodisic(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean isGeodisic = args.getBoolean(2);
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     polygon.setGeodesic(isGeodisic);
     callbackContext.success();
   }
@@ -202,8 +171,8 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   @SuppressWarnings("unused")
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    Polygon polygon = this.polygons.get(id);
-    this.polygons.remove(id);
+    Polygon polygon = this.getPolygon(id);
+    this.objects.remove(id);
     polygon.remove();
     callbackContext.success();
   }
@@ -217,7 +186,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   @SuppressWarnings("unused")
   private void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    Polygon polygon = this.polygons.get(id);
+    Polygon polygon = this.getPolygon(id);
     
     JSONArray points = args.getJSONArray(2);
     List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);

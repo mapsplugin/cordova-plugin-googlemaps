@@ -1,56 +1,20 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CameraPositionCreator;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
-public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
-  private final String TAG = "PluginMap";
-  public GoogleMaps mapCtrl = null;
-  public GoogleMap map = null;
+public class PluginMap extends MyPlugin {
   
-  public void setMapCtrl(GoogleMaps mapCtrl) {
-    this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
-  }
-
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    Log.d(TAG, "Map class initializing");
-  }
-  @Override
-  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String[] params = args.getString(0).split("\\.");
-    try {
-      Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
-    }
-  }
-
-
   /**
    * Set center location of the marker
    * @param args
@@ -143,14 +107,7 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
       JSONObject latLng;
       if ("org.json.JSONArray".equals(targetClass.getName())) {
         JSONArray points = cameraPos.getJSONArray("target");
-        int i = 0;
-        Builder latLngBuilder = LatLngBounds.builder();
-        
-        for (i = 0; i < points.length(); i++) {
-          latLng = points.getJSONObject(i);
-          latLngBuilder.include(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
-        }
-        LatLngBounds bounds = latLngBuilder.build();
+        LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
         cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 10);
         
       } else {
@@ -300,18 +257,6 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
     callbackContext.success();
   }
 
-  /**
-   * Move the camera of the map
-   * @param cameraPosition
-   * @param durationMS
-   * @param callbackContext
-   */
-  /*
-  private void myAnimateCamera(CameraPosition cameraPosition, int durationMS, final CallbackContext callbackContext) {
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
-    this.myAnimateCamera(cameraUpdate, durationMS, callbackContext);
-  }
-  */
 
   /**
    * Move the camera of the map
