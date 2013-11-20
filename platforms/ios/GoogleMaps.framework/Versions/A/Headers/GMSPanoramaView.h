@@ -206,6 +206,7 @@
  * Repeated calls to moveToPanoramaID: result in the previous pending
  * (incomplete) transitions being cancelled -- only the most recent of
  * moveNearCoordinate: and moveToPanoramaId: will proceed and generate events.
+ * Only panoramaIDs obtained from the Google Maps SDK for iOS are supported.
  */
 - (void)moveToPanoramaID:(NSString *)panoramaID;
 

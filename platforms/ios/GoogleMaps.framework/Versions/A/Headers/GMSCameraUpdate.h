@@ -36,12 +36,12 @@
 /**
  * Returns a GMSCameraUpdate that changes the zoom by the specified amount.
  */
-+ (GMSCameraUpdate *)zoomBy:(CGFloat)delta;
++ (GMSCameraUpdate *)zoomBy:(float)delta;
 
 /**
  * Returns a GMSCameraUpdate that sets the zoom to the specified amount.
  */
-+ (GMSCameraUpdate *)zoomTo:(CGFloat)zoom;
++ (GMSCameraUpdate *)zoomTo:(float)zoom;
 
 /**
  * Returns a GMSCameraUpdate that sets the camera target to the specified
@@ -53,8 +53,7 @@
  * Returns a GMSCameraUpdate that sets the camera target and zoom to the
  * specified values.
  */
-+ (GMSCameraUpdate *)setTarget:(CLLocationCoordinate2D)target
-                          zoom:(CGFloat)zoom;
++ (GMSCameraUpdate *)setTarget:(CLLocationCoordinate2D)target zoom:(float)zoom;
 
 /**
  * Returns a GMSCameraUpdate that sets the camera to the specified
@@ -75,6 +74,8 @@
 /**
  * This is similar to fitBounds: but allows specifying the padding (in points)
  * in order to inset the bounding box from the view's edges.
+ * If the requested |padding| is larger than the view size in either the
+ * vertical or horizontal direction the map will be maximally zoomed out.
  */
 + (GMSCameraUpdate *)fitBounds:(GMSCoordinateBounds *)bounds
                    withPadding:(CGFloat)padding;
@@ -82,6 +83,8 @@
 /**
  * This is similar to fitBounds: but allows specifying edge insets
  * in order to inset the bounding box from the view's edges.
+ * If the requested |edgeInsets| are larger than the view size in either the
+ * vertical or horizontal direction the map will be maximally zoomed out.
  */
 + (GMSCameraUpdate *)fitBounds:(GMSCoordinateBounds *)bounds
                 withEdgeInsets:(UIEdgeInsets)edgeInsets;
@@ -97,7 +100,7 @@
  * Returns a GMSCameraUpdate that zooms with a focus point; the focus point
  * stays fixed on screen.
  */
-+ (GMSCameraUpdate *)zoomBy:(CGFloat)zoom atPoint:(CGPoint)point;
++ (GMSCameraUpdate *)zoomBy:(float)zoom atPoint:(CGPoint)point;
 
 @end
 

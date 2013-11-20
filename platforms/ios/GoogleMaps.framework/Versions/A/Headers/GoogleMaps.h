@@ -12,6 +12,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#define __GMS_AVAILABLE_BUT_DEPRECATED __deprecated
+#import <GoogleMaps/GMSCALayer.h>
 #import <GoogleMaps/GMSCameraPosition.h>
 #import <GoogleMaps/GMSCameraUpdate.h>
 #import <GoogleMaps/GMSCircle.h>
@@ -42,7 +44,6 @@
 #import <GoogleMaps/GMSPolygon.h>
 #import <GoogleMaps/GMSPolyline.h>
 #import <GoogleMaps/GMSProjection.h>
-#import <GoogleMaps/GMSReverseGeocodeOutput.h>
 #import <GoogleMaps/GMSServices.h>
 #import <GoogleMaps/GMSSyncTileLayer.h>
 #import <GoogleMaps/GMSTileLayer.h>

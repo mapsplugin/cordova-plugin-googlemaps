@@ -11,6 +11,8 @@
 #import <CoreLocation/CoreLocation.h>
 #import <QuartzCore/QuartzCore.h>
 
+#import <GoogleMaps/GMSCALayer.h>
+
 /**
  * The following layer properties and constants describe the camera properties
  * that may be animated on the custom model layer of a GMSMapView with Core
@@ -18,12 +20,11 @@
  * methods in GMSMapView+Animation.h, and the camera object definition within
  * GMSCameraPosition.h.
  *
- * Each camera property may be modified via its @property, setValue:forKey: or
- * via addAnimation:forKey:, e.g.:
+ * Changing layer properties triggers an implicit animation, e.g.:-
  *   mapView_.layer.cameraBearing = 20;
- * or:
- *   [mapView_.layer setValue:@(20) forKey:kGMSLayerCameraBearingKey];
- * or:
+ *
+ * An explicit animation, replacing the implicit animation, may be added after
+ * changing the property, e.g.-
  *   CAMediaTimingFunction *curve = [CAMediaTimingFunction functionWithName:
  *                                   kCAMediaTimingFunctionEaseInEaseOut];
  *   CABasicAnimation *animation =
@@ -33,8 +34,8 @@
  *   animation.toValue = @(20);
  *   [mapView_.layer addAnimation:animation forKey:kGMSLayerCameraBearingKey];
  *
- * To perform several animations together, Core Animation's transaction support
- * may be used, e.g.:
+ * To control several implicit animations, Core Animation's transaction support
+ * may be used, e.g.-
  *   [CATransaction begin];
  *   [CATransaction setAnimationDuration:2.0f];
  *   mapView_.layer.cameraBearing = 20;
@@ -86,21 +87,10 @@ extern NSString *const kGMSLayerCameraViewingAngleKey;
  * performs an enabled gesture during an animation, the animation will stop
  * 'in-place' (at the current presentation value).
  */
-@interface GMSMapLayer : CALayer
-
-/** Camera latitude, as per kGMSLayerCameraLatitudeKey. */
+@interface GMSMapLayer : GMSCALayer
 @property(nonatomic, assign) CLLocationDegrees cameraLatitude;
-
-/** Camera longitude, as per kGMSLayerCameraLongitudeKey. */
 @property(nonatomic, assign) CLLocationDegrees cameraLongitude;
-
-/** Camera bearing, as per kGMSLayerCameraBearingKey. */
 @property(nonatomic, assign) CLLocationDirection cameraBearing;
-
-/** Camera zoom, as per kGMSLayerCameraZoomLevelKey. */
-@property(nonatomic, assign) CGFloat cameraZoomLevel;
-
-/** Camera viewing angle, as per kGMSLayerCameraViewingAngleKey. */
+@property(nonatomic, assign) float cameraZoomLevel;
 @property(nonatomic, assign) double cameraViewingAngle;
-
 @end

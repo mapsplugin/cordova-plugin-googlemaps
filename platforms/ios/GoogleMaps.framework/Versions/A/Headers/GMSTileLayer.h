@@ -69,15 +69,15 @@ FOUNDATION_EXTERN UIImage *const kGMSTileLayerNoTile;
 
 /**
  * Higher |zIndex| value tile layers will be drawn on top of lower |zIndex|
- * value tile layers and overlays.  Equal values result in undefined draw
+ * value tile layers and overlays. Equal values result in undefined draw
  * ordering.
  */
 @property(nonatomic, assign) NSInteger zIndex;
 
 /**
  * Specifies the number of pixels (not points) that the returned tile images
- * will prefer to display as.  For best results, this should be the edge
- * length of your custom tiles.  Defaults to 256, which is the traditional
+ * will prefer to display as. For best results, this should be the edge
+ * length of your custom tiles. Defaults to 256, which is the traditional
  * size of Google Maps tiles.
  *
  * Values less than the equivalent of 128 points (e.g. 256 pixels on retina
@@ -88,5 +88,11 @@ FOUNDATION_EXTERN UIImage *const kGMSTileLayerNoTile;
  * per view as the default value of 256 would give on a non-retina device.
  */
 @property(nonatomic, assign) NSInteger tileSize;
+
+/**
+ * Specifies the opacity of the tile layer. This provides a multiplier for
+ * the alpha channel of tile images.
+ */
+@property(nonatomic, assign) float opacity;
 
 @end

@@ -32,7 +32,11 @@
 
 @end
 
-/** Provides ability to observe or control the display of indoor level data. */
+/**
+ * Provides ability to observe or control the display of indoor level data.
+ *
+ * Like GMSMapView, GMSIndoorDisplay may only be used from the main thread.
+ */
 @interface GMSIndoorDisplay : NSObject
 
 /** GMSIndoorDisplay delegate */

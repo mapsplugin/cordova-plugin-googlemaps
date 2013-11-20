@@ -22,12 +22,12 @@
 @interface GMSMapView (Overlays)
 
 /** Returns every GMSMarker attached to this GMSMapView. */
-- (NSArray *)markers;
+- (NSArray *)markers __GMS_AVAILABLE_BUT_DEPRECATED;
 
 /** Returns every GMSGroundOverlay attached to this GMSMapView. */
-- (NSArray *)groundOverlays;
+- (NSArray *)groundOverlays __GMS_AVAILABLE_BUT_DEPRECATED;
 
 /** Returns every GMSPolyline attached to this GMSMapView. */
-- (NSArray *)polylines;
+- (NSArray *)polylines __GMS_AVAILABLE_BUT_DEPRECATED;
 
 @end

@@ -21,7 +21,7 @@
 @property(nonatomic, assign) CLLocationCoordinate2D position;
 
 /** Radius of the circle in meters; must be positive. */
-@property(nonatomic, assign) CGFloat radius;
+@property(nonatomic, assign) CLLocationDistance radius;
 
 /**
  * The width of the circle's outline in screen points. Defaults to 1. As per
@@ -44,6 +44,6 @@
  * Other properties will have default values.
  */
 + (instancetype)circleWithPosition:(CLLocationCoordinate2D)position
-                            radius:(CGFloat)radius;
+                            radius:(CLLocationDistance)radius;
 
 @end

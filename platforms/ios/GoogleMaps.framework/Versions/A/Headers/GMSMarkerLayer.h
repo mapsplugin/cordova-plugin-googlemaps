@@ -31,8 +31,12 @@
 /** Rotation, as per GMSMarker. */
 @property(nonatomic, assign) CLLocationDegrees rotation;
 
+/** Opacity, as per GMSMarker. */
+@property float opacity;
+
 @end
 
 extern NSString *const kGMSMarkerLayerLatitude;
 extern NSString *const kGMSMarkerLayerLongitude;
 extern NSString *const kGMSMarkerLayerRotation;
+extern NSString *const kGMSMarkerLayerOpacity;

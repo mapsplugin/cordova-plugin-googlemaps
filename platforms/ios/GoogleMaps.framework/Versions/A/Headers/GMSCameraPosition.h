@@ -27,7 +27,7 @@
  * @param viewingAngle in degrees, of the camera angle from the nadir
  */
 - (id)initWithTarget:(CLLocationCoordinate2D)target
-                zoom:(CGFloat)zoom
+                zoom:(float)zoom
              bearing:(CLLocationDirection)bearing
         viewingAngle:(double)viewingAngle;
 
@@ -38,21 +38,21 @@
  * top of the screen pointing north.
  */
 + (GMSCameraPosition *)cameraWithTarget:(CLLocationCoordinate2D)target
-                                   zoom:(CGFloat)zoom;
+                                   zoom:(float)zoom;
 
 /**
  * Convenience constructor for GMSCameraPosition, as per cameraWithTarget:zoom:.
  */
 + (GMSCameraPosition *)cameraWithLatitude:(CLLocationDegrees)latitude
                                 longitude:(CLLocationDegrees)longitude
-                                     zoom:(CGFloat)zoom;
+                                     zoom:(float)zoom;
 
 /**
  * Convenience constructor for GMSCameraPosition, with all camera properties as
  * per initWithTarget:zoom:bearing:viewingAngle:.
  */
 + (GMSCameraPosition *)cameraWithTarget:(CLLocationCoordinate2D)target
-                                   zoom:(CGFloat)zoom
+                                   zoom:(float)zoom
                                 bearing:(CLLocationDirection)bearing
                            viewingAngle:(double)viewingAngle;
 
@@ -62,7 +62,7 @@
  */
 + (GMSCameraPosition *)cameraWithLatitude:(CLLocationDegrees)latitude
                                 longitude:(CLLocationDegrees)longitude
-                                     zoom:(CGFloat)zoom
+                                     zoom:(float)zoom
                                   bearing:(CLLocationDirection)bearing
                              viewingAngle:(double)viewingAngle;
 
@@ -77,9 +77,9 @@
  * This helper method is useful for building camera positions that contain
  * specific physical areas on Earth.
  */
-+ (CGFloat)zoomAtCoordinate:(CLLocationCoordinate2D)cooord
-                  forMeters:(CGFloat)meters
-                  perPoints:(CGFloat)points;
++ (float)zoomAtCoordinate:(CLLocationCoordinate2D)coordinate
+                forMeters:(CLLocationDistance)meters
+                perPoints:(CGFloat)points;
 
 /** Location on the Earth towards which the camera points. */
 @property(nonatomic, readonly, getter=targetAsCoordinate) CLLocationCoordinate2D target;
@@ -90,7 +90,7 @@
  * magnification by a factor of 2. At zoom 10, the entire world is a 256k x
  * 256k square, and so on.
  */
-@property(nonatomic, readonly) CGFloat zoom;
+@property(nonatomic, readonly) float zoom;
 
 /**
  * Bearing of the camera, in degrees clockwise from true north.
@@ -110,10 +110,10 @@
  * The maximum zoom (closest to the Earth's surface) permitted by the map
  * camera.
  */
-FOUNDATION_EXTERN const CGFloat kGMSMaxZoomLevel;
+FOUNDATION_EXTERN const float kGMSMaxZoomLevel;
 
 /**
  * The minimum zoom (farthest from the Earth's surface) permitted by the map
  * camera.
  */
-FOUNDATION_EXTERN const CGFloat kGMSMinZoomLevel;
+FOUNDATION_EXTERN const float kGMSMinZoomLevel;

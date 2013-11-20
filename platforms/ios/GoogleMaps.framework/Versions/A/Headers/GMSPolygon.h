@@ -13,16 +13,13 @@
 @class GMSPath;
 
 /**
- * GMSPolygon defines a polygon that appears on the map. A polygon (like
- * a polyline) defines a series of connected coordinates in an ordered
- * sequence; additionally, polygons form a closed loop and define a filled
- * region.
+ * GMSPolygon defines a polygon that appears on the map. A polygon (like a polyline) defines a
+ * series of connected coordinates in an ordered sequence; additionally, polygons form a closed loop
+ * and define a filled region.
  */
 @interface GMSPolygon : GMSOverlay
 
-/**
- * The path that describes this polygon.
- */
+/** The path that describes this polygon. The coordinates composing the path must be valid. */
 @property(nonatomic, copy) GMSPath *path;
 
 /** The width of the polygon outline in screen points. Defaults to 1. */
@@ -38,8 +35,8 @@
 @property(nonatomic, assign) BOOL geodesic;
 
 /**
- * Convenience constructor for GMSPolygon for a particular path.
- * Other properties will have default values.
+ * Convenience constructor for GMSPolygon for a particular path. Other properties will have default
+ * values.
  */
 + (instancetype)polygonWithPath:(GMSPath *)path;
 

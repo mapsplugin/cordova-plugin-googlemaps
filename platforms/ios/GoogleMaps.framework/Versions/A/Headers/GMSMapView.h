@@ -221,6 +221,18 @@ typedef enum {
 @property(nonatomic, assign) GMSMapViewType mapType;
 
 /**
+ * Minimum zoom (the farthest the camera may be zoomed out). Defaults to
+ * kGMSMinZoomLevel. Modified with -setMinZoom:maxZoom:.
+ */
+@property(nonatomic, assign, readonly) float minZoom;
+
+/**
+ * Maximum zoom (the closest the camera may be to the Earth). Defaults to
+ * kGMSMaxZoomLevel. Modified with -setMinZoom:maxZoom:.
+ */
+@property(nonatomic, assign, readonly) float maxZoom;
+
+/**
  * If set, 3D buildings will be shown where available.  Defaults to YES.
  *
  * This may be useful when adding a custom tile layer to the map, in order to
@@ -303,6 +315,13 @@ typedef enum {
  * or reset the current mapType.
  */
 - (void)clear;
+
+/**
+ * Sets |minZoom| and |maxZoom|. This method expects the minimum to be less than
+ * or equal to the maximum, and will throw an exception with name
+ * NSRangeException otherwise.
+ */
+- (void)setMinZoom:(float)minZoom maxZoom:(float)maxZoom;
 
 /**
  * Build a GMSCameraPosition that presents |bounds| with |padding|. The camera

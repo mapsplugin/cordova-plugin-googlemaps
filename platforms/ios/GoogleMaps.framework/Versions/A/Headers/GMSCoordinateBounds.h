@@ -81,8 +81,8 @@
 - (GMSCoordinateBounds *)includingPath:(GMSPath *)path;
 
 /**
- * Returns YES if |coordinate| is contained within the bounds.
- * A location on the border of the bounds is considered contained.
+ * Returns YES if |coordinate| is contained within this bounds. This includes
+ * points that lie exactly on the edge of the bounds.
  */
 - (BOOL)containsCoordinate:(CLLocationCoordinate2D)coordinate;
 

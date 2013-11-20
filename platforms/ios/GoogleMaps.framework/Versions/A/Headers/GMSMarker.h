@@ -99,6 +99,12 @@ typedef enum {
 @property(nonatomic, assign) CLLocationDegrees rotation;
 
 /**
+ * Sets the opacity of the marker, between 0 (completely transparent) and 1
+ * (default) inclusive.
+ */
+@property(nonatomic, assign) float opacity;
+
+/**
  * Marker data. You can use this property to associate an arbitrary object with
  * this marker. Google Maps SDK for iOS neither reads nor writes this property.
  *

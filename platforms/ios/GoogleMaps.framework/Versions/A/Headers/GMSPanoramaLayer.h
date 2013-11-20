@@ -11,6 +11,8 @@
 #import <CoreLocation/CoreLocation.h>
 #import <QuartzCore/QuartzCore.h>
 
+#import <GoogleMaps/GMSCALayer.h>
+
 /** kGMSLayerPanoramaHeadingKey ranges from [0, 360). */
 extern NSString *const kGMSLayerPanoramaHeadingKey;
 
@@ -27,9 +29,9 @@ extern NSString *const kGMSLayerPanoramaFOVKey;
  * GMSPanoramaLayer is a custom subclass of CALayer, provided as the layer
  * class on GMSPanoramaView. This layer should not be instantiated directly.
  */
-@interface GMSPanoramaLayer : CALayer
-@property(nonatomic, assign) CGFloat cameraHeading;
-@property(nonatomic, assign) CGFloat cameraPitch;
-@property(nonatomic, assign) CGFloat cameraZoom;
-@property(nonatomic, assign) CGFloat cameraFOV;
+@interface GMSPanoramaLayer : GMSCALayer
+@property(nonatomic, assign) CLLocationDirection cameraHeading;
+@property(nonatomic, assign) double cameraPitch;
+@property(nonatomic, assign) float cameraZoom;
+@property(nonatomic, assign) double cameraFOV;
 @end
