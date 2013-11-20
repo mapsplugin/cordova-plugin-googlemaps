@@ -351,6 +351,8 @@
     }
     tilelayerOptions.visible = tilelayerOptions.visible || true;
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || undefined;
+    tilelayerOptions.width = tilelayerOptions.width || 256;
+    tilelayerOptions.height = tilelayerOptions.height || 256;
     
     cordova.exec(function(tileOverlayId) {
       var tileOverlay = new TileOverlay(tileOverlayId, tilelayerOptions);

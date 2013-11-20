@@ -69,8 +69,10 @@ public class PluginTileOverlay extends CordovaPlugin implements MyPluginInterfac
     final CallbackContext callbackContext) throws JSONException {
 
     JSONObject opts = args.getJSONObject(1);
+    int tileWidth = opts.getInt("width");
+    int tileHeight = opts.getInt("height");
     final String tileUrlFormat = opts.getString("tileUrlFormat");
-    UrlTileProvider tileProvider = new UrlTileProvider(256, 256) {
+    UrlTileProvider tileProvider = new UrlTileProvider(tileWidth, tileHeight) {
 
       @Override
       public URL getTileUrl(int x, int y, int zoom) {
