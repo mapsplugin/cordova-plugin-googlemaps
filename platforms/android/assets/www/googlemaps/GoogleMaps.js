@@ -810,8 +810,12 @@
     
     var self = this;
     self.set("visible", tileOverlayOptions.visible);
+    Object.defineProperty(self, "zIndex", {
+      value: tileOverlayOptions.zIndex,
+      writable: false
+    });
     Object.defineProperty(self, "id", {
-      value: polygonId,
+      value: tileOverlayId,
       writable: false
     });
     Object.defineProperty(self, "type", {
@@ -824,6 +828,9 @@
   
   TileOverlay.prototype.getId = function() {
     return this.id;
+  };
+  TileOverlay.prototype.getZIndex = function() {
+    return this.zIndex;
   };
   TileOverlay.prototype.setVisible = function(visible) {
     visible = parseBoolean(visible);
