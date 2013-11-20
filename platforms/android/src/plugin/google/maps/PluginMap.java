@@ -125,7 +125,6 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
     int durationMS = 0;
     CameraPosition.Builder builder = CameraPosition.builder();
     JSONObject cameraPos = args.getJSONObject(1);
-    Log.d(TAG, cameraPos.toString());
     if (cameraPos.has("tilt")) {
       builder.tilt((float) cameraPos.getDouble("tilt"));
     }
@@ -295,9 +294,6 @@ public class PluginMap extends CordovaPlugin implements MyPluginInterface  {
       callbackContext.error("Unknow MapTypeID is specified:" + typeStr);
       return;
     }
-
-    Log.d(TAG, "typeStr=" + typeStr);
-    Log.d(TAG, "mapTypeId=" + mapTypeId);
     
     final int myMapTypeId = mapTypeId;
     map.setMapType(myMapTypeId);

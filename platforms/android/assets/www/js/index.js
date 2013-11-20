@@ -35,6 +35,9 @@ function onMapReady(map) {
   $("#getMyLocation").click(function() {
     onGetMyLocation(map);
   });
+  $("#groundOverlay").click(function() {
+    onGroundOverlayBtn(map);
+  });
   
   map.showDialog();
   map.setMyLocationEnabled(true);
@@ -240,6 +243,24 @@ function onAddTileOverlayBtn(map) {
   });
 }
 
+function onGroundOverlayBtn(map) {
+  var bounds = [
+    new plugin.google.maps.LatLng(40.712216,-74.22655),
+    new plugin.google.maps.LatLng(40.773941,-74.12544)
+  ];
+  map.showDialog();
+  
+  map.addGroundOverlay({
+    url: "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    points: bounds
+  }, function(groundOverlay) {
+  
+    map.animateCamera({
+      'target': bounds
+    });
+  });
+  
+}
 
 $(document).on('deviceready',  function() {
   var map = plugin.google.maps.Map.getMap(/*{

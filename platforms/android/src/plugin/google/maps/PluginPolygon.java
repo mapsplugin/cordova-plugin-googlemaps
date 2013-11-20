@@ -1,9 +1,10 @@
-      package plugin.google.maps;
+package plugin.google.maps;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -18,8 +19,10 @@ import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
   private final String TAG = "PluginPolygon";
@@ -68,14 +71,11 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
-      LatLng[] path = new LatLng[points.length()];
-      JSONObject pointJSON;
+      List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
       int i = 0;
-      for (i = 0; i < points.length(); i++) {
-        pointJSON = points.getJSONObject(i);
-        path[i] = new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng"));
+      for (i = 0; i < path.size(); i++) {
+        polygonOptions.add(path.get(i));
       }
-      polygonOptions.add(path);
     }
     if (opts.has("strokeColor")) {
       color = PluginUtil.parsePluginColor(opts.getJSONArray("strokeColor"));
@@ -207,6 +207,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
     polygon.remove();
     callbackContext.success();
   }
+  
   /**
    * Set points
    * @param args
@@ -219,14 +220,7 @@ public class PluginPolygon extends CordovaPlugin implements MyPluginInterface  {
     Polygon polygon = this.polygons.get(id);
     
     JSONArray points = args.getJSONArray(2);
-    List<LatLng> path = new ArrayList<LatLng>();
-    
-    JSONObject pointJSON;
-    int i = 0;
-    for (i = 0; i < points.length(); i++) {
-      pointJSON = points.getJSONObject(i);
-      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng")));
-    }
+    List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
     polygon.setPoints(path);
     
     callbackContext.success();

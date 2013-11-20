@@ -1,9 +1,10 @@
-      package plugin.google.maps;
+package plugin.google.maps;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -71,14 +72,11 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
-      LatLng[] path = new LatLng[points.length()];
-      JSONObject pointJSON;
+      List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
       int i = 0;
-      for (i = 0; i < points.length(); i++) {
-        pointJSON = points.getJSONObject(i);
-        path[i] = new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng"));
+      for (i = 0; i < path.size(); i++) {
+        polylineOptions.add(path.get(i));
       }
-      polylineOptions.add(path);
     }
     if (opts.has("color")) {
       color = PluginUtil.parsePluginColor(opts.getJSONArray("color"));
@@ -189,14 +187,7 @@ public class PluginPolyline extends CordovaPlugin implements MyPluginInterface  
     Polyline polyline = this.polylines.get(id);
     
     JSONArray points = args.getJSONArray(2);
-    List<LatLng> path = new ArrayList<LatLng>();
-    
-    JSONObject pointJSON;
-    int i = 0;
-    for (i = 0; i < points.length(); i++) {
-      pointJSON = points.getJSONObject(i);
-      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng")));
-    }
+    List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
     polyline.setPoints(path);
     
     callbackContext.success();

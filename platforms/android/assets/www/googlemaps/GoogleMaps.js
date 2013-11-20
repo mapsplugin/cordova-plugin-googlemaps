@@ -361,6 +361,21 @@
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.createTileOverlay', tilelayerOptions]);
   };
+  //-------------
+  // Ground overlay
+  //-------------
+  App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
+    var self = this;
+    groundOverlayOptions = groundOverlayOptions || {};
+    groundOverlayOptions.url = groundOverlayOptions.url || null;
+    
+    cordova.exec(function(groundOverlayId) {
+      var groundOverlay = new GroundOverlay(groundOverlayId, groundOverlayOptions);
+      if (callback) {
+        callback.call(window, groundOverlay, self);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
+  };
   /********************************************************************************
    * @name CameraPosition
    * @class This class represents new camera position
@@ -841,6 +856,34 @@
   };
   TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
+  };
+  
+  /*****************************************************************************
+   * TileOverlay Class
+   *****************************************************************************/
+  var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
+    BaseClass.apply(this);
+    
+    var self = this;
+    //self.set("visible", groundOverlayOptions.visible);
+    /*Object.defineProperty(self, "zIndex", {
+      value: groundOverlayOptions.zIndex,
+      writable: false
+    });*/
+    Object.defineProperty(self, "id", {
+      value: groundOverlayId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "GroundOverlay",
+      writable: false
+    });
+  };
+  
+  GroundOverlay.prototype = new BaseClass();
+  
+  GroundOverlay.prototype.getId = function() {
+    return this.id;
   };
   /*****************************************************************************
    * Private functions
