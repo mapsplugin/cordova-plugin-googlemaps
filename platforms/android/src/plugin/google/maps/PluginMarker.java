@@ -105,7 +105,7 @@ public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
     if (iconUrl != null && iconUrl.length() > 0) {
       Log.d(TAG, iconUrl);
       if (iconUrl.indexOf("http") == 0) {
-          MarkerSetIcon task = new MarkerSetIcon(marker);
+          AsyncLoadImage task = new AsyncLoadImage(marker, "setIcon");
           task.execute(iconUrl);
       } else {
           marker.setIcon(BitmapDescriptorFactory.fromAsset(iconUrl));
@@ -313,7 +313,7 @@ public class PluginMarker extends CordovaPlugin implements MyPluginInterface  {
     
     Marker marker = this.markers.get(hashCode);
     if (iconUrl.indexOf("http") == 0) {
-        MarkerSetIcon task = new MarkerSetIcon(marker);
+        AsyncLoadImage task = new AsyncLoadImage(marker, "setIcon");
         task.execute(iconUrl);
     } else {
         marker.setIcon(BitmapDescriptorFactory.fromAsset(iconUrl));
