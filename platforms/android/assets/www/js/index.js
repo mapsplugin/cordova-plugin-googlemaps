@@ -1,5 +1,7 @@
 const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+const ZINDEX_TILE = 1;
+const ZINDEX_OVERLAY = 2;
 
 function onMapReady(map) {
   $("button").removeAttr("disabled");
@@ -27,7 +29,9 @@ function onMapReady(map) {
   $("#getCameraPosition").click(function() {
     onGetCameraPosition(map);
   });
-
+  $("#addTileOverlay").click(function() {
+    onAddTileOverlayBtn(map);
+  });
   $("#getMyLocation").click(function() {
     onGetMyLocation(map);
   });
@@ -92,7 +96,8 @@ function onAddMarkerBtn(map) {
     'snippet': "click me!",
     'draggable': true,
     'markerClick': onMarkerClicked,
-    'infoClick': onMarkerClicked
+    'infoClick': onMarkerClicked,
+    'zIndex': ZINDEX_OVERLAY
   }, function(marker) {
     
     // move the map with animation in 3000ms
@@ -116,7 +121,8 @@ function onAddIconMarkerBtn(map) {
     'position': GOOGLE_TOKYO,
     'title': 'Google Tokyo!',
     'draggable': true,
-    'icon': 'www/images/google_tokyo_icon.png'
+    'icon': 'www/images/google_tokyo_icon.png',
+    'zIndex': ZINDEX_OVERLAY
   }, function(marker) {
     map.animateCamera({
       'target': GOOGLE_TOKYO,
@@ -157,7 +163,8 @@ function onAddCircleBtn(map) {
     'radius': 300,
     'strokeColor' : '#AA00FF',
     'strokeWidth': 5,
-    'fillColor' : '#880000'
+    'fillColor' : '#880000',
+    'zIndex': ZINDEX_OVERLAY
   });
   
   
@@ -177,7 +184,8 @@ function onAddPolylineBtn(map) {
     ],
     'color' : '#AA00FF',
     'width': 10,
-    'geodesic': true
+    'geodesic': true,
+    'zIndex': ZINDEX_OVERLAY
   }, function(polyline) {
     
     map.animateCamera({
@@ -208,7 +216,8 @@ function onAddPolygonBtn(map) {
     ],
     'strokeColor' : '#AA00FF',
     'strokeWidth': 5,
-    'fillColor' : '#880000'
+    'fillColor' : '#880000',
+    'zIndex': ZINDEX_OVERLAY
   }, function(polygon) {
   
     map.animateCamera({
@@ -217,6 +226,20 @@ function onAddPolygonBtn(map) {
   });
   
 }
+
+
+function onAddTileOverlayBtn(map) {
+  map.showDialog();
+  
+  map.setMapTypeId(plugin.google.maps.MapTypeId.NONE);
+  
+  map.addTileOverlay({
+    // <x>,<y>,<zoom> are replaced with values
+    tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg",
+    zIndex: ZINDEX_TILE
+  });
+}
+
 
 $(document).on('deviceready',  function() {
   var map = plugin.google.maps.Map.getMap(/*{
@@ -239,6 +262,7 @@ $(document).on('deviceready',  function() {
       'bearing': 50
     }
   }*/);
+  
   //involved when the map is ready.
   map.on(plugin.google.maps.event.MAP_READY, onMapReady);
   

@@ -338,6 +338,27 @@
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
   };
 
+  //-------------
+  // Tile overlay
+  //-------------
+  App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
+    var self = this;
+    tilelayerOptions = tilelayerOptions || {};
+    tilelayerOptions.tileUrlFormat = tilelayerOptions.tileUrlFormat || null;
+    if (typeof tilelayerOptions.tileUrlFormat !== "string") {
+      throw new Error("tilelayerOptions.tileUrlFormat should set a string.");
+      return;
+    }
+    tilelayerOptions.visible = tilelayerOptions.visible || true;
+    tilelayerOptions.zIndex = tilelayerOptions.zIndex || undefined;
+    
+    cordova.exec(function(tileOverlayId) {
+      var tileOverlay = new TileOverlay(tileOverlayId, tilelayerOptions);
+      if (callback) {
+        callback.call(window, tileOverlay, self);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.createTileOverlay', tilelayerOptions]);
+  };
   /********************************************************************************
    * @name CameraPosition
    * @class This class represents new camera position
@@ -781,6 +802,37 @@
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
   };
  
+  /*****************************************************************************
+   * TileOverlay Class
+   *****************************************************************************/
+  var TileOverlay = function(tileOverlayId, tileOverlayOptions) {
+    BaseClass.apply(this);
+    
+    var self = this;
+    self.set("visible", tileOverlayOptions.visible);
+    Object.defineProperty(self, "id", {
+      value: polygonId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "TileOverlay",
+      writable: false
+    });
+  };
+  
+  TileOverlay.prototype = new BaseClass();
+  
+  TileOverlay.prototype.getId = function() {
+    return this.id;
+  };
+  TileOverlay.prototype.setVisible = function(visible) {
+    visible = parseBoolean(visible);
+    this.set('visible', visible);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setVisible', this.getId(), visible]);
+  };
+  TileOverlay.prototype.getVisible = function() {
+    return this.get('visible');
+  };
   /*****************************************************************************
    * Private functions
    *****************************************************************************/
