@@ -114,8 +114,8 @@ public class PluginTileOverlay extends CordovaPlugin implements MyPluginInterfac
   private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean visible = args.getBoolean(2);
-    Circle circle = this.circles.get(id);
-    circle.setVisible(visible);
+    TileOverlay tileOverlay = this.overlays.get(id);
+    tileOverlay.setVisible(visible);
     callbackContext.success();
   }
 }
