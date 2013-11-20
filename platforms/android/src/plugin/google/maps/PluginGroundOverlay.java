@@ -44,8 +44,25 @@ public class PluginGroundOverlay extends MyPlugin {
 
     JSONObject opts = args.getJSONObject(1);
 
-    
     GroundOverlayOptions options = new GroundOverlayOptions();
+    float width = -1;
+    float height = -1;
+    if (opts.has("width")) {
+      width = (float)opts.getDouble("width");
+    }
+    if (opts.has("height")) {
+      height = (float)opts.getDouble("height");
+    }
+    if (opts.has("anchor")) {
+      JSONArray anchor = opts.getJSONArray("anchor");
+      options.anchor((float)anchor.getDouble(0), (float)anchor.getDouble(1));
+    }
+    if (opts.has("bearing")) {
+      options.bearing((float)opts.getDouble("bearing"));
+    }
+    if (opts.has("transparency")) {
+      options.transparency((float)opts.getDouble("transparency"));
+    }
     if (opts.has("zIndex")) {
       options.zIndex((float)opts.getDouble("zIndex"));
     }
@@ -72,24 +89,10 @@ public class PluginGroundOverlay extends MyPlugin {
       }
     }
     
-    String layerId = groundOverlay.getId();
-    this.objects.put(layerId, groundOverlay);
+    String id = "ground_" + groundOverlay.getId();
+    this.objects.put(id, groundOverlay);
     
-    callbackContext.success(layerId);
+    callbackContext.success(id);
   }
 
-  /**
-   * set visibility
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    boolean visible = args.getBoolean(2);
-    GroundOverlay groundOverlay = this.getGroundOverlay(id);
-    groundOverlay.setVisible(visible);
-    callbackContext.success();
-  }
 }

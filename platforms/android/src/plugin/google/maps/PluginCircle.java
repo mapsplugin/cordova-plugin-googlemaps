@@ -47,10 +47,10 @@ public class PluginCircle extends MyPlugin  {
     if (opts.has("zIndex")) {
       circleOptions.zIndex(opts.getInt("zIndex"));
     }
-    
     Circle circle = map.addCircle(circleOptions);
-    this.objects.put(circle.getId(), circle);
-    callbackContext.success(circle.getId());
+    String id = "circle_" + circle.getId();
+    this.objects.put(id, circle);
+    callbackContext.success(id);
   }
 
   /**
@@ -78,9 +78,7 @@ public class PluginCircle extends MyPlugin  {
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Circle circle = this.getCircle(id);
-    circle.setFillColor(color);
-    callbackContext.success();
+    this.setInt("setFillColor", id, color, callbackContext);
   }
   
   /**
@@ -93,9 +91,7 @@ public class PluginCircle extends MyPlugin  {
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Circle circle = this.getCircle(id);
-    circle.setStrokeColor(color);
-    callbackContext.success();
+    this.setInt("setStrokeColor", id, color, callbackContext);
   }
   
   /**
@@ -108,9 +104,7 @@ public class PluginCircle extends MyPlugin  {
   private void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Circle circle = this.getCircle(id);
-    circle.setStrokeWidth(width);
-    callbackContext.success();
+    this.setFloat("setStrokeWidth", id, width, callbackContext);
   }
   
   /**
@@ -123,9 +117,7 @@ public class PluginCircle extends MyPlugin  {
   private void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float radius = (float) args.getDouble(2);
-    Circle circle = this.getCircle(id);
-    circle.setRadius(radius);
-    callbackContext.success();
+    this.setFloat("setRadius", id, radius, callbackContext);
   }
   
   /**
@@ -138,25 +130,9 @@ public class PluginCircle extends MyPlugin  {
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Circle circle = this.getCircle(id);
-    circle.setZIndex(zIndex);
-    callbackContext.success();
+    this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
   
-  /**
-   * set visibility
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    boolean visible = args.getBoolean(2);
-    Circle circle = this.getCircle(id);
-    circle.setVisible(visible);
-    callbackContext.success();
-  }
 
   /**
    * Remove the circle

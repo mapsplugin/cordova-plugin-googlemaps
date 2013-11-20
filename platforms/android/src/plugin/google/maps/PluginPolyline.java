@@ -1,27 +1,13 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.graphics.Color;
-import android.util.Log;
-
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -64,8 +50,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     }
     
     Polyline polyline = map.addPolyline(polylineOptions);
-    this.objects.put(polyline.getId(), polyline);
-    callbackContext.success(polyline.getId());
+    String id = "polyline_" + polyline.getId();
+    this.objects.put(id, polyline);
+    callbackContext.success(id);
   }
   
   
@@ -79,9 +66,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   private void setColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Polyline polyline = this.getPolyline(id);
-    polyline.setColor(color);
-    callbackContext.success();
+    this.setInt("setColor", id, color, callbackContext);
   }
   
   /**
@@ -94,9 +79,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   private void setWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Polyline polyline = this.getPolyline(id);
-    polyline.setWidth(width);
-    callbackContext.success();
+    this.setFloat("setWidth", id, width, callbackContext);
   }
   
   /**
@@ -109,25 +92,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Polyline polyline = this.getPolyline(id);
-    polyline.setZIndex(zIndex);
-    callbackContext.success();
+    this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
   
-  /**
-   * set visibility
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    boolean visible = args.getBoolean(2);
-    Polyline polyline = this.getPolyline(id);
-    polyline.setVisible(visible);
-    callbackContext.success();
-  }
 
   /**
    * Remove the polyline
@@ -159,5 +126,17 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     polyline.setPoints(path);
     
     callbackContext.success();
+  }
+  /**
+   * set geodisic
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setGeodisic(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    boolean isGeodisic = args.getBoolean(2);
+    this.setBoolean("setGeodesic", id, isGeodisic, callbackContext);
   }
 }

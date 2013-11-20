@@ -1,23 +1,13 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.UrlTileProvider;
@@ -65,7 +55,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
       options.visible(opts.getBoolean("visible"));
     }
     TileOverlay tileOverlay = this.map.addTileOverlay(options);
-    String tileId = tileOverlay.getId();
+    String tileId = "tile_" + tileOverlay.getId();
     this.objects.put(tileId, tileOverlay);
     
 
@@ -73,17 +63,27 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
   }
 
   /**
-   * set visibility
+   * set z-index
    * @param args
    * @param callbackContext
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
+    float zIndex = (float) args.getDouble(2);
+    this.setFloat("setZIndex", id, zIndex, callbackContext);
+  }
+
+  /**
+   * Set visibility for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(2);
-    TileOverlay tileOverlay = this.getTileOverlay(id);
-    tileOverlay.setVisible(visible);
-    callbackContext.success();
+    String id = args.getString(1);
+    this.setBoolean("setVisible", id, visible, callbackContext);
   }
 }

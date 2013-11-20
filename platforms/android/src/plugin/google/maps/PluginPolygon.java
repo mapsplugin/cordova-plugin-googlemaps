@@ -1,28 +1,15 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
-
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
@@ -68,8 +55,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     }
     
     Polygon polygon = map.addPolygon(polygonOptions);
-    this.objects.put(polygon.getId(), polygon);
-    callbackContext.success(polygon.getId());
+    String id = "polygon_"+ polygon.getId();
+    this.objects.put(id, polygon);
+    callbackContext.success(id);
   }
   
 
@@ -83,9 +71,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Polygon polygon = this.getPolygon(id);
-    polygon.setFillColor(color);
-    callbackContext.success();
+    this.setInt("setFillColor", id, color, callbackContext);
   }
   
   /**
@@ -98,9 +84,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
-    Polygon polygon = this.getPolygon(id);
-    polygon.setStrokeColor(color);
-    callbackContext.success();
+    this.setInt("setStrokeColor", id, color, callbackContext);
   }
   
   /**
@@ -113,9 +97,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float width = (float) args.getDouble(2);
-    Polygon polygon = this.getPolygon(id);
-    polygon.setStrokeWidth(width);
-    callbackContext.success();
+    this.setFloat("setStrokeWidth", id, width, callbackContext);
   }
   
   /**
@@ -128,25 +110,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float zIndex = (float) args.getDouble(2);
-    Polygon polygon = this.getPolygon(id);
-    polygon.setZIndex(zIndex);
-    callbackContext.success();
+    this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
   
-  /**
-   * set visibility
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    boolean visible = args.getBoolean(2);
-    Polygon polygon = this.getPolygon(id);
-    polygon.setVisible(visible);
-    callbackContext.success();
-  }
   /**
    * set geodisic
    * @param args
@@ -157,9 +123,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void setGeodisic(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     boolean isGeodisic = args.getBoolean(2);
-    Polygon polygon = this.getPolygon(id);
-    polygon.setGeodesic(isGeodisic);
-    callbackContext.success();
+    this.setBoolean("setGeodesic", id, isGeodisic, callbackContext);
   }
 
   /**

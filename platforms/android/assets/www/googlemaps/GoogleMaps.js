@@ -258,9 +258,10 @@
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.alpha = parseFloat("" + markerOptions.alpha, 10) || 1;
  
-    cordova.exec(function(markerId) {
-      var marker = new Marker(markerId, markerOptions);
-      MARKERS[markerId] = marker;
+    cordova.exec(function(result) {
+      var marker = new Marker(result.id, markerOptions);
+      markerOptions.hashCode = result.hashCode;
+      MARKERS[result.id] = marker;
       
       if (typeof markerOptions.markerClick === "function") {
         marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
@@ -459,7 +460,7 @@
   /*****************************************************************************
    * Marker Class
    *****************************************************************************/
-  var Marker = function(hashCode, markerOptions) {
+  var Marker = function(id, markerOptions) {
     BaseClass.apply(this);
     
     var self = this;
@@ -538,6 +539,10 @@
     this.set('title', title);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setTitle', this.getId(), title]);
   };
+  Marker.prototype.setVisible = function(visible) {
+    this.set('visible', visible);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setVisible', this.getId(), visible]);
+  };
   Marker.prototype.getTitle = function() {
     return this.get('title');
   };
@@ -566,6 +571,9 @@
       isVisible = parseparseBoolean(isVisible);
       callback(isVisible);
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.getId()]);
+  };
+  Marker.prototype.isVisible = function() {
+    return this.get("visible");
   };
 
   
@@ -833,10 +841,7 @@
     
     var self = this;
     self.set("visible", tileOverlayOptions.visible);
-    Object.defineProperty(self, "zIndex", {
-      value: tileOverlayOptions.zIndex,
-      writable: false
-    });
+    self.set("zIndex", tileOverlayOptions.zIndex);
     Object.defineProperty(self, "id", {
       value: tileOverlayId,
       writable: false
@@ -855,6 +860,11 @@
   TileOverlay.prototype.getZIndex = function() {
     return this.zIndex;
   };
+  TileOverlay.prototype.setZIndex = function(zIndex) {
+    zIndex = parseBoolean(zIndex);
+    this.set('zIndex', zIndex);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setZIndex', this.getId(), zIndex]);
+  };
   TileOverlay.prototype.setVisible = function(visible) {
     visible = parseBoolean(visible);
     this.set('visible', visible);
@@ -871,11 +881,15 @@
     BaseClass.apply(this);
     
     var self = this;
-    //self.set("visible", groundOverlayOptions.visible);
-    /*Object.defineProperty(self, "zIndex", {
-      value: groundOverlayOptions.zIndex,
-      writable: false
-    });*/
+    self.set("visible", groundOverlayOptions.visible || true);
+    self.set("zIndex", groundOverlayOptions.zIndex || 0);
+    self.set("transparency", groundOverlayOptions.transparency || 1);
+    self.set("points", groundOverlayOptions.points || undefined);
+    self.set("position", groundOverlayOptions.position || undefined);
+    self.set("width", groundOverlayOptions.width || undefined);
+    self.set("height", groundOverlayOptions.height || undefined);
+    self.set("anchor", groundOverlayOptions.anchor || [0, 0]);
+    self.set("bearing", groundOverlayOptions.bearing || 0);
     Object.defineProperty(self, "id", {
       value: groundOverlayId,
       writable: false

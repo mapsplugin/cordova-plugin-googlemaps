@@ -261,10 +261,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     // Set event listener
     map.setOnCameraChangeListener(this);
-    map.setOnMapClickListener(this);
     map.setOnInfoWindowClickListener(this);
+    map.setOnMapClickListener(this);
     map.setOnMapLoadedCallback(this);
     map.setOnMapLongClickListener(this);
+    map.setOnMarkerClickListener(this);
     map.setOnMarkerDragListener(this);
     map.setOnMyLocationButtonClickListener(this);
     map.setOnMyLocationChangeListener(this);
@@ -442,8 +443,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param marker
    */
   private void onMarkerEvent(final String eventName, final Marker marker) {
+    Log.d(TAG, "marker event: " + eventName + " id= marker_" + marker.getId());
     webView.loadUrl("javascript:plugin.google.maps.Map." +
-                "_onMarkerEvent('" + eventName + "'," + marker.hashCode() + ")");
+                "_onMarkerEvent('" + eventName + "','marker_" + marker.getId() + "')");
   }
 
   @Override

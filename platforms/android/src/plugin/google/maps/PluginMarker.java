@@ -1,25 +1,13 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.util.Log;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -63,11 +51,11 @@ public class PluginMarker extends MyPlugin {
     if (opts.has("icon")) {
       iconUrl = opts.getString("icon");
     }
-    
     Marker marker = map.addMarker(markerOptions);
     
     // Store the marker
-    this.objects.put(marker.getId(), marker);
+    String id = "marker_" + marker.getId();
+    this.objects.put(id, marker);
     
     
     // Load icon
@@ -83,7 +71,8 @@ public class PluginMarker extends MyPlugin {
     //Return the result
     JSONObject result = new JSONObject();
     result.put("hashCode", marker.hashCode());
-    callbackContext.success(marker.getId());
+    result.put("id", id);
+    callbackContext.success(result);
   }
   
 
@@ -111,8 +100,7 @@ public class PluginMarker extends MyPlugin {
   private void setRotation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float rotation = (float)args.getDouble(2);
     String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setRotation(rotation);
+    this.setFloat("setRotation", id, rotation, callbackContext);
     callbackContext.success();
   }
   
@@ -126,9 +114,7 @@ public class PluginMarker extends MyPlugin {
   private void setAlpha(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float alpha = (float)args.getDouble(2);
     String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setAlpha(alpha);
-    callbackContext.success();
+    this.setFloat("setAlpha", id, alpha, callbackContext);
   }
   /**
    * Set flat for the marker
@@ -140,11 +126,20 @@ public class PluginMarker extends MyPlugin {
   private void setFlat(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     boolean isFlat = args.getBoolean(2);
     String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setFlat(isFlat);
-    callbackContext.success();
+    this.setBoolean("setFlat", id, isFlat, callbackContext);
   }
-  
+
+  /**
+   * Set visibility for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(2);
+    String id = args.getString(1);
+    this.setBoolean("setVisible", id, visible, callbackContext);
+  }
   /**
    * Set title for the marker
    * @param args
@@ -155,9 +150,7 @@ public class PluginMarker extends MyPlugin {
   private void setTitle(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String title = args.getString(2);
     String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setTitle(title);
-    callbackContext.success();
+    this.setString("setTitle", id, title, callbackContext);
   }
   
   /**
@@ -170,9 +163,7 @@ public class PluginMarker extends MyPlugin {
   private void setSnippet(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String snippet = args.getString(2);
     String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setSnippet(snippet);
-    callbackContext.success();
+    this.setString("setSnippet", id, snippet, callbackContext);
   }
   
   /**
@@ -218,7 +209,6 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
     Boolean isInfoWndShown = marker.isInfoWindowShown();
-      
     callbackContext.success(isInfoWndShown ? 1 : 0);
   }
   
@@ -263,9 +253,7 @@ public class PluginMarker extends MyPlugin {
   private void setDraggable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean draggable = args.getBoolean(2);
     String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setDraggable(draggable);
-    callbackContext.success();
+    this.setBoolean("setDraggable", id, draggable, callbackContext);
   }
   
   /**
@@ -286,21 +274,6 @@ public class PluginMarker extends MyPlugin {
     } else {
         marker.setIcon(BitmapDescriptorFactory.fromAsset(iconUrl));
     }
-    callbackContext.success();
-  }
-  
-  /**
-   * Set visibility for the marker
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  @SuppressWarnings("unused")
-  private void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean visible = args.getBoolean(2);
-    String id = args.getString(1);
-    Marker marker = this.getMarker(id);
-    marker.setVisible(visible);
     callbackContext.success();
   }
   

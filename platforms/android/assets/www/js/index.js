@@ -125,7 +125,10 @@ function onAddIconMarkerBtn(map) {
     'title': 'Google Tokyo!',
     'draggable': true,
     'icon': 'www/images/google_tokyo_icon.png',
-    'zIndex': ZINDEX_OVERLAY
+    'zIndex': ZINDEX_OVERLAY,
+    'markerClick': function(marker) {
+      marker.setVisible(false);
+    }
   }, function(marker) {
     map.animateCamera({
       'target': GOOGLE_TOKYO,
@@ -252,7 +255,8 @@ function onGroundOverlayBtn(map) {
   
   map.addGroundOverlay({
     url: "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
-    points: bounds
+    points: bounds,
+    transparency: 0.5
   }, function(groundOverlay) {
   
     map.animateCamera({

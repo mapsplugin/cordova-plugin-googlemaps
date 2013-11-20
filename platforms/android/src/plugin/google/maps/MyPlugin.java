@@ -75,4 +75,29 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     return (TileOverlay)this.objects.get(id);
   }
 
+  protected void setInt(String methodName, String id, int value, final CallbackContext callbackContext) throws JSONException {
+    this.setValue(methodName, String.class, id, value, callbackContext);
+  }
+  protected void setFloat(String methodName, String id, float value, final CallbackContext callbackContext) throws JSONException {
+    this.setValue(methodName, String.class, id, value, callbackContext);
+  }
+  protected void setString(String methodName, String id, String value, final CallbackContext callbackContext) throws JSONException {
+    this.setValue(methodName, String.class, id, value, callbackContext);
+  }
+
+  protected void setBoolean(String methodName, String id, Boolean value, final CallbackContext callbackContext) throws JSONException {
+    this.setValue(methodName, boolean.class, id, value, callbackContext);
+  }
+  
+  private void setValue(String methodName, Class methodClass, String id, Object value, final CallbackContext callbackContext) throws JSONException {
+    Object object = this.objects.get(id);
+    try {
+      Method method = object.getClass().getDeclaredMethod(methodName, methodClass);
+      method.invoke(object, value);
+    } catch (Exception e) {
+      e.printStackTrace();
+      callbackContext.error(e.getMessage());
+    }
+    callbackContext.success();
+  }
 }
