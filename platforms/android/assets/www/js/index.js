@@ -255,7 +255,7 @@ function onGroundOverlayBtn(map) {
   
   map.addGroundOverlay({
     url: "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
-    points: bounds,
+    bounds: bounds,
     transparency: 0.5
   }, function(groundOverlay) {
   

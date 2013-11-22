@@ -369,12 +369,31 @@
     groundOverlayOptions = groundOverlayOptions || {};
     groundOverlayOptions.url = groundOverlayOptions.url || null;
     
-    cordova.exec(function(groundOverlayId) {
-      var groundOverlay = new GroundOverlay(groundOverlayId, groundOverlayOptions);
-      if (callback) {
-        callback.call(window, groundOverlay, self);
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
+    var pluginExec = function() {
+      cordova.exec(function(groundOverlayId) {
+        var groundOverlay = new GroundOverlay(groundOverlayId, groundOverlayOptions);
+        if (callback) {
+          callback.call(window, groundOverlay, self);
+        }
+      }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
+    };
+    
+    if (!groundOverlayOptions.bounds &&
+        !groundOverlayOptions.width &&
+        groundOverlayOptions.position) {
+      
+      var image = new Image();
+      image.src = url;
+      image.onload = function() {
+        groundOverlayOptions.width = image.width;
+        groundOverlayOptions.height = image.height;
+        pluginExec();
+      };
+    } else {
+      pluginExec();
+    }
+    
+    
   };
   /********************************************************************************
    * @name CameraPosition
