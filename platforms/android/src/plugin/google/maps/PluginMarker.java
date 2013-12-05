@@ -45,8 +45,8 @@ public class PluginMarker extends MyPlugin {
     if (opts.has("flat")) {
       markerOptions.flat(opts.getBoolean("flat"));
     }
-    if (opts.has("alpha")) {
-      markerOptions.alpha((float) opts.getDouble("alpha"));
+    if (opts.has("opacity")) {
+      markerOptions.alpha((float) opts.getDouble("opacity"));
     }
     if (opts.has("icon")) {
       iconUrl = opts.getString("icon");
@@ -105,13 +105,13 @@ public class PluginMarker extends MyPlugin {
   }
   
   /**
-   * Set alpha for the marker
+   * Set opacity for the marker
    * @param args
    * @param callbackContext
    * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private void setAlpha(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  private void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float alpha = (float)args.getDouble(2);
     String id = args.getString(1);
     this.setFloat("setAlpha", id, alpha, callbackContext);

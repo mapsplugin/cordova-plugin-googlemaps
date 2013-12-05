@@ -254,9 +254,9 @@ function onGroundOverlayBtn(map) {
   map.showDialog();
   
   map.addGroundOverlay({
-    url: "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
-    bounds: bounds,
-    transparency: 0.5
+    'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    'bounds': bounds,
+    'opacity': 0.75
   }, function(groundOverlay) {
   
     map.animateCamera({

@@ -256,7 +256,7 @@
     markerOptions.visible = markerOptions.visible || true;
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
-    markerOptions.alpha = parseFloat("" + markerOptions.alpha, 10) || 1;
+    markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
  
     cordova.exec(function(result) {
       var marker = new Marker(result.id, markerOptions);
@@ -368,6 +368,9 @@
     var self = this;
     groundOverlayOptions = groundOverlayOptions || {};
     groundOverlayOptions.url = groundOverlayOptions.url || null;
+    groundOverlayOptions.visible = groundOverlayOptions.visible || true;
+    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
+    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     
     var pluginExec = function() {
       cordova.exec(function(groundOverlayId) {
@@ -491,7 +494,7 @@
     self.set("title", markerOptions.title);
     self.set("visible", markerOptions.visible);
     self.set("flat", markerOptions.flat);
-    self.set("alpha", markerOptions.alpha);
+    self.set("opacity", markerOptions.opacity);
     Object.defineProperty(self, "hashCode", {
       value: markerOptions.hashCode,
       writable: false
@@ -902,7 +905,7 @@
     var self = this;
     self.set("visible", groundOverlayOptions.visible || true);
     self.set("zIndex", groundOverlayOptions.zIndex || 0);
-    self.set("transparency", groundOverlayOptions.transparency || 1);
+    self.set("opacity", groundOverlayOptions.opacity || 1);
     self.set("points", groundOverlayOptions.points || undefined);
     self.set("position", groundOverlayOptions.position || undefined);
     self.set("width", groundOverlayOptions.width || undefined);

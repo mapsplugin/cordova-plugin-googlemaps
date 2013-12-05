@@ -13,5 +13,12 @@
 - (UIColor*)parsePluginColor;
 @end
 
+
+@interface UIImage (GoogleMapsPlugin)
+- (UIImage*)imageByApplyingAlpha:(CGFloat) alpha;
+@end
+
+
+
 @interface PluginUtil : NSObject
 @end

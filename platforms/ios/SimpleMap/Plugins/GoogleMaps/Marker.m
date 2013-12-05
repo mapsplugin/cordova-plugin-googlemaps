@@ -36,7 +36,7 @@
   marker.draggable = [[json valueForKey:@"draggable"] boolValue];
   marker.flat = [[json valueForKey:@"flat"] boolValue];
   marker.rotation = [[json valueForKey:@"flat"] floatValue];
-  marker.opacity = [[json valueForKey:@"alpha"] floatValue];
+  marker.opacity = [[json valueForKey:@"opacity"] floatValue];
   
   NSString *key = [NSString stringWithFormat:@"marker%d", marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: key];
@@ -176,10 +176,10 @@
 }
 
 /**
- * Set alpha
+ * Set opacity
  * @params MarkerKey
  */
--(void)setAlpha:(CDVInvokedUrlCommand *)command
+-(void)setOpacity:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];

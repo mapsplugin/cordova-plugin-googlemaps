@@ -49,8 +49,8 @@ public class PluginGroundOverlay extends MyPlugin {
     if (opts.has("bearing")) {
       options.bearing((float)opts.getDouble("bearing"));
     }
-    if (opts.has("transparency")) {
-      options.transparency((float)opts.getDouble("transparency"));
+    if (opts.has("opacity")) {
+      options.transparency((float)opts.getDouble("opacity"));
     }
     if (opts.has("zIndex")) {
       options.zIndex((float)opts.getDouble("zIndex"));
