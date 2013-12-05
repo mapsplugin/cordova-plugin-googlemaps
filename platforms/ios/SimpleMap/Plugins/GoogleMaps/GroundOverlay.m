@@ -19,20 +19,24 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];  NSLog(@"%@", json);
   
-  //Generate a bounds
   NSArray *points = [json objectForKey:@"bounds"];
-  int i = 0;
-  GMSMutablePath *path = [GMSMutablePath path];
-  NSDictionary *latLng;
-  for (i = 0; i < points.count; i++) {
-    latLng = [points objectAtIndex:i];
-    [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
-  }
-  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
   
   GMSGroundOverlay *layer;
+  GMSMutablePath *path = [GMSMutablePath path];
+  GMSCoordinateBounds *bounds;
   
+  if (points) {
+    //Generate a bounds
+    int i = 0;
+    NSDictionary *latLng;
+    for (i = 0; i < points.count; i++) {
+      latLng = [points objectAtIndex:i];
+      [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+    }
+  }
+  bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
   layer = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
+  
   
   if ([[json valueForKey:@"visible"] boolValue]) {
     layer.map = self.mapCtrl.map;

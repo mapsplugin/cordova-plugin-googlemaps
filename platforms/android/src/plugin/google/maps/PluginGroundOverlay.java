@@ -59,24 +59,7 @@ public class PluginGroundOverlay extends MyPlugin {
       options.visible(opts.getBoolean("visible"));
     }
     
-    if (opts.has("position") == true && opts.has("bounds") == false) {
-      float width = 0;
-      float height = 0;
-      if (opts.has("width")) {
-        width = (float)opts.getDouble("width");
-      }
-      if (opts.has("height")) {
-        height = (float)opts.getDouble("height");
-      }
-      JSONArray position = opts.getJSONArray("position");
-      LatLng latLng = new LatLng(position.getDouble(0), position.getDouble(1));
-      if (height == 0) {
-        options.position(latLng, width);
-      } else {
-        options.position(latLng, width, height);
-      }
-    }
-    if (opts.has("position") == false && opts.has("bounds") == true) {
+    if (opts.has("bounds") == true) {
       JSONArray points = opts.getJSONArray("bounds");
       LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
       options.positionFromBounds(bounds);

@@ -370,7 +370,7 @@
     groundOverlayOptions.url = groundOverlayOptions.url || null;
     groundOverlayOptions.visible = groundOverlayOptions.visible || true;
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
-    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
+    groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
     
     var pluginExec = function() {
       cordova.exec(function(groundOverlayId) {
@@ -381,20 +381,7 @@
       }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
     };
     
-    if (!groundOverlayOptions.bounds &&
-        !groundOverlayOptions.width &&
-        groundOverlayOptions.position) {
-      
-      var image = new Image();
-      image.src = url;
-      image.onload = function() {
-        groundOverlayOptions.width = image.width;
-        groundOverlayOptions.height = image.height;
-        pluginExec();
-      };
-    } else {
-      pluginExec();
-    }
+    pluginExec();
     
     
   };
@@ -907,7 +894,7 @@
     self.set("zIndex", groundOverlayOptions.zIndex || 0);
     self.set("opacity", groundOverlayOptions.opacity || 1);
     self.set("points", groundOverlayOptions.points || undefined);
-    self.set("position", groundOverlayOptions.position || undefined);
+    self.set("bounds", groundOverlayOptions.bounds || []);
     self.set("width", groundOverlayOptions.width || undefined);
     self.set("height", groundOverlayOptions.height || undefined);
     self.set("anchor", groundOverlayOptions.anchor || [0, 0]);
