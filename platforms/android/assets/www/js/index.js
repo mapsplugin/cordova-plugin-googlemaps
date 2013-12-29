@@ -38,6 +38,9 @@ function onMapReady(map) {
   $("#groundOverlay").click(function() {
     onGroundOverlayBtn(map);
   });
+  $("#geocoding").click(function() {
+    onGeocodingBtn(map);
+  });
   
   map.showDialog();
   map.setMyLocationEnabled(true);
@@ -46,6 +49,34 @@ function onMapReady(map) {
   map.setCompassEnabled(true);
 }
 
+function onGeocodingBtn(map) {
+  var request = {
+    'address': $("#geocoder_input").val()
+  };
+  map.showDialog();
+  map.geocode(request, function(results) {
+    if (results.length) {
+      var result = results[0];
+      var location = result.location; 
+      
+      map.addMarker({
+        'position': location,
+        'title':  JSON.stringify(result.location)
+      }, function(marker) {
+        
+        map.animateCamera({
+          'target': location,
+          'zoom': 17
+        }, function() {
+          marker.showInfoWindow();
+        });
+        
+      });
+    } else {
+      alert("Not found");
+    }
+  });
+}
 /**
  * Show the current location of you
  */

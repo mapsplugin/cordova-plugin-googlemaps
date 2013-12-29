@@ -385,6 +385,21 @@
     
     
   };
+  //-------------
+  // Geocoding
+  //-------------
+  App.prototype.geocode = function(geocoderRequest, callback) {
+    var self = this;
+    geocoderRequest = geocoderRequest || {};
+    
+    var pluginExec = function() {
+      cordova.exec(function(results) {
+        callback(results);
+      }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
+    };
+    
+    pluginExec();
+  };
   /********************************************************************************
    * @name CameraPosition
    * @class This class represents new camera position
@@ -884,7 +899,7 @@
   };
   
   /*****************************************************************************
-   * TileOverlay Class
+   * GroundOverlay Class
    *****************************************************************************/
   var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
     BaseClass.apply(this);

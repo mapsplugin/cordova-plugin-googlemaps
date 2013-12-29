@@ -118,17 +118,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             if (params.length == 2 && entry != null) { 
               entry.plugin.execute("execute", args, callbackContext);
             } else {
-              callbackContext.error(action + " parameter is invalid length.");
+              callbackContext.error("'" + action + "' parameter is invalid length.");
             }
           break;
         
           default:
-            callbackContext.error(action + " is not defined in GoogleMaps plugin.");
+            callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
             break;
           }
         } catch (Exception e) {
           e.printStackTrace();
-          callbackContext.error(action + " is not defined in GoogleMaps plugin.");
+          callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
         }
       }
     };
@@ -358,7 +358,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
       PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
       this.plugins.put(serviceName, pluginEntry);
-      plugin.initialize((CordovaInterface) activity, webView);
+      plugin.initialize(this.cordova, webView);
       ((MyPluginInterface)plugin).setMapCtrl(this);
       if (map == null) {
         Log.e(TAG, "map is null!");
