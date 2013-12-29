@@ -41,6 +41,9 @@ function onMapReady(map) {
   $("#geocoding").click(function() {
     onGeocodingBtn(map);
   });
+  $("#reveseGeocoding").click(function() {
+    onReverseGeocodingBtn(map);
+  });
   
   map.showDialog();
   map.setMyLocationEnabled(true);
@@ -48,7 +51,43 @@ function onMapReady(map) {
   map.setTrafficEnabled(true);
   map.setCompassEnabled(true);
 }
+function onReverseGeocodingBtn(map) {
+  var latLngTxt = $("#reverseGeo_input").val().split(","),
+      latitude = parseFloat(latLngTxt[0], 10),
+      longitude = parseFloat(latLngTxt[1], 10);
+  
+  var request = {
+    'position': new plugin.google.maps.LatLng(latitude, longitude) 
+  };
+  map.showDialog();
+  map.geocode(request, function(results) {
+    if (results.length) {
+      var result = results[0];
+      var position = result.position; 
+      
+      map.addMarker({
+        'position': position,
+        'title':  result.thoroughfare
+      }, function(marker) {
+        
+        map.animateCamera({
+          'target': position,
+          'zoom': 17
+        }, function() {
+          marker.showInfoWindow();
+        });
+        
+      });
+    } else {
+      alert("Not found");
+    }
+  });
+}
 
+/**
+ * Search the specified address;
+ * then add a marker
+ */
 function onGeocodingBtn(map) {
   var request = {
     'address': $("#geocoder_input").val()
@@ -57,15 +96,15 @@ function onGeocodingBtn(map) {
   map.geocode(request, function(results) {
     if (results.length) {
       var result = results[0];
-      var location = result.location; 
+      var position = result.position; 
       
       map.addMarker({
-        'position': location,
-        'title':  JSON.stringify(result.location)
+        'position': position,
+        'title':  JSON.stringify(result.position)
       }, function(marker) {
         
         map.animateCamera({
-          'target': location,
+          'target': position,
           'zoom': 17
         }, function() {
           marker.showInfoWindow();

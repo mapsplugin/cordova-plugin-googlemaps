@@ -28,7 +28,7 @@ public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
     Iterator<Address> iterator = null;
 
     // Geocoding
-    if (opts.has("location") == false && opts.has("address")) {
+    if (opts.has("position") == false && opts.has("address")) {
       String address = opts.getString("address");
       if (opts.has("bounds")) {
         if (opts.has("bounds") == true) {
@@ -43,46 +43,47 @@ public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
         geoResults = geocoder.getFromLocationName(address, 20);
         iterator = geoResults.iterator();
       }
-      
-      while(iterator.hasNext()) {
-        JSONObject result = new JSONObject();
-        Address addr = iterator.next();
-
-        JSONObject location = new JSONObject();
-        location.put("lat", addr.getLatitude());
-        location.put("lng", addr.getLongitude());
-        result.put("location", location);
-
-        result.put("locality", addr.getLocality());
-        result.put("adminArea", addr.getAdminArea());
-        result.put("country", addr.getCountryCode());
-        result.put("featureName", addr.getFeatureName());
-        result.put("locale", addr.getLocale());
-        result.put("phone", addr.getPhone());
-        result.put("permises", addr.getPremises());
-        result.put("postalCode", addr.getPostalCode());
-        result.put("subAdminArea", addr.getSubAdminArea());
-        result.put("subLocality", addr.getSubLocality());
-        result.put("subThoroughfare", addr.getSubThoroughfare());
-        result.put("thoroughfare", addr.getThoroughfare());
-        
-        results.put(result);
-      }
-      callbackContext.success(results);
-      return;
     }
 
     // Reverse geocoding
-    if (opts.has("location") && opts.has("address") == false) {
+    if (opts.has("position") && opts.has("address") == false) {
       JSONObject position = opts.getJSONObject("position");
-      // markerOptions.position(new LatLng(position.getDouble("lat"),
-      // position.getDouble("lng")));
+      geoResults = geocoder.getFromLocation(
+          position.getDouble("lat"), 
+          position.getDouble("lng"), 20);
+      iterator = geoResults.iterator();
     }
-
+    
     if (iterator == null) {
       callbackContext.error("Invalid request for geocoder");
       return;
     }
+    
+    while(iterator.hasNext()) {
+      JSONObject result = new JSONObject();
+      Address addr = iterator.next();
+
+      JSONObject position = new JSONObject();
+      position.put("lat", addr.getLatitude());
+      position.put("lng", addr.getLongitude());
+      result.put("position", position);
+
+      result.put("locality", addr.getLocality());
+      result.put("adminArea", addr.getAdminArea());
+      result.put("country", addr.getCountryCode());
+      result.put("featureName", addr.getFeatureName());
+      result.put("locale", addr.getLocale());
+      result.put("phone", addr.getPhone());
+      result.put("permises", addr.getPremises());
+      result.put("postalCode", addr.getPostalCode());
+      result.put("subAdminArea", addr.getSubAdminArea());
+      result.put("subLocality", addr.getSubLocality());
+      result.put("subThoroughfare", addr.getSubThoroughfare());
+      result.put("thoroughfare", addr.getThoroughfare());
+      
+      results.put(result);
+    }
+    callbackContext.success(results);
     
   }
 

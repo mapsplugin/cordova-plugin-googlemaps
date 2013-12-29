@@ -392,6 +392,10 @@
     var self = this;
     geocoderRequest = geocoderRequest || {};
     
+    if ("position" in geocoderRequest) {
+      geocoderRequest.position.lat = geocoderRequest.position.lat || 0.0;
+      geocoderRequest.position.lng = geocoderRequest.position.lng || 0.0;
+    }
     var pluginExec = function() {
       cordova.exec(function(results) {
         callback(results);
