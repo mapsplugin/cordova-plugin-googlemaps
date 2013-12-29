@@ -36,6 +36,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   @SuppressLint("UseSparseArrays")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
+    super.initialize(cordova, webView);
     this.objects = new HashMap<String, Object>();
   }
   @Override
