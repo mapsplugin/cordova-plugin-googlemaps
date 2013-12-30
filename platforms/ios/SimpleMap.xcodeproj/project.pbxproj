@@ -43,6 +43,7 @@
 		69EE80E71834461C0020D4F8 /* Polygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 69EE80E61834461C0020D4F8 /* Polygon.m */; };
 		815C8254AA554CE380A5FA22 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9568FA667045ED82E21A54 /* CDVLogger.m */; };
 		A0027B4D183C483800E7CB91 /* TileOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = A0027B4C183C483800E7CB91 /* TileOverlay.m */; };
+		A00AF7421870E5B400761894 /* Geocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = A00AF7411870E5B400761894 /* Geocoder.m */; };
 		A039ADB118223CB700B32D98 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADB018223CB700B32D98 /* AVFoundation.framework */; };
 		A039ADB318223CBF00B32D98 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADB218223CBF00B32D98 /* CoreData.framework */; };
 		A039ADB518223CCB00B32D98 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADB418223CCB00B32D98 /* CoreText.framework */; };
@@ -128,6 +129,8 @@
 		8D1107310486CEB800E47090 /* SimpleMap-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "SimpleMap-Info.plist"; path = "../SimpleMap-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		A0027B4B183C483800E7CB91 /* TileOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileOverlay.h; sourceTree = "<group>"; };
 		A0027B4C183C483800E7CB91 /* TileOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileOverlay.m; sourceTree = "<group>"; };
+		A00AF7401870E5B400761894 /* Geocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geocoder.h; sourceTree = "<group>"; };
+		A00AF7411870E5B400761894 /* Geocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Geocoder.m; sourceTree = "<group>"; };
 		A039ADB018223CB700B32D98 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		A039ADB218223CBF00B32D98 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		A039ADB418223CCB00B32D98 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -360,6 +363,8 @@
 				A0027B4C183C483800E7CB91 /* TileOverlay.m */,
 				A04B40D2185053030098D8FF /* GroundOverlay.h */,
 				A04B40D3185053030098D8FF /* GroundOverlay.m */,
+				A00AF7401870E5B400761894 /* Geocoder.h */,
+				A00AF7411870E5B400761894 /* Geocoder.m */,
 			);
 			path = GoogleMaps;
 			sourceTree = "<group>";
@@ -494,6 +499,7 @@
 				69EE80E71834461C0020D4F8 /* Polygon.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				69AEC794182D742C00F2AABD /* Map.m in Sources */,
+				A00AF7421870E5B400761894 /* Geocoder.m in Sources */,
 				69AEC791182D649300F2AABD /* Marker.m in Sources */,
 				698CBE7A182303DB00F9B989 /* GoogleMaps.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
