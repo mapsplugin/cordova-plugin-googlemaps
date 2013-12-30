@@ -167,7 +167,8 @@
   NSString *circleKey = [command.arguments objectAtIndex:1];
   GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
   circle.map = nil;
-  [self.mapCtrl.overlayManager removeObjectForKey:circleKey];
+  [self.mapCtrl removeObjectForKey:circleKey];
+  circle = nil;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

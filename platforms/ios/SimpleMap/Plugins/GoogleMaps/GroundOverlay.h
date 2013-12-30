@@ -14,5 +14,6 @@
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)createGroundOverlay:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand *)command;
 
 @end

@@ -3,6 +3,7 @@ const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 const ZINDEX_TILE = 1;
 const ZINDEX_OVERLAY = 2;
 var mTileOverlay = null;
+var mGroundOverlay = null;
 
 function onMapReady(map) {
   $("button").removeAttr("disabled");
@@ -40,8 +41,11 @@ function onMapReady(map) {
   $("#getMyLocation").click(function() {
     onGetMyLocation(map);
   });
-  $("#groundOverlay").click(function() {
-    onGroundOverlayBtn(map);
+  $("#addGroundOverlay").click(function() {
+    onAddGroundOverlayBtn(map);
+  });
+  $("#removeGroundOverlay").hide().click(function() {
+    onRemoveGroundOverlayBtn(map);
   });
   $("#geocoding").click(function() {
     onGeocodingBtn(map);
@@ -331,7 +335,13 @@ function onAddTileOverlayBtn(map) {
   });
 }
 
-function onGroundOverlayBtn(map) {
+/***
+ * Add a ground overlay
+ */
+function onAddGroundOverlayBtn(map) {
+  $("#removeGroundOverlay").show();
+  $("#addGroundOverlay").hide();
+  
   var bounds = [
     new plugin.google.maps.LatLng(40.712216,-74.22655),
     new plugin.google.maps.LatLng(40.773941,-74.12544)
@@ -343,13 +353,25 @@ function onGroundOverlayBtn(map) {
     'bounds': bounds,
     'opacity': 0.75
   }, function(groundOverlay) {
-  
+    mGroundOverlay = groundOverlay;
     map.animateCamera({
       'target': bounds
     });
   });
   
 }
+
+/***
+ * Remove the ground overlay
+ */
+function onRemoveGroundOverlayBtn(map) {
+  $("#removeGroundOverlay").hide();
+  $("#addGroundOverlay").show();
+  map.showDialog();
+  mGroundOverlay.remove();
+  mGroundOverlay = null;
+}
+
 
 $(document).on('deviceready',  function() {
   var map = plugin.google.maps.Map.getMap(/*{

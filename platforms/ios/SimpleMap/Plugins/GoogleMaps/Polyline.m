@@ -165,7 +165,8 @@
   NSString *polylineKey = [command.arguments objectAtIndex:1];
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   polyline.map = nil;
-  [self.mapCtrl.overlayManager removeObjectForKey:polylineKey];
+  [self.mapCtrl removeObjectForKey:polylineKey];
+  polyline = nil;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

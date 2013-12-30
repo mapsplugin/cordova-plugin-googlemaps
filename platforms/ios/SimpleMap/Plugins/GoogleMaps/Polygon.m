@@ -183,8 +183,9 @@
   NSString *polygonKey = [command.arguments objectAtIndex:1];
   GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   polygon.map = nil;
-  [self.mapCtrl.overlayManager removeObjectForKey:polygonKey];
-  
+  [self.mapCtrl removeObjectForKey:polygonKey];
+  polygon = nil;
+    
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }

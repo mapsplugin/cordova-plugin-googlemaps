@@ -939,6 +939,9 @@
   GroundOverlay.prototype.getId = function() {
     return this.id;
   };
+  GroundOverlay.prototype.remove = function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
+  };
   /*****************************************************************************
    * Private functions
    *****************************************************************************/

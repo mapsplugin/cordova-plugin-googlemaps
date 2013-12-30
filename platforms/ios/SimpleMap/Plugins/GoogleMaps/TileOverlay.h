@@ -13,5 +13,8 @@
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)createTileOverlay:(CDVInvokedUrlCommand*)command;
+-(void)setVisible:(CDVInvokedUrlCommand *)command;
+-(void)remove:(CDVInvokedUrlCommand *)command;
+-(void)clearTileCache:(CDVInvokedUrlCommand *)command;
 
 @end

@@ -75,5 +75,21 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Remove the ground overlay
+ * @params key
+ */
+-(void)remove:(CDVInvokedUrlCommand *)command
+{
+  NSString *key = [command.arguments objectAtIndex:1];
+  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  layer.map = nil;
+  [self.mapCtrl removeObjectForKey:key];
+  layer = nil;
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 
 @end

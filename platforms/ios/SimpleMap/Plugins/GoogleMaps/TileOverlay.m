@@ -63,4 +63,37 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+
+/**
+ * Remove the tile overlay
+ * @params key
+ */
+-(void)remove:(CDVInvokedUrlCommand *)command
+{
+  NSString *tileLayerKey = [command.arguments objectAtIndex:1];
+  GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
+  layer.map = nil;
+  [layer clearTileCache];
+  [self.mapCtrl removeObjectForKey:tileLayerKey];
+  layer = nil;
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
+/**
+ * Clear tile cache
+ * @params key
+ */
+-(void)clearTileCache:(CDVInvokedUrlCommand *)command
+{
+  NSString *tileLayerKey = [command.arguments objectAtIndex:1];
+  GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
+  [layer clearTileCache];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.TileOverlay;
 
 public class PluginGroundOverlay extends MyPlugin {
   private BitmapDescriptor dummyImg;
@@ -87,4 +88,15 @@ public class PluginGroundOverlay extends MyPlugin {
     callbackContext.success(id);
   }
 
+  /**
+   * Remove this tile layer
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    groundOverlay.remove();
+  }
 }

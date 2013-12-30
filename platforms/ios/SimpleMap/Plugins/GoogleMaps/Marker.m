@@ -158,7 +158,8 @@
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   marker.map = nil;
-  [self.mapCtrl.overlayManager removeObjectForKey:markerKey];
+  [self.mapCtrl removeObjectForKey:markerKey];
+  marker = nil;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
