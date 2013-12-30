@@ -3,17 +3,18 @@ package plugin.google.maps;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.maps.model.LatLngBounds;
-
 import android.location.Address;
 import android.location.Geocoder;
-import android.util.Log;
+import android.os.Bundle;
+
+import com.google.android.gms.maps.model.LatLngBounds;
 
 public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
 
@@ -71,16 +72,32 @@ public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
       result.put("locality", addr.getLocality());
       result.put("adminArea", addr.getAdminArea());
       result.put("country", addr.getCountryCode());
-      result.put("featureName", addr.getFeatureName());
       result.put("locale", addr.getLocale());
-      result.put("phone", addr.getPhone());
-      result.put("permises", addr.getPremises());
       result.put("postalCode", addr.getPostalCode());
       result.put("subAdminArea", addr.getSubAdminArea());
       result.put("subLocality", addr.getSubLocality());
       result.put("subThoroughfare", addr.getSubThoroughfare());
       result.put("thoroughfare", addr.getThoroughfare());
       
+
+      JSONObject extra = new JSONObject();
+      extra.put("featureName", addr.getFeatureName());
+      extra.put("phone", addr.getPhone());
+      extra.put("permises", addr.getPremises());
+      extra.put("url", addr.getUrl());
+
+      
+      Bundle extraInfo = addr.getExtras();
+      if (extraInfo != null) {
+        Set<String> keys = extraInfo.keySet();
+        Iterator<String> keyIterator = keys.iterator();
+        String key;
+        while(keyIterator.hasNext()) {
+          key = keyIterator.next();
+          extra.put(key, extraInfo.get(key));
+        }
+      }
+      result.put("extra", extra);
       results.put(result);
     }
     callbackContext.success(results);
