@@ -17,7 +17,7 @@
 
 -(void)createGroundOverlay:(CDVInvokedUrlCommand *)command
 {
-  NSDictionary *json = [command.arguments objectAtIndex:1];  NSLog(@"%@", json);
+  NSDictionary *json = [command.arguments objectAtIndex:1];
   
   NSArray *points = [json objectForKey:@"bounds"];
   
