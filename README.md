@@ -16,8 +16,8 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 2. In the Cordova Android application you will need to put the following in your res/xml/config.xml file as a child to the plugin tag:
 <pre>Cordova version 2
 &lt;plugin name="GoogleMaps" value="plugin.google.maps.GoogleMaps" /&gt;
-
-Cordova version3
+</pre>
+<pre>Cordova version3
 &lt;feature name="GoogleMaps"&gt;
   &lt;param name="android-package" value="plugin.google.maps.GoogleMaps" /&gt;
 &lt;/feature&gt;
