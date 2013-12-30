@@ -14,7 +14,8 @@
 @interface Geocoder : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createGeocoder:(CDVInvokedUrlCommand*)command;
 @property (nonatomic, strong) CLGeocoder *geocoder;
+- (void)createGeocoder:(CDVInvokedUrlCommand*)command;
+- (NSArray *)geocoder_callback:(NSArray *)placemarks error:(NSError *)error;
 
 @end
