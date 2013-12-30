@@ -22,9 +22,11 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,6 +36,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -55,7 +58,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
       OnMyLocationButtonClickListener, OnMyLocationChangeListener,
-      ConnectionCallbacks, OnConnectionFailedListener {
+      ConnectionCallbacks, OnConnectionFailedListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   
@@ -340,6 +343,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
     
+    //-----------------------
+    // TODO: info window adapter
+    //------------------------
+    //map.setInfoWindowAdapter(this);
+    
     callbackContext.success();
     return;
   }
@@ -588,4 +596,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onDisconnected() {}
+
+  @Override
+  public View getInfoContents(Marker marker) {
+    //TODO: Implement custom info window in the feture.
+    return null;
+  }
+
+  @Override
+  public View getInfoWindow(Marker marker) {
+    //TODO: Implement custom info window in the feture.
+    return null;
+  }
 }
