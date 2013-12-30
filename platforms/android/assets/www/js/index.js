@@ -2,6 +2,7 @@ const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 const ZINDEX_TILE = 1;
 const ZINDEX_OVERLAY = 2;
+var mTileOverlay = null;
 
 function onMapReady(map) {
   $("button").removeAttr("disabled");
@@ -32,6 +33,10 @@ function onMapReady(map) {
   $("#addTileOverlay").click(function() {
     onAddTileOverlayBtn(map);
   });
+  $("#removeTileOverlay").hide().click(function() {
+    onRemoveTileOverlayBtn(map);
+  });
+  
   $("#getMyLocation").click(function() {
     onGetMyLocation(map);
   });
@@ -304,15 +309,25 @@ function onAddPolygonBtn(map) {
 }
 
 
+function onRemoveTileOverlayBtn(map) {
+  map.showDialog();
+  $("#removeTileOverlay").hide();
+  $("#addTileOverlay").show();
+  
+  mTileOverlay.remove();
+  mTileOverlay = null;
+}
 function onAddTileOverlayBtn(map) {
   map.showDialog();
-  
-  map.setMapTypeId(plugin.google.maps.MapTypeId.NONE);
+  $("#removeTileOverlay").show();
+  $("#addTileOverlay").hide();
   
   map.addTileOverlay({
     // <x>,<y>,<zoom> are replaced with values
     tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg",
     zIndex: ZINDEX_TILE
+  }, function(tileOverlay) {
+    mTileOverlay = tileOverlay;
   });
 }
 

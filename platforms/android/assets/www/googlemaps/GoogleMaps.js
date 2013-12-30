@@ -882,6 +882,9 @@
   
   TileOverlay.prototype = new BaseClass();
   
+  TileOverlay.prototype.clearTileCache = function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.clearTileCache', this.getId()]);
+  };
   TileOverlay.prototype.getId = function() {
     return this.id;
   };
@@ -900,6 +903,9 @@
   };
   TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
+  };
+  TileOverlay.prototype.remove = function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.remove', this.getId()]);
   };
   
   /*****************************************************************************

@@ -86,4 +86,27 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     String id = args.getString(1);
     this.setBoolean("setVisible", id, visible, callbackContext);
   }
+  /**
+   * Remove this tile layer
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
+    tileOverlay.remove();
+    tileOverlay.clearTileCache();
+  }
+  /**
+   * Clear cache
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void clearCache(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
+    tileOverlay.clearTileCache();
+  }
 }
