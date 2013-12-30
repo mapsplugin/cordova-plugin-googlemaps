@@ -23,7 +23,11 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 &lt;/feature&gt;
 </pre>
 
+3. You'll need to set up the [Google Play Services SDK][4]
+
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
 [3]: http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface
+[4]: http://developer.android.com/google/play-services/setup.html
+
