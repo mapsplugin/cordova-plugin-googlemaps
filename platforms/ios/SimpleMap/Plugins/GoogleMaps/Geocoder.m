@@ -19,15 +19,13 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   NSDictionary *position = [json objectForKey:@"position"];
-  
   NSString *address = [json objectForKey:@"address"];
+
+  if (!self.geocoder) {
+    self.geocoder = [[CLGeocoder alloc] init];
+  }
   if (address && position == nil) {
   
-
-    if (!self.geocoder) {
-      self.geocoder = [[CLGeocoder alloc] init];
-    }
-    
     NSArray *points = [json objectForKey:@"bounds"];
   
     if (points) {
@@ -92,35 +90,24 @@
     return;
   }
   
+  // Reverse geocoding
   if (position && address == nil) {
-    
-    if (!self.reverseGeocoder) {
-      self.reverseGeocoder = [GMSGeocoder geocoder];
-    }
     
     NSDictionary *latLng = [json objectForKey:@"position"];
     double latitude = [[latLng valueForKey:@"lat"] doubleValue];
     double longitude = [[latLng valueForKey:@"lng"] doubleValue];
-    CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
+    CLLocation *position = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
     
-    [self.reverseGeocoder reverseGeocodeCoordinate:position completionHandler:^(GMSReverseGeocodeResponse *response, NSError *error) {
+    [self.geocoder reverseGeocodeLocation:position completionHandler:^(NSArray *placemarks, NSError *error) {
       CDVPluginResult* pluginResult;
       if (error) {
-        if (response.results.count == 0) {
+        if (placemarks.count == 0) {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Not found"];
         } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.description];
         }
       } else {
-        NSMutableArray *results = [[NSMutableArray alloc] init];
-        for (int i = 0; i < response.results.count; i++) {
-          NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-          GMSReverseGeocodeResult *geoResult = [response.results objectAtIndex:i];
-          [result setValue:geoResult.addressLine1 forKey:@"addressLine1"];
-          [result setValue:geoResult.addressLine2 forKey:@"addressLine2"];
-          
-          [results addObject:result];
-        }
+        NSArray *results = [self geocoder_callback:placemarks error:error];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:results];
       }
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
