@@ -23,7 +23,10 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 &lt;/feature&gt;
 </pre>
 
-3. You'll need to set up the [Google Play Services SDK][4]
+3. You'll need to set up the [Google Play Services SDK][4] and link to it.
+![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
+
+4. 
 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
