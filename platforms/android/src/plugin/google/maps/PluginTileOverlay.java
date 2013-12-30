@@ -104,7 +104,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    * @param callbackContext
    * @throws JSONException 
    */
-  protected void clearCache(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  protected void clearTileCache(JSONArray args, CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
     tileOverlay.clearTileCache();
