@@ -38,14 +38,18 @@
   marker.rotation = [[json valueForKey:@"flat"] floatValue];
   marker.opacity = [[json valueForKey:@"opacity"] floatValue];
   
-  NSString *key = [NSString stringWithFormat:@"marker%d", marker.hash];
-  [self.mapCtrl.overlayManager setObject:marker forKey: key];
+  NSString *id = [NSString stringWithFormat:@"marker%d", marker.hash];
+  [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
   // Create icon
   NSString *iconPath = [json valueForKey:@"icon"];
   [self setIcon_:marker iconPath:iconPath];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
+  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  [result setObject:id forKey:@"id"];
+  [result setObject:[NSString stringWithFormat:@"%d", marker.hash] forKey:@"hashCode"];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
