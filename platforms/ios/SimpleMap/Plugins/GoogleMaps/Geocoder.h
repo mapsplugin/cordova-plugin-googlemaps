@@ -15,6 +15,7 @@
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic, strong) CLGeocoder *geocoder;
+@property (nonatomic, strong) GMSGeocoder *reverseGeocoder;
 - (void)createGeocoder:(CDVInvokedUrlCommand*)command;
 - (NSArray *)geocoder_callback:(NSArray *)placemarks error:(NSError *)error;
 
