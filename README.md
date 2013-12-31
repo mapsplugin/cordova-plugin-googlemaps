@@ -29,7 +29,7 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 ![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
 4. Add these permissions and elements to your AndroidManifest.xml.
-Plese refer the more detailed exlpain at the [Google Maps Document][5].
+Please refer the more detailed exlpain in the [Google Maps Document][5].
 ``` xml
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -44,11 +44,18 @@ Plese refer the more detailed exlpain at the [Google Maps Document][5].
 <!-- OpenGL ES version 2 -->
 <uses-feature android:glEsVersion="0x00020000" android:required="true" />
 ```
-
+5. Add your Google Maps API key under the &lt;application&gt; tag.
+Please refer the more detailed exlpain in the [Google Maps Document][6].
+``` xml
+<meta-data
+  android:name="com.google.android.maps.v2.API_KEY"
+  android:value="YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE" />
+```
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
 [3]: http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface
 [4]: http://developer.android.com/google/play-services/setup.html
 [5]: https://developers.google.com/maps/documentation/android/start#specify_app_settings_in_the_application_manifest
+[6]: https://developers.google.com/maps/documentation/android/start#get_an_android_certificate_and_the_google_maps_api_key
 
