@@ -46,11 +46,14 @@ Please refer the more detailed exlpain in the [Google Maps Document][5].
 ```
 5. Add your Google Maps API key under the &lt;application&gt; tag.
 Please refer the more detailed exlpain in the [Google Maps Document][6].
+
 ``` xml
 <meta-data
   android:name="com.google.android.maps.v2.API_KEY"
   android:value="YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE" />
 ```
+
+6. 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
