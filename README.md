@@ -37,7 +37,6 @@ Plese refer the more detailed exlpain at the [Google Maps Document][5].
      Google Maps Android API v2, but are recommended. --&gt;
 &lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;
 &lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
-
 &lt;-- OpenGL ES version 2 --&gt;
 &lt;uses-feature android:glEsVersion="0x00020000" android:required="true" /&gt;
 </pre>
