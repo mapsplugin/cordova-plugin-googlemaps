@@ -26,11 +26,26 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 3. You'll need to set up the [Google Play Services SDK][4] and link to it.
 ![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
-4. 
+4. Add these permissions and elements to your AndroidManifest.xml.
+Plese refer the more detailed exlpain at the [Google Maps Document][5].
+<pre>
+&lt;uses-permission android:name="android.permission.INTERNET"/&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/&gt;
+&lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/&gt;
+&lt;uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/&gt;
+&lt;!-- The following two permissions are not required to use
+     Google Maps Android API v2, but are recommended. --&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
+
+&lt;-- OpenGL ES version 2 --&gt;
+&lt;uses-feature android:glEsVersion="0x00020000" android:required="true" /&gt;
+</pre>
 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
 [3]: http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface
 [4]: http://developer.android.com/google/play-services/setup.html
+[5]: https://developers.google.com/maps/documentation/android/start#specify_app_settings_in_the_application_manifest
 
