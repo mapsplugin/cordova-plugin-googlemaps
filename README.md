@@ -29,17 +29,16 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 4. Add these permissions and elements to your AndroidManifest.xml.
 Plese refer the more detailed exlpain at the [Google Maps Document][5].
 ``` xml
-&lt;uses-permission android:name="android.permission.INTERNET"/&gt;
-&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/&gt;
-&lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/&gt;
-&lt;uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/&gt;
-&lt;!-- The following two permissions are not required to use
-     Google Maps Android API v2, but are recommended. --&gt;
-&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;
-&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
-
-&lt;-- OpenGL ES version 2 --&gt;
-&lt;uses-feature android:glEsVersion="0x00020000" android:required="true" /&gt;
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+<!-- The following two permissions are not required to use
+     Google Maps Android API v2, but are recommended. -->
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<-- OpenGL ES version 2 -->
+<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 ```
 
 [0]: https://developers.google.com/maps/documentation/android/
