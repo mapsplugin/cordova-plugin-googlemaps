@@ -15,10 +15,11 @@ http://www.youtube.com/watch?v=RvvusY-JpXg
 
 2. In the Cordova Android application you will need to put the following in your res/xml/config.xml file as a child to the plugin tag:
 ``` xml
-Cordova version 2
+<!-- for Cordova version 2 -->
 <plugin name="GoogleMaps" value="plugin.google.maps.GoogleMaps" />
-
-Cordova version3
+```
+``` xml
+<!-- for Cordova version 3 -->
 <feature name="GoogleMaps">
   <param name="android-package" value="plugin.google.maps.GoogleMaps" />
 </feature>
