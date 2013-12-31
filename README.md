@@ -43,6 +43,9 @@ Please refer the more detailed exlpain in the [Google Maps Document][5].
 ``` xml
 <!-- OpenGL ES version 2 -->
 <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+<!-- Google Play Services SDK -->
+<meta-data android:name="com.google.android.gms.version"
+           android:value="@integer/google_play_services_version" />
 ```
 5. Add your Google Maps API key under the &lt;application&gt; tag.
 Please refer the more detailed exlpain in the [Google Maps Document][6].
