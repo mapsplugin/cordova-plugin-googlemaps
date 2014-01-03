@@ -38,6 +38,26 @@
       }, false);
       _listeners[eventName].push(listener);
     };
+    self.addEventListener = self.on;
+    
+    self.off = function(eventName, handler) {
+      if (typeof eventName === "string" &&
+          eventName in _listeners) {
+        
+        if (typeof handler === "function") {
+          for (var i = 0; i < _listeners[eventName].length; i++) {
+            if (_listeners[eventName][i] === handler) {
+              _listeners[eventName].splice(i, 1);
+              break;
+            }
+          }
+        } else {
+          delete _listeners[eventName];
+        }
+      }
+    };
+    
+    self.removeEventListener = self.on;
     return self;
   };
   var App = function() {
