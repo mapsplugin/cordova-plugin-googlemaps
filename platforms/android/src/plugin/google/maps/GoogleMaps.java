@@ -123,7 +123,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             } else {
               callbackContext.error("'" + action + "' parameter is invalid length.");
             }
-          break;
+            break;
         
           default:
             callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
@@ -131,7 +131,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           }
         } catch (Exception e) {
           e.printStackTrace();
-          callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
+          callbackContext.error("Java Error\n" + e.getMessage());
         }
       }
     };
