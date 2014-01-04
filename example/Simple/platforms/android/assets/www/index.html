@@ -12,7 +12,8 @@
     <link rel="stylesheet" type="text/css" href="./style.css" />
   </head>
   <body>
-<h1>Initialize a map</h1>
+<h1>Google Maps Plug-in for Cordova</h1>
+<h2>Initialize a map</h2>
 <p>To initialize the map plugin, you need to call the <span class='highlight'>getMap()</span> method of the Map class.
 The map class raises <span class='highlight'>MAP_READY</span> event when the map is initialized.
 You can receive the event with either <span class='highlight'>addEventListener()</span> or <span class='highlight'>on()</span> method.</p>
@@ -22,8 +23,9 @@ map.addEventListener(evt, function() {
   //Something you want to do
 });
 </code>
+<button name="initMap"  onclick="getMap1()">Play it</button>
 
-<h1>Initialize a map with options</h1>
+<h2>Initialize a map with options</h2>
 <p>If you want to initialize a map with parameters, you can do like this.</p>
 <code>var map = plugin.google.maps.Map.getMap({
   'mapType': plugin.google.maps.MapTypeId.HYBRID,
@@ -39,20 +41,48 @@ map.addEventListener(evt, function() {
     'rotate': true
   },
   'camera': {
-    'latLng': GOOGLE,
+    'latLng': GORYOKAKU_JAPAN,
     'tilt': 30,
     'zoom': 15,
     'bearing': 50
   }
 });
 </code>
+<button name="initMap" onclick="getMap2()">Play it</button>
 
-<h1>Show the map dialog</h1>
+<h2>Listen events</h2>
+<p>You can listen several events, such as map clicked.
+Available events for Map class are the below:
+<span class='highlight'>MAP_CLICK</span> / 
+<span class='highlight'>MAP_LONG_CLICK</span> /
+<span class='highlight'>MY_LOCATION_CHANGE</span>(Android) /
+<span class='highlight'>MY_LOCATION_BUTTON_CLICK</span>(iOS) /
+<span class='highlight'>CAMERA_CHANGE</span> / 
+<span class='highlight'>MAP_READY</span> / 
+<span class='highlight'>MAP_LOADED</span>(Android) / 
+<span class='highlight'>MAP_WILL_MOVE</span>(iOS).
+<br>
+<br>
+Available events for Marker class are the below:
+<span class='highlight'>MARKER_CLICK</span> / 
+<span class='highlight'>INFO_CLICK</span> / 
+<span class='highlight'>MARKER_DRAG</span> / 
+<span class='highlight'>MARKER_DRAG_START</span> / 
+<span class='highlight'>MARKER_DRAG_END</span>.
+</p>
+<code>var evtName = plugin.google.maps.event.MAP_LONG_CLICK;
+map.on(evtName, function(latLng) {
+  alert("Map was long clicked.\n" +
+        latLng.toUrlValue());
+});
+</code>
+
+<h2>Show the map dialog</h2>
 <p>This plugin show the map on a dialog window. To open it, call <span class='highlight'>showDialog()</span> method.</p>
 <code>map.showDialog();</code>
 <button onclick="showMap()">Play it</button>
 
-<h1>Change the map type</h1>
+<h2>Change the map type</h2>
 <p>You can choose the map type using <span class='highlight'>setMapTypeId()</span> method.
 Available map types are <span class='highlight'>ROADMAP</span> / 
 <span class='highlight'>SATELLITE</span> /
@@ -65,13 +95,13 @@ map.setMapTypeId(mapType);</code>
 <select id='mapTypeSelect'>
   <option value="ROADMAP">ROADMAP</option>
   <option value="SATELLITE">SATELLITE</option>
-  <option value="HYBRID" selected>HYBRID</option>
-  <option value="TERRAIN">TERRAIN</option>
+  <option value="HYBRID">HYBRID</option>
+  <option value="TERRAIN" selected>TERRAIN</option>
 </select>
 <button onclick="setMapTypeId()">Play it</button>
 
 
-<h1>Move the camera</h1>
+<h2>Move the camera</h2>
 <p>Google Maps for mobile has a view camera.
 You see the map via the camera, thus if you want to show a specific location, you need to move the camera.
 To do that, this plugin provides <span class='highlight'>animateCamera()</span> and <span class='highlight'>moveCamera()</span> methods.
@@ -99,7 +129,7 @@ This callback is involved when the movement is finished.</p>
 });</code>
 <button onclick="moveCamera()">Play it</button>
 
-<h1>Get the camera position</h1>
+<h2>Get the camera position</h2>
 <p>If you want to know the camera position, just call <span class='highlight'>getCameraPosition()</span> method.
 </p>
 <code>map.getCameraPosition(function(camera) {
@@ -114,7 +144,7 @@ This callback is involved when the movement is finished.</p>
 </code>
 <button onclick="getCameraPosition()">Play it</button>
 
-<h1>Get my location</h1>
+<h2>Get my location</h2>
 <p>If you want to know where you are, just call <span class='highlight'>getMyLocation()</span> method.</p>
 <code>map.getMyLocation(function(location) {
   var buff = ["Current your location:\n",
@@ -128,7 +158,7 @@ This callback is involved when the movement is finished.</p>
 </code>
 <button onclick="getMyLocation()">Play it</button>
 
-<h1>Add a marker</h1>
+<h2>Add a marker</h2>
 <p>You can make a marker using <span class='highlight'>addMarker()</span> method.</p>
 <code>map.addMarker({
   'position': GOOGLE,
@@ -151,7 +181,7 @@ The plugin passes the marker instance as a parameter.</p>
 <button onclick="addMarker2()">Play it</button>
 
 
-<h1>Add a marker with icon</h1>
+<h2>Add a marker with icon</h2>
 <p>If you want to make a marker with icon, just pass the icon path or URL to the <span class='highlight'>addMarker()</span> method.</p>
 <code>map.addMarker({
   'position': GOOGLE_TOKYO,
@@ -161,11 +191,11 @@ The plugin passes the marker instance as a parameter.</p>
 </code>
 <button onclick="addMarker3()">Play it</button>
 
-<h1>Remove the marker</h1>
+<h2>Remove the marker</h2>
 <p>To remove the marker, call the <span class='highlight'>remove()</span> method.</p>
 <code>marker.remove();</code>
 
-<h1>Click events</h1>
+<h2>Click events</h2>
 <p>This plugin also supports the click events for both marker and infoWindow.</p>
 <code>map.addMarker({
   'position': GOOGLE_SYDNEY,
@@ -183,7 +213,7 @@ The plugin passes the marker instance as a parameter.</p>
 <button onclick="addMarker4()">Play it</button>
 
 
-<h1>Add a polyline/polygon/circle</h1>
+<h2>Add a polyline/polygon/circle</h2>
 <p>Adding a polyline uses <span class='highlight'>addPolyline()</span> method.</p>
 <code>map.addPolyline({
   points: [
@@ -224,7 +254,7 @@ The plugin passes the marker instance as a parameter.</p>
 <button onclick="addCircle()">Play it</button>
 
 
-<h1>Add a ground overlay</h1>
+<h2>Add a ground overlay</h2>
 <p>A ground overlay is an image that is fixed to a map. To add an image, call <span class='highlight'>addGroundOverlay()</span> method.</p>
 <code>var bounds = [
   new plugin.google.maps.LatLng(40.712216,-74.22655),
@@ -244,12 +274,12 @@ map.addGroundOverlay({
 </code>
 <button onclick="addGroundOverlay()">Play it</button>
 
-<h1>Remove the ground overlay</h1>
+<h2>Remove the ground overlay</h2>
 <p>To remove the ground overlay, call the <span class='highlight'>remove()</span> method.</p>
 <code>groundOverlay.remove();</code>
 
 
-<h1>Add a tile overlay</h1>
+<h2>Add a tile overlay</h2>
 <p>A Tile Overlay is a set of images which are displayed on top of the base map tiles.
 To your tile layer, call <span class='highlight'>addTileOverlay()</span> method.<br>
 You need to include &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; strings into your URL.
@@ -263,12 +293,12 @@ These are replaced with values.</p>
 });</code>
 <button onclick="addTileOverlay()">Play it</button>
 
-<h1>Remove the tile overlay</h1>
+<h2>Remove the tile overlay</h2>
 <p>To remove the tile overlay, call the <span class='highlight'>remove()</span> method.</p>
 <code>tileOverlay.remove();</code>
 
 
-<h1>Geocoding</h1>
+<h2>Geocoding</h2>
 <p>This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.
 In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).</p>
 <code>var request = {
@@ -292,7 +322,7 @@ map.geocode(request, function(results) {
 <button onclick="geocoding()">Play it</button>
 
 
-<h1>Reverse geocoding</h1>
+<h2>Reverse geocoding</h2>
 <p>This plugin also supports reverse geocoding. 
 In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).</p>
 <code>var request = {
@@ -313,5 +343,7 @@ map.geocode(request, function(results) {
 });
 </code>
 <button onclick="reverseGeocoding()">Play it</button>
+
+
   </body>
 </html>

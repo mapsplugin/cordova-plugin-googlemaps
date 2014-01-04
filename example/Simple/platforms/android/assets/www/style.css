@@ -9,6 +9,10 @@ code {
 }
 
 h1 {
+  font-size: 30px;
+  font-style: italic;
+}
+h2 {
   font-size: 23px;
   border-bottom: 1px dotted gray;
 }

@@ -22,21 +22,63 @@ const GORYOKAKU_POINTS = [
 ];
 var map,
     mTileOverlay;
+    
 document.addEventListener('deviceready', function() {
   
   var i,
       buttons = document.getElementsByTagName("button");
   for (i = 0; i < buttons.length; i++) {
-    buttons[i].disabled = 'disabled';
+    if (buttons[i].getAttribute("name") != "initMap") {
+      buttons[i].disabled = 'disabled';
+    }
   }
+}, false);
+
+function getMap1() {
   map = plugin.google.maps.Map.getMap();
-  map.addEventListener('map_ready', function() {
-    for (i = 0; i < buttons.length; i++) {
-      buttons[i].disabled = undefined;
+  map.addEventListener('map_ready', onMapReady);
+}
+function getMap2() {
+  map = plugin.google.maps.Map.getMap({
+    'mapType': plugin.google.maps.MapTypeId.HYBRID,
+    'controls': {
+      'compass': true,
+      'myLocationButton': true,
+      'indoorPicker': true,
+      'zoom': true
+    },
+    'gestures': {
+      'scroll': true,
+      'tilt': true,
+      'rotate': true
+    },
+    'camera': {
+      'latLng': GORYOKAKU_JAPAN,
+      'tilt': 30,
+      'zoom': 16,
+      'bearing': 50
     }
   });
+  map.addEventListener('map_ready', onMapReady);
+}
+function onMapReady() {
+  var i,
+      buttons = document.getElementsByTagName("button");
+  for (i = 0; i < buttons.length; i++) {
+    if (buttons[i].getAttribute("name") != "initMap") {
+      buttons[i].disabled = undefined;
+    } else {
+      buttons[i].disabled = "disabled";
+    }
+  }
   
-}, false);
+  var evtName = plugin.google.maps.event.MAP_LONG_CLICK;
+  map.on(evtName, function(latLng) {
+    alert("Map was long clicked.\n" +
+          latLng.toUrlValue());
+  });
+  map.showDialog();
+}
 
 function showMap() {
   map.showDialog();
