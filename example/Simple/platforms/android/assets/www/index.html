@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+    <title>Google Maps Plugin for Cordova</title>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="googlemaps-cdv-plugin.js"></script>
+    <script type="text/javascript" src="simple.js"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+  </head>
+  <body>
+<h1>Initialize a map</h1>
+<p>To initialize the map plugin, you need to call the <span class='highlight'>getMap()</span> method of the Map class.
+The map class raises <span class='highlight'>MAP_READY</span> event when the map is initialized.
+You can receive the event with either <span class='highlight'>addEventListener()</span> or <span class='highlight'>on()</span> method.</p>
+<code>var map = plugin.google.maps.Map.getMap();
+var evt = plugin.google.maps.event.MAP_READY;
+map.addEventListener(evt, function() {
+  //Something you want to do
+});
+</code>
+
+<h1>Initialize a map with options</h1>
+<p>If you want to initialize a map with parameters, you can do like this.</p>
+<code>var map = plugin.google.maps.Map.getMap({
+  'mapType': plugin.google.maps.MapTypeId.HYBRID,
+  'controls': {
+    'compass': true,
+    'myLocationButton': true,
+    'indoorPicker': true,
+    'zoom': true
+  },
+  'gestures': {
+    'scroll': true,
+    'tilt': true,
+    'rotate': true
+  },
+  'camera': {
+    'latLng': GOOGLE,
+    'tilt': 30,
+    'zoom': 15,
+    'bearing': 50
+  }
+});
+</code>
+
+<h1>Show the map dialog</h1>
+<p>This plugin show the map on a dialog window. To open it, call <span class='highlight'>showDialog()</span> method.</p>
+<code>map.showDialog();</code>
+<button onclick="showMap()">Play it</button>
+
+<h1>Change the map type</h1>
+<p>You can choose the map type using <span class='highlight'>setMapTypeId()</span> method.
+Available map types are <span class='highlight'>ROADMAP</span> / 
+<span class='highlight'>SATELLITE</span> /
+<span class='highlight'>HYBRID</span> /
+<span class='highlight'>TERRAIN</span> /
+<span class='highlight'>NONE</span>
+</p>
+<code>var mapType = plugin.google.maps.HYBRID;
+map.setMapTypeId(mapType);</code>
+<select id='mapTypeSelect'>
+  <option value="ROADMAP">ROADMAP</option>
+  <option value="SATELLITE">SATELLITE</option>
+  <option value="HYBRID" selected>HYBRID</option>
+  <option value="TERRAIN">TERRAIN</option>
+</select>
+<button onclick="setMapTypeId()">Play it</button>
+
+
+<h1>Move the camera</h1>
+<p>Google Maps for mobile has a view camera.
+You see the map via the camera, thus if you want to show a specific location, you need to move the camera.
+To do that, this plugin provides <span class='highlight'>animateCamera()</span> and <span class='highlight'>moveCamera()</span> methods.
+The <span class='highlight'>animateCamera()</span> moves the camera with animation, while the other hand without animation.
+</p>
+<code>map.animateCamera({
+  'target': GOOGLE,
+  'tilt': 60,
+  'zoom': 18,
+  'bearing': 140
+});
+</code>
+<button onclick="animateCamera()">Play it</button>
+
+<p>Both methods take a callback function as the second argument.
+This callback is involved when the movement is finished.</p>
+<code>map.moveCamera({
+  'target': STATUE_OF_LIBERTY,
+  'zoom': 17,
+  'tilt': 30
+}, function() {
+  var mapType = plugin.google.maps.MapTypeId.HYBRID;
+  map.setMapTypeId(mapType);
+  map.showDialog();
+});</code>
+<button onclick="moveCamera()">Play it</button>
+
+<h1>Get the camera position</h1>
+<p>If you want to know the camera position, just call <span class='highlight'>getCameraPosition()</span> method.
+</p>
+<code>map.getCameraPosition(function(camera) {
+  var buff = ["Current camera position:\n"
+      "latitude:" + camera.target.lat,
+      "longitude:" + camera.target.lng,
+      "zoom:" + camera.zoom,
+      "tilt:" + camera.tilt,
+      "bearing:" + camera.bearing].join("\n");
+  alert(buff);
+});
+</code>
+<button onclick="getCameraPosition()">Play it</button>
+
+<h1>Get my location</h1>
+<p>If you want to know where you are, just call <span class='highlight'>getMyLocation()</span> method.</p>
+<code>map.getMyLocation(function(location) {
+  var buff = ["Current your location:\n",
+      "latitude:" + location.latLng.lat,
+      "longitude:" + location.latLng.lng,
+      "speed:" + location.speed,
+      "time:" + location.time,
+      "bearing:" + location.bearing].join("\n");
+  alert(buff);
+});
+</code>
+<button onclick="getMyLocation()">Play it</button>
+
+<h1>Add a marker</h1>
+<p>You can make a marker using <span class='highlight'>addMarker()</span> method.</p>
+<code>map.addMarker({
+  'position': GOOGLE,
+  'title': "Hello GoogleMap on Cordova!",
+  'snippet': "This is the Google Head Quarter"
+});
+</code>
+<button onclick="addMarker1()">Play it</button>
+
+<p>The <span class='highlight'>addMarker()</span> method taken a function as callback on the second argument.
+The callback is involved when the marker is created.
+The plugin passes the marker instance as a parameter.</p>
+<code>map.addMarker({
+  'position': STATUE_OF_LIBERTY,
+  'title': "Statue of Liberty"
+}, function(marker) {
+  marker.showInfoWindow();
+});
+</code>
+<button onclick="addMarker2()">Play it</button>
+
+
+<h1>Add a marker with icon</h1>
+<p>If you want to make a marker with icon, just pass the icon path or URL to the <span class='highlight'>addMarker()</span> method.</p>
+<code>map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!'
+  'icon': 'www/images/google_tokyo_icon.png'
+});
+</code>
+<button onclick="addMarker3()">Play it</button>
+
+<h1>Remove the marker</h1>
+<p>To remove the marker, call the <span class='highlight'>remove()</span> method.</p>
+<code>marker.remove();</code>
+
+<h1>Click events</h1>
+<p>This plugin also supports the click events for both marker and infoWindow.</p>
+<code>map.addMarker({
+  'position': GOOGLE_SYDNEY,
+  'title': "Google Sydney",
+  'snippet': "click, then remove",
+  'draggable': true,
+  'markerClick': function(marker) {
+    marker.showInfoWindow();
+  },
+  'infoClick': function(marker) {
+    marker.remove();
+  }
+});
+</code>
+<button onclick="addMarker4()">Play it</button>
+
+
+<h1>Add a polyline/polygon/circle</h1>
+<p>Adding a polyline uses <span class='highlight'>addPolyline()</span> method.</p>
+<code>map.addPolyline({
+  points: [
+    HND_AIR_PORT,
+    SFO_AIR_PORT
+  ],
+  'color' : '#AA00FF',
+  'width': 10,
+  'geodesic': true
+});
+</code>
+<button onclick="addPolyline()">Play it</button>
+
+<p>For adding a polygon, use <span class='highlight'>addPolygon()</span> method.</p>
+<code>map.addPolygon({
+  points: GORYOKAKU_POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(polygon) {
+  map.animateCamera({
+    'target': polygon.getPoints()
+  });
+});
+</code>
+<button onclick="addPolygon()">Play it</button>
+
+
+<p>For a circle, use <span class='highlight'>addCircle()</span> method.</p>
+<code>map.addCircle({
+  'center': GOOGLE,
+  'radius': 300,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+});
+</code>
+<button onclick="addCircle()">Play it</button>
+
+
+<h1>Add a ground overlay</h1>
+<p>A ground overlay is an image that is fixed to a map. To add an image, call <span class='highlight'>addGroundOverlay()</span> method.</p>
+<code>var bounds = [
+  new plugin.google.maps.LatLng(40.712216,-74.22655),
+  new plugin.google.maps.LatLng(40.773941,-74.12544)
+];
+
+map.addGroundOverlay({
+  'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+  'bounds': bounds,
+  'opacity': 0.5
+}, function(groundOverlay) {
+  map.showDialog();
+  map.animateCamera({
+    'target': bounds
+  });
+});
+</code>
+<button onclick="addGroundOverlay()">Play it</button>
+
+<h1>Remove the ground overlay</h1>
+<p>To remove the ground overlay, call the <span class='highlight'>remove()</span> method.</p>
+<code>groundOverlay.remove();</code>
+
+
+<h1>Add a tile overlay</h1>
+<p>A Tile Overlay is a set of images which are displayed on top of the base map tiles.
+To your tile layer, call <span class='highlight'>addTileOverlay()</span> method.<br>
+You need to include &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; strings into your URL.
+These are replaced with values.</p>
+<code>map.addTileOverlay({
+  // &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; are replaced with values
+  tileUrlFormat: "http://tile.stamen.com/watercolor/&lt;zoom&gt;/&lt;x&gt;/&lt;y&gt;.jpg"
+}, function(tileOverlay) {
+  mTileOverlay = tileOverlay;
+  map.showDialog();
+});</code>
+<button onclick="addTileOverlay()">Play it</button>
+
+<h1>Remove the tile overlay</h1>
+<p>To remove the tile overlay, call the <span class='highlight'>remove()</span> method.</p>
+<code>tileOverlay.remove();</code>
+
+
+<h1>Geocoding</h1>
+<p>This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.
+In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).</p>
+<code>var request = {
+  'address': "Kyoto, Japan"
+};
+map.geocode(request, function(results) {
+  if (results.length) {
+    map.showDialog();
+    var result = results[0];
+    var position = result.position; 
+    
+    map.addMarker({
+      'position': position
+    });
+  } else {
+    alert("Not found");
+  }
+});
+</code>
+<input type="text" id="geocoder_input" value="Kyoto, Japan">
+<button onclick="geocoding()">Play it</button>
+
+
+<h1>Reverse geocoding</h1>
+<p>This plugin also supports reverse geocoding. 
+In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).</p>
+<code>var request = {
+  'position': new plugin.google.maps.LatLng(37.820905,-122.478576) 
+};
+map.geocode(request, function(results) {
+  if (results.length) {
+    var result = results[0];
+    var position = result.position; 
+    
+    map.addMarker({
+      'position': position,
+      'title':  result.thoroughfare
+    });
+  } else {
+    alert("Not found");
+  }
+});
+</code>
+<button onclick="reverseGeocoding()">Play it</button>
+  </body>
+</html>

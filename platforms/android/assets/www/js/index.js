@@ -1,5 +1,7 @@
 const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+const STATUE_OF_LIBERTY = new plugin.google.maps.LatLng(40.689249,-74.0445);
+
 const ZINDEX_TILE = 1;
 const ZINDEX_OVERLAY = 2;
 var mTileOverlay = null;
@@ -379,8 +381,8 @@ $(document).on('deviceready',  function() {
     'controls': {
       'compass': true,
       'myLocationButton': true,
-      'indoorPicker': true,  // 'indoorPicker' field is for iOS
-      'zoom': true  // 'zoom' field is for Android
+      'indoorPicker': true,
+      'zoom': true
     },
     'gestures': {
       'scroll': true,

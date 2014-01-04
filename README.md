@@ -53,9 +53,13 @@ Please refer the more detailed exlpain in the [Google Maps Document][6].
 <meta-data
   android:name="com.google.android.maps.v2.API_KEY"
   android:value="YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE" />
+<!-- for Google Play Services SDK -->
+<meta-data
+  android:name="com.google.android.gms.version"
+  android:value="@integer/google_play_services_version" />
 ```
 
-6. aaa
+6. Add &lt;script
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
