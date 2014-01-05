@@ -65,7 +65,7 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 6. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
 
 ## Manual iOS Instration
-1. First of all, download the latest SDK from [the official page][iOS1].
+1. First of all, download the latest SDK from the [official document][iOS1].
 
 2. Create a cordova project and add iOS platform.
 Please refer [the cordova document][3].
@@ -75,7 +75,7 @@ $> cd mydir
 $> cordova platform add ios
 ```
 
-3. Open the cordova project with XCode, then 
+3. Install the SDK to your project following the [official document][iOS2].
 
 ## Coding examples
 
@@ -90,4 +90,4 @@ $> cordova platform add ios
 [6]: https://developers.google.com/maps/documentation/android/start#get_an_android_certificate_and_the_google_maps_api_key
 
 [iOS1]: https://developers.google.com/maps/documentation/ios/start#getting_the_google_maps_sdk_for_ios
-
+[iOS2]: https://developers.google.com/maps/documentation/ios/start#adding_the_google_maps_sdk_for_ios_to_your_project
