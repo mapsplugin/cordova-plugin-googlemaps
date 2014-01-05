@@ -15,13 +15,8 @@ $> cd mydir
 $> cordova platform add android
 ```
 
-2. In the Cordova Android application you will need to put the following in your res/xml/config.xml file as a child to the plugin tag:
+2. In the Cordova Android application you will need to put the following in your `res/xml/config.xml` file as a child to the plugin tag:
 ``` xml
-<!-- for Cordova version 2 -->
-<plugin name="GoogleMaps" value="plugin.google.maps.GoogleMaps" />
-```
-``` xml
-<!-- for Cordova version 3 -->
 <feature name="GoogleMaps">
   <param name="android-package" value="plugin.google.maps.GoogleMaps" />
 </feature>
@@ -62,8 +57,10 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
   android:value="@integer/google_play_services_version" />
 ```
 
-6. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
+6. From this plugin folder copy the `www/googlemaps-cdv-plugin.js`and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
 
+7. From this plugin folder copy the `src/android/` folder into your application's `src` folder.
+ 
 ## Manual iOS Instration
 1. First of all, download the latest SDK from the [official document][iOS1].
 
@@ -76,6 +73,18 @@ $> cordova platform add ios
 ```
 
 3. Install the SDK to your project following the [official document][iOS2].
+After the setup correctly, the project settings should be [this image][iOS3].
+
+4. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
+
+5. From this plugin folder copy the `src/ios/` folder into your application's `Plugins` folder.
+
+6. In the Cordova iOS application you will need to put the following in your `config.xml` file as a child to the plugin tag:
+``` xml
+<feature name="GoogleMaps">
+  <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+</feature>
+```
 
 ## Coding examples
 
@@ -91,3 +100,5 @@ $> cordova platform add ios
 
 [iOS1]: https://developers.google.com/maps/documentation/ios/start#getting_the_google_maps_sdk_for_ios
 [iOS2]: https://developers.google.com/maps/documentation/ios/start#adding_the_google_maps_sdk_for_ios_to_your_project
+[iOS3]: https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png
+
