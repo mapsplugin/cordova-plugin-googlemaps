@@ -143,10 +143,39 @@ map.closeDialog();
 ###Change the map type
 You can choose the map type using **setMapTypeId()** method.
 Available map types are `ROADMAP`, `SATELLITE`, `HYBRID`, `TERRAIN` and `NONE`.
-![image4](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
 ```js
 map.setMapTypeId(plugin.google.maps.HYBRID);
 ```
+![image4](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
+
+###Move the camera
+Google Maps for mobile has a view camera.
+You see the map via the camera, thus if you want to show a specific location, you need to move the camera.
+To do that, this plugin provides **animateCamera()** and **moveCamera()** methods.
+The **animateCamera()** moves the camera with animation, while the other hand without animation.
+```js
+map.animateCamera({
+  'target': GOOGLE,
+  'tilt': 60,
+  'zoom': 18,
+  'bearing': 140
+});
+```
+Both methods take a callback function as the second argument.
+This callback is involved when the movement is finished.</p>
+```js
+map.moveCamera({
+  'target': STATUE_OF_LIBERTY,
+  'zoom': 17,
+  'tilt': 30
+}, function() {
+  var mapType = plugin.google.maps.MapTypeId.HYBRID;
+  map.setMapTypeId(mapType);
+  map.showDialog();
+});
+```![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
+
+
 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
