@@ -79,7 +79,7 @@
       
       UIButton *licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
       licenseButton.frame = CGRectMake(pluginRect.size.width - 90, pluginRect.size.height + 10, 100, 30);
-      licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+      licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin;
       [licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
       [licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
       [self.mapCtrl.view addSubview:licenseButton];
@@ -100,7 +100,6 @@
     
     CDVPluginResult* pluginResult = nil;
     NSString *classAndMethod = [command.arguments objectAtIndex:0];
-    NSLog(@"exec: %@",classAndMethod);
     
     NSArray *target = [classAndMethod componentsSeparatedByString:@"."];
     NSString *className = [target objectAtIndex:0];
@@ -153,8 +152,6 @@
  */
 -(void)getLicenseInfo:(CDVInvokedUrlCommand *)command
 {
-  NSLog(@"GetLicenseInfo");
-  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Hello"];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
