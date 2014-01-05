@@ -87,6 +87,7 @@ After the setup correctly, the project settings should be [this image][iOS3].
 ```
 7. Under the group Resources, find your **[PROJECTNAME]-Info.plist**, add a new entry.
 For the key, add **Google Maps API Key**, and its value is your **Google Maps API Key for iOS**.
+![image3](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings2.png)
 
 ## Coding examples
 
