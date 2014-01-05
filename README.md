@@ -56,7 +56,7 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
   android:value="@integer/google_play_services_version" />
 ```
 
-6. From this plugin folder copy the www/googlemaps-cdv-plugin.js and example/Simple/ files into your application's assets/www folder. Overwrite the existing index.html file.
+6. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
 
 ## Manual iOS Instration
 1. First of all, download the latest SDK from [the official page][iOS1].
