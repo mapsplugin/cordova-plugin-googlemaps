@@ -22,7 +22,9 @@ $> cordova platform add android
 </feature>
 ```
 
-3. You'll need to set up the [Google Play Services SDK][4] and link to it.
+3. You'll need to set up the **Google Play Services SDK** and link to it.
+ * [Install the Google Play Services SDK for Android][4A]
+ * [Import the Google Play Services SDK into Eclipse][4B]
 ![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
 4. Add these permissions and elements to your AndroidManifest.xml.
@@ -36,8 +38,6 @@ Please refer the more detailed exlpain in the [Google Maps Document][5].
      Google Maps Android API v2, but are recommended. -->
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-```
-``` xml
 <!-- OpenGL ES version 2 -->
 <uses-feature android:glEsVersion="0x00020000" android:required="true" />
 <!-- Google Play Services SDK -->
@@ -131,7 +131,8 @@ var map = plugin.google.maps.Map.getMap({
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
 [3]: http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface
-[4]: http://developer.android.com/google/play-services/setup.html
+[4A]: http://developer.android.com/google/play-services/setup.html#Install
+[4B]: http://developer.android.com/tools/projects/projects-eclipse.html#ReferencingLibraryProject
 [5]: https://developers.google.com/maps/documentation/android/start#specify_app_settings_in_the_application_manifest
 [6]: https://developers.google.com/maps/documentation/android/start#get_an_android_certificate_and_the_google_maps_api_key
 
