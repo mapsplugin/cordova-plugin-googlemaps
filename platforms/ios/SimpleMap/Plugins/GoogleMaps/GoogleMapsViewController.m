@@ -34,6 +34,7 @@ NSDictionary *initOptions;
   }
   
   [self.view setFrame:pluginRect];
+  self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
   
 }
