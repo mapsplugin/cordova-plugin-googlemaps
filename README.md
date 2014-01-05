@@ -7,7 +7,13 @@ This plugin works with [Apache Cordova][2].
 
 ## Manual Android Instration
 
-1. Create a cordova [Create a basic Cordova Android application][3]
+1. Create a cordova project and add Android platform.
+Please refer [the cordova document][3].
+``` bash
+$> cordova create ./mydir com.example.googlemap MyProject
+$> cd mydir
+$> cordova platform add android
+```
 
 2. In the Cordova Android application you will need to put the following in your res/xml/config.xml file as a child to the plugin tag:
 ``` xml
@@ -61,7 +67,18 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 ## Manual iOS Instration
 1. First of all, download the latest SDK from [the official page][iOS1].
 
-2. Create a cordova [Create a basic Cordova iOS application][3]
+2. Create a cordova project and add iOS platform.
+Please refer [the cordova document][3].
+``` bash
+$> cordova create ./mydir com.example.googlemap MyProject
+$> cd mydir
+$> cordova platform add ios
+```
+
+3. Open the cordova project with XCode, then 
+
+## Coding examples
+
 
 
 [0]: https://developers.google.com/maps/documentation/android/
