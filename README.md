@@ -28,7 +28,7 @@ $> cordova platform add android
  * Link the Google Play Services SDK library to your project. View the properties for the project, and navigate to the 'Android' tab. In the lower part of the dialog, click 'Add' and choose the 'google-play-services_lib' project from the workspace.
 ![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
-4. Add these permissions and elements to your AndroidManifest.xml.
+4. Add these permissions and elements to your `AndroidManifest.xml`.
 Please refer the more detailed exlpain in the [Google Maps Document][5].
 ``` xml
 <uses-permission android:name="android.permission.INTERNET"/>
@@ -45,7 +45,7 @@ Please refer the more detailed exlpain in the [Google Maps Document][5].
 <meta-data android:name="com.google.android.gms.version"
            android:value="@integer/google_play_services_version" />
 ```
-5. Add your Google Maps API key under the &lt;application&gt; tag.
+5. Still in your `AndroidManifest.xml`, add your Google Maps API key under the &lt;application&gt; tag.
 Please refer the more detailed exlpain in the [Google Maps Document][6].
 Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 ``` xml
