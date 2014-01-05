@@ -93,13 +93,37 @@ For the key, add **Google Maps API Key**, and its value is your **Google Maps AP
 
 ###Initialize a map
 To initialize the map plugin, you need to call the **getMap()** method of the Map class.
-The map class raises ``MAP_READY` event when the map is initialized.
+The map class raises `MAP_READY` event when the map is initialized.
 You can receive the event with either **addEventListener()** or **on()** method.
 ```js
 var map = plugin.google.maps.Map.getMap();
-var evt = plugin.google.maps.event.MAP_READY;
-map.addEventListener(evt, function() {
+map.addEventListener(plugin.google.maps.event.MAP_READY, function() {
   //Something you want to do
+});
+```
+
+###Initialize a map with options
+If you want to initialize a map with parameters, you can do like this.
+```js
+var map = plugin.google.maps.Map.getMap({
+  'mapType': plugin.google.maps.MapTypeId.HYBRID,
+  'controls': {
+    'compass': true,
+    'myLocationButton': true,
+    'indoorPicker': true,
+    'zoom': true
+  },
+  'gestures': {
+    'scroll': true,
+    'tilt': true,
+    'rotate': true
+  },
+  'camera': {
+    'latLng': GORYOKAKU_JAPAN,
+    'tilt': 30,
+    'zoom': 15,
+    'bearing': 50
+  }
 });
 ```
 
