@@ -258,7 +258,7 @@ map.addMarker({
 });
 ```
 
-###Add a polyline,polygon,circle
+###Add a polyline, polygon and circle
 Adding a polyline uses **addPolyline()** method.
 ```js
 map.addPolyline({
@@ -328,12 +328,12 @@ groundOverlay.remove();
 ###Add a tile overlay
 A Tile Overlay is a set of images which are displayed on top of the base map tiles.
 To your tile layer, call **addTileOverlay()** method.
-You need to include `&lt;x&gt;`,`&lt;y&gt;` and `&lt;zoom&gt;` strings into your URL.
+You need to include `<x>`,`<y>` and `<zoom>` strings into your URL.
 These are replaced with values.
 ```js
 map.addTileOverlay({
-  // &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; are replaced with values
-  tileUrlFormat: "http://tile.stamen.com/watercolor/&lt;zoom&gt;/&lt;x&gt;/&lt;y&gt;.jpg"
+  // <x>,<y> and <zoom> are replaced with values
+  tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
 }, function(tileOverlay) {
   mTileOverlay = tileOverlay;
   map.showDialog();
