@@ -128,6 +128,26 @@ var map = plugin.google.maps.Map.getMap({
 });
 ```
 
+###Show the map dialog
+This plugin show the map on a dialog window. To open it, call **showDialog()** method.</p>
+```js
+map.showDialog();
+```
+
+###Close the map dialog
+If you want to close the dialog, call **closeDialog()** method.
+```js
+map.closeDialog();
+```
+
+###Change the map type
+You can choose the map type using **setMapTypeId()** method.
+Available map types are `ROADMAP`, `SATELLITE`, `HYBRID`, `TERRAIN` and `NONE`.
+![image4](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
+```js
+map.setMapTypeId(plugin.google.maps.HYBRID);
+```
+
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
