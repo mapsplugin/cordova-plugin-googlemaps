@@ -145,8 +145,7 @@ function addMarker1() {
   });
   map.addMarker({
     'position': GOOGLE,
-    'title': "Hello GoogleMap on Cordova!",
-    'snippet': "This is the Google Head Quarter"
+    'title': "Hello GoogleMap for Cordova!"
   });
 }
 
