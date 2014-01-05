@@ -6,7 +6,6 @@ This plugin works with [Apache Cordova][2].
 ![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/android-demo.png)
 
 ## Manual Android Instration
-==========================
 
 1. Create a cordova [Create a basic Cordova Android application][3]
 
@@ -60,7 +59,6 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 6. From this plugin folder copy the www/googlemaps-cdv-plugin.js and example/Simple/ files into your application's assets/www folder. Overwrite the existing index.html file.
 
 ## Manual iOS Instration
-==========================
 1. First of all, download the latest SDK from [the official page][iOS1].
 
 2. Create a cordova [Create a basic Cordova iOS application][3]
