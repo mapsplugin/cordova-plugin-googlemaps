@@ -224,6 +224,8 @@ map.addMarker({
   marker.showInfoWindow();
 });
 ```
+![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
+
 
 ###Add a marker with icon
 If you want to make a marker with icon, just pass the icon path or URL to the **addMarker()** method.
@@ -234,6 +236,7 @@ map.addMarker({
   'icon': 'www/images/google_tokyo_icon.png'
 });
 ```
+![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
 
 ###Remove the marker
 To remove the marker, call the **remove()** method.
@@ -296,6 +299,7 @@ map.addCircle({
   'fillColor' : '#880000'
 });
 ```
+![image7](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/overlays.png)
 
 
 ###Add a ground overlay
@@ -317,6 +321,7 @@ map.addGroundOverlay({
   });
 });
 ```
+![image8](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ground_overlay.png)
 
 ###Remove the ground overlay
 To remove the ground overlay, call the **remove()** method.
@@ -339,6 +344,7 @@ map.addTileOverlay({
   map.showDialog();
 });
 ```
+![image9](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/tile_overlay.png)
 
 ###Remove the tile overlay
 To remove the tile overlay, call the **remove()** method.
