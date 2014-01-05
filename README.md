@@ -91,7 +91,17 @@ For the key, add **Google Maps API Key**, and its value is your **Google Maps AP
 
 ## Coding examples
 
-
+###Initialize a map
+To initialize the map plugin, you need to call the **getMap()** method of the Map class.
+The map class raises ``MAP_READY` event when the map is initialized.
+You can receive the event with either **addEventListener()** or **on()** method.
+```js
+var map = plugin.google.maps.Map.getMap();
+var evt = plugin.google.maps.event.MAP_READY;
+map.addEventListener(evt, function() {
+  //Something you want to do
+});
+```
 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
