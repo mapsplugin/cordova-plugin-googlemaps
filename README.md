@@ -82,7 +82,7 @@ After the setup correctly, the project settings should be [this image][iOS3].
 6. In the Cordova iOS application you will need to put the following in your `config.xml` file as a child to the plugin tag:
 ``` xml
 <feature name="GoogleMaps">
-  <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+    <param name="ios-package" value="GoogleMaps" />
 </feature>
 ```
 
