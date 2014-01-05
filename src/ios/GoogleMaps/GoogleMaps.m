@@ -191,6 +191,20 @@
 - (void)closeDialog:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.view removeFromSuperview];
   
+  
+  CGRect screenSize = [[UIScreen mainScreen] bounds];
+  CGRect pluginRect;
+  
+  int direction = self.mapCtrl.interfaceOrientation;
+  if (direction == UIInterfaceOrientationLandscapeLeft ||
+      direction == UIInterfaceOrientationLandscapeRight) {
+    pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width);
+  } else {
+    pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height);
+  }
+  [self.mapCtrl.view setFrame:pluginRect];
+  
+  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
