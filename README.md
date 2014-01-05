@@ -176,7 +176,221 @@ map.moveCamera({
 ```
 ![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
 
+###Get the camera position
+If you want to know the camera position, just call **getCameraPosition()** method.
+```js
+map.getCameraPosition(function(camera) {
+  var buff = ["Current camera position:\n"
+      "latitude:" + camera.target.lat,
+      "longitude:" + camera.target.lng,
+      "zoom:" + camera.zoom,
+      "tilt:" + camera.tilt,
+      "bearing:" + camera.bearing].join("\n");
+  alert(buff);
+});
+```
 
+###Get my location
+If you want to know where you are, just call **getMyLocation()** method.
+```js
+map.getMyLocation(function(location) {
+  var buff = ["Current your location:\n",
+      "latitude:" + location.latLng.lat,
+      "longitude:" + location.latLng.lng,
+      "speed:" + location.speed,
+      "time:" + location.time,
+      "bearing:" + location.bearing].join("\n");
+  alert(buff);
+});
+```
+
+###Add a marker
+You can make a marker using **addMarker()** method.
+```js
+map.addMarker({
+  'position': GOOGLE,
+  'title': "Hello GoogleMap for Cordova!"
+});
+```
+
+The **addMarker()** method taken a function as callback on the second argument.
+The callback is involved when the marker is created.
+The plugin passes the marker instance as a parameter.
+```js
+map.addMarker({
+  'position': STATUE_OF_LIBERTY,
+  'title': "Statue of Liberty"
+}, function(marker) {
+  marker.showInfoWindow();
+});
+```
+
+###Add a marker with icon
+If you want to make a marker with icon, just pass the icon path or URL to the **addMarker()** method.
+```js
+map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!'
+  'icon': 'www/images/google_tokyo_icon.png'
+});
+```
+
+###Remove the marker
+To remove the marker, call the **remove()** method.
+```js
+marker.remove();
+```
+
+###Click events
+This plugin also supports the click events for both marker and infoWindow.
+```js
+map.addMarker({
+  'position': GOOGLE_SYDNEY,
+  'title': "Google Sydney",
+  'snippet': "click, then remove",
+  'draggable': true,
+  'markerClick': function(marker) {
+    marker.showInfoWindow();
+  },
+  'infoClick': function(marker) {
+    marker.remove();
+  }
+});
+```
+
+###Add a polyline,polygon,circle
+Adding a polyline uses **addPolyline()** method.
+```js
+map.addPolyline({
+  points: [
+    HND_AIR_PORT,
+    SFO_AIR_PORT
+  ],
+  'color' : '#AA00FF',
+  'width': 10,
+  'geodesic': true
+});
+```
+
+For adding a polygon, use **addPolygon()** method.
+```js
+map.addPolygon({
+  points: GORYOKAKU_POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(polygon) {
+  map.animateCamera({
+    'target': polygon.getPoints()
+  });
+});
+```
+
+For a circle, use **addCircle()** method.
+```js
+map.addCircle({
+  'center': GOOGLE,
+  'radius': 300,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+});
+```
+
+
+###Add a ground overlay
+A ground overlay is an image that is fixed to a map. To add an image, call **addGroundOverlay()** method.
+```js
+var bounds = [
+  new plugin.google.maps.LatLng(40.712216,-74.22655),
+  new plugin.google.maps.LatLng(40.773941,-74.12544)
+];
+
+map.addGroundOverlay({
+  'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+  'bounds': bounds,
+  'opacity': 0.5
+}, function(groundOverlay) {
+  map.showDialog();
+  map.animateCamera({
+    'target': bounds
+  });
+});
+```
+
+###Remove the ground overlay
+To remove the ground overlay, call the **remove()** method.
+```js
+groundOverlay.remove();
+```
+
+
+###Add a tile overlay
+A Tile Overlay is a set of images which are displayed on top of the base map tiles.
+To your tile layer, call **addTileOverlay()** method.
+You need to include `&lt;x&gt;`,`&lt;y&gt;` and `&lt;zoom&gt;` strings into your URL.
+These are replaced with values.
+```js
+map.addTileOverlay({
+  // &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; are replaced with values
+  tileUrlFormat: "http://tile.stamen.com/watercolor/&lt;zoom&gt;/&lt;x&gt;/&lt;y&gt;.jpg"
+}, function(tileOverlay) {
+  mTileOverlay = tileOverlay;
+  map.showDialog();
+});
+```
+
+###Remove the tile overlay
+To remove the tile overlay, call the **remove()** method.
+```js
+tileOverlay.remove();
+```
+
+
+###Geocoding
+This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.
+In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).
+```js
+var request = {
+  'address': "Kyoto, Japan"
+};
+map.geocode(request, function(results) {
+  if (results.length) {
+    map.showDialog();
+    var result = results[0];
+    var position = result.position; 
+    
+    map.addMarker({
+      'position': position
+    });
+  } else {
+    alert("Not found");
+  }
+});
+```
+
+
+###Reverse geocoding
+This plugin also supports reverse geocoding. 
+In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).
+```js
+var request = {
+  'position': new plugin.google.maps.LatLng(37.820905,-122.478576) 
+};
+map.geocode(request, function(results) {
+  if (results.length) {
+    var result = results[0];
+    var position = result.position; 
+    
+    map.addMarker({
+      'position': position,
+      'title':  result.thoroughfare
+    });
+  } else {
+    alert("Not found");
+  }
+});
+```
 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
