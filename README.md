@@ -173,7 +173,8 @@ map.moveCamera({
   map.setMapTypeId(mapType);
   map.showDialog();
 });
-```![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
+```
+![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
 
 
 
