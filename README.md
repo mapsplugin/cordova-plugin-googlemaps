@@ -25,6 +25,7 @@ $> cordova platform add android
 3. You'll need to set up the **Google Play Services SDK** and link to it.
  * [Install the Google Play Services SDK for Android][4A]
  * [Import the Google Play Services SDK into Eclipse][4B]
+ * Link the Google Play Services SDK library to your project. View the properties for the project, and navigate to the 'Android' tab. In the lower part of the dialog, click 'Add' and choose the 'google-play-services_lib' project from the workspace.
 ![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
 4. Add these permissions and elements to your AndroidManifest.xml.
