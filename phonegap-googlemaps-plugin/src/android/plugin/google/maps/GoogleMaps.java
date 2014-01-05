@@ -22,11 +22,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -123,7 +121,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             } else {
               callbackContext.error("'" + action + "' parameter is invalid length.");
             }
-          break;
+            break;
         
           default:
             callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
@@ -131,7 +129,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           }
         } catch (Exception e) {
           e.printStackTrace();
-          callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
+          callbackContext.error("Java Error\n" + e.getMessage());
         }
       }
     };
@@ -283,6 +281,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     //base layout
     baseLayer = new FrameLayout(activity);
     baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    
+    //bgcolor layout
+    FrameLayout bglayer = new FrameLayout(activity);
+    bglayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    bglayer.setBackgroundColor(0x7F000000);
+    baseLayer.addView(bglayer);
     
     // window layout
     LinearLayout windowLayer = new LinearLayout(activity);

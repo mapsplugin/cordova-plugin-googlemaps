@@ -38,6 +38,26 @@
       }, false);
       _listeners[eventName].push(listener);
     };
+    self.addEventListener = self.on;
+    
+    self.off = function(eventName, handler) {
+      if (typeof eventName === "string" &&
+          eventName in _listeners) {
+        
+        if (typeof handler === "function") {
+          for (var i = 0; i < _listeners[eventName].length; i++) {
+            if (_listeners[eventName][i] === handler) {
+              _listeners[eventName].splice(i, 1);
+              break;
+            }
+          }
+        } else {
+          delete _listeners[eventName];
+        }
+      }
+    };
+    
+    self.removeEventListener = self.on;
     return self;
   };
   var App = function() {
@@ -105,7 +125,7 @@
     var self = this;
     cordova.exec(function() {
       setTimeout(function() {
-        self.trigger('map_ready', self);
+        self.trigger(plugin.google.maps.event.MAP_READY, self);
       }, 100);
     }, self.errorHandler, PLUGIN_NAME, 'getMap', [params]);
     return self;
@@ -198,7 +218,9 @@
   App.prototype.moveCamera = function(cameraPosition, callback) {
     var argsLength = arguments.length;
     cordova.exec(function() {
-      callback();
+      if (typeof callback === "function") {
+        callback();
+      }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
   };
   
@@ -250,9 +272,9 @@
     markerOptions.position.lng = markerOptions.position.lng || 0.0;
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable || false;
-    markerOptions.icon = markerOptions.icon || "";
-    markerOptions.snippet = markerOptions.snippet || "";
-    markerOptions.title = markerOptions.title || "";
+    markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.snippet = markerOptions.snippet || undefined;
+    markerOptions.title = markerOptions.title || undefined;
     markerOptions.visible = markerOptions.visible || true;
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
@@ -293,8 +315,8 @@
  
     cordova.exec(function(circleId) {
       var circle = new Circle(circleId, circleOptions);
-      if (callback) {
-        callback.call(window, circle, self);
+      if (typeof callback == "function") {
+        callback(circle, self);
       }
     },self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
   };
@@ -312,7 +334,7 @@
     
     cordova.exec(function(polylineId) {
       var polyline = new Polyline(polylineId, polylineOptions);
-      if (callback) {
+      if (typeof callback === "function") {
         callback.call(window, polyline, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', polylineOptions]);
@@ -332,7 +354,7 @@
     
     cordova.exec(function(polygonId) {
       var polygon = new Polygon(polygonId, polygonOptions);
-      if (callback) {
+      if (typeof callback === "function") {
         callback.call(window, polygon, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
@@ -356,7 +378,7 @@
     
     cordova.exec(function(tileOverlayId) {
       var tileOverlay = new TileOverlay(tileOverlayId, tilelayerOptions);
-      if (callback) {
+      if (typeof callback === "function") {
         callback.call(window, tileOverlay, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.createTileOverlay', tilelayerOptions]);
@@ -375,7 +397,7 @@
     var pluginExec = function() {
       cordova.exec(function(groundOverlayId) {
         var groundOverlay = new GroundOverlay(groundOverlayId, groundOverlayOptions);
-        if (callback) {
+        if (typeof callback === "function") {
           callback.call(window, groundOverlay, self);
         }
       }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
@@ -398,7 +420,9 @@
     }
     var pluginExec = function() {
       cordova.exec(function(results) {
-        callback(results);
+        if (typeof callback === "function") {
+          callback.call(window, results);
+        }
       }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
     };
     
@@ -523,7 +547,9 @@
   
   Marker.prototype.getPosition = function(callback) {
     cordova.exec(function(latlng) {
-      callback(new LatLng(latlng.lat, latlng.lng));
+      if (typeof callback === "function") {
+        callback.call(window, new LatLng(latlng.lat, latlng.lng));
+      }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.getPosition', this.getId()]);
   };
   Marker.prototype.getId = function() {
@@ -597,7 +623,9 @@
   Marker.prototype.isInfoWindowShown = function(callback) {
     cordova.exec(function(isVisible) {
       isVisible = parseparseBoolean(isVisible);
-      callback(isVisible);
+      if (typeof callback === "function") {
+        callback(isVisible);
+      }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.isInfoWindowShown', this.getId()]);
   };
   Marker.prototype.isVisible = function() {
