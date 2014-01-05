@@ -28,15 +28,13 @@ NSDictionary *initOptions;
   int direction = self.interfaceOrientation;
   if (direction == UIInterfaceOrientationLandscapeLeft ||
       direction == UIInterfaceOrientationLandscapeRight) {
-    pluginRect = CGRectMake(screenSize.size.height * 0.05, screenSize.size.width * 0.05, screenSize.size.height * 0.9, screenSize.size.width * 0.9);
-      
+    pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width);
   } else {
-    pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+    pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height);
   }
   
-  
   [self.view setFrame:pluginRect];
-  self.view.backgroundColor = [UIColor lightGrayColor];
+  self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
   
 }
 
@@ -53,7 +51,6 @@ NSDictionary *initOptions;
     // Create a map view
     //------------------
     NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-    NSLog(@"APIKey=%@", APIKey);
     [GMSServices provideAPIKey:APIKey];
   
     //Intial camera position
@@ -75,7 +72,7 @@ NSDictionary *initOptions;
                                   viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
   
     CGRect pluginRect = self.view.frame;
-    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height - 30);
+    CGRect mapRect = CGRectMake(10, 10, pluginRect.size.width - 20, pluginRect.size.height - 50);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

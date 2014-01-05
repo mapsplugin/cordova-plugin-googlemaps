@@ -19,6 +19,7 @@
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;
+- (void)closeDialog:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;

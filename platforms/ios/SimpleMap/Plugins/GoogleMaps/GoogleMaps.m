@@ -28,10 +28,9 @@
     int direction = self.viewController.interfaceOrientation;
     if (direction == UIInterfaceOrientationLandscapeLeft ||
         direction == UIInterfaceOrientationLandscapeRight) {
-      pluginRect = CGRectMake(screenSize.size.height * 0.05, screenSize.size.width * 0.05, screenSize.size.height * 0.9, screenSize.size.width * 0.9);
-    
+      pluginRect = CGRectMake(10, 10, screenSize.size.height - 20, screenSize.size.width - 50);
     } else {
-      pluginRect = CGRectMake(screenSize.size.width * 0.05, screenSize.size.height * 0.05, screenSize.size.width * 0.9, screenSize.size.height * 0.9);
+      pluginRect = CGRectMake(10, 10, screenSize.size.width - 20, screenSize.size.height - 50);
     }
 
 
@@ -39,7 +38,6 @@
     
     // Create a map view
     dispatch_sync(gueue, ^{
-      //self.mapCtrl = [[GoogleMapsViewController alloc] init];
       NSDictionary *options = [command.arguments objectAtIndex:0];
       self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
       self.mapCtrl.webView = self.webView;
@@ -53,11 +51,22 @@
       [self.plugins setObject:mapClass forKey:@"Map"];
     });
     
+    
+    
+    // Create the footer background
+    dispatch_sync(gueue, ^{
+      UIView *footer = [[UIView alloc]init];
+      footer.frame = CGRectMake(10, pluginRect.size.height + 10, pluginRect.size.width, 30);
+      footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+      footer.backgroundColor = [UIColor lightGrayColor];
+      [self.mapCtrl.view addSubview:footer];
+    });
+
     // Create the close button
     dispatch_sync(gueue, ^{
       
       UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-      closeButton.frame = CGRectMake(0, pluginRect.size.height - 30, 50, 30);
+      closeButton.frame = CGRectMake(10, pluginRect.size.height + 10, 50, 30);
       closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
       [closeButton setTitle:@"Close" forState:UIControlStateNormal];
       [closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
@@ -69,7 +78,7 @@
     dispatch_sync(gueue, ^{
       
       UIButton *licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-      licenseButton.frame = CGRectMake(pluginRect.size.width - 110, pluginRect.size.height - 30, 100, 30);
+      licenseButton.frame = CGRectMake(pluginRect.size.width - 90, pluginRect.size.height + 10, 100, 30);
       licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
       [licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
       [licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
@@ -174,6 +183,16 @@
  */
 - (void)showDialog:(CDVInvokedUrlCommand *)command {
   [self.webView addSubview:self.mapCtrl.view];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Show the map window
+ */
+- (void)closeDialog:(CDVInvokedUrlCommand *)command {
+  [self.mapCtrl.view removeFromSuperview];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

@@ -56,6 +56,7 @@
 		A039ADC318223D1300B32D98 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADC218223D1300B32D98 /* QuartzCore.framework */; };
 		A039ADC518223D1E00B32D98 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A039ADC418223D1E00B32D98 /* SystemConfiguration.framework */; };
 		A04B40D4185053030098D8FF /* GroundOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = A04B40D3185053030098D8FF /* GroundOverlay.m */; };
+		A0DC459218792FD5006D5B2A /* simple.js in Sources */ = {isa = PBXBuildFile; fileRef = A0DC459118792FD5006D5B2A /* simple.js */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 		F840E1F1165FE0F500CFE078 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = F840E1F0165FE0F500CFE078 /* config.xml */; };
 /* End PBXBuildFile section */
@@ -144,6 +145,7 @@
 		A039ADC418223D1E00B32D98 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		A04B40D2185053030098D8FF /* GroundOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroundOverlay.h; sourceTree = "<group>"; };
 		A04B40D3185053030098D8FF /* GroundOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroundOverlay.m; sourceTree = "<group>"; };
+		A0DC459118792FD5006D5B2A /* simple.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simple.js; path = ../android/assets/www/simple.js; sourceTree = "<group>"; };
 		C31A2F8D16A0401F98F2C9F0 /* CDVLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDVLogger.h; path = org.apache.cordova.console/CDVLogger.h; sourceTree = "<group>"; };
 		D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x~iphone.png"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = SimpleMap/config.xml; sourceTree = "<group>"; };
@@ -217,6 +219,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				A0DC459118792FD5006D5B2A /* simple.js */,
 				697E88321829DA6B00E7E16A /* www */,
 				F840E1F0165FE0F500CFE078 /* config.xml */,
 				301BF52D109A57CC0062928A /* CordovaLib.xcodeproj */,
@@ -508,6 +511,7 @@
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				815C8254AA554CE380A5FA22 /* CDVLogger.m in Sources */,
 				697744AE1835A8FC00473ED6 /* Polyline.m in Sources */,
+				A0DC459218792FD5006D5B2A /* simple.js in Sources */,
 				A04B40D4185053030098D8FF /* GroundOverlay.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

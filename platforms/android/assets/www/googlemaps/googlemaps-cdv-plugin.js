@@ -139,6 +139,9 @@
   App.prototype.showDialog = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
+  App.prototype.closeDialog = function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'closeDialog', []);
+  };
   
   
   App.prototype.setCenter = function(latLng) {

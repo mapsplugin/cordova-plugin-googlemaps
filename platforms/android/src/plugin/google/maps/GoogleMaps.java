@@ -13,8 +13,6 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -63,6 +61,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private enum METHODS {
     getMap,
     showDialog,
+    closeDialog,
     getMyLocation,
     exec
   }
@@ -100,6 +99,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             break;
           case showDialog:
             GoogleMaps.this.showDialog(args, callbackContext);
+            break;
+          case closeDialog:
+            GoogleMaps.this.closeDialog(args, callbackContext);
             break;
           case getMyLocation:
             GoogleMaps.this.getMyLocation(args, callbackContext);
@@ -331,6 +333,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeLink.setTextSize(20);
     closeLink.setGravity(Gravity.LEFT);
     closeLink.setPadding(10, 0, 0, 10);
+    closeLink.setY(10);
     closeLink.setOnClickListener(GoogleMaps.this);
     closeLink.setId(CLOSE_LINK_ID);
     buttonFrame.addView(closeLink);
@@ -341,6 +344,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setTextColor(Color.BLUE);
     licenseLink.setLayoutParams(buttonParams);
     licenseLink.setTextSize(20);
+    licenseLink.setY(10);
     licenseLink.setGravity(Gravity.RIGHT);
     licenseLink.setPadding(10, 10, 10, 10);
     licenseLink.setOnClickListener(GoogleMaps.this);
@@ -396,6 +400,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
+    this.closeWindow();
+    callbackContext.success();
+  }
+
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject result = null;
     if (this.locationClient.isConnected()) {
@@ -427,22 +436,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
   
   private void showLicenseText() {
-    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-    
-    alertDialogBuilder
-      .setMessage(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity))
-      .setCancelable(false)
-      .setPositiveButton("Close",new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog,int id) {
-          dialog.dismiss();
-        }
-      });
-
-    // create alert dialog
-    AlertDialog alertDialog = alertDialogBuilder.create();
-
-    // show it
-    alertDialog.show();
+    AsyncLicenseInfo showLicense = new AsyncLicenseInfo(activity);
+    showLicense.execute();
   }
 
   /********************************************************
