@@ -3,8 +3,8 @@ phonegap-googlemaps-plugin
 This plugin helps you to control [Google Maps Android SDK v2][0] and [Google Maps SDK for iOS][1] from your JavaScript code.
 This plugin works with [Apache Cordova][2].
 
-==========================
 ## Manual Android Instration
+==========================
 
 1. Create a cordova [Create a basic Cordova Android application][3]
 
@@ -57,6 +57,13 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 
 6. From this plugin folder copy the www/googlemaps-cdv-plugin.js and example/Simple/ files into your application's assets/www folder. Overwrite the existing index.html file.
 
+## Manual iOS Instration
+==========================
+1. First of all, download the latest SDK from [the official page][iOS1].
+
+2. Create a cordova [Create a basic Cordova iOS application][3]
+
+
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
@@ -64,3 +71,6 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 [4]: http://developer.android.com/google/play-services/setup.html
 [5]: https://developers.google.com/maps/documentation/android/start#specify_app_settings_in_the_application_manifest
 [6]: https://developers.google.com/maps/documentation/android/start#get_an_android_certificate_and_the_google_maps_api_key
+
+[iOS1]: https://developers.google.com/maps/documentation/ios/start#getting_the_google_maps_sdk_for_ios
+
