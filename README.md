@@ -44,6 +44,7 @@ Please refer the more detailed exlpain in the [Google Maps Document][5].
 ```
 5. Add your Google Maps API key under the &lt;application&gt; tag.
 Please refer the more detailed exlpain in the [Google Maps Document][6].
+Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
 ``` xml
 <meta-data
   android:name="com.google.android.maps.v2.API_KEY"
@@ -54,7 +55,8 @@ Please refer the more detailed exlpain in the [Google Maps Document][6].
   android:value="@integer/google_play_services_version" />
 ```
 
-6. Add &lt;script
+6. From this plugin folder copy the www/googlemaps-cdv-plugin.js and example/Simple/ files into your application's assets/www folder. Overwrite the existing index.html file.
+
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
 [2]: http://cordova.apache.org/
