@@ -85,6 +85,8 @@ After the setup correctly, the project settings should be [this image][iOS3].
     <param name="ios-package" value="GoogleMaps" />
 </feature>
 ```
+7. Under the group Resources, find your **[PROJECTNAME]-Info.plist**, add a new entry.
+For the key, add **Google Maps API Key**, and its value is your **Google Maps API Key for iOS**.
 
 ## Coding examples
 
