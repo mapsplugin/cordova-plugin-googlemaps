@@ -73,7 +73,7 @@ $> cordova platform add ios
 ```
 
 3. Install the SDK to your project following the [official document][iOS2].
-After the setup correctly, the project settings should be [this image][iOS3].
+![image2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png)
 
 4. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
 
