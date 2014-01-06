@@ -91,6 +91,7 @@ For the key, add **Google Maps API Key**, and its value is your **Google Maps AP
 ![image3](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings2.png)
 
 ## Coding examples
+**Complete example code is available from [here][example_repo]**
 
 ###Initialize a map
 To initialize the map plugin, you need to call the **getMap()** method of the Map class.
@@ -438,3 +439,4 @@ map.geocode(request, function(results) {
 [iOS2]: https://developers.google.com/maps/documentation/ios/start#adding_the_google_maps_sdk_for_ios_to_your_project
 [iOS3]: https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png
 
+[example_repo] : https://github.com/wf9a5m75/phonegap-googlemaps-plugin_examples
