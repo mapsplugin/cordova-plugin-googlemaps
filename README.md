@@ -128,6 +128,32 @@ var map = plugin.google.maps.Map.getMap({
 });
 ```
 
+###Listen events
+You can listen several events, such as map clicked.
+Available events for Map class are the below:
+ * MAP_CLICK
+ * MAP_LONG_CLICK
+ * MY_LOCATION_CHANGE(Android)
+ * MY_LOCATION_BUTTON_CLICK
+ * CAMERA_CHANGE 
+ * MAP_READY
+ * MAP_LOADED(Android)
+ * MAP_WILL_MOVE(iOS)
+
+Available events for Marker class are the below:
+ * MARKER_CLICK
+ * INFO_CLICK
+ * MARKER_DRAG
+ * MARKER_DRAG_START
+ * MARKER_DRAG_END
+```js
+var evtName = plugin.google.maps.event.MAP_LONG_CLICK;
+map.on(evtName, function(latLng) {
+  alert("Map was long clicked.\n" +
+        latLng.toUrlValue());
+});
+```
+
 ###Show the map dialog
 This plugin show the map on a dialog window. To open it, call **showDialog()** method.</p>
 ```js
