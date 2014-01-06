@@ -439,4 +439,4 @@ map.geocode(request, function(results) {
 [iOS2]: https://developers.google.com/maps/documentation/ios/start#adding_the_google_maps_sdk_for_ios_to_your_project
 [iOS3]: https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png
 
-[example_repo] : https://github.com/wf9a5m75/phonegap-googlemaps-plugin_examples
+[example_repo]: https://github.com/wf9a5m75/phonegap-googlemaps-plugin_examples
