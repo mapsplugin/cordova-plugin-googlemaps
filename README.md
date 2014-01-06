@@ -146,6 +146,7 @@ Available events for Marker class are the below:
  * MARKER_DRAG
  * MARKER_DRAG_START
  * MARKER_DRAG_END
+ 
 ```js
 var evtName = plugin.google.maps.event.MAP_LONG_CLICK;
 map.on(evtName, function(latLng) {
