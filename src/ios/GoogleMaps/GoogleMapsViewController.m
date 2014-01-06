@@ -228,7 +228,7 @@ NSDictionary *initOptions;
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
   [self triggerMarkerEvent:@"click" marker:marker];
 
-	return YES;
+	return NO;
 }
 
 /**
