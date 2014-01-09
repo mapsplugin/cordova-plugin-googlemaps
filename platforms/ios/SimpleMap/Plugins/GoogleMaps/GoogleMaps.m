@@ -13,6 +13,7 @@
 - (void)pluginInitialize
 {
   self.plugins = [NSMutableDictionary dictionary];
+  self.licenseLayer = nil;
 }
 
 /**
@@ -167,12 +168,69 @@
  * Show the licenses
  */
 - (void)onLicenseBtn_clicked:(UIButton*)button{
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Open Source License Info"
-                                            message: [GMSServices openSourceLicenseInfo]
-                                            delegate: self
-                                            cancelButtonTitle: @"Close"
-                                            otherButtonTitles: nil];
-  [alert show];
+
+  if (self.licenseLayer == nil) {
+    //Create the dialog
+    CGRect dialogRect = self.mapCtrl.view.frame;
+    dialogRect.origin.x = dialogRect.size.width / 10;
+    dialogRect.origin.y = dialogRect.origin.x;
+    dialogRect.size.width -= dialogRect.origin.x * 2;
+    dialogRect.size.height -= dialogRect.origin.y * 2;
+    
+    self.licenseLayer = [[UIView alloc] initWithFrame:self.mapCtrl.view.frame];
+    self.licenseLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.licenseLayer setBackgroundColor:[UIColor colorWithHue:0 saturation:0 brightness:0 alpha:0.25f]];
+    
+    UIView *licenseDialog = [[UIView alloc] initWithFrame:dialogRect];
+    [licenseDialog setBackgroundColor:[UIColor whiteColor]];
+    [licenseDialog.layer setBorderColor:[UIColor blackColor].CGColor];
+    [licenseDialog.layer setBorderWidth:1.0];
+    [licenseDialog.layer setCornerRadius:10];
+    licenseDialog.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleHeight;
+    [self.licenseLayer addSubview:licenseDialog];
+
+    CGRect scrollViewRect = CGRectMake(5, 5, dialogRect.size.width - 10, dialogRect.size.height - 30);
+    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame: scrollViewRect];
+    [scrollView.layer setBorderColor:[UIColor blackColor].CGColor];
+    scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [licenseDialog addSubview:scrollView];
+    
+    
+    UIWebView *webView = [[UIWebView alloc] initWithFrame:[scrollView bounds]];
+    [webView setBackgroundColor:[UIColor whiteColor]];
+    webView.scalesPageToFit = NO;
+    webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    int fontSize = 13;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+      fontSize = 18;
+    }
+    NSMutableString *licenceTxt = [NSMutableString
+                                      stringWithFormat:@"<html><body style='font-size:%dpx;white-space:pre-line'>%@</body></html>",
+                                      fontSize,
+                                      [GMSServices openSourceLicenseInfo]];
+    
+    [webView loadHTMLString:licenceTxt baseURL:nil];
+    scrollView.contentSize = [webView bounds].size;
+    [scrollView addSubview:webView];
+    
+    //close button
+    UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    closeButton.frame = CGRectMake(0, dialogRect.size.height - 30, dialogRect.size.width, 30);
+    closeButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewContentModeTopLeft;
+    [closeButton setTitle:@"Close" forState:UIControlStateNormal];
+    [closeButton addTarget:self action:@selector(onLicenseCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
+    [licenseDialog addSubview:closeButton];
+  }
+  
+  [self.mapCtrl.view addSubview:self.licenseLayer];
+}
+
+/**
+ * Close the map window
+ */
+- (void)onLicenseCloseBtn_clicked:(UIButton*)button{
+  [self.licenseLayer removeFromSuperview];
 }
 
 /**
