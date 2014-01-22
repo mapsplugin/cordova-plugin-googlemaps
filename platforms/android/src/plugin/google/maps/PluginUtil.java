@@ -106,12 +106,10 @@ public class PluginUtil {
           mBundle.putInt(key, (Integer)value);
         } else if (Long.class.isInstance(value)) {
           mBundle.putLong(key, (Long)value);
-        } else if (String.class.isInstance(value)) {
-          mBundle.putString(key, json.getString(key));
         } else if (JSONObject.class.isInstance(value)) {
           mBundle.putBundle(key, Json2Bundle((JSONObject)value));
         } else {
-          mBundle.putBundle(key, Json2Bundle((JSONObject)value));
+          mBundle.putString(key, json.getString(key));
         }
       } catch (JSONException e) {
         e.printStackTrace();

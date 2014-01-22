@@ -307,19 +307,15 @@ public class PluginMarker extends MyPlugin {
       
       if (iconProperty.containsKey("size") == true) {
         Object size = iconProperty.get("size");
-        Log.d("Marker", "size------>" + size.getClass().getName());
-        JSONParser
-        if (JSONArray.class.isInstance(size)) {
-          /*
-          JSONArray sizeArray = (JSONArray)size;
-          if (sizeArray.length() > 1) {
-            try {
-              int width = sizeArray.getInt(0);
-              int height = sizeArray.getInt(1);
-              image = PluginUtil.resizeBitmap(image, width, height);
-            } catch (JSONException e) {}
+        
+        if (Bundle.class.isInstance(size)) {
+          
+          Bundle sizeInfo = (Bundle)size;
+          int width = sizeInfo.getInt("width", 0);
+          int height = sizeInfo.getInt("height", 0);
+          if (width > 0 && height > 0) {
+            image = PluginUtil.resizeBitmap(image, width, height);
           }
-          */
         }
       }
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);

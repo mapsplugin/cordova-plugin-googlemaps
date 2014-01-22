@@ -184,7 +184,10 @@ function addMarker3() {
     'title': 'Google Tokyo!',
     'icon': {
       'url': 'www/images/google_tokyo_icon.png',
-      'size': [37, 63] // [width, height]
+      'size': {
+        'width': 37,
+        'height': 63
+      }
      }
   }, function(marker) {
     map.animateCamera({

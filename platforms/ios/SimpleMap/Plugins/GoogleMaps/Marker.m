@@ -272,17 +272,14 @@
     if (iconJSON) {
       iconPath = [iconJSON valueForKey:@"url"];
       
-      if ([iconJSON valueForKeyIsArray:@"size"]) {
-        NSArray *size = [iconJSON valueForKey:@"size"];
-        if ([size count] > 1) {
-          width = [[size objectAtIndex:0 withDefault:0] floatValue];
-          height = [[size objectAtIndex:1 withDefault:0] floatValue];
-        }
+      if ([iconJSON valueForKey:@"size"]) {
+        NSDictionary *size = [iconJSON valueForKey:@"size"];
+        width = [[size objectForKey:@"width"] floatValue];
+        height = [[size objectForKey:@"height"] floatValue];
       }
     }
   }
 
-  NSLog(@"width=%f,height=%f", width, height);
   if (iconPath) {
     NSRange range = [iconPath rangeOfString:@"http"];
     if (range.location == NSNotFound) {
