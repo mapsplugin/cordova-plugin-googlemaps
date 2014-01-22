@@ -43,7 +43,21 @@
 
     return newImage;
 }
+
+-(UIImage *)resize:(CGFloat)width height:(CGFloat)height {
+  if (width > 0 && height > 0) {
+    UIGraphicsBeginImageContext(CGSizeMake(width, height));
+    [self drawInRect:CGRectMake(0, 0, width, height)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+  }
+  return self;
+}
+
+
 @end
+
 
 @implementation PluginUtil
 @end
