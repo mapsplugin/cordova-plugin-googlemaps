@@ -308,6 +308,7 @@ public class PluginMarker extends MyPlugin {
       if (iconProperty.containsKey("size") == true) {
         Object size = iconProperty.get("size");
         Log.d("Marker", "size------>" + size.getClass().getName());
+        JSONParser
         if (JSONArray.class.isInstance(size)) {
           /*
           JSONArray sizeArray = (JSONArray)size;
