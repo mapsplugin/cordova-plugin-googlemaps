@@ -8,6 +8,7 @@ import java.net.URL;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -18,7 +19,13 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private Object targerClass;
   private final String TAG = "AsyncLoadImage";
   private String targetMethod = "";
+  private Bundle mOptions = null;
 
+  public AsyncLoadImage(Object target, String method, Bundle options) {
+    targerClass = target;
+    targetMethod = method;
+  }
+  
   public AsyncLoadImage(Object target, String method) {
     targerClass = target;
     targetMethod = method;

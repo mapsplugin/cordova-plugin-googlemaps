@@ -1,18 +1,19 @@
 package plugin.google.maps;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.location.Location;
+import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -86,5 +87,59 @@ public class PluginUtil {
       builder.include(path.get(i));
     }
     return builder.build();
+  }
+  
+  public static Bundle Json2Bundle(JSONObject json) {
+    Bundle mBundle = new Bundle();
+    @SuppressWarnings("unchecked")
+    Iterator<String> iter = json.keys();
+    Object value;
+    while (iter.hasNext()) {
+      String key = iter.next();
+      try {
+        value = json.get(key);
+        if (Boolean.class.isInstance(value)) {
+          mBundle.putBoolean(key, (Boolean)value);
+        } else if (Double.class.isInstance(value)) {
+          mBundle.putDouble(key, (Double)value);
+        } else if (Integer.class.isInstance(value)) {
+          mBundle.putInt(key, (Integer)value);
+        } else if (Long.class.isInstance(value)) {
+          mBundle.putLong(key, (Long)value);
+        } else if (String.class.isInstance(value)) {
+          mBundle.putString(key, json.getString(key));
+        } else if (JSONObject.class.isInstance(value)) {
+          mBundle.putBundle(key, Json2Bundle((JSONObject)value));
+        } else {
+          mBundle.putBundle(key, Json2Bundle((JSONObject)value));
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return mBundle;
+  }
+  
+  // resize a bitmap
+  // https://gist.github.com/STAR-ZERO/3413415
+  public static Bitmap resizeBitmap(Bitmap bitmap, int width, int height) {
+    if (bitmap == null) {
+      return null;
+    }
+ 
+    int oldWidth = bitmap.getWidth();
+    int oldHeight = bitmap.getHeight();
+ 
+    float scaleWidth = ((float) width) / oldWidth;
+    float scaleHeight = ((float) height) / oldHeight;
+    float scaleFactor = Math.min(scaleWidth, scaleHeight);
+ 
+    Matrix scale = new Matrix();
+    scale.postScale(scaleFactor, scaleFactor);
+ 
+    Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, oldWidth, oldHeight, scale, false);
+    bitmap.recycle();
+    
+    return resizeBitmap;
   }
 }

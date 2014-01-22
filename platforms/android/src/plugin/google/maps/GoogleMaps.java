@@ -15,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -333,7 +334,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeLink.setTextSize(20);
     closeLink.setGravity(Gravity.LEFT);
     closeLink.setPadding(10, 0, 0, 10);
-    closeLink.setY(10);
     closeLink.setOnClickListener(GoogleMaps.this);
     closeLink.setId(CLOSE_LINK_ID);
     buttonFrame.addView(closeLink);
@@ -344,12 +344,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setTextColor(Color.BLUE);
     licenseLink.setLayoutParams(buttonParams);
     licenseLink.setTextSize(20);
-    licenseLink.setY(10);
     licenseLink.setGravity(Gravity.RIGHT);
     licenseLink.setPadding(10, 10, 10, 10);
     licenseLink.setOnClickListener(GoogleMaps.this);
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
+    
+    Build.VERSION version = new Build.VERSION();
+    if (version.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+      closeLink.setY(10);
+      licenseLink.setY(10);
+    }
     
     //-----------------------
     // TODO: info window adapter
