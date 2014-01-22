@@ -194,8 +194,21 @@ The plugin passes the marker instance as a parameter.</p>
 <p>If you want to make a marker with icon, just pass the icon path or URL to the <span class='highlight'>addMarker()</span> method.</p>
 <code>map.addMarker({
   'position': GOOGLE_TOKYO,
-  'title': 'Google Tokyo!'
+  'title': 'Google Tokyo!',
   'icon': 'www/images/google_tokyo_icon.png'
+});
+</code>
+<p>Or you can scale the icon image with options.</p>
+<code>map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'icon': {
+    'url': 'www/images/google_tokyo_icon.png',
+    'size': {
+      'width': 37,
+      'height': 63
+    }
+  }
 });
 </code>
 <button onclick="addMarker3()">Play it</button>
