@@ -180,6 +180,8 @@ map.getMyLocation(function(location) {
 <code>map.addMarker({
   'position': GOOGLE,
   'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+}, function(marker) {
+  marker.showInfoWindow();
 });
 </code>
 <button onclick="addMarker1()">Play it</button>
