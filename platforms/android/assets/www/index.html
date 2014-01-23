@@ -156,14 +156,21 @@ This callback is involved when the movement is finished.</p>
 
 <h2>Get my location</h2>
 <p>If you want to know where you are, just call <span class='highlight'>getMyLocation()</span> method.</p>
-<code>map.getMyLocation(function(location) {
-  var buff = ["Current your location:\n",
-      "latitude:" + location.latLng.lat,
-      "longitude:" + location.latLng.lng,
-      "speed:" + location.speed,
-      "time:" + location.time,
-      "bearing:" + location.bearing].join("\n");
-  alert(buff);
+<code>
+map.getMyLocation(function(location) {
+  var msg = ["Current your location:\n",
+    "latitude:" + location.latLng.lat,
+    "longitude:" + location.latLng.lng,
+    "speed:" + location.speed,
+    "time:" + location.time,
+    "bearing:" + location.bearing].join("\n");
+  
+  map.addMarker({
+    'position': location.latLng,
+    'title': msg
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
 });
 </code>
 <button onclick="getMyLocation()">Play it</button>
