@@ -601,12 +601,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @Override
   public void onDisconnected() {}
 
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
     TextView textView = new TextView(this.cordova.getActivity());
     textView.setText(marker.getTitle());
     textView.setSingleLine(false);
     textView.setTextColor(Color.BLACK);
+    Build.VERSION version = new Build.VERSION();
+    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+    }
     return textView;
   }
 

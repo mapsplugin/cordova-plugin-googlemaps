@@ -172,7 +172,9 @@ function addMarker1() {
   });
   map.addMarker({
     'position': GOOGLE,
-    'title': "Hello GoogleMap for Cordova!"
+    'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+  }, function(marker) {
+    marker.showInfoWindow();
   });
 }
 
