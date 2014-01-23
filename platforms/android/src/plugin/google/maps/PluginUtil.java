@@ -133,17 +133,7 @@ public class PluginUtil {
       return null;
     }
  
-    int oldWidth = bitmap.getWidth();
-    int oldHeight = bitmap.getHeight();
- 
-    float scaleWidth = ((float) width) / oldWidth;
-    float scaleHeight = ((float) height) / oldHeight;
-    float scaleFactor = Math.min(scaleWidth, scaleHeight);
- 
-    Matrix scale = new Matrix();
-    scale.postScale(scaleFactor, scaleFactor);
- 
-    Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, oldWidth, oldHeight, scale, false);
+    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
     bitmap.recycle();
     
     return resizeBitmap;

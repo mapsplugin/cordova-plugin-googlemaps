@@ -99,6 +99,8 @@ NSDictionary *initOptions;
         self.map.settings.indoorPicker = isEnabled;
         self.map.indoorEnabled = isEnabled;
       }
+    } else {
+      self.map.settings.compassButton = TRUE;
     }
 
   
