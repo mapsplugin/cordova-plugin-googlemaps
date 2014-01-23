@@ -143,17 +143,14 @@
     }
   }];
 }
-- (void)dealloc
-{
-  NSLog(@"dealloc");
-}
 
 /**
  * Get license information
  */
 -(void)getLicenseInfo:(CDVInvokedUrlCommand *)command
 {
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Hello"];
+  NSString *txt = [GMSServices openSourceLicenseInfo];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:txt];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

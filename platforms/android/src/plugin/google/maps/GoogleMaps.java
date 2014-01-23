@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Color;
 import android.location.Location;
@@ -142,6 +143,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
 
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   private void getMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (map != null) {
       callbackContext.success();
@@ -356,10 +358,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       licenseLink.setY(10);
     }
     
-    //-----------------------
-    // TODO: info window adapter
-    //------------------------
-    //map.setInfoWindowAdapter(this);
+    //Custom info window
+    map.setInfoWindowAdapter(this);
     
     callbackContext.success();
     return;
@@ -603,13 +603,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public View getInfoContents(Marker marker) {
-    //TODO: Implement custom info window in the feture.
-    return null;
+    TextView textView = new TextView(this.cordova.getActivity());
+    textView.setText(marker.getTitle());
+    textView.setSingleLine(false);
+    textView.setTextColor(Color.BLACK);
+    return textView;
   }
 
   @Override
   public View getInfoWindow(Marker marker) {
-    //TODO: Implement custom info window in the feture.
     return null;
   }
 }

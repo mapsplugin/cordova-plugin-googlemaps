@@ -9,10 +9,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -21,7 +23,7 @@ import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginUtil {
 
-  @SuppressLint("NewApi")
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   public static JSONObject location2Json(Location location) throws JSONException {
     JSONObject latLng = new JSONObject();
     latLng.put("lat", location.getLatitude());
@@ -29,7 +31,13 @@ public class PluginUtil {
     
     JSONObject params = new JSONObject();
     params.put("latLng", latLng);
-    params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
+
+    Build.VERSION version = new Build.VERSION();
+    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
+    } else {
+      params.put("elapsedRealtimeNanos", 0);
+    }
     params.put("time", location.getTime());
     if (location.hasAccuracy()) {
       params.put("accuracy", location.getAccuracy());

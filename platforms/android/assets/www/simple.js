@@ -140,14 +140,27 @@ function getCameraPosition() {
 }
 
 function getMyLocation() {
+
   map.getMyLocation(function(location) {
-    var buff = ["Current your location:\n",
+    var msg = ["Current your location:\n",
       "latitude:" + location.latLng.lat,
       "longitude:" + location.latLng.lng,
       "speed:" + location.speed,
       "time:" + location.time,
       "bearing:" + location.bearing].join("\n");
-    alert(buff);
+    
+    map.moveCamera({
+      'target': location.latLng
+    });
+    
+    map.addMarker({
+      'position': location.latLng,
+      'title': msg
+    }, function(marker) {
+      marker.showInfoWindow();
+      map.showDialog();
+    });
+    
   });
 }
 
