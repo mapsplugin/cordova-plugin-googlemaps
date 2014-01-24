@@ -42,8 +42,8 @@
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
   // Create icon
-  NSString *iconPath = [json valueForKey:@"icon"];
-  [self setIcon_:marker iconPath:iconPath];
+  NSObject *iconProperty = [json valueForKey:@"icon"];
+  [self setIcon_:marker iconProperty:iconProperty];
   
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
@@ -254,24 +254,48 @@
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
   // Create icon
-  NSString *iconPath = [command.arguments objectAtIndex:2];
-  [self setIcon_:marker iconPath:iconPath];
+  NSObject *iconProperty = [command.arguments objectAtIndex:2];
+  [self setIcon_:marker iconProperty:iconProperty];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
--(void)setIcon_:(GMSMarker *)marker iconPath:(NSString *)iconPath {
+-(void)setIcon_:(GMSMarker *)marker iconProperty:(NSObject *)iconProperty {
+  NSString *iconPath = nil;
+  CGFloat width = 0;
+  CGFloat height = 0;
+  if ([iconProperty isKindOfClass:[NSString class]]) {
+    iconPath = (NSString *)iconProperty;
+  } else {
+    NSDictionary *iconJSON = (NSDictionary *)iconProperty;
+    if (iconJSON) {
+      iconPath = [iconJSON valueForKey:@"url"];
+      
+      if ([iconJSON valueForKey:@"size"]) {
+        NSDictionary *size = [iconJSON valueForKey:@"size"];
+        width = [[size objectForKey:@"width"] floatValue];
+        height = [[size objectForKey:@"height"] floatValue];
+      }
+    }
+  }
+
   if (iconPath) {
     NSRange range = [iconPath rangeOfString:@"http"];
     if (range.location == NSNotFound) {
-      marker.icon  = [UIImage imageNamed:iconPath];
+    
+      UIImage* image = [UIImage imageNamed:iconPath];
+      image = [image resize:width height:height];
+      marker.icon = image;
     } else {
       dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
       dispatch_sync(gueue, ^{
         NSURL *url = [NSURL URLWithString:iconPath];
         NSData *data = [NSData dataWithContentsOfURL:url];
-        marker.icon = [UIImage imageWithData:data];
+        UIImage* image = [UIImage imageWithData:data];
+        image = [image resize:width height:height];
+        
+        marker.icon = image;
       });
       dispatch_release(gueue);
       

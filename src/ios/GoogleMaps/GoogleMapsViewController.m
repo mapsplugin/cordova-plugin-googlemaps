@@ -99,6 +99,8 @@ NSDictionary *initOptions;
         self.map.settings.indoorPicker = isEnabled;
         self.map.indoorEnabled = isEnabled;
       }
+    } else {
+      self.map.settings.compassButton = TRUE;
     }
 
   
@@ -272,15 +274,101 @@ NSDictionary *initOptions;
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
-/*
+
 //future support: custom info window
 -(UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker*)marker
 {
-    UIView *view = [[UIView alloc]init];
-    //customize the UIView, for example, in your case, add a UILabel as the subview of the view
-    return view;
+  
+  NSString *title = marker.title;
+  if ([title rangeOfString:@"\n"].location == NSNotFound) {
+    return NULL;
+  }
+  // Load images
+  UIImage *leftImg = [self loadImageFromGoogleMap:@"bubble_left"];
+  UIImage *rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
+  
+  // Calculate the size
+  UIFont *font = [UIFont systemFontOfSize:17.0f];
+  CGSize textSize = [title sizeWithFont:font constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
+  CGSize rectSize = CGSizeMake(textSize.width, textSize.height);
+  rectSize.width += leftImg.size.width;
+  rectSize.height += 16;
+  
+  // Draw the upper side
+  CGRect trimArea = CGRectMake(15, 0, 5, 45);
+  if (leftImg.scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
+                      trimArea.origin.y * leftImg.scale,
+                      trimArea.size.width * leftImg.scale,
+                      trimArea.size.height * leftImg.scale);
+  }
+  CGImageRef trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
+  UIImage *trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
+  
+  // Draw
+  int x = 0;
+  int width = x;
+  UIGraphicsBeginImageContext(rectSize);
+  
+  while (rectSize.width - x > 5) {
+    [trimmedImage drawAtPoint:CGPointMake(x, 0)];
+    x += 5;
+  }
+  width = x;
+  [leftImg drawAtPoint:CGPointMake(rectSize.width * 0.5f - leftImg.size.width, rectSize.height - leftImg.size.height)];
+  [rightImg drawAtPoint:CGPointMake(rectSize.width * 0.5f, rectSize.height - rightImg.size.height)];
+  
+  // Draw the bottom side
+  trimArea = CGRectMake(15, 35, 5, 10);
+  if (leftImg.scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
+                      trimArea.origin.y * leftImg.scale,
+                      trimArea.size.width * leftImg.scale,
+                      trimArea.size.height * leftImg.scale);
+  }
+  trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
+  trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
+  
+  x = 0;
+  while (rectSize.width - x > 5) {
+    if (x < rectSize.width * 0.5f - leftImg.size.width + 5 || x > rectSize.width * 0.5f + rightImg.size.width - 10) {
+      [trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 10)];
+    }
+    x += 5;
+  }
+  
+  
+  
+  
+  
+  CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
+  CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 20));
+  
+  
+  //Draw the text
+  [[UIColor blackColor] set];
+  
+  [title drawInRect:CGRectMake(0, 2, rectSize.width - 10, textSize.height )
+            withFont:font 
+            lineBreakMode:NSLineBreakByWordWrapping
+            alignment:NSTextAlignmentCenter];
+  
+  // Generate new image
+  UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  
+  UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+  
+  return imageView;
 }
-*/
+
+-(UIImage *)loadImageFromGoogleMap:(NSString *)fileName {
+  NSString *imagePath = [[NSBundle bundleWithIdentifier:@"com.google.GoogleMaps"] pathForResource:fileName ofType:@"png"];
+  return [[UIImage alloc] initWithContentsOfFile:imagePath];
+}
+
+
 
 
 

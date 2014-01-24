@@ -1,18 +1,21 @@
 package plugin.google.maps;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.location.Location;
+import android.os.Build;
+import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -20,7 +23,7 @@ import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginUtil {
 
-  @SuppressLint("NewApi")
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   public static JSONObject location2Json(Location location) throws JSONException {
     JSONObject latLng = new JSONObject();
     latLng.put("lat", location.getLatitude());
@@ -28,7 +31,13 @@ public class PluginUtil {
     
     JSONObject params = new JSONObject();
     params.put("latLng", latLng);
-    params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
+
+    Build.VERSION version = new Build.VERSION();
+    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
+    } else {
+      params.put("elapsedRealtimeNanos", 0);
+    }
     params.put("time", location.getTime());
     if (location.hasAccuracy()) {
       params.put("accuracy", location.getAccuracy());
@@ -86,5 +95,47 @@ public class PluginUtil {
       builder.include(path.get(i));
     }
     return builder.build();
+  }
+  
+  public static Bundle Json2Bundle(JSONObject json) {
+    Bundle mBundle = new Bundle();
+    @SuppressWarnings("unchecked")
+    Iterator<String> iter = json.keys();
+    Object value;
+    while (iter.hasNext()) {
+      String key = iter.next();
+      try {
+        value = json.get(key);
+        if (Boolean.class.isInstance(value)) {
+          mBundle.putBoolean(key, (Boolean)value);
+        } else if (Double.class.isInstance(value)) {
+          mBundle.putDouble(key, (Double)value);
+        } else if (Integer.class.isInstance(value)) {
+          mBundle.putInt(key, (Integer)value);
+        } else if (Long.class.isInstance(value)) {
+          mBundle.putLong(key, (Long)value);
+        } else if (JSONObject.class.isInstance(value)) {
+          mBundle.putBundle(key, Json2Bundle((JSONObject)value));
+        } else {
+          mBundle.putString(key, json.getString(key));
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return mBundle;
+  }
+  
+  // resize a bitmap
+  // https://gist.github.com/STAR-ZERO/3413415
+  public static Bitmap resizeBitmap(Bitmap bitmap, int width, int height) {
+    if (bitmap == null) {
+      return null;
+    }
+ 
+    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+    bitmap.recycle();
+    
+    return resizeBitmap;
   }
 }

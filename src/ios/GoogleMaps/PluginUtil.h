@@ -16,6 +16,7 @@
 
 @interface UIImage (GoogleMapsPlugin)
 - (UIImage*)imageByApplyingAlpha:(CGFloat) alpha;
+- (UIImage *)resize:(CGFloat)width height:(CGFloat)height;
 @end
 
 

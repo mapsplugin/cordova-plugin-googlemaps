@@ -8,6 +8,7 @@ import java.net.URL;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -18,7 +19,14 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private Object targerClass;
   private final String TAG = "AsyncLoadImage";
   private String targetMethod = "";
+  private Bundle iconProperty = null;
 
+  public AsyncLoadImage(Object target, String method, Bundle options) {
+    targerClass = target;
+    targetMethod = method;
+    this.iconProperty = options;
+  }
+  
   public AsyncLoadImage(Object target, String method) {
     targerClass = target;
     targetMethod = method;
@@ -42,7 +50,22 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
 
   protected void onPostExecute(Bitmap image) {
     if (image != null) {
-      Log.d(TAG, "image is not null");
+      if (iconProperty != null &&
+          iconProperty.containsKey("size") == true) {
+          Object size = iconProperty.get("size");
+          
+        if (Bundle.class.isInstance(size)) {
+          
+          Bundle sizeInfo = (Bundle)size;
+          int width = sizeInfo.getInt("width", 0);
+          int height = sizeInfo.getInt("height", 0);
+          if (width > 0 && height > 0) {
+            image = PluginUtil.resizeBitmap(image, width, height);
+          }
+        }
+      }
+      
+      
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       
       @SuppressWarnings("unchecked")

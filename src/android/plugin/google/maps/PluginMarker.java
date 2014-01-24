@@ -1,12 +1,20 @@
 package plugin.google.maps;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -24,7 +32,6 @@ public class PluginMarker extends MyPlugin {
   private void createMarker(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
-    String iconUrl = null;
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
@@ -48,9 +55,6 @@ public class PluginMarker extends MyPlugin {
     if (opts.has("opacity")) {
       markerOptions.alpha((float) opts.getDouble("opacity"));
     }
-    if (opts.has("icon")) {
-      iconUrl = opts.getString("icon");
-    }
     Marker marker = map.addMarker(markerOptions);
     
     // Store the marker
@@ -59,13 +63,16 @@ public class PluginMarker extends MyPlugin {
     
     
     // Load icon
-    if (iconUrl != null && iconUrl.length() > 0) {
-      if (iconUrl.indexOf("http") == 0) {
-          AsyncLoadImage task = new AsyncLoadImage(marker, "setIcon");
-          task.execute(iconUrl);
+    if (opts.has("icon")) {
+      Bundle bundle = null;
+      Object value = opts.get("icon");
+      if (JSONObject.class.isInstance(value)) {
+        bundle = PluginUtil.Json2Bundle((JSONObject)value);
       } else {
-          marker.setIcon(BitmapDescriptorFactory.fromAsset(iconUrl));
+        bundle = new Bundle();
+        bundle.putString("url", (String)value);
       }
+      this.setIcon_(marker, bundle);
     }
     
     //Return the result
@@ -266,15 +273,64 @@ public class PluginMarker extends MyPlugin {
   private void setIcon(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
-    String iconUrl = args.getString(2);
-    
-    if (iconUrl.indexOf("http") == 0) {
-        AsyncLoadImage task = new AsyncLoadImage(marker, "setIcon");
-        task.execute(iconUrl);
+    Bundle bundle = null;
+    Object value = args.get(2);
+    if (JSONObject.class.isInstance(value)) {
+      bundle = PluginUtil.Json2Bundle((JSONObject)value);
     } else {
-        marker.setIcon(BitmapDescriptorFactory.fromAsset(iconUrl));
+      bundle = new Bundle();
+      bundle.putString("url", (String)value);
     }
     callbackContext.success();
   }
   
+  private void setIcon_(Marker marker, Bundle iconProperty) {
+    String iconUrl = iconProperty.getString("url");
+    if (iconUrl == null) {
+      return;
+    }
+    
+    if (iconUrl.indexOf("http") == -1) {
+      AssetManager assetManager = this.cordova.getActivity().getAssets();
+
+      InputStream inputStream;
+      Bitmap image = null;
+      try {
+        inputStream = assetManager.open(iconUrl);
+        image = BitmapFactory.decodeStream(inputStream);
+      } catch (IOException e) {
+        return;
+      }
+      if (image == null) {
+        return;
+      }
+      
+      if (iconProperty.containsKey("size") == true) {
+        Object size = iconProperty.get("size");
+        
+        if (Bundle.class.isInstance(size)) {
+          
+          Bundle sizeInfo = (Bundle)size;
+          int width = sizeInfo.getInt("width", 0);
+          int height = sizeInfo.getInt("height", 0);
+          if (width > 0 && height > 0) {
+            image = PluginUtil.resizeBitmap(image, width, height);
+          }
+        }
+      }
+      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+      marker.setIcon(bitmapDescriptor);
+      return;
+    }
+    
+    if (iconUrl.indexOf("http") == 0) {
+      AsyncLoadImage task;
+      if (iconProperty.containsKey("size") == false) {
+        task = new AsyncLoadImage(marker, "setIcon");
+      } else {
+        task = new AsyncLoadImage(marker, "setIcon", iconProperty);
+      }
+      task.execute(iconUrl);
+    }
+  }
 }

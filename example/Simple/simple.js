@@ -126,14 +126,27 @@ function getCameraPosition() {
 }
 
 function getMyLocation() {
+
   map.getMyLocation(function(location) {
-    var buff = ["Current your location:\n",
+    var msg = ["Current your location:\n",
       "latitude:" + location.latLng.lat,
       "longitude:" + location.latLng.lng,
       "speed:" + location.speed,
       "time:" + location.time,
       "bearing:" + location.bearing].join("\n");
-    alert(buff);
+    
+    map.moveCamera({
+      'target': location.latLng
+    });
+    
+    map.addMarker({
+      'position': location.latLng,
+      'title': msg
+    }, function(marker) {
+      marker.showInfoWindow();
+      map.showDialog();
+    });
+    
   });
 }
 
@@ -145,7 +158,9 @@ function addMarker1() {
   });
   map.addMarker({
     'position': GOOGLE,
-    'title': "Hello GoogleMap for Cordova!"
+    'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+  }, function(marker) {
+    marker.showInfoWindow();
   });
 }
 
@@ -168,7 +183,13 @@ function addMarker3() {
   map.addMarker({
     'position': GOOGLE_TOKYO,
     'title': 'Google Tokyo!',
-    'icon': 'www/images/google_tokyo_icon.png'
+    'icon': {
+      'url': 'www/images/google_tokyo_icon.png',
+      'size': {
+        'width': 37,
+        'height': 63
+      }
+     }
   }, function(marker) {
     map.animateCamera({
       'target': GOOGLE_TOKYO,

@@ -12,9 +12,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -141,6 +143,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
 
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   private void getMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (map != null) {
       callbackContext.success();
@@ -333,7 +336,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeLink.setTextSize(20);
     closeLink.setGravity(Gravity.LEFT);
     closeLink.setPadding(10, 0, 0, 10);
-    closeLink.setY(10);
     closeLink.setOnClickListener(GoogleMaps.this);
     closeLink.setId(CLOSE_LINK_ID);
     buttonFrame.addView(closeLink);
@@ -344,17 +346,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setTextColor(Color.BLUE);
     licenseLink.setLayoutParams(buttonParams);
     licenseLink.setTextSize(20);
-    licenseLink.setY(10);
     licenseLink.setGravity(Gravity.RIGHT);
     licenseLink.setPadding(10, 10, 10, 10);
     licenseLink.setOnClickListener(GoogleMaps.this);
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
     
-    //-----------------------
-    // TODO: info window adapter
-    //------------------------
-    //map.setInfoWindowAdapter(this);
+    Build.VERSION version = new Build.VERSION();
+    if (version.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+      closeLink.setY(10);
+      licenseLink.setY(10);
+    }
+    
+    //Custom info window
+    map.setInfoWindowAdapter(this);
     
     callbackContext.success();
     return;
@@ -596,15 +601,22 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @Override
   public void onDisconnected() {}
 
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
-    //TODO: Implement custom info window in the feture.
-    return null;
+    TextView textView = new TextView(this.cordova.getActivity());
+    textView.setText(marker.getTitle());
+    textView.setSingleLine(false);
+    textView.setTextColor(Color.BLACK);
+    Build.VERSION version = new Build.VERSION();
+    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+    }
+    return textView;
   }
 
   @Override
   public View getInfoWindow(Marker marker) {
-    //TODO: Implement custom info window in the feture.
     return null;
   }
 }
