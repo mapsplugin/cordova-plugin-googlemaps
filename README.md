@@ -280,6 +280,21 @@ map.addMarker({
   'icon': 'www/images/google_tokyo_icon.png'
 });
 ```
+
+Or you can scale the icon image with options.
+```js
+map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'icon': {
+    'url': 'www/images/google_tokyo_icon.png',
+    'size': {
+      'width': 37,
+      'height': 63
+    }
+  }
+});
+```
 ![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
 
 ###Remove the marker
