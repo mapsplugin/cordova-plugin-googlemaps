@@ -130,6 +130,7 @@ var map = plugin.google.maps.Map.getMap({
   }
 });
 ```
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/mylocation.png)
 
 ###Listen events
 You can listen several events, such as map clicked.
@@ -255,6 +256,16 @@ map.addMarker({
 });
 ```
 ![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
+
+
+The **title** property also accepts multiple lines.
+<code>map.addMarker({
+  'position': GOOGLE,
+  'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+}, function(marker) {
+  marker.showInfoWindow();
+});
+</code>
 
 
 ###Add a marker with icon
