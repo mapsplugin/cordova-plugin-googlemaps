@@ -259,13 +259,15 @@ map.addMarker({
 
 
 The **title** property also accepts multiple lines.
-<code>map.addMarker({
+```js
+map.addMarker({
   'position': GOOGLE,
   'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
 }, function(marker) {
   marker.showInfoWindow();
 });
-</code>
+```
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
 
 
 ###Add a marker with icon
