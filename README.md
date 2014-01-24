@@ -130,7 +130,6 @@ var map = plugin.google.maps.Map.getMap({
   }
 });
 ```
-![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/mylocation.png)
 
 ###Listen events
 You can listen several events, such as map clicked.
@@ -234,6 +233,7 @@ map.getMyLocation(function(location) {
   alert(buff);
 });
 ```
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/mylocation.png)
 
 ###Add a marker
 You can make a marker using **addMarker()** method.
