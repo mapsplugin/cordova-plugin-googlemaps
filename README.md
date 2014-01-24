@@ -224,13 +224,19 @@ map.getCameraPosition(function(camera) {
 If you want to know where you are, just call **getMyLocation()** method.
 ```js
 map.getMyLocation(function(location) {
-  var buff = ["Current your location:\n",
-      "latitude:" + location.latLng.lat,
-      "longitude:" + location.latLng.lng,
-      "speed:" + location.speed,
-      "time:" + location.time,
-      "bearing:" + location.bearing].join("\n");
-  alert(buff);
+  var msg = ["Current your location:\n",
+    "latitude:" + location.latLng.lat,
+    "longitude:" + location.latLng.lng,
+    "speed:" + location.speed,
+    "time:" + location.time,
+    "bearing:" + location.bearing].join("\n");
+  
+  map.addMarker({
+    'position': location.latLng,
+    'title': msg
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
 });
 ```
 ![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/mylocation.png)
