@@ -258,7 +258,8 @@ map.addMarker({
 ![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
 
 
-The **title** property also accepts multiple lines.
+The **title** property accepts multiple lines.
+This is not available normally if you use just Google Maps SDKs.
 ```js
 map.addMarker({
   'position': GOOGLE,
