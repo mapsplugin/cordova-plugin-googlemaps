@@ -106,23 +106,35 @@ function setMapTypeId() {
 }
 
 function animateCamera() {
-  map.showDialog();
-  map.animateCamera({
+  map.moveCamera({
     'target': GOOGLE,
-    'tilt': 60,
-    'zoom': 18,
-    'bearing': 140
+    'zoom': 0
+  }, function() {
+    map.showDialog();
+    map.animateCamera({
+      'target': GOOGLE,
+      'tilt': 60,
+      'zoom': 18,
+      'bearing': 140
+    });
   });
+  
 }
 
 function animateCamera_delay() {
-  map.showDialog();
-  map.animateCamera({
+  map.moveCamera({
     'target': GOOGLE,
-    'tilt': 60,
-    'zoom': 18,
-    'bearing': 140
-  }, 5000);
+    'zoom': 0
+  }, function() {
+  
+    map.showDialog();
+    map.animateCamera({
+      'target': GOOGLE,
+      'tilt': 60,
+      'zoom': 18,
+      'bearing': 140
+    }, 10000);
+  });
 }
 
 function moveCamera() {
