@@ -604,15 +604,41 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
-    TextView textView = new TextView(this.cordova.getActivity());
-    textView.setText(marker.getTitle());
-    textView.setSingleLine(false);
-    textView.setTextColor(Color.BLACK);
-    Build.VERSION version = new Build.VERSION();
-    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-      textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+    String title = marker.getTitle();
+    String snippet = marker.getSnippet();
+
+    // Linear layout
+    LinearLayout windowLayer = new LinearLayout(activity);
+    windowLayer.setPadding(3, 3, 3, 3);
+    windowLayer.setOrientation(LinearLayout.VERTICAL);
+    LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+    windowLayer.setLayoutParams(layoutParams);
+    
+    if (title != null) {
+      TextView textView = new TextView(this.cordova.getActivity());
+      textView.setText(title);
+      textView.setSingleLine(false);
+      textView.setTextColor(Color.BLACK);
+      Build.VERSION version = new Build.VERSION();
+      if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+      }
+      windowLayer.addView(textView);
     }
-    return textView;
+    if (snippet != null) {
+      TextView textView = new TextView(this.cordova.getActivity());
+      textView.setText(snippet);
+      textView.setSingleLine(false);
+      textView.setTextColor(Color.GRAY);
+      textView.setTextSize((float) (textView.getTextSize() * 0.75));
+      Build.VERSION version = new Build.VERSION();
+      if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+      }
+      windowLayer.addView(textView);
+    }
+    return windowLayer;
   }
 
   @Override
