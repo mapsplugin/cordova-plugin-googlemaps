@@ -281,7 +281,7 @@ NSDictionary *initOptions;
   
   NSString *title = marker.title;
   NSString *snippet = marker.snippet;
-  if ([title rangeOfString:@"\n"].location == NSNotFound) {
+  if ([title rangeOfString:@"\n"].location == NSNotFound || title == nil) {
     return NULL;
   }
   // Load images
@@ -296,13 +296,18 @@ NSDictionary *initOptions;
   rectSize.height += 16;
   
   CGSize snippetSize;
-  UIFont *snippetFont = [UIFont systemFontOfSize:15.0f];
+  UIFont *snippetFont = [UIFont systemFontOfSize:12.0f];
   if (snippet) {
+    snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
+    rectSize.height += snippetSize.height + 2;
+    if (rectSize.width < snippetSize.width) {
+      rectSize.width = snippetSize.width + leftImg.size.width;
+    }
   }
   
-  
   // Draw the upper side
+  UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0);
   CGRect trimArea = CGRectMake(15, 0, 5, 45);
   if (leftImg.scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
@@ -316,8 +321,6 @@ NSDictionary *initOptions;
   // Draw
   int x = 0;
   int width = x;
-  UIGraphicsBeginImageContext(rectSize);
-  
   while (rectSize.width - x > 5) {
     [trimmedImage drawAtPoint:CGPointMake(x, 0)];
     x += 5;
@@ -346,9 +349,6 @@ NSDictionary *initOptions;
   }
   
   
-  
-  
-  
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
   CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 20));
@@ -358,29 +358,30 @@ NSDictionary *initOptions;
   
   if (title) {
     [[UIColor blackColor] set];
-    [title drawInRect:CGRectMake(0, 2, rectSize.width - 10, textSize.height )
+    [title drawInRect:CGRectMake(2, 2, rectSize.width - 2, textSize.height )
             withFont:titleFont
             lineBreakMode:NSLineBreakByWordWrapping
             alignment:NSTextAlignmentCenter];
   }
-  /*
+  
   if (snippet) {
     [[UIColor grayColor] set];
-    [snippet drawInRect:CGRectMake(0, 2, rectSize.width - 10, textSize.height + snippet )
-            withFont:titleFont
+    [snippet drawInRect:CGRectMake(2, textSize.height + 2, rectSize.width - 2, snippetSize.height)
+            withFont:snippetFont
             lineBreakMode:NSLineBreakByWordWrapping
             alignment:NSTextAlignmentCenter];
   }
-  */
+  
 
   
   
   // Generate new image
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-  
-  UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-  
+
+  UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, rectSize.width, rectSize.height)];
+  [imageView setContentMode:UIViewContentModeScaleAspectFill];
+  [imageView setImage:image];
   return imageView;
 }
 
