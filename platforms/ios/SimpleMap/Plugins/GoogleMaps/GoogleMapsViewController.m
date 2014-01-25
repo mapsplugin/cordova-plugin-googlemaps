@@ -280,6 +280,7 @@ NSDictionary *initOptions;
 {
   
   NSString *title = marker.title;
+  NSString *snippet = marker.snippet;
   if ([title rangeOfString:@"\n"].location == NSNotFound) {
     return NULL;
   }
@@ -288,11 +289,18 @@ NSDictionary *initOptions;
   UIImage *rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
   
   // Calculate the size
-  UIFont *font = [UIFont systemFontOfSize:17.0f];
-  CGSize textSize = [title sizeWithFont:font constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
+  UIFont *titleFont = [UIFont systemFontOfSize:17.0f];
+  CGSize textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
   CGSize rectSize = CGSizeMake(textSize.width, textSize.height);
   rectSize.width += leftImg.size.width;
   rectSize.height += 16;
+  
+  CGSize snippetSize;
+  UIFont *snippetFont = [UIFont systemFontOfSize:15.0f];
+  if (snippet) {
+    snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
+  }
+  
   
   // Draw the upper side
   CGRect trimArea = CGRectMake(15, 0, 5, 45);
@@ -347,12 +355,25 @@ NSDictionary *initOptions;
   
   
   //Draw the text
-  [[UIColor blackColor] set];
   
-  [title drawInRect:CGRectMake(0, 2, rectSize.width - 10, textSize.height )
-            withFont:font 
+  if (title) {
+    [[UIColor blackColor] set];
+    [title drawInRect:CGRectMake(0, 2, rectSize.width - 10, textSize.height )
+            withFont:titleFont
             lineBreakMode:NSLineBreakByWordWrapping
             alignment:NSTextAlignmentCenter];
+  }
+  /*
+  if (snippet) {
+    [[UIColor grayColor] set];
+    [snippet drawInRect:CGRectMake(0, 2, rectSize.width - 10, textSize.height + snippet )
+            withFont:titleFont
+            lineBreakMode:NSLineBreakByWordWrapping
+            alignment:NSTextAlignmentCenter];
+  }
+  */
+
+  
   
   // Generate new image
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
