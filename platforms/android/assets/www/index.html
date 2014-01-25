@@ -192,13 +192,25 @@ map.getMyLocation(function(location) {
 <p>You can make a marker using <span class='highlight'>addMarker()</span> method.</p>
 <code>map.addMarker({
   'position': GOOGLE,
-  'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+  'title': "Hello GoogleMap for Cordova!",
+  'snippet': "This plugin is awesome!"
+});
+</code>
+<button onclick="addMarker1a()">Play it</button>
+
+<h2>Add a marker with multiple line</h2>
+<p>You are also able to pass multiple line to the <b>title</b> option.</p>
+<code>map.addMarker({
+  'position': GOOGLE_NY,
+  'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
+  'snippet': "This plugin is awesome!"
 }, function(marker) {
   marker.showInfoWindow();
 });
 </code>
-<button onclick="addMarker1()">Play it</button>
+<button onclick="addMarker1b()">Play it</button>
 
+<h2>Callback</h2>
 <p>The <span class='highlight'>addMarker()</span> method taken a function as callback on the second argument.
 The callback is involved when the marker is created.
 The plugin passes the marker instance as a parameter.</p>

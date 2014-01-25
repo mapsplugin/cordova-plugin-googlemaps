@@ -1,6 +1,7 @@
 const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 const GOOGLE_SYDNEY = new plugin.google.maps.LatLng(-33.867487,151.20699);
+const GOOGLE_NY = new plugin.google.maps.LatLng(40.740658,-74.002089);
 const STATUE_OF_LIBERTY = new plugin.google.maps.LatLng(40.689249,-74.0445);
 const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
 const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
@@ -185,8 +186,7 @@ function getMyLocation() {
     
   });
 }
-
-function addMarker1() {
+function addMarker1a() {
   map.showDialog();
   map.moveCamera({
     'target': GOOGLE,
@@ -194,7 +194,22 @@ function addMarker1() {
   });
   map.addMarker({
     'position': GOOGLE,
-    'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+    'title': "Hello GoogleMap for Cordova!"
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
+}
+
+function addMarker1b() {
+  map.showDialog();
+  map.moveCamera({
+    'target': GOOGLE_NY,
+    'zoom': 17
+  });
+  map.addMarker({
+    'position': GOOGLE_NY,
+    'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n"),
+    'snippet': "This plugin is\n awesome!"
   }, function(marker) {
     marker.showInfoWindow();
   });
