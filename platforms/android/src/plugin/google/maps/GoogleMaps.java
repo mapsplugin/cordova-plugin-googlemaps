@@ -620,21 +620,23 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       textView.setText(title);
       textView.setSingleLine(false);
       textView.setTextColor(Color.BLACK);
+      textView.setGravity(Gravity.CENTER_HORIZONTAL);
       Build.VERSION version = new Build.VERSION();
       if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-        textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
       }
       windowLayer.addView(textView);
     }
     if (snippet != null) {
+      snippet = snippet.replaceAll("\n", "");
       TextView textView = new TextView(this.cordova.getActivity());
       textView.setText(snippet);
-      textView.setSingleLine(false);
       textView.setTextColor(Color.GRAY);
-      textView.setTextSize((float) (textView.getTextSize() * 0.75));
+      textView.setTextSize((float) (textView.getTextSize() * 0.6));
+      textView.setGravity(Gravity.CENTER_HORIZONTAL);
       Build.VERSION version = new Build.VERSION();
       if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-        textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
       }
       windowLayer.addView(textView);
     }
