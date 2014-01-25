@@ -127,8 +127,8 @@ function animateCamera_delay() {
 
 function moveCamera() {
   map.moveCamera({
-    'target': GORYOKAKU_JAPAN,
-    'zoom': 16,
+    'target': STATUE_OF_LIBERTY,
+    'zoom': 17,
     'tilt': 30
   }, function() {
     var mapType = plugin.google.maps.MapTypeId.HYBRID;
