@@ -206,6 +206,18 @@ map.moveCamera({
 ```
 ![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
 
+###Move the camera within the specified duration time
+The **animateCamera()** acepts the duration time for animating as the second argument.
+If you want to animate slowly, you can specify the duration as millisecond.
+```js
+map.animateCamera({
+  'target': GOOGLE,
+  'tilt': 60,
+  'zoom': 18,
+  'bearing': 140
+}, 5000);
+```
+
 ###Get the camera position
 If you want to know the camera position, just call **getCameraPosition()** method.
 ```js
