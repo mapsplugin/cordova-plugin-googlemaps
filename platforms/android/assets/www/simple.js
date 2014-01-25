@@ -115,6 +115,16 @@ function animateCamera() {
   });
 }
 
+function animateCamera_delay() {
+  map.showDialog();
+  map.animateCamera({
+    'target': GOOGLE,
+    'tilt': 60,
+    'zoom': 18,
+    'bearing': 140
+  }, 5000);
+}
+
 function moveCamera() {
   map.moveCamera({
     'target': GORYOKAKU_JAPAN,
