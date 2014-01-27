@@ -11,10 +11,12 @@ import org.json.JSONObject;
 import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -149,4 +151,14 @@ public class PluginUtil {
     return resizeBitmap;
   }
   
+  public static Bitmap getBitmapFromBase64encodedImage(String base64EncodedImage) {
+    byte[] byteArray= Base64.decode(base64EncodedImage, Base64.DEFAULT);
+    Bitmap image= null;
+    try {
+      image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return image;
+  }
 }
