@@ -58,6 +58,19 @@
     };
     
     self.removeEventListener = self.off;
+    
+    
+    self.one = function(eventName, callback) {
+      self.on(eventName, function() {
+        var i, args = [];
+        for (i = 0; i < arguments.length; i++) {
+          args.push(arguments[i]);
+        }
+        callback.apply(self, args);
+        self.off(eventName, callback);
+      });
+    };
+    self.addEventListenerOnce = self.one;
     return self;
   };
   var App = function() {
