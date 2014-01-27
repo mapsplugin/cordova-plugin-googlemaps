@@ -278,36 +278,72 @@ NSDictionary *initOptions;
 //future support: custom info window
 -(UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker*)marker
 {
+  CGSize rectSize;
+  CGSize textSize;
+  CGSize snippetSize;
+  UIFont *titleFont;
+  UIFont *snippetFont;
+  UIImage *base64Image;
   
+  Boolean isTextMode = false;
   NSString *title = marker.title;
   NSString *snippet = marker.snippet;
-  if ([title rangeOfString:@"\n"].location == NSNotFound || title == nil) {
+  
+  if (title == nil) {
     return NULL;
   }
+  
   // Load images
   UIImage *leftImg = [self loadImageFromGoogleMap:@"bubble_left"];
   UIImage *rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
   
-  // Calculate the size
-  UIFont *titleFont = [UIFont systemFontOfSize:17.0f];
-  CGSize textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
-  CGSize rectSize = CGSizeMake(textSize.width, textSize.height);
-  rectSize.width += leftImg.size.width;
-  rectSize.height += 16;
+  //-------------------------------------
+  // Calculate the size for the contents
+  //-------------------------------------
+  NSLog(@"NSNotFound = %lu", (unsigned long)NSNotFound);
+  NSLog(@"data:image/ = %lu", (unsigned long)[title rangeOfString:@"data:image/"].location);
+  NSLog(@";base64, = %lu", (unsigned long)[title rangeOfString:@";base64,"].location);
+  if ([title rangeOfString:@"data:image/"].location != NSNotFound &&
+      [title rangeOfString:@";base64,"].location != NSNotFound) {
+    
+    isTextMode = false;
+    NSArray *tmp = [title componentsSeparatedByString:@","];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
+    base64Image = [[UIImage alloc] initWithData:decodedData];
+    rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + 16);
+    
+  } else {
   
-  CGSize snippetSize;
-  UIFont *snippetFont = [UIFont systemFontOfSize:12.0f];
-  if (snippet) {
-    snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
-    rectSize.height += snippetSize.height + 2;
-    if (rectSize.width < snippetSize.width) {
-      rectSize.width = snippetSize.width + leftImg.size.width;
+    if ([title rangeOfString:@"\n"].location == NSNotFound) {
+      return NULL;
+    }
+    isTextMode = true;
+    
+    // Calculate the size for the title strings
+    titleFont = [UIFont systemFontOfSize:17.0f];
+    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
+    rectSize = CGSizeMake(textSize.width, textSize.height);
+    rectSize.width += leftImg.size.width;
+    rectSize.height += 16;
+    
+    // Calculate the size for the snippet strings
+    if (snippet) {
+      snippetFont = [UIFont systemFontOfSize:12.0f];
+      snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
+      rectSize.height += snippetSize.height + 2;
+      if (rectSize.width < snippetSize.width) {
+        rectSize.width = snippetSize.width + leftImg.size.width;
+      }
     }
   }
   
+  //-------------------------------------
+  // Drawing
+  //-------------------------------------
+  UIGraphicsBeginImageContextWithOptions(rectSize, NO, 1);
+  
   // Draw the upper side
-  UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0);
   CGRect trimArea = CGRectMake(15, 0, 5, 45);
   if (leftImg.scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
@@ -318,7 +354,7 @@ NSDictionary *initOptions;
   CGImageRef trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
   
-  // Draw
+  // Draw the body
   int x = 0;
   int width = x;
   while (rectSize.width - x > 5) {
@@ -348,34 +384,44 @@ NSDictionary *initOptions;
     x += 5;
   }
   
-  
+  // Fill the body area with WHITE color
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
   CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 20));
   
-  
-  //Draw the text
-  
-  if (title) {
-    [[UIColor blackColor] set];
-    [title drawInRect:CGRectMake(2, 2, rectSize.width - 2, textSize.height )
-            withFont:titleFont
-            lineBreakMode:NSLineBreakByWordWrapping
-            alignment:NSTextAlignmentCenter];
-  }
-  
-  if (snippet) {
-    [[UIColor grayColor] set];
-    [snippet drawInRect:CGRectMake(2, textSize.height + 2, rectSize.width - 2, snippetSize.height)
-            withFont:snippetFont
-            lineBreakMode:NSLineBreakByWordWrapping
-            alignment:NSTextAlignmentCenter];
+  //-------------------------------------
+  // Draw the contents
+  //-------------------------------------
+  if (isTextMode) {
+    //Draw the title strings
+    if (title) {
+      [[UIColor blackColor] set];
+      [title drawInRect:CGRectMake(2, 2, rectSize.width - 2, textSize.height )
+              withFont:titleFont
+              lineBreakMode:NSLineBreakByWordWrapping
+              alignment:NSTextAlignmentCenter];
+    }
+    
+    //Draw the snippet
+    if (snippet) {
+      [[UIColor grayColor] set];
+      [snippet drawInRect:CGRectMake(2, textSize.height + 2, rectSize.width - 2, snippetSize.height)
+              withFont:snippetFont
+              lineBreakMode:NSLineBreakByWordWrapping
+              alignment:NSTextAlignmentCenter];
+    }
+  } else {
+    //Draw the content image
+CGRect imageRect = CGRectMake(0, 0, base64Image.size.width, base64Image.size.height);
+CGContextTranslateCTM(context, 0, base64Image.size.height);
+CGContextScaleCTM(context, 1.0, -1.0);
+CGContextDrawImage(context, imageRect, base64Image.CGImage);
   }
   
 
-  
-  
+  //-------------------------------------
   // Generate new image
+  //-------------------------------------
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 

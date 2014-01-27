@@ -285,16 +285,19 @@
     if (range.location == NSNotFound) {
     
       UIImage* image = [UIImage imageNamed:iconPath];
-      image = [image resize:width height:height];
+      if (width && height) {
+        image = [image resize:width height:height];
+      }
       marker.icon = image;
     } else {
       dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
       dispatch_sync(gueue, ^{
         NSURL *url = [NSURL URLWithString:iconPath];
         NSData *data = [NSData dataWithContentsOfURL:url];
-        UIImage* image = [UIImage imageWithData:data];
-        image = [image resize:width height:height];
-        
+        UIImage* image = [UIImage imageWithData:data scale:1.0];
+        if (width && height) {
+          image = [image resize:width height:height];
+        }
         marker.icon = image;
       });
       dispatch_release(gueue);
