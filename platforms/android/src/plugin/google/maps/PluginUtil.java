@@ -8,11 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -126,16 +125,28 @@ public class PluginUtil {
     return mBundle;
   }
   
-  // resize a bitmap
-  // https://gist.github.com/STAR-ZERO/3413415
   public static Bitmap resizeBitmap(Bitmap bitmap, int width, int height) {
     if (bitmap == null) {
       return null;
     }
  
-    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
     bitmap.recycle();
     
     return resizeBitmap;
   }
+
+  public static Bitmap scaleBitmapForDevice(Bitmap bitmap) {
+    if (bitmap == null) {
+      return null;
+    }
+    
+    float density = Resources.getSystem().getDisplayMetrics().density;
+    int width = (int)(bitmap.getWidth() * density);
+    int height = (int)(bitmap.getHeight() * density);
+    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+    bitmap.recycle();
+    return resizeBitmap;
+  }
+  
 }

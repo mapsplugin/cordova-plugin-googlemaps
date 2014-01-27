@@ -20,6 +20,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private final String TAG = "AsyncLoadImage";
   private String targetMethod = "";
   private Bundle iconProperty = null;
+  private String mUrl = "";
 
   public AsyncLoadImage(Object target, String method, Bundle options) {
     targerClass = target;
@@ -35,7 +36,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   protected Bitmap doInBackground(String... urls) {
     try {
       URL url= new URL(urls[0]);
-      Log.d(TAG, "urls[0]=" + urls[0]);
+      mUrl = urls[0];
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setDoInput(true);
       connection.connect();
@@ -65,7 +66,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
         }
       }
       
-      
+      image = PluginUtil.scaleBitmapForDevice(image);
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       
       @SuppressWarnings("unchecked")
@@ -78,7 +79,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
         e.printStackTrace();
       }
     } else {
-      Log.d(TAG, "image is null");
+      Log.e(TAG, "Unable to load the image: " + mUrl);
       
     }
   }

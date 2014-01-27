@@ -625,6 +625,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         Log.d("Map", tmp[1]);
         byte[] byteArray= Base64.decode(tmp[1], Base64.DEFAULT);
         Bitmap image= BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        image = PluginUtil.scaleBitmapForDevice(image);
         ImageView imageView = new ImageView(this.cordova.getActivity());
         imageView.setImageBitmap(image);
         windowLayer.addView(imageView);
