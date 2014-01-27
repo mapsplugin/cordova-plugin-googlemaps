@@ -300,9 +300,6 @@ NSDictionary *initOptions;
   //-------------------------------------
   // Calculate the size for the contents
   //-------------------------------------
-  NSLog(@"NSNotFound = %lu", (unsigned long)NSNotFound);
-  NSLog(@"data:image/ = %lu", (unsigned long)[title rangeOfString:@"data:image/"].location);
-  NSLog(@";base64, = %lu", (unsigned long)[title rangeOfString:@";base64,"].location);
   if ([title rangeOfString:@"data:image/"].location != NSNotFound &&
       [title rangeOfString:@";base64,"].location != NSNotFound) {
     
@@ -310,7 +307,7 @@ NSDictionary *initOptions;
     NSArray *tmp = [title componentsSeparatedByString:@","];
     NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
     base64Image = [[UIImage alloc] initWithData:decodedData];
-    rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + 16);
+    rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
     
   } else {
   
@@ -323,7 +320,7 @@ NSDictionary *initOptions;
     titleFont = [UIFont systemFontOfSize:17.0f];
     textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
     rectSize = CGSizeMake(textSize.width, textSize.height);
-    rectSize.width += leftImg.size.width;
+    //rectSize.width += leftImg.size.width;
     rectSize.height += 16;
     
     // Calculate the size for the snippet strings
@@ -341,7 +338,7 @@ NSDictionary *initOptions;
   //-------------------------------------
   // Drawing
   //-------------------------------------
-  UIGraphicsBeginImageContextWithOptions(rectSize, NO, 1);
+  UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0f);
   
   // Draw the upper side
   CGRect trimArea = CGRectMake(15, 0, 5, 45);
@@ -386,6 +383,7 @@ NSDictionary *initOptions;
   
   // Fill the body area with WHITE color
   CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSetAllowsAntialiasing(context, true);
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
   CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 20));
   
@@ -412,10 +410,12 @@ NSDictionary *initOptions;
     }
   } else {
     //Draw the content image
-CGRect imageRect = CGRectMake(0, 0, base64Image.size.width, base64Image.size.height);
-CGContextTranslateCTM(context, 0, base64Image.size.height);
-CGContextScaleCTM(context, 1.0, -1.0);
-CGContextDrawImage(context, imageRect, base64Image.CGImage);
+    CGRect imageRect = CGRectMake((rectSize.width - base64Image.size.width) / 2 ,
+                                  -1 * ((rectSize.height - base64Image.size.height - 20) / 2 + 5),
+                                  base64Image.size.width, base64Image.size.height);
+    CGContextTranslateCTM(context, 0, base64Image.size.height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    CGContextDrawImage(context, imageRect, base64Image.CGImage);
   }
   
 
