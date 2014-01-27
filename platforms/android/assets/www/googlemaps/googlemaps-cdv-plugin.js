@@ -57,7 +57,7 @@
       }
     };
     
-    self.removeEventListener = self.on;
+    self.removeEventListener = self.off;
     return self;
   };
   var App = function() {
