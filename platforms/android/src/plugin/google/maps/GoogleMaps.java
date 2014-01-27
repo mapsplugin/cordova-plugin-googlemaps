@@ -15,13 +15,13 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -299,7 +299,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     // window layout
     LinearLayout windowLayer = new LinearLayout(activity);
-    windowLayer.setPadding(25, 25, 25, 25);
+    windowLayer.setPadding(10, 10, 10, 10);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
     windowLayer.setLayoutParams(layoutParams);
@@ -355,7 +355,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setOnClickListener(GoogleMaps.this);
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
-    
+
     Build.VERSION version = new Build.VERSION();
     if (version.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
       closeLink.setY(10);
@@ -622,9 +622,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (title != null) {
       if (title.indexOf("data:image/") > -1 && title.indexOf(";base64,") > -1) {
         String[] tmp = title.split(",");
-        Log.d("Map", tmp[1]);
-        byte[] byteArray= Base64.decode(tmp[1], Base64.DEFAULT);
-        Bitmap image= BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
         image = PluginUtil.scaleBitmapForDevice(image);
         ImageView imageView = new ImageView(this.cordova.getActivity());
         imageView.setImageBitmap(image);
