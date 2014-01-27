@@ -14,16 +14,20 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -616,16 +620,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     windowLayer.setLayoutParams(layoutParams);
     
     if (title != null) {
-      TextView textView = new TextView(this.cordova.getActivity());
-      textView.setText(title);
-      textView.setSingleLine(false);
-      textView.setTextColor(Color.BLACK);
-      textView.setGravity(Gravity.CENTER_HORIZONTAL);
-      Build.VERSION version = new Build.VERSION();
-      if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+      if (title.indexOf("data:image/") > -1 && title.indexOf(";base64,") > -1) {
+        String[] tmp = title.split(",");
+        Log.d("Map", tmp[1]);
+        byte[] byteArray= Base64.decode(tmp[1], Base64.DEFAULT);
+        Bitmap image= BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        ImageView imageView = new ImageView(this.cordova.getActivity());
+        imageView.setImageBitmap(image);
+        windowLayer.addView(imageView);
+      } else {
+        TextView textView = new TextView(this.cordova.getActivity());
+        textView.setText(title);
+        textView.setSingleLine(false);
+        textView.setTextColor(Color.BLACK);
+        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+        Build.VERSION version = new Build.VERSION();
+        if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+          textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        }
+        windowLayer.addView(textView);
       }
-      windowLayer.addView(textView);
     }
     if (snippet != null) {
       snippet = snippet.replaceAll("\n", "");

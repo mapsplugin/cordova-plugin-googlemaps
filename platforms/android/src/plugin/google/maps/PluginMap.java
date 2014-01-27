@@ -5,6 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -116,6 +118,9 @@ public class PluginMap extends MyPlugin {
         newPosition = builder.build();
         cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
       }
+    } else {
+      callbackContext.error("Error: moveCamera() or animateCamera() are required 'target' option.");
+      return;
     }
 
     if (args.length() == 3) {
