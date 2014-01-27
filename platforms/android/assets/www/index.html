@@ -232,6 +232,8 @@ The plugin passes the marker instance as a parameter.</p>
   'icon': 'www/images/google_tokyo_icon.png'
 });
 </code>
+<button onclick="addMarker3a()">Play it</button>
+
 <p>Or you can scale the icon image with options.</p>
 <code>map.addMarker({
   'position': GOOGLE_TOKYO,
@@ -239,13 +241,120 @@ The plugin passes the marker instance as a parameter.</p>
   'icon': {
     'url': 'www/images/google_tokyo_icon.png',
     'size': {
-      'width': 37,
-      'height': 63
+      'width': 74,
+      'height': 126
     }
   }
 });
 </code>
-<button onclick="addMarker3()">Play it</button>
+<button onclick="addMarker3b()">Play it</button>
+
+<h2>Add a marker with base64 encoded image</h2>
+<p>This is really useful feature! You can set base64 encoded image strings for the icon and the title options.
+That means you are able to create marker image programmatically.</p>
+<canvas id="canvas" width="114" height="131" ></canvas>
+<script type="text/javascript">
+/**
+ * http://mahdipedram.com/Demos/html5/
+ */
+function html5Logo(canvasEle)
+{
+  var ctx = canvasEle.getContext('2d');
+  ctx.fillStyle = "#E34C26";
+
+  var endX = 114;
+  var beginX = 0;
+  var beginY = 0;
+  var IncreaseY =.97;
+  var maxIncreaseY = .11;
+  var reduceX  =.9;
+  var bottomRightX = endX * reduceX;
+  var bottomLeftX = endX - bottomRightX;
+
+  var IncreasedY = endX + (1-IncreaseY)* endX;
+  var maxIncleasedY = IncreasedY * maxIncreaseY + IncreasedY;
+  ctx.beginPath();
+  ctx.moveTo( beginX, beginY);
+  
+  ctx.lineTo( endX, beginY );
+  ctx.lineTo( bottomRightX ,IncreasedY );
+  ctx.lineTo( endX / 2, maxIncleasedY );
+  ctx.lineTo( bottomLeftX, IncreasedY );
+  ctx.lineTo( beginX, beginY );
+  ctx.fill();
+
+  var secondBoxMargin = 10;
+  var secondEndX =  (endX - secondBoxMargin);
+  var secondBottomRightX = secondEndX * reduceX;
+  var secondIncreasedY = secondEndX + (1-IncreaseY)* secondEndX;
+
+  ctx.fillStyle = "#F16529";
+  ctx.beginPath();
+  ctx.moveTo( endX / 2 ,secondBoxMargin);
+  
+  ctx.lineTo( secondEndX, secondBoxMargin );
+  ctx.lineTo( secondBottomRightX, secondIncreasedY);
+  ctx.lineTo( endX / 2, maxIncleasedY - secondBoxMargin );
+  ctx.lineTo( endX / 2, secondBoxMargin );
+  ctx.fill();
+
+  var thirdBoxMargin = 25;
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.moveTo(  endX / 2, thirdBoxMargin );
+  ctx.lineTo( 94, thirdBoxMargin);
+  ctx.lineTo( 93, 39 );
+  ctx.lineTo( endX /2, 39 );
+  ctx.lineTo( endX / 2, thirdBoxMargin );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo( endX/2, 53 );
+  ctx.lineTo( 90, 53 );
+  ctx.lineTo( 86, IncreasedY - 20 );
+  ctx.lineTo( endX/2, maxIncleasedY - 24 );
+  ctx.lineTo( endX/2, maxIncleasedY - 38 );
+  ctx.lineTo( endX/2 + 16, maxIncleasedY - 43 );
+  ctx.lineTo( endX/2 + 16 + 2, 68 );
+  ctx.lineTo( endX/2, 68 );
+  ctx.fill();
+
+
+  ctx.beginPath();
+  ctx.moveTo( endX / 2, thirdBoxMargin );
+  ctx.lineTo( 24, thirdBoxMargin );
+  ctx.lineTo( 28, 68 );
+  ctx.lineTo( endX/2, 68 );
+  ctx.lineTo( endX/2, 53 );
+  ctx.lineTo( 42, 53 );
+  ctx.lineTo( 41, 39 );
+  ctx.lineTo( endX/2, 39 );
+  ctx.fill();
+
+
+  ctx.beginPath();
+  ctx.moveTo( endX / 2, 106 );
+  ctx.lineTo( 31, 100 );
+  ctx.lineTo( 28, 78 );
+  ctx.lineTo( 42, 78 );
+  ctx.lineTo( 43, 88 );
+  ctx.lineTo( endX / 2, 92 );
+  ctx.fill(); 
+
+}
+html5Logo(document.getElementById("canvas"));
+</script>
+<code>var canvas = document.getElementById("canvas");
+map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': canvas.toDataURL()
+}, function(marker) {
+  marker.showInfoWindow();
+});
+</code>
+<button onclick="addMarker5()">Play it</button>
+
 
 <h2>Remove the marker</h2>
 <p>To remove the marker, call the <span class='highlight'>remove()</span> method.</p>
@@ -320,7 +429,7 @@ The plugin passes the marker instance as a parameter.</p>
 map.addGroundOverlay({
   'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
   'bounds': bounds,
-  'opacity': 0.5
+  'opacity': 0
 }, function(groundOverlay) {
   map.showDialog();
   map.animateCamera({
