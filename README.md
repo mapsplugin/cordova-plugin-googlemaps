@@ -485,16 +485,23 @@ This plugin also supports reverse geocoding.
 In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).
 ```js
 var request = {
-  'position': new plugin.google.maps.LatLng(37.820905,-122.478576) 
+  'position': GOOGLE
 };
 map.geocode(request, function(results) {
   if (results.length) {
     var result = results[0];
     var position = result.position; 
+    var address = [
+      result.subThoroughfare || "",
+      result.thoroughfare || "",
+      result.locality || "",
+      result.adminArea || "",
+      result.postalCode || "",
+      result.country || ""].join(", ");
     
     map.addMarker({
       'position': position,
-      'title':  result.thoroughfare
+      'title':  address
     });
   } else {
     alert("Not found");
