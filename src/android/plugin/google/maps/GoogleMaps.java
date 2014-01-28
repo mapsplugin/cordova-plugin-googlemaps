@@ -14,16 +14,21 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -294,8 +299,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     baseLayer.addView(bglayer);
     
     // window layout
+    float density = Resources.getSystem().getDisplayMetrics().density;
+    int windowMargin = (int)(10 * density);
     LinearLayout windowLayer = new LinearLayout(activity);
-    windowLayer.setPadding(25, 25, 25, 25);
+    windowLayer.setPadding(windowMargin, windowMargin, windowMargin, windowMargin);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
     windowLayer.setLayoutParams(layoutParams);
@@ -310,7 +317,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     // map frame
     LinearLayout mapFrame = new LinearLayout(activity);
-    mapFrame.setPadding(0, 0, 0, 50);
+    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
     dialogLayer.addView(mapFrame);
     
     // map
@@ -335,7 +342,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeLink.setTextColor(Color.BLUE);
     closeLink.setTextSize(20);
     closeLink.setGravity(Gravity.LEFT);
-    closeLink.setPadding(10, 0, 0, 10);
+    closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
     closeLink.setOnClickListener(GoogleMaps.this);
     closeLink.setId(CLOSE_LINK_ID);
     buttonFrame.addView(closeLink);
@@ -347,16 +354,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setLayoutParams(buttonParams);
     licenseLink.setTextSize(20);
     licenseLink.setGravity(Gravity.RIGHT);
-    licenseLink.setPadding(10, 10, 10, 10);
+    licenseLink.setPadding((int)(10 * density), (int)(20 * density), (int)(10 * density), (int)(10 * density));
     licenseLink.setOnClickListener(GoogleMaps.this);
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
-    
-    Build.VERSION version = new Build.VERSION();
-    if (version.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      closeLink.setY(10);
-      licenseLink.setY(10);
-    }
     
     //Custom info window
     map.setInfoWindowAdapter(this);
@@ -604,15 +605,52 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
-    TextView textView = new TextView(this.cordova.getActivity());
-    textView.setText(marker.getTitle());
-    textView.setSingleLine(false);
-    textView.setTextColor(Color.BLACK);
-    Build.VERSION version = new Build.VERSION();
-    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-      textView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+    String title = marker.getTitle();
+    String snippet = marker.getSnippet();
+
+    // Linear layout
+    LinearLayout windowLayer = new LinearLayout(activity);
+    windowLayer.setPadding(3, 3, 3, 3);
+    windowLayer.setOrientation(LinearLayout.VERTICAL);
+    LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+    windowLayer.setLayoutParams(layoutParams);
+    
+    if (title != null) {
+      if (title.indexOf("data:image/") > -1 && title.indexOf(";base64,") > -1) {
+        String[] tmp = title.split(",");
+        Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+        image = PluginUtil.scaleBitmapForDevice(image);
+        ImageView imageView = new ImageView(this.cordova.getActivity());
+        imageView.setImageBitmap(image);
+        windowLayer.addView(imageView);
+      } else {
+        TextView textView = new TextView(this.cordova.getActivity());
+        textView.setText(title);
+        textView.setSingleLine(false);
+        textView.setTextColor(Color.BLACK);
+        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+        Build.VERSION version = new Build.VERSION();
+        if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+          textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        }
+        windowLayer.addView(textView);
+      }
     }
-    return textView;
+    if (snippet != null) {
+      snippet = snippet.replaceAll("\n", "");
+      TextView textView = new TextView(this.cordova.getActivity());
+      textView.setText(snippet);
+      textView.setTextColor(Color.GRAY);
+      textView.setTextSize((float) (textView.getTextSize() * 0.6));
+      textView.setGravity(Gravity.CENTER_HORIZONTAL);
+      Build.VERSION version = new Build.VERSION();
+      if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+      }
+      windowLayer.addView(textView);
+    }
+    return windowLayer;
   }
 
   @Override

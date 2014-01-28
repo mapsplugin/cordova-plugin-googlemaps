@@ -159,6 +159,7 @@
   double angle = [[json valueForKey:@"tilt"] doubleValue];
   int zoom = [[json valueForKey:@"zoom"] integerValue];
   
+  
   NSDictionary *latLng = nil;
   float latitude;
   float longitude;
@@ -188,9 +189,9 @@
                                         viewingAngle:angle];
   }
   
-  float duration = 2.0f;
-  if (command.arguments.count == 3) {
-    duration = [[command.arguments objectAtIndex:2] floatValue] / 1000;
+  float duration = 5.0f;
+  if ([json objectForKey:@"duration"]) {
+    duration = [[json objectForKey:@"duration"] floatValue] / 1000;
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

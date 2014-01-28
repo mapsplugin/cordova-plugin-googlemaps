@@ -183,6 +183,7 @@ Google Maps for mobile has a view camera.
 You see the map via the camera, thus if you want to show a specific location, you need to move the camera.
 To do that, this plugin provides **animateCamera()** and **moveCamera()** methods.
 The **animateCamera()** moves the camera with animation, while the other hand without animation.
+Default animation time of **animateCamera()** method is 4 seconds.
 ```js
 map.animateCamera({
   'target': GOOGLE,
@@ -191,6 +192,7 @@ map.animateCamera({
   'bearing': 140
 });
 ```
+
 Both methods take a callback function as the second argument.
 This callback is involved when the movement is finished.</p>
 ```js
@@ -207,15 +209,16 @@ map.moveCamera({
 ![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
 
 ###Move the camera within the specified duration time
-The **animateCamera()** acepts the duration time for animating as the second argument.
-If you want to animate slowly, you can specify the duration as millisecond.
+The **animateCamera()** acepts the duration time for animating with **duration** option.
+If you want to animate slowly, you can specify the duration in millisecond.
 ```js
 map.animateCamera({
   'target': GOOGLE,
   'tilt': 60,
   'zoom': 18,
-  'bearing': 140
-}, 5000);
+  'bearing': 140,
+  'duration': 10000
+});
 ```
 
 ###Get the camera position
@@ -261,6 +264,7 @@ map.addMarker({
   'title': "Hello GoogleMap for Cordova!"
 });
 ```
+![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker0.png)
 
 The **addMarker()** method taken a function as callback on the second argument.
 The callback is involved when the marker is created.
@@ -280,8 +284,9 @@ The **title** property accepts multiple lines.
 This is not available normally if you use just Google Maps SDKs.
 ```js
 map.addMarker({
-  'position': GOOGLE,
-  'title': ["Hello GoogleMap", "for", "Cordova!"].join("\n")
+  'position': GOOGLE_NY,
+  'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
+  'snippet': "This plugin is awesome!"
 }, function(marker) {
   marker.showInfoWindow();
 });

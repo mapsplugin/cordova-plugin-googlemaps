@@ -12,7 +12,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -291,15 +290,21 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl.indexOf("http") == -1) {
-      AssetManager assetManager = this.cordova.getActivity().getAssets();
-
-      InputStream inputStream;
       Bitmap image = null;
-      try {
-        inputStream = assetManager.open(iconUrl);
-        image = BitmapFactory.decodeStream(inputStream);
-      } catch (IOException e) {
-        return;
+      
+      if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
+        String[] tmp = iconUrl.split(",");
+        image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+      } else {
+        AssetManager assetManager = this.cordova.getActivity().getAssets();
+        InputStream inputStream;
+        try {
+          inputStream = assetManager.open(iconUrl);
+          image = BitmapFactory.decodeStream(inputStream);
+        } catch (IOException e) {
+          e.printStackTrace();
+          return;
+        }
       }
       if (image == null) {
         return;
@@ -318,6 +323,8 @@ public class PluginMarker extends MyPlugin {
           }
         }
       }
+      
+      image = PluginUtil.scaleBitmapForDevice(image);
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       marker.setIcon(bitmapDescriptor);
       return;
