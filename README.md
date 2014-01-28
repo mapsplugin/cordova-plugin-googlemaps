@@ -26,7 +26,7 @@ $> cordova platform add android
  * [Install the Google Play Services SDK for Android][4A]
  * [Import the Google Play Services SDK into Eclipse][4B]
  * Link the Google Play Services SDK library to your project. View the properties for the project, and navigate to the 'Android' tab. In the lower part of the dialog, click 'Add' and choose the 'google-play-services_lib' project from the workspace.
-![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
+![google-play-services](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
 4. Add these permissions and elements to your `AndroidManifest.xml`.
 Please refer the more detailed exlpain in the [Google Maps Document][5].
@@ -74,7 +74,7 @@ $> cordova platform add ios
 ```
 
 3. Install the SDK to your project following the [official document][iOS2].
-![image2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png)
+![ios-project-settings](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png)
 
 4. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
 
@@ -88,12 +88,12 @@ $> cordova platform add ios
 ```
 7. Under the group Resources, find your **[PROJECTNAME]-Info.plist**, add a new entry.
 For the key, add **Google Maps API Key**, and its value is your **Google Maps API Key for iOS**.
-![image3](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings2.png)
+![ios-project-settings2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings2.png)
 
 ## Coding snippets
 **Complete example code is available from [here][example_repo]**
 
-![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
+![simple](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
 
 ###Initialize a map
 To initialize the map plugin, you need to call the **getMap()** method of the Map class.
@@ -176,7 +176,7 @@ Available map types are `ROADMAP`, `SATELLITE`, `HYBRID`, `TERRAIN` and `NONE`.
 ```js
 map.setMapTypeId(plugin.google.maps.HYBRID);
 ```
-![image4](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
+![map_type](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
 
 ###Move the camera
 Google Maps for mobile has a view camera.
@@ -208,7 +208,7 @@ map.moveCamera({
   map.showDialog();
 });
 ```
-![image5](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
+![camera](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
 
 ###Move the camera within the specified duration time
 The **animateCamera()** acepts the duration time for animating with **duration** option.
@@ -266,7 +266,7 @@ map.addMarker({
   'title': "Hello GoogleMap for Cordova!"
 });
 ```
-![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker0.png)
+![marker0](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker0.png)
 
 ###Add a marker with multiple line
 You are also able to pass multiple line to the **title** option.
@@ -279,7 +279,7 @@ map.addMarker({
   marker.showInfoWindow();
 });
 ```
-![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
+![marker3](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
 
 ###addMarker() callback
 The **addMarker()** method taken a function as callback on the second argument.
@@ -293,7 +293,7 @@ map.addMarker({
   marker.showInfoWindow();
 });
 ```
-![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
+![marker1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
 
 
 
@@ -307,7 +307,7 @@ map.addMarker({
   'icon': 'www/images/google_tokyo_icon.png'
 });
 ```
-![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
+![marker2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
 
 Or you can scale the icon image with options.
 ```js
@@ -323,7 +323,7 @@ map.addMarker({
   }
 });
 ```
-![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2b.png)
+![marker2b](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2b.png)
 
 ###Add a marker with base64 encoded image
 This is really useful feature!
@@ -339,7 +339,7 @@ map.addMarker({
   marker.showInfoWindow();
 });
 ```
-![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_base64.png)
+![marker_base64](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_base64.png)
 
 ###Remove the marker
 To remove the marker, call the **remove()** method.
@@ -363,7 +363,7 @@ map.addMarker({
   }
 });
 ```
-![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_click.png)
+![marker_click](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_click.png)
 
 ###Add a polyline, polygon and circle
 Adding a polyline uses **addPolyline()** method.
@@ -478,6 +478,7 @@ map.geocode(request, function(results) {
   }
 });
 ```
+![geocoding](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/geocoding.png)
 
 
 ###Reverse geocoding
@@ -508,6 +509,7 @@ map.geocode(request, function(results) {
   }
 });
 ```
+![reverse_geocoding](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/reverse_geocoding.png)
 
 [0]: https://developers.google.com/maps/documentation/android/
 [1]: https://developers.google.com/maps/documentation/ios/
