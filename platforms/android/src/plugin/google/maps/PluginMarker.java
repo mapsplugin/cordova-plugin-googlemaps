@@ -295,7 +295,6 @@ public class PluginMarker extends MyPlugin {
       if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
         String[] tmp = iconUrl.split(",");
         image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-        image = PluginUtil.scaleBitmapForDevice(image);
       } else {
         AssetManager assetManager = this.cordova.getActivity().getAssets();
         InputStream inputStream;
