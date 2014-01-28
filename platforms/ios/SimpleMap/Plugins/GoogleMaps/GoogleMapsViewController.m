@@ -363,7 +363,7 @@ NSDictionary *initOptions;
   [rightImg drawAtPoint:CGPointMake(rectSize.width * 0.5f, rectSize.height - rightImg.size.height)];
   
   // Draw the bottom side
-  trimArea = CGRectMake(15, 35, 5, 10);
+  trimArea = CGRectMake(15, 45, 5, 10);
   if (leftImg.scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
                       trimArea.origin.y * leftImg.scale,
