@@ -187,8 +187,7 @@ map.animateCamera({
   'bearing': 140
 });
 ```
-[Youtube](http://www.youtube.com/watch?v=QMLWrOxfgRw)
-
+[![map.animateCamera](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.png)](http://www.youtube.com/watch?v=QMLWrOxfgRw)
 
 Both methods take a callback function as the second argument.
 This callback is involved when the movement is finished.</p>
