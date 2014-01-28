@@ -205,30 +205,20 @@
   /**
    * @desc   Move the map camera with animation
    * @params {CameraPosition} cameraPosition New camera position
-   * @params {Number} [durationMs = 1000] Animate duration
    * @params {Function} [callback] This callback is involved when the animation is completed.
    */
-  App.prototype.animateCamera = function(cameraPosition, durationMs, callback) {
-    var myCallback = null,
-        self = this,
-        params = ['Map.animateCamera'],
-        lastParam;
+  App.prototype.animateCamera = function(cameraPosition, callback) {
+    var self = this;
  
-    params.push(cameraPosition);
- 
-    myCallback = typeof durationMs == "function" ? durationMs : myCallback;
-    myCallback = typeof callback == "function" ? callback : myCallback;
- 
-    if (typeof durationMs === "number") {
-      params.push(durationMs);
-    }
- 
-    cordova.exec(myCallback, self.errorHandler, PLUGIN_NAME, 'exec', params);
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback();
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', cameraPosition]);
   };
   /**
    * @desc   Move the map camera without animation
    * @params {CameraPosition} cameraPosition New camera position
-   * @params {Number} [durationMs = 1000] Animate duration
    * @params {Function} [callback] This callback is involved when the animation is completed.
    */
   App.prototype.moveCamera = function(cameraPosition, callback) {
@@ -451,6 +441,7 @@
    * @property {Number} [tilt] View angle
    * @property {Number} [zoom] Zoom level
    * @property {Number} [bearing] Map orientation
+   * @property {Number} [duration] The duration of animation
    *******************************************************************************/
   var CameraPosition = function(params) {
     var self = this;
@@ -459,6 +450,7 @@
     self.target = params.target;
     self.bearing = params.bearing;
     self.hashCode = params.hashCode;
+    self.duration = params.duration;
   };
   /*****************************************************************************
    * Location Class

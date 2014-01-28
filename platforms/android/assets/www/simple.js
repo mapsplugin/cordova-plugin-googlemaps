@@ -134,8 +134,9 @@ function animateCamera_delay() {
       'target': GOOGLE,
       'tilt': 60,
       'zoom': 18,
-      'bearing': 140
-    }, 10000);
+      'bearing': 140,
+      'duration': 10000
+    });
   });
 }
 

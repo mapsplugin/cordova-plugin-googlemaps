@@ -88,7 +88,7 @@ public class PluginMap extends MyPlugin {
    */
   private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
-    int durationMS = 0;
+    int durationMS = 4000;
     CameraPosition.Builder builder = CameraPosition.builder();
     JSONObject cameraPos = args.getJSONObject(1);
     if (cameraPos.has("tilt")) {
@@ -99,6 +99,9 @@ public class PluginMap extends MyPlugin {
     }
     if (cameraPos.has("zoom")) {
       builder.zoom((float) cameraPos.getDouble("zoom"));
+    }
+    if (cameraPos.has("duration")) {
+      durationMS = cameraPos.getInt("duration");
     }
     CameraPosition newPosition;
     CameraUpdate cameraUpdate = null;
@@ -123,9 +126,7 @@ public class PluginMap extends MyPlugin {
       return;
     }
 
-    if (args.length() == 3) {
-      durationMS = args.getInt(2);
-    }
+    
     if (action.equals("moveCamera")) {
       myMoveCamera(cameraUpdate, callbackContext);
     } else {
