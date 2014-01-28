@@ -365,27 +365,13 @@ map.addMarker({
 ```
 ![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_click.png)
 
-###Add a polyline
+###Add a polyline, polygon and circle
 Adding a polyline uses **addPolyline()** method.
 ```js
 map.addPolyline({
   points: [
     HND_AIR_PORT,
     SFO_AIR_PORT
-  ],
-  'color' : '#AA00FF',
-  'width': 10,
-  'geodesic': true
-});
-```
-
-If you pass over two points, the plugin draw like the below image.
-```js
-map.addPolyline({
-  points: [
-    HND_AIR_PORT,
-    SFO_AIR_PORT,
-    
   ],
   'color' : '#AA00FF',
   'width': 10,
