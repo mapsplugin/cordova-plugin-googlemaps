@@ -436,21 +436,26 @@ function geocoding() {
 
 function reverseGeocoding() {
   var request = {
-    'position': new plugin.google.maps.LatLng(37.820905,-122.478576) 
+    'position': GOOGLE
   };
   map.geocode(request, function(results) {
     if (results.length) {
       map.showDialog();
       
-      var mapType = plugin.google.maps.MapTypeId.HYBRID;
-      map.setMapTypeId(mapType);
-      
       var result = results[0];
       var position = result.position; 
+      var address = [
+        result.subThoroughfare || "",
+        result.thoroughfare || "",
+        result.locality || "",
+        result.adminArea || "",
+        result.postalCode || "",
+        result.country || ""].join(", ");
+      
       
       map.addMarker({
         'position': position,
-        'title':  result.thoroughfare
+        'title':  address
       }, function(marker) {
         
         map.animateCamera({
