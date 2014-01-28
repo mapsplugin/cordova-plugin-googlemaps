@@ -36,6 +36,8 @@
 		697744AE1835A8FC00473ED6 /* Polyline.m in Sources */ = {isa = PBXBuildFile; fileRef = 697744AD1835A8FC00473ED6 /* Polyline.m */; };
 		697E88331829DA6B00E7E16A /* www in Resources */ = {isa = PBXBuildFile; fileRef = 697E88321829DA6B00E7E16A /* www */; };
 		698CBE7A182303DB00F9B989 /* GoogleMaps.m in Sources */ = {isa = PBXBuildFile; fileRef = 698CBE79182303DB00F9B989 /* GoogleMaps.m */; };
+		699FB55518983D7900D9DB93 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 699FB55318983D7900D9DB93 /* NSData+Base64.m */; };
+		699FB55618983D7900D9DB93 /* NSData+Base64.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 699FB55418983D7900D9DB93 /* NSData+Base64.podspec */; };
 		69AEC791182D649300F2AABD /* Marker.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC790182D649300F2AABD /* Marker.m */; };
 		69AEC794182D742C00F2AABD /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC793182D742C00F2AABD /* Map.m */; };
 		69AEC79B182D9AAD00F2AABD /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC79A182D9AAD00F2AABD /* Circle.m */; };
@@ -115,6 +117,9 @@
 		697E88321829DA6B00E7E16A /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../android/assets/www; sourceTree = "<group>"; };
 		698CBE78182303DB00F9B989 /* GoogleMaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleMaps.h; sourceTree = "<group>"; };
 		698CBE79182303DB00F9B989 /* GoogleMaps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleMaps.m; sourceTree = "<group>"; };
+		699FB55218983D7900D9DB93 /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
+		699FB55318983D7900D9DB93 /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
+		699FB55418983D7900D9DB93 /* NSData+Base64.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "NSData+Base64.podspec"; sourceTree = "<group>"; };
 		69AEC78F182D649300F2AABD /* Marker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Marker.h; sourceTree = "<group>"; };
 		69AEC790182D649300F2AABD /* Marker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Marker.m; sourceTree = "<group>"; };
 		69AEC792182D742C00F2AABD /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
@@ -345,6 +350,7 @@
 		698CBE77182303DB00F9B989 /* GoogleMaps */ = {
 			isa = PBXGroup;
 			children = (
+				699FB55118983D7900D9DB93 /* NSData-Base64 */,
 				698CBE78182303DB00F9B989 /* GoogleMaps.h */,
 				69D4D8B9182AED74000C8451 /* GoogleMapsViewController.h */,
 				69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */,
@@ -370,6 +376,16 @@
 				A00AF7411870E5B400761894 /* Geocoder.m */,
 			);
 			path = GoogleMaps;
+			sourceTree = "<group>";
+		};
+		699FB55118983D7900D9DB93 /* NSData-Base64 */ = {
+			isa = PBXGroup;
+			children = (
+				699FB55218983D7900D9DB93 /* NSData+Base64.h */,
+				699FB55318983D7900D9DB93 /* NSData+Base64.m */,
+				699FB55418983D7900D9DB93 /* NSData+Base64.podspec */,
+			);
+			path = "NSData-Base64";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -467,6 +483,7 @@
 				3088BBC0154F3926009F9C59 /* Default-Portrait~ipad.png in Resources */,
 				3088BBC1154F3926009F9C59 /* Default@2x~iphone.png in Resources */,
 				3088BBC2154F3926009F9C59 /* Default~iphone.png in Resources */,
+				699FB55618983D7900D9DB93 /* NSData+Base64.podspec in Resources */,
 				D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */,
 				30FC414916E50CA1004E6F35 /* icon-72@2x.png in Resources */,
 				697E88331829DA6B00E7E16A /* www in Resources */,
@@ -501,6 +518,7 @@
 				6936FDDD1836ECC800136A2E /* PluginUtil.m in Sources */,
 				69EE80E71834461C0020D4F8 /* Polygon.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				699FB55518983D7900D9DB93 /* NSData+Base64.m in Sources */,
 				69AEC794182D742C00F2AABD /* Map.m in Sources */,
 				A00AF7421870E5B400761894 /* Geocoder.m in Sources */,
 				69AEC791182D649300F2AABD /* Marker.m in Sources */,

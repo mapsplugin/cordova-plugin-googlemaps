@@ -22,4 +22,5 @@
 
 
 @interface PluginUtil : NSObject
++ (BOOL)isIOS7;
 @end

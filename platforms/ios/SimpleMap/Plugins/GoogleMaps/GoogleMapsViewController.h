@@ -8,6 +8,8 @@
 
 #import <GoogleMaps/GoogleMaps.h>
 #import <UIKit/UIKit.h>
+#import "PluginUtil.h"
+#import "NSData+Base64.h"
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate>
 

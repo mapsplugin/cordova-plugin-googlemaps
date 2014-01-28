@@ -305,7 +305,13 @@ NSDictionary *initOptions;
     
     isTextMode = false;
     NSArray *tmp = [title componentsSeparatedByString:@","];
-    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
+    NSData *decodedData;
+    if ([PluginUtil isIOS7]) {
+      decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
+    } else {
+      decodedData = [NSData dataFromBase64String:tmp[1]];
+    }
+    
     base64Image = [[UIImage alloc] initWithData:decodedData];
     rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
     
@@ -329,7 +335,7 @@ NSDictionary *initOptions;
       snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
       snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
       rectSize.height += snippetSize.height + 2;
-      if (rectSize.width < snippetSize.width) {
+      if (rectSize.width < snippetSize.width + leftImg.size.width) {
         rectSize.width = snippetSize.width + leftImg.size.width;
       }
     }
@@ -376,7 +382,7 @@ NSDictionary *initOptions;
   x = 0;
   while (rectSize.width - x > 5) {
     if (x < rectSize.width * 0.5f - leftImg.size.width + 5 || x > rectSize.width * 0.5f + rightImg.size.width - 10) {
-      [trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 10)];
+      [trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height)];
     }
     x += 5;
   }
@@ -385,7 +391,7 @@ NSDictionary *initOptions;
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-  CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 20));
+  CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 15));
   
   //-------------------------------------
   // Draw the contents

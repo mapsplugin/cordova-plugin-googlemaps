@@ -8,6 +8,8 @@
 
 #import "GoogleMaps.h"
 #import "MyPlgunProtocol.h"
+#import "PluginUtil.h"
+#import "NSData+Base64.h"
 
 @interface Marker : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;

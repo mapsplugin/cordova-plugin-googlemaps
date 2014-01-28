@@ -26,12 +26,16 @@
     
     CGRect screenSize = [[UIScreen mainScreen] bounds];
     CGRect pluginRect;
+    int marginBottom = 0;
+    if ([PluginUtil isIOS7] == false) {
+      marginBottom = 20;
+    }
     int direction = self.viewController.interfaceOrientation;
     if (direction == UIInterfaceOrientationLandscapeLeft ||
         direction == UIInterfaceOrientationLandscapeRight) {
-      pluginRect = CGRectMake(10, 10, screenSize.size.height - 20, screenSize.size.width - 50);
+      pluginRect = CGRectMake(10, 10, screenSize.size.height - 20, screenSize.size.width - 50 - marginBottom);
     } else {
-      pluginRect = CGRectMake(10, 10, screenSize.size.width - 20, screenSize.size.height - 50);
+      pluginRect = CGRectMake(10, 10, screenSize.size.width - 20, screenSize.size.height - 50 - marginBottom);
     }
 
 
@@ -173,6 +177,9 @@
     dialogRect.origin.y = dialogRect.origin.x;
     dialogRect.size.width -= dialogRect.origin.x * 2;
     dialogRect.size.height -= dialogRect.origin.y * 2;
+    if ([PluginUtil isIOS7] == false) {
+      dialogRect.size.height -= 20;
+    }
     
     self.licenseLayer = [[UIView alloc] initWithFrame:self.mapCtrl.view.frame];
     self.licenseLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

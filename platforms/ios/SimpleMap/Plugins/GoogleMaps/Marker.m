@@ -291,7 +291,13 @@
         
         isTextMode = false;
         NSArray *tmp = [iconPath componentsSeparatedByString:@","];
-        NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
+        
+        NSData *decodedData;
+        if ([PluginUtil isIOS7]) {
+          decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
+        } else {
+          decodedData = [NSData dataFromBase64String:tmp[1]];
+        }
         image = [[UIImage alloc] initWithData:decodedData];
         
       } else {

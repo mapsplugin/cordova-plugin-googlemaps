@@ -60,5 +60,16 @@
 
 
 @implementation PluginUtil
++ (BOOL)isIOS7
+{
+    NSArray  *aOsVersions = [[[UIDevice currentDevice]systemVersion] componentsSeparatedByString:@"."];
+    NSInteger iOsVersionMajor  = [[aOsVersions objectAtIndex:0] intValue];
+    if (iOsVersionMajor == 7)
+    {
+        return YES;
+    }
+
+    return NO;
+}
 @end
 

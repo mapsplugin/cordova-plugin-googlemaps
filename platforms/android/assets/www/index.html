@@ -348,23 +348,13 @@ html5Logo(document.getElementById("canvas"));
 <code>var canvas = document.getElementById("canvas");
 map.addMarker({
   'position': GOOGLE_TOKYO,
-  'title': canvas.toDataURL()
-}, function(marker) {
-  marker.showInfoWindow();
-});
-</code>
-<button onclick="addMarker5a()">Play it</button>
-
-<code>var star = document.getElementById("star");
-map.addMarker({
-  'position': GOOGLE_TOKYO,
+  'title': canvas.toDataURL(),
   'icon': "data:image/png;base64,iVBORw0KGgoA...",
-  'title': "Star is generated using HTML5/Canvas!"
 }, function(marker) {
   marker.showInfoWindow();
 });
 </code>
-<button onclick="addMarker5b()">Play it</button>
+<button onclick="addMarker5()">Play it</button>
 
 
 <h2>Remove the marker</h2>
