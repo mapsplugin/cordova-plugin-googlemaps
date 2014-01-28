@@ -90,11 +90,6 @@ $> cordova platform add ios
 For the key, add **Google Maps API Key**, and its value is your **Google Maps API Key for iOS**.
 ![ios-project-settings2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings2.png)
 
-## Coding snippets
-**Complete example code is available from [here][example_repo]**
-
-![simple](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
-
 ###Initialize a map
 To initialize the map plugin, you need to call the **getMap()** method of the Map class.
 The map class raises `MAP_READY` event when the map is initialized.
