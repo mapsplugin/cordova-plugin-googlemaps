@@ -192,6 +192,8 @@ map.animateCamera({
   'bearing': 140
 });
 ```
+[Youtube](http://www.youtube.com/watch?v=QMLWrOxfgRw)
+
 
 Both methods take a callback function as the second argument.
 This callback is involved when the movement is finished.</p>
@@ -266,6 +268,20 @@ map.addMarker({
 ```
 ![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker0.png)
 
+###Add a marker with multiple line
+You are also able to pass multiple line to the **title** option.
+```js
+map.addMarker({
+  'position': GOOGLE_NY,
+  'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
+  'snippet': "This plugin is awesome!"
+}, function(marker) {
+  marker.showInfoWindow();
+});
+```
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
+
+###addMarker() callback
 The **addMarker()** method taken a function as callback on the second argument.
 The callback is involved when the marker is created.
 The plugin passes the marker instance as a parameter.
@@ -280,18 +296,6 @@ map.addMarker({
 ![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
 
 
-The **title** property accepts multiple lines.
-This is not available normally if you use just Google Maps SDKs.
-```js
-map.addMarker({
-  'position': GOOGLE_NY,
-  'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
-  'snippet': "This plugin is awesome!"
-}, function(marker) {
-  marker.showInfoWindow();
-});
-```
-![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
 
 
 ###Add a marker with icon
@@ -303,6 +307,7 @@ map.addMarker({
   'icon': 'www/images/google_tokyo_icon.png'
 });
 ```
+![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
 
 Or you can scale the icon image with options.
 ```js
@@ -312,13 +317,29 @@ map.addMarker({
   'icon': {
     'url': 'www/images/google_tokyo_icon.png',
     'size': {
-      'width': 37,
-      'height': 63
+      'width': 74,
+      'height': 126
     }
   }
 });
 ```
-![image6](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
+![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2b.png)
+
+###Add a marker with base64 encoded image
+This is really useful feature!
+You can set base64 encoded image strings to the **icon** and the **title** options.
+That means you are able to create marker image programmatically.
+```js
+var canvas = document.getElementById("canvas");
+map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': canvas.toDataURL(),
+  'icon': "data:image/png;base64,iVBORw0KGgoA...",
+}, function(marker) {
+  marker.showInfoWindow();
+});
+```
+![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_base64.png)
 
 ###Remove the marker
 To remove the marker, call the **remove()** method.
@@ -342,14 +363,29 @@ map.addMarker({
   }
 });
 ```
+![image](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_click.png)
 
-###Add a polyline, polygon and circle
+###Add a polyline
 Adding a polyline uses **addPolyline()** method.
 ```js
 map.addPolyline({
   points: [
     HND_AIR_PORT,
     SFO_AIR_PORT
+  ],
+  'color' : '#AA00FF',
+  'width': 10,
+  'geodesic': true
+});
+```
+
+If you pass over two points, the plugin draw like the below image.
+```js
+map.addPolyline({
+  points: [
+    HND_AIR_PORT,
+    SFO_AIR_PORT,
+    
   ],
   'color' : '#AA00FF',
   'width': 10,
