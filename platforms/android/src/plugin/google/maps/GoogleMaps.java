@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -298,8 +299,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     baseLayer.addView(bglayer);
     
     // window layout
+    float density = Resources.getSystem().getDisplayMetrics().density;
+    int windowMargin = (int)(10 * density);
     LinearLayout windowLayer = new LinearLayout(activity);
-    windowLayer.setPadding(10, 10, 10, 10);
+    windowLayer.setPadding(windowMargin, windowMargin, windowMargin, windowMargin);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
     windowLayer.setLayoutParams(layoutParams);
@@ -314,7 +317,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     // map frame
     LinearLayout mapFrame = new LinearLayout(activity);
-    mapFrame.setPadding(0, 0, 0, 50);
+    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
     dialogLayer.addView(mapFrame);
     
     // map
@@ -339,7 +342,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeLink.setTextColor(Color.BLUE);
     closeLink.setTextSize(20);
     closeLink.setGravity(Gravity.LEFT);
-    closeLink.setPadding(10, 0, 0, 10);
+    closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
     closeLink.setOnClickListener(GoogleMaps.this);
     closeLink.setId(CLOSE_LINK_ID);
     buttonFrame.addView(closeLink);
@@ -351,16 +354,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setLayoutParams(buttonParams);
     licenseLink.setTextSize(20);
     licenseLink.setGravity(Gravity.RIGHT);
-    licenseLink.setPadding(10, 10, 10, 10);
+    licenseLink.setPadding((int)(10 * density), (int)(20 * density), (int)(10 * density), (int)(10 * density));
     licenseLink.setOnClickListener(GoogleMaps.this);
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
-
-    Build.VERSION version = new Build.VERSION();
-    if (version.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      closeLink.setY(10);
-      licenseLink.setY(10);
-    }
     
     //Custom info window
     map.setInfoWindowAdapter(this);
