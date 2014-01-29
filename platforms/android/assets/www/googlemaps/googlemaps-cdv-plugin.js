@@ -413,6 +413,30 @@
     
     
   };
+  
+  //-------------
+  // KML Layer
+  //-------------
+  App.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
+    var self = this;
+    kmlOverlayOptions = kmlOverlayOptions || {};
+    kmlOverlayOptions.url = kmlOverlayOptions.url || null;
+    kmlOverlayOptions.visible = kmlOverlayOptions.visible || true;
+    kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
+    
+    var pluginExec = function() {
+      cordova.exec(function(kmlOverlayId) {
+        var kmlOverlay = new KmlOverlay(kmlOverlayId, kmlOverlayOptions);
+        if (typeof callback === "function") {
+          callback.call(window, kmlOverlay, self);
+        }
+      }, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.createKmlOverlay', kmlOverlayOptions]);
+    };
+    
+    pluginExec();
+    
+    
+  };
   //-------------
   // Geocoding
   //-------------
@@ -977,6 +1001,33 @@
   };
   GroundOverlay.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
+  };
+  /*****************************************************************************
+   * KmlOverlay Class
+   *****************************************************************************/
+  var KmlOverlay = function(kmlOverlayId, kmlOverlayOptions) {
+    BaseClass.apply(this);
+    
+    var self = this;
+    self.set("visible", kmlOverlayOptions.visible || true);
+    self.set("zIndex", kmlOverlayOptions.zIndex || 0);
+    Object.defineProperty(self, "id", {
+      value: kmlOverlayId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "KmlOverlay",
+      writable: false
+    });
+  };
+  
+  KmlOverlay.prototype = new BaseClass();
+  
+  KmlOverlay.prototype.getId = function() {
+    return this.id;
+  };
+  KmlOverlay.prototype.remove = function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.remove', this.getId()]);
   };
   /*****************************************************************************
    * Private functions

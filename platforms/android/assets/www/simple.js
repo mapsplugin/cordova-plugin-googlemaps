@@ -94,6 +94,11 @@ function onMapReady() {
   });
   
   map.showDialog();
+  map.addKmlOverlay({
+    'url': 'www/cta.kml'
+  }, function() {
+    alert("OK");
+  });
 }
 
 function showMap() {
