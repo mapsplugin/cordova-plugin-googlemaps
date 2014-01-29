@@ -1,37 +1,35 @@
 phonegap-googlemaps-plugin
 ==========================
-This plugin helps you to control [Google Maps Android SDK v2][0] and [Google Maps SDK for iOS][1] from your JavaScript code.
-This plugin works with [Apache Cordova][2].
-
-![日本語のドキュメント](./README.md)からご覧いただけます。
+このプラグインは [Google Maps Android SDK v2][0] と [Google Maps SDK for iOS][1] をJavaScriptコードから操作することができます。
+このプラグインは [Apache Cordova][2]（PhoneGapのオープンソース版）を前提に開発しています。
 
 ![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
-## Manual Android Instration
+## Androidへのインストール
 
-1. Create a cordova project and add Android platform.
-Please refer [the cordova document][3].
+1. まずCordovaプロジェクトを作成し、Androidプラットフォームを追加します。
+詳しくは [the cordova document][3]を参照してください。
 ``` bash
 $> cordova create ./mydir com.example.googlemap MyProject
 $> cd mydir
 $> cordova platform add android
 ```
 
-2. In the Cordova Android application you will need to put the following in your `res/xml/config.xml` file as a child to the plugin tag:
+2. 作成されたCordovaプロジェクト内にある`res/xml/config.xml`ファイルに以下のタグを追加します。
 ``` xml
 <feature name="GoogleMaps">
   <param name="android-package" value="plugin.google.maps.GoogleMaps" />
 </feature>
 ```
 
-3. You'll need to set up the **Google Play Services SDK** and link to it.
- * [Install the Google Play Services SDK for Android][4A]
- * [Import the Google Play Services SDK into Eclipse][4B]
- * Link the Google Play Services SDK library to your project. View the properties for the project, and navigate to the 'Android' tab. In the lower part of the dialog, click 'Add' and choose the 'google-play-services_lib' project from the workspace.
+3. **Google Play Services SDK**をEclipseに読み込み、リンクします。
+ * [Google Play Services SDK for Androidをインストールします][4A]
+ * [Google Play Services SDKをEclipseに読み込みます][4B]
+ * Google Play Services SDK ライブラリプロジェクトをリンクします。プロジェクトを右クリックしてプロパティを表示し、 'Android'タブを選択します。ダイアログの下部にある'Add'ボタンをクリックし、'google-play-services_lib' をワークスペースから選択します。
 ![google-play-services](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
 
-4. Add these permissions and elements to your `AndroidManifest.xml`.
-Please refer the more detailed exlpain in the [Google Maps Document][5].
+4. `AndroidManifest.xml`にパーミッションを追加します。
+詳細は [Google Maps Document][5]を参照してください。
 ``` xml
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -47,9 +45,9 @@ Please refer the more detailed exlpain in the [Google Maps Document][5].
 <meta-data android:name="com.google.android.gms.version"
            android:value="@integer/google_play_services_version" />
 ```
-5. Still in your `AndroidManifest.xml`, add your Google Maps API key under the &lt;application&gt; tag.
-Please refer the more detailed exlpain in the [Google Maps Document][6].
-Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
+5. 続いてあなたの Google Maps API key を&lt;application&gt; タグの下に追加します。
+詳しくは [Google Maps Document][6]を参照してください。
+YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE の部分をあなたのGoogle Maps APIキーに置き換えてください。
 ``` xml
 <meta-data
   android:name="com.google.android.maps.v2.API_KEY"
@@ -60,51 +58,51 @@ Replace YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE with your google maps api key.
   android:value="@integer/google_play_services_version" />
 ```
 
-6. From this plugin folder copy the `www/googlemaps-cdv-plugin.js`and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
+6. 本プラグインのフォルダから`www/googlemaps-cdv-plugin.js`と `example/Simple/` ファイルを、作成したCordovaプロジェクトの `assets/www` フォルダに追加します。既存のindex.htmlファイルは置き換えてください。
 
-7. From this plugin folder copy the `src/android/` folder into your application's `src` folder.
+7. 本プラグインのフォルダから`src/android/` フォルダを作成したCordovaプロジェクトの`src`フォルダに追加します。これで準備OKです。
  
-## Manual iOS Instration
-1. First of all, download the latest SDK from the [official document][iOS1].
+## iOSへのインストール
+1. まず最新のSDKを [公式ドキュメント][iOS1]からダウンロードしてください。
 
-2. Create a cordova project and add iOS platform.
-Please refer [the cordova document][3].
+2. Cordovaプロジェクトを作成し、iOSプラットフォームを追加します。
+詳細は [the cordova document][3]を参照してください。
 ``` bash
 $> cordova create ./mydir com.example.googlemap MyProject
 $> cd mydir
 $> cordova platform add ios
 ```
 
-3. Install the SDK to your project following the [official document][iOS2].
+3. [公式ドキュメント][iOS2]に従って、SDKをインストールします。
 ![ios-project-settings](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png)
 
-4. From this plugin folder copy the `www/googlemaps-cdv-plugin.js` and `example/Simple/` files into your application's `assets/www` folder. Overwrite the existing index.html file.
+4. 本プラグインのフォルダから`www/googlemaps-cdv-plugin.js`と `example/Simple/` ファイルを、作成したCordovaプロジェクトの `assets/www` フォルダに追加します。既存のindex.htmlファイルは置き換えてください。
 
-5. From this plugin folder copy the `src/ios/` folder into your application's `Plugins` folder.
+5. 本プラグインのフォルダから`src/ios/` フォルダを作成したCordovaプロジェクトの`Plugins`フォルダに追加します。
 
-6. In the Cordova iOS application you will need to put the following in your `config.xml` file as a child to the plugin tag:
+6. 作成したCordovaプロジェクトにある `config.xml` ファイルに以下のタグを追加します。
 ``` xml
 <feature name="GoogleMaps">
     <param name="ios-package" value="GoogleMaps" />
 </feature>
 ```
-7. Under the group Resources, find your **[PROJECTNAME]-Info.plist**, add a new entry.
-For the key, add **Google Maps API Key**, and its value is your **Google Maps API Key for iOS**.
+7. XCodeの左ペインにあるツリーからResourcesを開き、**[PROJECTNAME]-Info.plist**を探し、新しいエントリーを追加します。
+キーは **Google Maps API Key**で、値は事前に取得した **Google Maps API Key for iOS**を入力します。これで準備はOKです。
 ![ios-project-settings2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings2.png)
 
-###Initialize a map
-To initialize the map plugin, you need to call the **getMap()** method of the Map class.
-The map class raises `MAP_READY` event when the map is initialized.
-You can receive the event with either **addEventListener()** or **on()** method.
+###地図の初期化
+本地図プラグインを初期化するには、Mapクラスの**getMap()**を最初に実行します。
+初期化が完了すると`MAP_READY`イベントが発行します。
+このイベントを **addEventListener()** または **on()** メソッドを使って受信します。
 ```js
 var map = plugin.google.maps.Map.getMap();
 map.addEventListener(plugin.google.maps.event.MAP_READY, function() {
-  //Something you want to do
+  //やりたいことをここに書く
 });
 ```
 
-###Initialize a map with options
-If you want to initialize a map with parameters, you can do like this.
+###パラメータ付きで地図の初期化
+最初に地図を表示する位置などのパラメータ付きで地図を初期化したい場合、次のコードのようにすることができます。
 ```js
 var map = plugin.google.maps.Map.getMap({
   'mapType': plugin.google.maps.MapTypeId.HYBRID,
@@ -128,9 +126,9 @@ var map = plugin.google.maps.Map.getMap({
 });
 ```
 
-###Listen events
-You can listen several events, such as map clicked.
-Available events for Map class are the below:
+###イベントの受信
+地図がクリックされたなど、いくつかのイベントを受信することができます。
+Mapクラスに対して発行されるイベントは以下のとおりです。
  * MAP_CLICK
  * MAP_LONG_CLICK
  * MY_LOCATION_CHANGE(Android)
@@ -140,7 +138,7 @@ Available events for Map class are the below:
  * MAP_LOADED(Android)
  * MAP_WILL_MOVE(iOS)
 
-Available events for Marker class are the below:
+Markerクラスに対して発行されるイベントは以下のとおりです。
  * MARKER_CLICK
  * INFO_CLICK
  * MARKER_DRAG
@@ -150,37 +148,38 @@ Available events for Marker class are the below:
 ```js
 var evtName = plugin.google.maps.event.MAP_LONG_CLICK;
 map.on(evtName, function(latLng) {
-  alert("Map was long clicked.\n" +
+  alert("地図が長押しされた.\n" +
         latLng.toUrlValue());
 });
 ```
 
-###Show the map dialog
-This plugin show the map on a dialog window. To open it, call **showDialog()** method.
+###地図ダイアログの表示
+本プラグインは地図をダイアログ表示します。地図を表示するには **showDialog()** メソッドを実行します。
 ```js
 map.showDialog();
 ```
 
-###Close the map dialog
-If you want to close the dialog, call **closeDialog()** method.
+###地図ダイアログを閉じる
+地図ダイアログを閉じたい場合は、**closeDialog()** メソッドを実行します。
 ```js
 map.closeDialog();
 ```
 
-###Change the map type
-You can choose the map type using **setMapTypeId()** method.
-Available map types are `ROADMAP`, `SATELLITE`, `HYBRID`, `TERRAIN` and `NONE`.
+###地図タイプの変更
+地図タイプの変更は **setMapTypeId()** メソッドを使用します。
+利用可能な地図タイプは`ROADMAP`, `SATELLITE`, `HYBRID`, `TERRAIN` と `NONE`です。
 ```js
 map.setMapTypeId(plugin.google.maps.HYBRID);
 ```
 ![map_type](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
 
-###Move the camera
-Google Maps for mobile has a view camera.
-You see the map via the camera, thus if you want to show a specific location, you need to move the camera.
-To do that, this plugin provides **animateCamera()** and **moveCamera()** methods.
-The **animateCamera()** moves the camera with animation, while the other hand without animation.
-Default animation time of **animateCamera()** method is 4 seconds.
+###カメラの移動
+Google Maps for mobileはビューカメラを使用しています。
+実際に画面に表示される地図はこのカメラを通して撮影されています。つまり任意の場所を表示したければ、カメラを移動させる必要があります。
+本プラグインでは、 **animateCamera()** と **moveCamera()** メソッドを使用して行います。
+**animateCamera()** はアニメーション付きで移動します。
+**moveCamera()**はアニメーションなしで移動します。
+デフォルトの **animateCamera()** メソッドのアニメーション時間は4秒です。
 ```js
 map.animateCamera({
   'target': GOOGLE,
@@ -193,8 +192,8 @@ map.animateCamera({
 
 http://www.youtube.com/watch?v=QMLWrOxfgRw
 
-Both methods take a callback function as the second argument.
-This callback is involved when the movement is finished.
+どちらのメソッドも第2引数にコールバック関数を取ることができます。
+このコールバック関数は移動が終了した時に呼び出されます。
 ```js
 map.moveCamera({
   'target': STATUE_OF_LIBERTY,
@@ -208,9 +207,8 @@ map.moveCamera({
 ```
 ![camera](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
 
-###Move the camera within the specified duration time
-The **animateCamera()** acepts the duration time for animating with **duration** option.
-If you want to animate slowly, you can specify the duration in millisecond.
+###アニメーション時間の変更
+**animateCamera()** メソッドの時間を変更したい場合は、**duration** オプションにミリ秒で指定します。
 ```js
 map.animateCamera({
   'target': GOOGLE,
@@ -221,8 +219,8 @@ map.animateCamera({
 });
 ```
 
-###Get the camera position
-If you want to know the camera position, just call **getCameraPosition()** method.
+###カメラ位置の取得
+カメラの位置を知りたい場合は、**getCameraPosition()** メソッドを実行するだけです。
 ```js
 map.getCameraPosition(function(camera) {
   var buff = ["Current camera position:\n"
@@ -235,8 +233,8 @@ map.getCameraPosition(function(camera) {
 });
 ```
 
-###Get my location
-If you want to know where you are, just call **getMyLocation()** method.
+###現在位置の取得
+もし現在位置を知りたいなら、**getMyLocation()**メソッドを実行するだけです。
 ```js
 map.getMyLocation(function(location) {
   var msg = ["Current your location:\n",
@@ -256,8 +254,8 @@ map.getMyLocation(function(location) {
 ```
 ![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/mylocation.png)
 
-###Add a marker
-You can make a marker using **addMarker()** method.
+###マーカーの追加
+マーカーの追加は、**addMarker()** メソッドを使用します。
 ```js
 map.addMarker({
   'position': GOOGLE,
@@ -266,8 +264,10 @@ map.addMarker({
 ```
 ![marker0](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker0.png)
 
-###Add a marker with multiple line
-You are also able to pass multiple line to the **title** option.
+###複数行をマーカーに追加
+マーカーをクリックした時に複数行を表示したい場合、**title** オプションにそのまま渡してください。
+プラグインがうまいこと表示します。
+標準のGoogle Maps SDKでは、改行は無視されてしまいます。
 ```js
 map.addMarker({
   'position': GOOGLE_NY,
@@ -279,10 +279,10 @@ map.addMarker({
 ```
 ![marker3](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
 
-###addMarker() callback
-The **addMarker()** method taken a function as callback on the second argument.
-The callback is involved when the marker is created.
-The plugin passes the marker instance as a parameter.
+###addMarker()のコールバック関数
+**addMarker()**メソッドは第2引数にコールバック関数を取ることができます。
+このコールバック関数はmarkerが作成された時に呼び出されます。
+本プラグインは、引数にmarkerのインスタンスを渡します。
 ```js
 map.addMarker({
   'position': STATUE_OF_LIBERTY,
@@ -296,8 +296,8 @@ map.addMarker({
 
 
 
-###Add a marker with icon
-If you want to make a marker with icon, just pass the icon path or URL to the **addMarker()** method.
+###マーカのアイコンを変更する
+マーカのアイコンを変更したいなら、アイコンのファイルパスかURLを **addMarker()** メソッドに渡すだけです。
 ```js
 map.addMarker({
   'position': GOOGLE_TOKYO,
@@ -307,7 +307,7 @@ map.addMarker({
 ```
 ![marker2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
 
-Or you can scale the icon image with options.
+もしくは拡大／縮小することもできます。
 ```js
 map.addMarker({
   'position': GOOGLE_TOKYO,
@@ -323,10 +323,10 @@ map.addMarker({
 ```
 ![marker2b](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2b.png)
 
-###Add a marker with base64 encoded image
-This is really useful feature!
-You can set base64 encoded image strings to the **icon** and the **title** options.
-That means you are able to create marker image programmatically.
+###Base64エンコードされた画像をマーカーに使用する
+これはすごくオススメな機能です！
+**icon** と **title**オプションにbase64エンコードされた画像データをセットすることができます。
+つまりHTML5/Canvasの技術を使って、動的に画像を生成することができます。
 ```js
 var canvas = document.getElementById("canvas");
 map.addMarker({
@@ -339,14 +339,15 @@ map.addMarker({
 ```
 ![marker_base64](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_base64.png)
 
-###Remove the marker
-To remove the marker, call the **remove()** method.
+###マーカーの削除
+マーカーの削除は、 **remove()** メソッドを実行します。
 ```js
 marker.remove();
 ```
 
-###Click events
-This plugin also supports the click events for both marker and infoWindow.
+###クリックイベント
+markerとinfoWindowのクリックイベントもサポートします。
+addEventListener() / on()メソッドを使って、イベントを受信することも可能です。
 ```js
 map.addMarker({
   'position': GOOGLE_SYDNEY,
@@ -363,8 +364,8 @@ map.addMarker({
 ```
 ![marker_click](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_click.png)
 
-###Add a polyline, polygon and circle
-Adding a polyline uses **addPolyline()** method.
+###ポリライン・ポリゴン・円の追加
+ポリラインの追加は **addPolyline()** メソッドを使用します。
 ```js
 map.addPolyline({
   points: [
@@ -377,7 +378,7 @@ map.addPolyline({
 });
 ```
 
-For adding a polygon, use **addPolygon()** method.
+ポリゴンの追加は、 **addPolygon()** メソッドを使用します。
 ```js
 map.addPolygon({
   points: GORYOKAKU_POINTS,
@@ -391,7 +392,7 @@ map.addPolygon({
 });
 ```
 
-For a circle, use **addCircle()** method.
+円の追加は、**addCircle()** メソッドを使用します。
 ```js
 map.addCircle({
   'center': GOOGLE,
@@ -404,8 +405,8 @@ map.addCircle({
 ![image7](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/overlays.png)
 
 
-###Add a ground overlay
-A ground overlay is an image that is fixed to a map. To add an image, call **addGroundOverlay()** method.
+###グラウンドオーバーレイの追加
+地図上の任意の地域に画像を固定して表示することができます。 **addGroundOverlay()** メソッドを使って地図に画像を追加します。
 ```js
 var bounds = [
   new plugin.google.maps.LatLng(40.712216,-74.22655),
@@ -425,18 +426,18 @@ map.addGroundOverlay({
 ```
 ![image8](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ground_overlay.png)
 
-###Remove the ground overlay
-To remove the ground overlay, call the **remove()** method.
+###グラウンド・オーバーレイの削除
+グラウンド・オーバーレイを削除するには、**remove()** メソッドを実行します。
 ```js
 groundOverlay.remove();
 ```
 
 
-###Add a tile overlay
-A Tile Overlay is a set of images which are displayed on top of the base map tiles.
-To your tile layer, call **addTileOverlay()** method.
-You need to include `<x>`,`<y>` and `<zoom>` strings into your URL.
-These are replaced with values.
+###タイル・オーバーレイの追加
+タイル・オーバーレイは画像を地図として、ベース地図の上に表示することができます。
+追加するには、**addTileOverlay()** メソッドを実行します。
+地図画像のURLには `<x>`,`<y>` と `<zoom>`を含んでください。
+これらは実際の値に置き換えられます。
 ```js
 map.addTileOverlay({
   // <x>,<y> and <zoom> are replaced with values
@@ -448,16 +449,16 @@ map.addTileOverlay({
 ```
 ![image9](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/tile_overlay.png)
 
-###Remove the tile overlay
-To remove the tile overlay, call the **remove()** method.
+###タイル・オーバーレイの削除
+タイル・オーバーレイを削除するには、**remove()** メソッドを実行します。
 ```js
 tileOverlay.remove();
 ```
 
 
-###Geocoding
-This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.
-In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).
+###ジオコーディング
+このプラグインではジオコーディングもサポートします。住所やランドスケープ名を緯度経度に変換することができます。
+Android内ではGoogle Play Servicesの機能を、iOSではiOSの機能を使用しています (iOSではGoogleのジオコーダーを使用していません)。
 ```js
 var request = {
   'address': "Kyoto, Japan"
@@ -479,9 +480,9 @@ map.geocode(request, function(results) {
 ![geocoding](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/geocoding.png)
 
 
-###Reverse geocoding
-This plugin also supports reverse geocoding. 
-In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).
+###リバース・ジオコーディング
+このプラグインではリバース・ジオコーディングもサポートします。緯度経度から住所などに変換することができます。
+Android内ではGoogle Play Servicesの機能を、iOSではiOSの機能を使用しています (iOSではGoogleのジオコーダーを使用していません)。
 ```js
 var request = {
   'position': GOOGLE
