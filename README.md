@@ -3,7 +3,7 @@ phonegap-googlemaps-plugin
 This plugin helps you to control [Google Maps Android SDK v2][0] and [Google Maps SDK for iOS][1] from your JavaScript code.
 This plugin works with [Apache Cordova][2].
 
-[日本語のドキュメント][./README_ja.md]からご覧いただけます。
+[日本語のドキュメント][doc_ja]からご覧いただけます。
 
 ![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
@@ -521,3 +521,5 @@ map.geocode(request, function(results) {
 [iOS1]: https://developers.google.com/maps/documentation/ios/start#getting_the_google_maps_sdk_for_ios
 [iOS2]: https://developers.google.com/maps/documentation/ios/start#adding_the_google_maps_sdk_for_ios_to_your_project
 [iOS3]: https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ios-project-settings.png
+
+[doc_ja]: https://github.com/wf9a5m75/phonegap-googlemaps-plugin/blob/master/README_ja.md
