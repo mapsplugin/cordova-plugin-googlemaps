@@ -426,6 +426,8 @@
     
     var pluginExec = function() {
       cordova.exec(function(kmlOverlayId) {
+        callback.call(window);
+        return;
         var kmlOverlay = new KmlOverlay(kmlOverlayId, kmlOverlayOptions);
         if (typeof callback === "function") {
           callback.call(window, kmlOverlay, self);

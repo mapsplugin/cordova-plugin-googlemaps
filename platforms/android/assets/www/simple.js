@@ -93,11 +93,14 @@ function onMapReady() {
           latLng.toUrlValue());
   });
   
-  map.showDialog();
   map.addKmlOverlay({
-    'url': 'www/cta.kml'
+    'url': 'www/polygon-simple.kml'
   }, function() {
-    alert("OK");
+    map.moveCamera({
+      'target': new plugin.google.maps.LatLng(-34.89, 138.57),
+      'zoom': 11
+    });
+    map.showDialog();
   });
 }
 

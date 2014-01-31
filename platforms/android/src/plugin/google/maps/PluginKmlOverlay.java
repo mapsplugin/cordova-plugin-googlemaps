@@ -35,7 +35,7 @@ public class PluginKmlOverlay extends MyPlugin {
     JSONObject opts = args.getJSONObject(1);
     
     AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.map, callbackContext);
-    kmlParser.execute();
+    kmlParser.execute(opts.getString("url"));
   }
 
   /**
