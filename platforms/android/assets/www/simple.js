@@ -94,11 +94,11 @@ function onMapReady() {
   });
   
   map.addKmlOverlay({
-    'url': 'www/polygon-simple.kml'
+    'url': 'www/US Regions State Boundaries.kml'
   }, function() {
     map.moveCamera({
-      'target': new plugin.google.maps.LatLng(-34.89, 138.57),
-      'zoom': 11
+      'target': new plugin.google.maps.LatLng(-34.93, 138.64),
+      'zoom': 3
     });
     map.showDialog();
   });
