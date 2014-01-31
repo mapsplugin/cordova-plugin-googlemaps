@@ -48,6 +48,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, ArrayList<Bundle>> {
     fill,
     name,
     styleurl,
+    description,
     
     coordinates
   };
@@ -99,7 +100,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, ArrayList<Bundle>> {
     }
 
     HashMap<String, Bundle> styles = new HashMap<String, Bundle>();
-    float[] coordinates;
+    
     String tmp;
     Bundle node;
     Bundle childNode;
@@ -163,11 +164,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, ArrayList<Bundle>> {
         
         switch(KML_TAG.valueOf(tagName)) {
         case point:
-          coordinates = childNode.getFloatArray("coordinates");
-          LatLng latLng = new LatLng(coordinates[1], coordinates[0]);
+          latLngList = childNode.getParcelableArrayList("coordinates");
           MarkerOptions markerOptions = new MarkerOptions();
-          markerOptions.title(node.getString("name"));
-          markerOptions.position(latLng);
+          tmp = node.getString("name");
+          if (node.containsKey("description")) {
+            tmp += "\n\n" + node.getString("description");
+          }
+          markerOptions.title(tmp);
+          markerOptions.position(latLngList.get(0));
           mMap.addMarker(markerOptions);
           
           break;
@@ -262,6 +266,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, ArrayList<Bundle>> {
           case width:
           case color:
           case fill:
+          case description:
             if (currentNode != null) {
               currentNode.putString(tagName, parser.nextText());
             }
