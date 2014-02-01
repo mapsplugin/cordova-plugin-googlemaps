@@ -127,16 +127,18 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     String tmp, tagName;
     Bundle node, style, childNode, tmpBundle;
     ArrayList<Bundle> bundleList;
+    ArrayList<Bundle> children;
     ArrayList<LatLng> latLngList;
     Iterator<Bundle> iterator = placeMarks.iterator();
     Iterator<Bundle> bundleIterator;
+    Iterator<Bundle> childrenIterator;
     while(iterator.hasNext()) {
       node = iterator.next();
 
-      bundleList = node.getParcelableArrayList("children");
-      bundleIterator = bundleList.iterator();
-      while(bundleIterator.hasNext()) {
-        childNode = bundleIterator.next();
+      children = node.getParcelableArrayList("children");
+      childrenIterator = children.iterator();
+      while(childrenIterator.hasNext()) {
+        childNode = childrenIterator.next();
         
         tagName = childNode.getString("tagName");
         switch(KML_TAG.valueOf(tagName)) {
@@ -189,15 +191,12 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           
 
         case polygon:
-          ArrayList<Bundle> children = childNode.getParcelableArrayList("children");
+          children = childNode.getParcelableArrayList("children");
           childNode = children.get(0);
           PolygonOptions polygonOptions = new PolygonOptions();
           latLngList = childNode.getParcelableArrayList("coordinates");
           polygonOptions.addAll(latLngList);
-          polygonOptions.strokeWidth(0);
-          polygonOptions.strokeColor(Color.RED);
           polygonOptions.strokeWidth(4);
-          mMap.addPolygon(polygonOptions);
 
           if (node.containsKey("styleurl")) {
             tmp = node.getString("styleurl");
@@ -230,6 +229,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           } else {
             Log.e("client", "--" + style + " is null");
           }
+          mMap.addPolygon(polygonOptions);
           break;
         }
       }
@@ -400,6 +400,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               nodeIndex = nodeStack.size() - 1;
               parentNode = nodeStack.get(nodeIndex);
               parentNode.putParcelableArrayList("children", pairList);
+              parentNode.putString("tagName", tagName);
               nodeStack.remove(nodeIndex);
               currentNode = parentNode;
               pairList = null;
