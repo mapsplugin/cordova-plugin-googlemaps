@@ -41,6 +41,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     point,
     polygon,
     pair,
+    multigeometry,
 
     key,
     styleurl,
@@ -122,7 +123,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
     
-    Log.d("client", styles.toString());
     
     String tmp, tagName;
     Bundle node, style, childNode, tmpBundle;
@@ -133,97 +133,107 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     while(iterator.hasNext()) {
       node = iterator.next();
 
-      childNode = node.getBundle("child");
-      tagName = childNode.getString("tagName");
-      switch(KML_TAG.valueOf(tagName)) {
-      case point:
-        latLngList = childNode.getParcelableArrayList("coordinates");
-        MarkerOptions markerOptions = new MarkerOptions();
-        tmp = node.getString("name");
-        if (node.containsKey("description")) {
-          tmp += "\n\n" + node.getString("description");
-        }
-        markerOptions.title(tmp);
-        markerOptions.position(latLngList.get(0));
-        mMap.addMarker(markerOptions);
+      bundleList = node.getParcelableArrayList("children");
+      bundleIterator = bundleList.iterator();
+      while(bundleIterator.hasNext()) {
+        childNode = bundleIterator.next();
         
-        break;
-        
-      case linestring:
-        
-        PolylineOptions polylineOptions = new PolylineOptions();
-        latLngList = childNode.getParcelableArrayList("coordinates");
-        polylineOptions.addAll(latLngList);
-        Polyline polyline = mMap.addPolyline(polylineOptions);
+        tagName = childNode.getString("tagName");
+        switch(KML_TAG.valueOf(tagName)) {
+        case point:
+          latLngList = childNode.getParcelableArrayList("coordinates");
+          MarkerOptions markerOptions = new MarkerOptions();
+          tmp = node.getString("name");
+          if (node.containsKey("description")) {
+            tmp += "\n\n" + node.getString("description");
+          }
+          markerOptions.title(tmp);
+          markerOptions.position(latLngList.get(0));
+          mMap.addMarker(markerOptions);
+          
+          break;
+          
+        case linestring:
+          
+          PolylineOptions polylineOptions = new PolylineOptions();
+          latLngList = childNode.getParcelableArrayList("coordinates");
+          polylineOptions.addAll(latLngList);
+          Polyline polyline = mMap.addPolyline(polylineOptions);
 
-        if (node.containsKey("styleurl")) {
-          tmp = node.getString("styleurl");
-        } else {
-          tmp = "#__default__";
-        }
-        style = getStyleById(styles, tmp);
-        
-        if (style != null) {
-          bundleList = style.getParcelableArrayList("children");
-          bundleIterator = bundleList.iterator();
-          while(bundleIterator.hasNext()) {
-            style = bundleIterator.next();
-            tagName = style.getString("tagName");
-            switch(KML_TAG.valueOf(tagName)) {
-            case linestyle:
-              if (style.containsKey("color")) {
-                polyline.setColor(parseKMLcolor(style.getString("color")));
+          if (node.containsKey("styleurl")) {
+            tmp = node.getString("styleurl");
+          } else {
+            tmp = "#__default__";
+          }
+          style = getStyleById(styles, tmp);
+          
+          if (style != null) {
+            bundleList = style.getParcelableArrayList("children");
+            bundleIterator = bundleList.iterator();
+            while(bundleIterator.hasNext()) {
+              style = bundleIterator.next();
+              tagName = style.getString("tagName");
+              switch(KML_TAG.valueOf(tagName)) {
+              case linestyle:
+                if (style.containsKey("color")) {
+                  polyline.setColor(parseKMLcolor(style.getString("color")));
+                }
+                if (style.containsKey("width")) {
+                  polyline.setWidth(Integer.parseInt(style.getString("width")) * density);
+                }
+                break;
               }
-              if (style.containsKey("width")) {
-                polyline.setWidth(Integer.parseInt(style.getString("width")) * density);
-              }
-              break;
             }
           }
-        }
-        break;
-        
+          break;
+          
 
-      case polygon:
-        childNode = childNode.getBundle("child");
-        PolygonOptions polygonOptions = new PolygonOptions();
-        latLngList = childNode.getParcelableArrayList("coordinates");
-        polygonOptions.addAll(latLngList);
-        polygonOptions.strokeWidth(0);
+        case polygon:
+          ArrayList<Bundle> children = childNode.getParcelableArrayList("children");
+          childNode = children.get(0);
+          PolygonOptions polygonOptions = new PolygonOptions();
+          latLngList = childNode.getParcelableArrayList("coordinates");
+          polygonOptions.addAll(latLngList);
+          polygonOptions.strokeWidth(0);
+          polygonOptions.strokeColor(Color.RED);
+          polygonOptions.strokeWidth(4);
+          mMap.addPolygon(polygonOptions);
 
-        if (node.containsKey("styleurl")) {
-          tmp = node.getString("styleurl");
-        } else {
-          tmp = "#__default__";
-        }
-        style = getStyleById(styles, tmp);
-        Log.d("client", style.toString());
-        if (style != null) {
-          bundleList = style.getParcelableArrayList("children");
-          bundleIterator = bundleList.iterator();
-          while(bundleIterator.hasNext()) {
-            style = bundleIterator.next();
-            tagName = style.getString("tagName");
-            switch(KML_TAG.valueOf(tagName)) {
-            case polystyle:
-              if (style.containsKey("color")) {
-                polygonOptions.fillColor(parseKMLcolor(style.getString("color")));
-              }
-              break;
-            case linestyle:
-              if (style.containsKey("color")) {
-                polygonOptions.strokeColor(parseKMLcolor(style.getString("color")));
-              }
-              if (style.containsKey("width")) {
-                polygonOptions.strokeWidth(Float.parseFloat(style.getString("width")) * density);
-              }
-              break;
-            }
+          if (node.containsKey("styleurl")) {
+            tmp = node.getString("styleurl");
+          } else {
+            tmp = "#__default__";
           }
+          style = getStyleById(styles, tmp);
+          if (style != null) {
+            bundleList = style.getParcelableArrayList("children");
+            bundleIterator = bundleList.iterator();
+            while(bundleIterator.hasNext()) {
+              style = bundleIterator.next();
+              tagName = style.getString("tagName");
+              switch(KML_TAG.valueOf(tagName)) {
+              case polystyle:
+                if (style.containsKey("color")) {
+                  polygonOptions.fillColor(parseKMLcolor(style.getString("color")));
+                }
+                break;
+              case linestyle:
+                if (style.containsKey("color")) {
+                  polygonOptions.strokeColor(parseKMLcolor(style.getString("color")));
+                }
+                if (style.containsKey("width")) {
+                  polygonOptions.strokeWidth(Float.parseFloat(style.getString("width")) * density);
+                }
+                break;
+              }
+            }
+          } else {
+            Log.e("client", "--" + style + " is null");
+          }
+          break;
         }
-        mMap.addPolygon(polygonOptions);
-        break;
       }
+      
     }
     this.mCallback.success();
   }
@@ -286,12 +296,26 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             currentNode.putString("id", tmp);
             pairList = new ArrayList<Bundle>();
             break;
+          case multigeometry:
+            //push
+            nodeStack.add(currentNode);
+            
+            currentNode = new Bundle();
+            currentNode.putString("tagName", tagName);
+            pairList = new ArrayList<Bundle>();
+            break;
           case placemark:
             currentNode = new Bundle();
             currentNode.putString("tagName", tagName);
+            pairList = null;
             break;
+          case linestyle:
+          case polystyle:
           case pair:
-            //push
+            if (pairList != null) {
+              currentNode.putParcelableArrayList("children", pairList);
+              pairList = new ArrayList<Bundle>();
+            }
             nodeStack.add(currentNode);
             
             currentNode = new Bundle();
@@ -299,11 +323,13 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             break;
           case point:
           case linestring:
-          case linestyle:
           case outerboundaryis:
-          case polystyle:
           case polygon:
             //push
+            if (pairList != null) {
+              //currentNode.putParcelableArrayList("children", pairList);
+              //pairList = null;
+            }
             nodeStack.add(currentNode);
             
             currentNode = new Bundle();
@@ -369,18 +395,19 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               nodeStack.remove(nodeIndex);
               currentNode = parentNode;
               break;
+            case multigeometry:
+              //pop
+              nodeIndex = nodeStack.size() - 1;
+              parentNode = nodeStack.get(nodeIndex);
+              parentNode.putParcelableArrayList("children", pairList);
+              nodeStack.remove(nodeIndex);
+              currentNode = parentNode;
+              pairList = null;
+              break;
             case placemark:
               placeMarks.add(currentNode);
               break;
             case pair:
-              pairList.add(currentNode);
-              
-              //pop
-              nodeIndex = nodeStack.size() - 1;
-              parentNode = nodeStack.get(nodeIndex);
-              nodeStack.remove(nodeIndex);
-              currentNode = parentNode;
-              break;
             case linestyle:
             case polystyle:
               pairList.add(currentNode);
@@ -400,7 +427,16 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               nodeIndex = nodeStack.size() - 1;
               parentNode = nodeStack.get(nodeIndex);
               nodeStack.remove(nodeIndex);
-              parentNode.putBundle("child", currentNode);
+              
+              if (parentNode.containsKey("children")) {
+                pairList = parentNode.getParcelableArrayList("children");
+                pairList.add(currentNode);
+                parentNode.putParcelableArrayList("children", pairList);
+              } else {
+                pairList = new ArrayList<Bundle>();
+                pairList.add(currentNode);
+                parentNode.putParcelableArrayList("children", pairList);
+              }
               currentNode = parentNode;
               break;
             default:
