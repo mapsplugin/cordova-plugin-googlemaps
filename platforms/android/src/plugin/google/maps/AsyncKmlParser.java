@@ -135,6 +135,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       node = iterator.next();
 
       children = node.getParcelableArrayList("children");
+      if (children == null) {
+        continue;
+      }
       childrenIterator = children.iterator();
       while(childrenIterator.hasNext()) {
         childNode = childrenIterator.next();
@@ -295,12 +298,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             pairList = new ArrayList<Bundle>();
             break;
           case multigeometry:
-            //push
-            nodeStack.add(currentNode);
-            
-            currentNode = new Bundle();
-            currentNode.putString("tagName", tagName);
-            pairList = new ArrayList<Bundle>();
+            if (currentNode != null) {
+              //push
+              nodeStack.add(currentNode);
+              
+              currentNode = new Bundle();
+              currentNode.putString("tagName", tagName);
+              pairList = new ArrayList<Bundle>();
+            }
             break;
           case placemark:
             currentNode = new Bundle();
@@ -314,11 +319,13 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           case linestring:
           case outerboundaryis:
           case polygon:
-            //push
-            nodeStack.add(currentNode);
-            
-            currentNode = new Bundle();
-            currentNode.putString("tagName", tagName);
+            if (currentNode != null) {
+              //push
+              nodeStack.add(currentNode);
+              
+              currentNode = new Bundle();
+              currentNode.putString("tagName", tagName);
+            }
             break;
           case key:
           case styleurl:
@@ -381,49 +388,56 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               currentNode = parentNode;
               break;
             case multigeometry:
-              //pop
-              nodeIndex = nodeStack.size() - 1;
-              parentNode = nodeStack.get(nodeIndex);
-              parentNode.putParcelableArrayList("children", pairList);
-              parentNode.putString("tagName", tagName);
-              nodeStack.remove(nodeIndex);
-              currentNode = parentNode;
-              pairList = null;
+              if (currentNode != null) {
+                //pop
+                nodeIndex = nodeStack.size() - 1;
+                parentNode = nodeStack.get(nodeIndex);
+                parentNode.putParcelableArrayList("children", pairList);
+                parentNode.putString("tagName", tagName);
+                nodeStack.remove(nodeIndex);
+                currentNode = parentNode;
+                pairList = null;
+              }
               break;
             case placemark:
               placeMarks.add(currentNode);
+              currentNode = null;
               break;
             case pair:
             case linestyle:
             case polystyle:
-              pairList.add(currentNode);
-
-              //pop
-              nodeIndex = nodeStack.size() - 1;
-              parentNode = nodeStack.get(nodeIndex);
-              nodeStack.remove(nodeIndex);
-              currentNode = parentNode;
+              if (currentNode != null) {
+                pairList.add(currentNode);
+  
+                //pop
+                nodeIndex = nodeStack.size() - 1;
+                parentNode = nodeStack.get(nodeIndex);
+                nodeStack.remove(nodeIndex);
+                currentNode = parentNode;
+              }
               break;
             case point:
             case outerboundaryis:
             case linestring:
             case coordinates:
             case polygon:
-              //pop
-              nodeIndex = nodeStack.size() - 1;
-              parentNode = nodeStack.get(nodeIndex);
-              nodeStack.remove(nodeIndex);
-              
-              if (parentNode.containsKey("children")) {
-                pairList = parentNode.getParcelableArrayList("children");
-                pairList.add(currentNode);
-                parentNode.putParcelableArrayList("children", pairList);
-              } else {
-                pairList = new ArrayList<Bundle>();
-                pairList.add(currentNode);
-                parentNode.putParcelableArrayList("children", pairList);
+              if (currentNode != null) {
+                //pop
+                nodeIndex = nodeStack.size() - 1;
+                parentNode = nodeStack.get(nodeIndex);
+                nodeStack.remove(nodeIndex);
+                
+                if (parentNode.containsKey("children")) {
+                  pairList = parentNode.getParcelableArrayList("children");
+                  pairList.add(currentNode);
+                  parentNode.putParcelableArrayList("children", pairList);
+                } else {
+                  pairList = new ArrayList<Bundle>();
+                  pairList.add(currentNode);
+                  parentNode.putParcelableArrayList("children", pairList);
+                }
+                currentNode = parentNode;
               }
-              currentNode = parentNode;
               break;
             default:
               break;
