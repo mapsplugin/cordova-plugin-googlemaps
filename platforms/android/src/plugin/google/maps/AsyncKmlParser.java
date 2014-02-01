@@ -123,9 +123,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
     
-    
     String tmp, tagName;
-    Bundle node, style, childNode, tmpBundle;
+    Bundle node, style, childNode;
     ArrayList<Bundle> bundleList;
     ArrayList<Bundle> children;
     ArrayList<LatLng> latLngList;
@@ -196,7 +195,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           PolygonOptions polygonOptions = new PolygonOptions();
           latLngList = childNode.getParcelableArrayList("coordinates");
           polygonOptions.addAll(latLngList);
-          polygonOptions.strokeWidth(4);
+          polygonOptions.strokeWidth(4 * density);
 
           if (node.containsKey("styleurl")) {
             tmp = node.getString("styleurl");
@@ -244,7 +243,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       tmp = colorStr.substring(j, j + 2) + tmp;
     }
     tmp = colorStr.substring(0, 2) + tmp;
-    Log.i("client", colorStr + " -> " + tmp);
 
     return Color.parseColor("#" + tmp);
   }
@@ -312,24 +310,11 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           case linestyle:
           case polystyle:
           case pair:
-            if (pairList != null) {
-              currentNode.putParcelableArrayList("children", pairList);
-              pairList = new ArrayList<Bundle>();
-            }
-            nodeStack.add(currentNode);
-            
-            currentNode = new Bundle();
-            currentNode.putString("tagName", tagName);
-            break;
           case point:
           case linestring:
           case outerboundaryis:
           case polygon:
             //push
-            if (pairList != null) {
-              //currentNode.putParcelableArrayList("children", pairList);
-              //pairList = null;
-            }
             nodeStack.add(currentNode);
             
             currentNode = new Bundle();
