@@ -42,6 +42,8 @@
 		69AEC794182D742C00F2AABD /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC793182D742C00F2AABD /* Map.m */; };
 		69AEC79B182D9AAD00F2AABD /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = 69AEC79A182D9AAD00F2AABD /* Circle.m */; };
 		69D4D8BB182AED74000C8451 /* GoogleMapsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */; };
+		69D6416818A2B34C004DAF6F /* KmlOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 69D6416718A2B34C004DAF6F /* KmlOverlay.m */; };
+		69D6417B18A2B96D004DAF6F /* TBXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 69D6417A18A2B96D004DAF6F /* TBXML.m */; };
 		69EE80E71834461C0020D4F8 /* Polygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 69EE80E61834461C0020D4F8 /* Polygon.m */; };
 		815C8254AA554CE380A5FA22 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9568FA667045ED82E21A54 /* CDVLogger.m */; };
 		A0027B4D183C483800E7CB91 /* TileOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = A0027B4C183C483800E7CB91 /* TileOverlay.m */; };
@@ -129,6 +131,11 @@
 		69AEC79A182D9AAD00F2AABD /* Circle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Circle.m; sourceTree = "<group>"; };
 		69D4D8B9182AED74000C8451 /* GoogleMapsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleMapsViewController.h; sourceTree = "<group>"; };
 		69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleMapsViewController.m; sourceTree = "<group>"; };
+		69D6416618A2B34C004DAF6F /* KmlOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KmlOverlay.h; sourceTree = "<group>"; };
+		69D6416718A2B34C004DAF6F /* KmlOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KmlOverlay.m; sourceTree = "<group>"; };
+		69D6416918A2B4B0004DAF6F /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		69D6417A18A2B96D004DAF6F /* TBXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBXML.m; sourceTree = "<group>"; };
+		69D6417C18A2B973004DAF6F /* TBXML.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TBXML.h; sourceTree = "<group>"; };
 		69EE80E51834461C0020D4F8 /* Polygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon.h; sourceTree = "<group>"; };
 		69EE80E61834461C0020D4F8 /* Polygon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon.m; sourceTree = "<group>"; };
 		8C9568FA667045ED82E21A54 /* CDVLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVLogger.m; path = org.apache.cordova.console/CDVLogger.m; sourceTree = "<group>"; };
@@ -266,6 +273,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				69D6416918A2B4B0004DAF6F /* libxml2.dylib */,
 				69602BB018904F09003138C7 /* GoogleMaps.bundle */,
 				69602BAE18904EEC003138C7 /* GoogleMaps.framework */,
 				A039ADC418223D1E00B32D98 /* SystemConfiguration.framework */,
@@ -350,10 +358,13 @@
 		698CBE77182303DB00F9B989 /* GoogleMaps */ = {
 			isa = PBXGroup;
 			children = (
+				69D6417918A2B964004DAF6F /* TBXML */,
 				699FB55118983D7900D9DB93 /* NSData-Base64 */,
 				698CBE78182303DB00F9B989 /* GoogleMaps.h */,
 				69D4D8B9182AED74000C8451 /* GoogleMapsViewController.h */,
 				69D4D8BA182AED74000C8451 /* GoogleMapsViewController.m */,
+				69D6416618A2B34C004DAF6F /* KmlOverlay.h */,
+				69D6416718A2B34C004DAF6F /* KmlOverlay.m */,
 				698CBE79182303DB00F9B989 /* GoogleMaps.m */,
 				69AEC78F182D649300F2AABD /* Marker.h */,
 				69AEC790182D649300F2AABD /* Marker.m */,
@@ -386,6 +397,15 @@
 				699FB55418983D7900D9DB93 /* NSData+Base64.podspec */,
 			);
 			path = "NSData-Base64";
+			sourceTree = "<group>";
+		};
+		69D6417918A2B964004DAF6F /* TBXML */ = {
+			isa = PBXGroup;
+			children = (
+				69D6417C18A2B973004DAF6F /* TBXML.h */,
+				69D6417A18A2B96D004DAF6F /* TBXML.m */,
+			);
+			name = TBXML;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -515,10 +535,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0027B4D183C483800E7CB91 /* TileOverlay.m in Sources */,
+				69D6416818A2B34C004DAF6F /* KmlOverlay.m in Sources */,
 				6936FDDD1836ECC800136A2E /* PluginUtil.m in Sources */,
 				69EE80E71834461C0020D4F8 /* Polygon.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				699FB55518983D7900D9DB93 /* NSData+Base64.m in Sources */,
+				69D6417B18A2B96D004DAF6F /* TBXML.m in Sources */,
 				69AEC794182D742C00F2AABD /* Map.m in Sources */,
 				A00AF7421870E5B400761894 /* Geocoder.m in Sources */,
 				69AEC791182D649300F2AABD /* Marker.m in Sources */,

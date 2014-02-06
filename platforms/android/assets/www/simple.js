@@ -94,7 +94,7 @@ function onMapReady() {
   });
   
   map.addKmlOverlay({
-    'url': 'www/polygon-simple.kml'
+    'url': 'www/cta.kml'
   }, function() {
     map.moveCamera({
       'target': new plugin.google.maps.LatLng(-34.93, 138.64),
