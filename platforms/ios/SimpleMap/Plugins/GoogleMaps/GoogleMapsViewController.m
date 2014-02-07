@@ -16,6 +16,7 @@ NSDictionary *initOptions;
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
     initOptions = options;
+    self.plugins = [NSMutableDictionary dictionary];
     return self;
 }
 

@@ -18,6 +18,19 @@
 
 -(void)createKmlOverlay:(CDVInvokedUrlCommand *)command
 {
+  NSDictionary* dummyDict1 = [NSDictionary dictionaryWithObjectsAndKeys:@"val", @"key", nil];
+  NSDictionary* dummyDict2 = [NSDictionary dictionaryWithObjectsAndKeys:@"val", @"key", nil];
+  NSArray* args = [NSArray arrayWithObjects:@"a", dummyDict1, dummyDict2, @"b", nil];
+  NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
+  CDVInvokedUrlCommand* command2 = [CDVInvokedUrlCommand commandFromJson:jsonArr];
+  
+  
+  CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:@"Polyline"];
+  SEL selector = NSSelectorFromString(@"createPolyline");
+  if ([pluginClass respondsToSelector:selector]){
+    [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:YES];
+  }
+return;
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
   NSString *urlStr = [json objectForKey:@"url"];

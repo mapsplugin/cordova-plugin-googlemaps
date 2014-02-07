@@ -10,6 +10,7 @@
 #import "MyPlgunProtocol.h"
 #import "PluginUtil.h"
 #import "TBXML.h"
+#import "MyPlgunProtocol.h"
 
 @interface KmlOverlay : CDVPlugin<MyPlgunProtocol>
 

@@ -12,7 +12,6 @@
 
 - (void)pluginInitialize
 {
-  self.plugins = [NSMutableDictionary dictionary];
   self.licenseLayer = nil;
 }
 
@@ -53,7 +52,7 @@
       Map *mapClass = [[NSClassFromString(@"Map")alloc] initWithWebView:self.webView];
       mapClass.commandDelegate = self.commandDelegate;
       [mapClass setGoogleMapsViewController:self.mapCtrl];
-      [self.plugins setObject:mapClass forKey:@"Map"];
+      [self.mapCtrl.plugins setObject:mapClass forKey:@"Map"];
     });
     
     
@@ -114,13 +113,13 @@
     if ([target count] == 2) {
       methodName = [NSString stringWithFormat:@"%@:", [target objectAtIndex:1]];
       
-      pluginClass = [self.plugins objectForKey:className];
+      pluginClass = [self.mapCtrl.plugins objectForKey:className];
       if (!pluginClass) {
         pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
         if (pluginClass) {
           pluginClass.commandDelegate = self.commandDelegate;
           [pluginClass setGoogleMapsViewController:self.mapCtrl];
-          [self.plugins setObject:pluginClass forKey:className];
+          [self.mapCtrl.plugins setObject:pluginClass forKey:className];
         }
       }
       if (!pluginClass) {
