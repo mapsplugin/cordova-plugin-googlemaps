@@ -18,19 +18,34 @@
 
 -(void)createKmlOverlay:(CDVInvokedUrlCommand *)command
 {
+
+/*
   NSDictionary* dummyDict1 = [NSDictionary dictionaryWithObjectsAndKeys:@"val", @"key", nil];
   NSDictionary* dummyDict2 = [NSDictionary dictionaryWithObjectsAndKeys:@"val", @"key", nil];
   NSArray* args = [NSArray arrayWithObjects:@"a", dummyDict1, dummyDict2, @"b", nil];
   NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
   CDVInvokedUrlCommand* command2 = [CDVInvokedUrlCommand commandFromJson:jsonArr];
   
+  NSLog(@"createKmlOverlay");
   
-  CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:@"Polyline"];
-  SEL selector = NSSelectorFromString(@"createPolyline");
+  NSString *className = @"Polyline";
+  CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:className];
+  if (!pluginClass) {
+    pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
+    if (pluginClass) {
+      pluginClass.commandDelegate = self.commandDelegate;
+      [pluginClass setGoogleMapsViewController:self.mapCtrl];
+      [self.mapCtrl.plugins setObject:pluginClass forKey:className];
+    }
+  }
+  SEL selector = NSSelectorFromString(@"createPolyline:");
+  NSLog(@"class=%hhd", [pluginClass respondsToSelector:selector]);
   if ([pluginClass respondsToSelector:selector]){
     [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:YES];
   }
+  NSLog(@"done");
 return;
+*/
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
   NSString *urlStr = [json objectForKey:@"url"];
@@ -73,11 +88,63 @@ return;
       [placeMarks addObject:tag];
     }
   }
-  
-  
+  NSLog(@"---implement start");
+  for (tag in placeMarks) {
+    [self implementPlaceMarkToMap:tag styles:styles];
+  }
+  NSLog(@"%@", styles);
   
   //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
   
+}
+
+-(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
+  NSArray *children = [placeMarker objectForKey:@"children"];
+  
+  NSDictionary *childNode, *node;
+  NSMutableDictionary *options = [NSMutableDictionary dictionary];
+  NSString *tagName, *tagName2;
+  NSArray *tmpArray;
+  NSString *objectName = nil;
+  
+  [options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
+  
+  for (childNode in children) {
+    tagName = [childNode objectForKey:@"_tag"];
+    
+    if ([tagName isEqualToString:@"linestring"]) {
+      objectName = @"Polyline";
+      [options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
+      tmpArray = [childNode objectForKey:@"children"];
+      for (node in tmpArray) {
+        tagName2 = [node objectForKey:@"_tag"];
+        if ([tagName2 isEqualToString:@"coordinates"]) {
+          [options setObject:[self _coordinateToLatLngArray:node] forKey:@"points"];
+          break;
+        }
+      }
+    }
+  }
+  //NSLog(@"%@", options);
+  
+}
+
+-(NSMutableArray *)_coordinateToLatLngArray:(NSDictionary *)coordinateTag {
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^0-9\\-\\.\\,]+" options:NSRegularExpressionCaseInsensitive error:nil];
+  NSMutableArray *coordinates = [NSMutableArray array];
+  NSString *coordinateStr = [coordinateTag objectForKey:@"coordinates"];
+  coordinateStr = [regex stringByReplacingMatchesInString:coordinateStr options:0 range:NSMakeRange(0, [coordinateStr length]) withTemplate:@"@"];
+  NSArray *lngLatArray = [coordinateStr componentsSeparatedByString:@"@"];
+  NSString *lngLat;
+  NSArray *lngLatAlt;
+  for (lngLat in lngLatArray) {
+    lngLatAlt = [lngLat componentsSeparatedByString:@","];
+    NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+    [latLng setObject:lngLatAlt[0] forKey:@"lng"];
+    [latLng setObject:lngLatAlt[1] forKey:@"lat"];
+    [coordinates addObject:latLng];
+  }
+  return coordinates;
 }
 
 /**
