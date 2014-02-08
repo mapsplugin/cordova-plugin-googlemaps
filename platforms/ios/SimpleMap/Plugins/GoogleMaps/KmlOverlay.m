@@ -92,7 +92,6 @@ return;
   for (tag in placeMarks) {
     [self implementPlaceMarkToMap:tag styles:styles];
   }
-  NSLog(@"%@", styles);
   
   //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
   
@@ -101,10 +100,10 @@ return;
 -(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
   NSArray *children = [placeMarker objectForKey:@"children"];
   
-  NSDictionary *childNode, *node;
+  NSDictionary *childNode, *node, *styleNode;
   NSMutableDictionary *options = [NSMutableDictionary dictionary];
-  NSString *tagName, *tagName2;
-  NSArray *tmpArray;
+  NSString *tagName, *tagName2, *tagName3;
+  NSArray *tmpArray, *tmpArray2;
   NSString *objectName = nil;
   
   [options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
@@ -123,6 +122,21 @@ return;
           break;
         }
       }
+    }
+    
+    if ([tagName isEqualToString:@"styleurl"]) {
+      NSString *styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
+      tmpArray = [styles objectForKey:styleUrl];
+      for (node in tmpArray) {
+        tagName2 = [node objectForKey:@"_tag"];
+        tmpArray2 = [node objectForKey:@"children"];
+        
+        for (styleNode in tmpArray2) {
+          
+        }
+      }
+      NSLog(@"----styleUrl=%@", styleUrl);
+      NSLog(@"%@", [styles objectForKey:styleUrl]);
     }
   }
   //NSLog(@"%@", options);
