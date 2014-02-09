@@ -18,34 +18,6 @@
 
 -(void)createKmlOverlay:(CDVInvokedUrlCommand *)command
 {
-
-/*
-  NSDictionary* dummyDict1 = [NSDictionary dictionaryWithObjectsAndKeys:@"val", @"key", nil];
-  NSDictionary* dummyDict2 = [NSDictionary dictionaryWithObjectsAndKeys:@"val", @"key", nil];
-  NSArray* args = [NSArray arrayWithObjects:@"a", dummyDict1, dummyDict2, @"b", nil];
-  NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
-  CDVInvokedUrlCommand* command2 = [CDVInvokedUrlCommand commandFromJson:jsonArr];
-  
-  NSLog(@"createKmlOverlay");
-  
-  NSString *className = @"Polyline";
-  CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:className];
-  if (!pluginClass) {
-    pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
-    if (pluginClass) {
-      pluginClass.commandDelegate = self.commandDelegate;
-      [pluginClass setGoogleMapsViewController:self.mapCtrl];
-      [self.mapCtrl.plugins setObject:pluginClass forKey:className];
-    }
-  }
-  SEL selector = NSSelectorFromString(@"createPolyline:");
-  NSLog(@"class=%hhd", [pluginClass respondsToSelector:selector]);
-  if ([pluginClass respondsToSelector:selector]){
-    [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:YES];
-  }
-  NSLog(@"done");
-return;
-*/
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
   NSString *urlStr = [json objectForKey:@"url"];
@@ -93,8 +65,8 @@ return;
     [self implementPlaceMarkToMap:tag styles:styles];
   }
   
-  //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
-  
+  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 -(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
@@ -104,7 +76,7 @@ return;
   NSMutableDictionary *options = [NSMutableDictionary dictionary];
   NSString *tagName, *tagName2, *tagName3;
   NSArray *tmpArray, *tmpArray2;
-  NSString *objectName = nil;
+  NSString *className = nil;
   
   [options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   
@@ -112,7 +84,7 @@ return;
     tagName = [childNode objectForKey:@"_tag"];
     
     if ([tagName isEqualToString:@"linestring"]) {
-      objectName = @"Polyline";
+      className = @"Polyline";
       [options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
       tmpArray = [childNode objectForKey:@"children"];
       for (node in tmpArray) {
@@ -132,15 +104,85 @@ return;
         tmpArray2 = [node objectForKey:@"children"];
         
         for (styleNode in tmpArray2) {
-          
+          tagName3 = [styleNode objectForKey:@"_tag"];
+          [options setObject:[styleNode objectForKey:tagName3] forKey:[NSString stringWithFormat:@"%@%@", tagName2, tagName3]];
         }
       }
-      NSLog(@"----styleUrl=%@", styleUrl);
-      NSLog(@"%@", [styles objectForKey:styleUrl]);
+      
     }
   }
-  //NSLog(@"%@", options);
   
+  
+  NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
+  NSString *optionName, *optionName2;
+  id optionValue;
+  for (optionName in options) {
+    optionValue = options[optionName];
+    
+    if ([className isEqualToString:@"Polyline"]) {
+      optionName2 = [optionName stringByReplacingOccurrencesOfString:@"linestyle" withString:@""];
+      if ([optionName2 isEqualToString:@"color"]) {
+        optionValue = [self _parseKMLColor:optionValue];
+      }
+      
+      if ([optionName rangeOfString:@"linestyle"].location != NSNotFound) {
+        [options2 setObject:optionValue forKey:optionName2];
+        continue;
+      }
+    }
+    [options2 setObject:[options objectForKey:optionName] forKey:optionName];
+  }
+  NSLog(@"%@", options2);
+
+  [self _callOtherMethod:className options:options2];
+  
+}
+
+-(void)_callOtherMethod:(NSString *)className options:(NSMutableDictionary *)options
+{
+  NSArray* args = [NSArray arrayWithObjects:@"exec", options, nil];
+  NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
+  CDVInvokedUrlCommand* command2 = [CDVInvokedUrlCommand commandFromJson:jsonArr];
+  
+  CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:className];
+  if (!pluginClass) {
+    pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
+    if (pluginClass) {
+      pluginClass.commandDelegate = self.commandDelegate;
+      [pluginClass setGoogleMapsViewController:self.mapCtrl];
+      [self.mapCtrl.plugins setObject:pluginClass forKey:className];
+    }
+  }
+  NSLog(@"class=%@", pluginClass);
+  SEL selector = NSSelectorFromString([NSString stringWithFormat:@"create%@:", className]);
+  NSLog(@"selector=%hhd", [pluginClass respondsToSelector:selector]);
+  if ([pluginClass respondsToSelector:selector]){
+    [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:NO];
+  }
+  NSLog(@"done");
+}
+
+-(NSMutableArray *)_parseKMLColor:(NSString *)ARGB {
+  NSMutableArray *rgbaArray = [NSMutableArray array];
+  NSString *hexStr;
+  NSString *RGBA = [NSString stringWithFormat:@"%@%@",
+                      [ARGB substringWithRange:NSMakeRange(2, 6)],
+                      [ARGB substringWithRange:NSMakeRange(0, 2)]
+                    ];
+  
+  unsigned int outVal;
+  NSScanner* scanner;
+  
+  
+  for (int i = 0; i < 8; i+= 2) {
+    hexStr = [RGBA substringWithRange:NSMakeRange(i, 2)];
+    scanner = [NSScanner scannerWithString:hexStr];
+    [scanner scanHexInt:&outVal];
+    
+    [rgbaArray addObject:[NSNumber numberWithInt:outVal]];
+  }
+    
+  return rgbaArray;
 }
 
 -(NSMutableArray *)_coordinateToLatLngArray:(NSDictionary *)coordinateTag {

@@ -18,8 +18,9 @@
 -(void)createPolyline:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  /*
   NSLog(@"====createPolyline");
+  NSLog(@"%@", json);
+  /*
   NSLog(@"%@", [command.arguments objectAtIndex:0]);
   NSLog(@"%@", [command.arguments objectAtIndex:1]);
   NSLog(@"%@", command.className);
