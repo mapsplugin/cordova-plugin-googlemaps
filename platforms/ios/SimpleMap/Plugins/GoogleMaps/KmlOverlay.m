@@ -38,35 +38,49 @@
   //--------------------------------
   // Separate styles and placemarks
   //--------------------------------
-  NSMutableDictionary *kmlTag = kmlData[@"children"][0];
-  NSMutableDictionary *documentTag = kmlTag[@"children"];
+  
   
   NSMutableDictionary *styles = [NSMutableDictionary dictionary];
   NSMutableArray *placeMarks = [NSMutableArray array];
-  NSDictionary *tag;
-  NSString *tagName;
-  NSString *styleId;
   
-  for (tag in documentTag) {
-    tagName = tag[@"_tag"];
-    if ([tagName isEqualToString:@"style"]) {
-      styleId = tag[@"_id"];
-      if (styleId != nil) {
-        styles[styleId] = tag[@"children"];
-      }
-    }
-
-    if ([tagName isEqualToString:@"placemark"]) {
-      [placeMarks addObject:tag];
-    }
-  }
+  [self _listupStyles:kmlData styles:&styles];
+  
+  
   NSLog(@"---implement start");
+  NSLog(@"%@", styles);
+/*
   for (tag in placeMarks) {
     [self implementPlaceMarkToMap:tag styles:styles];
   }
   
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  */
+}
+
+
+-(void)_listupStyles:(NSDictionary *)rootNode styles:(NSMutableDictionary **)styles
+{
+  NSDictionary *tag;
+  NSString *tagName;
+  NSString *styleId;
+  
+  NSArray *children = [rootNode objectForKey:@"children"];
+  for (tag in children) {
+    tagName = tag[@"_tag"];
+    
+    if ([tagName isEqualToString:@"style"]) {
+      styleId = tag[@"styleurl"];
+      if (styleId == nil) {
+        styleId = @"#__default__";
+      }
+      [*styles setObject:tag[@"children"] forKey:styleId];
+      continue;
+    } else {
+      [self _listupStyles:tag styles:styles];
+    }
+  }
+
 }
 
 -(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
@@ -96,6 +110,20 @@
       }
     }
     
+    
+    if ([tagName isEqualToString:@"outerboundaryis"]) {
+      className = @"Polygon";
+      [options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
+      tmpArray = [childNode objectForKey:@"children"];
+      for (node in tmpArray) {
+        tagName2 = [node objectForKey:@"_tag"];
+        if ([tagName2 isEqualToString:@"coordinates"]) {
+          [options setObject:[self _coordinateToLatLngArray:node] forKey:@"points"];
+          break;
+        }
+      }
+    }
+    
     if ([tagName isEqualToString:@"styleurl"]) {
       NSString *styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
       tmpArray = [styles objectForKey:styleUrl];
@@ -111,7 +139,6 @@
       
     }
   }
-  
   
   NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
   NSString *optionName, *optionName2;
