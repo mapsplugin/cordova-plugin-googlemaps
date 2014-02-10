@@ -18,4 +18,5 @@
 - (void)createKmlOverlay:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand *)command;
 
+
 @end

@@ -40,26 +40,45 @@
   //--------------------------------
   
   
+  NSDictionary *tag;
   NSMutableDictionary *styles = [NSMutableDictionary dictionary];
   NSMutableArray *placeMarks = [NSMutableArray array];
   
-  [self _listupStyles:kmlData styles:&styles];
+  [self _filterStyles:kmlData styles:&styles];
+  [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
   
   
   NSLog(@"---implement start");
-  NSLog(@"%@", styles);
-/*
   for (tag in placeMarks) {
     [self implementPlaceMarkToMap:tag styles:styles];
   }
   
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  */
 }
 
 
--(void)_listupStyles:(NSDictionary *)rootNode styles:(NSMutableDictionary **)styles
+
+-(void)_filterPlaceMarks:(NSDictionary *)rootNode placemarks:(NSMutableArray **)placemarks
+{
+  NSDictionary *tag;
+  NSString *tagName;
+  
+  NSArray *children = [rootNode objectForKey:@"children"];
+  for (tag in children) {
+    tagName = tag[@"_tag"];
+    
+    if ([tagName isEqualToString:@"placemark"]) {
+      [*placemarks addObject:tag];
+      continue;
+    } else {
+      [self _filterPlaceMarks:tag placemarks:placemarks];
+    }
+  }
+
+}
+
+-(void)_filterStyles:(NSDictionary *)rootNode styles:(NSMutableDictionary **)styles
 {
   NSDictionary *tag;
   NSString *tagName;
@@ -70,14 +89,14 @@
     tagName = tag[@"_tag"];
     
     if ([tagName isEqualToString:@"style"]) {
-      styleId = tag[@"styleurl"];
+      styleId = tag[@"_id"];
       if (styleId == nil) {
-        styleId = @"#__default__";
+        styleId = @"__default__";
       }
       [*styles setObject:tag[@"children"] forKey:styleId];
       continue;
     } else {
-      [self _listupStyles:tag styles:styles];
+      [self _filterStyles:tag styles:styles];
     }
   }
 
@@ -86,84 +105,116 @@
 -(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
   NSArray *children = [placeMarker objectForKey:@"children"];
   
-  NSDictionary *childNode, *node, *styleNode;
+  NSDictionary *childNode;
   NSMutableDictionary *options = [NSMutableDictionary dictionary];
-  NSString *tagName, *tagName2, *tagName3;
-  NSArray *tmpArray, *tmpArray2;
-  NSString *className = nil;
+  NSString *tagName;
+  NSString *targetClass;
+  NSString *styleUrl = nil;
+  
   
   [options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   
   for (childNode in children) {
     tagName = [childNode objectForKey:@"_tag"];
     
-    if ([tagName isEqualToString:@"linestring"]) {
-      className = @"Polyline";
-      [options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
-      tmpArray = [childNode objectForKey:@"children"];
-      for (node in tmpArray) {
-        tagName2 = [node objectForKey:@"_tag"];
-        if ([tagName2 isEqualToString:@"coordinates"]) {
-          [options setObject:[self _coordinateToLatLngArray:node] forKey:@"points"];
-          break;
-        }
+    if ([tagName isEqualToString:@"linestring"] ||
+        [tagName isEqualToString:@"polygon"]) {
+      
+      if ([tagName isEqualToString:@"linestring"]) {
+        targetClass = @"Polyline";
+      } else {
+        targetClass = @"Polygon";
       }
-    }
-    
-    
-    if ([tagName isEqualToString:@"outerboundaryis"]) {
-      className = @"Polygon";
       [options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
-      tmpArray = [childNode objectForKey:@"children"];
-      for (node in tmpArray) {
-        tagName2 = [node objectForKey:@"_tag"];
-        if ([tagName2 isEqualToString:@"coordinates"]) {
-          [options setObject:[self _coordinateToLatLngArray:node] forKey:@"points"];
-          break;
-        }
+      NSMutableArray *coordinates = [NSMutableArray array];
+      [self _getCoordinates:childNode output:&coordinates];
+      if ([coordinates count] > 0) {
+        [options setObject:coordinates forKey:@"points"];
       }
     }
     
     if ([tagName isEqualToString:@"styleurl"]) {
-      NSString *styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
-      tmpArray = [styles objectForKey:styleUrl];
-      for (node in tmpArray) {
-        tagName2 = [node objectForKey:@"_tag"];
-        tmpArray2 = [node objectForKey:@"children"];
-        
-        for (styleNode in tmpArray2) {
-          tagName3 = [styleNode objectForKey:@"_tag"];
-          [options setObject:[styleNode objectForKey:tagName3] forKey:[NSString stringWithFormat:@"%@%@", tagName2, tagName3]];
-        }
-      }
-      
+      styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
     }
   }
-  
-  NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
-  NSString *optionName, *optionName2;
-  id optionValue;
-  for (optionName in options) {
-    optionValue = options[optionName];
-    
-    if ([className isEqualToString:@"Polyline"]) {
-      optionName2 = [optionName stringByReplacingOccurrencesOfString:@"linestyle" withString:@""];
-      if ([optionName2 isEqualToString:@"color"]) {
-        optionValue = [self _parseKMLColor:optionValue];
-      }
-      
-      if ([optionName rangeOfString:@"linestyle"].location != NSNotFound) {
-        [options2 setObject:optionValue forKey:optionName2];
-        continue;
-      }
-    }
-    [options2 setObject:[options objectForKey:optionName] forKey:optionName];
+  if (styleUrl == nil) {
+    styleUrl = @"__default__";
   }
-  NSLog(@"%@", options2);
+  NSDictionary *style = [styles objectForKey:styleUrl];
+  [self _applyStyleTag:style options:&options targetClass:targetClass];
+  NSLog(@"options=%@", options);
 
-  [self _callOtherMethod:className options:options2];
+  [self _callOtherMethod:targetClass options:options];
   
 }
+-(void)_applyStyleTag:(NSDictionary *)styleElements options:(NSMutableDictionary **)options targetClass:(NSString *)targetClass
+{
+  
+  NSDictionary *node;
+  NSString *tagName1, *tagName2;
+  NSDictionary *style;
+  NSArray *children;
+  NSString *value, *prefix = @"";
+  
+  for (style in styleElements) {
+    children = [style objectForKey:@"children"];
+    tagName1 = [style objectForKey:@"_tag"];
+    
+    if ([targetClass isEqualToString:@"Polygon"]) {
+      if([tagName1 isEqualToString:@"polystyle"]) {
+        prefix = @"fill";
+      } else if([tagName1 isEqualToString:@"linestyle"]) {
+        prefix = @"stroke";
+      }
+    }
+    
+    for (node in children) {
+    
+      if ([node objectForKey:@"children"]) {
+        [self _applyStyleTag:node options:options targetClass:targetClass];
+      } else {
+        tagName2 = [node objectForKey:@"_tag"];
+        value = [node valueForKey:tagName2];
+        if ([tagName2 isEqualToString:@"color"]) {
+          if ([prefix isEqualToString:@""] == false) {
+            tagName2 = [NSString stringWithFormat:@"%@Color", prefix];
+          }
+          [*options setObject:[self _parseKMLColor:value] forKey:tagName2];
+        } else {
+          if ([prefix isEqualToString:@""] == false) {
+            tagName2 = [NSString stringWithFormat:@"%@%@",
+            [[tagName2 substringWithRange:NSMakeRange(0, 1)] uppercaseString],
+            [tagName2 substringFromIndex:1]];
+          }
+          [*options setObject:value forKey:[NSString stringWithFormat:@"%@%@", prefix, tagName2]];
+        }
+      }
+    }
+
+  }
+  
+}
+-(void)_getCoordinates:(NSDictionary *)rootNode output:(NSMutableArray **)output
+{
+  NSArray *children = [rootNode objectForKey:@"children"];
+  NSDictionary *node;
+  NSString *tagName;
+  
+  for (node in children) {
+    tagName = [node objectForKey:@"_tag"];
+    if ([tagName isEqualToString:@"coordinates"]) {
+      *output = [self _coordinateToLatLngArray:node];
+      break;
+    } else {
+      [self _getCoordinates:node output:output];
+      if ([*output count] > 0) {
+        return;
+      }
+    }
+  }
+}
+
+
 
 -(void)_callOtherMethod:(NSString *)className options:(NSMutableDictionary *)options
 {
@@ -180,13 +231,10 @@
       [self.mapCtrl.plugins setObject:pluginClass forKey:className];
     }
   }
-  NSLog(@"class=%@", pluginClass);
   SEL selector = NSSelectorFromString([NSString stringWithFormat:@"create%@:", className]);
-  NSLog(@"selector=%hhd", [pluginClass respondsToSelector:selector]);
   if ([pluginClass respondsToSelector:selector]){
     [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:NO];
   }
-  NSLog(@"done");
 }
 
 -(NSMutableArray *)_parseKMLColor:(NSString *)ARGB {
@@ -200,7 +248,6 @@
   unsigned int outVal;
   NSScanner* scanner;
   
-  
   for (int i = 0; i < 8; i+= 2) {
     hexStr = [RGBA substringWithRange:NSMakeRange(i, 2)];
     scanner = [NSScanner scannerWithString:hexStr];
@@ -208,6 +255,8 @@
     
     [rgbaArray addObject:[NSNumber numberWithInt:outVal]];
   }
+  
+  [rgbaArray addObject:[NSNumber numberWithInt:outVal]];
     
   return rgbaArray;
 }
