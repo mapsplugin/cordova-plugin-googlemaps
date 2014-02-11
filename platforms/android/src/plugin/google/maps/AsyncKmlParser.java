@@ -241,13 +241,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   }
   
   private int parseKMLcolor(String colorStr) {
-    String tmp = "";
-    for (int j = 2; j < colorStr.length() - 1; j+=2) {
-      tmp = colorStr.substring(j, j + 2) + tmp;
-    }
-    tmp = colorStr.substring(0, 2) + tmp;
-
-    return Color.parseColor("#" + tmp);
+    return Color.parseColor("#" + colorStr);
   }
   
   private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
