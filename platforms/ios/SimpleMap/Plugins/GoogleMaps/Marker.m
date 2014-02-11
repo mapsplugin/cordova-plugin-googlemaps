@@ -30,13 +30,24 @@
   if ([[json valueForKey:@"visible"] boolValue]) {
     marker.map = self.mapCtrl.map;
   }
-  
-  marker.title = [json valueForKey:@"title"];
-  marker.snippet = [json valueForKey:@"snippet"];
-  marker.draggable = [[json valueForKey:@"draggable"] boolValue];
-  marker.flat = [[json valueForKey:@"flat"] boolValue];
-  marker.rotation = [[json valueForKey:@"flat"] floatValue];
-  marker.opacity = [[json valueForKey:@"opacity"] floatValue];
+  if ([json valueForKey:@"title"]) {
+    marker.title = [json valueForKey:@"title"];
+  }
+  if ([json valueForKey:@"snippet"]) {
+    marker.snippet = [json valueForKey:@"snippet"];
+  }
+  if ([json valueForKey:@"draggable"]) {
+    marker.draggable = [[json valueForKey:@"draggable"] boolValue];
+  }
+  if ([json valueForKey:@"flat"]) {
+    marker.flat = [[json valueForKey:@"flat"] boolValue];
+  }
+  if ([json valueForKey:@"rotation"]) {
+    marker.rotation = [[json valueForKey:@"flat"] floatValue];
+  }
+  if ([json valueForKey:@"opacity"]) {
+    marker.opacity = [[json valueForKey:@"opacity"] floatValue];
+  }
   
   NSString *id = [NSString stringWithFormat:@"marker%d", marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];

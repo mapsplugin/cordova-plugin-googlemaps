@@ -36,8 +36,7 @@
     polygon.map = self.mapCtrl.map;
   }
   if ([[json valueForKey:@"geodesic"] boolValue]) {
-    //polygon.geodesic = YES;
-    //polygon.geodesic = TRUE;
+    polygon.geodesic = true;
   }
   NSArray *rgbColor = [json valueForKey:@"fillColor"];
   polygon.fillColor = [rgbColor parsePluginColor];

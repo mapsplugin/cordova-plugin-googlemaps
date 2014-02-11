@@ -150,6 +150,9 @@
   NSMutableArray *coordinatesList = [NSMutableArray array];
   NSMutableArray *coordinates;
   
+  if ([[placeMarker objectForKey:@"_tag"] isEqualToString:@"placemark"]) {
+    *options = [NSMutableDictionary dictionary];
+  }
   for (childNode in children) {
     tagName = [childNode objectForKey:@"_tag"];
     
@@ -161,7 +164,6 @@
       } else {
         targetClass = @"Polygon";
       }
-      *options = [NSMutableDictionary dictionary];
       [*options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
       [*options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
       coordinates = [NSMutableArray array];
@@ -171,22 +173,54 @@
       }
     } else if ([tagName isEqualToString:@"styleurl"]) {
       styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
+    } else if ([tagName isEqualToString:@"point"]) {
+      targetClass = @"Marker";
+      
+      [*options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
+      coordinates = [NSMutableArray array];
+      [self _getCoordinates:childNode output:&coordinates];
+      
+      if ([coordinates count] > 0) {
+        [*options setObject:[coordinates objectAtIndex:0] forKey:@"position"];
+      }
     } else {
-      [self implementPlaceMarkToMap:childNode options:options styles:styles styleUrl:styleUrl];
+      if ([childNode objectForKey:@"children"]) {
+        [self implementPlaceMarkToMap:childNode options:options styles:styles styleUrl:styleUrl];
+      } else if (*options != nil) {
+        [*options setObject:[childNode objectForKey:tagName] forKey:tagName];
+      }
     }
   }
-  if ([coordinatesList count] == 0) {
+  if (*options == nil) {
     return;
   }
+  
   if (styleUrl == nil) {
     styleUrl = @"__default__";
   }
   NSDictionary *style = [styles objectForKey:styleUrl];
-  [self _applyStyleTag:style options:options targetClass:targetClass];
+  if (style) {
+    [self _applyStyleTag:style options:options targetClass:targetClass];
+  }
   
-
-  for (coordinates in coordinatesList) {
-    [*options setObject:coordinates forKey:@"points"];
+  if ([targetClass isEqualToString:@"Polyline"] ||
+      [targetClass isEqualToString:@"Polygon"]) {
+    for (coordinates in coordinatesList) {
+      [*options setObject:coordinates forKey:@"points"];
+      [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options]];
+    }
+  } else if ([targetClass isEqualToString:@"Marker"]) {
+    NSString *title = @"";
+    if ([*options objectForKey:@"name"]) {
+      title = [*options objectForKey:@"name"];
+    }
+    if ([*options objectForKey:@"description"]) {
+      if ([title isEqualToString:@""] == false) {
+        title = [NSString stringWithFormat:@"%@\n\n", title];
+      }
+      title = [NSString stringWithFormat:@"%@%@", title, [*options objectForKey:@"description"]];
+    }
+    [*options setObject:title forKey:@"title"];
     [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options]];
   }
 }
@@ -198,8 +232,8 @@
   NSDictionary *style;
   NSArray *children;
   NSString *value, *prefix = @"";
-  
   for (style in styleElements) {
+    
     children = [style objectForKey:@"children"];
     tagName1 = [style objectForKey:@"_tag"];
     
@@ -211,26 +245,34 @@
       }
     }
     
-    for (node in children) {
-    
-      if ([node objectForKey:@"children"]) {
-        [self _applyStyleTag:node options:options targetClass:targetClass];
-      } else {
-        tagName2 = [node objectForKey:@"_tag"];
-        value = [node valueForKey:tagName2];
-        if ([tagName2 isEqualToString:@"color"]) {
-          if ([prefix isEqualToString:@""] == false) {
-            tagName2 = [NSString stringWithFormat:@"%@Color", prefix];
-          }
-          [*options setObject:[self _parseKMLColor:value] forKey:tagName2];
+    if ([children count] > 0) {
+      for (node in children) {
+      
+        if ([node objectForKey:@"children"]) {
+          [self _applyStyleTag:node[@"children"] options:options targetClass:targetClass];
         } else {
-          if ([prefix isEqualToString:@""] == false) {
-            tagName2 = [NSString stringWithFormat:@"%@%@",
-            [[tagName2 substringWithRange:NSMakeRange(0, 1)] uppercaseString],
-            [tagName2 substringFromIndex:1]];
+          tagName2 = [node objectForKey:@"_tag"];
+          
+          
+          value = [node valueForKey:tagName2];
+          if ([tagName2 isEqualToString:@"color"]) {
+            if ([prefix isEqualToString:@""] == false) {
+              tagName2 = [NSString stringWithFormat:@"%@Color", prefix];
+            }
+            [*options setObject:[self _parseKMLColor:value] forKey:tagName2];
+          } else {
+            if ([prefix isEqualToString:@""] == false) {
+              tagName2 = [NSString stringWithFormat:@"%@%@",
+              [[tagName2 substringWithRange:NSMakeRange(0, 1)] uppercaseString],
+              [tagName2 substringFromIndex:1]];
+            }
+            [*options setObject:value forKey:[NSString stringWithFormat:@"%@%@", prefix, tagName2]];
           }
-          [*options setObject:value forKey:[NSString stringWithFormat:@"%@%@", prefix, tagName2]];
         }
+      }
+    } else if ([targetClass isEqualToString:@"Marker"]) {
+      if ([tagName1 isEqualToString:@"href"]) {
+        [*options setObject:[style objectForKey:tagName1] forKey:@"icon"];
       }
     }
 
