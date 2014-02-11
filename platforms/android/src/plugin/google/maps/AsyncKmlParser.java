@@ -6,26 +6,24 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.cordova.CallbackContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
+  private GoogleMaps mMapCtrl;
   private GoogleMap mMap;
   private Activity mActivity;
   private CallbackContext mCallback;
@@ -50,13 +48,16 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     fill,
     name,
     description,
+    icon,
+    href,
     
     coordinates
   };
   
-  public AsyncKmlParser(Activity activity, GoogleMap map, CallbackContext callbackContext) {
+  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
     mCallback = callbackContext;
-    mMap = map;
+    mMapCtrl = mapCtrl;
+    mMap = mapCtrl.map;
     mActivity = activity;
     
     try {
@@ -123,11 +124,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
     
+    Bundle options;
+    JSONObject optionsJSON;
+    
     String tmp, tagName;
     Bundle node, style, childNode;
     ArrayList<Bundle> bundleList;
     ArrayList<Bundle> children;
-    ArrayList<LatLng> latLngList;
+    ArrayList<Bundle> latLngList;
     Iterator<Bundle> iterator = placeMarks.iterator();
     Iterator<Bundle> bundleIterator;
     Iterator<Bundle> childrenIterator;
@@ -145,25 +149,59 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         tagName = childNode.getString("tagName");
         switch(KML_TAG.valueOf(tagName)) {
         case point:
+          //-----------------
+          // Marker
+          //-----------------
+          options = new Bundle();
+          //position
           latLngList = childNode.getParcelableArrayList("coordinates");
-          MarkerOptions markerOptions = new MarkerOptions();
+          options.putBundle("position", latLngList.get(0));
+          
+          //title
           tmp = node.getString("name");
           if (node.containsKey("description")) {
             tmp += "\n\n" + node.getString("description");
           }
-          markerOptions.title(tmp);
-          markerOptions.position(latLngList.get(0));
-          mMap.addMarker(markerOptions);
+          options.putString("title", tmp);
           
+          //icon
+          if (node.containsKey("styleurl")) {
+            tmp = node.getString("styleurl");
+          } else {
+            tmp = "#__default__";
+          }
+          style = getStyleById(styles, tmp);
+          if (style != null) {
+            bundleList = style.getParcelableArrayList("children");
+            bundleIterator = bundleList.iterator();
+            while(bundleIterator.hasNext()) {
+              style = bundleIterator.next();
+              tagName = style.getString("tagName");
+              if ("icon".equals(tagName)) {;
+                options.putString("icon", style.getString("href"));
+              }
+            }
+          }
+          this.implementToMap("Marker", options);
           break;
           
         case linestring:
+          //-----------------
+          // Polyline
+          //-----------------
           
-          PolylineOptions polylineOptions = new PolylineOptions();
+          //points
+          options = new Bundle();
           latLngList = childNode.getParcelableArrayList("coordinates");
-          polylineOptions.addAll(latLngList);
-          Polyline polyline = mMap.addPolyline(polylineOptions);
+          options.putParcelableArrayList("points", latLngList);
 
+          options.putBoolean("visible", true);
+          options.putBoolean("geodesic", true);
+          
+          //Bundle -> JSON
+          optionsJSON = PluginUtil.Bundle2Json(options);
+          
+          //color, width
           if (node.containsKey("styleurl")) {
             tmp = node.getString("styleurl");
           } else {
@@ -180,25 +218,39 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               switch(KML_TAG.valueOf(tagName)) {
               case linestyle:
                 if (style.containsKey("color")) {
-                  polyline.setColor(parseKMLcolor(style.getString("color")));
+                  try {
+                    optionsJSON.put("color", kmlColor2PluginColor(style.getString("color")));
+                  } catch (JSONException e) {}
                 }
                 if (style.containsKey("width")) {
-                  polyline.setWidth(Integer.parseInt(style.getString("width")) * density);
+                  try {
+                    optionsJSON.put("width", (int) (Integer.parseInt(style.getString("width")) * density));
+                  } catch (Exception e) {}
                 }
                 break;
               }
             }
           }
+          this.implementToMap("Polyline", optionsJSON);
           break;
           
 
         case polygon:
+          //-----------------
+          // Polygon
+          //-----------------
           children = childNode.getParcelableArrayList("children");
           childNode = children.get(0);
-          PolygonOptions polygonOptions = new PolygonOptions();
+          
+          options = new Bundle();
           latLngList = childNode.getParcelableArrayList("coordinates");
-          polygonOptions.addAll(latLngList);
-          polygonOptions.strokeWidth(0);
+          options.putParcelableArrayList("points", latLngList);
+
+          options.putBoolean("visible", true);
+          options.putInt("strokeWidth", 0);
+          
+          //Bundle -> JSON
+          optionsJSON = PluginUtil.Bundle2Json(options);
 
           if (node.containsKey("styleurl")) {
             tmp = node.getString("styleurl");
@@ -215,15 +267,21 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               switch(KML_TAG.valueOf(tagName)) {
               case polystyle:
                 if (style.containsKey("color")) {
-                  polygonOptions.fillColor(parseKMLcolor(style.getString("color")));
+                  try {
+                    optionsJSON.put("fillColor", kmlColor2PluginColor(style.getString("color")));
+                  } catch (JSONException e) {}
                 }
                 break;
               case linestyle:
                 if (style.containsKey("color")) {
-                  polygonOptions.strokeColor(parseKMLcolor(style.getString("color")));
+                  try {
+                    optionsJSON.put("strokeColor", kmlColor2PluginColor(style.getString("color")));
+                  } catch (JSONException e) {};
                 }
                 if (style.containsKey("width")) {
-                  polygonOptions.strokeWidth(Float.parseFloat(style.getString("width")) * density);
+                  try {
+                    optionsJSON.put("strokeWidth", (int)Float.parseFloat(style.getString("width")) * density);
+                  } catch (Exception e) {}
                 }
                 break;
               }
@@ -231,17 +289,41 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           } else {
             Log.e("client", "--" + style + " is null");
           }
-          mMap.addPolygon(polygonOptions);
+          this.implementToMap("Polygon", optionsJSON);
           break;
+          
         }
       }
       
     }
     this.mCallback.success();
   }
+
+  private void implementToMap(String className, JSONObject optionsJSON) {
+
+    JSONArray params = new JSONArray();
+    params.put(className + ".create" + className);
+    params.put(optionsJSON);
+    CallbackContext callback2 = new CallbackContext("kmlOverlay-create" + className, this.mMapCtrl.webView);
+    
+    try {
+      mMapCtrl.execute("exec", params, callback2);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+  }
+  private void implementToMap(String className, Bundle options) {
+    // Load the class plugin
+    this.implementToMap(className, PluginUtil.Bundle2Json(options));
+  }
   
-  private int parseKMLcolor(String colorStr) {
-    return Color.parseColor("#" + colorStr);
+  private JSONArray kmlColor2PluginColor(String colorStr) {
+    JSONArray rgba = new JSONArray();
+    for (int i = 2; i < 8; i+=2) {
+      rgba.put(Integer.parseInt(colorStr.substring(i, i + 2), 16));
+    }
+    rgba.put(Integer.parseInt(colorStr.substring(0, 2), 16));
+    return rgba;
   }
   
   private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
@@ -313,6 +395,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           case linestring:
           case outerboundaryis:
           case polygon:
+          case icon:
             if (currentNode != null) {
               //push
               nodeStack.add(currentNode);
@@ -321,6 +404,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               currentNode.putString("tagName", tagName);
             }
             break;
+          case href:
           case key:
           case styleurl:
           case name:
@@ -336,19 +420,24 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           case coordinates:
             if (currentNode != null) {
 
-              ArrayList<LatLng> latLngList = new ArrayList<LatLng>();
+              ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
               
               String txt = parser.nextText();
               String lines[] = txt.split("[\\n\\s]");
               String tmpArry[];
+              Bundle latLng;
               int i;
               for (i = 0; i < lines.length; i++) {
                 lines[i] = lines[i].replaceAll("[^0-9,.\\-]", "");
                 if ("".equals(lines[i]) == false) {
                   tmpArry = lines[i].split(",");
-                  latLngList.add(new LatLng(Float.parseFloat(tmpArry[1]), Float.parseFloat(tmpArry[0])));
+                  latLng = new Bundle();
+                  latLng.putFloat("lat", Float.parseFloat(tmpArry[1]));
+                  latLng.putFloat("lng", Float.parseFloat(tmpArry[0]));
+                  latLngList.add(latLng);
                 }
               }
+              
               currentNode.putParcelableArrayList(tagName, latLngList);
             }
             break;
@@ -410,6 +499,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                 currentNode = parentNode;
               }
               break;
+            case icon:
             case point:
             case outerboundaryis:
             case linestring:

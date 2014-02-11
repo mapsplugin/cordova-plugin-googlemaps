@@ -31,10 +31,10 @@ public class PluginKmlOverlay extends MyPlugin {
    */
   @SuppressWarnings("unused")
   private void createKmlOverlay(JSONArray args, CallbackContext callbackContext) throws JSONException {
-
+    
     JSONObject opts = args.getJSONObject(1);
     
-    AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.map, callbackContext);
+    AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.mapCtrl, callbackContext);
     kmlParser.execute(opts.getString("url"));
   }
 

@@ -18,17 +18,6 @@
 -(void)createPolyline:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  /*
-  NSLog(@"%@", [command.arguments objectAtIndex:0]);
-  NSLog(@"%@", [command.arguments objectAtIndex:1]);
-  NSLog(@"%@", command.className);
-  NSLog(@"%@", command.methodName);
-  NSLog(@"%@", command.callbackId);
-  CDVPluginResult* pluginResult2 = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: @"OK"];
-  [self.commandDelegate sendPluginResult:pluginResult2 callbackId:command.callbackId];
-  return;
-  */
-  
   GMSMutablePath *path = [GMSMutablePath path];
   
   NSArray *points = [json objectForKey:@"points"];
