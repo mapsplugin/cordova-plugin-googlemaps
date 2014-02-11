@@ -198,7 +198,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           PolygonOptions polygonOptions = new PolygonOptions();
           latLngList = childNode.getParcelableArrayList("coordinates");
           polygonOptions.addAll(latLngList);
-          polygonOptions.strokeWidth(4 * density);
+          polygonOptions.strokeWidth(0);
 
           if (node.containsKey("styleurl")) {
             tmp = node.getString("styleurl");
