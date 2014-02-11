@@ -95,12 +95,34 @@
       }
       [*styles setObject:tag[@"children"] forKey:styleId];
       continue;
+    } else if ([tagName isEqualToString:@"stylemap"]) {
+      NSLog(@"%@", tag);
+      continue;
+
     } else {
       [self _filterStyles:tag styles:styles];
     }
   }
 
 }
+
+-(void)_getNormalStyleUrlForStyleMap:(NSDictionary *)rootNode output:(NSString **)output
+{
+  NSArray *children = [rootNode objectForKey:@"children"];
+  NSDictionary *node;
+  NSString *tagName;
+  BOOL *isNormal = NO;
+  
+  for (node in children) {
+    tagName = [node objectForKey:@"_tag"];
+    if ([tagName isEqualToString:@"key"] &&
+        [[node objectForKey:@"key"] isEqualToString:@"normal"]) {
+      isNormal = YES;
+      break;
+    }
+  }
+}
+
 
 -(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
   NSArray *children = [placeMarker objectForKey:@"children"];
@@ -142,7 +164,7 @@
   }
   NSDictionary *style = [styles objectForKey:styleUrl];
   [self _applyStyleTag:style options:&options targetClass:targetClass];
-  NSLog(@"options=%@", options);
+  //NSLog(@"options=%@", options);
 
   [self _callOtherMethod:targetClass options:options];
   
