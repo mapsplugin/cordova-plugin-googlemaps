@@ -151,7 +151,6 @@
   NSMutableArray *coordinatesList = [NSMutableArray array];
   NSMutableArray *coordinates;
   
-  
   for (childNode in children) {
     tagName = [childNode objectForKey:@"_tag"];
     
@@ -170,7 +169,6 @@
       [self _getCoordinates:childNode output:&coordinates];
       if ([coordinates count] > 0) {
         [coordinatesList addObject:coordinates];
-        //[options setObject:coordinates forKey:@"points"];
       }
     } else if ([tagName isEqualToString:@"styleurl"]) {
       styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
@@ -185,14 +183,12 @@
     styleUrl = @"__default__";
   }
   NSDictionary *style = [styles objectForKey:styleUrl];
-  NSLog(@"styleUrl=%@, style=%@", styleUrl, style);
   [self _applyStyleTag:style options:options targetClass:targetClass];
-  NSLog(@"options=%@", *options);
-
   
+
   for (coordinates in coordinatesList) {
     [*options setObject:coordinates forKey:@"points"];
-    [self _callOtherMethod:targetClass options:*options];
+    [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options]];
   }
 }
 -(void)_applyStyleTag:(NSDictionary *)styleElements options:(NSMutableDictionary **)options targetClass:(NSString *)targetClass
@@ -264,7 +260,7 @@
 
 
 
--(void)_callOtherMethod:(NSString *)className options:(NSMutableDictionary *)options
+-(void)_callOtherMethod:(NSString *)className options:(NSDictionary *)options
 {
   NSArray* args = [NSArray arrayWithObjects:@"exec", options, nil];
   NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
