@@ -100,7 +100,6 @@
       styleId = nil;
       [self _getNormalStyleUrlForStyleMap:tag output:&styleId];
       if (styleId != nil) {
-        NSLog(@"%@ --> %@", tag[@"_id"], styleId);
         [*styles setObject:[*styles objectForKey:styleId] forKey:tag[@"_id"]];
       }
       continue;
