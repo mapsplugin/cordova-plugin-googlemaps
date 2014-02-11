@@ -96,7 +96,11 @@
       [*styles setObject:tag[@"children"] forKey:styleId];
       continue;
     } else if ([tagName isEqualToString:@"stylemap"]) {
-      NSLog(@"%@", tag);
+      styleId = nil;
+      [self _getNormalStyleUrlForStyleMap:tag output:&styleId];
+      if (styleId != nil) {
+        [*styles setObject:[*styles objectForKey:styleId] forKey:tag[@"_id"]];
+      }
       continue;
 
     } else {
@@ -111,14 +115,26 @@
   NSArray *children = [rootNode objectForKey:@"children"];
   NSDictionary *node;
   NSString *tagName;
-  BOOL *isNormal = NO;
+  bool isNormal = false;
   
   for (node in children) {
     tagName = [node objectForKey:@"_tag"];
-    if ([tagName isEqualToString:@"key"] &&
-        [[node objectForKey:@"key"] isEqualToString:@"normal"]) {
-      isNormal = YES;
-      break;
+    if ([tagName isEqualToString:@"key"]) {
+      if ([[node objectForKey:@"key"] isEqualToString:@"normal"]) {
+        isNormal = true;
+      } else {
+        isNormal = false;
+      }
+    }
+    if (isNormal == true) {
+      if ([tagName isEqualToString:@"styleurl"] && isNormal == true) {
+        *output = [[node objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
+        break;
+      }
+    }
+    [self _getNormalStyleUrlForStyleMap:node output:output];
+    if (*output != nil) {
+      return;
     }
   }
 }
