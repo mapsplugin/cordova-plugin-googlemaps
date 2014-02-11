@@ -50,7 +50,8 @@
   
   NSLog(@"---implement start");
   for (tag in placeMarks) {
-    [self implementPlaceMarkToMap:tag styles:styles];
+    NSMutableDictionary *options = nil;
+    [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil];
   }
   
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -99,6 +100,7 @@
       styleId = nil;
       [self _getNormalStyleUrlForStyleMap:tag output:&styleId];
       if (styleId != nil) {
+        NSLog(@"%@ --> %@", tag[@"_id"], styleId);
         [*styles setObject:[*styles objectForKey:styleId] forKey:tag[@"_id"]];
       }
       continue;
@@ -140,17 +142,15 @@
 }
 
 
--(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker styles:(NSMutableDictionary *)styles {
+-(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker options:(NSMutableDictionary**)options styles:(NSMutableDictionary *)styles styleUrl:(NSString *)styleUrl{
   NSArray *children = [placeMarker objectForKey:@"children"];
   
   NSDictionary *childNode;
-  NSMutableDictionary *options = [NSMutableDictionary dictionary];
   NSString *tagName;
   NSString *targetClass;
-  NSString *styleUrl = nil;
+  NSMutableArray *coordinatesList = [NSMutableArray array];
+  NSMutableArray *coordinates;
   
-  
-  [options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   
   for (childNode in children) {
     tagName = [childNode objectForKey:@"_tag"];
@@ -163,27 +163,37 @@
       } else {
         targetClass = @"Polygon";
       }
-      [options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
-      NSMutableArray *coordinates = [NSMutableArray array];
+      *options = [NSMutableDictionary dictionary];
+      [*options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
+      [*options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
+      coordinates = [NSMutableArray array];
       [self _getCoordinates:childNode output:&coordinates];
       if ([coordinates count] > 0) {
-        [options setObject:coordinates forKey:@"points"];
+        [coordinatesList addObject:coordinates];
+        //[options setObject:coordinates forKey:@"points"];
       }
-    }
-    
-    if ([tagName isEqualToString:@"styleurl"]) {
+    } else if ([tagName isEqualToString:@"styleurl"]) {
       styleUrl = [[childNode objectForKey:@"styleurl"] stringByReplacingOccurrencesOfString:@"#" withString:@""];
+    } else {
+      [self implementPlaceMarkToMap:childNode options:options styles:styles styleUrl:styleUrl];
     }
+  }
+  if ([coordinatesList count] == 0) {
+    return;
   }
   if (styleUrl == nil) {
     styleUrl = @"__default__";
   }
   NSDictionary *style = [styles objectForKey:styleUrl];
-  [self _applyStyleTag:style options:&options targetClass:targetClass];
-  //NSLog(@"options=%@", options);
+  NSLog(@"styleUrl=%@, style=%@", styleUrl, style);
+  [self _applyStyleTag:style options:options targetClass:targetClass];
+  NSLog(@"options=%@", *options);
 
-  [self _callOtherMethod:targetClass options:options];
   
+  for (coordinates in coordinatesList) {
+    [*options setObject:coordinates forKey:@"points"];
+    [self _callOtherMethod:targetClass options:*options];
+  }
 }
 -(void)_applyStyleTag:(NSDictionary *)styleElements options:(NSMutableDictionary **)options targetClass:(NSString *)targetClass
 {
