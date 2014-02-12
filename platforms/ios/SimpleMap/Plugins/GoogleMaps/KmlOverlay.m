@@ -20,6 +20,8 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
+  NSString *kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
+  NSString *idPrefix = [NSString stringWithFormat:@"%@-", kmlId];
   NSString *urlStr = [json objectForKey:@"url"];
   
   //--------------------------------
@@ -47,14 +49,12 @@
   [self _filterStyles:kmlData styles:&styles];
   [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
   
-  
-  NSLog(@"---implement start");
   for (tag in placeMarks) {
     NSMutableDictionary *options = nil;
-    [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil];
+    [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil idPrefix:idPrefix];
   }
   
-  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:kmlId];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -141,7 +141,7 @@
 }
 
 
--(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker options:(NSMutableDictionary**)options styles:(NSMutableDictionary *)styles styleUrl:(NSString *)styleUrl{
+-(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker options:(NSMutableDictionary**)options styles:(NSMutableDictionary *)styles styleUrl:(NSString *)styleUrl  idPrefix:(NSString *)idPrefix {
   NSArray *children = [placeMarker objectForKey:@"children"];
   
   NSDictionary *childNode;
@@ -185,7 +185,7 @@
       }
     } else {
       if ([childNode objectForKey:@"children"]) {
-        [self implementPlaceMarkToMap:childNode options:options styles:styles styleUrl:styleUrl];
+        [self implementPlaceMarkToMap:childNode options:options styles:styles styleUrl:styleUrl idPrefix:idPrefix];
       } else if (*options != nil) {
         [*options setObject:[childNode objectForKey:tagName] forKey:tagName];
       }
@@ -207,7 +207,7 @@
       [targetClass isEqualToString:@"Polygon"]) {
     for (coordinates in coordinatesList) {
       [*options setObject:coordinates forKey:@"points"];
-      [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options]];
+      [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options] idPrefix:idPrefix];
     }
   } else if ([targetClass isEqualToString:@"Marker"]) {
     NSString *title = @"";
@@ -221,7 +221,7 @@
       title = [NSString stringWithFormat:@"%@%@", title, [*options objectForKey:@"description"]];
     }
     [*options setObject:title forKey:@"title"];
-    [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options]];
+    [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options] idPrefix:idPrefix];
   }
 }
 -(void)_applyStyleTag:(NSDictionary *)styleElements options:(NSMutableDictionary **)options targetClass:(NSString *)targetClass
@@ -301,9 +301,9 @@
 
 
 
--(void)_callOtherMethod:(NSString *)className options:(NSDictionary *)options
+-(void)_callOtherMethod:(NSString *)className options:(NSDictionary *)options idPrefix:(NSString *)idPrefix
 {
-  NSArray* args = [NSArray arrayWithObjects:@"exec", options, nil];
+  NSArray* args = [NSArray arrayWithObjects:@"exec", options, idPrefix, nil];
   NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
   CDVInvokedUrlCommand* command2 = [CDVInvokedUrlCommand commandFromJson:jsonArr];
   

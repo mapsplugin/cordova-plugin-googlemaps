@@ -24,6 +24,10 @@
   NSDictionary *latLng = [json objectForKey:@"position"];
   float latitude = [[latLng valueForKey:@"lat"] floatValue];
   float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  NSString *idPrefix = @"";
+  if ([command.arguments count] == 3) {
+    idPrefix = [command.arguments objectAtIndex:2];
+  }
   
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
   GMSMarker *marker = [GMSMarker markerWithPosition:position];
@@ -49,7 +53,7 @@
     marker.opacity = [[json valueForKey:@"opacity"] floatValue];
   }
   
-  NSString *id = [NSString stringWithFormat:@"marker%d", marker.hash];
+  NSString *id = [NSString stringWithFormat:@"%@marker%d", idPrefix, marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
   // Create icon
