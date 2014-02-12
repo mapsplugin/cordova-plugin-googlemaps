@@ -20,21 +20,35 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
-  NSString *kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
-  NSString *idPrefix = [NSString stringWithFormat:@"%@-", kmlId];
-  NSString *urlStr = [json objectForKey:@"url"];
-  
-  //--------------------------------
-  // Parse the kml file
-  //--------------------------------
   NSError *error = nil;
-  TBXML *tbxml = [[TBXML alloc] initWithXMLFile:urlStr error:&error];
   CDVPluginResult* pluginResult;
+  TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
+  
+  NSString *urlStr = [json objectForKey:@"url"];
+  NSRange range = [urlStr rangeOfString:@"http"];
+  if (range.location == NSNotFound) {
+    tbxml = [tbxml initWithXMLFile:urlStr error:&error];
+  } else {
+    NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
+    tbxml = [tbxml initWithXMLData:xmlData error:&error];
+  }
   if (error) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     return;
   }
+  [self parseKML:tbxml command:command];
+}
+-(void)parseKML:(TBXML *)tbxml command:(CDVInvokedUrlCommand *)command
+{
+
+  NSString *kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
+  NSString *idPrefix = [NSString stringWithFormat:@"%@-", kmlId];
+  
+  //--------------------------------
+  // Parse the kml file
+  //--------------------------------
+  CDVPluginResult* pluginResult;
   NSMutableDictionary *kmlData = [self parseXML:tbxml.rootXMLElement];
   
   //--------------------------------
@@ -57,7 +71,6 @@
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:kmlId];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-
 
 
 -(void)_filterPlaceMarks:(NSDictionary *)rootNode placemarks:(NSMutableArray **)placemarks

@@ -443,6 +443,7 @@ map.addGroundOverlay({
 <h2>Remove the ground overlay</h2>
 <p>To remove the ground overlay, call the <span class='highlight'>remove()</span> method.</p>
 <code>groundOverlay.remove();</code>
+<button onclick="removeGroundOverlay()">Play it</button>
 
 
 <h2>Add a tile overlay</h2>
@@ -462,7 +463,27 @@ These are replaced with values.</p>
 <h2>Remove the tile overlay</h2>
 <p>To remove the tile overlay, call the <span class='highlight'>remove()</span> method.</p>
 <code>tileOverlay.remove();</code>
+<button onclick="removeTileOverlay()">Play it</button>
 
+
+<h2>Add a KML Overlay <font color="red">(experimental)</font></h2>
+<p>This plugin allows you to load a KML file onto the map.
+The plugin parses the KML, then implements overlays.</p>
+<code>map.addKmlOverlay({
+  'url': 'www/cta.kml'
+}, function() {
+  map.moveCamera({
+    'target': new plugin.google.maps.LatLng(41.871432, -87.669511),
+    'zoom': 10
+  });
+  map.showDialog();
+});</code>
+<button onclick="addKmlOverlay1()">Play it</button>
+
+<h2>Remove the tile overlay</h2>
+<p>To remove the tile overlay, call the <span class='highlight'>remove()</span> method.</p>
+<code>tileOverlay.remove();</code>
+<button onclick="removeTileOverlay()">Play it</button>
 
 <h2>Geocoding</h2>
 <p>This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.

@@ -2,6 +2,8 @@ package plugin.google.maps;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -19,12 +21,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.maps.GoogleMap;
-
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
   private GoogleMaps mMapCtrl;
-  private GoogleMap mMap;
   private Activity mActivity;
   private CallbackContext mCallback;
   
@@ -57,7 +56,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
-    mMap = mapCtrl.map;
     mActivity = activity;
     
     try {
@@ -72,7 +70,19 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     
     Bundle kmlData = null;
     try {
-      InputStream inputStream = mActivity.getResources().getAssets().open(params[0]);
+      InputStream inputStream = null;
+      String urlStr = params[0];
+      if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
+        Log.e("Map", urlStr);
+        URL url = new URL(urlStr);
+        HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
+        http.setRequestMethod("GET");
+        http.connect();
+        inputStream = http.getInputStream();
+      } else {
+        inputStream = mActivity.getResources().getAssets().open(urlStr);
+      }
+      
       parser.setInput(inputStream, null);
       kmlData = parseXML(parser);
     } catch (Exception e) {
@@ -349,6 +359,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           break;
         case XmlPullParser.START_TAG:
           tagName = parser.getName().toLowerCase();
+          Log.i("Map", "tagName-->" + tagName);
           try {
             kmlTag = KML_TAG.valueOf(tagName);
           } catch(Exception e) {}

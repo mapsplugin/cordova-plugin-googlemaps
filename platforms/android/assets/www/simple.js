@@ -93,15 +93,7 @@ function onMapReady() {
           latLng.toUrlValue());
   });
   
-  map.addKmlOverlay({
-    'url': 'www/US Regions State Boundaries.kml'
-  }, function() {
-    map.moveCamera({
-      'target': new plugin.google.maps.LatLng(39.99994, -114.04658),
-      'zoom': 3
-    });
-    map.showDialog();
-  });
+  map.showDialog();
 }
 
 function showMap() {
@@ -399,8 +391,18 @@ function addGroundOverlay() {
     map.animateCamera({
       'target': bounds
     });
+    
+    map.addEventListenerOnce("REMOVE_GROUND_OVERLAY", function() {
+      groundOverlay.remove();
+    });
   });
 }
+
+function removeGroundOverlay() {
+  map.showDialog();
+  map.trigger("REMOVE_GROUND_OVERLAY");
+}
+
 
 function addTileOverlay() {
   map.addTileOverlay({
@@ -408,6 +410,38 @@ function addTileOverlay() {
     tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
   }, function(tileOverlay) {
     mTileOverlay = tileOverlay;
+    map.showDialog();
+    
+    map.addEventListenerOnce("REMOVE_TILE_OVERLAY", function() {
+      tileOverlay.remove();
+    });
+  });
+}
+function removeTileOverlay() {
+  map.showDialog();
+  map.trigger("REMOVE_TILE_OVERLAY");
+}
+
+function addKmlOverlay1() {
+  map.addKmlOverlay({
+    //'url': 'www/cta.kml'
+    'url': 'http://www.googledrive.com/host/0B1ECfqTCcLE8blRHZVVZM1QtRkE/cta.kml'
+  }, function() {
+    map.moveCamera({
+      'target': new plugin.google.maps.LatLng(41.871432, -87.669511),
+      'zoom': 10
+    });
+    map.showDialog();
+  });
+}
+function addKmlOverlay_US() {
+  map.addKmlOverlay({
+    'url': 'www/US Regions State Boundaries.kml'
+  }, function() {
+    map.moveCamera({
+      'target': new plugin.google.maps.LatLng(39.99994, -114.04658),
+      'zoom': 3
+    });
     map.showDialog();
   });
 }
