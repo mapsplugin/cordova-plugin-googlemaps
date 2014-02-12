@@ -176,8 +176,13 @@ NSDictionary *initOptions;
  */
 - (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %hhd);", gesture];
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+  dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps.Map._onMapEvent", NULL);
+  dispatch_sync(gueue, ^{
+  
+    NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %hhd);", gesture];
+    [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+  });
+  dispatch_release(gueue);
 }
 
 
