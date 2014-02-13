@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -165,6 +166,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     Bundle options;
     JSONObject optionsJSON;
     
+    Random random = new Random();
+    String kmlId = "kml" + random.nextInt();
     String tmp, tagName;
     Bundle node, style, childNode;
     ArrayList<Bundle> bundleList;
@@ -220,7 +223,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
-          this.implementToMap("Marker", options);
+          this.implementToMap("Marker", options, kmlId);
           break;
           
         case linestring:
@@ -269,7 +272,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
-          this.implementToMap("Polyline", optionsJSON);
+          this.implementToMap("Polyline", optionsJSON, kmlId);
           break;
           
 
@@ -327,22 +330,23 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           } else {
             Log.e("client", "--" + style + " is null");
           }
-          this.implementToMap("Polygon", optionsJSON);
+          this.implementToMap("Polygon", optionsJSON, kmlId);
           break;
           
         }
       }
       
     }
-    this.mCallback.success();
+    this.mCallback.success(kmlId);
   }
 
-  private void implementToMap(String className, JSONObject optionsJSON) {
+  private void implementToMap(String className, JSONObject optionsJSON, String kmlId) {
 
     JSONArray params = new JSONArray();
     params.put(className + ".create" + className);
     params.put(optionsJSON);
-    CallbackContext callback2 = new CallbackContext("kmlOverlay-create" + className, this.mMapCtrl.webView);
+    params.put(kmlId + "-");
+    CallbackContext callback2 = new CallbackContext(kmlId + "_callback", this.mMapCtrl.webView);
     
     try {
       mMapCtrl.execute("exec", params, callback2);
@@ -350,9 +354,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       e.printStackTrace();
     }
   }
-  private void implementToMap(String className, Bundle options) {
+  private void implementToMap(String className, Bundle options, String kmlId) {
     // Load the class plugin
-    this.implementToMap(className, PluginUtil.Bundle2Json(options));
+    this.implementToMap(className, PluginUtil.Bundle2Json(options), kmlId);
   }
   
   private JSONArray kmlColor2PluginColor(String colorStr) {
@@ -387,7 +391,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           break;
         case XmlPullParser.START_TAG:
           tagName = parser.getName().toLowerCase();
-          Log.i("Map", "tagName-->" + tagName);
           try {
             kmlTag = KML_TAG.valueOf(tagName);
           } catch(Exception e) {}
