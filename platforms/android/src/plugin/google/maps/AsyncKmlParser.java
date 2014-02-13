@@ -79,7 +79,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         http.setRequestMethod("GET");
         http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
         http.addRequestProperty("User-Agent", "Mozilla");
-        http.addRequestProperty("Referer", "google.com");
         http.setInstanceFollowRedirects(true);
         HttpURLConnection.setFollowRedirects(true);
         
@@ -105,7 +104,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           http.setRequestProperty("Cookie", cookies);
           http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
           http.addRequestProperty("User-Agent", "Mozilla");
-          http.addRequestProperty("Referer", "google.com");
         }
         
         inputStream = http.getInputStream();
