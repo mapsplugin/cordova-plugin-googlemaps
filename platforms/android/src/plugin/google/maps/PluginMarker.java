@@ -45,6 +45,9 @@ public class PluginMarker extends MyPlugin {
     if (opts.has("visible")) {
       markerOptions.visible(opts.getBoolean("visible"));
     }
+    if (opts.has("draggable")) {
+      markerOptions.draggable(opts.getBoolean("draggable"));
+    }
     if (opts.has("rotation")) {
       markerOptions.rotation((float)opts.getDouble("rotation"));
     }
@@ -58,10 +61,6 @@ public class PluginMarker extends MyPlugin {
     
     // Store the marker
     String id = "marker_" + marker.getId();
-    if (args.length() == 3) {
-      String kmlId = args.getString(2);
-      id = kmlId + args;
-    }
     this.objects.put(id, marker);
     
     
