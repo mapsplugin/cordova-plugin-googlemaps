@@ -367,7 +367,6 @@ map.addMarker({
   'position': GOOGLE_SYDNEY,
   'title': "Google Sydney",
   'snippet': "click, then remove",
-  'draggable': true,
   'markerClick': function(marker) {
     marker.showInfoWindow();
   },
@@ -377,6 +376,23 @@ map.addMarker({
 });
 </code>
 <button onclick="addMarker4()">Play it</button>
+
+<h2>Draggable Marker</h2>
+<p>To allow users to drag a marker to a different location on the map, set draggable to true in the marker options.</p>
+<code>map.addMarker({
+  'position': GOOGLE,
+  'draggable': true
+}, function(marker) {
+  
+  marker.addEventListener(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
+    marker.getPosition(function(latLng) {
+      marker.setTitle(latLng.toUrlValue());
+      marker.showInfoWindow();
+    });
+  });
+});
+</code>
+<button onclick="addMarkerDrag()">Play it</button>
 
 
 <h2>Add a polyline/polygon/circle</h2>

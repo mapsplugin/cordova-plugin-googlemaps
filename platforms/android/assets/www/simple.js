@@ -289,7 +289,6 @@ function addMarker4() {
     'position': GOOGLE_SYDNEY,
     'title': "Google Sydney",
     'snippet': "click, then remove",
-    'draggable': true,
     'markerClick': function(marker) {
       marker.showInfoWindow();
     },
@@ -299,6 +298,25 @@ function addMarker4() {
   });
 }
 
+function addMarkerDrag() {
+  map.showDialog();
+  map.moveCamera({
+    'target': GOOGLE,
+    'zoom': 16
+  });
+  map.addMarker({
+    'position': GOOGLE,
+    'draggable': true
+  }, function(marker) {
+    
+    marker.addEventListener(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
+      marker.getPosition(function(latLng) {
+        marker.setTitle(latLng.toUrlValue());
+        marker.showInfoWindow();
+      });
+    });
+  });
+}
 function addMarker5() {
   map.showDialog();
   map.trigger("REMOVE_TOKYO_MARKER");
