@@ -17,6 +17,7 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 
 ###Snippet
 ```js
+const GOOGLE_NY = new plugin.google.maps.LatLng(40.740658,-74.002089);
 var map = plugin.google.maps.Map.getMap();
 map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
   // The map is initialized, then show a map dialog
