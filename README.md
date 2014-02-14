@@ -15,6 +15,17 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 
 ![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
 
+###Snippet
+```js
+var map = plugin.google.maps.Map.getMap();
+map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
+  // The map is initialized, then show a map dialog
+  map.showDialog();
+});
+```
+![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/initialize_map1.png)
+
+
 ###Documentation
 
 * [Manual Installation](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation)
