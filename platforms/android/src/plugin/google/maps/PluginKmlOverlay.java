@@ -8,11 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.TileOverlay;
 
 public class PluginKmlOverlay extends MyPlugin {
   
@@ -31,7 +26,6 @@ public class PluginKmlOverlay extends MyPlugin {
    */
   @SuppressWarnings("unused")
   private void createKmlOverlay(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    
     JSONObject opts = args.getJSONObject(1);
     
     AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.mapCtrl, callbackContext);

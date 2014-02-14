@@ -40,6 +40,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     polygon,
     pair,
     multigeometry,
+    networklink,
+    link,
 
     key,
     styleurl,
@@ -114,6 +116,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       
       parser.setInput(inputStream, null);
       kmlData = parseXML(parser);
+      inputStream.close();
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -159,6 +162,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       mCallback.error("KML Parse error");
       return;
     }
+    Log.d("Marker", "----networklink");
+    Log.d("Marker", parseResult.toString());
     Bundle styles = parseResult.getBundle("styles");
     ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
@@ -189,6 +194,10 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         
         tagName = childNode.getString("tagName");
         switch(KML_TAG.valueOf(tagName)) {
+        case networklink:
+          Log.d("Marker", "----networklink");
+          Log.d("Marker", childNode.toString());
+          break;
         case point:
           //-----------------
           // Marker
@@ -425,11 +434,13 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               pairList = new ArrayList<Bundle>();
             }
             break;
+          case networklink:
           case placemark:
             currentNode = new Bundle();
             currentNode.putString("tagName", tagName);
             pairList = null;
             break;
+          case link:
           case linestyle:
           case polystyle:
           case pair:
@@ -465,7 +476,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
               
               String txt = parser.nextText();
-              String lines[] = txt.split("[\\n\\s]");
+              txt = txt.replaceAll("\\s", "");
+              String lines[] = txt.split("\\n");
               String tmpArry[];
               Bundle latLng;
               int i;
@@ -524,6 +536,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                 pairList = null;
               }
               break;
+            case networklink:
             case placemark:
               placeMarks.add(currentNode);
               currentNode = null;
@@ -544,6 +557,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             case icon:
             case point:
             case outerboundaryis:
+            case link:
             case linestring:
             case coordinates:
             case polygon:
