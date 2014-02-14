@@ -12,6 +12,7 @@ See the [Manual Installation page](https://raw2.github.com/wf9a5m75/phonegap-goo
 
 ###Example
 You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/raw/Images/examples/SimpleMap_v1.0.2.apk)
+
 ![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
 
 ###Documentation
