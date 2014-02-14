@@ -5,10 +5,14 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 [日本語のドキュメント](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/blob/master/README_ja.md)からご覧いただけます。
 
-![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
+![ScreenShot](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
 ###Installation
-See the [Manual Installation page](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation).
+See the [Manual Installation page](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation).
+
+###Example
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
+You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/raw/Images/examples/SimpleMap_v1.0.2.apk)
 
 ###Documentation
 
