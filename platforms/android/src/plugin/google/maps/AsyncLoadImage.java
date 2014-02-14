@@ -37,11 +37,40 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     try {
       URL url= new URL(urls[0]);
       mUrl = urls[0];
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setDoInput(true);
-      connection.connect();
-      InputStream input = connection.getInputStream();
-      Bitmap myBitmap = BitmapFactory.decodeStream(input);
+      HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
+      http.setRequestMethod("GET");
+      http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+      http.addRequestProperty("User-Agent", "Mozilla");
+      http.setInstanceFollowRedirects(true);
+      HttpURLConnection.setFollowRedirects(true);
+      
+      boolean redirect = false;
+      // normally, 3xx is redirect
+      int status = http.getResponseCode();
+      if (status != HttpURLConnection.HTTP_OK) {
+        if (status == HttpURLConnection.HTTP_MOVED_TEMP
+          || status == HttpURLConnection.HTTP_MOVED_PERM
+            || status == HttpURLConnection.HTTP_SEE_OTHER)
+        redirect = true;
+      }
+      if (redirect) {
+        
+        // get redirect url from "location" header field
+        String newUrl = http.getHeaderField("Location");
+     
+        // get the cookie if need, for login
+        String cookies = http.getHeaderField("Set-Cookie");
+     
+        // open the new connnection again
+        http = (HttpURLConnection) new URL(newUrl).openConnection();
+        http.setRequestProperty("Cookie", cookies);
+        http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+        http.addRequestProperty("User-Agent", "Mozilla");
+      }
+      
+      InputStream inputStream = http.getInputStream();
+      Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
+      inputStream.close();
       return myBitmap;
     } catch (Exception e) {
       e.printStackTrace();
