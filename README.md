@@ -10,6 +10,9 @@ This plugin works with [Apache Cordova][2].
 ###Installation
 See the [wiki page](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation).
 
+###Documentation
+Please read the [document of this plugin](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki).
+
 ###Initialize a map
 To initialize the map plugin, you need to call the **getMap()** method of the Map class.
 The map class raises `MAP_READY` event when the map is initialized.
@@ -18,31 +21,6 @@ You can receive the event with either **addEventListener()** or **on()** method.
 var map = plugin.google.maps.Map.getMap();
 map.addEventListener(plugin.google.maps.event.MAP_READY, function() {
   //Something you want to do
-});
-```
-
-###Initialize a map with options
-If you want to initialize a map with parameters, you can do like this.
-```js
-var map = plugin.google.maps.Map.getMap({
-  'mapType': plugin.google.maps.MapTypeId.HYBRID,
-  'controls': {
-    'compass': true,
-    'myLocationButton': true,
-    'indoorPicker': true,
-    'zoom': true
-  },
-  'gestures': {
-    'scroll': true,
-    'tilt': true,
-    'rotate': true
-  },
-  'camera': {
-    'latLng': GORYOKAKU_JAPAN,
-    'tilt': 30,
-    'zoom': 15,
-    'bearing': 50
-  }
 });
 ```
 
@@ -79,53 +57,6 @@ This plugin show the map on a dialog window. To open it, call **showDialog()** m
 map.showDialog();
 ```
 
-###Close the map dialog
-If you want to close the dialog, call **closeDialog()** method.
-```js
-map.closeDialog();
-```
-
-###Change the map type
-You can choose the map type using **setMapTypeId()** method.
-Available map types are `ROADMAP`, `SATELLITE`, `HYBRID`, `TERRAIN` and `NONE`.
-```js
-map.setMapTypeId(plugin.google.maps.HYBRID);
-```
-![map_type](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/map_type.png)
-
-###Move the camera
-Google Maps for mobile has a view camera.
-You see the map via the camera, thus if you want to show a specific location, you need to move the camera.
-To do that, this plugin provides **animateCamera()** and **moveCamera()** methods.
-The **animateCamera()** moves the camera with animation, while the other hand without animation.
-Default animation time of **animateCamera()** method is 4 seconds.
-```js
-map.animateCamera({
-  'target': GOOGLE,
-  'tilt': 60,
-  'zoom': 18,
-  'bearing': 140
-});
-```
-[![map.animateCamera](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif)](http://www.youtube.com/watch?v=QMLWrOxfgRw)
-
-http://www.youtube.com/watch?v=QMLWrOxfgRw
-
-Both methods take a callback function as the second argument.
-This callback is involved when the movement is finished.
-```js
-map.moveCamera({
-  'target': STATUE_OF_LIBERTY,
-  'zoom': 17,
-  'tilt': 30
-}, function() {
-  var mapType = plugin.google.maps.MapTypeId.HYBRID;
-  map.setMapTypeId(mapType);
-  map.showDialog();
-});
-```
-![camera](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/camera.png)
-
 ###Move the camera within the specified duration time
 The **animateCamera()** acepts the duration time for animating with **duration** option.
 If you want to animate slowly, you can specify the duration in millisecond.
@@ -139,41 +70,6 @@ map.animateCamera({
 });
 ```
 
-###Get the camera position
-If you want to know the camera position, just call **getCameraPosition()** method.
-```js
-map.getCameraPosition(function(camera) {
-  var buff = ["Current camera position:\n"
-      "latitude:" + camera.target.lat,
-      "longitude:" + camera.target.lng,
-      "zoom:" + camera.zoom,
-      "tilt:" + camera.tilt,
-      "bearing:" + camera.bearing].join("\n");
-  alert(buff);
-});
-```
-
-###Get my location
-If you want to know where you are, just call **getMyLocation()** method.
-```js
-map.getMyLocation(function(location) {
-  var msg = ["Current your location:\n",
-    "latitude:" + location.latLng.lat,
-    "longitude:" + location.latLng.lng,
-    "speed:" + location.speed,
-    "time:" + location.time,
-    "bearing:" + location.bearing].join("\n");
-  
-  map.addMarker({
-    'position': location.latLng,
-    'title': msg
-  }, function(marker) {
-    marker.showInfoWindow();
-  });
-});
-```
-![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/mylocation.png)
-
 ###Add a marker
 You can make a marker using **addMarker()** method.
 ```js
@@ -184,62 +80,6 @@ map.addMarker({
 ```
 ![marker0](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker0.png)
 
-###Add a marker with multiple line
-You are also able to pass multiple line to the **title** option.
-```js
-map.addMarker({
-  'position': GOOGLE_NY,
-  'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
-  'snippet': "This plugin is awesome!"
-}, function(marker) {
-  marker.showInfoWindow();
-});
-```
-![marker3](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
-
-###addMarker() callback
-The **addMarker()** method taken a function as callback on the second argument.
-The callback is involved when the marker is created.
-The plugin passes the marker instance as a parameter.
-```js
-map.addMarker({
-  'position': STATUE_OF_LIBERTY,
-  'title': "Statue of Liberty"
-}, function(marker) {
-  marker.showInfoWindow();
-});
-```
-![marker1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker1.png)
-
-
-
-
-###Add a marker with icon
-If you want to make a marker with icon, just pass the icon path or URL to the **addMarker()** method.
-```js
-map.addMarker({
-  'position': GOOGLE_TOKYO,
-  'title': 'Google Tokyo!'
-  'icon': 'www/images/google_tokyo_icon.png'
-});
-```
-![marker2](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2.png)
-
-Or you can scale the icon image with options.
-```js
-map.addMarker({
-  'position': GOOGLE_TOKYO,
-  'title': 'Google Tokyo!',
-  'icon': {
-    'url': 'www/images/google_tokyo_icon.png',
-    'size': {
-      'width': 74,
-      'height': 126
-    }
-  }
-});
-```
-![marker2b](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker2b.png)
 
 ###Add a marker with base64 encoded image
 This is really useful feature!
@@ -256,30 +96,6 @@ map.addMarker({
 });
 ```
 ![marker_base64](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_base64.png)
-
-###Remove the marker
-To remove the marker, call the **remove()** method.
-```js
-marker.remove();
-```
-
-###Click events
-This plugin also supports the click events for both marker and infoWindow.
-```js
-map.addMarker({
-  'position': GOOGLE_SYDNEY,
-  'title': "Google Sydney",
-  'snippet': "click, then remove",
-  'draggable': true,
-  'markerClick': function(marker) {
-    marker.showInfoWindow();
-  },
-  'infoClick': function(marker) {
-    marker.remove();
-  }
-});
-```
-![marker_click](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker_click.png)
 
 ###Add a polyline, polygon and circle
 Adding a polyline uses **addPolyline()** method.
@@ -343,13 +159,6 @@ map.addGroundOverlay({
 ```
 ![image8](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ground_overlay.png)
 
-###Remove the ground overlay
-To remove the ground overlay, call the **remove()** method.
-```js
-groundOverlay.remove();
-```
-
-
 ###Add a tile overlay
 A Tile Overlay is a set of images which are displayed on top of the base map tiles.
 To your tile layer, call **addTileOverlay()** method.
@@ -365,13 +174,6 @@ map.addTileOverlay({
 });
 ```
 ![image9](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/tile_overlay.png)
-
-###Remove the tile overlay
-To remove the tile overlay, call the **remove()** method.
-```js
-tileOverlay.remove();
-```
-
 
 ###Geocoding
 This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.
