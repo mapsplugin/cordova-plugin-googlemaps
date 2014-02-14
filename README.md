@@ -21,9 +21,17 @@ var map = plugin.google.maps.Map.getMap();
 map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
   // The map is initialized, then show a map dialog
   map.showDialog();
+  
+  map.addMarker({
+    'position': GOOGLE_NY,
+    'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
+    'snippet': "This plugin is awesome!"
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
 });
 ```
-![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/initialize_map1.png)
+![img](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker3.png)
 
 
 ###Documentation
