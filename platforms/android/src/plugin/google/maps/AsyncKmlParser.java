@@ -162,12 +162,11 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       mCallback.error("KML Parse error");
       return;
     }
-    Log.d("Marker", "----networklink");
-    Log.d("Marker", parseResult.toString());
     Bundle styles = parseResult.getBundle("styles");
     ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
-    
+
+
     Bundle options;
     JSONObject optionsJSON;
     
@@ -183,6 +182,26 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     Iterator<Bundle> childrenIterator;
     while(iterator.hasNext()) {
       node = iterator.next();
+      tagName = node.getString("tagName");
+      if ("networklink".equals(tagName)) {
+
+        bundleList = node.getParcelableArrayList("children");
+        bundleIterator = bundleList.iterator();
+        while(bundleIterator.hasNext()) {
+          childNode = bundleIterator.next();
+          tagName = childNode.getString("tagName");
+          if ("link".equals(tagName)) {;
+            tmp = childNode.getString("href");
+            Log.d("Marker", "link=" + tmp);
+
+            AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, mCallback);
+            kmlParser.execute(tmp);
+            
+            return;
+          }
+        }
+        break;
+      }
 
       children = node.getParcelableArrayList("children");
       if (children == null) {
@@ -194,10 +213,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         
         tagName = childNode.getString("tagName");
         switch(KML_TAG.valueOf(tagName)) {
-        case networklink:
-          Log.d("Marker", "----networklink");
-          Log.d("Marker", childNode.toString());
-          break;
         case point:
           //-----------------
           // Marker

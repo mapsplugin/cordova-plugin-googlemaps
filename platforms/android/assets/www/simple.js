@@ -94,6 +94,10 @@ function onMapReady() {
   });
   
   map.showDialog();
+  
+  map.addKmlOverlay({
+    'url': 'www/Social Rewards Redemption Map.kml'
+  });
 }
 
 function showMap() {
