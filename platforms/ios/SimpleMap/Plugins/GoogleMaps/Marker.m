@@ -12,6 +12,7 @@
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
+  self.iconCache = [NSMutableDictionary dictionary];
 }
 
 /**
@@ -325,18 +326,29 @@
       
       marker.icon = image;
     } else {
-      dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
-      dispatch_sync(gueue, ^{
-        NSURL *url = [NSURL URLWithString:iconPath];
-        NSData *data = [NSData dataWithContentsOfURL:url];
-        UIImage* image = [UIImage imageWithData:data scale:1.0];
+      NSData *imgData = [self.iconCache objectForKey:iconPath];
+      if (imgData != nil) {
+        UIImage* image = [UIImage imageWithData:imgData];
         if (width && height) {
           image = [image resize:width height:height];
         }
         marker.icon = image;
-      });
-      dispatch_release(gueue);
-      
+      } else {
+        dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
+        dispatch_sync(gueue, ^{
+          NSURL *url = [NSURL URLWithString:iconPath];
+          NSData *data = [NSData dataWithContentsOfURL:url options:NSDataReadingMapped error:nil];
+          
+          [self.iconCache setObject:data forKey:iconPath];
+          
+          UIImage* image = [UIImage imageWithData:data];
+          if (width && height) {
+            image = [image resize:width height:height];
+          }
+          marker.icon = image;
+        });
+        dispatch_release(gueue);
+      }
     }
   }
 }

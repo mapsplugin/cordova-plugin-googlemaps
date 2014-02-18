@@ -60,18 +60,57 @@
   NSMutableDictionary *styles = [NSMutableDictionary dictionary];
   NSMutableArray *placeMarks = [NSMutableArray array];
   
-  [self _filterStyles:kmlData styles:&styles];
   [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
   
-  for (tag in placeMarks) {
-    NSMutableDictionary *options = nil;
-    [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil idPrefix:idPrefix];
+  if ([placeMarks count] > 0) {
+    [self _filterStyles:kmlData styles:&styles];
+    //Implement placemarks
+    for (tag in placeMarks) {
+      NSMutableDictionary *options = nil;
+      [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil idPrefix:idPrefix];
+    }
+
+  } else {
+    //Find network tag
+    NSString *linkUrl = nil;
+    [self _findLinkedKMLUrl:kmlData linkUrl:&linkUrl];
+    if (linkUrl != nil) {
+      NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
+      [options2 setObject:linkUrl forKey:@"url"];
+      [self _callOtherMethod:@"KmlOverlay" options:options2 idPrefix:@"kml"];    }
   }
   
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:kmlId];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+
+
+-(void)_findLinkedKMLUrl:(NSDictionary *)rootNode linkUrl:(NSString **)linkUrl
+{
+  NSDictionary *tag, *tag2;
+  NSString *tagName;
+  
+  NSArray *children = [rootNode objectForKey:@"children"];
+  for (tag in children) {
+    tagName = tag[@"_tag"];
+    
+    if ([tagName isEqualToString:@"link"]) {
+      NSArray *children2 = [tag objectForKey:@"children"];
+      for (tag2 in children2) {
+        tagName = tag2[@"_tag"];
+        if ([tagName isEqualToString:@"href"]) {
+          *linkUrl = [tag2 objectForKey:@"href"];
+          return;
+        }
+      }
+      continue;
+    } else {
+      [self _findLinkedKMLUrl:tag linkUrl:linkUrl];
+    }
+  }
+
+}
 
 -(void)_filterPlaceMarks:(NSDictionary *)rootNode placemarks:(NSMutableArray **)placemarks
 {
