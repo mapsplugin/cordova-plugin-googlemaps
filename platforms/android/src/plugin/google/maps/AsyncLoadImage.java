@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private String targetMethod = "";
   private Bundle iconProperty = null;
   private String mUrl = "";
+  private HashMap<String, Bitmap> mCache = null;
 
   public AsyncLoadImage(Object target, String method, Bundle options) {
     targerClass = target;
@@ -33,12 +35,31 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     targetMethod = method;
   }
 
+  public AsyncLoadImage(Object target, String method, Bundle options, HashMap<String, Bitmap> cache) {
+    targerClass = target;
+    targetMethod = method;
+    this.iconProperty = options;
+    mCache = cache;
+  }
+  
+  public AsyncLoadImage(Object target, String method, HashMap<String, Bitmap> cache) {
+    targerClass = target;
+    targetMethod = method;
+    mCache = cache;
+  }
+
   protected Bitmap doInBackground(String... urls) {
     try {
+      if (mCache != null && mCache.containsKey(urls[0])) {
+        Bitmap myBitmap = mCache.get(urls[0]);
+        return myBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        //return Bitmap.createBitmap(mCache.get(urls[0]));
+      }
       URL url= new URL(urls[0]);
       mUrl = urls[0];
       HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
       http.setRequestMethod("GET");
+      http.setUseCaches(true);
       http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
       http.addRequestProperty("User-Agent", "Mozilla");
       http.setInstanceFollowRedirects(true);
@@ -61,8 +82,9 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
         // get the cookie if need, for login
         String cookies = http.getHeaderField("Set-Cookie");
      
-        // open the new connnection again
+        // open the new connection again
         http = (HttpURLConnection) new URL(newUrl).openConnection();
+        http.setUseCaches(true);
         http.setRequestProperty("Cookie", cookies);
         http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
         http.addRequestProperty("User-Agent", "Mozilla");
@@ -70,7 +92,11 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       
       InputStream inputStream = http.getInputStream();
       Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
+      if (mCache != null) {
+        mCache.put(urls[0], myBitmap.copy(Bitmap.Config.ARGB_8888, true));
+      }
       inputStream.close();
+      
       return myBitmap;
     } catch (Exception e) {
       e.printStackTrace();
