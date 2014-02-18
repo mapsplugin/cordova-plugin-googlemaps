@@ -491,7 +491,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
               
               String txt = parser.nextText();
-              txt = txt.replaceAll("\\s", "");
+              txt = txt.replaceAll("\\s+", "\n");
+              txt = txt.replaceAll("\\n+", "\n");
               String lines[] = txt.split("\\n");
               String tmpArry[];
               Bundle latLng;
