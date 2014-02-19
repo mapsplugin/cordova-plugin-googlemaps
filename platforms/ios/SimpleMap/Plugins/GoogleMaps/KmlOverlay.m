@@ -28,8 +28,18 @@
   if (range.location == NSNotFound) {
     tbxml = [tbxml initWithXMLFile:urlStr error:&error];
   } else {
-    NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
-    tbxml = [tbxml initWithXMLData:xmlData error:&error];
+    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
+    bool valid = [NSURLConnection canHandleRequest:req];
+    if (valid) {
+      NSError *error;
+      NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
+      tbxml = [tbxml initWithXMLData:xmlData error:&error];
+    } else {
+      
+      NSMutableDictionary* details = [NSMutableDictionary dictionary];
+      [details setValue:[NSString stringWithFormat:@"Cannot load KML data from %@", urlStr] forKey:NSLocalizedDescriptionKey];
+      error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+    }
   }
   
   CDVPluginResult* pluginResult;
@@ -55,7 +65,9 @@
   //--------------------------------
   __block NSMutableDictionary *kmlData;
   dispatch_async(gueue, ^{
+    NSLog(@"%@", [[TBXML elementName:tbxml.rootXMLElement] lowercaseString]);
     kmlData = [self parseXML:tbxml.rootXMLElement];
+
   });
   
   //--------------------------------
@@ -66,7 +78,8 @@
   __block NSMutableArray *placeMarks = [NSMutableArray array];
   dispatch_async(gueue, ^{
     [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
-    
+  });
+  dispatch_async(gueue, ^{
     if ([placeMarks count] > 0) {
       //Implement placemarks
       [self _filterStyles:kmlData styles:&styles];
