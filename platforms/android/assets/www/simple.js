@@ -96,7 +96,13 @@ function onMapReady() {
   map.showDialog();
   
   map.addKmlOverlay({
-    'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
+    'url': 'www/polygon-simple.kml'
+  //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
+  }, function() {
+    map.moveCamera({
+      'target': new plugin.google.maps.LatLng(37.3557, -122.0931),
+      'zoom': 11
+    });
   });
 }
 
