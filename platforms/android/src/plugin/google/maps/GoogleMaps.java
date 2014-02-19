@@ -17,12 +17,10 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -176,13 +174,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     // Initialize Google Maps SDK
     // ------------------------------
-    try {
-      MapsInitializer.initialize(activity);
-    } catch (GooglePlayServicesNotAvailableException e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return;
-    }
+    MapsInitializer.initialize(activity);
     GoogleMapOptions options = new GoogleMapOptions();
     JSONObject params = args.getJSONObject(0);
     //controls
