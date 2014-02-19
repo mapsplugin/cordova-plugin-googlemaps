@@ -20,8 +20,7 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
-  NSError *error = nil;
-  CDVPluginResult* pluginResult;
+  NSError *error;
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
   
   NSString *urlStr = [json objectForKey:@"url"];
@@ -32,6 +31,8 @@
     NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
     tbxml = [tbxml initWithXMLData:xmlData error:&error];
   }
+  
+  CDVPluginResult* pluginResult;
   if (error) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -45,41 +46,55 @@
   NSString *kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
   NSString *idPrefix = [NSString stringWithFormat:@"%@-", kmlId];
   
+  CDVPluginResult* pluginResult;
+  
+  dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps.Map.createKmlOverlay", NULL);
+  
   //--------------------------------
   // Parse the kml file
   //--------------------------------
-  CDVPluginResult* pluginResult;
-  NSMutableDictionary *kmlData = [self parseXML:tbxml.rootXMLElement];
+  __block NSMutableDictionary *kmlData;
+  dispatch_async(gueue, ^{
+    kmlData = [self parseXML:tbxml.rootXMLElement];
+  });
   
   //--------------------------------
   // Separate styles and placemarks
   //--------------------------------
-  
-  
-  NSDictionary *tag;
-  NSMutableDictionary *styles = [NSMutableDictionary dictionary];
-  NSMutableArray *placeMarks = [NSMutableArray array];
-  
-  [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
-  
-  if ([placeMarks count] > 0) {
-    [self _filterStyles:kmlData styles:&styles];
-    //Implement placemarks
-    for (tag in placeMarks) {
-      NSMutableDictionary *options = nil;
-      [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil idPrefix:idPrefix];
-    }
+  __block NSDictionary *tag;
+  __block NSMutableDictionary *styles = [NSMutableDictionary dictionary];
+  __block NSMutableArray *placeMarks = [NSMutableArray array];
+  dispatch_async(gueue, ^{
+    [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
+    
+    if ([placeMarks count] > 0) {
+      //Implement placemarks
+      [self _filterStyles:kmlData styles:&styles];
+      
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0ul), ^{
+        for (tag in placeMarks) {
+            NSMutableDictionary *options = nil;
+            [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil idPrefix:idPrefix];
+        }
+      });
 
-  } else {
-    //Find network tag
-    NSString *linkUrl = nil;
-    [self _findLinkedKMLUrl:kmlData linkUrl:&linkUrl];
-    if (linkUrl != nil) {
-      NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
-      [options2 setObject:linkUrl forKey:@"url"];
-      [self _callOtherMethod:@"KmlOverlay" options:options2 idPrefix:@"kml"];    }
-  }
+    } else {
+      //Find network tag
+      NSString *linkUrl = nil;
+      [self _findLinkedKMLUrl:kmlData linkUrl:&linkUrl];
+
+      if (linkUrl != nil) {
+        NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
+        [options2 setObject:linkUrl forKey:@"url"];
+        [self _callOtherMethod:@"KmlOverlay" options:options2 idPrefix:@"kml"];
+      }
+    }
+  });
+
   
+
+  dispatch_release(gueue);
+
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:kmlId];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -107,6 +122,9 @@
       continue;
     } else {
       [self _findLinkedKMLUrl:tag linkUrl:linkUrl];
+      if (*linkUrl != nil) {
+        return;
+      }
     }
   }
 
