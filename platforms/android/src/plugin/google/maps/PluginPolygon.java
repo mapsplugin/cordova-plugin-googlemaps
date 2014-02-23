@@ -58,7 +58,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     String id = "polygon_"+ polygon.getId();
     if (args.length() == 3) {
       String kmlId = args.getString(2);
-      id = kmlId + args;
+      id = kmlId + id;
     }
     this.objects.put(id, polygon);
     callbackContext.success(id);

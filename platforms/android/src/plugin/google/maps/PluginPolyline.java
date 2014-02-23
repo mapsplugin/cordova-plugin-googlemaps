@@ -55,7 +55,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     String id = "polyline_" + polyline.getId();
     if (args.length() == 3) {
       String kmlId = args.getString(2);
-      id = kmlId + args;
+      id = kmlId + id;
     }
     this.objects.put(id, polyline);
     callbackContext.success(id);

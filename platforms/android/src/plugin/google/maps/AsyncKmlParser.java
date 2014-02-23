@@ -166,9 +166,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
 
-
     Bundle options;
-    JSONObject optionsJSON;
+    JSONObject optionsJSON, latLngJSON;
+    JSONArray defaultViewport = new JSONArray();
     
     Random random = new Random();
     String kmlId = "kml" + random.nextInt();
@@ -190,13 +190,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         while(bundleIterator.hasNext()) {
           childNode = bundleIterator.next();
           tagName = childNode.getString("tagName");
-          if ("link".equals(tagName)) {;
-            tmp = childNode.getString("href");
-            Log.d("Marker", "link=" + tmp);
-
+          if ("link".equals(tagName)) {
             AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, mCallback);
-            kmlParser.execute(tmp);
-            
+            kmlParser.execute(childNode.getString("href"));
             return;
           }
         }
@@ -221,6 +217,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           //position
           latLngList = childNode.getParcelableArrayList("coordinates");
           options.putBundle("position", latLngList.get(0));
+          
+          latLngJSON = PluginUtil.Bundle2Json(latLngList.get(0));
+          defaultViewport.put(latLngJSON);
           
           //title
           tmp = node.getString("name");
@@ -259,6 +258,15 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           options = new Bundle();
           latLngList = childNode.getParcelableArrayList("coordinates");
           options.putParcelableArrayList("points", latLngList);
+          
+          //add LatLng array to the defaultViewport
+          bundleIterator = latLngList.iterator();
+          while(bundleIterator.hasNext()) {
+            defaultViewport.put(PluginUtil.Bundle2Json(bundleIterator.next()));
+          }
+
+          latLngJSON = PluginUtil.Bundle2Json(latLngList.get(0));
+          defaultViewport.put(latLngJSON);
 
           options.putBoolean("visible", true);
           options.putBoolean("geodesic", true);
@@ -310,9 +318,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           options = new Bundle();
           latLngList = childNode.getParcelableArrayList("coordinates");
           options.putParcelableArrayList("points", latLngList);
-
+        
+          //add LatLng array to the defaultViewport
+          bundleIterator = latLngList.iterator();
+          while(bundleIterator.hasNext()) {
+            defaultViewport.put(PluginUtil.Bundle2Json(bundleIterator.next()));
+          }
           options.putBoolean("visible", true);
-          options.putInt("strokeWidth", 0);
+          options.putInt("strokeWidth", 4);
           
           //Bundle -> JSON
           optionsJSON = PluginUtil.Bundle2Json(options);
@@ -359,24 +372,36 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           
         }
       }
-      
     }
+    
+    optionsJSON = new JSONObject();
+    try {
+      optionsJSON.put("target", defaultViewport);
+    } catch (JSONException e) {}
+    JSONArray params = new JSONArray();
+    params.put("Map.animateCamera");
+    params.put(optionsJSON);
+    this.execOtherClassMethod("kml-viewport-change", params);
+    
     this.mCallback.success(kmlId);
   }
-
-  private void implementToMap(String className, JSONObject optionsJSON, String kmlId) {
-
-    JSONArray params = new JSONArray();
-    params.put(className + ".create" + className);
-    params.put(optionsJSON);
-    params.put(kmlId + "-");
-    CallbackContext callback2 = new CallbackContext(kmlId + "_callback", this.mMapCtrl.webView);
+  
+  private void execOtherClassMethod(String callbackId, JSONArray params) {
+    CallbackContext callback2 = new CallbackContext(callbackId, this.mMapCtrl.webView);
     
     try {
       mMapCtrl.execute("exec", params, callback2);
     } catch (JSONException e) {
       e.printStackTrace();
     }
+  }
+
+  private void implementToMap(String className, JSONObject optionsJSON, String kmlId) {
+    JSONArray params = new JSONArray();
+    params.put(className + ".create" + className);
+    params.put(optionsJSON);
+    params.put(kmlId + "-");
+    this.execOtherClassMethod(kmlId + "_callback", params);
   }
   private void implementToMap(String className, Bundle options, String kmlId) {
     // Load the class plugin

@@ -1,6 +1,8 @@
 package plugin.google.maps;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -33,7 +35,6 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.GoogleMap;
@@ -449,8 +450,31 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    */
   private void onMarkerEvent(final String eventName, final Marker marker) {
     Log.d(TAG, "marker event: " + eventName + " id= marker_" + marker.getId());
-    webView.loadUrl("javascript:plugin.google.maps.Map." +
-                "_onMarkerEvent('" + eventName + "','marker_" + marker.getId() + "')");
+    String markerId = "marker_" + marker.getId();
+    PluginEntry markerPlugin = this.plugins.get("Marker");
+    PluginMarker markerClass = (PluginMarker) markerPlugin.plugin;
+    if (markerClass.objects.containsKey(markerId)) {
+      webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onMarkerEvent('" + eventName + "','" + markerId + "')");
+    } else {
+
+      Set<String> keySet = markerClass.objects.keySet();
+      Iterator<String> iterator = keySet.iterator();
+      String key = null;
+      Boolean isHit = false;
+      while(iterator.hasNext()) {
+        key = iterator.next();
+        if (key.endsWith(markerId)) {
+          isHit = true;
+          break;
+        }
+      }
+      if (isHit) {
+        webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onKmlEvent('" + eventName + "','" + key + "')");
+      }
+    }
+    
   }
 
   @Override

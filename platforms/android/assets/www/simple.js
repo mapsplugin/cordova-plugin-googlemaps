@@ -94,14 +94,12 @@ function onMapReady() {
   });
   
   map.showDialog();
-  
   map.addKmlOverlay({
-    'url': 'www/polygon-simple.kml'
-  //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
-  }, function() {
-    map.moveCamera({
-      'target': new plugin.google.maps.LatLng(37.3557, -122.0931),
-      'zoom': 11
+  //  'url': 'www/radio-folder.kml'
+    'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
+  }, function(kmlOverlay) {
+    kmlOverlay.on('click', function() {
+      
     });
   });
 }
@@ -452,13 +450,8 @@ function removeTileOverlay() {
 
 function addKmlOverlay1() {
   map.addKmlOverlay({
-    //'url': 'www/cta.kml'
-    'url': 'http://www.googledrive.com/host/0B1ECfqTCcLE8blRHZVVZM1QtRkE/cta.kml'
+    'url': 'www/cta.kml'
   }, function() {
-    map.moveCamera({
-      'target': new plugin.google.maps.LatLng(41.871432, -87.669511),
-      'zoom': 10
-    });
     map.showDialog();
   });
 }

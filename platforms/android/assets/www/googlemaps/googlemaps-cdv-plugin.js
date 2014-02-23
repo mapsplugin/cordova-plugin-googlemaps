@@ -1,6 +1,7 @@
 (function(window){
   const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
+  var KML_LAYERS = {};
  
   /**
    * Google Maps model.
@@ -103,6 +104,16 @@
     var marker = MARKERS[hashCode] || null;
     if (marker) {
       marker.trigger(eventName, marker, this);
+    }
+  };
+  
+  /*
+   * Callback from Native
+   */
+  App.prototype._onKmlEvent = function(eventName, hashCode) {
+    var kmlLayer = KML_LAYERS[hashCode] || null;
+    if (kmlLayer) {
+      console.log("kmlLayer=" + kmlLayer);
     }
   };
   
@@ -425,8 +436,9 @@
     kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
     
     var pluginExec = function() {
-      cordova.exec(function(kmlOverlayId) {
-        var kmlOverlay = new KmlOverlay(kmlOverlayId, kmlOverlayOptions);
+      cordova.exec(function(result) {
+        var kmlOverlay = new KmlOverlay(result.id, kmlOverlayOptions);
+        KML_LAYERS[result.id] = kmlOverlay;
         if (typeof callback === "function") {
           callback.call(window, kmlOverlay, self);
         }

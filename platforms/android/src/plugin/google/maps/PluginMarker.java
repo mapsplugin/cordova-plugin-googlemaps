@@ -3,7 +3,6 @@ package plugin.google.maps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -14,6 +13,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -68,6 +68,11 @@ public class PluginMarker extends MyPlugin {
     
     // Store the marker
     String id = "marker_" + marker.getId();
+    if (args.length() == 3) {
+      String kmlId = args.getString(2);
+      id = kmlId + id;
+    }
+    Log.d("Marker", "marker-id=" + marker.hashCode());
     this.objects.put(id, marker);
     
     
