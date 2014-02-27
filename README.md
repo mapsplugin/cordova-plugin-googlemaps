@@ -10,7 +10,7 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 
 ###Snippet
-![img](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
+![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
 ```js
 //Define the location
 var GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
