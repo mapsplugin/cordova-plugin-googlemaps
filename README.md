@@ -8,8 +8,6 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 ![ScreenShot](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
-###Installation
-See the [Manual Installation page](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation).
 
 ###Snippet
 ![img](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
