@@ -6,7 +6,7 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 [日本語のドキュメント](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/blob/master/README_ja.md)からご覧いただけます。
 (Other document available for Japanese)
 
-![ScreenShot](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
+![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
 
 ###Snippet
