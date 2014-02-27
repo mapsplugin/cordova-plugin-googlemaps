@@ -11,12 +11,8 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 ###Installation
 See the [Manual Installation page](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation).
 
-###Example
-You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/raw/Images/examples/SimpleMap_v1.0.2.apk)
-
-![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
-
 ###Snippet
+![img](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
 ```js
 //Define the location
 var GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
@@ -47,7 +43,11 @@ map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
   });
 });
 ```
-![img](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
+
+###Example
+You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/raw/Images/examples/SimpleMap_v1.0.2.apk)
+
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
 
 
 ###Documentation
