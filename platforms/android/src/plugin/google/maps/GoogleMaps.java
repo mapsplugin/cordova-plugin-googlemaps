@@ -470,8 +470,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
       }
       if (isHit) {
+        String[] tmp = key.split(":");
+        
         webView.loadUrl("javascript:plugin.google.maps.Map." +
-                  "_onKmlEvent('" + eventName + "','" + key + "')");
+                  "_onMarkerEvent('" + eventName + "','" + tmp[1] + "')");
       }
     }
     

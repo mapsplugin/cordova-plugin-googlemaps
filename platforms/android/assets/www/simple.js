@@ -95,10 +95,11 @@ function onMapReady() {
   
   map.showDialog();
   map.addKmlOverlay({
-  //  'url': 'www/radio-folder.kml'
-    'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
+    'url': 'www/radio-folder.kml'
+  //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
   }, function(kmlOverlay) {
-    kmlOverlay.on('click', function() {
+    
+    kmlOverlay.on('add', function(object) {
       
     });
   });

@@ -113,8 +113,56 @@
   App.prototype._onKmlEvent = function(eventName, hashCode) {
     var kmlLayer = KML_LAYERS[hashCode] || null;
     if (kmlLayer) {
-      console.log("kmlLayer=" + kmlLayer);
+      var args = [eventName];
+      if (eventName.toLowerCase() == "add") {
+        var result = arguments[2],
+            tmp = result.id.split(":"),
+            objectType = tmp[1].replace(/_.*$/, "");
+        switch(objectType.toLowerCase()) {
+          case "marker":
+            var markerOptions = arguments[3];
+            var marker = new Marker(result.id, markerOptions);
+            markerOptions.hashCode = result.hashCode;
+            MARKERS[result.id] = marker;
+            args.push({
+              "type": "Marker",
+              "object": marker
+            });
+            break
+        }
+        
+        console.log(JSON.stringify(arguments[2]));
+      } else {
+        for (var i = 2; i < arguments.length; i++) {
+          args.push(arguments[i]);
+        }
+      }
+      kmlLayer.trigger.apply(kmlLayer, args);
     }
+  };
+  
+  App.prototype._onKmlOverlayAdded = function(result) {
+    alert(result);
+    /*
+    var marker = new Marker(result.id, markerOptions);
+    markerOptions.hashCode = result.hashCode;
+    MARKERS[result.id] = marker;
+    
+    if (typeof markerOptions.markerClick === "function") {
+      marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
+    }
+    if (typeof markerOptions.infoClick === "function") {
+      marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
+    }
+    if (typeof callback === "function") {
+      callback.call(window, marker, self);
+    }
+    */
+  }
+  
+  
+  window.myCallback = function() {
+    alert("OK");
   };
   
   /**
@@ -436,9 +484,9 @@
     kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
     
     var pluginExec = function() {
-      cordova.exec(function(result) {
-        var kmlOverlay = new KmlOverlay(result.id, kmlOverlayOptions);
-        KML_LAYERS[result.id] = kmlOverlay;
+      cordova.exec(function(kmlId) {
+        var kmlOverlay = new KmlOverlay(kmlId, kmlOverlayOptions);
+        KML_LAYERS[kmlId] = kmlOverlay;
         if (typeof callback === "function") {
           callback.call(window, kmlOverlay, self);
         }
@@ -1021,6 +1069,7 @@
     BaseClass.apply(this);
     
     var self = this;
+    self._objects = {};
     self.set("visible", kmlOverlayOptions.visible || true);
     self.set("zIndex", kmlOverlayOptions.zIndex || 0);
     Object.defineProperty(self, "id", {
@@ -1034,6 +1083,10 @@
   };
   
   KmlOverlay.prototype = new BaseClass();
+  
+  KmlOverlay.prototype._addChild = function(objectId, object) {
+    this._objects[objectId] = object;
+  };
   
   KmlOverlay.prototype.getId = function() {
     return this.id;

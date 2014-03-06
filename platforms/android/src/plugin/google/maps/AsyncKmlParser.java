@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.Random;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.JSONUtils;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -172,6 +175,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     
     Random random = new Random();
     String kmlId = "kml" + random.nextInt();
+    this.mCallback.success(kmlId);
+    
     String tmp, tagName;
     Bundle node, style, childNode;
     ArrayList<Bundle> bundleList;
@@ -246,6 +251,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
+          
           this.implementToMap("Marker", options, kmlId);
           break;
           
@@ -381,27 +387,48 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     JSONArray params = new JSONArray();
     params.put("Map.animateCamera");
     params.put(optionsJSON);
-    this.execOtherClassMethod("kml-viewport-change", params);
+    this.execOtherClassMethod(params, new CallbackContext("kml-viewport-change", this.mMapCtrl.webView));
     
-    this.mCallback.success(kmlId);
   }
   
-  private void execOtherClassMethod(String callbackId, JSONArray params) {
-    CallbackContext callback2 = new CallbackContext(callbackId, this.mMapCtrl.webView);
+  
+  private abstract class MyCallbackContext extends CallbackContext {
+
+    public MyCallbackContext(String callbackId, CordovaWebView webView) {
+      super(callbackId, webView);
+    }
+    @Override
+    public void sendPluginResult(PluginResult pluginResult) {
+      this.onResult(pluginResult);
+    }
+    
+    abstract public void onResult(PluginResult pluginResult);
+  }
+  
+  private void execOtherClassMethod(JSONArray params, CallbackContext callback) {
     
     try {
-      mMapCtrl.execute("exec", params, callback2);
+      mMapCtrl.execute("exec", params, callback);
     } catch (JSONException e) {
       e.printStackTrace();
     }
   }
 
-  private void implementToMap(String className, JSONObject optionsJSON, String kmlId) {
+  private void implementToMap(String className, final JSONObject optionsJSON, final String kmlId) {
     JSONArray params = new JSONArray();
     params.put(className + ".create" + className);
     params.put(optionsJSON);
-    params.put(kmlId + "-");
-    this.execOtherClassMethod(kmlId + "_callback", params);
+    params.put(kmlId + ":");
+    this.execOtherClassMethod(params, new MyCallbackContext(kmlId +"_callback", this.mMapCtrl.webView) {
+
+      @Override
+      public void onResult(PluginResult pluginResult) {
+        Log.e("client", pluginResult.getMessage());
+        mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
+            "_onKmlEvent('add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
+      }
+      
+    });
   }
   private void implementToMap(String className, Bundle options, String kmlId) {
     // Load the class plugin

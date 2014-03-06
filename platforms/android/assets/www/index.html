@@ -505,7 +505,7 @@ The plugin parses the KML, then implements overlays.</p>
 <p>This plugin supports geocoding. You can convert address or landscape names to latitude and longitude.
 In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).</p>
 <code>var request = {
-  'address': "Kyoto, Japan"
+  'address': "5709 Cahuenga Blvd, North Hollywood, CA"
 };
 map.geocode(request, function(results) {
   if (results.length) {
@@ -521,7 +521,7 @@ map.geocode(request, function(results) {
   }
 });
 </code>
-<input type="text" id="geocoder_input" value="Kyoto, Japan">
+<input type="text" id="geocoder_input" value="5709 Cahuenga Blvd, North Hollywood, CA">
 <button onclick="geocoding()">Play it</button>
 
 
