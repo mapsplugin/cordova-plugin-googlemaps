@@ -79,16 +79,31 @@
   dispatch_async(gueue, ^{
     [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
   });
+  
+  //------------------------------------
+  // Implement placemarks onto the map
+  //------------------------------------
   dispatch_async(gueue, ^{
     if ([placeMarks count] > 0) {
       //Implement placemarks
       [self _filterStyles:kmlData styles:&styles];
       
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0ul), ^{
+        NSMutableArray *defaultViewport = [NSMutableArray array];
         for (tag in placeMarks) {
             NSMutableDictionary *options = nil;
-            [self implementPlaceMarkToMap:tag options:&options styles:styles styleUrl:nil idPrefix:idPrefix];
+            [self implementPlaceMarkToMap:tag
+                  options:&options
+                  styles:styles
+                  styleUrl:nil
+                  idPrefix:idPrefix
+                  viewportRef:&defaultViewport];
         }
+        
+        //Change the viewport
+        NSMutableDictionary *cameraOptions = [NSMutableDictionary dictionary];
+        [cameraOptions setObject:defaultViewport forKey:@"target"];
+        [self _execOtherClassMethod:@"Map" methodName:@"animateCamera" options:cameraOptions idPrefix:nil];
       });
 
     } else {
@@ -99,7 +114,7 @@
       if (linkUrl != nil) {
         NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
         [options2 setObject:linkUrl forKey:@"url"];
-        [self _callOtherMethod:@"KmlOverlay" options:options2 idPrefix:@"kml"];
+        [self _implementToMap:@"KmlOverlay" options:options2 idPrefix:@"kml"];
       }
     }
   });
@@ -224,7 +239,13 @@
 }
 
 
--(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker options:(NSMutableDictionary**)options styles:(NSMutableDictionary *)styles styleUrl:(NSString *)styleUrl  idPrefix:(NSString *)idPrefix {
+-(void)implementPlaceMarkToMap:(NSDictionary *)placeMarker
+                            options:(NSMutableDictionary**)options
+                            styles:(NSMutableDictionary *)styles
+                            styleUrl:(NSString *)styleUrl
+                            idPrefix:(NSString *)idPrefix
+                            viewportRef:(NSMutableArray **)viewportRef {
+  
   NSArray *children = [placeMarker objectForKey:@"children"];
   
   NSDictionary *childNode;
@@ -268,7 +289,13 @@
       }
     } else {
       if ([childNode objectForKey:@"children"]) {
-        [self implementPlaceMarkToMap:childNode options:options styles:styles styleUrl:styleUrl idPrefix:idPrefix];
+        [self implementPlaceMarkToMap:childNode
+              options:options
+              styles:styles
+              styleUrl:styleUrl
+              idPrefix:idPrefix
+              viewportRef:viewportRef];
+        
       } else if (*options != nil) {
         [*options setObject:[childNode objectForKey:tagName] forKey:tagName];
       }
@@ -288,11 +315,22 @@
   
   if ([targetClass isEqualToString:@"Polyline"] ||
       [targetClass isEqualToString:@"Polygon"]) {
+    //------------------------------
+    // Create a polyline or polygon
+    //------------------------------
     for (coordinates in coordinatesList) {
       [*options setObject:coordinates forKey:@"points"];
-      [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options] idPrefix:idPrefix];
+      
+      // Add the latLngs to the default viewport
+      [*viewportRef addObjectsFromArray:coordinates];
+      
+      [self _implementToMap:targetClass
+            options:[NSDictionary dictionaryWithDictionary:*options] idPrefix:idPrefix];
     }
   } else if ([targetClass isEqualToString:@"Marker"]) {
+    //-----------------
+    // Create a marker
+    //-----------------
     NSString *title = @"";
     if ([*options objectForKey:@"name"]) {
       title = [*options objectForKey:@"name"];
@@ -304,7 +342,13 @@
       title = [NSString stringWithFormat:@"%@%@", title, [*options objectForKey:@"description"]];
     }
     [*options setObject:title forKey:@"title"];
-    [self _callOtherMethod:targetClass options:[NSDictionary dictionaryWithDictionary:*options] idPrefix:idPrefix];
+    
+    // Add the latLng to the default viewport
+    [*viewportRef addObject:[*options objectForKey:@"position"]];
+    
+    [self _implementToMap:targetClass
+          options:[NSDictionary dictionaryWithDictionary:*options]
+          idPrefix:idPrefix];
   }
 }
 -(void)_applyStyleTag:(NSDictionary *)styleElements options:(NSMutableDictionary **)options targetClass:(NSString *)targetClass
@@ -384,7 +428,7 @@
 
 
 
--(void)_callOtherMethod:(NSString *)className options:(NSDictionary *)options idPrefix:(NSString *)idPrefix
+-(void)_execOtherClassMethod:(NSString *)className methodName:(NSString *)methodName options:(NSDictionary *)options idPrefix:(NSString *)idPrefix
 {
   NSArray* args = [NSArray arrayWithObjects:@"exec", options, idPrefix, nil];
   NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
@@ -399,11 +443,20 @@
       [self.mapCtrl.plugins setObject:pluginClass forKey:className];
     }
   }
-  SEL selector = NSSelectorFromString([NSString stringWithFormat:@"create%@:", className]);
+  SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", methodName]);
   if ([pluginClass respondsToSelector:selector]){
     [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:NO];
   }
 }
+
+-(void)_implementToMap:(NSString *)className options:(NSDictionary *)options idPrefix:(NSString *)idPrefix
+{
+  [self _execOtherClassMethod:className
+        methodName:[NSString stringWithFormat:@"create%@", className]
+        options:options
+        idPrefix:idPrefix];
+}
+
 
 -(NSMutableArray *)_parseKMLColor:(NSString *)ARGB {
   NSMutableArray *rgbaArray = [NSMutableArray array];
