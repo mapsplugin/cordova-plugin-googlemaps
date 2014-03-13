@@ -50,9 +50,9 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 
 ###Documentation
 
-* [Manual Installation](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Manual-Installation)
-  * Installation for Android
-  * Installation for iOS
+* [Installation] (https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
+  * Automatic Installation
+  * Tutorial
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
   * Create a map
   * Create a map with initialize options
