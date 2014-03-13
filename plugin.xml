@@ -12,6 +12,13 @@
       &lt;p&gt;Before install this plugin, you need to get Google Maps API key for both Android and iOS.&lt;/p&gt;
     </description>
     
+    <info>
+    You need to install __Google Play Services__ from the `Android Extras` section using the Android SDK manager (run `android`).
+    
+    You also need to some setup for Android.
+    Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
+    </info>
+    
     <license>Apache 2.0</license>
     
     <asset src="www/googlemaps-cdv-plugin.js" target="googlemaps-cdv-plugin.js" />
