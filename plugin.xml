@@ -12,19 +12,11 @@
       &lt;p&gt;Before install this plugin, you need to get Google Maps API key for both Android and iOS.&lt;/p&gt;
     </description>
     
-    <info>
-    You need to install __Google Play Services__ from the `Android Extras` section using the Android SDK manager (run `android`).
-    
-    You also need to some setup for Android.
-    Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
-    </info>
-    
     <license>Apache 2.0</license>
     
     <asset src="www/googlemaps-cdv-plugin.js" target="googlemaps-cdv-plugin.js" />
     
-    <preference name="API_KEY_FOR_ANDROID" />
-    <preference name="API_KEY_FOR_IOS" />
+    <keywords>google,maps</keywords>
     
     <engines>
       <engine name="cordova" version=">=3.0.0" />
@@ -32,6 +24,14 @@
     
     <!-- android -->
     <platform name="android">
+        <preference name="API_KEY_FOR_ANDROID" />
+        
+        <info>
+        You need to install __Google Play Services__ from the `Android Extras` section using the Android SDK manager (run `android`).
+        
+        You also need to some setup for Android.
+        Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
+        </info>
         
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
@@ -83,6 +83,7 @@
     
     <!-- ios -->
     <platform name="ios">
+        <preference name="API_KEY_FOR_IOS" />
       
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
