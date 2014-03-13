@@ -1,0 +1,3 @@
+# view AndroidManifest.xml #generated:5
+-keep class com.example.myapp.MyApp { <init>(...); }
+
