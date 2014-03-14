@@ -51,8 +51,8 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 * [Installation] (https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
   * Automatic Installation
   * Tutorials
-    * [Tutorial for Windows](./Tutorial-for-Windows)
-    * [Tutorial for Mac/Linux](./Tutorial-for-Mac)
+    * [Tutorial for Windows](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Windows)
+    * [Tutorial for Mac/Linux](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Mac)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
   * Create a map
   * Create a map with initialize options
