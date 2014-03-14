@@ -135,9 +135,9 @@
         <framework src="OpenGLES.framework" />
         <framework src="QuartzCore.framework" />
         <framework src="SystemConfiguration.framework" />
-        <framework src="GoogleMaps-iOS-1.7.2/GoogleMaps.framework" custom="true"/>
+        <framework src="GoogleMaps-iOS-SDK/GoogleMaps.framework" custom="true"/>
         
-        <resource-file src="GoogleMaps-iOS-1.7.2/GoogleMaps.framework/Resources/GoogleMaps.bundle"/>
+        <resource-file src="GoogleMaps-iOS-SDK/GoogleMaps.framework/Resources/GoogleMaps.bundle"/>
         
     </platform>
 </plugin>
