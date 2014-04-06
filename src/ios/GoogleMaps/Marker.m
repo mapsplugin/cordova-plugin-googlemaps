@@ -12,6 +12,7 @@
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
+  self.iconCache = [NSMutableDictionary dictionary];
 }
 
 /**
@@ -24,21 +25,36 @@
   NSDictionary *latLng = [json objectForKey:@"position"];
   float latitude = [[latLng valueForKey:@"lat"] floatValue];
   float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  NSString *idPrefix = @"";
+  if ([command.arguments count] == 3) {
+    idPrefix = [command.arguments objectAtIndex:2];
+  }
   
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
   GMSMarker *marker = [GMSMarker markerWithPosition:position];
   if ([[json valueForKey:@"visible"] boolValue]) {
     marker.map = self.mapCtrl.map;
   }
+  if ([json valueForKey:@"title"]) {
+    marker.title = [json valueForKey:@"title"];
+  }
+  if ([json valueForKey:@"snippet"]) {
+    marker.snippet = [json valueForKey:@"snippet"];
+  }
+  if ([json valueForKey:@"draggable"]) {
+    marker.draggable = [[json valueForKey:@"draggable"] boolValue];
+  }
+  if ([json valueForKey:@"flat"]) {
+    marker.flat = [[json valueForKey:@"flat"] boolValue];
+  }
+  if ([json valueForKey:@"rotation"]) {
+    marker.rotation = [[json valueForKey:@"flat"] floatValue];
+  }
+  if ([json valueForKey:@"opacity"]) {
+    marker.opacity = [[json valueForKey:@"opacity"] floatValue];
+  }
   
-  marker.title = [json valueForKey:@"title"];
-  marker.snippet = [json valueForKey:@"snippet"];
-  marker.draggable = [[json valueForKey:@"draggable"] boolValue];
-  marker.flat = [[json valueForKey:@"flat"] boolValue];
-  marker.rotation = [[json valueForKey:@"flat"] floatValue];
-  marker.opacity = [[json valueForKey:@"opacity"] floatValue];
-  
-  NSString *id = [NSString stringWithFormat:@"marker%d", marker.hash];
+  NSString *id = [NSString stringWithFormat:@"%@marker%d", idPrefix, marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
   // Create icon
@@ -310,18 +326,29 @@
       
       marker.icon = image;
     } else {
-      dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
-      dispatch_sync(gueue, ^{
-        NSURL *url = [NSURL URLWithString:iconPath];
-        NSData *data = [NSData dataWithContentsOfURL:url];
-        UIImage* image = [UIImage imageWithData:data scale:1.0];
+      NSData *imgData = [self.iconCache objectForKey:iconPath];
+      if (imgData != nil) {
+        UIImage* image = [UIImage imageWithData:imgData];
         if (width && height) {
           image = [image resize:width height:height];
         }
         marker.icon = image;
-      });
-      dispatch_release(gueue);
-      
+      } else {
+        dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
+        dispatch_sync(gueue, ^{
+          NSURL *url = [NSURL URLWithString:iconPath];
+          NSData *data = [NSData dataWithContentsOfURL:url options:NSDataReadingMapped error:nil];
+          
+          [self.iconCache setObject:data forKey:iconPath];
+          
+          UIImage* image = [UIImage imageWithData:data];
+          if (width && height) {
+            image = [image resize:width height:height];
+          }
+          marker.icon = image;
+        });
+        dispatch_release(gueue);
+      }
     }
   }
 }

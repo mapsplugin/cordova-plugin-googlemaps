@@ -6,6 +6,7 @@
 //
 //
 
+#import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
@@ -16,6 +17,7 @@
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic, strong) UIWebView* webView;
 @property (nonatomic, strong) NSMutableDictionary* overlayManager;
+@property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;

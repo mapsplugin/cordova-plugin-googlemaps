@@ -13,6 +13,7 @@
 
 @interface Marker : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic, strong) NSMutableDictionary* iconCache;
 - (void)createMarker:(CDVInvokedUrlCommand*)command;
 - (void)showInfoWindow:(CDVInvokedUrlCommand*)command;
 - (void)hideInfoWindow:(CDVInvokedUrlCommand*)command;
