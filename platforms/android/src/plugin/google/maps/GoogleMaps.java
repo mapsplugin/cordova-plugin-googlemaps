@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
@@ -35,7 +36,6 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.GoogleMap;
@@ -300,7 +300,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     // window layout
     float density = Resources.getSystem().getDisplayMetrics().density;
-    int windowMargin = (int)(10 * density);
+    int windowMargin = 0;// (int)(10 * density);
     LinearLayout windowLayer = new LinearLayout(activity);
     windowLayer.setPadding(windowMargin, windowMargin, windowMargin, windowMargin);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -398,11 +398,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return true;
   }
 
+
+  private void closeWindow() {
+    root = (ViewGroup) webView.getParent();
+    root.removeView(baseLayer);
+    webView.setVisibility(View.VISIBLE);
+  }
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
     root = (ViewGroup) webView.getParent();
-    root.removeView(webView);
-    baseLayer.addView(webView, 0);
-    activity.setContentView(baseLayer);
+    webView.setVisibility(View.GONE);
+    root.addView(baseLayer);
     callbackContext.success();
   }
 
@@ -433,12 +438,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       result.put("hashCode", -1);
     }
     callbackContext.success(result);
-  }
-
-  private void closeWindow() {
-    root.removeView(baseLayer);
-    baseLayer.removeView(webView);
-    activity.setContentView(webView);
   }
   
   private void showLicenseText() {
