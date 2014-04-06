@@ -165,7 +165,7 @@
   float longitude;
   GMSCameraPosition *cameraPosition;
   
-  if ([targetClsName isEqualToString:@"__NSCFArray"]) {
+  if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
     int i = 0;
     NSArray *latLngList = [json objectForKey:@"target"];
     GMSMutablePath *path = [GMSMutablePath path];

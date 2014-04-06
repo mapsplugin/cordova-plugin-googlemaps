@@ -3,6 +3,7 @@ package plugin.google.maps;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -160,5 +161,49 @@ public class PluginUtil {
       e.printStackTrace();
     }
     return image;
+  }
+  
+
+  public static JSONObject Bundle2Json(Bundle bundle) {
+    JSONObject json = new JSONObject();
+    Set<String> keys = bundle.keySet();
+    Iterator<String> iter = keys.iterator();
+    while (iter.hasNext()) {
+      String key = iter.next();
+      try {
+        Object value = bundle.get(key);
+        if (Bundle.class.isInstance(value)) {
+          value = Bundle2Json((Bundle)value);
+        }
+        if (value.getClass().isArray()) {
+          JSONArray values = new JSONArray();
+          Object[] objects = (Object[])value;
+          int i = 0;
+          for (i = 0; i < objects.length; i++) {
+            if (Bundle.class.isInstance(objects[i])) {
+              objects[i] = Bundle2Json((Bundle)objects[i]);
+            }
+            values.put(objects[i]);
+          }
+          json.put(key, values);
+        } else if (value.getClass() == ArrayList.class) {
+          JSONArray values = new JSONArray();
+          Iterator<?> listIterator = ((ArrayList<?>)value).iterator();
+          while(listIterator.hasNext()) {
+            value = listIterator.next();
+            if (Bundle.class.isInstance(value)) {
+              value = Bundle2Json((Bundle)value);
+            }
+            values.put(value);
+          }
+          json.put(key, values);
+        } else {
+          json.put(key, value);
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return json;
   }
 }

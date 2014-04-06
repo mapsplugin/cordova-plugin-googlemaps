@@ -18,6 +18,10 @@
 -(void)createPolygon:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSString *idPrefix = @"";
+  if ([command.arguments count] == 3) {
+    idPrefix = [command.arguments objectAtIndex:2];
+  }
   
   GMSMutablePath *path = [GMSMutablePath path];
   
@@ -36,7 +40,7 @@
     polygon.map = self.mapCtrl.map;
   }
   if ([[json valueForKey:@"geodesic"] boolValue]) {
-    polygon.geodesic = YES;
+    polygon.geodesic = true;
   }
   NSArray *rgbColor = [json valueForKey:@"fillColor"];
   polygon.fillColor = [rgbColor parsePluginColor];
@@ -47,7 +51,7 @@
   polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
-  NSString *key = [NSString stringWithFormat:@"polygon%d", polygon.hash];
+  NSString *key = [NSString stringWithFormat:@"%@polygon%d", idPrefix, polygon.hash];
   [self.mapCtrl.overlayManager setObject:polygon forKey: key];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];

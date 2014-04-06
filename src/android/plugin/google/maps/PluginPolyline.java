@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -51,6 +53,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     
     Polyline polyline = map.addPolyline(polylineOptions);
     String id = "polyline_" + polyline.getId();
+    if (args.length() == 3) {
+      String kmlId = args.getString(2);
+      id = kmlId + id;
+    }
     this.objects.put(id, polyline);
     callbackContext.success(id);
   }

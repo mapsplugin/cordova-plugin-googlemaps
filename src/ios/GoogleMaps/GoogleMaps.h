@@ -14,7 +14,6 @@
 
 @interface GoogleMaps : CDVPlugin
 
-@property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) UIView *licenseLayer;
 

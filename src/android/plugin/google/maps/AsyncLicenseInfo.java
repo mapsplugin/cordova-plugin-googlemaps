@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.os.AsyncTask;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-public class AsyncLicenseInfo extends AsyncTask<Void, Void, String> {
+public class AsyncLicenseInfo extends AsyncTask<Void, Void, AlertDialog.Builder> {
   private Activity mActivity;
   private ProgressDialog mProgress;
   
@@ -17,12 +18,9 @@ public class AsyncLicenseInfo extends AsyncTask<Void, Void, String> {
     mProgress = ProgressDialog.show(activity, "", "Please wait...", true);
   }
   @Override
-  protected String doInBackground(Void... arg0) {
-    return GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(mActivity);
-  }
-  protected void onPostExecute(String licenseInfo) {
-    mProgress.dismiss();
-
+  protected AlertDialog.Builder doInBackground(Void... arg0) {
+    String licenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(mActivity);
+    
     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
     
     alertDialogBuilder
@@ -33,9 +31,21 @@ public class AsyncLicenseInfo extends AsyncTask<Void, Void, String> {
           dialog.dismiss();
         }
       });
-
+    
+    return alertDialogBuilder;
+  }
+  protected void onPostExecute(AlertDialog.Builder alertDialogBuilder) {
     // create alert dialog
     AlertDialog alertDialog = alertDialogBuilder.create();
+    
+    alertDialog.setOnShowListener(new OnShowListener() {
+
+      @Override
+      public void onShow(DialogInterface arg0) {
+        mProgress.dismiss();
+      }
+      
+    });
 
     // show it
     alertDialog.show();

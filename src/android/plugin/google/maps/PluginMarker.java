@@ -2,6 +2,7 @@ package plugin.google.maps;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -12,6 +13,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -20,6 +22,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class PluginMarker extends MyPlugin {
+  private HashMap<String, Bitmap> cache = null;
   
   /**
    * Create a marker
@@ -29,6 +32,10 @@ public class PluginMarker extends MyPlugin {
    */
   @SuppressWarnings("unused")
   private void createMarker(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    if (cache == null) {
+      cache = new HashMap<String, Bitmap>();
+    }
+    
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
     JSONObject opts = args.getJSONObject(1);
@@ -61,6 +68,11 @@ public class PluginMarker extends MyPlugin {
     
     // Store the marker
     String id = "marker_" + marker.getId();
+    if (args.length() == 3) {
+      String kmlId = args.getString(2);
+      id = kmlId + id;
+    }
+    Log.d("Marker", "marker-id=" + marker.hashCode());
     this.objects.put(id, marker);
     
     
@@ -336,9 +348,9 @@ public class PluginMarker extends MyPlugin {
     if (iconUrl.indexOf("http") == 0) {
       AsyncLoadImage task;
       if (iconProperty.containsKey("size") == false) {
-        task = new AsyncLoadImage(marker, "setIcon");
+        task = new AsyncLoadImage(marker, "setIcon", cache);
       } else {
-        task = new AsyncLoadImage(marker, "setIcon", iconProperty);
+        task = new AsyncLoadImage(marker, "setIcon", iconProperty, cache);
       }
       task.execute(iconUrl);
     }

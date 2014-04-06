@@ -1,6 +1,8 @@
 package plugin.google.maps;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -17,15 +19,14 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
@@ -175,7 +176,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     // Initialize Google Maps SDK
     // ------------------------------
-    MapsInitializer.initialize(activity);
+    try {
+      MapsInitializer.initialize(activity);
+    } catch (Exception e) {
+      e.printStackTrace();
+      callbackContext.error(e.getMessage());
+      return;
+    }
     GoogleMapOptions options = new GoogleMapOptions();
     JSONObject params = args.getJSONObject(0);
     //controls
@@ -293,7 +300,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     // window layout
     float density = Resources.getSystem().getDisplayMetrics().density;
-    int windowMargin = (int)(10 * density);
+    int windowMargin = 0;// (int)(10 * density);
     LinearLayout windowLayer = new LinearLayout(activity);
     windowLayer.setPadding(windowMargin, windowMargin, windowMargin, windowMargin);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -391,11 +398,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return true;
   }
 
+
+  private void closeWindow() {
+    root = (ViewGroup) webView.getParent();
+    root.removeView(baseLayer);
+    webView.setVisibility(View.VISIBLE);
+  }
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
     root = (ViewGroup) webView.getParent();
-    root.removeView(webView);
-    baseLayer.addView(webView, 0);
-    activity.setContentView(baseLayer);
+    webView.setVisibility(View.GONE);
+    root.addView(baseLayer);
     callbackContext.success();
   }
 
@@ -427,12 +439,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     callbackContext.success(result);
   }
-
-  private void closeWindow() {
-    root.removeView(baseLayer);
-    baseLayer.removeView(webView);
-    activity.setContentView(webView);
-  }
   
   private void showLicenseText() {
     AsyncLicenseInfo showLicense = new AsyncLicenseInfo(activity);
@@ -450,8 +456,33 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    */
   private void onMarkerEvent(final String eventName, final Marker marker) {
     Log.d(TAG, "marker event: " + eventName + " id= marker_" + marker.getId());
-    webView.loadUrl("javascript:plugin.google.maps.Map." +
-                "_onMarkerEvent('" + eventName + "','marker_" + marker.getId() + "')");
+    String markerId = "marker_" + marker.getId();
+    PluginEntry markerPlugin = this.plugins.get("Marker");
+    PluginMarker markerClass = (PluginMarker) markerPlugin.plugin;
+    if (markerClass.objects.containsKey(markerId)) {
+      webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onMarkerEvent('" + eventName + "','" + markerId + "')");
+    } else {
+
+      Set<String> keySet = markerClass.objects.keySet();
+      Iterator<String> iterator = keySet.iterator();
+      String key = null;
+      Boolean isHit = false;
+      while(iterator.hasNext()) {
+        key = iterator.next();
+        if (key.endsWith(markerId)) {
+          isHit = true;
+          break;
+        }
+      }
+      if (isHit) {
+        String[] tmp = key.split(":");
+        
+        webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onMarkerEvent('" + eventName + "','" + tmp[1] + "')");
+      }
+    }
+    
   }
 
   @Override
