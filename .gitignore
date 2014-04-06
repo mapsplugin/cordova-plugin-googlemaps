@@ -12,6 +12,9 @@
 bin/
 gen/
 
+# Google Maps iOS SDK framework
+GoogleMaps-iOS-SDK/
+
 # Local configuration file (sdk path, etc)
 local.properties
 
