@@ -94,6 +94,11 @@ function onMapReady() {
   });
   
   map.showDialog();
+  
+  return;
+  document.addEventListener("backbutton", function() {
+      alert("backbutton");
+  }, false);
   map.addKmlOverlay({
     'url': 'www/radio-folder.kml'
   //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
