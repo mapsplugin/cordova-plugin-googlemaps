@@ -96,8 +96,6 @@
         [self.mapCtrl.view addSubview:licenseButton];
       });
     });
-    
-    dispatch_release(gueue);
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
