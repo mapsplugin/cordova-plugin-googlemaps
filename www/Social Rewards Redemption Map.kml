@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns='http://www.opengis.net/kml/2.2'>
+	<Document>
+		<name>Social Rewards Redemption Map</name>
+		<description><![CDATA[Earn Social Rewards at http://web.socialrewards.com and redeem points earned for various items at the locations listed here.  Redemption items vary by location.]]></description>
+		<NetworkLink>
+			<name>Social Rewards Redemption Map</name>
+			<Link>
+				<href>http://mapsengine.google.com/map/kml?mid=zxgHRpOuq0yo.kZ5MamPQZYfE</href>
+			</Link>
+		</NetworkLink>
+	</Document>
+</kml>
