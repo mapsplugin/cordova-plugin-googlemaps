@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.cordova.helloCordova" version="2.0.0" xmlns="http://www.w3.org/ns/widgets">
-    <name>Hello Cordova</name>
+<widget id="com.example.myapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <preference name="loglevel" value="DEBUG" />
+    <feature name="App">
+        <param name="android-package" value="org.apache.cordova.App" />
+    </feature>
+    <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
     </description>
@@ -8,15 +12,9 @@
         Apache Cordova Team
     </author>
     <content src="index.html" />
-    <feature name="App">
-        <param name="android-package" value="org.apache.cordova.App" />
-    </feature>
+    <access origin="*" />
     <feature name="GoogleMaps">
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+        <param name="ios-package" value="GoogleMaps" />
     </feature>
-    <access origin="*" />
-    <preference name="useBrowserHistory" value="true" />
-    <preference name="exit-on-suspend" value="false" />
-    <preference name="fullscreen" value="true" />
-    <preference name="webviewbounce" value="true" />
 </widget>

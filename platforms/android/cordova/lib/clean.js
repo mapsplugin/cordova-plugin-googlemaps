@@ -19,21 +19,17 @@
        under the License.
 */
 
-var shell = require('shelljs'),
-    path  = require('path'),
-    ROOT = path.join(__dirname, '..', '..');
+var build = require('./build'),
+    spawn = require('./spawn'),
+    path  = require('path');
 
 /*
  * Cleans the project using ant
+ * Returns a promise.
  */
 module.exports.run = function() {
-    var cmd = 'ant clean -f ' + path.join(ROOT, 'build.xml');
-    var result = shell.exec(cmd, {silent:false, async:false});
-    if (result.code > 0) {
-        console.error('ERROR: Failed to clean android project.');
-        console.error(result.output);
-        process.exit(2);
-    }
+    var args = build.getAntArgs('clean');
+    return spawn('ant', args);
 }
 
 module.exports.help = function() {
