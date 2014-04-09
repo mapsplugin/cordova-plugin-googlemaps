@@ -12,6 +12,17 @@
 bin/
 gen/
 
+# Dev branch files
+hooks/
+plugins/
+config.xml
+merges/
+platforms/
+www/index.html
+www/js/
+www/images/
+www/css/
+
 # Google Maps iOS SDK framework
 GoogleMaps-iOS-SDK/
 
