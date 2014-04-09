@@ -14,6 +14,10 @@
 #import <GoogleMaps/GMSMapLayer.h>
 #import <GoogleMaps/GMSUISettings.h>
 
+#ifndef __GMS_AVAILABLE_BUT_DEPRECATED
+#define __GMS_AVAILABLE_BUT_DEPRECATED __deprecated
+#endif
+
 @class GMSCameraPosition;
 @class GMSCameraUpdate;
 @class GMSCoordinateBounds;
@@ -129,6 +133,15 @@
  */
 - (void)mapView:(GMSMapView *)mapView didDragMarker:(GMSMarker *)marker;
 
+/**
+ * Called when the My Location button is tapped.
+ *
+ * @return YES if the listener has consumed the event (i.e., the default behavior should not occur),
+ *         NO otherwise (i.e., the default behavior should occur). The default behavior is for the
+ *         camera to move such that it is centered on the user location.
+ */
+- (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
+
 @end
 
 /**
@@ -174,7 +187,7 @@ typedef enum {
  * Controls the camera, which defines how the map is oriented. Modification of
  * this property is instantaneous.
  */
-@property(nonatomic, strong) GMSCameraPosition *camera;
+@property(nonatomic, copy) GMSCameraPosition *camera;
 
 /**
  * Returns a GMSProjection object that you can use to convert between screen
@@ -336,3 +349,13 @@ typedef enum {
 - (void)moveCamera:(GMSCameraUpdate *)update;
 
 @end
+
+/**
+ * Accessibility identifier for the compass button.
+ */
+extern NSString *const kGMSAccessibilityCompass;
+
+/**
+ * Accessibility identifier for the "my location" button.
+ */
+extern NSString *const kGMSAccessibilityMyLocation;

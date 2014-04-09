@@ -72,7 +72,7 @@ FOUNDATION_EXTERN UIImage *const kGMSTileLayerNoTile;
  * value tile layers and overlays. Equal values result in undefined draw
  * ordering.
  */
-@property(nonatomic, assign) NSInteger zIndex;
+@property(nonatomic, assign) int zIndex;
 
 /**
  * Specifies the number of pixels (not points) that the returned tile images
@@ -94,5 +94,10 @@ FOUNDATION_EXTERN UIImage *const kGMSTileLayerNoTile;
  * the alpha channel of tile images.
  */
 @property(nonatomic, assign) float opacity;
+
+/**
+ * Specifies whether the tiles should fade in. Default YES.
+ */
+@property(nonatomic, assign) BOOL fadeIn;
 
 @end

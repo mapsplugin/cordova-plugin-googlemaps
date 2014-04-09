@@ -83,13 +83,23 @@
 #define VerboseLog(...) do {} while (0)
 
 typedef enum {
-    STATE_IDLE,
-    STATE_WAITING_FOR_LOAD_START,
-    STATE_WAITING_FOR_LOAD_FINISH,
-    STATE_IOS5_POLLING_FOR_LOAD_START,
-    STATE_IOS5_POLLING_FOR_LOAD_FINISH,
-    STATE_CANCELLED
+    STATE_IDLE = 0,
+    STATE_WAITING_FOR_LOAD_START = 1,
+    STATE_WAITING_FOR_LOAD_FINISH = 2,
+    STATE_IOS5_POLLING_FOR_LOAD_START = 3,
+    STATE_IOS5_POLLING_FOR_LOAD_FINISH = 4,
+    STATE_CANCELLED = 5
 } State;
+
+static NSString *stripFragment(NSString* url)
+{
+    NSRange r = [url rangeOfString:@"#"];
+
+    if (r.location == NSNotFound) {
+        return url;
+    }
+    return [url substringToIndex:r.location];
+}
 
 @implementation CDVWebViewDelegate
 
@@ -110,33 +120,8 @@ typedef enum {
         NSString* originalRequestUrl = [originalRequest.URL absoluteString];
         NSString* newRequestUrl = [newRequest.URL absoluteString];
 
-        // no fragment, easy
-        if (newRequest.URL.fragment == nil) {
-            return NO;
-        }
-
-        // if the urls have fragments and they are equal
-        if ((originalRequest.URL.fragment && newRequest.URL.fragment) && [originalRequestUrl isEqualToString:newRequestUrl]) {
-            return YES;
-        }
-
-        NSString* urlFormat = @"%@://%@:%d/%@#%@";
-        // reconstruct the URLs (ignoring basic auth credentials, query string)
-        NSString* baseOriginalRequestUrl = [NSString stringWithFormat:urlFormat,
-            [originalRequest.URL scheme],
-            [originalRequest.URL host],
-            [[originalRequest.URL port] intValue],
-            [originalRequest.URL path],
-            [newRequest.URL fragment]                                 // add the new request's fragment
-            ];
-        NSString* baseNewRequestUrl = [NSString stringWithFormat:urlFormat,
-            [newRequest.URL scheme],
-            [newRequest.URL host],
-            [[newRequest.URL port] intValue],
-            [newRequest.URL path],
-            [newRequest.URL fragment]
-            ];
-
+        NSString* baseOriginalRequestUrl = stripFragment(originalRequestUrl);
+        NSString* baseNewRequestUrl = stripFragment(newRequestUrl);
         return [baseOriginalRequestUrl isEqualToString:baseNewRequestUrl];
     }
 
@@ -161,6 +146,11 @@ typedef enum {
 {
     _curLoadToken += 1;
     [webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.__cordovaLoadToken=%d", _curLoadToken]];
+}
+
+- (NSString*)evalForCurrentURL:(UIWebView*)webView
+{
+    return [webView stringByEvaluatingJavaScriptFromString:@"location.href"];
 }
 
 - (void)pollForPageLoadStart:(UIWebView*)webView
@@ -216,6 +206,18 @@ typedef enum {
     if (shouldLoad) {
         BOOL isTopLevelNavigation = [request.URL isEqual:[request mainDocumentURL]];
         if (isTopLevelNavigation) {
+            // Ignore hash changes that don't navigate to a different page.
+            // webView.request does actually update when history.replaceState() gets called.
+            if ([self request:request isFragmentIdentifierToRequest:webView.request]) {
+                NSString* prevURL = [self evalForCurrentURL:webView];
+                if ([prevURL isEqualToString:[request.URL absoluteString]]) {
+                    VerboseLog(@"Page reload detected.");
+                } else {
+                    VerboseLog(@"Detected hash change shouldLoad");
+                    return shouldLoad;
+                }
+            }
+
             switch (_state) {
                 case STATE_WAITING_FOR_LOAD_FINISH:
                     // Redirect case.
@@ -227,6 +229,7 @@ typedef enum {
 
                 case STATE_IDLE:
                 case STATE_IOS5_POLLING_FOR_LOAD_START:
+                case STATE_CANCELLED:
                     // Page navigation start.
                     _loadCount = 0;
                     _state = STATE_WAITING_FOR_LOAD_START;
@@ -236,14 +239,12 @@ typedef enum {
                     {
                         _loadCount = 0;
                         _state = STATE_WAITING_FOR_LOAD_START;
-                        if (![self request:request isFragmentIdentifierToRequest:webView.request]) {
-                            NSString* description = [NSString stringWithFormat:@"CDVWebViewDelegate: Navigation started when state=%d", _state];
-                            NSLog(@"%@", description);
-                            if ([_delegate respondsToSelector:@selector(webView:didFailLoadWithError:)]) {
-                                NSDictionary* errorDictionary = @{NSLocalizedDescriptionKey : description};
-                                NSError* error = [[NSError alloc] initWithDomain:@"CDVWebViewDelegate" code:1 userInfo:errorDictionary];
-                                [_delegate webView:webView didFailLoadWithError:error];
-                            }
+                        NSString* description = [NSString stringWithFormat:@"CDVWebViewDelegate: Navigation started when state=%d", _state];
+                        NSLog(@"%@", description);
+                        if ([_delegate respondsToSelector:@selector(webView:didFailLoadWithError:)]) {
+                            NSDictionary* errorDictionary = @{NSLocalizedDescriptionKey : description};
+                            NSError* error = [[NSError alloc] initWithDomain:@"CDVWebViewDelegate" code:1 userInfo:errorDictionary];
+                            [_delegate webView:webView didFailLoadWithError:error];
                         }
                     }
             }
@@ -271,7 +272,7 @@ typedef enum {
             // We could try to distinguish using [UIWebView canGoForward], but that's too much complexity,
             // and would work only on the first time it was used.
 
-            // Our work-around is to set a JS variable and poll until it disappears (from a naviagtion).
+            // Our work-around is to set a JS variable and poll until it disappears (from a navigation).
             _state = STATE_IOS5_POLLING_FOR_LOAD_START;
             _loadStartPollCount = 0;
             [self setLoadToken:webView];

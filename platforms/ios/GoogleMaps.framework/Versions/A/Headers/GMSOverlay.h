@@ -51,6 +51,6 @@
  * are effectively considered to be in a separate z-index group compared to
  * other overlays.
  */
-@property(nonatomic, assign) NSInteger zIndex;
+@property(nonatomic, assign) int zIndex;
 
 @end

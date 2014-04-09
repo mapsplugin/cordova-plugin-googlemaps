@@ -14,5 +14,11 @@ module.exports = [
             "cordova.logger"
         ]
     }
-]
+];
+module.exports.metadata = 
+// TOP OF METADATA
+{
+    "org.apache.cordova.console": "0.2.4"
+}
+// BOTTOM OF METADATA
 });

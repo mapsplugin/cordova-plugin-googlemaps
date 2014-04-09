@@ -23,12 +23,16 @@
 #   This script should not be called directly.
 #   It is called as a build step from Xcode.
 
-SRC_DIR="../android/assets/www/"
+SRC_DIR="www/"
 DST_DIR="$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/www"
 COPY_HIDDEN=
 ORIG_IFS=$IFS
 IFS=$(echo -en "\n\b")
 
+if [[ -z "$BUILT_PRODUCTS_DIR" ]]; then
+  echo "The script is meant to be run as an Xcode build step and relies on env variables set by Xcode."
+  exit 1
+fi
 if [[ ! -e "$SRC_DIR" ]]; then
   echo "Path does not exist: $SRC_DIR"
   exit 1
@@ -73,6 +77,9 @@ for p in $(do_find -type f -print); do
     rsync -a "$SRC_DIR$subpath" "$DST_DIR$subpath" || exit 4
   fi
 done
+
+# Copy the config.xml file.
+cp -f "${PROJECT_FILE_PATH%.xcodeproj}/config.xml" "$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME"
 
 )
 IFS=$ORIG_IFS

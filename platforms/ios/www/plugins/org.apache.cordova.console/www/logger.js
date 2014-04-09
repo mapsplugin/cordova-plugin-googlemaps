@@ -1,4 +1,4 @@
-cordova.define("org.apache.cordova.console.logger", function(require, exports, module) {/*
+cordova.define("org.apache.cordova.console.logger", function(require, exports, module) { /*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -353,4 +353,5 @@ logger.__onDeviceReady = function() {
 
 // add a deviceready event to log queued messages
 document.addEventListener("deviceready", logger.__onDeviceReady, false);
+
 });
