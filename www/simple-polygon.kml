@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+ <Document>
+  <name>KML Name</name>
+  <description>KML Description</description>
+  <Style id="style1">
+   <LineStyle>
+    <color>990000ff</color>
+    <width>4</width>
+   </LineStyle>
+   <PolyStyle>
+    <color>330000ff</color>
+   </PolyStyle>
+  </Style>
+  <Placemark>
+   <name>Polygon 1</name>
+   <description></description>
+   <styleUrl>#style1</styleUrl>
+   <Polygon>
+    <altitudeMode>relative</altitudeMode>
+    <LinearRing>
+     <coordinates>
+-122.0931,37.3557
+-121.9826,37.3350
+-121.8885,37.3781
+-121.9215,37.3966
+-122.0372,37.3895
+-122.0828,37.3669
+-122.0931,37.3557
+    </coordinates>
+    </LinearRing>
+   </Polygon>
+  </Placemark>
+ </Document>
+</kml>
