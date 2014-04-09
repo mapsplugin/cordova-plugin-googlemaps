@@ -18,10 +18,8 @@ plugins/
 config.xml
 merges/
 platforms/
-www/index.html
-www/js/
-www/images/
-www/css/
+www/*
+DevApp/
 
 # Google Maps iOS SDK framework
 GoogleMaps-iOS-SDK/
@@ -42,3 +40,5 @@ proguard/
 *.ipr
 *.iws
 .idea/
+.DS_Store
+
