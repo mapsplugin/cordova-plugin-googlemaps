@@ -106,12 +106,12 @@
     }
   };
   
-<<<<<<< HEAD:www/googlemaps-cdv-plugin.js
-=======
   /*
    * Callback from Native
    */
   App.prototype._onKmlEvent = function(eventName, hashCode) {
+    return;
+/*
     var kmlLayer = KML_LAYERS[hashCode] || null;
     if (kmlLayer) {
       var args = [eventName];
@@ -140,10 +140,10 @@
       }
       kmlLayer.trigger.apply(kmlLayer, args);
     }
+*/
   };
   
   App.prototype._onKmlOverlayAdded = function(result) {
-    alert(result);
     /*
     var marker = new Marker(result.id, markerOptions);
     markerOptions.hashCode = result.hashCode;
@@ -161,12 +161,6 @@
     */
   };
   
-  
-  window.myCallback = function() {
-    alert("OK");
-  };
-  
->>>>>>> dev:platforms/android/assets/www/googlemaps/googlemaps-cdv-plugin.js
   /**
    * Callback from Native
    */
