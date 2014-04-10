@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.2" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.0.3" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="cordova.plugins.phonegap-googlemaps-plugin" />
@@ -7,14 +7,12 @@
 
     
     <description>
-      &lt;p&gt;This is the unofficial plugin for Google Maps SDKs in Apache Cordova/PhoneGap!&lt;/p&gt;
+      This is the unofficial plugin for Google Maps SDKs in Apache Cordova/PhoneGap!
       
-      &lt;p&gt;Before install this plugin, you need to get Google Maps API key for both Android and iOS.&lt;/p&gt;
+      Before installing this plugin, you need to get Google Maps API key for Android and/or iOS.
     </description>
     
     <license>Apache 2.0</license>
-    
-    <asset src="www/googlemaps-cdv-plugin.js" target="googlemaps-cdv-plugin.js" />
     
     <keywords>google,maps</keywords>
     
@@ -22,16 +20,13 @@
       <engine name="cordova" version=">=3.0.0" />
     </engines>
     
+    <info>
+    Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
+    </info>
+
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
-        
-        <info>
-        You need to install __Google Play Services__ from the `Android Extras` section using the Android SDK manager (run `android`).
-        
-        You also need to some setup for Android.
-        Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
-        </info>
         
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="GoogleMaps">
