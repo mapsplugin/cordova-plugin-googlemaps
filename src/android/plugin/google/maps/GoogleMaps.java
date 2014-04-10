@@ -292,12 +292,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     baseLayer = new FrameLayout(activity);
     baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
     
-    //bgcolor layout
-    FrameLayout bglayer = new FrameLayout(activity);
-    bglayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-    bglayer.setBackgroundColor(0x7F000000);
-    baseLayer.addView(bglayer);
-    
     // window layout
     float density = Resources.getSystem().getDisplayMetrics().density;
     int windowMargin = 0;// (int)(10 * density);
@@ -400,14 +394,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
 
   private void closeWindow() {
-    root = (ViewGroup) webView.getParent();
-    root.removeView(baseLayer);
-    webView.setVisibility(View.VISIBLE);
+    webView.hideCustomView();
   }
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
     root = (ViewGroup) webView.getParent();
     webView.setVisibility(View.GONE);
     root.addView(baseLayer);
+    
+    //Dummy view for the backbutton event
+    FrameLayout dummyLayout = new FrameLayout(activity);
+    this.webView.showCustomView(dummyLayout, new WebChromeClient.CustomViewCallback() {
+
+      @Override
+      public void onCustomViewHidden() {
+        root.removeView(baseLayer);
+        webView.setVisibility(View.VISIBLE);
+      }
+      
+    });
+
+    
     callbackContext.success();
   }
 
