@@ -20,6 +20,7 @@ merges/
 platforms/
 www/*
 DevApp/
+!www/googlemaps-cdv-plugin.js
 
 # Google Maps iOS SDK framework
 GoogleMaps-iOS-SDK/
