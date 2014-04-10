@@ -74,7 +74,11 @@ NSDictionary *initOptions;
                                   viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
   
     CGRect pluginRect = self.view.frame;
-    CGRect mapRect = CGRectMake(10, 10, pluginRect.size.width - 20, pluginRect.size.height - 50);
+    int marginBottom = 0;
+    if ([PluginUtil isIOS7] == false) {
+      marginBottom = 20;
+    }
+    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height - 30 - marginBottom);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
