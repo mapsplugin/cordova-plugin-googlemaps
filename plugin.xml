@@ -33,11 +33,13 @@
         Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
         </info>
         
-        <config-file target="config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="GoogleMaps">
                 <param name="android-package" value="plugin.google.maps.GoogleMaps" />
             </feature>
         </config-file>
+
+        <dependency id="com.google.playservices" url="https://github.com/MobileChromeApps/google-play-services" commit="master" />
         
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
