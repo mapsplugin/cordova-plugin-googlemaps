@@ -32,9 +32,9 @@
     int direction = self.viewController.interfaceOrientation;
     if (direction == UIInterfaceOrientationLandscapeLeft ||
         direction == UIInterfaceOrientationLandscapeRight) {
-      pluginRect = CGRectMake(10, 10, screenSize.size.height - 20, screenSize.size.width - 50 - marginBottom);
+      pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - 30 - marginBottom);
     } else {
-      pluginRect = CGRectMake(10, 10, screenSize.size.width - 20, screenSize.size.height - 50 - marginBottom);
+      pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - 30 - marginBottom);
     }
 
 
@@ -61,7 +61,7 @@
     dispatch_async(gueue, ^{
       dispatch_sync(dispatch_get_main_queue(), ^{
         UIView *footer = [[UIView alloc]init];
-        footer.frame = CGRectMake(10, pluginRect.size.height + 10, pluginRect.size.width, 30);
+        footer.frame = CGRectMake(0, pluginRect.size.height, pluginRect.size.width, 30);
         footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
         footer.backgroundColor = [UIColor lightGrayColor];
         [self.mapCtrl.view addSubview:footer];
@@ -73,7 +73,7 @@
       
       dispatch_sync(dispatch_get_main_queue(), ^{
         UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        closeButton.frame = CGRectMake(10, pluginRect.size.height + 10, 50, 30);
+        closeButton.frame = CGRectMake(10, pluginRect.size.height, 50, 30);
         closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
         [closeButton setTitle:@"Close" forState:UIControlStateNormal];
         [closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
@@ -89,7 +89,7 @@
       
       dispatch_sync(dispatch_get_main_queue(), ^{
         UIButton *licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        licenseButton.frame = CGRectMake(pluginRect.size.width - 90, pluginRect.size.height + 10, 100, 30);
+        licenseButton.frame = CGRectMake(pluginRect.size.width - 110, pluginRect.size.height, 100, 30);
         licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin;
         [licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
         [licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
@@ -179,7 +179,7 @@
     //Create the dialog
     CGRect dialogRect = self.mapCtrl.view.frame;
     dialogRect.origin.x = dialogRect.size.width / 10;
-    dialogRect.origin.y = dialogRect.origin.x;
+    dialogRect.origin.y = dialogRect.size.height / 10;
     dialogRect.size.width -= dialogRect.origin.x * 2;
     dialogRect.size.height -= dialogRect.origin.y * 2;
     if ([PluginUtil isIOS7] == false) {
