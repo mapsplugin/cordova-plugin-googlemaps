@@ -1,26 +1,6 @@
-const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
-const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
-const GOOGLE_SYDNEY = new plugin.google.maps.LatLng(-33.867487,151.20699);
-const GOOGLE_NY = new plugin.google.maps.LatLng(40.740658,-74.002089);
-const STATUE_OF_LIBERTY = new plugin.google.maps.LatLng(40.689249,-74.0445);
-const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
-const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
-const GORYOKAKU_JAPAN = new plugin.google.maps.LatLng(41.796875,140.757007);
-const GORYOKAKU_POINTS = [
-  new plugin.google.maps.LatLng(41.79883, 140.75675),
-  new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
-  new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
-  new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
-  new plugin.google.maps.LatLng(41.79567, 140.75845),
-  new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
-  new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
-  new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
-  new plugin.google.maps.LatLng(41.79576, 140.75475),
-  new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
-  new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
-  new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
-  new plugin.google.maps.LatLng(41.79883, 140.75673)
-];
+var GOOGLE, GOOGLE_TOKYO, GOOGLE_SYDNEY, GOOGLE_NY, STATUE_OF_LIBERTY;
+var HND_AIR_PORT, SFO_AIR_PORT, GORYOKAKU_JAPAN, GORYOKAKU_POINTS;
+
 var map,
     mTileOverlay;
 
@@ -47,6 +27,31 @@ document.addEventListener('deviceready', function() {
       buttons[i].disabled = 'disabled';
     }
   }
+
+
+  GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+  GOOGLE_SYDNEY = new plugin.google.maps.LatLng(-33.867487,151.20699);
+  GOOGLE_NY = new plugin.google.maps.LatLng(40.740658,-74.002089);
+  STATUE_OF_LIBERTY = new plugin.google.maps.LatLng(40.689249,-74.0445);
+  HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
+  SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+  GORYOKAKU_JAPAN = new plugin.google.maps.LatLng(41.796875,140.757007);
+  GORYOKAKU_POINTS = [
+    new plugin.google.maps.LatLng(41.79883, 140.75675),
+    new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
+    new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
+    new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
+    new plugin.google.maps.LatLng(41.79567, 140.75845),
+    new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
+    new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
+    new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
+    new plugin.google.maps.LatLng(41.79576, 140.75475),
+    new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
+    new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
+    new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
+    new plugin.google.maps.LatLng(41.79883, 140.75673)
+  ];
 }, false);
 
 function getMap1() {
