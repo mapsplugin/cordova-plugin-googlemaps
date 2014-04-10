@@ -128,7 +128,7 @@
               "type": "Marker",
               "object": marker
             });
-            break
+            break;
         }
         
         console.log(JSON.stringify(arguments[2]));
@@ -158,7 +158,7 @@
       callback.call(window, marker, self);
     }
     */
-  }
+  };
   
   
   window.myCallback = function() {
@@ -208,13 +208,20 @@
       callback(null, txt);
     }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo');
   };
+  
+  /**
+   * @desc Open the map dialog
+   */
   App.prototype.showDialog = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
+  
+  /**
+   * @desc Close the map dialog
+   */
   App.prototype.closeDialog = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'closeDialog', []);
   };
-  
   
   App.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
@@ -251,13 +258,6 @@
   App.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTilt', tilt]);
-  };
- 
-  /**
-   * @desc Open the map dialog
-   */
-  App.prototype.showDialog = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'showDialog', []);
   };
  
  
