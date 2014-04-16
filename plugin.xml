@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.0.3" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.0.4" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="cordova.plugins.phonegap-googlemaps-plugin" />
@@ -119,22 +119,6 @@
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
         
-        <!-- system frameworks -->
-        <framework src="AVFoundation.framework" />
-        <framework src="CoreData.framework" />
-        <framework src="CoreLocation.framework" />
-        <framework src="CoreText.framework" />
-        <framework src="GLKit.framework" />
-        <framework src="ImageIO.framework" />
-        <framework src="libc++.dylib" />
-        <framework src="libicucore.dylib" />
-        <framework src="libz.dylib" />
-        <framework src="OpenGLES.framework" />
-        <framework src="QuartzCore.framework" />
-        <framework src="SystemConfiguration.framework" />
-        <framework src="GoogleMaps-iOS-SDK/GoogleMaps.framework" custom="true"/>
-        
-        <resource-file src="GoogleMaps-iOS-SDK/GoogleMaps.framework/Resources/GoogleMaps.bundle"/>
-        
+        <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" /> 
     </platform>
 </plugin>
