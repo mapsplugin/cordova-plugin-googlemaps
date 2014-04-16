@@ -409,6 +409,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void onCustomViewHidden() {
         root.removeView(baseLayer);
         webView.setVisibility(View.VISIBLE);
+        
+        GoogleMaps.this.onMapEvent("map_close");
       }
       
     });
@@ -517,6 +519,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.onMarkerEvent("drag_start", marker);
   }
 
+
+  /**
+   * Notify map event to JS
+   * @param eventName
+   * @param point
+   */
+  private void onMapEvent(final String eventName) {
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('" + eventName + "')");
+  }
+  
   /**
    * Notify map event to JS
    * @param eventName

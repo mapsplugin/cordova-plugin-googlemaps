@@ -167,7 +167,15 @@
  * Close the map window
  */
 - (void)onCloseBtn_clicked:(UIButton*)button{
+  [self _removeMapView];
+}
+
+- (void)_removeMapView{
   [self.mapCtrl.view removeFromSuperview];
+  
+  //Notify to the JS
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('map_close');"];
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 /**
@@ -273,7 +281,7 @@
  * Show the map window
  */
 - (void)closeDialog:(CDVInvokedUrlCommand *)command {
-  [self.mapCtrl.view removeFromSuperview];
+  [self _removeMapView];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

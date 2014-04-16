@@ -1178,6 +1178,7 @@
     MAP_READY: 'map_ready',
     MAP_LOADED: 'map_loaded', //for Android
     MAP_WILL_MOVE: 'will_move', //for iOS
+    MAP_CLOSE: 'map_close',
     MARKER_CLICK: 'click',
     INFO_CLICK: 'info_click',
     MARKER_DRAG: 'drag',
