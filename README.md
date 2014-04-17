@@ -101,11 +101,11 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 * [Geocode](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocode)
   * Geocoding
   * Reverse geocoding
-* [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng) class
+* [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng)
   * Create a LatLng object
   * LatLng Class Reference
-* [CameraPosition](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/CameraPosition) class
+* [CameraPosition](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/CameraPosition)
   * CameraPosition Class Reference
-* [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location) class
+* [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
   
