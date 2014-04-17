@@ -17,8 +17,8 @@ local.properties
 
 # Eclipse project files
 .classpath
-.project
 .settings/
+platform/android/CordovaLib/.project
 
 # Google Maps iOS SDK directory
 GoogleMaps-iOS-SDK/
