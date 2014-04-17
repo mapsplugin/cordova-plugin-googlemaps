@@ -99,20 +99,6 @@ function onMapReady() {
   });
   
   map.showDialog();
-<<<<<<< HEAD:example/Simple/simple.js
-=======
-  
-  return;
-  map.addKmlOverlay({
-    'url': 'www/radio-folder.kml'
-  //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
-  }, function(kmlOverlay) {
-    
-    kmlOverlay.on('add', function(object) {
-      
-    });
-  });
->>>>>>> dev:www/simple.js
 }
 
 function showMap() {
