@@ -31,23 +31,29 @@
     };
     self.on = function(eventName, callback) {
       _listeners[eventName] = _listeners[eventName] || [];
-      var listener = document.addEventListener(eventName, function (e) {
+      
+      var listener = function (e) {
         if (!e.myself || e.myself !== self) {
           return;
         }
         callback.apply(self, e.mydata);
-      }, false);
-      _listeners[eventName].push(listener);
+      };
+      document.addEventListener(eventName, listener, false);
+      _listeners[eventName].push({
+        'callback': callback,
+        'listener': listener
+      });
     };
     self.addEventListener = self.on;
     
-    self.off = function(eventName, handler) {
+    self.off = function(eventName, callback) {
       if (typeof eventName === "string" &&
           eventName in _listeners) {
         
-        if (typeof handler === "function") {
+        if (typeof callback === "function") {
           for (var i = 0; i < _listeners[eventName].length; i++) {
-            if (_listeners[eventName][i] === handler) {
+            if (_listeners[eventName][i].callback === callback) {
+              document.removeEventListener(eventName, _listeners[eventName][i].listener);
               _listeners[eventName].splice(i, 1);
               break;
             }
@@ -62,13 +68,19 @@
     
     
     self.one = function(eventName, callback) {
-      self.on(eventName, function() {
-        var i, args = [];
-        for (i = 0; i < arguments.length; i++) {
-          args.push(arguments[i]);
+      _listeners[eventName] = _listeners[eventName] || [];
+      
+      var listener = function (e) {
+        if (!e.myself || e.myself !== self) {
+          return;
         }
-        callback.apply(self, args);
+        callback.apply(self, e.mydata);
         self.off(eventName, callback);
+      };
+      document.addEventListener(eventName, listener, false);
+      _listeners[eventName].push({
+        'callback': callback,
+        'listener': listener
       });
     };
     self.addEventListenerOnce = self.one;
