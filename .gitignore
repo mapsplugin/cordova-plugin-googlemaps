@@ -31,3 +31,6 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+# platform assets
+platform/android/assets/www/*
