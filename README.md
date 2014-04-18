@@ -108,4 +108,8 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
   * CameraPosition Class Reference
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
-  
+
+***
+
+* [Release notes](./Release-Notes)
+
