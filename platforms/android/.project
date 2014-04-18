@@ -32,9 +32,7 @@
 	</natures>
 	<variableList>
 		<variable>
-			<name>
-				PLUGIN_LOC
-			</name>
+			<name>PLUGIN_LOC</name>
 			<value>$%7BPARENT-2-PROJECT_LOC%7D/src/android</value>
 		</variable>
 	</variableList>
