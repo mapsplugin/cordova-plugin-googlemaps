@@ -31,23 +31,29 @@
     };
     self.on = function(eventName, callback) {
       _listeners[eventName] = _listeners[eventName] || [];
-      var listener = document.addEventListener(eventName, function (e) {
+      
+      var listener = function (e) {
         if (!e.myself || e.myself !== self) {
           return;
         }
         callback.apply(self, e.mydata);
-      }, false);
-      _listeners[eventName].push(listener);
+      };
+      document.addEventListener(eventName, listener, false);
+      _listeners[eventName].push({
+        'callback': callback,
+        'listener': listener
+      });
     };
     self.addEventListener = self.on;
     
-    self.off = function(eventName, handler) {
+    self.off = function(eventName, callback) {
       if (typeof eventName === "string" &&
           eventName in _listeners) {
         
-        if (typeof handler === "function") {
+        if (typeof callback === "function") {
           for (var i = 0; i < _listeners[eventName].length; i++) {
-            if (_listeners[eventName][i] === handler) {
+            if (_listeners[eventName][i].callback === callback) {
+              document.removeEventListener(eventName, _listeners[eventName][i].listener);
               _listeners[eventName].splice(i, 1);
               break;
             }
@@ -62,13 +68,19 @@
     
     
     self.one = function(eventName, callback) {
-      self.on(eventName, function() {
-        var i, args = [];
-        for (i = 0; i < arguments.length; i++) {
-          args.push(arguments[i]);
+      _listeners[eventName] = _listeners[eventName] || [];
+      
+      var listener = function (e) {
+        if (!e.myself || e.myself !== self) {
+          return;
         }
-        callback.apply(self, args);
+        callback.apply(self, e.mydata);
         self.off(eventName, callback);
+      };
+      document.addEventListener(eventName, listener, false);
+      _listeners[eventName].push({
+        'callback': callback,
+        'listener': listener
       });
     };
     self.addEventListenerOnce = self.one;
@@ -113,6 +125,7 @@
   App.prototype._onKmlEvent = function(eventName, hashCode) {
     var kmlLayer = KML_LAYERS[hashCode] || null;
     if (kmlLayer) {
+      
       var args = [eventName];
       if (eventName.toLowerCase() == "add") {
         var result = arguments[2],
@@ -128,6 +141,9 @@
               "type": "Marker",
               "object": marker
             });
+            kmlLayer.one("_REMOVE", function() {
+              marker.remove();
+            });
             break;
         }
         
@@ -137,7 +153,7 @@
           args.push(arguments[i]);
         }
       }
-      kmlLayer.trigger.apply(kmlLayer, args);
+      //kmlLayer.trigger.apply(kmlLayer, args);
     }
   };
   
@@ -494,8 +510,6 @@
     };
     
     pluginExec();
-    
-    
   };
   //-------------
   // Geocoding
@@ -1084,15 +1098,16 @@
   
   KmlOverlay.prototype = new BaseClass();
   
-  KmlOverlay.prototype._addChild = function(objectId, object) {
-    this._objects[objectId] = object;
-  };
-  
   KmlOverlay.prototype.getId = function() {
     return this.id;
   };
   KmlOverlay.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.remove', this.getId()]);
+    var layerId = this.id;
+    
+    this.trigger("_REMOVE");
+    setTimeout(function() {
+      delete KML_LAYERS[layerId];
+    }, 1000);
   };
   /*****************************************************************************
    * Private functions
@@ -1178,6 +1193,7 @@
     MAP_READY: 'map_ready',
     MAP_LOADED: 'map_loaded', //for Android
     MAP_WILL_MOVE: 'will_move', //for iOS
+    MAP_CLOSE: 'map_close',
     MARKER_CLICK: 'click',
     INFO_CLICK: 'info_click',
     MARKER_DRAG: 'drag',
