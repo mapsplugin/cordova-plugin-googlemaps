@@ -37,7 +37,7 @@
     layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   }
   
-  NSString *id = [NSString stringWithFormat:@"tileOverlay%d", layer.hash];
+  NSString *id = [NSString stringWithFormat:@"tileOverlay_%d", layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
   
   

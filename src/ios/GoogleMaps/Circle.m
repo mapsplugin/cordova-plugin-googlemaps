@@ -37,7 +37,7 @@
   circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
-  NSString *id = [NSString stringWithFormat:@"circle%d", circle.hash];
+  NSString *id = [NSString stringWithFormat:@"circle_%d", circle.hash];
   [self.mapCtrl.overlayManager setObject:circle forKey: id];
   
   

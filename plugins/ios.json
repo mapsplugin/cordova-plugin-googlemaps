@@ -12,7 +12,7 @@
     },
     "installed_plugins": {
         "org.apache.cordova.console": {
-            "PACKAGE_NAME": "com.example.simple"
+            "PACKAGE_NAME": "com.example.myapp"
         }
     },
     "dependent_plugins": {}

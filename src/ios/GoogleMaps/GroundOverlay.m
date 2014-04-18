@@ -68,7 +68,7 @@
   }
   
   
-  NSString *id = [NSString stringWithFormat:@"groundOverlay%d", layer.hash];
+  NSString *id = [NSString stringWithFormat:@"groundOverlay_%d", layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
   
   

@@ -18,10 +18,6 @@
 -(void)createPolyline:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  NSString *idPrefix = @"";
-  if ([command.arguments count] == 3) {
-    idPrefix = [command.arguments objectAtIndex:2];
-  }
   GMSMutablePath *path = [GMSMutablePath path];
   
   NSArray *points = [json objectForKey:@"points"];
@@ -47,7 +43,7 @@
   polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
   polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
-  NSString *id = [NSString stringWithFormat:@"%@polyline%d", idPrefix, polyline.hash];
+  NSString *id = [NSString stringWithFormat:@"polyline_%d", polyline.hash];
   [self.mapCtrl.overlayManager setObject:polyline forKey: id];
   
   

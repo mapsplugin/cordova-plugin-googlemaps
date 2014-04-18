@@ -28,7 +28,7 @@ function addKml() {
   map.showDialog();
   
   map.addKmlOverlay({
-    'url': 'www/Social Rewards Redemption Map.kml'
+    'url': 'www/US Regions State Boundaries.kml'
   //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
   }, function(kmlOverlay) {
     
@@ -44,4 +44,7 @@ function removeKml() {
   map.showDialog();
   
   map.trigger("REMOVE_KML");
+}
+function myCallback() {
+  console.log("my callback");
 }

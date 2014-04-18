@@ -132,20 +132,24 @@
     }
   };
   
+  App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
+    var id = result.id,
+        objectType = id.replace(/_.*$/, "").toLowerCase(),
+        eventName = objectType + "_add";
+ 
+    this._onKmlEvent(eventName, kmlLayerId, result, options);
+  };
   /*
    * Callback from Native
    */
-  App.prototype._onKmlEvent = function(eventName, hashCode) {
-    var kmlLayer = KML_LAYERS[hashCode] || null;
+  App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
+    var kmlLayer = KML_LAYERS[kmlLayerId] || null;
     if (kmlLayer) {
-      
+ 
       var args = [eventName];
-        console.log("eventName=" + eventName + "\r\n---\r\n" + JSON.stringify(arguments[2]));
       if (eventName.substr(-4, 4) == "_add") {
-        var result = arguments[2],
-            objectType = eventName.replace(/_.*$/, ""),
-            overlay = null,
-            options = arguments[3];
+        var objectType = eventName.replace(/_.*$/, ""),
+            overlay = null;
         
         switch(objectType) {
           case "marker":
@@ -179,7 +183,6 @@
         if (overlay) {
           overlay.hashCode = result.hashCode;
           kmlLayer.on("_REMOVE", function() {
-        console.log("eventName=" + eventName + " / id=" + result.id);
             overlay.remove();
             overlay.off();
           });
@@ -510,7 +513,7 @@
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
     kmlOverlayOptions.visible = kmlOverlayOptions.visible || true;
     kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
-    
+ 
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
         var kmlOverlay = new KmlOverlay(kmlId, kmlOverlayOptions);
@@ -915,7 +918,6 @@
     return this.get('zIndex');
   };
   Polyline.prototype.remove = function() {
-  console.log("polyline-remove");
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
     this.off();
   };
@@ -1009,7 +1011,6 @@
     return this.get('zIndex');
   };
   Polygon.prototype.remove = function() {
-  console.log("Polygon-remove");
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
     this.off();
   };
