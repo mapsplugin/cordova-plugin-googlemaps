@@ -918,7 +918,6 @@
     return this.get('zIndex');
   };
   Polyline.prototype.remove = function() {
-  console.log("polyline-remove");
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
     this.off();
   };
@@ -1012,7 +1011,6 @@
     return this.get('zIndex');
   };
   Polygon.prototype.remove = function() {
-  console.log("Polygon-remove");
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
     this.off();
   };
