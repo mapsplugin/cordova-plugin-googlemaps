@@ -108,6 +108,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Polyline polyline = this.getPolyline(id);
+    if (polyline == null) {
+      callbackContext.success();
+      return;
+    }
     this.objects.remove(id);
     polyline.remove();
     callbackContext.success();

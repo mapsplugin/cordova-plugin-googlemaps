@@ -136,6 +136,10 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Polygon polygon = this.getPolygon(id);
+    if (polygon == null) {
+      callbackContext.success();
+      return;
+    }
     this.objects.remove(id);
     polygon.remove();
     callbackContext.success();

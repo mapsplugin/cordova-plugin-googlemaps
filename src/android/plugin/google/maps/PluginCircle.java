@@ -144,6 +144,10 @@ public class PluginCircle extends MyPlugin  {
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Circle circle = this.getCircle(id);
+    if (circle == null) {
+      callbackContext.success();
+      return;
+    }
     circle.remove();
     this.objects.remove(id);
     callbackContext.success();

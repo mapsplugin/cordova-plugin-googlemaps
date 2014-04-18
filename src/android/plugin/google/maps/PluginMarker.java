@@ -239,6 +239,10 @@ public class PluginMarker extends MyPlugin {
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
+    if (marker == null) {
+      callbackContext.success();
+      return;
+    }
     marker.remove();
     this.objects.remove(id);
     callbackContext.success();

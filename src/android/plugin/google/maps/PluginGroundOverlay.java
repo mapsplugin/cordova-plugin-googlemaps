@@ -97,6 +97,10 @@ public class PluginGroundOverlay extends MyPlugin {
   protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    if (groundOverlay == null) {
+      callbackContext.success();
+      return;
+    }
     groundOverlay.remove();
   }
 }

@@ -61,6 +61,18 @@
         } else {
           delete _listeners[eventName];
         }
+      } else {
+        //Remove all event listeners
+        var eventName, eventNames = Object.keys(_listeners);
+        for (var i = 0; i < eventNames.length; i++) {
+          eventName = eventNames[i];
+          for (var j = 0; j < _listeners[eventName].length; j++) {
+            document.removeEventListener(eventName, _listeners[eventName][j].listener);
+          }
+        }
+        delete _listeners;
+        
+        delete self;
       }
     };
     
@@ -84,6 +96,7 @@
       });
     };
     self.addEventListenerOnce = self.one;
+    
     return self;
   };
   var App = function() {
@@ -130,11 +143,9 @@
       if (eventName.substr(-4, 4) == "_add") {
         var result = arguments[2],
             objectType = eventName.replace(/_.*$/, "");
-      console.log("eventName = " + eventName + ", objectType = " + objectType);
         switch(objectType.toLowerCase()) {
           case "marker":
             var markerOptions = arguments[3];
-        console.log("result.id=" + result.id);
             var marker = new Marker(result.id, markerOptions);
             markerOptions.hashCode = result.hashCode;
             MARKERS[result.id] = marker;
@@ -147,7 +158,6 @@
               kmlLayer.off("marker_click");
             });
             marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function() {
-            alert("click!");
               kmlLayer.trigger("marker_click", marker);
             });
             break;
@@ -672,6 +682,7 @@
   
   Marker.prototype.remove = function(callback) {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
+    this.off();
   };
   Marker.prototype.setAlpha = function(alpha) {
     this.set('alpha');
