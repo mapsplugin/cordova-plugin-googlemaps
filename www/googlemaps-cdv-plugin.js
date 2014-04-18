@@ -127,13 +127,14 @@
     if (kmlLayer) {
       
       var args = [eventName];
-      if (eventName.toLowerCase() == "add") {
+      if (eventName.substr(-4, 4) == "_add") {
         var result = arguments[2],
-            tmp = result.id.split(":"),
-            objectType = tmp[1].replace(/_.*$/, "");
+            objectType = eventName.replace(/_.*$/, "");
+      console.log("eventName = " + eventName + ", objectType = " + objectType);
         switch(objectType.toLowerCase()) {
           case "marker":
             var markerOptions = arguments[3];
+        console.log("result.id=" + result.id);
             var marker = new Marker(result.id, markerOptions);
             markerOptions.hashCode = result.hashCode;
             MARKERS[result.id] = marker;
@@ -143,11 +144,15 @@
             });
             kmlLayer.one("_REMOVE", function() {
               marker.remove();
+              kmlLayer.off("marker_click");
+            });
+            marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function() {
+            alert("click!");
+              kmlLayer.trigger("marker_click", marker);
             });
             break;
         }
         
-        console.log(JSON.stringify(arguments[2]));
       } else {
         for (var i = 2; i < arguments.length; i++) {
           args.push(arguments[i]);

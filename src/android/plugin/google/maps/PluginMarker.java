@@ -68,10 +68,6 @@ public class PluginMarker extends MyPlugin {
     
     // Store the marker
     String id = "marker_" + marker.getId();
-    if (args.length() == 3) {
-      String kmlId = args.getString(2);
-      id = kmlId + id;
-    }
     Log.d("Marker", "marker-id=" + marker.hashCode());
     this.objects.put(id, marker);
     

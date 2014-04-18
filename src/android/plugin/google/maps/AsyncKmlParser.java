@@ -414,18 +414,17 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     }
   }
 
-  private void implementToMap(String className, final JSONObject optionsJSON, final String kmlId) {
+  private void implementToMap(final String className, final JSONObject optionsJSON, final String kmlId) {
     JSONArray params = new JSONArray();
     params.put(className + ".create" + className);
     params.put(optionsJSON);
-    params.put(kmlId + ":");
     this.execOtherClassMethod(params, new MyCallbackContext(kmlId +"_callback", this.mMapCtrl.webView) {
 
       @Override
       public void onResult(PluginResult pluginResult) {
         Log.e("client", pluginResult.getMessage());
         mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
-            "_onKmlEvent('add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
+            "_onKmlEvent('" + className.toLowerCase() + "_add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
       }
       
     });
