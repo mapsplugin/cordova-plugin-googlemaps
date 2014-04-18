@@ -32,3 +32,6 @@ proguard/
 
 # platform assets
 platforms/android/assets/www/*
+
+ant-build/
+ant-gen/
