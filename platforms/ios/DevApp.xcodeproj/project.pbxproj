@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -67,6 +66,7 @@
 		A0C5D92418F5AE5D0031A740 /* TBXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C5D91418F5AE5D0031A740 /* TBXML.m */; };
 		A0C5D92518F5AE5D0031A740 /* TileOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C5D91618F5AE5D0031A740 /* TileOverlay.m */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
+		9D4DBFD79F5242EAB174D121 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E710B2DADD564CEF8263FB00 /* CDVLogger.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -174,6 +174,8 @@
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = DevApp/config.xml; sourceTree = "<group>"; };
+		E710B2DADD564CEF8263FB00 /* CDVLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVLogger.m"; path = "org.apache.cordova.console/CDVLogger.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		88DBDAD7435A42A390F9DB8A /* CDVLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVLogger.h"; path = "org.apache.cordova.console/CDVLogger.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -320,6 +322,8 @@
 			isa = PBXGroup;
 			children = (
 				A0C5D8F718F5AE5D0031A740 /* GoogleMaps */,
+				E710B2DADD564CEF8263FB00 /* CDVLogger.m */,
+				88DBDAD7435A42A390F9DB8A /* CDVLogger.h */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -459,7 +463,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 500;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "DevApp" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -576,6 +580,7 @@
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				A0C5D92118F5AE5D0031A740 /* PluginUtil.m in Sources */,
+				9D4DBFD79F5242EAB174D121 /* CDVLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

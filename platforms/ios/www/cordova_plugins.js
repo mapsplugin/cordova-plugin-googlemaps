@@ -18,7 +18,7 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "org.apache.cordova.console": "0.2.4"
+    "org.apache.cordova.console": "0.2.7"
 }
 // BOTTOM OF METADATA
 });

@@ -1,9 +1,11 @@
 {
-    "version": "0.2.4",
+    "version": "0.2.7",
     "name": "org.apache.cordova.console",
     "cordova_name": "Console",
     "description": "Cordova Console Plugin",
     "license": "Apache 2.0",
+    "repo": "https://git-wip-us.apache.org/repos/asf/cordova-plugin-console.git",
+    "issue": "https://issues.apache.org/jira/browse/CB/component/12320644",
     "keywords": [
         "cordova",
         "console"

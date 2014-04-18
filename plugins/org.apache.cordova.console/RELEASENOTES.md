@@ -26,7 +26,17 @@
 * Rename CHANGELOG.md -> RELEASENOTES.md
 * [CB-4752] Incremented plugin version on dev branch.
 
-### 0.2.4 (Oct 28, 2013)
+ ### 0.2.4 (Oct 28, 2013)
 * CB-5154 log formatting incorrectly to native
 * CB-5128: added repo + issue tag to plugin.xml for console plugin
 * [CB-4915] Incremented plugin version on dev branch.
+
+### 0.2.5 (Dec 4, 2013)
+* add ubuntu platform
+
+### 0.2.6 (Jan 02, 2014)
+* CB-5658 Add doc/index.md for Console plugin
+
+### 0.2.7 (Feb 05, 2014)
+* Native console needs to be called DebugConsole to avoid ambiguous reference. This commit requires the 3.4.0 version of the native class factory
+* CB-4718 fixed Console plugin not working on wp
