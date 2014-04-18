@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B535F38F-7961-402C-8340-702AF0098BBD</string>
+	<key>IDESourceControlProjectName</key>
+	<string>DevApp</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</key>
+		<string>ssh://github.com/wf9a5m75/phonegap-googlemaps-plugin.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>platforms/ios/DevApp.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/wf9a5m75/phonegap-googlemaps-plugin.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</string>
+			<key>IDESourceControlWCCName</key>
+			<string>phonegap-googlemaps-plugin</string>
+		</dict>
+	</array>
+</dict>
+</plist>

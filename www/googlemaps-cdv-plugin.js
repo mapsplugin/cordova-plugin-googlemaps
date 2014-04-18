@@ -140,29 +140,50 @@
     if (kmlLayer) {
       
       var args = [eventName];
+        console.log("eventName=" + eventName + "\r\n---\r\n" + JSON.stringify(arguments[2]));
       if (eventName.substr(-4, 4) == "_add") {
         var result = arguments[2],
-            objectType = eventName.replace(/_.*$/, "");
-        switch(objectType.toLowerCase()) {
+            objectType = eventName.replace(/_.*$/, ""),
+            overlay = null,
+            options = arguments[3];
+        
+        switch(objectType) {
           case "marker":
-            var markerOptions = arguments[3];
-            var marker = new Marker(result.id, markerOptions);
-            markerOptions.hashCode = result.hashCode;
-            MARKERS[result.id] = marker;
+            overlay = new Marker(result.id, options);
+            MARKERS[result.id] = overlay;
             args.push({
               "type": "Marker",
-              "object": marker
+              "object": overlay
             });
-            kmlLayer.one("_REMOVE", function() {
-              marker.remove();
-              kmlLayer.off("marker_click");
+            overlay.on(plugin.google.maps.event.MARKER_CLICK, function() {
+              kmlLayer.trigger("marker_click", overlay);
             });
-            marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function() {
-              kmlLayer.trigger("marker_click", marker);
+            break;
+            
+          case "polygon":
+            overlay = new Polygon(result.id, options);
+            args.push({
+              "type": "Polygon",
+              "object": overlay
+            });
+            break;
+            
+          case "polyline":
+            overlay = new Polyline(result.id, options);
+            args.push({
+              "type": "Polyline",
+              "object": overlay
             });
             break;
         }
-        
+        if (overlay) {
+          overlay.hashCode = result.hashCode;
+          kmlLayer.on("_REMOVE", function() {
+        console.log("eventName=" + eventName + " / id=" + result.id);
+            overlay.remove();
+            overlay.off();
+          });
+        }
       } else {
         for (var i = 2; i < arguments.length; i++) {
           args.push(arguments[i]);
@@ -170,30 +191,6 @@
       }
       //kmlLayer.trigger.apply(kmlLayer, args);
     }
-  };
-  
-  App.prototype._onKmlOverlayAdded = function(result) {
-    alert(result);
-    /*
-    var marker = new Marker(result.id, markerOptions);
-    markerOptions.hashCode = result.hashCode;
-    MARKERS[result.id] = marker;
-    
-    if (typeof markerOptions.markerClick === "function") {
-      marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
-    }
-    if (typeof markerOptions.infoClick === "function") {
-      marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
-    }
-    if (typeof callback === "function") {
-      callback.call(window, marker, self);
-    }
-    */
-  };
-  
-  
-  window.myCallback = function() {
-    alert("OK");
   };
   
   /**
@@ -409,8 +406,8 @@
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
     circleOptions.radius = circleOptions.radius || 1;
  
-    cordova.exec(function(circleId) {
-      var circle = new Circle(circleId, circleOptions);
+    cordova.exec(function(result) {
+      var circle = new Circle(result.id, circleOptions);
       if (typeof callback == "function") {
         callback(circle, self);
       }
@@ -428,8 +425,8 @@
     polylineOptions.zIndex = polylineOptions.zIndex || 0.0;
     polylineOptions.geodesic = polylineOptions.geodesic || false;
     
-    cordova.exec(function(polylineId) {
-      var polyline = new Polyline(polylineId, polylineOptions);
+    cordova.exec(function(result) {
+      var polyline = new Polyline(result.id, polylineOptions);
       if (typeof callback === "function") {
         callback.call(window, polyline, self);
       }
@@ -448,8 +445,8 @@
     polygonOptions.zIndex = polygonOptions.zIndex || 0.0;
     polygonOptions.geodesic = polygonOptions.geodesic || false;
     
-    cordova.exec(function(polygonId) {
-      var polygon = new Polygon(polygonId, polygonOptions);
+    cordova.exec(function(result) {
+      var polygon = new Polygon(result.id, polygonOptions);
       if (typeof callback === "function") {
         callback.call(window, polygon, self);
       }
@@ -472,8 +469,8 @@
     tilelayerOptions.width = tilelayerOptions.width || 256;
     tilelayerOptions.height = tilelayerOptions.height || 256;
     
-    cordova.exec(function(tileOverlayId) {
-      var tileOverlay = new TileOverlay(tileOverlayId, tilelayerOptions);
+    cordova.exec(function(result) {
+      var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
       if (typeof callback === "function") {
         callback.call(window, tileOverlay, self);
       }
@@ -491,8 +488,8 @@
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
     
     var pluginExec = function() {
-      cordova.exec(function(groundOverlayId) {
-        var groundOverlay = new GroundOverlay(groundOverlayId, groundOverlayOptions);
+      cordova.exec(function(result) {
+        var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
         if (typeof callback === "function") {
           callback.call(window, groundOverlay, self);
         }
@@ -681,6 +678,7 @@
   };
   
   Marker.prototype.remove = function(callback) {
+    delete MARKERS[this.id];
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
     this.off();
   };
@@ -804,6 +802,7 @@
   };
   Circle.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.getId()]);
+    this.off();
   };
   Circle.prototype.setCenter = function(center) {
     this.set('center', center);
@@ -916,7 +915,9 @@
     return this.get('zIndex');
   };
   Polyline.prototype.remove = function() {
+  console.log("polyline-remove");
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
+    this.off();
   };
 
   /*****************************************************************************
@@ -1004,11 +1005,13 @@
     this.set('zIndex', zIndex);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setZIndex', this.getId(), zIndex]);
   };
-  Polyline.prototype.getZIndex = function() {
+  Polygon.prototype.getZIndex = function() {
     return this.get('zIndex');
   };
-  Polyline.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
+  Polygon.prototype.remove = function() {
+  console.log("Polygon-remove");
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
+    this.off();
   };
  
   /*****************************************************************************
@@ -1056,6 +1059,7 @@
   };
   TileOverlay.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.remove', this.getId()]);
+    this.off();
   };
   
   /*****************************************************************************
@@ -1091,6 +1095,7 @@
   };
   GroundOverlay.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
+    this.off();
   };
   /*****************************************************************************
    * KmlOverlay Class
@@ -1118,11 +1123,13 @@
     return this.id;
   };
   KmlOverlay.prototype.remove = function() {
-    var layerId = this.id;
+    var layerId = this.id,
+        self = this;
     
     this.trigger("_REMOVE");
     setTimeout(function() {
       delete KML_LAYERS[layerId];
+      self.off();
     }, 1000);
   };
   /*****************************************************************************

@@ -54,7 +54,11 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     Polyline polyline = map.addPolyline(polylineOptions);
     String id = "polyline_" + polyline.getId();
     this.objects.put(id, polyline);
-    callbackContext.success(id);
+    
+    JSONObject result = new JSONObject();
+    result.put("hashCode", polyline.hashCode());
+    result.put("id", id);
+    callbackContext.success(result);
   }
   
   

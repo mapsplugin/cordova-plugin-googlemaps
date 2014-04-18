@@ -50,7 +50,11 @@ public class PluginCircle extends MyPlugin  {
     Circle circle = map.addCircle(circleOptions);
     String id = "circle_" + circle.getId();
     this.objects.put(id, circle);
-    callbackContext.success(id);
+    
+    JSONObject result = new JSONObject();
+    result.put("hashCode", circle.hashCode());
+    result.put("id", id);
+    callbackContext.success(result);
   }
 
   /**

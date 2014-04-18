@@ -51,10 +51,16 @@
   polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
-  NSString *key = [NSString stringWithFormat:@"%@polygon%d", idPrefix, polygon.hash];
-  [self.mapCtrl.overlayManager setObject:polygon forKey: key];
+  NSString *id = [NSString stringWithFormat:@"%@polygon%d", idPrefix, polygon.hash];
+  [self.mapCtrl.overlayManager setObject:polygon forKey: id];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
+  
+  
+  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  [result setObject:id forKey:@"id"];
+  [result setObject:[NSString stringWithFormat:@"%d", polygon.hash] forKey:@"hashCode"];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

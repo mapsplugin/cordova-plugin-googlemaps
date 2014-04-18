@@ -37,11 +37,15 @@
   circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
-  NSString *key = [NSString stringWithFormat:@"circle%d", circle.hash];
-  [self.mapCtrl.overlayManager setObject:circle forKey: key];
+  NSString *id = [NSString stringWithFormat:@"circle%d", circle.hash];
+  [self.mapCtrl.overlayManager setObject:circle forKey: id];
   
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
+  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  [result setObject:id forKey:@"id"];
+  [result setObject:[NSString stringWithFormat:@"%d", circle.hash] forKey:@"hashCode"];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 /**

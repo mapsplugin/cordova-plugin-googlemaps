@@ -28,14 +28,10 @@ function addKml() {
   map.showDialog();
   
   map.addKmlOverlay({
-    'url': 'www/radio-folder.kml'
+    'url': 'www/Social Rewards Redemption Map.kml'
   //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
   }, function(kmlOverlay) {
     
-    kmlOverlay.on("marker_click", function(marker) {
-      alert("clicked");
-      marker.remove();
-    });
     
     map.on("REMOVE_KML", function() {
       kmlOverlay.remove();

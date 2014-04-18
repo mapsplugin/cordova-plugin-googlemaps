@@ -57,7 +57,11 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     Polygon polygon = map.addPolygon(polygonOptions);
     String id = "polygon_"+ polygon.getId();
     this.objects.put(id, polygon);
-    callbackContext.success(id);
+    
+    JSONObject result = new JSONObject();
+    result.put("hashCode", polygon.hashCode());
+    result.put("id", id);
+    callbackContext.success(result);
   }
   
 

@@ -68,10 +68,15 @@
   }
   
   
-  NSString *key = [NSString stringWithFormat:@"groundOverlay%d", layer.hash];
-  [self.mapCtrl.overlayManager setObject:layer forKey: key];
+  NSString *id = [NSString stringWithFormat:@"groundOverlay%d", layer.hash];
+  [self.mapCtrl.overlayManager setObject:layer forKey: id];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
+  
+  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  [result setObject:id forKey:@"id"];
+  [result setObject:[NSString stringWithFormat:@"%d", layer.hash] forKey:@"hashCode"];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
