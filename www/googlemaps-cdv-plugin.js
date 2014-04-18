@@ -125,6 +125,7 @@
   App.prototype._onKmlEvent = function(eventName, hashCode) {
     var kmlLayer = KML_LAYERS[hashCode] || null;
     if (kmlLayer) {
+      
       var args = [eventName];
       if (eventName.toLowerCase() == "add") {
         var result = arguments[2],
@@ -140,6 +141,9 @@
               "type": "Marker",
               "object": marker
             });
+            kmlLayer.one("_REMOVE", function() {
+              marker.remove();
+            });
             break;
         }
         
@@ -149,7 +153,7 @@
           args.push(arguments[i]);
         }
       }
-      kmlLayer.trigger.apply(kmlLayer, args);
+      //kmlLayer.trigger.apply(kmlLayer, args);
     }
   };
   
@@ -506,8 +510,6 @@
     };
     
     pluginExec();
-    
-    
   };
   //-------------
   // Geocoding
@@ -1096,15 +1098,16 @@
   
   KmlOverlay.prototype = new BaseClass();
   
-  KmlOverlay.prototype._addChild = function(objectId, object) {
-    this._objects[objectId] = object;
-  };
-  
   KmlOverlay.prototype.getId = function() {
     return this.id;
   };
   KmlOverlay.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.remove', this.getId()]);
+    var layerId = this.id;
+    
+    this.trigger("_REMOVE");
+    setTimeout(function() {
+      delete KML_LAYERS[layerId];
+    }, 1000);
   };
   /*****************************************************************************
    * Private functions
