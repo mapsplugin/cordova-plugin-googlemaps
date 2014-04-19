@@ -42,19 +42,28 @@
     }
   }
   
+  // If there is an error, return
   CDVPluginResult* pluginResult;
   if (error) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     return;
   }
+  
+  if ([json valueForKey:@"kmlId"]) {
+    self.kmlId = [json valueForKey:@"kmlId"];
+  } else {
+    self.kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
+  }
+  
+  // Parse the kml file
   [self parseKML:tbxml command:command];
 }
 -(void)parseKML:(TBXML *)tbxml command:(CDVInvokedUrlCommand *)command
 {
 
-  NSString *kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
-  NSString *idPrefix = [NSString stringWithFormat:@"%@-", kmlId];
+  
+  NSString *idPrefix = [NSString stringWithFormat:@"%@-", self.kmlId];
   
   CDVPluginResult* pluginResult;
   
@@ -103,7 +112,7 @@
         //Change the viewport
         NSMutableDictionary *cameraOptions = [NSMutableDictionary dictionary];
         [cameraOptions setObject:defaultViewport forKey:@"target"];
-        [self _execOtherClassMethod:@"Map" methodName:@"animateCamera" options:cameraOptions idPrefix:nil];
+        [self _execOtherClassMethod:@"Map" methodName:@"animateCamera" options:cameraOptions callbackId:@"kmlOverlay.viewChange"];
       });
 
     } else {
@@ -114,7 +123,8 @@
       if (linkUrl != nil) {
         NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
         [options2 setObject:linkUrl forKey:@"url"];
-        [self _implementToMap:@"KmlOverlay" options:options2 idPrefix:@"kml"];
+        [options2 setObject:self.kmlId forKey:@"kmlId"];
+        [self _implementToMap:@"KmlOverlay" options:options2 needJSCallback:NO];
       }
     }
   });
@@ -123,7 +133,7 @@
 
   dispatch_release(gueue);
 
-  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:kmlId];
+  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:self.kmlId];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -325,7 +335,7 @@
       [*viewportRef addObjectsFromArray:coordinates];
       
       [self _implementToMap:targetClass
-            options:[NSDictionary dictionaryWithDictionary:*options] idPrefix:idPrefix];
+            options:[NSDictionary dictionaryWithDictionary:*options] needJSCallback:YES];
     }
   } else if ([targetClass isEqualToString:@"Marker"]) {
     //-----------------
@@ -348,7 +358,7 @@
     
     [self _implementToMap:targetClass
           options:[NSDictionary dictionaryWithDictionary:*options]
-          idPrefix:idPrefix];
+          needJSCallback:YES];
   }
 }
 -(void)_applyStyleTag:(NSDictionary *)styleElements options:(NSMutableDictionary **)options targetClass:(NSString *)targetClass
@@ -427,11 +437,14 @@
 }
 
 
-
--(void)_execOtherClassMethod:(NSString *)className methodName:(NSString *)methodName options:(NSDictionary *)options idPrefix:(NSString *)idPrefix
+/**
+ * @Private
+ * Execute the method of other plugin class internally.
+ */
+-(void)_execOtherClassMethod:(NSString *)className methodName:(NSString *)methodName options:(NSDictionary *)options callbackId:(NSString *)callbackId
 {
-  NSArray* args = [NSArray arrayWithObjects:@"exec", options, idPrefix, nil];
-  NSArray* jsonArr = [NSArray arrayWithObjects:@"callbackId", @"className", @"methodName", args, nil];
+  NSArray* args = [NSArray arrayWithObjects:@"exec", options, nil];
+  NSArray* jsonArr = [NSArray arrayWithObjects:callbackId, className, methodName, args, nil];
   CDVInvokedUrlCommand* command2 = [CDVInvokedUrlCommand commandFromJson:jsonArr];
   
   CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:className];
@@ -448,13 +461,30 @@
     [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:NO];
   }
 }
-
--(void)_implementToMap:(NSString *)className options:(NSDictionary *)options idPrefix:(NSString *)idPrefix
+-(void)evalJsHelper:(NSString*)jsString
 {
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+
+-(void)_implementToMap:(NSString *)className options:(NSDictionary *)options needJSCallback:(BOOL)needJSCallback
+{
+  NSString* callbackId = [NSString stringWithFormat:@"%@_%d", className, arc4random()];
+  if (needJSCallback == YES){
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:options options:0 error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    //Add callback
+    NSString* jsString = [NSString stringWithFormat:@"cordova.callbacks['%@']={'success': function(result) {plugin.google.maps.Map._onKmlEventForIOS('%@',result, %@);}, 'fail': null};", callbackId, self.kmlId, jsonString];
+    [self performSelectorOnMainThread:@selector(evalJsHelper:) withObject:jsString waitUntilDone:YES];
+  }
+  
   [self _execOtherClassMethod:className
         methodName:[NSString stringWithFormat:@"create%@", className]
         options:options
-        idPrefix:idPrefix];
+        callbackId:callbackId];
+
+  
 }
 
 
@@ -498,22 +528,6 @@
     [coordinates addObject:latLng];
   }
   return coordinates;
-}
-
-/**
- * Remove the kml overlay
- * @params key
- */
--(void)remove:(CDVInvokedUrlCommand *)command
-{
-  NSString *key = [command.arguments objectAtIndex:1];
-  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
-  layer.map = nil;
-  [self.mapCtrl removeObjectForKey:key];
-  layer = nil;
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 

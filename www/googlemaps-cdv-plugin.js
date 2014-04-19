@@ -1,6 +1,7 @@
 (function(window){
   const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
+  var KML_LAYERS = {};
  
   /**
    * Google Maps model.
@@ -60,6 +61,18 @@
         } else {
           delete _listeners[eventName];
         }
+      } else {
+        //Remove all event listeners
+        var eventName, eventNames = Object.keys(_listeners);
+        for (var i = 0; i < eventNames.length; i++) {
+          eventName = eventNames[i];
+          for (var j = 0; j < _listeners[eventName].length; j++) {
+            document.removeEventListener(eventName, _listeners[eventName][j].listener);
+          }
+        }
+        delete _listeners;
+        
+        delete self;
       }
     };
     
@@ -83,6 +96,7 @@
       });
     };
     self.addEventListenerOnce = self.one;
+    
     return self;
   };
   var App = function() {
@@ -118,59 +132,68 @@
     }
   };
   
+  App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
+    var id = result.id,
+        objectType = id.replace(/_.*$/, "").toLowerCase(),
+        eventName = objectType + "_add";
+ 
+    this._onKmlEvent(eventName, kmlLayerId, result, options);
+  };
   /*
    * Callback from Native
    */
-  App.prototype._onKmlEvent = function(eventName, hashCode) {
-    return;
-/*
-    var kmlLayer = KML_LAYERS[hashCode] || null;
+  App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
+    var kmlLayer = KML_LAYERS[kmlLayerId] || null;
     if (kmlLayer) {
+ 
       var args = [eventName];
-      if (eventName.toLowerCase() == "add") {
-        var result = arguments[2],
-            tmp = result.id.split(":"),
-            objectType = tmp[1].replace(/_.*$/, "");
-        switch(objectType.toLowerCase()) {
+      if (eventName.substr(-4, 4) == "_add") {
+        var objectType = eventName.replace(/_.*$/, ""),
+            overlay = null;
+        
+        switch(objectType) {
           case "marker":
-            var markerOptions = arguments[3];
-            var marker = new Marker(result.id, markerOptions);
-            markerOptions.hashCode = result.hashCode;
-            MARKERS[result.id] = marker;
+            overlay = new Marker(result.id, options);
+            MARKERS[result.id] = overlay;
             args.push({
               "type": "Marker",
-              "object": marker
+              "object": overlay
+            });
+            overlay.on(plugin.google.maps.event.MARKER_CLICK, function() {
+              kmlLayer.trigger("marker_click", overlay);
+            });
+            break;
+            
+          case "polygon":
+            overlay = new Polygon(result.id, options);
+            args.push({
+              "type": "Polygon",
+              "object": overlay
+            });
+            break;
+            
+          case "polyline":
+            overlay = new Polyline(result.id, options);
+            args.push({
+              "type": "Polyline",
+              "object": overlay
             });
             break;
         }
-        
-        console.log(JSON.stringify(arguments[2]));
+        if (overlay) {
+          overlay.hashCode = result.hashCode;
+          kmlLayer.on("_REMOVE", function() {
+            overlay.remove();
+            overlay.off();
+          });
+        }
       } else {
         for (var i = 2; i < arguments.length; i++) {
           args.push(arguments[i]);
         }
       }
-      kmlLayer.trigger.apply(kmlLayer, args);
+      //kmlLayer.trigger.apply(kmlLayer, args);
     }
-*/
-  };
-  
-  App.prototype._onKmlOverlayAdded = function(result) {
-    /*
-    var marker = new Marker(result.id, markerOptions);
-    markerOptions.hashCode = result.hashCode;
-    MARKERS[result.id] = marker;
-    
-    if (typeof markerOptions.markerClick === "function") {
-      marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
-    }
-    if (typeof markerOptions.infoClick === "function") {
-      marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
-    }
-    if (typeof callback === "function") {
-      callback.call(window, marker, self);
-    }
-    */
   };
   
   /**
@@ -386,8 +409,8 @@
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
     circleOptions.radius = circleOptions.radius || 1;
  
-    cordova.exec(function(circleId) {
-      var circle = new Circle(circleId, circleOptions);
+    cordova.exec(function(result) {
+      var circle = new Circle(result.id, circleOptions);
       if (typeof callback == "function") {
         callback(circle, self);
       }
@@ -405,8 +428,8 @@
     polylineOptions.zIndex = polylineOptions.zIndex || 0.0;
     polylineOptions.geodesic = polylineOptions.geodesic || false;
     
-    cordova.exec(function(polylineId) {
-      var polyline = new Polyline(polylineId, polylineOptions);
+    cordova.exec(function(result) {
+      var polyline = new Polyline(result.id, polylineOptions);
       if (typeof callback === "function") {
         callback.call(window, polyline, self);
       }
@@ -425,8 +448,8 @@
     polygonOptions.zIndex = polygonOptions.zIndex || 0.0;
     polygonOptions.geodesic = polygonOptions.geodesic || false;
     
-    cordova.exec(function(polygonId) {
-      var polygon = new Polygon(polygonId, polygonOptions);
+    cordova.exec(function(result) {
+      var polygon = new Polygon(result.id, polygonOptions);
       if (typeof callback === "function") {
         callback.call(window, polygon, self);
       }
@@ -449,8 +472,8 @@
     tilelayerOptions.width = tilelayerOptions.width || 256;
     tilelayerOptions.height = tilelayerOptions.height || 256;
     
-    cordova.exec(function(tileOverlayId) {
-      var tileOverlay = new TileOverlay(tileOverlayId, tilelayerOptions);
+    cordova.exec(function(result) {
+      var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
       if (typeof callback === "function") {
         callback.call(window, tileOverlay, self);
       }
@@ -468,8 +491,8 @@
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
     
     var pluginExec = function() {
-      cordova.exec(function(groundOverlayId) {
-        var groundOverlay = new GroundOverlay(groundOverlayId, groundOverlayOptions);
+      cordova.exec(function(result) {
+        var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
         if (typeof callback === "function") {
           callback.call(window, groundOverlay, self);
         }
@@ -479,6 +502,29 @@
     pluginExec();
     
     
+  };
+  
+  //-------------
+  // KML Layer
+  //-------------
+  App.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
+    var self = this;
+    kmlOverlayOptions = kmlOverlayOptions || {};
+    kmlOverlayOptions.url = kmlOverlayOptions.url || null;
+    kmlOverlayOptions.visible = kmlOverlayOptions.visible || true;
+    kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
+ 
+    var pluginExec = function() {
+      cordova.exec(function(kmlId) {
+        var kmlOverlay = new KmlOverlay(kmlId, kmlOverlayOptions);
+        KML_LAYERS[kmlId] = kmlOverlay;
+        if (typeof callback === "function") {
+          callback.call(window, kmlOverlay, self);
+        }
+      }, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.createKmlOverlay', kmlOverlayOptions]);
+    };
+    
+    pluginExec();
   };
   //-------------
   // Geocoding
@@ -635,7 +681,9 @@
   };
   
   Marker.prototype.remove = function(callback) {
+    delete MARKERS[this.id];
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
+    this.off();
   };
   Marker.prototype.setAlpha = function(alpha) {
     this.set('alpha');
@@ -757,6 +805,7 @@
   };
   Circle.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.getId()]);
+    this.off();
   };
   Circle.prototype.setCenter = function(center) {
     this.set('center', center);
@@ -870,6 +919,7 @@
   };
   Polyline.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
+    this.off();
   };
 
   /*****************************************************************************
@@ -957,11 +1007,12 @@
     this.set('zIndex', zIndex);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setZIndex', this.getId(), zIndex]);
   };
-  Polyline.prototype.getZIndex = function() {
+  Polygon.prototype.getZIndex = function() {
     return this.get('zIndex');
   };
-  Polyline.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.remove', this.getId()]);
+  Polygon.prototype.remove = function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
+    this.off();
   };
  
   /*****************************************************************************
@@ -1009,6 +1060,7 @@
   };
   TileOverlay.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.remove', this.getId()]);
+    this.off();
   };
   
   /*****************************************************************************
@@ -1044,6 +1096,42 @@
   };
   GroundOverlay.prototype.remove = function() {
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
+    this.off();
+  };
+  /*****************************************************************************
+   * KmlOverlay Class
+   *****************************************************************************/
+  var KmlOverlay = function(kmlOverlayId, kmlOverlayOptions) {
+    BaseClass.apply(this);
+    
+    var self = this;
+    self._objects = {};
+    self.set("visible", kmlOverlayOptions.visible || true);
+    self.set("zIndex", kmlOverlayOptions.zIndex || 0);
+    Object.defineProperty(self, "id", {
+      value: kmlOverlayId,
+      writable: false
+    });
+    Object.defineProperty(self, "type", {
+      value: "KmlOverlay",
+      writable: false
+    });
+  };
+  
+  KmlOverlay.prototype = new BaseClass();
+  
+  KmlOverlay.prototype.getId = function() {
+    return this.id;
+  };
+  KmlOverlay.prototype.remove = function() {
+    var layerId = this.id,
+        self = this;
+    
+    this.trigger("_REMOVE");
+    setTimeout(function() {
+      delete KML_LAYERS[layerId];
+      self.off();
+    }, 1000);
   };
   /*****************************************************************************
    * Private functions

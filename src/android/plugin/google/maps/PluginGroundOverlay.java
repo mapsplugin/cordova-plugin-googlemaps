@@ -84,8 +84,11 @@ public class PluginGroundOverlay extends MyPlugin {
     
     String id = "ground_" + groundOverlay.getId();
     this.objects.put(id, groundOverlay);
-    
-    callbackContext.success(id);
+
+    JSONObject result = new JSONObject();
+    result.put("hashCode", groundOverlay.hashCode());
+    result.put("id", id);
+    callbackContext.success(result);
   }
 
   /**
@@ -97,6 +100,10 @@ public class PluginGroundOverlay extends MyPlugin {
   protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    if (groundOverlay == null) {
+      callbackContext.success();
+      return;
+    }
     groundOverlay.remove();
   }
 }

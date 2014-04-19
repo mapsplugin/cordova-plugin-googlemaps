@@ -68,11 +68,6 @@ public class PluginMarker extends MyPlugin {
     
     // Store the marker
     String id = "marker_" + marker.getId();
-    if (args.length() == 3) {
-      String kmlId = args.getString(2);
-      id = kmlId + id;
-    }
-    Log.d("Marker", "marker-id=" + marker.hashCode());
     this.objects.put(id, marker);
     
     
@@ -243,6 +238,10 @@ public class PluginMarker extends MyPlugin {
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
+    if (marker == null) {
+      callbackContext.success();
+      return;
+    }
     marker.remove();
     this.objects.remove(id);
     callbackContext.success();

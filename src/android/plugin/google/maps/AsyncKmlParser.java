@@ -30,6 +30,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private GoogleMaps mMapCtrl;
   private Activity mActivity;
   private CallbackContext mCallback;
+  private String kmlId = null;
   
   private enum KML_TAG {
     style,
@@ -60,10 +61,21 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   };
   
   public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
+    Random random = new Random();
+    kmlId = "kml" + random.nextInt();
+    init(activity, mapCtrl, callbackContext);
+  }
+
+  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext) {
+    this.kmlId = kmlId;
+    init(activity, mapCtrl, callbackContext);
+  }
+  
+  private void init(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
     mActivity = activity;
-    
+
     try {
       parser = XmlPullParserFactory.newInstance().newPullParser();
     } catch (Exception e) {
@@ -173,8 +185,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     JSONObject optionsJSON, latLngJSON;
     JSONArray defaultViewport = new JSONArray();
     
-    Random random = new Random();
-    String kmlId = "kml" + random.nextInt();
     this.mCallback.success(kmlId);
     
     String tmp, tagName;
@@ -196,7 +206,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           childNode = bundleIterator.next();
           tagName = childNode.getString("tagName");
           if ("link".equals(tagName)) {
-            AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, mCallback);
+            AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, this.kmlId, mCallback);
             kmlParser.execute(childNode.getString("href"));
             return;
           }
@@ -251,7 +261,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
-          
+          Log.d("my.plugin.test", "kmlId=" + kmlId);
           this.implementToMap("Marker", options, kmlId);
           break;
           
@@ -414,18 +424,17 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     }
   }
 
-  private void implementToMap(String className, final JSONObject optionsJSON, final String kmlId) {
+  private void implementToMap(final String className, final JSONObject optionsJSON, final String kmlId) {
     JSONArray params = new JSONArray();
     params.put(className + ".create" + className);
     params.put(optionsJSON);
-    params.put(kmlId + ":");
     this.execOtherClassMethod(params, new MyCallbackContext(kmlId +"_callback", this.mMapCtrl.webView) {
 
       @Override
       public void onResult(PluginResult pluginResult) {
         Log.e("client", pluginResult.getMessage());
         mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
-            "_onKmlEvent('add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
+            "_onKmlEvent('" + className.toLowerCase() + "_add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
       }
       
     });

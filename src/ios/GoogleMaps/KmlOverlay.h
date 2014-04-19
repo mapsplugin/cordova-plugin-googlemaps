@@ -15,8 +15,8 @@
 @interface KmlOverlay : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic, strong) NSString* kmlId;
 - (void)createKmlOverlay:(CDVInvokedUrlCommand*)command;
-- (void)remove:(CDVInvokedUrlCommand *)command;
 
 
 @end
