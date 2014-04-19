@@ -2,7 +2,7 @@
 <plugin id="plugin.google.maps" version="1.0.5" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
-        <clobbers target="cordova.plugins.phonegap-googlemaps-plugin" />
+        <clobbers target="window.plugins.phonegap-googlemaps-plugin" />
     </js-module>
 
     
