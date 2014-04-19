@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.0.5" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.0.6" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
-        <clobbers target="cordova.plugins.phonegap-googlemaps-plugin" />
+        <clobbers target="plugins.phonegap-googlemaps-plugin" />
     </js-module>
 
     
@@ -26,7 +26,6 @@
 
     <!-- android -->
     <platform name="android">
-        <preference name="API_KEY_FOR_ANDROID" />
         
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="GoogleMaps">
@@ -55,7 +54,7 @@
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
-              android:value="$API_KEY_FOR_ANDROID" />
+              android:value="API_KEY_FOR_ANDROID" />
             <meta-data
               android:name="com.google.android.gms.version"
               android:value="@integer/google_play_services_version" />
@@ -80,7 +79,6 @@
     
     <!-- ios -->
     <platform name="ios">
-        <preference name="API_KEY_FOR_IOS" />
       
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
@@ -116,7 +114,7 @@
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
-            <string>$API_KEY_FOR_IOS</string>
+            <string>API_KEY_FOR_IOS</string>
         </config-file>
         
         <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" /> 
