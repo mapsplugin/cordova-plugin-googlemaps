@@ -18,10 +18,6 @@
 -(void)createPolygon:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  NSString *idPrefix = @"";
-  if ([command.arguments count] == 3) {
-    idPrefix = [command.arguments objectAtIndex:2];
-  }
   
   GMSMutablePath *path = [GMSMutablePath path];
   
@@ -51,10 +47,16 @@
   polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   
-  NSString *key = [NSString stringWithFormat:@"%@polygon%d", idPrefix, polygon.hash];
-  [self.mapCtrl.overlayManager setObject:polygon forKey: key];
+  NSString *id = [NSString stringWithFormat:@"polygon_%d", polygon.hash];
+  [self.mapCtrl.overlayManager setObject:polygon forKey: id];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: key];
+  
+  
+  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  [result setObject:id forKey:@"id"];
+  [result setObject:[NSString stringWithFormat:@"%d", polygon.hash] forKey:@"hashCode"];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

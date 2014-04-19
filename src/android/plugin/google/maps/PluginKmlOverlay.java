@@ -32,15 +32,4 @@ public class PluginKmlOverlay extends MyPlugin {
     kmlParser.execute(opts.getString("url"));
   }
 
-  /**
-   * Remove this tile layer
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    //KmlOverlay kmlOverlay = (KmlOverlay)this.objects.get(id);
-    //kmlOverlay.remove();
-  }
 }

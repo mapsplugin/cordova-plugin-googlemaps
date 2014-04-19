@@ -56,12 +56,12 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     
     Polygon polygon = map.addPolygon(polygonOptions);
     String id = "polygon_"+ polygon.getId();
-    if (args.length() == 3) {
-      String kmlId = args.getString(2);
-      id = kmlId + id;
-    }
     this.objects.put(id, polygon);
-    callbackContext.success(id);
+    
+    JSONObject result = new JSONObject();
+    result.put("hashCode", polygon.hashCode());
+    result.put("id", id);
+    callbackContext.success(result);
   }
   
 
@@ -140,6 +140,10 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Polygon polygon = this.getPolygon(id);
+    if (polygon == null) {
+      callbackContext.success();
+      return;
+    }
     this.objects.remove(id);
     polygon.remove();
     callbackContext.success();
