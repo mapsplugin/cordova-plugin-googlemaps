@@ -48,7 +48,7 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 
 ###Documentation
 
-* [Installation] (https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
+* [Installation](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
   * Automatic Installation
   * Tutorials
     * [Tutorial for Windows](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Windows)
