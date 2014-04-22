@@ -511,8 +511,8 @@
     var self = this;
     kmlOverlayOptions = kmlOverlayOptions || {};
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
-    kmlOverlayOptions.visible = kmlOverlayOptions.visible || true;
-    kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
+    //kmlOverlayOptions.visible = kmlOverlayOptions.visible || true;
+    //kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
  
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
