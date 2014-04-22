@@ -26,7 +26,8 @@
 
     <!-- android -->
     <platform name="android">
-        
+        <preference name="API_KEY_FOR_ANDROID" />
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="GoogleMaps">
                 <param name="android-package" value="plugin.google.maps.GoogleMaps" />
@@ -37,6 +38,7 @@
         
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/AsyncKmlParser.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMaps.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
@@ -44,6 +46,7 @@
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarker.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginPolygon.java" target-dir="src/plugin/google/maps" />
@@ -54,7 +57,8 @@
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
-              android:value="API_KEY_FOR_ANDROID" />
+              android:value="$API_KEY_FOR_ANDROID" />
+
             <meta-data
               android:name="com.google.android.gms.version"
               android:value="@integer/google_play_services_version" />
@@ -79,6 +83,7 @@
     
     <!-- ios -->
     <platform name="ios">
+        <preference name="API_KEY_FOR_IOS" />
       
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
@@ -96,6 +101,8 @@
         <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
         <header-file src="src/ios/GoogleMaps/GroundOverlay.h" />
         <source-file src="src/ios/GoogleMaps/GroundOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/KmlOverlay.h" />
+        <source-file src="src/ios/GoogleMaps/KmlOverlay.m" />
         <header-file src="src/ios/GoogleMaps/Map.h" />
         <source-file src="src/ios/GoogleMaps/Map.m" />
         <header-file src="src/ios/GoogleMaps/Marker.h" />
@@ -107,6 +114,8 @@
         <source-file src="src/ios/GoogleMaps/Polygon.m" />
         <header-file src="src/ios/GoogleMaps/Polyline.h" />
         <source-file src="src/ios/GoogleMaps/Polyline.m" />
+        <header-file src="src/ios/GoogleMaps/TBXML.h" />
+        <source-file src="src/ios/GoogleMaps/TBXML.m" />
         <header-file src="src/ios/GoogleMaps/TileOverlay.h" />
         <source-file src="src/ios/GoogleMaps/TileOverlay.m" />
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.h" />
@@ -114,7 +123,7 @@
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
-            <string>API_KEY_FOR_IOS</string>
+            <string>$API_KEY_FOR_IOS</string>
         </config-file>
         
         <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" /> 
