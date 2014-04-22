@@ -93,31 +93,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     this.locationClient = new LocationClient(activity, this, this);
-    
-    // Check the API key
-    ApplicationInfo appliInfo = null;
-    try {
-        appliInfo = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
-    } catch (NameNotFoundException e) {}
-    
-    String API_KEY = appliInfo.metaData.getString("com.google.android.maps.v2.API_KEY");
-    if ("API_KEY_FOR_ANDROID".equals(API_KEY)) {
-    
-      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-      
-      alertDialogBuilder
-        .setMessage("Please replace 'API_KEY_FOR_ANDROID' in the platforms/android/AndroidManifest.xml with your API Key!")
-        .setCancelable(false)
-        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog,int id) {
-            dialog.dismiss();
-          }
-        }); 
-      AlertDialog alertDialog = alertDialogBuilder.create();
-      
-      // show it
-      alertDialog.show();
-    }
   }
 
   @Override
@@ -202,6 +177,31 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
       callbackContext.error("google play services is missing!!!!");
       return;
+    }
+
+    // Check the API key
+    ApplicationInfo appliInfo = null;
+    try {
+        appliInfo = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
+    } catch (NameNotFoundException e) {}
+    
+    String API_KEY = appliInfo.metaData.getString("com.google.android.maps.v2.API_KEY");
+    if ("API_KEY_FOR_ANDROID".equals(API_KEY)) {
+    
+      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+      
+      alertDialogBuilder
+        .setMessage("Please replace 'API_KEY_FOR_ANDROID' in the platforms/android/AndroidManifest.xml with your API Key!")
+        .setCancelable(false)
+        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog,int id) {
+            dialog.dismiss();
+          }
+        }); 
+      AlertDialog alertDialog = alertDialogBuilder.create();
+      
+      // show it
+      alertDialog.show();
     }
 
     // ------------------------------
