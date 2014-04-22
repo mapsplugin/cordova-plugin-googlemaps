@@ -16,6 +16,9 @@
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic, strong) NSString* kmlId;
+@property (nonatomic, strong) UIView* _loadingView;
+@property (nonatomic, strong) UIActivityIndicatorView *spinner;
+
 - (void)createKmlOverlay:(CDVInvokedUrlCommand*)command;
 
 

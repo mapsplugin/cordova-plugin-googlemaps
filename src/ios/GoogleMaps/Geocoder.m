@@ -23,6 +23,7 @@
 
   if (!self.geocoder) {
     self.geocoder = [[CLGeocoder alloc] init];
+    self.reverseGeocoder = [GMSGeocoder geocoder];
   }
   if (address && position == nil) {
   
@@ -94,10 +95,57 @@
   if (position && address == nil) {
     
     NSDictionary *latLng = [json objectForKey:@"position"];
-    double latitude = [[latLng valueForKey:@"lat"] doubleValue];
-    double longitude = [[latLng valueForKey:@"lng"] doubleValue];
-    CLLocation *position = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+    CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
     
+    [self.reverseGeocoder reverseGeocodeCoordinate:position completionHandler:^(GMSReverseGeocodeResponse *response, NSError *error) {
+      CDVPluginResult* pluginResult;
+      if (error) {
+        if ([response.results count] == 0) {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Not found"];
+        } else {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.description];
+        }
+      } else {
+      
+        NSMutableArray *results = [NSMutableArray array];
+        GMSAddress *address;
+        int i;
+        for (i = 0; i < [response.results count]; i++) {
+          address = [response.results objectAtIndex:i];
+          
+          NSMutableDictionary *result = [NSMutableDictionary dictionary];
+          [result setObject:[NSNumber numberWithDouble:address.coordinate.latitude] forKey:@"lat"];
+          [result setObject:[NSNumber numberWithDouble:address.coordinate.longitude] forKey:@"lng"];
+          
+          NSMutableDictionary *position = [NSMutableDictionary dictionary];
+          [position setObject:[NSNumber numberWithDouble:address.coordinate.latitude] forKey:@"lat"];
+          [position setObject:[NSNumber numberWithDouble:address.coordinate.longitude] forKey:@"lng"];
+          [result setObject:position forKey:@"position"];
+          
+          [result setObject:[NSString stringWithFormat:@"%@", address.locality] forKey:@"locality"];
+          [result setObject:[NSString stringWithFormat:@"%@", address.administrativeArea] forKey:@"adminArea"];
+          [result setObject:[NSString stringWithFormat:@"%@", address.country] forKey:@"country"];
+          [result setObject:@"" forKey:@"locale"];
+          [result setObject:[NSString stringWithFormat:@"%@", address.postalCode] forKey:@"postalCode"];
+          [result setObject:@"" forKey:@"subAdminArea"];
+          [result setObject:[NSString stringWithFormat:@"%@", address.subLocality] forKey:@"subLocality"];
+          [result setObject:@"" forKey:@"subThoroughfare"];
+          [result setObject:[NSString stringWithFormat:@"%@", address.thoroughfare] forKey:@"thoroughfare"];
+          
+          
+          NSMutableDictionary *extra = [NSMutableDictionary dictionary];
+          [extra setObject:address.lines forKey:@"lines"];
+          [result setObject:extra forKey:@"extra"];
+          
+          [results addObject:result];
+        }
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:results];
+      };
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+      
+    }];
+    /*
     [self.geocoder reverseGeocodeLocation:position completionHandler:^(NSArray *placemarks, NSError *error) {
       CDVPluginResult* pluginResult;
       if (error) {
@@ -112,6 +160,7 @@
       }
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
+    */
   }
 }
 

@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.Random;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.JSONUtils;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,7 +19,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,9 +28,10 @@ import android.util.Log;
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
   private GoogleMaps mMapCtrl;
-  private Activity mActivity;
+  private CordovaActivity mActivity;
   private CallbackContext mCallback;
   private String kmlId = null;
+  private ProgressDialog mProgress;
   
   private enum KML_TAG {
     style,
@@ -59,23 +60,27 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     
     coordinates
   };
+  private long start, end;
   
-  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
+  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
     Random random = new Random();
     kmlId = "kml" + random.nextInt();
     init(activity, mapCtrl, callbackContext);
   }
 
-  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext) {
+  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext) {
     this.kmlId = kmlId;
     init(activity, mapCtrl, callbackContext);
   }
   
-  private void init(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
+  private void init(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
     mActivity = activity;
 
+    mProgress = ProgressDialog.show(activity, "", "Please wait...", false);
+    start = System.currentTimeMillis();
+    
     try {
       parser = XmlPullParserFactory.newInstance().newPullParser();
     } catch (Exception e) {
@@ -91,7 +96,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       InputStream inputStream = null;
       String urlStr = params[0];
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-        Log.e("Map", urlStr);
         URL url = new URL(urlStr);
         HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
         http.setRequestMethod("GET");
@@ -138,47 +142,16 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     }
     
     
-    return kmlData;
-  }
-  
-  private Bundle getStyleById(Bundle styles, String styleId) {
-    Bundle style = null;
-    Bundle tmpBundle;
-    String tagName, tmp;
-    ArrayList<Bundle> bundleList;
-    Iterator<Bundle> bundleIterator;
-    if (styles.containsKey(styleId)) {
-      style = styles.getBundle(styleId);
-      
-      tagName = style.getString("tagName");
-      if ("stylemap".equals(tagName)) {
-
-        bundleList = style.getParcelableArrayList("children");
-        
-        bundleIterator = bundleList.iterator();
-        while(bundleIterator.hasNext()) {
-          tmpBundle = bundleIterator.next();
-          if ("normal".equals(tmpBundle.getString("key")) &&
-              tmpBundle.containsKey("styleurl")) {
-            
-            tmp = tmpBundle.getString("styleurl");
-            style = styles.getBundle(tmp);
-            
-            break;
-          }
-        }
-      }
-    }
-    return style;
-  }
-  
-  protected void onPostExecute(Bundle parseResult) {
-    if (parseResult == null) {
+    
+    
+    
+    
+    if (kmlData == null) {
       mCallback.error("KML Parse error");
-      return;
+      return null;
     }
-    Bundle styles = parseResult.getBundle("styles");
-    ArrayList<Bundle> placeMarks = parseResult.getParcelableArrayList("placeMarks");
+    Bundle styles = kmlData.getBundle("styles");
+    ArrayList<Bundle> placeMarks = kmlData.getParcelableArrayList("placeMarks");
     float density = Resources.getSystem().getDisplayMetrics().density;
 
     Bundle options;
@@ -208,7 +181,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           if ("link".equals(tagName)) {
             AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, this.kmlId, mCallback);
             kmlParser.execute(childNode.getString("href"));
-            return;
+            return null;
           }
         }
         break;
@@ -261,7 +234,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
-          Log.d("my.plugin.test", "kmlId=" + kmlId);
           this.implementToMap("Marker", options, kmlId);
           break;
           
@@ -394,11 +366,60 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     try {
       optionsJSON.put("target", defaultViewport);
     } catch (JSONException e) {}
-    JSONArray params = new JSONArray();
-    params.put("Map.animateCamera");
-    params.put(optionsJSON);
-    this.execOtherClassMethod(params, new CallbackContext("kml-viewport-change", this.mMapCtrl.webView));
+    JSONArray paramsCamera = new JSONArray();
+    paramsCamera.put("Map.animateCamera");
+    paramsCamera.put(optionsJSON);
+    AsyncKmlParser.this.execOtherClassMethod(paramsCamera, new CallbackContext("kml-viewport-change", AsyncKmlParser.this.mMapCtrl.webView));
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    return kmlData;
+  }
+  
+  private Bundle getStyleById(Bundle styles, String styleId) {
+    Bundle style = null;
+    Bundle tmpBundle;
+    String tagName, tmp;
+    ArrayList<Bundle> bundleList;
+    Iterator<Bundle> bundleIterator;
+    if (styles.containsKey(styleId)) {
+      style = styles.getBundle(styleId);
+      
+      tagName = style.getString("tagName");
+      if ("stylemap".equals(tagName)) {
+
+        bundleList = style.getParcelableArrayList("children");
+        
+        bundleIterator = bundleList.iterator();
+        while(bundleIterator.hasNext()) {
+          tmpBundle = bundleIterator.next();
+          if ("normal".equals(tmpBundle.getString("key")) &&
+              tmpBundle.containsKey("styleurl")) {
+            
+            tmp = tmpBundle.getString("styleurl");
+            style = styles.getBundle(tmp);
+            
+            break;
+          }
+        }
+      }
+    }
+    return style;
+  }
+  
+  protected void onPostExecute(Bundle parseResult) {
+    end = System.currentTimeMillis();
+    Log.d("GoogleMaps", "duration=" + ((end -start) / 1000));
+    
+    this.mProgress.dismiss();
   }
   
   
@@ -415,29 +436,37 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     abstract public void onResult(PluginResult pluginResult);
   }
   
-  private void execOtherClassMethod(JSONArray params, CallbackContext callback) {
+  private void execOtherClassMethod(final JSONArray params, final CallbackContext callback) {
     
-    try {
-      mMapCtrl.execute("exec", params, callback);
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
+    this.mActivity.runOnUiThread(new Runnable() {
+
+      @Override
+      public void run() {
+        try {
+          mMapCtrl.execute("exec", params, callback);
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+      
+    });
+    
   }
 
   private void implementToMap(final String className, final JSONObject optionsJSON, final String kmlId) {
     JSONArray params = new JSONArray();
     params.put(className + ".create" + className);
     params.put(optionsJSON);
-    this.execOtherClassMethod(params, new MyCallbackContext(kmlId +"_callback", this.mMapCtrl.webView) {
+    AsyncKmlParser.this.execOtherClassMethod(params, new MyCallbackContext(kmlId +"_callback", mMapCtrl.webView) {
 
       @Override
       public void onResult(PluginResult pluginResult) {
-        Log.e("client", pluginResult.getMessage());
         mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
             "_onKmlEvent('" + className.toLowerCase() + "_add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
       }
       
     });
+    
   }
   private void implementToMap(String className, Bundle options, String kmlId) {
     // Load the class plugin
