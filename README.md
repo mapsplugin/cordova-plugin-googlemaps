@@ -54,6 +54,7 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
     * [Tutorial for Windows](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Windows)
     * [Tutorial for Mac/Linux](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Mac)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif) 
   * Create a map
   * Create a map with initialize options
   * Change the map type
@@ -63,6 +64,7 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
   * Get my location
   * Map Class Reference
 * [Marker](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Marker)
+  * ![img](https://camo.githubusercontent.com/9dd8644cf5038708d6a6af93ab31f8b1d2e45801/68747470733a2f2f726177322e6769746875622e636f6d2f77663961356d37352f70686f6e656761702d676f6f676c656d6170732d706c7567696e2f496d616765732f73637265656e636170747572652f6d61726b6572332e706e67) 
   * Add a Marker
   * Show InfoWindow
   * Add a marker with multiple line
@@ -78,27 +80,33 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
   * Create a flat marker
   * Marker Class Reference
 * [Circle](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Circle)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/circle.png)
   * Add a circle
   * callback
   * Remove the circle
   * Circle Class Reference
 * [Polyline](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polyline)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polyline.png)
   * Add a polyline
   * callback
   * Remove the polyline
   * Polyline Class Reference
 * [Polygon](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polygon)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polygon.png)
   * Add a polygon
   * callback
   * Remove the polygon
   * Polygon Class Reference
 * [Tile Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/TileOverlay)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/tile_overlay.png)
   * Add a tile overlay
   * TileOverlay Class Reference
 * [Ground Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/GroundOverlay)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ground_overlay.png)
   * Add a ground overlay
   * GroundOverlay Class Reference
 * [Kml Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/KmlOverlay)
+  * ![img](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/kml-polygon.gif)
   * Add a kml overlay
   * KmlOverlay Class Reference
 * [Geocode](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocode)
