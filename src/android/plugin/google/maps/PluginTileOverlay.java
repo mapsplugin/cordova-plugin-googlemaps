@@ -55,11 +55,14 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
       options.visible(opts.getBoolean("visible"));
     }
     TileOverlay tileOverlay = this.map.addTileOverlay(options);
-    String tileId = "tile_" + tileOverlay.getId();
-    this.objects.put(tileId, tileOverlay);
+    String id = "tile_" + tileOverlay.getId();
+    this.objects.put(id, tileOverlay);
     
 
-    callbackContext.success(tileId);
+    JSONObject result = new JSONObject();
+    result.put("hashCode", tileOverlay.hashCode());
+    result.put("id", id);
+    callbackContext.success(result);
   }
 
   /**
@@ -95,6 +98,10 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
   protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
+    if (tileOverlay == null) {
+      callbackContext.success();
+      return;
+    }
     tileOverlay.remove();
     tileOverlay.clearTileCache();
   }
