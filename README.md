@@ -98,6 +98,9 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 * [Ground Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/GroundOverlay)
   * Add a ground overlay
   * GroundOverlay Class Reference
+* [Kml Overlay](./KmlOverlay)
+  * Add a kml overlay
+  * KmlOverlay Class Reference
 * [Geocode](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocode)
   * Geocoding
   * Reverse geocoding
