@@ -19,6 +19,21 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
+
+  NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+  if ([APIKey isEqualToString:@"API_KEY_FOR_IOS"]) {
+    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+    NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
+    NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"API key is not setted."
+                                              message:message
+                                              delegate:self
+                                              cancelButtonTitle:@"CLOSE"
+                                              otherButtonTitles:nil];
+    [alert show];
+    return;
+  }
   
   if (!self.mapCtrl) {
     dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
