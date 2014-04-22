@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript">
+    var map;
+
+    window.onerror = function(message, file, line) {
+      var error = [];
+      error.push('---[error]');
+      if (typeof message == "object") {
+        var keys = Object.keys(message);
+        keys.forEach(function(key) {
+          error.push('[' + key + '] ' + message[key]);
+        });
+      } else {
+        error.push(line + ' at ' + file);
+        error.push(message);
+      }
+      alert(error.join("\n"));
+    };
+
+    document.addEventListener("deviceready", function() {
+        
+      var i,
+          buttons = document.getElementsByTagName("button");
+      for (i = 0; i < buttons.length; i++) {
+        buttons[i].disabled = 'disabled';
+      }
+
+      map = plugin.google.maps.Map.getMap();
+      map.addEventListener(plugin.google.maps.event.MAP_READY, onMapInit);
+    });
+    
+    function onMapInit() {
+      var i,
+          buttons = document.getElementsByTagName("button");
+      for (i = 0; i < buttons.length; i++) {
+        buttons[i].disabled = undefined;
+      }
+    }
+    
+    function marker() {
+      loadKml("www/marker.kml");
+    }
+    function polyline() {
+      loadKml("www/polyline.kml");
+    }
+    function polygon() {
+      loadKml("www/polygon.kml");
+    }
+    function loadKml(url) {
+      map.moveCamera({
+        'zoom': 0
+      });
+
+      map.trigger("remove_kml");
+      
+      map.showDialog();
+
+      //Load the kml file
+      map.addKmlOverlay({
+        url: url
+      }, function(kmlLayer) {
+        map.addEventListener("map_close", function() {
+          kmlLayer.remove();
+        });
+      });
+    }
+    </script>
+    <style type="text/css">
+    li { margin-bottom: 2em }
+    </style>
+  </head>
+  <body>
+    <h3>KML Example / PhoneGap-GoogleMaps-Plugin</h3>
+    <ul>
+    <li><button onclick="marker()">marker</button></li>
+    <li><button onclick="polyline()">polyline</button></li>
+    <li><button onclick="polygon()">polygon</button></li>
+    </ul>
+  </body>
+</html>
