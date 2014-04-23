@@ -122,5 +122,5 @@ You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.co
 
 ***
 
-* [Release notes](./Release-Notes)
+* [Release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
 
