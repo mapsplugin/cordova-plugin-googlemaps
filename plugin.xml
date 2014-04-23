@@ -6,12 +6,10 @@
     </js-module>
 
     
-    <description>
-      This is the unofficial plugin for Google Maps SDKs in Apache Cordova/PhoneGap!
-      
-      Before installing this plugin, you need to get Google Maps API key for Android and/or iOS.
-    </description>
-    
+    <description>You can implement Google Maps native SDK into your app easily!</description>
+    <repo>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/</repo>
+    <issue>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues</issue>
+
     <license>Apache 2.0</license>
     
     <keywords>google,maps</keywords>
@@ -21,6 +19,7 @@
     </engines>
     
     <info>
+    Before installing this plugin, you need to get Google Maps API key for Android and/or iOS.
     Please visit to https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation
     </info>
 
