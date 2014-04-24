@@ -68,9 +68,27 @@
       mapClass.commandDelegate = self.commandDelegate;
       [mapClass setGoogleMapsViewController:self.mapCtrl];
       [self.mapCtrl.plugins setObject:mapClass forKey:@"Map"];
+      
+      
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [self.webView.scrollView addSubview:self.mapCtrl.view];
+      
+      
+        CGRect screenSize = [[UIScreen mainScreen] bounds];
+        CGRect pluginRect;
+        
+        int direction = self.mapCtrl.interfaceOrientation;
+        if (direction == UIInterfaceOrientationLandscapeLeft ||
+            direction == UIInterfaceOrientationLandscapeRight) {
+          pluginRect = CGRectMake(150 + 1, 200 + 1, 100, 100);
+        } else {
+          pluginRect = CGRectMake(200 + 1, 150 + 1, 100, 100);
+        }
+        [self.mapCtrl.view setFrame:pluginRect];
+      });
     });
     
-    
+    /*
     
     // Create the footer background
     dispatch_async(gueue, ^{
@@ -111,6 +129,7 @@
         [self.mapCtrl.view addSubview:licenseButton];
       });
     });
+    */
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

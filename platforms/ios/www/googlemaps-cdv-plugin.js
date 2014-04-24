@@ -225,12 +225,20 @@
   
   App.prototype.getMap = function(params) {
     params = params || {};
+    var windowSize = {
+      width: window.innerWidth
+              || document.documentElement.clientWidth
+              || document.body.clientWidth,
+      height: window.innerHeight
+              || document.documentElement.clientHeight
+              || document.body.clientHeight
+    };
     var self = this;
     cordova.exec(function() {
       setTimeout(function() {
         self.trigger(plugin.google.maps.event.MAP_READY, self);
       }, 100);
-    }, self.errorHandler, PLUGIN_NAME, 'getMap', [params]);
+    }, self.errorHandler, PLUGIN_NAME, 'getMap', [params, windowSize]);
     return self;
   };
   
