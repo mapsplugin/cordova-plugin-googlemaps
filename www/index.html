@@ -16,9 +16,23 @@
     <script type="text/javascript" src="googlemaps-cdv-plugin.js"></script>
     <script type="text/javascript" src="kmlTest.js"></script>
     <link rel="stylesheet" type="text/css" href="./style.css" />
+      <script type="text/javascript">
+  window.onload = function() {
+    var ul = document.getElementById("test");
+      
+      for (var i = 0; i < 100; i++) {
+        var li = document.createElement("li");
+        li.innerHTML = "<b>" + i + "</b>";
+        ul.appendChild(li);
+      }
+      
+      
+  };
+  </script>
   </head>
   <body>
 <button  onclick="showMap()">showMap</button>
+<!--
 <br>
 <br>
 <button  onclick="addKml()">addKml</button>
@@ -27,6 +41,8 @@
 <button  onclick="removeKml()">removeKml</button>
 <br>
 <br>
-
+--><h1>test</h1>
+    <ul id="test" style="border:1px solid red;">
+    </ul>
   </body>
 </html>

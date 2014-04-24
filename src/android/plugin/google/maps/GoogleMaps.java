@@ -318,13 +318,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     // Create the map window
     // ------------------------------
-    
+    float density = Resources.getSystem().getDisplayMetrics().density;
+    JSONObject windowSize = args.getJSONObject(1);
+    int pageW = (int) (windowSize.getInt("width") * density);
+    int pageH = (int) (windowSize.getInt("height") * density);
+
     //base layout
     baseLayer = new FrameLayout(activity);
-    baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-    
+    baseLayer.setLayoutParams(new FrameLayout.LayoutParams(pageW, pageH));
+    /*
     // window layout
-    float density = Resources.getSystem().getDisplayMetrics().density;
     int windowMargin = 0;// (int)(10 * density);
     LinearLayout windowLayer = new LinearLayout(activity);
     windowLayer.setPadding(windowMargin, windowMargin, windowMargin, windowMargin);
@@ -333,21 +336,30 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     windowLayer.setLayoutParams(layoutParams);
     baseLayer.addView(windowLayer);
     
+    /*
     // dialog window layer
     FrameLayout dialogLayer = new FrameLayout(activity);
     dialogLayer.setLayoutParams(layoutParams);
     //dialogLayer.setPadding(15, 15, 15, 0);
     dialogLayer.setBackgroundColor(Color.LTGRAY);
     windowLayer.addView(dialogLayer);
-
+    */
+    
     // map frame
-    LinearLayout mapFrame = new LinearLayout(activity);
-    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
-    dialogLayer.addView(mapFrame);
+    //FrameLayout mapFrame = new FrameLayout(activity);
+    
+    //mapFrame.setPadding(0, 0, 0, (int)(40 * density));
+    //baseLayer.addView(mapFrame);
     
     // map
-    mapFrame.addView(mapView);
+    LayoutParams params2 = new FrameLayout.LayoutParams(contentToViewX(200 + 6), contentToViewY(200 + 5));
+    params2.topMargin = contentToViewY(200);
+    params2.leftMargin = contentToViewX(150 - 3);
+    params2.gravity = Gravity.TOP;
+    mapView.setLayoutParams(params2);
+    baseLayer.addView(mapView);
     
+    /*
     // button frame
     LinearLayout buttonFrame = new LinearLayout(activity);
     buttonFrame.setOrientation(LinearLayout.HORIZONTAL);
@@ -383,14 +395,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setOnClickListener(GoogleMaps.this);
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
+    */
     
     //Custom info window
     map.setInfoWindowAdapter(this);
     
+    webView.addView(baseLayer);
+    
     callbackContext.success();
     return;
   }
-
+  private int contentToViewDimension(int d) {
+    return Math.round(d * webView.getScale());
+  }
+  private int contentToViewY(int y) {
+    return contentToViewDimension(y);
+  }
+  private int contentToViewX(int x) {
+    return contentToViewDimension(x);
+  }
+  
   //-----------------------------------
   // Create the instance of class
   //-----------------------------------
