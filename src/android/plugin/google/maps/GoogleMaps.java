@@ -83,7 +83,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
-  private FrameLayout baseLayer;
+  private FrameLayout baseLayer = null;
   private LinearLayout windowLayer = null;
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
@@ -319,27 +319,35 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.loadPlugin("Map");
 
     // ------------------------------
-    // Create the map window
+    // Embed the map if a container is specified.
     // ------------------------------
-    
-    JSONObject windowSize = args.getJSONObject(1);
-    int pageW = (int) (windowSize.getInt("width") * density);
-    int pageH = (int) (windowSize.getInt("height") * density);
+    if (args.length() == 2) {
+      JSONObject divSize = args.getJSONObject(1);
+      //int pageW = (int) (windowSize.getInt("width") * density);
+      //int pageH = (int) (windowSize.getInt("height") * density);
 
-    //base layout
-    baseLayer = new FrameLayout(activity);
-    //baseLayer.setLayoutParams(new FrameLayout.LayoutParams(pageW, pageH));
-    baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-    // map
-    /*
-    LayoutParams params2 = new FrameLayout.LayoutParams(contentToViewX(200 + 6), contentToViewY(200 + 5));
-    params2.topMargin = contentToViewY(200);
-    params2.leftMargin = contentToViewX(150 - 3);
-    params2.gravity = Gravity.TOP;
-    mapView.setLayoutParams(params2);
-    */
-    //baseLayer.addView(mapView);
+      int divW = divSize.getInt("width");
+      int divH = divSize.getInt("height");
+      int divLeft = divSize.getInt("left");
+      int divTop = divSize.getInt("top");
+      //base layout
+      baseLayer = new FrameLayout(activity);
+      LayoutParams layoutParams = new FrameLayout.LayoutParams(divW + 6, divH + 6);
+      layoutParams.topMargin = contentToViewY(divTop);
+      layoutParams.leftMargin = contentToViewX(divLeft - 3);
+      baseLayer.setLayoutParams(layoutParams);
+      
+      // map
+      /*
+      LayoutParams params2 = new FrameLayout.LayoutParams(contentToViewX(200 + 6), contentToViewY(200 + 5));
+      params2.topMargin = contentToViewY(200);
+      params2.leftMargin = contentToViewX(150 - 3);
+      params2.gravity = Gravity.TOP;
+      mapView.setLayoutParams(params2);
+      */
+      
+      //baseLayer.addView(mapView);
+    }
     
     //Custom info window
     map.setInfoWindowAdapter(this);

@@ -223,8 +223,31 @@
   };
 
   
-  App.prototype.getMap = function(params) {
+  App.prototype.getMap = function(div, params) {
+    if (arguments.length > 2) {
+      return;
+    }
+    if (typeof div == "object" && arguments.length == 1) {
+      params = div;
+    }
+    
+    var divSize = null;
+    if (typeof div == "object" && 
+        div.offsetLeft > 0 && 
+        div.offsetTop > 0 && 
+        div.offsetWidth > 0 && 
+        div.offsetHeight > 0 && 
+        arguments.length == 2) {
+      
+      divSize = {
+        'left': div.offsetLeft,
+        'top': div.offsetTop,
+        'width': div.offsetWidth,
+        'height': div.offsetHeight,
+      };
+    }
     params = params || {};
+    /*
     var windowSize = {
       width: window.innerWidth
               || document.documentElement.clientWidth
@@ -232,13 +255,17 @@
       height: window.innerHeight
               || document.documentElement.clientHeight
               || document.body.clientHeight
-    };
-    var self = this;
+    };*/
+    var self = this,
+        args = [params];
+    if (divSize) {
+      args.push(divSize);
+    }
     cordova.exec(function() {
       setTimeout(function() {
         self.trigger(plugin.google.maps.event.MAP_READY, self);
       }, 100);
-    }, self.errorHandler, PLUGIN_NAME, 'getMap', [params, windowSize]);
+    }, self.errorHandler, PLUGIN_NAME, 'getMap', args);
     return self;
   };
   
