@@ -18,7 +18,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnShowListener;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -35,6 +34,7 @@ import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,6 +73,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   
   private enum METHODS {
+    resizeMap,
     getMap,
     showDialog,
     closeDialog,
@@ -80,10 +81,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     exec
   }
   
+  private JSONObject mapDivLayoutJSON = null;
   private MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
-  private FrameLayout baseLayer = null;
   private LinearLayout windowLayer = null;
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
@@ -110,6 +111,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         try {
           switch(METHODS.valueOf(action)) {
+          case resizeMap:
+            GoogleMaps.this.resizeMap(args, callbackContext);
+            break;
           case getMap:
             GoogleMaps.this.getMap(args, callbackContext);
             break;
@@ -321,38 +325,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     // Embed the map if a container is specified.
     // ------------------------------
+    Log.d("Map", "argument.length==" + args.length());
     if (args.length() == 2) {
-      JSONObject divSize = args.getJSONObject(1);
-      //int pageW = (int) (windowSize.getInt("width") * density);
-      //int pageH = (int) (windowSize.getInt("height") * density);
-
-      int divW = divSize.getInt("width");
-      int divH = divSize.getInt("height");
-      int divLeft = divSize.getInt("left");
-      int divTop = divSize.getInt("top");
-      //base layout
-      baseLayer = new FrameLayout(activity);
-      LayoutParams layoutParams = new FrameLayout.LayoutParams(divW + 6, divH + 6);
-      layoutParams.topMargin = contentToViewY(divTop);
-      layoutParams.leftMargin = contentToViewX(divLeft - 3);
-      baseLayer.setLayoutParams(layoutParams);
-      
-      // map
-      /*
-      LayoutParams params2 = new FrameLayout.LayoutParams(contentToViewX(200 + 6), contentToViewY(200 + 5));
-      params2.topMargin = contentToViewY(200);
-      params2.leftMargin = contentToViewX(150 - 3);
-      params2.gravity = Gravity.TOP;
-      mapView.setLayoutParams(params2);
-      */
-      
-      //baseLayer.addView(mapView);
+      this.mapDivLayoutJSON = args.getJSONObject(1);
+      this.webView.addView(mapView);
+      this.updateMapViewLayout();
     }
     
     //Custom info window
     map.setInfoWindowAdapter(this);
-    
-    //webView.addView(baseLayer);
     
     callbackContext.success();
     return;
@@ -414,7 +395,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
     windowLayer.setLayoutParams(layoutParams);
-    //
     
     
     // dialog window layer
@@ -425,10 +405,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     windowLayer.addView(dialogLayer);
     
     // map frame
-    FrameLayout mapFrame = new FrameLayout(activity);
+    final FrameLayout mapFrame = new FrameLayout(activity);
     mapFrame.setPadding(0, 0, 0, (int)(40 * density));
     dialogLayer.addView(mapFrame);
     
+    if (this.mapView.getParent() != null) {
+      this.webView.removeView(mapView);
+    }
+    AbsoluteLayout.LayoutParams mapLayout = (AbsoluteLayout.LayoutParams) mapView.getLayoutParams();
+    mapLayout.width = mapLayout.MATCH_PARENT;
+    mapLayout.height = mapLayout.MATCH_PARENT;
+    mapLayout.x = 0;
+    mapLayout.y = 0;
+    mapView.setLayoutParams(mapLayout);
     mapFrame.addView(this.mapView);
     
     // button frame
@@ -478,8 +467,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
       @Override
       public void onCustomViewHidden() {
+        mapFrame.removeView(mapView);
+        if (mapDivLayoutJSON != null) {
+          webView.addView(mapView);
+          updateMapViewLayout();
+        }
         root.removeView(windowLayer);
         webView.setVisibility(View.VISIBLE);
+        windowLayer = null;
+        
         
         GoogleMaps.this.onMapEvent("map_close");
       }
@@ -489,6 +485,44 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  @SuppressWarnings("unused")
+  private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    mapDivLayoutJSON = args.getJSONObject(0);
+    updateMapViewLayout();
+    callbackContext.success();
+  }
+  
+  private void updateMapViewLayout() {
+    try {
+      int divW = contentToViewX(mapDivLayoutJSON.getInt("width") );
+      int divH = contentToViewY(mapDivLayoutJSON.getInt("height"));
+      int divLeft = contentToViewX(mapDivLayoutJSON.getInt("left"));
+      int divTop = contentToViewY(mapDivLayoutJSON.getInt("top"));
+      
+      ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+      Log.d("Map", "layout = " + lParams.getClass().toString());
+      if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
+        AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.y = divTop;
+        params.x = divLeft;
+        mapView.setLayoutParams(params);
+        return;
+      }
+
+      if (lParams instanceof android.widget.LinearLayout.LayoutParams) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.topMargin = divTop;
+        params.leftMargin = divLeft;
+        mapView.setLayoutParams(params);
+      }
+      
+    } catch (JSONException e) {}
+  }
+  
   private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
     this.closeWindow();
     callbackContext.success();

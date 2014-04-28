@@ -224,42 +224,29 @@
 
   
   App.prototype.getMap = function(div, params) {
-    if (arguments.length > 2) {
-      return;
-    }
-    if (typeof div == "object" && arguments.length == 1) {
+    if (typeof div === "object" && "hasAttribute" in div === false) {
       params = div;
     }
-    
-    var divSize = null;
-    if (typeof div == "object" && 
-        div.offsetLeft > 0 && 
-        div.offsetTop > 0 && 
-        div.offsetWidth > 0 && 
-        div.offsetHeight > 0 && 
-        arguments.length == 2) {
-      
-      divSize = {
-        'left': div.offsetLeft,
-        'top': div.offsetTop,
-        'width': div.offsetWidth,
-        'height': div.offsetHeight,
-      };
-    }
     params = params || {};
-    /*
-    var windowSize = {
-      width: window.innerWidth
-              || document.documentElement.clientWidth
-              || document.body.clientWidth,
-      height: window.innerHeight
-              || document.documentElement.clientHeight
-              || document.body.clientHeight
-    };*/
+    
     var self = this,
         args = [params];
-    if (divSize) {
+    
+    self.set("div", div);
+    if (typeof div == "object" && 
+        "getBoundingClientRect" in div === true) {
+      
+      var rect = div.getBoundingClientRect();
+      divSize = {
+        'left': Math.floor(rect.left),
+        'top': Math.floor(rect.top),
+        'width': Math.floor(rect.width),
+        'height': Math.floor(rect.height)
+      };
+      divSize.width = divSize.width < 1000 ? divSize.width : 1000;
+      divSize.height = divSize.height < 1000 ? divSize.height : 1000;
       args.push(divSize);
+      self.set("div", div);
     }
     cordova.exec(function() {
       setTimeout(function() {
@@ -268,6 +255,8 @@
     }, self.errorHandler, PLUGIN_NAME, 'getMap', args);
     return self;
   };
+  
+  
   
   App.prototype.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
@@ -1270,5 +1259,32 @@
     'TERRAIN': 'MAP_TYPE_TERRAIN',
     'NONE': 'MAP_TYPE_NONE'
   };
+  function onMapResize() {
+    var self = window.plugin.google.maps.Map;
+    var div = self.get("div");
+    if (!div || !("getBoundingClientRect" in div)) {
+      //TODO: Remove the map
+      self.trigger("remove");
+      return;
+    }
+    
+    var rect = div.getBoundingClientRect();
+    divSize = {
+      'left': Math.floor(rect.left),
+      'top': Math.floor(rect.top),
+      'width': Math.floor(rect.width),
+      'height': Math.floor(rect.height)
+    };
+    divSize.width = divSize.width < 1000 ? divSize.width : 1000;
+    divSize.height = divSize.height < 1000 ? divSize.height : 1000;
+  
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback();
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
+  }
+  window.addEventListener("orientationchange", onMapResize);
+  window.addEventListener("resize", onMapResize);
  
 })(window);
