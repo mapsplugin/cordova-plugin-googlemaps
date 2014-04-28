@@ -149,6 +149,18 @@ public class PluginMap extends MyPlugin {
   }
 
   /**
+   * Clear all overlays
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    this.map.clear();
+    callbackContext.success();
+  }
+  
+  /**
    * Move the camera of the map
    * @param cameraPosition
    * @param callbackContext

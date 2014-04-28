@@ -218,5 +218,15 @@
   
 }
 
+/**
+ * Clear all overlays
+ */
+-(void)clear:(CDVInvokedUrlCommand *)command
+{
+  [self.mapCtrl.map clear];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 @end

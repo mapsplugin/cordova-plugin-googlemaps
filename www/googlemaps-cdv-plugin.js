@@ -265,6 +265,13 @@
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
   };
  
+  App.prototype.clear = function(callback) {
+    cordova.exec(function(location) {
+      if (typeof callback === "function") {
+        callback();
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.clear']);
+  };
   /**
    * @desc Change the map type
    * @param {String} mapTypeId   Specifies the one of the follow strings:
