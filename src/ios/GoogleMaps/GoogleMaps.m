@@ -47,9 +47,9 @@
     int direction = self.viewController.interfaceOrientation;
     if (direction == UIInterfaceOrientationLandscapeLeft ||
         direction == UIInterfaceOrientationLandscapeRight) {
-      pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - 30 - marginBottom);
+    //  pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - 30 - marginBottom);
     } else {
-      pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - 30 - marginBottom);
+    //  pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - 30 - marginBottom);
     }
 
 
@@ -77,13 +77,22 @@
         CGRect screenSize = [[UIScreen mainScreen] bounds];
         CGRect pluginRect;
         
-        int direction = self.mapCtrl.interfaceOrientation;
-        if (direction == UIInterfaceOrientationLandscapeLeft ||
-            direction == UIInterfaceOrientationLandscapeRight) {
-          pluginRect = CGRectMake(150 + 1, 200 + 1, 100, 100);
-        } else {
-          pluginRect = CGRectMake(200 + 1, 150 + 1, 100, 100);
+        if ([command.arguments count] == 2) {
+          NSDictionary* divSize = [command.arguments objectAtIndex:1];
+          int left = [[divSize valueForKeyPath:@"left"] intValue];
+          int top = [[divSize valueForKeyPath:@"top"] intValue];
+          int width = [[divSize valueForKeyPath:@"width"] intValue];
+          int height = [[divSize valueForKeyPath:@"height"] intValue];
+          
+          int direction = self.mapCtrl.interfaceOrientation;
+          if (direction == UIInterfaceOrientationLandscapeLeft ||
+              direction == UIInterfaceOrientationLandscapeRight) {
+            pluginRect = CGRectMake(top, left, height, width);
+          } else {
+            pluginRect = CGRectMake(left, top, width, height);
+          }
         }
+
         [self.mapCtrl.view setFrame:pluginRect];
       });
     });

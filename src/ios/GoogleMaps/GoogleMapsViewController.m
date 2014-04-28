@@ -78,7 +78,7 @@ NSDictionary *initOptions;
     if ([PluginUtil isIOS7] == false) {
       marginBottom = 20;
     }
-    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height - 30 - marginBottom);
+    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
