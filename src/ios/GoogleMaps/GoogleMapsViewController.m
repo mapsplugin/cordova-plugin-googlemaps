@@ -17,12 +17,13 @@ NSDictionary *initOptions;
     self = [super init];
     initOptions = options;
     self.plugins = [NSMutableDictionary dictionary];
+    self.isFullScreen = NO;
     return self;
 }
 
 - (void)loadView {
   [super loadView];
-  
+  /*
   CGRect screenSize = [[UIScreen mainScreen] bounds];
   CGRect pluginRect;
   
@@ -35,9 +36,36 @@ NSDictionary *initOptions;
   }
   
   [self.view setFrame:pluginRect];
+  */
+  [self updateMapViewLayout];
   self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
   
+}
+
+- (void)updateMapViewLayout {
+    CGRect pluginRect;
+    if (self.isFullScreen == NO) {/*
+      CGRect screenSize = [[UIScreen mainScreen] bounds];
+    
+      int direction = self.interfaceOrientation;
+      if (direction == UIInterfaceOrientationLandscapeLeft ||
+        direction == UIInterfaceOrientationLandscapeRight) {
+        pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - 30);
+      } else {
+        pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - 30);
+      }
+    } else {
+    */
+      NSInteger left = [[self.embedRect objectForKey:@"left"] integerValue];
+      NSInteger top = [[self.embedRect objectForKey:@"top"] integerValue];
+      NSInteger width = [[self.embedRect objectForKey:@"width"] integerValue];
+      NSInteger height = [[self.embedRect objectForKey:@"height"] integerValue];
+      
+      pluginRect = CGRectMake(left, top, width, height);
+    }
+  
+    [self.view setFrame:pluginRect];
 }
 
 - (void)viewDidLoad

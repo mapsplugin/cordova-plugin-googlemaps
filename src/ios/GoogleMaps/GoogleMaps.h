@@ -16,6 +16,9 @@
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) UIView *licenseLayer;
+@property (nonatomic) UIView *footer;
+@property (nonatomic) UIButton *closeButton;
+@property (nonatomic) UIButton *licenseButton;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;

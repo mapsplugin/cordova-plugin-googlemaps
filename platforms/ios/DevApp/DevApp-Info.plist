@@ -56,10 +56,14 @@
     <string>${PRODUCT_NAME}</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.0.1</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
+    <key>Google Maps API Key</key>
+    <string>AIzaSyA6tsFPlaBcM_mHPK2k9rxCugXruF8Ly3Y</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSMainNibFile</key>
@@ -69,6 +73,9 @@
     <key>UISupportedInterfaceOrientations</key>
     <array>
       <string>UIInterfaceOrientationPortrait</string>
+      <string>UIInterfaceOrientationLandscapeRight</string>
+      <string>UIInterfaceOrientationLandscapeLeft</string>
+      <string>UIInterfaceOrientationPortraitUpsideDown</string>
     </array>
     <key>UISupportedInterfaceOrientations~ipad</key>
     <array>
@@ -77,9 +84,5 @@
       <string>UIInterfaceOrientationPortraitUpsideDown</string>
       <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
-    <key>CFBundleShortVersionString</key>
-    <string>0.0.1</string>
-    <key>Google Maps API Key</key>
-    <string>AIzaSyA6tsFPlaBcM_mHPK2k9rxCugXruF8Ly3Y</string>
   </dict>
 </plist>
