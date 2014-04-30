@@ -1286,5 +1286,9 @@
   }
   window.addEventListener("orientationchange", onMapResize);
   window.addEventListener("resize", onMapResize);
- 
+  /*
+  window.addEventListener("scroll", function() {
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'redraw', []);
+  });
+  */
 })(window);

@@ -25,16 +25,18 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
-import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,12 +75,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   
   private enum METHODS {
+    redraw,
     resizeMap,
     getMap,
     showDialog,
     closeDialog,
     getMyLocation,
     exec
+  }
+  
+  private enum EVENTS {
+    onScrollChanged
   }
   
   private JSONObject mapDivLayoutJSON = null;
@@ -91,6 +98,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
 
+  @SuppressLint("NewApi")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -111,6 +119,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         try {
           switch(METHODS.valueOf(action)) {
+          case redraw:
+            break;
           case resizeMap:
             GoogleMaps.this.resizeMap(args, callbackContext);
             break;
@@ -325,11 +335,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     // Embed the map if a container is specified.
     // ------------------------------
-    Log.d("Map", "argument.length==" + args.length());
     if (args.length() == 2) {
       this.mapDivLayoutJSON = args.getJSONObject(1);
       this.webView.addView(mapView);
+      
+      //this.webView.bringChildToFront(mapView);
       this.updateMapViewLayout();
+      
+      
     }
     
     //Custom info window
@@ -380,6 +393,28 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return true;
   }
 
+  @Override
+  public Object onMessage(String id, Object data) {
+    EVENTS event = null;
+    try {
+      event = EVENTS.valueOf(id);
+    }catch(Exception e) {}
+    
+    if (event == null) {
+      return null;
+    }
+    
+    switch(event) {
+    case onScrollChanged:
+      if (android.os.Build.VERSION.SDK_INT < 11) {
+        // Force redraw the map
+        mapView.requestLayout();
+      }
+      break;
+    }
+    
+    return null;
+  }
 
   private void closeWindow() {
     webView.hideCustomView();
@@ -500,7 +535,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divTop = contentToViewY(mapDivLayoutJSON.getInt("top"));
       
       ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
-      Log.d("Map", "layout = " + lParams.getClass().toString());
       if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
         AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
         params.width = divW;
@@ -727,7 +761,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @Override
   public void onClick(View view) {
     int viewId = view.getId();
-    Log.d(TAG, "viewId = " + viewId);
     if (viewId == CLOSE_LINK_ID) {
       closeWindow();
       return;
