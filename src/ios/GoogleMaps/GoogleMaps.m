@@ -81,8 +81,10 @@
         
         // Create the footer background
         self.footer = [[UIView alloc]init];
-        self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
         self.footer.backgroundColor = [UIColor lightGrayColor];
+        
+        self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+                                  UIViewAutoresizingFlexibleWidth;
         
         // Create the close button
         self.closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
@@ -291,11 +293,11 @@
   
   self.mapCtrl.isFullScreen = YES;
   
-  self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth |
+  self.mapCtrl.view.autoresizingMask =  UIViewAutoresizingFlexibleWidth |
+                                        UIViewAutoresizingFlexibleHeight |
                                         UIViewAutoresizingFlexibleLeftMargin |
                                         UIViewAutoresizingFlexibleRightMargin |
                                         UIViewAutoresizingFlexibleBottomMargin;
-  
   
   dispatch_queue_t gueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
   dispatch_sync(gueue, ^{
@@ -315,9 +317,9 @@
     self.mapCtrl.view.frame = pluginRect;
     
     //self.mapCtrl.view.frame = pluginRect;
-    self.footer.frame = CGRectMake(0, pluginRect.size.height, pluginRect.size.width, 40);
-    self.licenseButton.frame = CGRectMake(pluginRect.size.width - 110, 0, 100, 40);
-    self.closeButton.frame = CGRectMake(10, 0, 50, 40);
+    self.footer.frame = CGRectMake(0, pluginRect.size.height, pluginRect.size.width, footerHeight);
+    self.licenseButton.frame = CGRectMake(pluginRect.size.width - 110, 0, 100, footerHeight);
+    self.closeButton.frame = CGRectMake(10, 0, 50, footerHeight);
     
     // Add the footer
     [self.webView addSubview:self.footer];
@@ -326,7 +328,6 @@
     [self.webView addSubview:self.mapCtrl.view];
     
     [self.mapCtrl updateMapViewLayout];
-    
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
