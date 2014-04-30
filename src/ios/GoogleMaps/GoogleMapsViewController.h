@@ -19,7 +19,8 @@
 @property (nonatomic, strong) NSMutableDictionary* overlayManager;
 @property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic) BOOL isFullScreen;
-@property (nonatomic) NSMutableDictionary* embedRect;
+@property (nonatomic) CGRect embedRect;
+@property (nonatomic) CGRect screenSize;
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;

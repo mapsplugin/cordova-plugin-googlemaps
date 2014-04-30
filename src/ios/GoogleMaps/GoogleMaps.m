@@ -13,7 +13,6 @@
 - (void)pluginInitialize
 {
   self.licenseLayer = nil;
-  self.mapCtrl.embedRect = nil;
   self.mapCtrl.isFullScreen = YES;
 }
 
@@ -57,8 +56,6 @@
       
       dispatch_sync(dispatch_get_main_queue(), ^{
       
-      self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
-      
         if ([command.arguments count] == 2) {
           self.mapCtrl.isFullScreen = NO;
           NSDictionary* divSize = [command.arguments objectAtIndex:1];
@@ -67,13 +64,11 @@
           int width = [[divSize valueForKeyPath:@"width"] intValue];
           int height = [[divSize valueForKeyPath:@"height"] intValue];
           
-          self.mapCtrl.embedRect = [NSMutableDictionary dictionary];
-          [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:left] forKey:@"left"];
-          [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:top] forKey:@"top"];
-          [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:width] forKey:@"width"];
-          [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:height] forKey:@"height"];
+          
+          self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
+          [self.mapCtrl.view setFrame:self.mapCtrl.embedRect];
+          self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
           [self.webView.scrollView addSubview:self.mapCtrl.view];
-          [self.mapCtrl updateMapViewLayout];
         }
         
 
@@ -184,8 +179,10 @@
   [self.mapCtrl.view removeFromSuperview];
   [self.footer removeFromSuperview];
   self.mapCtrl.isFullScreen = NO;
+  self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
   
-  if (self.mapCtrl.embedRect) {
+  if (self.mapCtrl.embedRect.size.width != 0 &&
+      self.mapCtrl.embedRect.size.height != 0) {
     [self.webView.scrollView addSubview:self.mapCtrl.view];
     [self.mapCtrl updateMapViewLayout];
   }
@@ -274,61 +271,65 @@
     int width = [[divSize valueForKeyPath:@"width"] intValue];
     int height = [[divSize valueForKeyPath:@"height"] intValue];
 
-    if (!self.mapCtrl.embedRect) {
-      self.mapCtrl.embedRect = [NSMutableDictionary dictionary];
-    }
-    [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:left] forKey:@"left"];
-    [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:top] forKey:@"top"];
-    [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:width] forKey:@"width"];
-    [self.mapCtrl.embedRect setObject:[NSNumber numberWithInt:height] forKey:@"height"];
-  
-      [self.mapCtrl updateMapViewLayout];
+    self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
+    [self.mapCtrl updateMapViewLayout];
 }
 
 /**
  * Show the map window
  */
 - (void)showDialog:(CDVInvokedUrlCommand *)command {
+  if (self.mapCtrl.isFullScreen == YES) {
+    return;
+  }
+  
+  // remove the map view from the parent
+  if (self.mapCtrl.embedRect.size.width != 0 &&
+      self.mapCtrl.embedRect.size.height != 0) {
+    [self.mapCtrl.view removeFromSuperview];
+  }
+  
   self.mapCtrl.isFullScreen = YES;
   
+  self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth |
+                                        UIViewAutoresizingFlexibleLeftMargin |
+                                        UIViewAutoresizingFlexibleRightMargin |
+                                        UIViewAutoresizingFlexibleBottomMargin;
+  
+  
+  dispatch_queue_t gueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+  dispatch_sync(gueue, ^{
+  
+    int footerHeight = 40;
+  
+    // Calculate the full screen size
+    CGRect pluginRect;
+    CGRect screenSize = self.mapCtrl.screenSize;
+    int direction = self.mapCtrl.interfaceOrientation;
+    if (direction == UIInterfaceOrientationLandscapeLeft ||
+      direction == UIInterfaceOrientationLandscapeRight) {
+      pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - footerHeight);
+    } else {
+      pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - footerHeight);
+    }
+    self.mapCtrl.view.frame = pluginRect;
+    
+    //self.mapCtrl.view.frame = pluginRect;
+    self.footer.frame = CGRectMake(0, pluginRect.size.height, pluginRect.size.width, 40);
+    self.licenseButton.frame = CGRectMake(pluginRect.size.width - 110, 0, 100, 40);
+    self.closeButton.frame = CGRectMake(10, 0, 50, 40);
+    
+    // Add the footer
+    [self.webView addSubview:self.footer];
+    
+    // Show the map
+    [self.webView addSubview:self.mapCtrl.view];
+    
+    [self.mapCtrl updateMapViewLayout];
+    
 
-  dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.showDialog", NULL);
-  
-  dispatch_async(gueue, ^{
-    dispatch_sync(dispatch_get_main_queue(), ^{
-    
-      // remove the map view from the parent
-      if (self.mapCtrl.embedRect) {
-        [self.mapCtrl.view removeFromSuperview];
-      }
-      int footerHeight = 40;
-    
-      // Calculate the full screen size
-      CGRect pluginRect;
-      CGRect screenSize = [[UIScreen mainScreen] bounds];
-      int direction = self.mapCtrl.interfaceOrientation;
-      if (direction == UIInterfaceOrientationLandscapeLeft ||
-        direction == UIInterfaceOrientationLandscapeRight) {
-        pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - footerHeight);
-      } else {
-        pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - footerHeight);
-      }
-      self.mapCtrl.view.frame = pluginRect;
-      self.footer.frame = CGRectMake(0, pluginRect.size.height, pluginRect.size.width, 40);
-      self.licenseButton.frame = CGRectMake(pluginRect.size.width - 110, 0, 100, 40);
-      self.closeButton.frame = CGRectMake(10, 0, 50, 40);
-      
-      // Add the footer
-      [self.webView addSubview:self.footer];
-      
-      
-      // Show the map
-      [self.webView addSubview:self.mapCtrl.view];
-      
-  
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   });
 }
 
