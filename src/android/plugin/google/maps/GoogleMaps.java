@@ -18,7 +18,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnShowListener;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -35,6 +34,7 @@ import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -70,8 +70,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       ConnectionCallbacks, OnConnectionFailedListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
+  private float density;
   
   private enum METHODS {
+    resizeMap,
     getMap,
     showDialog,
     closeDialog,
@@ -79,10 +81,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     exec
   }
   
+  private JSONObject mapDivLayoutJSON = null;
   private MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
-  private FrameLayout baseLayer;
+  private LinearLayout windowLayer = null;
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
@@ -92,6 +95,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
+    density = Resources.getSystem().getDisplayMetrics().density;
     this.locationClient = new LocationClient(activity, this, this);
   }
 
@@ -107,6 +111,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         try {
           switch(METHODS.valueOf(action)) {
+          case resizeMap:
+            GoogleMaps.this.resizeMap(args, callbackContext);
+            break;
           case getMap:
             GoogleMaps.this.getMap(args, callbackContext);
             break;
@@ -316,73 +323,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.loadPlugin("Map");
 
     // ------------------------------
-    // Create the map window
+    // Embed the map if a container is specified.
     // ------------------------------
-    
-    //base layout
-    baseLayer = new FrameLayout(activity);
-    baseLayer.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-    
-    // window layout
-    float density = Resources.getSystem().getDisplayMetrics().density;
-    int windowMargin = 0;// (int)(10 * density);
-    LinearLayout windowLayer = new LinearLayout(activity);
-    windowLayer.setPadding(windowMargin, windowMargin, windowMargin, windowMargin);
-    LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-    layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
-    windowLayer.setLayoutParams(layoutParams);
-    baseLayer.addView(windowLayer);
-    
-    // dialog window layer
-    FrameLayout dialogLayer = new FrameLayout(activity);
-    dialogLayer.setLayoutParams(layoutParams);
-    //dialogLayer.setPadding(15, 15, 15, 0);
-    dialogLayer.setBackgroundColor(Color.LTGRAY);
-    windowLayer.addView(dialogLayer);
-
-    // map frame
-    LinearLayout mapFrame = new LinearLayout(activity);
-    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
-    dialogLayer.addView(mapFrame);
-    
-    // map
-    mapFrame.addView(mapView);
-    
-    // button frame
-    LinearLayout buttonFrame = new LinearLayout(activity);
-    buttonFrame.setOrientation(LinearLayout.HORIZONTAL);
-    buttonFrame.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
-    LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-    buttonFrame.setLayoutParams(buttonFrameParams);
-    dialogLayer.addView(buttonFrame);
-    
-    //close button
-    LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-        LayoutParams.WRAP_CONTENT,
-        LayoutParams.WRAP_CONTENT, 1.0f);
-    TextView closeLink = new TextView(activity);
-    closeLink.setText("Close");
-    closeLink.setLayoutParams(buttonParams);
-    closeLink.setTextColor(Color.BLUE);
-    closeLink.setTextSize(20);
-    closeLink.setGravity(Gravity.LEFT);
-    closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
-    closeLink.setOnClickListener(GoogleMaps.this);
-    closeLink.setId(CLOSE_LINK_ID);
-    buttonFrame.addView(closeLink);
-    
-    //license button
-    TextView licenseLink = new TextView(activity);
-    licenseLink.setText("Legal Notices");
-    licenseLink.setTextColor(Color.BLUE);
-    licenseLink.setLayoutParams(buttonParams);
-    licenseLink.setTextSize(20);
-    licenseLink.setGravity(Gravity.RIGHT);
-    licenseLink.setPadding((int)(10 * density), (int)(20 * density), (int)(10 * density), (int)(10 * density));
-    licenseLink.setOnClickListener(GoogleMaps.this);
-    licenseLink.setId(LICENSE_LINK_ID);
-    buttonFrame.addView(licenseLink);
+    Log.d("Map", "argument.length==" + args.length());
+    if (args.length() == 2) {
+      this.mapDivLayoutJSON = args.getJSONObject(1);
+      this.webView.addView(mapView);
+      this.updateMapViewLayout();
+    }
     
     //Custom info window
     map.setInfoWindowAdapter(this);
@@ -390,7 +338,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
     return;
   }
-
+  private int contentToViewDimension(int d) {
+    return Math.round(d * webView.getScale());
+  }
+  private int contentToViewY(int y) {
+    return contentToViewDimension(y);
+  }
+  private int contentToViewX(int x) {
+    return contentToViewDimension(x);
+  }
+  
   //-----------------------------------
   // Create the instance of class
   //-----------------------------------
@@ -428,9 +385,81 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     webView.hideCustomView();
   }
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
+    if (windowLayer != null) {
+      return;
+    }
+    
+    // window layout
+    windowLayer = new LinearLayout(activity);
+    windowLayer.setPadding(0, 0, 0, 0);
+    LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+    windowLayer.setLayoutParams(layoutParams);
+    
+    
+    // dialog window layer
+    FrameLayout dialogLayer = new FrameLayout(activity);
+    dialogLayer.setLayoutParams(layoutParams);
+    //dialogLayer.setPadding(15, 15, 15, 0);
+    dialogLayer.setBackgroundColor(Color.LTGRAY);
+    windowLayer.addView(dialogLayer);
+    
+    // map frame
+    final FrameLayout mapFrame = new FrameLayout(activity);
+    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
+    dialogLayer.addView(mapFrame);
+    
+    if (this.mapView.getParent() != null) {
+      this.webView.removeView(mapView);
+    }
+    AbsoluteLayout.LayoutParams mapLayout = (AbsoluteLayout.LayoutParams) mapView.getLayoutParams();
+    mapLayout.width = mapLayout.MATCH_PARENT;
+    mapLayout.height = mapLayout.MATCH_PARENT;
+    mapLayout.x = 0;
+    mapLayout.y = 0;
+    mapView.setLayoutParams(mapLayout);
+    mapFrame.addView(this.mapView);
+    
+    // button frame
+    LinearLayout buttonFrame = new LinearLayout(activity);
+    buttonFrame.setOrientation(LinearLayout.HORIZONTAL);
+    buttonFrame.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
+    LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    buttonFrame.setLayoutParams(buttonFrameParams);
+    dialogLayer.addView(buttonFrame);
+    
+    //close button
+    LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.WRAP_CONTENT, 1.0f);
+    TextView closeLink = new TextView(activity);
+    closeLink.setText("Close");
+    closeLink.setLayoutParams(buttonParams);
+    closeLink.setTextColor(Color.BLUE);
+    closeLink.setTextSize(20);
+    closeLink.setGravity(Gravity.LEFT);
+    closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
+    closeLink.setOnClickListener(GoogleMaps.this);
+    closeLink.setId(CLOSE_LINK_ID);
+    buttonFrame.addView(closeLink);
+    
+    //license button
+    TextView licenseLink = new TextView(activity);
+    licenseLink.setText("Legal Notices");
+    licenseLink.setTextColor(Color.BLUE);
+    licenseLink.setLayoutParams(buttonParams);
+    licenseLink.setTextSize(20);
+    licenseLink.setGravity(Gravity.RIGHT);
+    licenseLink.setPadding((int)(10 * density), (int)(20 * density), (int)(10 * density), (int)(10 * density));
+    licenseLink.setOnClickListener(GoogleMaps.this);
+    licenseLink.setId(LICENSE_LINK_ID);
+    buttonFrame.addView(licenseLink);
+    
+    
     root = (ViewGroup) webView.getParent();
     webView.setVisibility(View.GONE);
-    root.addView(baseLayer);
+    root.addView(windowLayer);
     
     //Dummy view for the backbutton event
     FrameLayout dummyLayout = new FrameLayout(activity);
@@ -438,18 +467,62 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
       @Override
       public void onCustomViewHidden() {
-        root.removeView(baseLayer);
+        mapFrame.removeView(mapView);
+        if (mapDivLayoutJSON != null) {
+          webView.addView(mapView);
+          updateMapViewLayout();
+        }
+        root.removeView(windowLayer);
         webView.setVisibility(View.VISIBLE);
+        windowLayer = null;
+        
         
         GoogleMaps.this.onMapEvent("map_close");
       }
-      
     });
 
     
     callbackContext.success();
   }
 
+  @SuppressWarnings("unused")
+  private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    mapDivLayoutJSON = args.getJSONObject(0);
+    updateMapViewLayout();
+    callbackContext.success();
+  }
+  
+  private void updateMapViewLayout() {
+    try {
+      int divW = contentToViewX(mapDivLayoutJSON.getInt("width") );
+      int divH = contentToViewY(mapDivLayoutJSON.getInt("height"));
+      int divLeft = contentToViewX(mapDivLayoutJSON.getInt("left"));
+      int divTop = contentToViewY(mapDivLayoutJSON.getInt("top"));
+      
+      ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+      Log.d("Map", "layout = " + lParams.getClass().toString());
+      if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
+        AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.y = divTop;
+        params.x = divLeft;
+        mapView.setLayoutParams(params);
+        return;
+      }
+
+      if (lParams instanceof android.widget.LinearLayout.LayoutParams) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.topMargin = divTop;
+        params.leftMargin = divLeft;
+        mapView.setLayoutParams(params);
+      }
+      
+    } catch (JSONException e) {}
+  }
+  
   private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
     this.closeWindow();
     callbackContext.success();

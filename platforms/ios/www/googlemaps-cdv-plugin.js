@@ -223,16 +223,40 @@
   };
 
   
-  App.prototype.getMap = function(params) {
+  App.prototype.getMap = function(div, params) {
+    if (typeof div === "object" && "hasAttribute" in div === false) {
+      params = div;
+    }
     params = params || {};
-    var self = this;
+    
+    var self = this,
+        args = [params];
+    
+    self.set("div", div);
+    if (typeof div == "object" && 
+        "getBoundingClientRect" in div === true) {
+      
+      var rect = div.getBoundingClientRect();
+      divSize = {
+        'left': Math.floor(rect.left),
+        'top': Math.floor(rect.top),
+        'width': Math.floor(rect.width),
+        'height': Math.floor(rect.height)
+      };
+      divSize.width = divSize.width < 1000 ? divSize.width : 1000;
+      divSize.height = divSize.height < 1000 ? divSize.height : 1000;
+      args.push(divSize);
+      self.set("div", div);
+    }
     cordova.exec(function() {
       setTimeout(function() {
         self.trigger(plugin.google.maps.event.MAP_READY, self);
       }, 100);
-    }, self.errorHandler, PLUGIN_NAME, 'getMap', [params]);
+    }, self.errorHandler, PLUGIN_NAME, 'getMap', args);
     return self;
   };
+  
+  
   
   App.prototype.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
@@ -1235,5 +1259,32 @@
     'TERRAIN': 'MAP_TYPE_TERRAIN',
     'NONE': 'MAP_TYPE_NONE'
   };
+  function onMapResize() {
+    var self = window.plugin.google.maps.Map;
+    var div = self.get("div");
+    if (!div || !("getBoundingClientRect" in div)) {
+      //TODO: Remove the map
+      self.trigger("remove");
+      return;
+    }
+    
+    var rect = div.getBoundingClientRect();
+    divSize = {
+      'left': Math.floor(rect.left),
+      'top': Math.floor(rect.top),
+      'width': Math.floor(rect.width),
+      'height': Math.floor(rect.height)
+    };
+    divSize.width = divSize.width < 1000 ? divSize.width : 1000;
+    divSize.height = divSize.height < 1000 ? divSize.height : 1000;
+  
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback();
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
+  }
+  window.addEventListener("orientationchange", onMapResize);
+  window.addEventListener("resize", onMapResize);
  
 })(window);

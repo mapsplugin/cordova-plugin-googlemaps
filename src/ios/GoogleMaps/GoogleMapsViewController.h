@@ -18,6 +18,8 @@
 @property (nonatomic, strong) UIWebView* webView;
 @property (nonatomic, strong) NSMutableDictionary* overlayManager;
 @property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
+@property (nonatomic) BOOL isFullScreen;
+@property (nonatomic) NSMutableDictionary* embedRect;
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;
@@ -28,6 +30,7 @@
 - (GMSPolyline *)getPolylineByKey: (NSString *)key;
 - (GMSTileLayer *)getTileLayerByKey: (NSString *)key;
 - (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key;
+- (void)updateMapViewLayout;
 
 - (void)removeObjectForKey: (NSString *)key;
 @end

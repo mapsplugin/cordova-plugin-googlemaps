@@ -17,26 +17,48 @@ NSDictionary *initOptions;
     self = [super init];
     initOptions = options;
     self.plugins = [NSMutableDictionary dictionary];
+    self.isFullScreen = NO;
     return self;
 }
 
 - (void)loadView {
   [super loadView];
-  
-  CGRect screenSize = [[UIScreen mainScreen] bounds];
-  CGRect pluginRect;
-  
-  int direction = self.interfaceOrientation;
-  if (direction == UIInterfaceOrientationLandscapeLeft ||
-      direction == UIInterfaceOrientationLandscapeRight) {
-    pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width);
-  } else {
-    pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height);
-  }
-  
-  [self.view setFrame:pluginRect];
+  [self updateMapViewLayout];
   self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
+  
+}
+
+- (void)updateMapViewLayout {
+    if (self.isFullScreen == YES) {
+      dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.showDialog", NULL);
+      dispatch_async(gueue, ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
+          int footerHeight = 40;
+        
+          // Calculate the full screen size
+          CGRect pluginRect;
+          CGRect screenSize = [[UIScreen mainScreen] bounds];
+          int direction = self.interfaceOrientation;
+          if (direction == UIInterfaceOrientationLandscapeLeft ||
+            direction == UIInterfaceOrientationLandscapeRight) {
+            pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - footerHeight);
+          } else {
+            pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - footerHeight);
+          }
+          [self.view setFrame:pluginRect];
+        });
+      });
+    } else {
+      CGRect pluginRect;
+      NSInteger left = [[self.embedRect objectForKey:@"left"] integerValue];
+      NSInteger top = [[self.embedRect objectForKey:@"top"] integerValue];
+      NSInteger width = [[self.embedRect objectForKey:@"width"] integerValue];
+      NSInteger height = [[self.embedRect objectForKey:@"height"] integerValue];
+      
+      pluginRect = CGRectMake(left, top, width, height);
+      [self.view setFrame:pluginRect];
+    }
   
 }
 
@@ -78,7 +100,7 @@ NSDictionary *initOptions;
     if ([PluginUtil isIOS7] == false) {
       marginBottom = 20;
     }
-    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height - 30 - marginBottom);
+    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

@@ -12,39 +12,13 @@ window.onerror = function(message, file, line) {
   }
   alert(error.join("\n"));
 };
+var map;
 document.addEventListener('deviceready', function() {
-  map = plugin.google.maps.Map.getMap();
-  map.addEventListener('map_ready', function() {
-    
-  });
+  var div = document.getElementById("test");
+  map = plugin.google.maps.Map.getMap(div);
 }, false);
 
 function showMap() {
   map.showDialog();
   
-}
-
-function addKml() {
-  map.showDialog();
-  
-  map.addKmlOverlay({
-    'url': 'www/US Regions State Boundaries.kml'
-  //  'url': 'https://www.google.com/fusiontables/exporttable?query=select+col2+from+1-v6i33Lf_FjhRZcHKO0PG2DADipCg4L-dGiucAE&o=kml&g=col2'
-  }, function(kmlOverlay) {
-    
-    
-    map.on("REMOVE_KML", function() {
-      kmlOverlay.remove();
-    });
-    
-  });
-}
-
-function removeKml() {
-  map.showDialog();
-  
-  map.trigger("REMOVE_KML");
-}
-function myCallback() {
-  console.log("my callback");
 }
