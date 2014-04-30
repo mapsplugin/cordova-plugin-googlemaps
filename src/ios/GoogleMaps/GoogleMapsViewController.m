@@ -23,20 +23,6 @@ NSDictionary *initOptions;
 
 - (void)loadView {
   [super loadView];
-  /*
-  CGRect screenSize = [[UIScreen mainScreen] bounds];
-  CGRect pluginRect;
-  
-  int direction = self.interfaceOrientation;
-  if (direction == UIInterfaceOrientationLandscapeLeft ||
-      direction == UIInterfaceOrientationLandscapeRight) {
-    pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width);
-  } else {
-    pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height);
-  }
-  
-  [self.view setFrame:pluginRect];
-  */
   [self updateMapViewLayout];
   self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
@@ -44,28 +30,36 @@ NSDictionary *initOptions;
 }
 
 - (void)updateMapViewLayout {
-    CGRect pluginRect;
-    if (self.isFullScreen == NO) {/*
-      CGRect screenSize = [[UIScreen mainScreen] bounds];
-    
-      int direction = self.interfaceOrientation;
-      if (direction == UIInterfaceOrientationLandscapeLeft ||
-        direction == UIInterfaceOrientationLandscapeRight) {
-        pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - 30);
-      } else {
-        pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - 30);
-      }
+    if (self.isFullScreen == YES) {
+      dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.showDialog", NULL);
+      dispatch_async(gueue, ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
+          int footerHeight = 40;
+        
+          // Calculate the full screen size
+          CGRect pluginRect;
+          CGRect screenSize = [[UIScreen mainScreen] bounds];
+          int direction = self.interfaceOrientation;
+          if (direction == UIInterfaceOrientationLandscapeLeft ||
+            direction == UIInterfaceOrientationLandscapeRight) {
+            pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - footerHeight);
+          } else {
+            pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - footerHeight);
+          }
+          [self.view setFrame:pluginRect];
+        });
+      });
     } else {
-    */
+      CGRect pluginRect;
       NSInteger left = [[self.embedRect objectForKey:@"left"] integerValue];
       NSInteger top = [[self.embedRect objectForKey:@"top"] integerValue];
       NSInteger width = [[self.embedRect objectForKey:@"width"] integerValue];
       NSInteger height = [[self.embedRect objectForKey:@"height"] integerValue];
       
       pluginRect = CGRectMake(left, top, width, height);
+      [self.view setFrame:pluginRect];
     }
   
-    [self.view setFrame:pluginRect];
 }
 
 - (void)viewDidLoad
