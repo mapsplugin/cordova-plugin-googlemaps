@@ -532,7 +532,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divW = contentToViewX(mapDivLayoutJSON.getInt("width") );
       int divH = contentToViewY(mapDivLayoutJSON.getInt("height"));
       int divLeft = contentToViewX(mapDivLayoutJSON.getInt("left"));
-      int divTop = contentToViewY(mapDivLayoutJSON.getInt("top"));
+      int divTop = contentToViewY(mapDivLayoutJSON.getInt("top")) + webView.getScrollY();
       
       ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
       if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {

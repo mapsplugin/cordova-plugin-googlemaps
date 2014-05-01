@@ -1277,6 +1277,8 @@
     };
     divSize.width = divSize.width < 1200 ? divSize.width : 1200;
     divSize.height = divSize.height < 1200 ? divSize.height : 1200;
+    
+    console.log(JSON.stringify(divSize));
   
     cordova.exec(function() {
       if (typeof callback === "function") {
@@ -1286,5 +1288,5 @@
   }
   window.addEventListener("orientationchange", onMapResize);
   window.addEventListener("resize", onMapResize);
- 
+  
 })(window);

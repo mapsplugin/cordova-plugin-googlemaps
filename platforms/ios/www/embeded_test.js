@@ -12,13 +12,9 @@ window.onerror = function(message, file, line) {
   }
   alert(error.join("\n"));
 };
-var map;
-document.addEventListener('deviceready', function() {
-  var div = document.getElementById("test");
-  map = plugin.google.maps.Map.getMap(div);
-}, false);
 
-function showMap() {
-  map.showDialog();
-  
-}
+
+document.addEventListener('deviceready', function() {
+  var div = document.getElementById("map_canvas");
+  var map = plugin.google.maps.Map.getMap(div);
+}, false);

@@ -5,45 +5,33 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
     <title>Google Maps Plugin for Cordova</title>
-    <script type="text/javascript">
-      var platform = window.platform = navigator.platform;
-      platform = platform.match(/(iphone|ipad|ios)/i) != null ? 'ios' : 'android';
-      document.write('<');
-      document.write('script type="text/javascript" src="js/cordova-' + platform + '.js">');
-      document.write('</');
-      document.write('script>');
-    </script>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.2/jquery.mobile.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.2/jquery.mobile.min.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="googlemaps-cdv-plugin.js"></script>
-    <script type="text/javascript" src="kmlTest.js"></script>
-    <link rel="stylesheet" type="text/css" href="./style.css" />
-      <script type="text/javascript">
-  window.onload = function() {
-    var ul = document.getElementById("test");
-      
-      for (var i = 0; i < 10; i++) {
-        var li = document.createElement("li");
-        li.innerHTML = "<b>" + i + "</b>";
-        ul.appendChild(li);
-      }
-      
-  };
-  </script>
+    <script type="text/javascript" src="embeded_test.js"></script>
   </head>
   <body>
-  <br>
-  <br>
-<button  onclick="showMap()">showMap</button>
-<!--
-<br>
-<br>
-<button  onclick="addKml()">addKml</button>
-<br>
-<br>
-<button  onclick="removeKml()">removeKml</button>
-<br>
-<br>
---><h1>test</h1>
-    <ul id="test" style="border:1px solid red;">
-    </ul>
+    <div data-role="page">
+    
+      <div data-role="header">
+        <h1>Page Title</h1>
+      </div><!-- /header -->
+    
+      <div role="main" class="ui-content">
+        <p>Page content goes here.</p>
+        <div id='map_canvas' style="width:100%;height:300px;"></div>
+        A single HTML document can contain multiple "pages" that are loaded together by stacking multiple divs with a data-role of "page". Each "page" block needs a unique id (id="foo") that will be used to link internally between "pages" (href="#foo"). When a link is clicked, the framework will look for an internal "page" with the id and transition it into view.
+
+Here is an example of a two "page" site built with two jQuery Mobile divs navigated by linking to an id placed on each page wrapper. Note that the ids on the page wrappers are only needed to support the internal page linking, and are optional if each page is a separate HTML document. Here is what two pages look like inside the body element.
+      </div><!-- /content -->
+    
+      <div data-role="footer">
+        <h4>Page Footer</h4>
+      </div><!-- /footer -->
+    </div><!-- /page -->
+    
+    
   </body>
 </html>

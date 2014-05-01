@@ -269,7 +269,7 @@
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
     NSDictionary* divSize = [command.arguments objectAtIndex:0];
     int left = [[divSize valueForKeyPath:@"left"] intValue];
-    int top = [[divSize valueForKeyPath:@"top"] intValue];
+    int top = [[divSize valueForKeyPath:@"top"] intValue] + self.webView.scrollView.contentOffset.y;
     int width = [[divSize valueForKeyPath:@"width"] intValue];
     int height = [[divSize valueForKeyPath:@"height"] intValue];
 
