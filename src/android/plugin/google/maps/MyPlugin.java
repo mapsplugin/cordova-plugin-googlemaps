@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +28,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
 
   public GoogleMaps mapCtrl = null;
   public GoogleMap map = null;
+  public float density = Resources.getSystem().getDisplayMetrics().density;
   
   public void setMapCtrl(GoogleMaps mapCtrl) {
     this.mapCtrl = mapCtrl;

@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -39,7 +40,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       polylineOptions.color(color);
     }
     if (opts.has("width")) {
-      polylineOptions.width(opts.getInt("width"));
+      polylineOptions.width(opts.getInt("width") * this.density);
     }
     if (opts.has("visible")) {
       polylineOptions.visible(opts.getBoolean("visible"));
@@ -84,7 +85,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   @SuppressWarnings("unused")
   private void setWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
-    float width = (float) args.getDouble(2);
+    float width = (float) args.getDouble(2) * this.density;
     this.setFloat("setWidth", id, width, callbackContext);
   }
   
