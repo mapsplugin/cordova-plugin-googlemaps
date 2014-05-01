@@ -24,16 +24,18 @@
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  
-    $.mobile.activePage.trigger("refresh");
+  $.mobile.activePage.trigger("create");
   map.setDiv($("#map_canvas")[0]);
   $("#polyline").click(function() {
+    map.clear();
     drawPolyline(map);
   });
   $("#polygon").click(function() {
+    map.clear();
     drawPolygon(map);
   });
   $("#circle").click(function() {
+    map.clear();
     drawCircle(map);
   });
 
