@@ -152,7 +152,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     }
     Bundle styles = kmlData.getBundle("styles");
     ArrayList<Bundle> placeMarks = kmlData.getParcelableArrayList("placeMarks");
-    float density = Resources.getSystem().getDisplayMetrics().density;
 
     Bundle options;
     JSONObject optionsJSON, latLngJSON;
@@ -285,7 +284,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                 }
                 if (style.containsKey("width")) {
                   try {
-                    optionsJSON.put("width", (int) (Integer.parseInt(style.getString("width")) * density));
+                    optionsJSON.put("width", (int) (Integer.parseInt(style.getString("width"))));
                   } catch (Exception e) {}
                 }
                 break;
@@ -346,7 +345,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                 }
                 if (style.containsKey("width")) {
                   try {
-                    optionsJSON.put("strokeWidth", (int)Float.parseFloat(style.getString("width")) * density);
+                    optionsJSON.put("strokeWidth", (int)Float.parseFloat(style.getString("width")));
                   } catch (Exception e) {}
                 }
                 break;
