@@ -243,8 +243,8 @@
         'width': Math.floor(rect.width),
         'height': Math.floor(rect.height)
       };
-      divSize.width = divSize.width < 1000 ? divSize.width : 1000;
-      divSize.height = divSize.height < 1000 ? divSize.height : 1000;
+      divSize.width = divSize.width < 1200 ? divSize.width : 1200;
+      divSize.height = divSize.height < 1200 ? divSize.height : 1200;
       args.push(divSize);
       self.set("div", div);
     }
@@ -1275,8 +1275,10 @@
       'width': Math.floor(rect.width),
       'height': Math.floor(rect.height)
     };
-    divSize.width = divSize.width < 1000 ? divSize.width : 1000;
-    divSize.height = divSize.height < 1000 ? divSize.height : 1000;
+    divSize.width = divSize.width < 1200 ? divSize.width : 1200;
+    divSize.height = divSize.height < 1200 ? divSize.height : 1200;
+    
+    console.log(JSON.stringify(divSize));
   
     cordova.exec(function() {
       if (typeof callback === "function") {
@@ -1286,5 +1288,5 @@
   }
   window.addEventListener("orientationchange", onMapResize);
   window.addEventListener("resize", onMapResize);
- 
+  
 })(window);
