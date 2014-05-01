@@ -230,4 +230,19 @@
 }
 
 
+- (void)toDataURL:(CDVInvokedUrlCommand *)command {
+
+  UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
+  [self.mapCtrl.map.layer renderInContext:UIGraphicsGetCurrentContext()];
+  UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  NSLog(@"uiimage=%@", image);
+
+  NSData *imageData = UIImagePNGRepresentation(image);
+  NSString *base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end

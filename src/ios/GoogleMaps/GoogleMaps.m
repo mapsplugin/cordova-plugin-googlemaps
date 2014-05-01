@@ -288,7 +288,9 @@
 
   self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
   [self.mapCtrl updateMapViewLayout];
+
 }
+
 
 /**
  * Show the map window

@@ -1,11 +1,15 @@
 package plugin.google.maps;
 
+import java.io.ByteArrayOutputStream;
+
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.util.Base64;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -323,5 +327,34 @@ public class PluginMap extends MyPlugin {
     json.put("hashCode", camera.hashCode());
     
     callbackContext.success(json);
+  }
+  
+  /**
+   * Return the image data encoded with base64
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void toDataURL(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    this.map.snapshot(new GoogleMap.SnapshotReadyCallback() {
+      
+      @Override
+      public void onSnapshotReady(Bitmap image) {
+        float density = Resources.getSystem().getDisplayMetrics().density;
+        image = PluginUtil.resizeBitmap(image,
+                                        (int)(image.getWidth() / density),
+                                        (int)(image.getHeight() / density));
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
+        image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        byte[] byteArray = outputStream.toByteArray();
+        String imageEncoded = "data:image/png;base64," + 
+                Base64.encodeToString(byteArray, Base64.DEFAULT);
+        
+        callbackContext.success(imageEncoded);
+      }
+    });
+    
   }
 }

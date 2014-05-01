@@ -13,21 +13,12 @@ window.onerror = function(message, file, line) {
   alert(error.join("\n"));
 };
 
-$(document).on("pageinit", function() {
-  $("li[action]").click(function() {
-    $("#menulist").panel("close");
-    
-  });
-  
-  
-});
-
-
-
 $(document).on("deviceready", function() {
   var map = plugin.google.maps.Map.getMap();
   
   $("li[action]").click(function() {
+    $("#menulist").panel("close");
+    
     map.clear();
     
     var action = $(this).attr("action");
@@ -44,6 +35,13 @@ $(document).on("deviceready", function() {
   });
   
   loadPage(map, "welcome");
+  
+  $("#testBtn").click(function() {
+    map.toDataURL(function(image) {
+      console.log(image);
+      $("#testImg").attr("src", image);
+    });
+  });
 });
 function loadPage(map, pageName) {
   $.get("./pages/" + pageName + ".html", function(html) {
