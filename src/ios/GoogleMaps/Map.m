@@ -231,17 +231,22 @@
 
 
 - (void)toDataURL:(CDVInvokedUrlCommand *)command {
+  __block UIImage *image;
+  dispatch_queue_t gueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_sync(gueue, ^{
+    UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
+    [self.mapCtrl.map.layer renderInContext:UIGraphicsGetCurrentContext()];
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+  });
 
-  UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
-  [self.mapCtrl.map.layer renderInContext:UIGraphicsGetCurrentContext()];
-  UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
+  dispatch_sync(gueue, ^{
+    NSData *imageData = UIImagePNGRepresentation(image);
+    NSString *base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
 
-  NSData *imageData = UIImagePNGRepresentation(image);
-  NSString *base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
-
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  });
 }
 
 @end

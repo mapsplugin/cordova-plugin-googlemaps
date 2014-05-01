@@ -3,22 +3,19 @@
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
     <ul>
-      <li><a id="polyline" href="#one" data-ajax="false">one</a></li>
-      <li><a id="polygon" href="#two" data-ajax="false">two</a></li>
-      <li><a id="circle" href="#three" data-ajax="false">three</a></li>
+      <li><a id="polyline" href="#one" data-ajax="false">Polyline</a></li>
+      <li><a id="polygon" href="#two" data-ajax="false">Polygon</a></li>
+      <li><a id="circle" href="#three" data-ajax="false">Circle</a></li>
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
     <h1>First tab contents</h1>
   </div>
   <div id="two">
-    <ul data-role="listview" data-inset="true">
-        <li><a href="#">Acura</a></li>
-        <li><a href="#">Audi</a></li>
-        <li><a href="#">BMW</a></li>
-        <li><a href="#">Cadillac</a></li>
-        <li><a href="#">Ferrari</a></li>
-    </ul>
+    <h1>First tab contents</h1>
+  </div>
+  <div id="three" class="ui-body-d ui-content">
+    <h1>First tab contents</h1>
   </div>
 </div>
 <script type="text/javascript">
@@ -38,15 +35,16 @@ function onPageLoaded(map) {
     map.clear();
     drawCircle(map);
   });
-
 }
 function drawPolyline(map) {
   const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
   const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+  const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
 
   map.addPolyline({
     points: [
       HND_AIR_PORT,
+      HNL_AIR_PORT,
       SFO_AIR_PORT
     ],
     'color' : '#AA00FF',

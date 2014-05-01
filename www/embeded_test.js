@@ -25,9 +25,14 @@ $(document).on("deviceready", function() {
     loadPage(map, action);
   });
   
+  var isShown = false;
   function hideMap() {
+    isShown = false;
     $("#map_canvas").css("position", "relative");
     map.toDataURL(function(image) {
+      if (isShown) {
+        return;
+      }
       $("<img cache='cache'>").css({
         "position": "absolute"
       }).attr("src", image).appendTo("#map_canvas");
@@ -36,6 +41,7 @@ $(document).on("deviceready", function() {
   }
   
   function showMap() {
+    isShown = true;
     map.setDiv($("#map_canvas")[0]);
     map.refreshLayout();
     $("#map_canvas > img[cache]").remove();
@@ -49,17 +55,11 @@ $(document).on("deviceready", function() {
   });
   
   loadPage(map, "welcome");
-  
-  $("#testBtn").click(function() {
-    map.toDataURL(function(image) {
-      console.log(image);
-      $("#testImg").attr("src", image);
-    });
-  });
 });
 function loadPage(map, pageName) {
   $.get("./pages/" + pageName + ".html", function(html) {
     $("#container").html(html);
+    $.mobile.activePage.trigger("create");
     onPageLoaded(map);
   });
 }
