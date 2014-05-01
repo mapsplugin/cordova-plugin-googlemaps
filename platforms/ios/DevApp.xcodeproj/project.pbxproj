@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -38,7 +37,6 @@
 		7E7966E51810823500FA85AD /* icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DB1810823500FA85AD /* icon-76@2x.png */; };
 		7E7966E61810823500FA85AD /* icon-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DC1810823500FA85AD /* icon-small.png */; };
 		7E7966E71810823500FA85AD /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DD1810823500FA85AD /* icon-small@2x.png */; };
-		9D4DBFD79F5242EAB174D121 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E710B2DADD564CEF8263FB00 /* CDVLogger.m */; };
 		A0C5D86C18F5A62C0031A740 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0C5D86B18F5A62C0031A740 /* AVFoundation.framework */; };
 		A0C5D86E18F5A63A0031A740 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0C5D86D18F5A63A0031A740 /* CoreData.framework */; };
 		A0C5D87018F5A6500031A740 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0C5D86F18F5A6500031A740 /* CoreText.framework */; };
@@ -581,7 +579,6 @@
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				A0C5D92118F5AE5D0031A740 /* PluginUtil.m in Sources */,
-				9D4DBFD79F5242EAB174D121 /* CDVLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

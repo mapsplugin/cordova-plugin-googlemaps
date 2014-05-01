@@ -75,7 +75,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   
   private enum METHODS {
-    redraw,
     resizeMap,
     getMap,
     showDialog,
@@ -119,8 +118,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         try {
           switch(METHODS.valueOf(action)) {
-          case redraw:
-            break;
           case resizeMap:
             GoogleMaps.this.resizeMap(args, callbackContext);
             break;

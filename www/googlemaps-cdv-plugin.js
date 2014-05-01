@@ -382,6 +382,7 @@
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
   };
+  
   //-------------
   // Marker
   //-------------
@@ -1259,6 +1260,15 @@
     'TERRAIN': 'MAP_TYPE_TERRAIN',
     'NONE': 'MAP_TYPE_NONE'
   };
+  
+  var pageWidth = window.innerWidth || 
+                  document.documentElement.clientWidth ||
+                  document.body.clientWidth,
+      pageHeight = window.innerHeight ||
+                   document.documentElement.clientHeight ||
+                   document.body.clientHeight;
+
+  
   function onMapResize() {
     var self = window.plugin.google.maps.Map;
     var div = self.get("div");
@@ -1275,11 +1285,9 @@
       'width': Math.floor(rect.width),
       'height': Math.floor(rect.height)
     };
-    divSize.width = divSize.width < 1200 ? divSize.width : 1200;
-    divSize.height = divSize.height < 1200 ? divSize.height : 1200;
-    
-    console.log(JSON.stringify(divSize));
-  
+    divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
+    divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;
+      
     cordova.exec(function() {
       if (typeof callback === "function") {
         callback();

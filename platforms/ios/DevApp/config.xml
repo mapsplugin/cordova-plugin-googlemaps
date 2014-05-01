@@ -32,4 +32,7 @@
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
         <param name="ios-package" value="GoogleMaps" />
     </feature>
+    <feature name="Console">
+        <param name="ios-package" value="CDVLogger" />
+    </feature>
 </widget>

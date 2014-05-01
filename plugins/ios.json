@@ -15,6 +15,11 @@
                     ]
                 }
             }
+        },
+        "config.xml": {
+            "/*": {
+                "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>": 1
+            }
         }
     },
     "installed_plugins": {
