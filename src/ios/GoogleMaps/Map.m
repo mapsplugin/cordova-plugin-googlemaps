@@ -236,7 +236,6 @@
   [self.mapCtrl.map.layer renderInContext:UIGraphicsGetCurrentContext()];
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-  NSLog(@"uiimage=%@", image);
 
   NSData *imageData = UIImagePNGRepresentation(image);
   NSString *base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];

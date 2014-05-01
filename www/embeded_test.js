@@ -25,13 +25,27 @@ $(document).on("deviceready", function() {
     loadPage(map, action);
   });
   
+  function hideMap() {
+    $("#map_canvas").css("position", "relative");
+    map.toDataURL(function(image) {
+      $("<img cache='cache'>").css({
+        "position": "absolute"
+      }).attr("src", image).appendTo("#map_canvas");
+      map.setDiv(null);
+    });
+  }
+  
+  function showMap() {
+    map.setDiv($("#map_canvas")[0]);
+    map.refreshLayout();
+    $("#map_canvas > img[cache]").remove();
+  }
+  
   $("#menulist").panel({
-    "close": function(event) {
-      map.refreshLayout();
-    },
-    "open": function(event) {
-      map.refreshLayout();
-    }
+    "beforeclose": hideMap,
+    "close": showMap,
+    "beforeopen": hideMap,
+    "open": showMap
   });
   
   loadPage(map, "welcome");
