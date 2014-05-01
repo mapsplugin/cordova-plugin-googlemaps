@@ -1,5 +1,7 @@
 package plugin.google.maps;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -25,12 +27,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -75,6 +76,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   
   private enum METHODS {
+    setDiv,
     resizeMap,
     getMap,
     showDialog,
@@ -97,7 +99,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
 
-  @SuppressLint("NewApi")
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -118,6 +119,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         try {
           switch(METHODS.valueOf(action)) {
+          case setDiv:
+            if (mapView.getParent() != null) {
+              GoogleMaps.this.mapDivLayoutJSON = null;
+              webView.removeView(mapView);
+            }
+            if (args.length() == 1) {
+              webView.addView(mapView);
+              GoogleMaps.this.resizeMap(args, callbackContext);
+            }
+            break;
           case resizeMap:
             GoogleMaps.this.resizeMap(args, callbackContext);
             break;
@@ -335,11 +346,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (args.length() == 2) {
       this.mapDivLayoutJSON = args.getJSONObject(1);
       this.webView.addView(mapView);
-      
-      //this.webView.bringChildToFront(mapView);
       this.updateMapViewLayout();
-      
-      
     }
     
     //Custom info window
@@ -560,11 +567,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Log.d("GoogleMaps", "getMyLocation isConnected =" + this.locationClient.isConnected());
     JSONObject result = null;
     if (this.locationClient.isConnected()) {
       Location location = this.locationClient.getLastLocation();
+      Log.d("GoogleMaps", "location=" + location.toString());
       result = PluginUtil.location2Json(location);
+      callbackContext.success(result);
     } else {
+      callbackContext.error("Location client is not connected.");
+      /*
       JSONObject latLng = new JSONObject();
       latLng.put("lat", 0);
       latLng.put("lng", 0);
@@ -579,8 +591,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       result.put("elapsedRealtimeNanos", System.nanoTime());
       result.put("time", System.currentTimeMillis());
       result.put("hashCode", -1);
+      */
     }
-    callbackContext.success(result);
   }
   
   private void showLicenseText() {

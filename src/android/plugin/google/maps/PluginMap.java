@@ -16,6 +16,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 public class PluginMap extends MyPlugin {
+
+  /**
+   * Clear all markups
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    this.map.clear();
+    callbackContext.success();
+  }
   
   /**
    * Set center location of the marker

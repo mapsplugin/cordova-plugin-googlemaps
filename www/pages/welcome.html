@@ -1,0 +1,14 @@
+<h1>Phonegap-GoogleMaps-Plugin</h1>
+<div id="map_canvas"></div>
+<script type="text/javascript">
+function onPageLoaded(map) {
+  map.setDiv($("#map_canvas")[0]);
+  map.addMarker({
+    'position': new plugin.google.maps.LatLng(0, 0),
+    'title': ["Hello Google Map", "for", "Apache Cordova!"].join("\n"),
+    'snippet': "This plugin is awesome!"
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
+}
+</script>

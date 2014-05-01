@@ -2,6 +2,7 @@
   const PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
   var KML_LAYERS = {};
+  var OVERLAYS = [];
  
   /**
    * Google Maps model.
@@ -181,6 +182,7 @@
             break;
         }
         if (overlay) {
+          OVERLAYS.push(overlay);
           overlay.hashCode = result.hashCode;
           kmlLayer.on("_REMOVE", function() {
             overlay.remove();
@@ -224,29 +226,20 @@
 
   
   App.prototype.getMap = function(div, params) {
-    if (typeof div === "object" && "hasAttribute" in div === false) {
-      params = div;
-    }
-    params = params || {};
-    
     var self = this,
-        args = [params];
+        args = [];
     
-    self.set("div", div);
-    if (typeof div == "object" && 
-        "getBoundingClientRect" in div === true) {
+    if (!isDom(div)) {
+      params = div;
+      params = params || {};
+      args.push(params);
+    } else {
+      params = params || {};
+      args.push(params);
       
-      var rect = div.getBoundingClientRect();
-      divSize = {
-        'left': Math.floor(rect.left),
-        'top': Math.floor(rect.top),
-        'width': Math.floor(rect.width),
-        'height': Math.floor(rect.height)
-      };
-      divSize.width = divSize.width < 1200 ? divSize.width : 1200;
-      divSize.height = divSize.height < 1200 ? divSize.height : 1200;
-      args.push(divSize);
       self.set("div", div);
+      var divSize = getDivSize(div);
+      args.push(divSize);
     }
     cordova.exec(function() {
       setTimeout(function() {
@@ -383,6 +376,42 @@
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
   };
   
+  /**
+   * Clears all markup that has been added to the map,
+   * including markers, polylines and ground overlays.
+   */
+  App.prototype.clear = function(callback) {
+    
+    for (var i = OVERLAYS.length; i > 0; i--) {
+      delete OVERLAYS[i - 1];
+    }
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback();
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.clear']);
+  };
+  
+  
+  App.prototype.refreshLayout = function() {
+    onMapResize();
+  };
+  
+  /**
+   * Show the map into the specified div.
+   */
+  App.prototype.setDiv = function(div) {
+    var self = this,
+        args = [];
+    
+    if (isDom(div) == false) {
+      self.set("div", null);
+    } else {
+      self.set("div", div);
+      args.push(getDivSize(div));
+    }
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
+  };
   //-------------
   // Marker
   //-------------
@@ -405,6 +434,7 @@
       var marker = new Marker(result.id, markerOptions);
       markerOptions.hashCode = result.hashCode;
       MARKERS[result.id] = marker;
+      OVERLAYS.push(marker);
       
       if (typeof markerOptions.markerClick === "function") {
         marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
@@ -436,6 +466,7 @@
  
     cordova.exec(function(result) {
       var circle = new Circle(result.id, circleOptions);
+      OVERLAYS.push(circle);
       if (typeof callback == "function") {
         callback(circle, self);
       }
@@ -455,6 +486,7 @@
     
     cordova.exec(function(result) {
       var polyline = new Polyline(result.id, polylineOptions);
+      OVERLAYS.push(polyline);
       if (typeof callback === "function") {
         callback.call(window, polyline, self);
       }
@@ -475,6 +507,7 @@
     
     cordova.exec(function(result) {
       var polygon = new Polygon(result.id, polygonOptions);
+      OVERLAYS.push(polygon);
       if (typeof callback === "function") {
         callback.call(window, polygon, self);
       }
@@ -499,6 +532,7 @@
     
     cordova.exec(function(result) {
       var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
+      OVERLAYS.push(tileOverlay);
       if (typeof callback === "function") {
         callback.call(window, tileOverlay, self);
       }
@@ -518,6 +552,7 @@
     var pluginExec = function() {
       cordova.exec(function(result) {
         var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
+        OVERLAYS.push(groundOverlay);
         if (typeof callback === "function") {
           callback.call(window, groundOverlay, self);
         }
@@ -542,6 +577,7 @@
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
         var kmlOverlay = new KmlOverlay(kmlId, kmlOverlayOptions);
+        OVERLAYS.push(kmlOverlay);
         KML_LAYERS[kmlId] = kmlOverlay;
         if (typeof callback === "function") {
           callback.call(window, kmlOverlay, self);
@@ -1226,7 +1262,51 @@
            boolValue === true ||
            boolValue === 1;
   }
- 
+  
+  function isDom(element) {
+    return !!element &&
+           typeof element === "object" &&
+           "getBoundingClientRect" in element;
+  }
+  function getDivSize(div) {
+    if (!div) {
+      return;
+    }
+    
+    var pageWidth = window.innerWidth || 
+                    document.documentElement.clientWidth ||
+                    document.body.clientWidth,
+        pageHeight = window.innerHeight ||
+                     document.documentElement.clientHeight ||
+                     document.body.clientHeight;
+
+    var rect = div.getBoundingClientRect();
+    divSize = {
+      'left': Math.floor(rect.left),
+      'top': Math.floor(rect.top),
+      'width': Math.floor(rect.width),
+      'height': Math.floor(rect.height)
+    };
+    divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
+    divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;
+    
+    return divSize;
+  }
+  function onMapResize() {
+    var self = window.plugin.google.maps.Map;
+    var div = self.get("div");
+    if (!div) {
+      return;
+    }
+    if (isDom(div) == false) {
+      self.set("div", null);
+      cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
+    } else {
+      var divSize = getDivSize(div);
+      cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
+    }
+    
+  }
   /*****************************************************************************
    * Name space
    *****************************************************************************/
@@ -1261,39 +1341,7 @@
     'NONE': 'MAP_TYPE_NONE'
   };
   
-  var pageWidth = window.innerWidth || 
-                  document.documentElement.clientWidth ||
-                  document.body.clientWidth,
-      pageHeight = window.innerHeight ||
-                   document.documentElement.clientHeight ||
-                   document.body.clientHeight;
-
   
-  function onMapResize() {
-    var self = window.plugin.google.maps.Map;
-    var div = self.get("div");
-    if (!div || !("getBoundingClientRect" in div)) {
-      //TODO: Remove the map
-      self.trigger("remove");
-      return;
-    }
-    
-    var rect = div.getBoundingClientRect();
-    divSize = {
-      'left': Math.floor(rect.left),
-      'top': Math.floor(rect.top),
-      'width': Math.floor(rect.width),
-      'height': Math.floor(rect.height)
-    };
-    divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
-    divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;
-      
-    cordova.exec(function() {
-      if (typeof callback === "function") {
-        callback();
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
-  }
   window.addEventListener("orientationchange", onMapResize);
   window.addEventListener("resize", onMapResize);
   

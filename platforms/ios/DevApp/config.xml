@@ -19,6 +19,9 @@
     <feature name="LocalStorage">
         <param name="ios-package" value="CDVLocalStorage" />
     </feature>
+    <feature name="Console">
+        <param name="ios-package" value="CDVLogger" />
+    </feature>
     <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -31,8 +34,5 @@
     <feature name="GoogleMaps">
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
         <param name="ios-package" value="GoogleMaps" />
-    </feature>
-    <feature name="Console">
-        <param name="ios-package" value="CDVLogger" />
     </feature>
 </widget>

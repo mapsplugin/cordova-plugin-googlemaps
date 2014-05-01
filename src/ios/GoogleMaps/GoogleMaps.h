@@ -26,4 +26,6 @@
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
+- (void)resizeMap:(CDVInvokedUrlCommand *)command;
+- (void)setDiv:(CDVInvokedUrlCommand *)command;
 @end

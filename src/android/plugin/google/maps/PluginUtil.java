@@ -1,6 +1,8 @@
 package plugin.google.maps;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,11 @@ public class PluginUtil {
       params.put("elapsedRealtimeNanos", 0);
     }
     params.put("time", location.getTime());
+    /*
+    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    Date date = new Date(location.getTime());
+    params.put("timeFormatted", format.format(date));
+    */
     if (location.hasAccuracy()) {
       params.put("accuracy", location.getAccuracy());
     }

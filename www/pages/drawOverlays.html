@@ -1,0 +1,105 @@
+<h1>Where are you?</h1>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="polyline" href="#one" data-ajax="false">one</a></li>
+      <li><a id="polygon" href="#two" data-ajax="false">two</a></li>
+      <li><a id="circle" href="#three" data-ajax="false">three</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <h1>First tab contents</h1>
+  </div>
+  <div id="two">
+    <ul data-role="listview" data-inset="true">
+        <li><a href="#">Acura</a></li>
+        <li><a href="#">Audi</a></li>
+        <li><a href="#">BMW</a></li>
+        <li><a href="#">Cadillac</a></li>
+        <li><a href="#">Ferrari</a></li>
+    </ul>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  
+    $.mobile.activePage.trigger("refresh");
+  map.setDiv($("#map_canvas")[0]);
+  $("#polyline").click(function() {
+    drawPolyline(map);
+  });
+  $("#polygon").click(function() {
+    drawPolygon(map);
+  });
+  $("#circle").click(function() {
+    drawCircle(map);
+  });
+
+}
+function drawPolyline(map) {
+  const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
+  const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+
+  map.addPolyline({
+    points: [
+      HND_AIR_PORT,
+      SFO_AIR_PORT
+    ],
+    'color' : '#AA00FF',
+    'width': 10,
+    'geodesic': true
+  }, function(polyline) {
+    
+    map.animateCamera({
+      'target': polyline.getPoints(),
+      'zoom': 2
+    });
+  });
+}
+function drawPolygon (map) {
+  const GORYOKAKU_POINTS = [
+    new plugin.google.maps.LatLng(41.79883, 140.75675),
+    new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
+    new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
+    new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
+    new plugin.google.maps.LatLng(41.79567, 140.75845),
+    new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
+    new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
+    new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
+    new plugin.google.maps.LatLng(41.79576, 140.75475),
+    new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
+    new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
+    new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
+    new plugin.google.maps.LatLng(41.79883, 140.75673)
+  ];
+  map.addPolygon({
+    points: GORYOKAKU_POINTS,
+    'strokeColor' : '#AA00FF',
+    'strokeWidth': 5,
+    'fillColor' : '#880000'
+  }, function(polygon) {
+  
+    map.animateCamera({
+      'target': polygon.getPoints()
+    });
+  });
+}
+function drawCircle (map) {
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+
+  map.addCircle({
+    'center': GOOGLE,
+    'radius': 300,
+    'strokeColor' : '#AA00FF',
+    'strokeWidth': 5,
+    'fillColor' : '#880000'
+  });
+  
+  map.animateCamera({
+    'target': GOOGLE,
+    'zoom': 14
+  });
+}
+</script>

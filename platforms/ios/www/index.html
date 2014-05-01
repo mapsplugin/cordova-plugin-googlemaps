@@ -11,25 +11,45 @@
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="googlemaps-cdv-plugin.js"></script>
     <script type="text/javascript" src="embeded_test.js"></script>
+    <style type="text/css">
+      html, body, #container {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #map_canvas {
+        width: 100%;
+        height: 90%;
+        min-height: 300px;
+        border: 1px solid red;
+      }
+    </style>
   </head>
   <body>
     <div data-role="page">
     
-      <div data-role="header">
-        <h1>Page Title</h1>
-      </div><!-- /header -->
+      <header data-role="header"> 
+        <h1 class="ui-title" role="heading">Phonegap-Googlemaps-Plugin</h1>
+        <div class="ui-btn-left" data-role="controlgroup" data-type="horizontal">
+         <a href="#menulist" data-role="button" data-icon="bullets">filter</a>
+        </div>
+      </header>
     
       <div role="main" class="ui-content">
-        <p>Page content goes here.</p>
-        <div id='map_canvas' style="width:100%;height:300px;"></div>
-        A single HTML document can contain multiple "pages" that are loaded together by stacking multiple divs with a data-role of "page". Each "page" block needs a unique id (id="foo") that will be used to link internally between "pages" (href="#foo"). When a link is clicked, the framework will look for an internal "page" with the id and transition it into view.
-
-Here is an example of a two "page" site built with two jQuery Mobile divs navigated by linking to an id placed on each page wrapper. Note that the ids on the page wrappers are only needed to support the internal page linking, and are optional if each page is a separate HTML document. Here is what two pages look like inside the body element.
+        <div id='container'></div>
       </div><!-- /content -->
     
-      <div data-role="footer">
-        <h4>Page Footer</h4>
-      </div><!-- /footer -->
+    
+      <div data-role="panel" id="menulist" data-position="left" data-display="reveal">
+        <ul data-role="listview">
+          <li data-role="list-divider">Map</li>
+          <li action="gotoGoogle">Go to Google</li>
+          <li action="whereAreYou">Where are you?</li>
+          <li action="drawOverlays">Draw overlays</li>
+        </ul>
+      </div><!-- /menu panel -->
+    
     </div><!-- /page -->
     
     

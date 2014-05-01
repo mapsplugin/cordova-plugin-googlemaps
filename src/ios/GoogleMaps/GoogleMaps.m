@@ -266,15 +266,28 @@
   [self.licenseLayer removeFromSuperview];
 }
 
-- (void)resizeMap:(CDVInvokedUrlCommand *)command {
-    NSDictionary* divSize = [command.arguments objectAtIndex:0];
-    int left = [[divSize valueForKeyPath:@"left"] intValue];
-    int top = [[divSize valueForKeyPath:@"top"] intValue] + self.webView.scrollView.contentOffset.y;
-    int width = [[divSize valueForKeyPath:@"width"] intValue];
-    int height = [[divSize valueForKeyPath:@"height"] intValue];
+- (void)setDiv:(CDVInvokedUrlCommand *)command {
+  if (self.mapCtrl.embedRect.size.width > 0 &&
+      self.mapCtrl.embedRect.size.height > 0) {
+    [self.mapCtrl.view removeFromSuperview];
+  }
+  
+  if ([command.arguments count] == 1) {
+    [self.webView.scrollView addSubview:self.mapCtrl.view];
+    [self resizeMap:command];
+  }
+}
 
-    self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
-    [self.mapCtrl updateMapViewLayout];
+
+- (void)resizeMap:(CDVInvokedUrlCommand *)command {
+  NSDictionary* divSize = [command.arguments objectAtIndex:0];
+  int left = [[divSize valueForKeyPath:@"left"] intValue];
+  int top = [[divSize valueForKeyPath:@"top"] intValue] + self.webView.scrollView.contentOffset.y;
+  int width = [[divSize valueForKeyPath:@"width"] intValue];
+  int height = [[divSize valueForKeyPath:@"height"] intValue];
+
+  self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
+  [self.mapCtrl updateMapViewLayout];
 }
 
 /**

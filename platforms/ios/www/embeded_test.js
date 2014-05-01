@@ -13,8 +13,41 @@ window.onerror = function(message, file, line) {
   alert(error.join("\n"));
 };
 
+$(document).on("pageinit", function() {
+  $("li[action]").click(function() {
+    $("#menulist").panel("close");
+    
+  });
+  
+  
+});
 
-document.addEventListener('deviceready', function() {
-  var div = document.getElementById("map_canvas");
-  var map = plugin.google.maps.Map.getMap(div);
-}, false);
+
+
+$(document).on("deviceready", function() {
+  var map = plugin.google.maps.Map.getMap();
+  
+  $("li[action]").click(function() {
+    map.clear();
+    
+    var action = $(this).attr("action");
+    loadPage(map, action);
+  });
+  
+  $("#menulist").panel({
+    "close": function(event) {
+      map.refreshLayout();
+    },
+    "open": function(event) {
+      map.refreshLayout();
+    }
+  });
+  
+  loadPage(map, "welcome");
+});
+function loadPage(map, pageName) {
+  $.get("./pages/" + pageName + ".html", function(html) {
+    $("#container").html(html);
+    onPageLoaded(map);
+  });
+}

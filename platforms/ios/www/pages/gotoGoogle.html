@@ -1,0 +1,15 @@
+<h1>Go to Google!</h1>
+<div id="map_canvas"></div>
+<script type="text/javascript">
+function onPageLoaded(map) {
+  var GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  map.setDiv($("#map_canvas")[0]);
+  map.animateCamera({
+    'target': GOOGLE,
+    'tilt': 60,
+    'zoom': 18,
+    'bearing': 140,
+    'duration': 10000
+  });
+}
+</script>
