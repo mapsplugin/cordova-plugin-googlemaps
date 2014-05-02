@@ -57,11 +57,10 @@
   }
   
   //Show the spinner
-  self._loadingView = [[UIView alloc] initWithFrame:self.mapCtrl.view.frame];
+  self._loadingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.mapCtrl.view.frame.size.width, self.mapCtrl.view.frame.size.height)];
   self._loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
   self._loadingView.clipsToBounds = YES;
-  self._loadingView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleHeight;
-
+  self._loadingView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
   //Create the dialog
   CGRect dialogRect = self.mapCtrl.view.frame;
