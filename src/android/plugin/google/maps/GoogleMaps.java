@@ -355,14 +355,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
     return;
   }
-  private int contentToViewDimension(int d) {
+  private int contentToView(long d) {
     return Math.round(d * webView.getScale());
-  }
-  private int contentToViewY(int y) {
-    return contentToViewDimension(y);
-  }
-  private int contentToViewX(int x) {
-    return contentToViewDimension(x);
   }
   
   //-----------------------------------
@@ -399,6 +393,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public Object onMessage(String id, Object data) {
+    Log.d("btServer", "id=" + id);
     EVENTS event = null;
     try {
       event = EVENTS.valueOf(id);
@@ -533,10 +528,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   
   private void updateMapViewLayout() {
     try {
-      int divW = contentToViewX(mapDivLayoutJSON.getInt("width") );
-      int divH = contentToViewY(mapDivLayoutJSON.getInt("height"));
-      int divLeft = contentToViewX(mapDivLayoutJSON.getInt("left"));
-      int divTop = contentToViewY(mapDivLayoutJSON.getInt("top")) + webView.getScrollY();
+      int divW = contentToView(mapDivLayoutJSON.getLong("width") );
+      int divH = contentToView(mapDivLayoutJSON.getLong("height"));
+      int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
+      int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
       
       ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
       if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {

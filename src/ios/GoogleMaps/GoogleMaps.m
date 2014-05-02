@@ -59,10 +59,10 @@
         if ([command.arguments count] == 2) {
           self.mapCtrl.isFullScreen = NO;
           NSDictionary* divSize = [command.arguments objectAtIndex:1];
-          int left = [[divSize valueForKeyPath:@"left"] intValue];
-          int top = [[divSize valueForKeyPath:@"top"] intValue];
-          int width = [[divSize valueForKeyPath:@"width"] intValue];
-          int height = [[divSize valueForKeyPath:@"height"] intValue];
+          float left = [[divSize valueForKeyPath:@"left"] floatValue];
+          float top = [[divSize valueForKeyPath:@"top"] floatValue];
+          float width = [[divSize valueForKeyPath:@"width"] floatValue];
+          float height = [[divSize valueForKeyPath:@"height"] floatValue];
           
           
           self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
@@ -281,10 +281,10 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   NSDictionary* divSize = [command.arguments objectAtIndex:0];
-  int left = [[divSize valueForKeyPath:@"left"] intValue];
-  int top = [[divSize valueForKeyPath:@"top"] intValue] + self.webView.scrollView.contentOffset.y;
-  int width = [[divSize valueForKeyPath:@"width"] intValue];
-  int height = [[divSize valueForKeyPath:@"height"] intValue];
+  float left = [[divSize valueForKeyPath:@"left"] floatValue];
+  float top = [[divSize valueForKeyPath:@"top"] floatValue];
+  float width = [[divSize valueForKeyPath:@"width"] floatValue];
+  float height = [[divSize valueForKeyPath:@"height"] floatValue];
 
   self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
   [self.mapCtrl updateMapViewLayout];

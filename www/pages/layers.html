@@ -1,0 +1,59 @@
+<h3 class="ui-bar ui-bar-a">Layers</h3>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="tileOverlay" href="#one" data-ajax="false">TileOverlay</a></li>
+      <li><a id="groundOverlay" href="#two" data-ajax="false">GroundOverlay</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <h1>First tab contents</h1>
+  </div>
+  <div id="two">
+    <h1>First tab contents</h1>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  map.setDiv($("#map_canvas")[0]);
+  $("#tileOverlay").click(function() {
+    map.clear();
+    addTileOverlay(map);
+  });
+  $("#groundOverlay").click(function() {
+    map.clear();
+    addGroundOverlay(map);
+  });
+}
+function addTileOverlay(map) {
+  map.addTileOverlay({
+    // <x>,<y> and <zoom> are replaced with values
+    tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
+  }, function(tileOverlay) {
+    
+  });
+}
+function addGroundOverlay(map) {
+  var bounds = [
+    new plugin.google.maps.LatLng(40.712216,-74.22655),
+    new plugin.google.maps.LatLng(40.773941,-74.12544)
+  ];
+  
+  map.addGroundOverlay({
+    'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    'bounds': bounds,
+    'opacity': 0.5
+  }, function(groundOverlay) {
+    map.animateCamera({
+      'target': bounds
+    });
+    
+    map.addEventListenerOnce("REMOVE_GROUND_OVERLAY", function() {
+      groundOverlay.remove();
+    });
+  });
+}
+ 
+</script>

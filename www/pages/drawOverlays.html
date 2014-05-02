@@ -1,4 +1,4 @@
-<h1>Where are you?</h1>
+<h3 class="ui-bar ui-bar-a">Polyline, Polygon, Circle</h3>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -21,7 +21,6 @@
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  $.mobile.activePage.trigger("create");
   map.setDiv($("#map_canvas")[0]);
   $("#polyline").click(function() {
     map.clear();

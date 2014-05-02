@@ -1294,12 +1294,16 @@
                      document.documentElement.clientHeight ||
                      document.body.clientHeight;
 
+    var doc = document.documentElement;
+    var pageLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+    var pageTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+    
     var rect = div.getBoundingClientRect();
     divSize = {
-      'left': Math.floor(rect.left),
-      'top': Math.floor(rect.top),
-      'width': Math.floor(rect.width),
-      'height': Math.floor(rect.height)
+      'left': rect.left + pageLeft,
+      'top': rect.top + pageTop,
+      'width': rect.width,
+      'height': rect.height
     };
     divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
     divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;

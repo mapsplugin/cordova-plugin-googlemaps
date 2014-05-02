@@ -1,0 +1,104 @@
+<h3 class="ui-bar ui-bar-a">Geocoding, Reverse Geocoding</h3>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="pre_geocoding" href="#one" data-ajax="false">Geocoding</a></li>
+      <li><a id="reverse" href="#two" data-ajax="false">Reverse geocoding</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <table width="100%">
+      <tr>
+        <td width="70%">
+          <input type="text" name="textinput-hide" id="geocoder_input" placeholder="Address" value="Kyoto, Japan">
+        </td>
+        <td width="30%">
+          <button id="geocoding" class="ui-btn ui-btn-inline ui-icon-search ui-btn-icon-left"></button>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div id="two">
+    <h1>First tab contents</h1>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  map.setDiv($("#map_canvas")[0]);
+  $("#pre_geocoding").click(function() {
+    map.clear();
+  });
+  $("#geocoding").click(function() {
+    geocoding(map);
+  });
+  $("#reverse").click(function() {
+    reverse_geocoding(map);
+  });
+}
+function reverse_geocoding(map) {
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  var request = {
+    'position': GOOGLE
+  };
+  map.geocode(request, function(results) {
+    if (results.length) {
+      var result = results[0];
+      var position = result.position; 
+      var address = [
+        result.subThoroughfare || "",
+        result.thoroughfare || "",
+        result.locality || "",
+        result.adminArea || "",
+        result.postalCode || "",
+        result.country || ""].join(", ");
+      
+      
+      map.addMarker({
+        'position': position,
+        'title':  address
+      }, function(marker) {
+        
+        map.animateCamera({
+          'target': position,
+          'zoom': 15
+        }, function() {
+          marker.showInfoWindow();
+        });
+        
+      });
+    } else {
+      alert("Not found");
+    }
+  });
+}
+function geocoding(map) {
+  map.clear();
+  var request = {
+    'address': $("#geocoder_input").val()
+  };
+  map.geocode(request, function(results) {
+    if (results.length) {
+      var result = results[0];
+      var position = result.position; 
+      
+      map.addMarker({
+        'position': position,
+        'title':  JSON.stringify(result.position)
+      }, function(marker) {
+        
+        map.animateCamera({
+          'target': position,
+          'zoom': 17
+        }, function() {
+          marker.showInfoWindow();
+        });
+        
+      });
+    } else {
+      alert("Not found");
+    }
+  });
+}
+</script>

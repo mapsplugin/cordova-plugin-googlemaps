@@ -1,3 +1,14 @@
+html, body, #container {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+#map_canvas {
+  width: 100%;
+  height: 90%;
+  min-height: 300px;
+}
 code {
   border: 1px dotted gray;
   background-color: #E0E0E0;
@@ -6,15 +17,6 @@ code {
   display: inline-block;
   word-break: keep-all;
   width: 100%;
-}
-
-h1 {
-  font-size: 30px;
-  font-style: italic;
-}
-h2 {
-  font-size: 23px;
-  border-bottom: 1px dotted gray;
 }
 
 span.highlight {

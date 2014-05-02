@@ -1,4 +1,5 @@
-<h1>Phonegap-GoogleMaps-Plugin</h1>
+<h3 class="ui-bar ui-bar-a">Phonegap-GoogleMaps-Plugin</h3>
+<p>This plugin helps you to control Google Maps Android SDK v2 and Google Maps SDK for iOS from your JavaScript code.</p>
 <div id="map_canvas"></div>
 <button id='fullScreenBtn' class="ui-btn-inline">Full screen</button>
 <script type="text/javascript">
@@ -18,3 +19,19 @@ function onPageLoaded(map) {
   });
 }
 </script>
+
+<h4 class="ui-bar ui-bar-a">with jQuery</h4>
+<code class="prettyprint">var mapDiv = $("#map_canvas")[0];
+var map = plugin.google.maps.Map.getMap(mapDiv);
+map.on(plugin.google.maps.event.MAP_READY, function() {
+  
+  map.addMarker({
+    'position': new plugin.google.maps.LatLng(0, 0),
+    'title': ["Hello Google Map", "for", "Apache Cordova!"].join("\n"),
+    'snippet': "This plugin is awesome!"
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
+  
+});
+</code>
