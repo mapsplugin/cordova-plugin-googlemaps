@@ -58,7 +58,6 @@
         UIImage *layerImg = [UIImage imageWithData:data];
         layer.icon = layerImg;
       });
-      dispatch_release(gueue);
       
     }
   }
