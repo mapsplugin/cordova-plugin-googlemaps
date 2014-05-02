@@ -186,7 +186,6 @@ NSDictionary *initOptions;
     NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %hhd);", gesture];
     [self.webView stringByEvaluatingJavaScriptFromString:jsString];
   });
-  dispatch_release(gueue);
 }
 
 
