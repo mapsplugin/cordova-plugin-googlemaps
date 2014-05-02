@@ -343,7 +343,6 @@
           }
           marker.icon = image;
         });
-        dispatch_release(gueue);
       }
     }
   }
