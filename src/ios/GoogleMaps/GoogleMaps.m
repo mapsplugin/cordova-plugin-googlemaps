@@ -20,6 +20,7 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
+NSLog(@"action=getMap");
 
   NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
   if ([APIKey isEqualToString:@"API_KEY_FOR_IOS"]) {
@@ -117,6 +118,7 @@
     
     CDVPluginResult* pluginResult = nil;
     NSString *classAndMethod = [command.arguments objectAtIndex:0];
+    NSLog(@"action=%@", classAndMethod);
     
     NSArray *target = [classAndMethod componentsSeparatedByString:@"."];
     NSString *className = [target objectAtIndex:0];
@@ -280,15 +282,20 @@
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
-  NSDictionary* divSize = [command.arguments objectAtIndex:0];
-  float left = [[divSize valueForKeyPath:@"left"] floatValue];
-  float top = [[divSize valueForKeyPath:@"top"] floatValue];
-  float width = [[divSize valueForKeyPath:@"width"] floatValue];
-  float height = [[divSize valueForKeyPath:@"height"] floatValue];
+NSLog(@"action=resizeMap");
 
-  self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
-  [self.mapCtrl updateMapViewLayout];
+  dispatch_queue_t gueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+  dispatch_sync(gueue, ^{
 
+    NSDictionary* divSize = [command.arguments objectAtIndex:0];
+    float left = [[divSize valueForKeyPath:@"left"] floatValue];
+    float top = [[divSize valueForKeyPath:@"top"] floatValue];
+    float width = [[divSize valueForKeyPath:@"width"] floatValue];
+    float height = [[divSize valueForKeyPath:@"height"] floatValue];
+
+    self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
+    [self.mapCtrl updateMapViewLayout];
+  });
 }
 
 

@@ -53,13 +53,18 @@ function onPageLoaded(map) {
   });
   
   $("#draggable").click(function() {
+    map.clear();
+
     map.moveCamera({
       'target': GOOGLE
     });
     map.addMarker({
       'position': GOOGLE,
-      'draggable': true
+      'draggable': true,
+      'title': 'Drag me!',
+      'snippet': 'See the below instraction'
     }, function(marker) {
+      marker.showInfoWindow();
     
       marker.addEventListener(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
         marker.getPosition(function(latLng) {
