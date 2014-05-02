@@ -28,3 +28,18 @@ function showMyLocation(map) {
   });
 }
 </script>
+<h4 class="ui-bar ui-bar-a">with jQuery</h4>
+<code class="prettyprint">map.getMyLocation(function(location) {
+  map.addMarker({
+    'position': location.latLng,
+    'title': "I am here!"
+  }, function(marker) {
+    map.animateCamera({
+      'target': location.latLng,
+      'zoom': 18
+    }, function() {
+      marker.showInfoWindow();
+    });
+  });
+});
+</code>

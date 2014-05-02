@@ -13,3 +13,14 @@ function onPageLoaded(map) {
   });
 }
 </script>
+<h4 class="ui-bar ui-bar-a">with jQuery</h4>
+<code class="prettyprint">var GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+map.setDiv($("#map_canvas")[0]);
+map.animateCamera({
+  'target': GOOGLE,
+  'tilt': 60,
+  'zoom': 18,
+  'bearing': 140,
+  'duration': 10000
+});
+</code>

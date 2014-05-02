@@ -9,14 +9,40 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h1>First tab contents</h1>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE,
+  'title': "Hello GoogleMap for Cordova!"
+}, function(marker) {
+  marker.showInfoWindow();
+});</code>
   </div>
   <div id="two">
-    <h1>First tab contents</h1>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'icon': 'www/images/google_tokyo_icon.png'
+});</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
-    <h1>First tab contents</h1>
     <img src="https://cloud.githubusercontent.com/assets/167831/2723884/d5b0b584-c599-11e3-803b-e35dced2ca26.gif">
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE,
+  'draggable': true,
+  'title': 'Drag me!',
+  'snippet': 'See the below instraction'
+}, function(marker) {
+  marker.showInfoWindow();
+
+  marker.addEventListener(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
+    marker.getPosition(function(latLng) {
+      marker.setTitle(latLng.toUrlValue());
+      marker.showInfoWindow();
+    });
+  });
+});</code>
   </div>
 </div>
 <script type="text/javascript">
@@ -39,6 +65,7 @@ function onPageLoaded(map) {
       marker.showInfoWindow();
     });
   });
+  $("#simple").click();
   
   $("#icon").click(function() {
     map.clear();
