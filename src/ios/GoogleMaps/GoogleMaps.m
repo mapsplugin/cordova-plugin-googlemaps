@@ -60,9 +60,10 @@ NSLog(@"action=getMap");
         if ([command.arguments count] == 2) {
           self.mapCtrl.isFullScreen = NO;
           self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];
-          self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
+          self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
           [self.webView.scrollView addSubview:self.mapCtrl.view];
           [self.mapCtrl updateMapViewLayout];
+          [self.mapCtrl.view setFrameWithDictionary:self.mapCtrl.embedRect];
         }
         
 
@@ -72,7 +73,7 @@ NSLog(@"action=getMap");
     // Create the dialog footer
     dispatch_async(gueue, ^{
       dispatch_sync(dispatch_get_main_queue(), ^{
-        
+        /*
         // Create the footer background
         self.footer = [[UIView alloc]init];
         self.footer.backgroundColor = [UIColor lightGrayColor];
@@ -99,7 +100,7 @@ NSLog(@"action=getMap");
         [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
         [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
         [self.footer addSubview:self.licenseButton];
-        
+        */
     
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -108,6 +109,20 @@ NSLog(@"action=getMap");
   }
 }
 
+
+-(void)setVisible:(CDVInvokedUrlCommand *)command
+{
+  Boolean isVisible = [[command.arguments objectAtIndex:0] boolValue];
+  if (self.mapCtrl.isFullScreen == NO) {
+    if (isVisible == YES) {
+      self.mapCtrl.view.hidden = NO;
+    } else {
+      self.mapCtrl.view.hidden = YES;
+    }
+  }
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 
 - (void)exec:(CDVInvokedUrlCommand *)command {
@@ -178,6 +193,7 @@ NSLog(@"action=getMap");
 }
 
 - (void)_removeMapView{
+NSLog(@"_removeMapView");
   [self.mapCtrl.view removeFromSuperview];
   [self.footer removeFromSuperview];
   self.mapCtrl.isFullScreen = NO;
@@ -268,15 +284,20 @@ NSLog(@"action=getMap");
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-  float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
-  float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
-  if (width > 0.0f && height > 0.0f) {
-    [self.mapCtrl.view removeFromSuperview];
-  }
-  
+
   if ([command.arguments count] == 1) {
+    NSLog(@"action=Map.setDiv(show)");
+    self.mapCtrl.isFullScreen = NO;
     [self.webView.scrollView addSubview:self.mapCtrl.view];
     [self resizeMap:command];
+  } else {
+    float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+    float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+  
+    if (width > 0.0f || height > 0.0f) {
+    NSLog(@"action=Map.setDiv(remove)");
+      [self.mapCtrl.view removeFromSuperview];
+    }
   }
 }
 

@@ -9,13 +9,73 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h1>First tab contents</h1>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
+const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
+
+map.addPolyline({
+  points: [
+    HND_AIR_PORT,
+    HNL_AIR_PORT,
+    SFO_AIR_PORT
+  ],
+  'color' : '#AA00FF',
+  'width': 10,
+  'geodesic': true
+}, function(polyline) {
+  
+  map.animateCamera({
+    'target': polyline.getPoints(),
+    'zoom': 2
+  });
+});</code>
   </div>
   <div id="two">
-    <h1>First tab contents</h1>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">const GORYOKAKU_POINTS = [
+  new plugin.google.maps.LatLng(41.79883, 140.75675),
+  new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
+  new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
+  new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
+  new plugin.google.maps.LatLng(41.79567, 140.75845),
+  new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
+  new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
+  new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
+  new plugin.google.maps.LatLng(41.79576, 140.75475),
+  new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
+  new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
+  new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
+  new plugin.google.maps.LatLng(41.79883, 140.75673)
+];
+map.addPolygon({
+  points: GORYOKAKU_POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(polygon) {
+
+  map.animateCamera({
+    'target': polygon.getPoints()
+  });
+});</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
-    <h1>First tab contents</h1>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+
+map.addCircle({
+  'center': GOOGLE,
+  'radius': 300,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+});
+
+map.animateCamera({
+  'target': GOOGLE,
+  'zoom': 14
+});</code>
   </div>
 </div>
 <script type="text/javascript">
@@ -79,7 +139,7 @@ function drawPolygon (map) {
     'strokeWidth': 5,
     'fillColor' : '#880000'
   }, function(polygon) {
-  
+
     map.animateCamera({
       'target': polygon.getPoints()
     });
@@ -95,7 +155,7 @@ function drawCircle (map) {
     'strokeWidth': 5,
     'fillColor' : '#880000'
   });
-  
+
   map.animateCamera({
     'target': GOOGLE,
     'zoom': 14

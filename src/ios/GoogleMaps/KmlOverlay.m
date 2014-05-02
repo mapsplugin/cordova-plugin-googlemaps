@@ -57,7 +57,8 @@
   }
   
   //Show the spinner
-  self._loadingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.mapCtrl.view.frame.size.width, self.mapCtrl.view.frame.size.height)];
+  self._loadingView = [[UIView alloc] init];
+  [self._loadingView setFrameWithInt:0 top:0 width:self.mapCtrl.view.frame.size.width height:self.mapCtrl.view.frame.size.height];
   self._loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
   self._loadingView.clipsToBounds = YES;
   self._loadingView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

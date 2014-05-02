@@ -29,25 +29,12 @@ NSDictionary *initOptions;
   [self updateMapViewLayout];
   
 }
-
 - (void)updateMapViewLayout {
-
   
   if (self.isFullScreen == NO) {
-  /*
-    float left = [[self.embedRect objectForKey:@"left"] floatValue];
-    float top = [[self.embedRect objectForKey:@"top"] floatValue];
-    float width = [[self.embedRect objectForKey:@"width"] floatValue];
-    float height = [[self.embedRect objectForKey:@"height"] floatValue];
-  
-    CGRect r = [self.view frame];
-    r.origin.x = left;
-    r.origin.y = top;
-    r.size.width = width;
-    r.size.height = height;
-    [self.view setFrame:r];
-    */
+    self.view.hidden = YES;
     [self.view setFrameWithDictionary:self.embedRect];
+    self.view.hidden = NO;
   }
 }
 
@@ -96,7 +83,9 @@ NSDictionary *initOptions;
     CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
+    //self.map.autoresizingMask = UIViewAutoresizingNone;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  
   
     Boolean isEnabled = false;
     //controls
@@ -293,11 +282,10 @@ NSDictionary *initOptions;
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker%d');",
-                                      eventName, marker.hash];
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker%lu');",
+                                      eventName, (unsigned long)marker.hash];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
-
 
 //future support: custom info window
 -(UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker*)marker

@@ -76,6 +76,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   
   private enum METHODS {
+    setVisible,
     setDiv,
     resizeMap,
     getMap,
@@ -179,6 +180,27 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
 
+  /**
+   * Set visibility of the map
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setVisibe(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(0);
+    if (this.windowLayer == null) {
+      if (visible && this.mapView.getParent() == null) {
+        this.webView.addView(mapView);
+      }
+      if (!visible && this.mapView.getParent() != null) {
+        this.webView.removeView(mapView);
+      }
+    }
+    callbackContext.success();
+  }
+  
+  
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   private void getMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (map != null) {
