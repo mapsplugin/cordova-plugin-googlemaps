@@ -36,7 +36,7 @@
 }, function(marker) {
   marker.showInfoWindow();
 
-  marker.addEventListener(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
+  marker.on(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
     marker.getPosition(function(latLng) {
       marker.setTitle(latLng.toUrlValue());
       marker.showInfoWindow();

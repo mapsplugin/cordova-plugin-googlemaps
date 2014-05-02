@@ -1,70 +1,126 @@
 phonegap-googlemaps-plugin
 ==========================
-This plugin helps you to control [Google Maps Android SDK v2][0] and [Google Maps SDK for iOS][1] from your JavaScript code.
-This plugin works with [Apache Cordova][2].
+This plugin helps you to control [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/) from your JavaScript code.
+This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
-==========================
-## Demo
-[![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/android-demo.png)](http://youtu.be/RvvusY-JpXg)
-http://www.youtube.com/watch?v=RvvusY-JpXg
 
-==========================
-## Manual Android Instration
+![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
-1. Create a cordova [Create a basic Cordova Android application][3]
 
-2. In the Cordova Android application you will need to put the following in your res/xml/config.xml file as a child to the plugin tag:
-``` xml
-<!-- for Cordova version 2 -->
-<plugin name="GoogleMaps" value="plugin.google.maps.GoogleMaps" />
-```
-``` xml
-<!-- for Cordova version 3 -->
-<feature name="GoogleMaps">
-  <param name="android-package" value="plugin.google.maps.GoogleMaps" />
-</feature>
-```
+###Snippet
+![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
+```js
+//Define the location
+var GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 
-3. You'll need to set up the [Google Play Services SDK][4] and link to it.
-![image1](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/google-play-services.png)
+//Initialize a map
+var map = plugin.google.maps.Map.getMap();
+map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
+  
+  // The map is initialized, then show a map dialog
+  map.showDialog();
 
-4. Add these permissions and elements to your AndroidManifest.xml.
-Please refer the more detailed exlpain in the [Google Maps Document][5].
-``` xml
-<uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
-<!-- The following two permissions are not required to use
-     Google Maps Android API v2, but are recommended. -->
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-```
-``` xml
-<!-- OpenGL ES version 2 -->
-<uses-feature android:glEsVersion="0x00020000" android:required="true" />
-<!-- Google Play Services SDK -->
-<meta-data android:name="com.google.android.gms.version"
-           android:value="@integer/google_play_services_version" />
-```
-5. Add your Google Maps API key under the &lt;application&gt; tag.
-Please refer the more detailed exlpain in the [Google Maps Document][6].
-``` xml
-<meta-data
-  android:name="com.google.android.maps.v2.API_KEY"
-  android:value="YOUR_GOOGLE_MAPS_ANDROID_API_KEY_IS_HERE" />
-<!-- for Google Play Services SDK -->
-<meta-data
-  android:name="com.google.android.gms.version"
-  android:value="@integer/google_play_services_version" />
+  // Add a marker onto the map
+  map.addMarker({
+    'position': GOOGLE,
+    'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
+    'snippet': "This plugin is awesome!"
+  }, function(marker) {
+    
+    // Move camera position
+    map.animateCamera({
+      'target': GOOGLE,
+      'zoom': 15
+    }, function() {
+      
+      //Show the infoWindow assigned with the marker
+      marker.showInfoWindow();
+    });
+  });
+});
 ```
 
-6. Add &lt;script
-[0]: https://developers.google.com/maps/documentation/android/
-[1]: https://developers.google.com/maps/documentation/ios/
-[2]: http://cordova.apache.org/
-[3]: http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface
-[4]: http://developer.android.com/google/play-services/setup.html
-[5]: https://developers.google.com/maps/documentation/android/start#specify_app_settings_in_the_application_manifest
-[6]: https://developers.google.com/maps/documentation/android/start#get_an_android_certificate_and_the_google_maps_api_key
+###Example
+You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/raw/Images/examples/SimpleMap_v1.0.2.apk)
+
+![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
+
+
+###Documentation
+
+* [Installation](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
+  * Automatic Installation
+  * Tutorials
+    * [Tutorial for Windows](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Windows)
+    * [Tutorial for Mac/Linux](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Mac)
+* [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif) 
+  * Create a map
+  * Create a map with initialize options
+  * Change the map type
+  * Move the camera
+  * Move the camera within the specified duration time
+  * Get the camera position
+  * Get my location
+  * Map Class Reference
+* [Marker](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Marker)
+  * ![img](https://camo.githubusercontent.com/9dd8644cf5038708d6a6af93ab31f8b1d2e45801/68747470733a2f2f726177322e6769746875622e636f6d2f77663961356d37352f70686f6e656761702d676f6f676c656d6170732d706c7567696e2f496d616765732f73637265656e636170747572652f6d61726b6572332e706e67) 
+  * Add a Marker
+  * Show InfoWindow
+  * Add a marker with multiple line
+  * callback
+  * Simple Icon
+  * Scaled Icon
+  * Base64 Encoded Icon
+  * Remove the marker
+  * Click a marker
+  * Click an infoWindow
+  * Create a marker draggable
+  * Drag Events
+  * Create a flat marker
+  * Marker Class Reference
+* [Circle](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Circle)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/circle.png)
+  * Add a circle
+  * callback
+  * Remove the circle
+  * Circle Class Reference
+* [Polyline](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polyline)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polyline.png)
+  * Add a polyline
+  * callback
+  * Remove the polyline
+  * Polyline Class Reference
+* [Polygon](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polygon)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polygon.png)
+  * Add a polygon
+  * callback
+  * Remove the polygon
+  * Polygon Class Reference
+* [Tile Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/TileOverlay)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/tile_overlay.png)
+  * Add a tile overlay
+  * TileOverlay Class Reference
+* [Ground Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/GroundOverlay)
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ground_overlay.png)
+  * Add a ground overlay
+  * GroundOverlay Class Reference
+* [Kml Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/KmlOverlay)
+  * ![img](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/kml-polygon.gif)
+  * Add a kml overlay
+  * KmlOverlay Class Reference
+* [Geocode](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocode)
+  * Geocoding
+  * Reverse geocoding
+* [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng)
+  * Create a LatLng object
+  * LatLng Class Reference
+* [CameraPosition](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/CameraPosition)
+  * CameraPosition Class Reference
+* [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
+  * Location Class Reference
+
+***
+
+* [Release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
 

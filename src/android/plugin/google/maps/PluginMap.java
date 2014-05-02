@@ -163,18 +163,6 @@ public class PluginMap extends MyPlugin {
 
     this.myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
   }
-
-  /**
-   * Clear all overlays
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  @SuppressWarnings("unused")
-  private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    this.map.clear();
-    callbackContext.success();
-  }
   
   /**
    * Move the camera of the map

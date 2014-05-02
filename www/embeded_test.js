@@ -26,20 +26,12 @@ $(document).on("deviceready", function() {
   });
   
   function hideMap() {
-    isShown = false;
-    $("#map_canvas").css("position", "relative");
-    map.toDataURL(function(image) {
-      /*$("<img cache='cache'>").css({
-        "position": "absolute"
-      }).attr("src", image).appendTo("#map_canvas");*/
-      //map.setDiv(null);
-    });
+    map.setVisible(false);
   }
   
   function showMap() {
-    //map.setDiv($("#map_canvas")[0]);
     map.refreshLayout();
-    //$("img[cache]").remove()
+    map.setVisible(true);
   }
   
   $("#menulist").panel({
