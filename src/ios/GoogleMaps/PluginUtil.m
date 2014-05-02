@@ -7,6 +7,34 @@
 //
 
 #import "PluginUtil.h"
+@implementation UIView (GoogleMapsPlugin)
+- (void)setFrameWithDictionary:(NSDictionary *)params
+{
+  float left = [[params objectForKey:@"left"] floatValue];
+  float top = [[params objectForKey:@"top"] floatValue];
+  float width = [[params objectForKey:@"width"] floatValue];
+  float height = [[params objectForKey:@"height"] floatValue];
+
+  CGRect r = [self frame];
+  r.origin.x = left;
+  r.origin.y = top;
+  r.size.width = width;
+  r.size.height = height;
+  [self setFrame:r];
+}
+
+
+- (void)setFrameWithInt:(int)left top:(int)top width:(int)width height:(int)height
+{
+  CGRect r = [self frame];
+  r.origin.x = left;
+  r.origin.y = top;
+  r.size.width = width;
+  r.size.height = height;
+  [self setFrame:r];
+}
+
+@end
 
 @implementation NSArray (GoogleMapsPlugin)
 - (UIColor*)parsePluginColor

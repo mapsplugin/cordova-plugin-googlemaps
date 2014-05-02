@@ -9,6 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <Cordova/CDV.h>
 
+@interface UIView (GoogleMapsPlugin)
+- (void)setFrameWithDictionary:(NSDictionary *) params;
+- (void)setFrameWithInt:(int)left top:(int)top width:(int)width height:(int)height;
+@end
+
 @interface NSArray (GoogleMapsPlugin)
 - (UIColor*)parsePluginColor;
 @end
