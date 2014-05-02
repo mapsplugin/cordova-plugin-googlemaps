@@ -18,7 +18,7 @@ NSDictionary *initOptions;
     initOptions = options;
     self.plugins = [NSMutableDictionary dictionary];
     self.isFullScreen = NO;
-    self.embedRect = CGRectMake(0, 0, 0, 0);
+    self.embedRect = nil;
     self.screenSize = [[UIScreen mainScreen] bounds];
 
     return self;
@@ -32,8 +32,22 @@ NSDictionary *initOptions;
 
 - (void)updateMapViewLayout {
 
+  
   if (self.isFullScreen == NO) {
-    [self.view setFrame:self.embedRect];
+  /*
+    float left = [[self.embedRect objectForKey:@"left"] floatValue];
+    float top = [[self.embedRect objectForKey:@"top"] floatValue];
+    float width = [[self.embedRect objectForKey:@"width"] floatValue];
+    float height = [[self.embedRect objectForKey:@"height"] floatValue];
+  
+    CGRect r = [self.view frame];
+    r.origin.x = left;
+    r.origin.y = top;
+    r.size.width = width;
+    r.size.height = height;
+    [self.view setFrame:r];
+    */
+    [self.view setFrameWithDictionary:self.embedRect];
   }
 }
 

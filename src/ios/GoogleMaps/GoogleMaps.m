@@ -59,17 +59,10 @@ NSLog(@"action=getMap");
       
         if ([command.arguments count] == 2) {
           self.mapCtrl.isFullScreen = NO;
-          NSDictionary* divSize = [command.arguments objectAtIndex:1];
-          float left = [[divSize valueForKeyPath:@"left"] floatValue];
-          float top = [[divSize valueForKeyPath:@"top"] floatValue];
-          float width = [[divSize valueForKeyPath:@"width"] floatValue];
-          float height = [[divSize valueForKeyPath:@"height"] floatValue];
-          
-          
-          self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
-          [self.mapCtrl.view setFrame:self.mapCtrl.embedRect];
+          self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];
           self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
           [self.webView.scrollView addSubview:self.mapCtrl.view];
+          [self.mapCtrl updateMapViewLayout];
         }
         
 
@@ -89,7 +82,12 @@ NSLog(@"action=getMap");
         
         // Create the close button
         self.closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        self.closeButton.frame = CGRectMake(10, 0, 50, 40);
+        CGRect frame = [self.closeButton frame];
+        frame.origin.x = 10;
+        frame.origin.y = 0;
+        frame.size.width = 50;
+        frame.size.height = 40;
+        [self.closeButton setFrame:frame];
         self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
         [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
         [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
@@ -185,8 +183,9 @@ NSLog(@"action=getMap");
   self.mapCtrl.isFullScreen = NO;
   self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
   
-  if (self.mapCtrl.embedRect.size.width != 0 &&
-      self.mapCtrl.embedRect.size.height != 0) {
+  float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+  float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+  if (width > 0.0f && height > 0.0f) {
     [self.webView.scrollView addSubview:self.mapCtrl.view];
     [self.mapCtrl updateMapViewLayout];
   }
@@ -224,8 +223,8 @@ NSLog(@"action=getMap");
     licenseDialog.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleHeight;
     [self.licenseLayer addSubview:licenseDialog];
 
-    CGRect scrollViewRect = CGRectMake(5, 5, dialogRect.size.width - 10, dialogRect.size.height - 30);
-    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame: scrollViewRect];
+    UIScrollView *scrollView = [[UIScrollView alloc] init];
+    [scrollView setFrameWithInt:5 top:5 width:dialogRect.size.width - 10 height:dialogRect.size.height - 30];
     [scrollView.layer setBorderColor:[UIColor blackColor].CGColor];
     scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [licenseDialog addSubview:scrollView];
@@ -251,7 +250,7 @@ NSLog(@"action=getMap");
     
     //close button
     UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    closeButton.frame = CGRectMake(0, dialogRect.size.height - 30, dialogRect.size.width, 30);
+    [closeButton setFrameWithInt:0 top:dialogRect.size.height - 30 width:dialogRect.size.width height:30];
     closeButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewContentModeTopLeft;
     [closeButton setTitle:@"Close" forState:UIControlStateNormal];
     [closeButton addTarget:self action:@selector(onLicenseCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
@@ -269,8 +268,9 @@ NSLog(@"action=getMap");
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-  if (self.mapCtrl.embedRect.size.width > 0 &&
-      self.mapCtrl.embedRect.size.height > 0) {
+  float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+  float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+  if (width > 0.0f && height > 0.0f) {
     [self.mapCtrl.view removeFromSuperview];
   }
   
@@ -283,19 +283,8 @@ NSLog(@"action=getMap");
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
 NSLog(@"action=resizeMap");
-
-  dispatch_queue_t gueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-  dispatch_sync(gueue, ^{
-
-    NSDictionary* divSize = [command.arguments objectAtIndex:0];
-    float left = [[divSize valueForKeyPath:@"left"] floatValue];
-    float top = [[divSize valueForKeyPath:@"top"] floatValue];
-    float width = [[divSize valueForKeyPath:@"width"] floatValue];
-    float height = [[divSize valueForKeyPath:@"height"] floatValue];
-
-    self.mapCtrl.embedRect = CGRectMake(left, top, width, height);
-    [self.mapCtrl updateMapViewLayout];
-  });
+  self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
+  [self.mapCtrl updateMapViewLayout];
 }
 
 
@@ -308,8 +297,9 @@ NSLog(@"action=resizeMap");
   }
   
   // remove the map view from the parent
-  if (self.mapCtrl.embedRect.size.width != 0 &&
-      self.mapCtrl.embedRect.size.height != 0) {
+  float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+  float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+  if (width > 0.0f && height > 0.0f) {
     [self.mapCtrl.view removeFromSuperview];
   }
   
@@ -321,39 +311,41 @@ NSLog(@"action=resizeMap");
                                         UIViewAutoresizingFlexibleRightMargin |
                                         UIViewAutoresizingFlexibleBottomMargin;
   
-  dispatch_queue_t gueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-  dispatch_sync(gueue, ^{
   
-    int footerHeight = 40;
-  
-    // Calculate the full screen size
-    CGRect pluginRect;
-    CGRect screenSize = self.mapCtrl.screenSize;
-    int direction = self.mapCtrl.interfaceOrientation;
-    if (direction == UIInterfaceOrientationLandscapeLeft ||
-      direction == UIInterfaceOrientationLandscapeRight) {
-      pluginRect = CGRectMake(0, 0, screenSize.size.height, screenSize.size.width - footerHeight);
-    } else {
-      pluginRect = CGRectMake(0, 0, screenSize.size.width, screenSize.size.height - footerHeight);
-    }
-    self.mapCtrl.view.frame = pluginRect;
-    
-    //self.mapCtrl.view.frame = pluginRect;
-    self.footer.frame = CGRectMake(0, pluginRect.size.height, pluginRect.size.width, footerHeight);
-    self.licenseButton.frame = CGRectMake(pluginRect.size.width - 110, 0, 100, footerHeight);
-    self.closeButton.frame = CGRectMake(10, 0, 50, footerHeight);
-    
-    // Add the footer
-    [self.webView addSubview:self.footer];
-    
-    // Show the map
-    [self.webView addSubview:self.mapCtrl.view];
-    
-    [self.mapCtrl updateMapViewLayout];
+  int footerHeight = 40;
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  });
+  // Calculate the full screen size
+  CGRect screenSize = self.mapCtrl.screenSize;
+  CGRect pluginRect = self.mapCtrl.view.frame;
+  pluginRect.origin.x = 0;
+  pluginRect.origin.y = 0;
+  int direction = self.mapCtrl.interfaceOrientation;
+  if (direction == UIInterfaceOrientationLandscapeLeft ||
+    direction == UIInterfaceOrientationLandscapeRight) {
+    pluginRect.size.width = screenSize.size.height;
+    pluginRect.size.height = screenSize.size.width - footerHeight;
+  } else {
+    pluginRect.size.width = screenSize.size.width;
+    pluginRect.size.height = screenSize.size.height - footerHeight;
+  }
+  [self.mapCtrl.view setFrame:pluginRect];
+  
+  //self.mapCtrl.view.frame = pluginRect;
+  [self.footer setFrameWithInt:0 top:pluginRect.size.height width:pluginRect.size.width height:footerHeight];
+  [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
+  [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
+  
+  // Add the footer
+  [self.webView addSubview:self.footer];
+  
+  // Show the map
+  [self.webView addSubview:self.mapCtrl.view];
+  
+  [self.mapCtrl updateMapViewLayout];
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
 }
 
 /**
