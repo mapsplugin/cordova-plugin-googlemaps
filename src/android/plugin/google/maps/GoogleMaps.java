@@ -418,7 +418,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public Object onMessage(String id, Object data) {
-    Log.d("btServer", "id=" + id);
     EVENTS event = null;
     try {
       event = EVENTS.valueOf(id);
