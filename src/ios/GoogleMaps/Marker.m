@@ -240,6 +240,24 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Set position
+ * @params key
+ */
+-(void)setPosition:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl getMarkerByKey: markerKey];
+ 
+  NSDictionary *latLng = [command.arguments objectAtIndex:2];
+  float latitude = [[latLng objectForKey:@"lat"] floatValue];
+  float longitude = [[latLng objectForKey:@"lng"] floatValue];
+  CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
+  [marker setPosition:position];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 /**
  * Set flattable

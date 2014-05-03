@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -132,6 +133,22 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     this.setFloat("setAlpha", id, alpha, callbackContext);
   }
+  
+  /**
+   * set position
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    LatLng position = new LatLng(args.getDouble(2), args.getDouble(3));
+    Marker marker = this.getMarker(id);
+    marker.setPosition(position);
+    callbackContext.success();
+  }
+  
   /**
    * Set flat for the marker
    * @param args
