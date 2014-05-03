@@ -25,9 +25,8 @@ map.addPolyline({
   'geodesic': true
 }, function(polyline) {
   
-  map.animateCamera({
-    'target': polyline.getPoints(),
-    'zoom': 2
+  map.moveCamera({
+    'target': polyline.getPoints()
   });
 });</code>
   </div>
