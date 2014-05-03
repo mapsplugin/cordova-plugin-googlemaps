@@ -120,6 +120,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         try {
           switch(METHODS.valueOf(action)) {
+          case setVisible:
+            GoogleMaps.this.setVisible(args, callbackContext);
+            break;
           case setDiv:
             if (mapView.getParent() != null) {
               GoogleMaps.this.mapDivLayoutJSON = null;
