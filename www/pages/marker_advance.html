@@ -242,6 +242,11 @@ function onPageLoaded(map) {
   
   $("#scaledIcon").click(function() {
     map.clear();
+    
+    map.moveCamera({
+      'target': GOOGLE_TOKYO
+    });
+
     map.addMarker({
       'position': GOOGLE_TOKYO,
       'title': 'Google Tokyo!',
@@ -254,7 +259,6 @@ function onPageLoaded(map) {
       }
     });
   });
-  $("#scaledIcon").click();
   
   $("#base64Icon").click(function() {
     map.clear();
@@ -302,5 +306,7 @@ function onPageLoaded(map) {
       }, 2000);
     });
   });
+  
+  $("#scaledIcon").click();
 }
 </script>

@@ -73,7 +73,7 @@ NSLog(@"action=getMap");
     // Create the dialog footer
     dispatch_async(gueue, ^{
       dispatch_sync(dispatch_get_main_queue(), ^{
-        /*
+        
         // Create the footer background
         self.footer = [[UIView alloc]init];
         self.footer.backgroundColor = [UIColor lightGrayColor];
@@ -100,7 +100,7 @@ NSLog(@"action=getMap");
         [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
         [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
         [self.footer addSubview:self.licenseButton];
-        */
+        
     
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -193,7 +193,6 @@ NSLog(@"action=getMap");
 }
 
 - (void)_removeMapView{
-NSLog(@"_removeMapView");
   [self.mapCtrl.view removeFromSuperview];
   [self.footer removeFromSuperview];
   self.mapCtrl.isFullScreen = NO;
@@ -303,7 +302,6 @@ NSLog(@"_removeMapView");
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
-NSLog(@"action=resizeMap");
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
   [self.mapCtrl updateMapViewLayout];
 }
