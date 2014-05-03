@@ -211,7 +211,8 @@
     [CATransaction begin]; {
       [CATransaction setAnimationDuration: duration];
       
-      [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+      //[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+      [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
       
       [CATransaction setCompletionBlock:^{
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -231,22 +232,16 @@
 
 
 - (void)toDataURL:(CDVInvokedUrlCommand *)command {
-  NSDate *startDate = [NSDate date];
-  
   UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
   [self.mapCtrl.map.layer renderInContext:UIGraphicsGetCurrentContext()];
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:startDate];
-NSLog(@"time is %lf (sec)", interval);
 
   NSData *imageData = UIImagePNGRepresentation(image);
   NSString *base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-interval = [[NSDate date] timeIntervalSinceDate:startDate];
-NSLog(@"time is %lf (sec)", interval);
 }
 
 @end
