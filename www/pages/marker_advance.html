@@ -1,0 +1,306 @@
+<h3 class="ui-bar ui-bar-a">Marker</h3>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="scaledIcon" href="#one" data-ajax="false">Scaled Icon</a></li>
+      <li><a id="base64Icon" href="#two" data-ajax="false">Base64 Icon</a></li>
+      <li><a id="flatMarker" href="#three" data-ajax="false">Flat</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'icon': {
+    'url': 'www/images/google_tokyo_icon.png',
+    'size': {
+      'width': 74,
+      'height': 126
+    }
+  }
+});</code>
+  </div>
+  <div id="two">
+    <h4 class="ui-bar ui-bar-a">HTML</h4>
+    <code class="prettyprint">&lt;canvas id="canvas" width="114" height="131"&gt;&lt;/canvas&gt;</code>
+    <canvas id="canvas" width="114" height="131" ></canvas>
+    <script type="text/javascript">
+/**
+ * http://mahdipedram.com/Demos/html5/
+ */
+function html5Logo(canvasEle)
+{
+  var ctx = canvasEle.getContext('2d');
+  ctx.fillStyle = "#E34C26";
+
+  var endX = 114;
+  var beginX = 0;
+  var beginY = 0;
+  var IncreaseY =.97;
+  var maxIncreaseY = .11;
+  var reduceX  =.9;
+  var bottomRightX = endX * reduceX;
+  var bottomLeftX = endX - bottomRightX;
+
+  var IncreasedY = endX + (1-IncreaseY)* endX;
+  var maxIncleasedY = IncreasedY * maxIncreaseY + IncreasedY;
+  ctx.beginPath();
+  ctx.moveTo( beginX, beginY);
+  
+  ctx.lineTo( endX, beginY );
+  ctx.lineTo( bottomRightX ,IncreasedY );
+  ctx.lineTo( endX / 2, maxIncleasedY );
+  ctx.lineTo( bottomLeftX, IncreasedY );
+  ctx.lineTo( beginX, beginY );
+  ctx.fill();
+
+  var secondBoxMargin = 10;
+  var secondEndX =  (endX - secondBoxMargin);
+  var secondBottomRightX = secondEndX * reduceX;
+  var secondIncreasedY = secondEndX + (1-IncreaseY)* secondEndX;
+
+  ctx.fillStyle = "#F16529";
+  ctx.beginPath();
+  ctx.moveTo( endX / 2 ,secondBoxMargin);
+  
+  ctx.lineTo( secondEndX, secondBoxMargin );
+  ctx.lineTo( secondBottomRightX, secondIncreasedY);
+  ctx.lineTo( endX / 2, maxIncleasedY - secondBoxMargin );
+  ctx.lineTo( endX / 2, secondBoxMargin );
+  ctx.fill();
+
+  var thirdBoxMargin = 25;
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.moveTo(  endX / 2, thirdBoxMargin );
+  ctx.lineTo( 94, thirdBoxMargin);
+  ctx.lineTo( 93, 39 );
+  ctx.lineTo( endX /2, 39 );
+  ctx.lineTo( endX / 2, thirdBoxMargin );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo( endX/2, 53 );
+  ctx.lineTo( 90, 53 );
+  ctx.lineTo( 86, IncreasedY - 20 );
+  ctx.lineTo( endX/2, maxIncleasedY - 24 );
+  ctx.lineTo( endX/2, maxIncleasedY - 38 );
+  ctx.lineTo( endX/2 + 16, maxIncleasedY - 43 );
+  ctx.lineTo( endX/2 + 16 + 2, 68 );
+  ctx.lineTo( endX/2, 68 );
+  ctx.fill();
+
+
+  ctx.beginPath();
+  ctx.moveTo( endX / 2, thirdBoxMargin );
+  ctx.lineTo( 24, thirdBoxMargin );
+  ctx.lineTo( 28, 68 );
+  ctx.lineTo( endX/2, 68 );
+  ctx.lineTo( endX/2, 53 );
+  ctx.lineTo( 42, 53 );
+  ctx.lineTo( 41, 39 );
+  ctx.lineTo( endX/2, 39 );
+  ctx.fill();
+
+
+  ctx.beginPath();
+  ctx.moveTo( endX / 2, 106 );
+  ctx.lineTo( 31, 100 );
+  ctx.lineTo( 28, 78 );
+  ctx.lineTo( 42, 78 );
+  ctx.lineTo( 43, 88 );
+  ctx.lineTo( endX / 2, 92 );
+  ctx.fill(); 
+
+}
+html5Logo(document.getElementById("canvas"));
+</script>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">var canvas = document.getElementById("canvas");
+map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': canvas.toDataURL(),
+  'icon': "data:image/png;base64,iVBORw0KGgoA...",
+}, function(marker) {
+  marker.showInfoWindow();
+});
+</code>
+    <h4 class="ui-bar ui-bar-a">Draw the HTML5 Logo</h4>
+    <code class="prettyprint">&lt;script type="text/javascript"&gt;
+/**
+ * http://mahdipedram.com/Demos/html5/
+ */
+function html5Logo(canvasEle)
+{
+  var ctx = canvasEle.getContext('2d');
+  ctx.fillStyle = "#E34C26";
+
+  var endX = 114;
+  var beginX = 0;
+  var beginY = 0;
+  var IncreaseY =.97;
+  var maxIncreaseY = .11;
+  var reduceX  =.9;
+  var bottomRightX = endX * reduceX;
+  var bottomLeftX = endX - bottomRightX;
+
+  var IncreasedY = endX + (1-IncreaseY)* endX;
+  var maxIncleasedY = IncreasedY * maxIncreaseY + IncreasedY;
+  ctx.beginPath();
+  ctx.moveTo( beginX, beginY);
+  
+  ctx.lineTo( endX, beginY );
+  ctx.lineTo( bottomRightX ,IncreasedY );
+  ctx.lineTo( endX / 2, maxIncleasedY );
+  ctx.lineTo( bottomLeftX, IncreasedY );
+  ctx.lineTo( beginX, beginY );
+  ctx.fill();
+
+  var secondBoxMargin = 10;
+  var secondEndX =  (endX - secondBoxMargin);
+  var secondBottomRightX = secondEndX * reduceX;
+  var secondIncreasedY = secondEndX + (1-IncreaseY)* secondEndX;
+
+  ctx.fillStyle = "#F16529";
+  ctx.beginPath();
+  ctx.moveTo( endX / 2 ,secondBoxMargin);
+  
+  ctx.lineTo( secondEndX, secondBoxMargin );
+  ctx.lineTo( secondBottomRightX, secondIncreasedY);
+  ctx.lineTo( endX / 2, maxIncleasedY - secondBoxMargin );
+  ctx.lineTo( endX / 2, secondBoxMargin );
+  ctx.fill();
+
+  var thirdBoxMargin = 25;
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.moveTo(  endX / 2, thirdBoxMargin );
+  ctx.lineTo( 94, thirdBoxMargin);
+  ctx.lineTo( 93, 39 );
+  ctx.lineTo( endX /2, 39 );
+  ctx.lineTo( endX / 2, thirdBoxMargin );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo( endX/2, 53 );
+  ctx.lineTo( 90, 53 );
+  ctx.lineTo( 86, IncreasedY - 20 );
+  ctx.lineTo( endX/2, maxIncleasedY - 24 );
+  ctx.lineTo( endX/2, maxIncleasedY - 38 );
+  ctx.lineTo( endX/2 + 16, maxIncleasedY - 43 );
+  ctx.lineTo( endX/2 + 16 + 2, 68 );
+  ctx.lineTo( endX/2, 68 );
+  ctx.fill();
+
+
+  ctx.beginPath();
+  ctx.moveTo( endX / 2, thirdBoxMargin );
+  ctx.lineTo( 24, thirdBoxMargin );
+  ctx.lineTo( 28, 68 );
+  ctx.lineTo( endX/2, 68 );
+  ctx.lineTo( endX/2, 53 );
+  ctx.lineTo( 42, 53 );
+  ctx.lineTo( 41, 39 );
+  ctx.lineTo( endX/2, 39 );
+  ctx.fill();
+
+
+  ctx.beginPath();
+  ctx.moveTo( endX / 2, 106 );
+  ctx.lineTo( 31, 100 );
+  ctx.lineTo( 28, 78 );
+  ctx.lineTo( 42, 78 );
+  ctx.lineTo( 43, 88 );
+  ctx.lineTo( endX / 2, 92 );
+  ctx.fill(); 
+
+}
+html5Logo(document.getElementById("canvas"));</code>
+  </div>
+  
+  <div id="three" class="ui-body-d ui-content">
+    <img src="https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker-flat.gif">
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+map.addMarker({
+  'position': GOOGLE,
+  'flat': true
+});</code>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#scaledIcon").click(function() {
+    map.clear();
+    map.addMarker({
+      'position': GOOGLE_TOKYO,
+      'title': 'Google Tokyo!',
+      'icon': {
+        'url': 'www/images/google_tokyo_icon.png',
+        'size': {
+          'width': 74,
+          'height': 126
+        }
+      }
+    });
+  });
+  $("#scaledIcon").click();
+  
+  $("#base64Icon").click(function() {
+    map.clear();
+    map.moveCamera({
+      'target': GOOGLE_TOKYO,
+      'tilt': 60,
+      'zoom': 14,
+      'bearing': 0
+    });
+    
+    var icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAACVUlEQVRIS8WWjVXCMBRGwwTqBMIEuAG4ARuIE6gTKBOgEyAT4AbABjKBMIE/C+h3m6S2pWlJ8BzfOTkpad6770teEzom3bZy/VbrpYTopDjJZ6w2c77X6p9j46SCUXvuYDxHq04BZ2rPHXa3y/DRqlPAmdqZW+hrkMZEq44F52q3oGTdrjEpqmPBudoxKVBVKqsU1THgPbW+klNUt4GHCn6idqEGuMveerUeXFGtNTCvah9qaz+n2gMmKMGBnLrfjPFcMirZ7231XUF19RUJkIhPZqXnT8AM9Osy62v0VPihUqIfjWwx1RkJvbxIpjArhabfbEJ6zQYwysiiT3CW8kJ6Q4BgqMALEnqVNAqQZGSkM/R7nMOBLhZ/B/ZQeg9V/1EsrpLy5dIqP8aAXV6WlQIlZrWq/wzeBK0DM3Y0vA0aAh8FPwTaBC7B2W8+qUOMT4l9dYUUrJK2k4tCOHl7O7zK+Xx69nbWU/iebgKz1+9E+OYPToR1fqOe+SquujeBWdzlYGBPohhjW9b2lGbRa72bwLdyml5d2auvaPyeTOzIw4MxzCkal8h8no3cqT3WJd0ExuFmOjXmlhRIXbnfKZQ7hfJ4HDTM8wVIMi6xJ01y3mV8E5glGlDRGIEKS75DrAtFn/0DA3x/b0ddZbPgGt23JnBW0agpKPzUGCvhoT4iv1HG9Zodtc6HGBTYnoXAXc3UR5SbBwK1d8y+8RUAzxNwU2orOwQeyolF/lLT7mUqQ8BqCj4Bt+j1lR0Cs3Sopt8GFLYNF/2JU7K2k6stePL7fwP/AER2xy+mY1/QAAAAAElFTkSuQmCC";
+    var canvas = document.getElementById("canvas");
+    map.addMarker({
+      'position': GOOGLE_TOKYO,
+      'title': canvas.toDataURL(),
+      'icon': icon
+    }, function(marker) {
+      marker.showInfoWindow();
+    });
+  });
+  
+  $("#flatMarker").click(function() {
+    map.clear();
+
+    map.moveCamera({
+      'target': GOOGLE,
+      'zoom': 17,
+      'tilt': 0,
+      'bearing': 0
+    });
+    map.addMarker({
+      'title': "flat=true",
+      'position': GOOGLE,
+      'flat': true
+    }, function(marker) {
+      marker.showInfoWindow();
+      
+      setTimeout(function() {
+        map.animateCamera({
+      'target': GOOGLE,
+      'zoom': 17,
+          'tilt': 45,
+          'bearing': 0
+        });
+      }, 2000);
+    });
+  });
+}
+</script>

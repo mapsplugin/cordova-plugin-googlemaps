@@ -8,10 +8,30 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h1>First tab contents</h1>
+        <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">var bounds = [
+  new plugin.google.maps.LatLng(40.712216,-74.22655),
+  new plugin.google.maps.LatLng(40.773941,-74.12544)
+];
+
+map.addGroundOverlay({
+  'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+  'bounds': bounds,
+  'opacity': 0.5
+}, function(groundOverlay) {
+  map.moveCamera({
+    'target': bounds
+  });
+});</code>
   </div>
   <div id="two">
-    <h1>First tab contents</h1>
+    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <code class="prettyprint">map.addTileOverlay({
+  // &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; are replaced with values
+  tileUrlFormat: "http://tile.stamen.com/watercolor/&lt;zoom>/&lt;x&gt;/&lt;y&gt;.jpg"
+}, function(tileOverlay) {
+  
+});</code>
   </div>
 </div>
 <script type="text/javascript">
@@ -46,12 +66,8 @@ function addGroundOverlay(map) {
     'bounds': bounds,
     'opacity': 0.5
   }, function(groundOverlay) {
-    map.animateCamera({
+    map.moveCamera({
       'target': bounds
-    });
-    
-    map.addEventListenerOnce("REMOVE_GROUND_OVERLAY", function() {
-      groundOverlay.remove();
     });
   });
 }
