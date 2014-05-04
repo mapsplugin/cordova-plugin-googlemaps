@@ -43,13 +43,15 @@ $(document).on("deviceready", function() {
   
   loadPage(map, "welcome");
 });
-function loadPage(map, pageName) {
+function loadPage(map, pageName, delay) {
   $.get("./pages/" + pageName + ".html", function(html) {
     $("#container").html(html);
     $.mobile.activePage.trigger("create");
     if (typeof prettyPrint === "function") {
       prettyPrint();
     }
-    onPageLoaded(map);
+    setTimeout(function() {
+      onPageLoaded(map);
+    }, 1000);
   });
 }

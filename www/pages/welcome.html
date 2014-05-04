@@ -20,7 +20,10 @@ function onPageLoaded(map) {
 }
 </script>
 
-<h4 class="ui-bar ui-bar-a">with jQuery</h4>
+From version 1.0.7, this plugin allows you to embed a map into the your specified HTML Dom, such as div tag.
+You can specify the DOM element as the argument of Map.getMap() method, or Map.setDiv().
+But even the DOM element has z-index value, the map view shows always top.
+<h4 class="ui-bar ui-bar-a">JavaScript</h4>
 <code class="prettyprint">var mapDiv = $("#map_canvas")[0];
 var map = plugin.google.maps.Map.getMap(mapDiv);
 map.on(plugin.google.maps.event.MAP_READY, function() {
@@ -35,3 +38,5 @@ map.on(plugin.google.maps.event.MAP_READY, function() {
   
 });
 </code>
+<h4 class="ui-bar ui-bar-a">HTML</h4>
+<code class="prettyprint">&lt;div id="map_canvas" style="width:500px;height:500px"&gt;&lt;/div&gt;</code>
