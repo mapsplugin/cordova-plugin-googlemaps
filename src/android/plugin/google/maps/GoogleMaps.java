@@ -110,11 +110,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (args != null && args.length() > 0) {
+    /*if (args != null && args.length() > 0) {
       Log.d(TAG, "action=" + action + " args[0]=" + args.getString(0));
     } else {
       Log.d(TAG, "action=" + action);
-    }
+    }*/
 
     Runnable runnable = new Runnable() {
       public void run() {
@@ -473,10 +473,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     AbsoluteLayout.LayoutParams mapLayout = (AbsoluteLayout.LayoutParams) mapView.getLayoutParams();
     if (mapLayout == null) {
-      mapLayout = new AbsoluteLayout.LayoutParams();
+      mapLayout = new AbsoluteLayout.LayoutParams(AbsoluteLayout.LayoutParams.MATCH_PARENT, AbsoluteLayout.LayoutParams.MATCH_PARENT, 0, 0);
     }
-    mapLayout.width = FrameLayout.LayoutParams.MATCH_PARENT;
-    mapLayout.height = FrameLayout.LayoutParams.MATCH_PARENT;
+    mapLayout.width = AbsoluteLayout.LayoutParams.MATCH_PARENT;
+    mapLayout.height = AbsoluteLayout.LayoutParams.MATCH_PARENT;
     mapLayout.x = 0;
     mapLayout.y = 0;
     mapView.setLayoutParams(mapLayout);
@@ -590,11 +590,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Log.d("GoogleMaps", "getMyLocation isConnected =" + this.locationClient.isConnected());
     JSONObject result = null;
     if (this.locationClient.isConnected()) {
       Location location = this.locationClient.getLastLocation();
-      Log.d("GoogleMaps", "location=" + location.toString());
       result = PluginUtil.location2Json(location);
       callbackContext.success(result);
     } else {
@@ -633,7 +631,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param marker
    */
   private void onMarkerEvent(final String eventName, final Marker marker) {
-    Log.d(TAG, "marker event: " + eventName + " id= marker_" + marker.getId());
     String markerId = "marker_" + marker.getId();
     PluginEntry markerPlugin = this.plugins.get("Marker");
     PluginMarker markerClass = (PluginMarker) markerPlugin.plugin;
