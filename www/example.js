@@ -1,3 +1,4 @@
+
 window.onerror = function(message, file, line) {
   var error = [];
   error.push('---[error]');

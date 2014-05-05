@@ -11,10 +11,13 @@
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
-    <content src="test.html" />
+    <content src="index.html" />
     <access origin="*" />
     <feature name="GoogleMaps">
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
         <param name="ios-package" value="GoogleMaps" />
+    </feature>
+    <feature name="Console">
+        <param name="ios-package" value="CDVLogger" />
     </feature>
 </widget>
