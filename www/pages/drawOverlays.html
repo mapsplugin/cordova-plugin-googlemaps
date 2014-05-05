@@ -9,7 +9,7 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">Polyline Code</h4>
     <code class="prettyprint">const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
 const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
 const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
@@ -31,7 +31,7 @@ map.addPolyline({
 });</code>
   </div>
   <div id="two">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">Polygon Code</h4>
     <code class="prettyprint">const GORYOKAKU_POINTS = [
   new plugin.google.maps.LatLng(41.79883, 140.75675),
   new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
@@ -54,13 +54,13 @@ map.addPolygon({
   'fillColor' : '#880000'
 }, function(polygon) {
 
-  map.animateCamera({
+  map.moveCamera({
     'target': polygon.getPoints()
   });
 });</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">Circle Code</h4>
     <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 
 map.addCircle({
@@ -71,7 +71,7 @@ map.addCircle({
   'fillColor' : '#880000'
 });
 
-map.animateCamera({
+map.moveCamera({
   'target': GOOGLE,
   'zoom': 14
 });</code>
@@ -93,6 +93,8 @@ function onPageLoaded(map) {
     map.clear();
     drawCircle(map);
   });
+  
+  $("#polyline").click();
 }
 function drawPolyline(map) {
   const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
@@ -110,7 +112,7 @@ function drawPolyline(map) {
     'geodesic': true
   }, function(polyline) {
     
-    map.animateCamera({
+    map.moveCamera({
       'target': polyline.getPoints(),
       'zoom': 2
     });
@@ -139,7 +141,7 @@ function drawPolygon (map) {
     'fillColor' : '#880000'
   }, function(polygon) {
 
-    map.animateCamera({
+    map.moveCamera({
       'target': polygon.getPoints()
     });
   });
@@ -155,7 +157,7 @@ function drawCircle (map) {
     'fillColor' : '#880000'
   });
 
-  map.animateCamera({
+  map.moveCamera({
     'target': GOOGLE,
     'zoom': 14
   });
