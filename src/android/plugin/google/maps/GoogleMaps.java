@@ -470,9 +470,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (this.mapView.getParent() != null) {
       this.webView.removeView(mapView);
     }
+    
     AbsoluteLayout.LayoutParams mapLayout = (AbsoluteLayout.LayoutParams) mapView.getLayoutParams();
-    mapLayout.width = mapLayout.MATCH_PARENT;
-    mapLayout.height = mapLayout.MATCH_PARENT;
+    if (mapLayout == null) {
+      mapLayout = new AbsoluteLayout.LayoutParams();
+    }
+    mapLayout.width = FrameLayout.LayoutParams.MATCH_PARENT;
+    mapLayout.height = FrameLayout.LayoutParams.MATCH_PARENT;
     mapLayout.x = 0;
     mapLayout.y = 0;
     mapView.setLayoutParams(mapLayout);
