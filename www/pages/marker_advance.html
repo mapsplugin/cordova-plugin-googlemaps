@@ -223,20 +223,66 @@ html5Logo(document.getElementById("canvas"));</code>
   </div>
   
   <div id="three" class="ui-body-d ui-content">
-    <img src="https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/marker-flat.gif">
     <h4 class="ui-bar ui-bar-a">with jQuery</h4>
-    <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
-map.addMarker({
-  'position': GOOGLE,
-  'flat': true
-});</code>
+    <code class="prettyprint">var pos1 = new plugin.google.maps.LatLng(37.422858, -122.086035);
+var pos2 = new plugin.google.maps.LatLng(37.422858, -122.084035);
+var cameraPos = new plugin.google.maps.LatLng(37.422858, -122.085035);
+var markerPositions = [pos1, pos2];
+
+var waterfall = [
+  function(callback) {
+    map.moveCamera({
+      'target': cameraPos,
+      'zoom': 17,
+      'tilt': 0,
+      'bearing': 0
+    });
+    callback();
+  },
+  function(callback) {
+    map.addMarker({
+      'title': "flat=false",
+      'position': markerPositions[0],
+      'flat': false
+    }, function(marker) {
+      marker.showInfoWindow();
+      setTimeout(callback, 1000);
+    });
+  },
+  function(callback) {
+    map.addMarker({
+      'title': "flat=true",
+      'position': markerPositions[1],
+      'flat': true
+    }, function(marker) {
+      marker.showInfoWindow();
+      setTimeout(callback, 1000);
+    });
+  },
+  function(callback) {
+    map.animateCamera({
+      'target': cameraPos,
+      'zoom': 17,
+      'tilt': 90,
+      'bearing': 90,
+      'duration': 7000
+    });
+  }
+];
+
+var execWaterfall = function() {
+  var action = waterfall.shift();
+  if (typeof action == "function") {
+    action(execWaterfall);
+  }
+};
+execWaterfall();</code>
   </div>
 </div>
 <script type="text/javascript">
 
 function onPageLoaded(map) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
-  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 
   map.setDiv($("#map_canvas")[0]);
   
@@ -282,29 +328,62 @@ function onPageLoaded(map) {
   
   $("#flatMarker").click(function() {
     map.clear();
+    
+    
+    var pos1 = new plugin.google.maps.LatLng(37.422858, -122.086035);
+    var pos2 = new plugin.google.maps.LatLng(37.422858, -122.084035);
+    var cameraPos = new plugin.google.maps.LatLng(37.422858, -122.085035);
+    var markerPositions = [pos1, pos2];
 
-    map.moveCamera({
-      'target': GOOGLE,
-      'zoom': 17,
-      'tilt': 0,
-      'bearing': 0
-    });
-    map.addMarker({
-      'title': "flat=true",
-      'position': GOOGLE,
-      'flat': true
-    }, function(marker) {
-      marker.showInfoWindow();
-      
-      setTimeout(function() {
-        map.animateCamera({
-      'target': GOOGLE,
-      'zoom': 17,
-          'tilt': 45,
+    var waterfall = [
+      function(callback) {
+        map.moveCamera({
+          'target': cameraPos,
+          'zoom': 17,
+          'tilt': 0,
           'bearing': 0
         });
-      }, 2000);
-    });
+        callback();
+      },
+      function(callback) {
+        map.addMarker({
+          'title': "flat=false",
+          'position': markerPositions[0],
+          'flat': false
+        }, function(marker) {
+          marker.showInfoWindow();
+          setTimeout(callback, 1000);
+        });
+      },
+      function(callback) {
+        map.addMarker({
+          'title': "flat=true",
+          'position': markerPositions[1],
+          'flat': true
+        }, function(marker) {
+          marker.showInfoWindow();
+          setTimeout(callback, 1000);
+        });
+      },
+      function(callback) {
+        map.animateCamera({
+          'target': cameraPos,
+          'zoom': 17,
+          'tilt': 90,
+          'bearing': 90,
+          'duration': 7000
+        });
+      }
+    ];
+
+    var execWaterfall = function() {
+      var action = waterfall.shift();
+      if (typeof action == "function") {
+        action(execWaterfall);
+      }
+    };
+    execWaterfall();
+
   });
   
   $("#scaledIcon").click();

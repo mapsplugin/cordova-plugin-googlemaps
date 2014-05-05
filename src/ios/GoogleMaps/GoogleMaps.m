@@ -20,8 +20,6 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
-NSLog(@"action=getMap");
-
   NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
   if ([APIKey isEqualToString:@"API_KEY_FOR_IOS"]) {
     NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
@@ -131,7 +129,6 @@ NSLog(@"action=getMap");
     
     CDVPluginResult* pluginResult = nil;
     NSString *classAndMethod = [command.arguments objectAtIndex:0];
-    NSLog(@"action=%@", classAndMethod);
     
     NSArray *target = [classAndMethod componentsSeparatedByString:@"."];
     NSString *className = [target objectAtIndex:0];
@@ -285,7 +282,6 @@ NSLog(@"action=getMap");
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
 
   if ([command.arguments count] == 1) {
-    NSLog(@"action=Map.setDiv(show)");
     self.mapCtrl.isFullScreen = NO;
     [self.webView.scrollView addSubview:self.mapCtrl.view];
     [self resizeMap:command];
@@ -294,7 +290,6 @@ NSLog(@"action=getMap");
     float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
   
     if (width > 0.0f || height > 0.0f) {
-    NSLog(@"action=Map.setDiv(remove)");
       [self.mapCtrl.view removeFromSuperview];
     }
   }
