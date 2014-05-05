@@ -1,7 +1,5 @@
 package plugin.google.maps;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -28,18 +26,18 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
-import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -189,7 +187,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
   private void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(0);
     if (this.windowLayer == null) {
@@ -471,14 +468,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       this.webView.removeView(mapView);
     }
     
-    AbsoluteLayout.LayoutParams mapLayout = (AbsoluteLayout.LayoutParams) mapView.getLayoutParams();
-    if (mapLayout == null) {
-      mapLayout = new AbsoluteLayout.LayoutParams();
-    }
-    mapLayout.width = FrameLayout.LayoutParams.MATCH_PARENT;
-    mapLayout.height = FrameLayout.LayoutParams.MATCH_PARENT;
-    mapLayout.x = 0;
-    mapLayout.y = 0;
+    RelativeLayout.LayoutParams mapLayout = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+    mapLayout.width = RelativeLayout.LayoutParams.MATCH_PARENT;
+    mapLayout.height = RelativeLayout.LayoutParams.MATCH_PARENT;
+    mapLayout.leftMargin = 0;
+    mapLayout.topMargin = 0;
     mapView.setLayoutParams(mapLayout);
     mapFrame.addView(this.mapView);
     
@@ -547,7 +541,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
-  @SuppressWarnings("unused")
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
     mapDivLayoutJSON = args.getJSONObject(0);
     updateMapViewLayout();
@@ -560,7 +553,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+      RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(divW, divH);
+      layoutParams.leftMargin = divLeft;
+      layoutParams.topMargin = divTop;
+      mapView.setLayoutParams(layoutParams);
       
+      /*
       ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
       if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
         AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
@@ -580,7 +578,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         params.leftMargin = divLeft;
         mapView.setLayoutParams(params);
       }
-      
+      */
     } catch (JSONException e) {}
   }
   
@@ -841,8 +839,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         textView.setSingleLine(false);
         textView.setTextColor(Color.BLACK);
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
-        Build.VERSION version = new Build.VERSION();
-        if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
           textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         }
         windowLayer.addView(textView);
@@ -856,8 +853,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       textView2.setTextColor(Color.GRAY);
       textView2.setTextSize((textView2.getTextSize() / 6 * 5) / density);
       textView2.setGravity(Gravity.CENTER_HORIZONTAL);
-      Build.VERSION version = new Build.VERSION();
-      if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
         textView2.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
       }
       windowLayer.addView(textView2);
