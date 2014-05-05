@@ -5,34 +5,34 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>C134F2F6-24D9-42A2-8EA1-915893BBB862</string>
+	<string>A3CE32AA-61E9-4E98-BAC9-AFE074341943</string>
 	<key>IDESourceControlProjectName</key>
 	<string>DevApp</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>5F87D738-CE50-4E4C-BB06-FF12C0E6CA45</key>
-		<string>https://github.com/wf9a5m75/phonegap-googlemaps-plugin</string>
+		<key>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</key>
+		<string>ssh://github.com/wf9a5m75/phonegap-googlemaps-plugin.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>platforms/ios/DevApp.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>5F87D738-CE50-4E4C-BB06-FF12C0E6CA45</key>
+		<key>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</key>
 		<string>../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/wf9a5m75/phonegap-googlemaps-plugin</string>
+	<string>ssh://github.com/wf9a5m75/phonegap-googlemaps-plugin.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>5F87D738-CE50-4E4C-BB06-FF12C0E6CA45</string>
+	<string>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>5F87D738-CE50-4E4C-BB06-FF12C0E6CA45</string>
+			<string>6315A4A0-E6F7-49B7-9BF5-A3CCFB6B244A</string>
 			<key>IDESourceControlWCCName</key>
 			<string>phonegap-googlemaps-plugin</string>
 		</dict>
