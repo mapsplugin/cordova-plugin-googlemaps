@@ -184,7 +184,8 @@ function loadKml(map, url) {
   //Load the kml file
   map.addKmlOverlay({
     url: url,
-    preserveViewport: true
+    preserveViewport: false,
+    animation: false
   }, function(kmlLayer) {
     
   });

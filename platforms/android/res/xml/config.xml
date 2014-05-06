@@ -4,7 +4,7 @@
     <feature name="App">
         <param name="android-package" value="org.apache.cordova.App" />
     </feature>
-    <name>Phonegap-GoogleMaps-Plugin</name>
+    <name>DevApp</name>
     <description>
         This is an example to understand how work Phonegap-GoogleMaps-Plugin
     </description>
