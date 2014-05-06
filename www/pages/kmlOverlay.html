@@ -1,5 +1,5 @@
 <h3 class="ui-bar ui-bar-a">Create map from KML</h3>
-<p>KmlLayer objects render KML elements into a map.</p>
+<p>You can implement map data from a KML file. After loading the KML file, the map viewport will be changed by default.</p>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -9,15 +9,19 @@
       <li><a id="polygon" href="#three" data-ajax="false">Polygon</a></li>
     </ul>
   </div>
-  <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+  
+  <div id="one" class="ui-body-d ui-content">
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">//Load the kml file
 map.addKmlOverlay({
-  url: url
+  // HTTP URL or file path
+  'url': "www/kml/marker.kml",
+  'preserveViewport': false,
+  'animation': true
 }, function(kmlLayer) {
   
 });</code>
-  <div id="one" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">marker.kml</h4>
+    <h4 class="ui-bar ui-bar-a">KML file</h4>
     <code class="prettyprint">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
 &lt;kml xmlns=&quot;http://www.opengis.net/kml/2.2&quot;&gt;
   &lt;Document&gt;
@@ -61,7 +65,17 @@ map.addKmlOverlay({
 &lt;/kml&gt;</code>
   </div>
   <div id="two">
-    <h4 class="ui-bar ui-bar-a">polyline.kml</h4>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">//Load the kml file
+map.addKmlOverlay({
+  // HTTP URL or file path
+  'url': "www/kml/polyline.kml",
+  'preserveViewport': false,
+  'animation': true
+}, function(kmlLayer) {
+  
+});</code>
+    <h4 class="ui-bar ui-bar-a">KML file</h4>
     <code class="prettyprint">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;kml xmlns=&quot;http://earth.google.com/kml/2.1&quot;&gt;
   &lt;Document&gt;
@@ -120,7 +134,17 @@ map.addKmlOverlay({
 &lt;/kml&gt;</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">polygon.kml</h4>
+      <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">//Load the kml file
+map.addKmlOverlay({
+  // HTTP URL or file path
+  'url': "www/kml/polygon.kml",
+  'preserveViewport': false,
+  'animation': true
+}, function(kmlLayer) {
+  
+});</code>
+    <h4 class="ui-bar ui-bar-a">KML file</h4>
     <code class="prettyprint">&lt;?xml version='1.0' encoding='UTF-8'?&gt;
 &lt;kml xmlns='http://www.opengis.net/kml/2.2'&gt;
 	&lt;Document&gt;
@@ -156,7 +180,9 @@ map.addKmlOverlay({
 				&lt;Data name='Region'&gt;
 					&lt;value&gt;&lt;/value&gt;
 				&lt;/Data&gt;
-			&lt;/ExtendedData&gt;&lt;Polygon&gt;&lt;outerBoundaryIs&gt;&lt;LinearRing&gt;&lt;coordinates&gt;-94.26958,33.56679,0.0 -94.26926,33.56763,0.0 ... -94.30425,33.56656,0.0&lt;/coordinates&gt;&lt;/LinearRing&gt;&lt;/outerBoundaryIs&gt;&lt;/Polygon&gt;&lt;/Placemark&gt;
+			&lt;/ExtendedData&gt;&lt;Polygon&gt;&lt;outerBoundaryIs&gt;&lt;LinearRing&gt;&lt;coordinates&gt;-94.26958,33.56679,0.0 -94.26926,33.56763,0.0 ... -94.30425,33.56656,0.0&lt;/coordinates&gt;&lt;/LinearRing&gt;&lt;/outerBoundaryIs&gt;
+			&lt;/Polygon&gt;
+        &lt;Placemark&gt;
 	&lt;/Document&gt;
 &lt;/kml&gt;</code>
   </div>
@@ -185,7 +211,7 @@ function loadKml(map, url) {
   map.addKmlOverlay({
     url: url,
     preserveViewport: false,
-    animation: false
+    animation: true
   }, function(kmlLayer) {
     
   });

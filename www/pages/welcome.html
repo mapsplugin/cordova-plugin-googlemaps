@@ -39,3 +39,14 @@ map.on(plugin.google.maps.event.MAP_READY, function() {
   
 });
 </code>
+<p>If you want to show the map as full screen, call <span class="highlight">Map.showDialog()</span>.</p>
+<h4 class="ui-bar ui-bar-a">JavaScript</h4>
+<code class="prettyprint">var mapDiv = $("#map_canvas")[0];
+$("#fullScreenBtn").click(function() {
+  map.showDialog();
+  
+  map.one(plugin.google.maps.event.MAP_CLOSE, function() {
+    console.log("The map dialog is closed.");
+  });
+});
+</code>
