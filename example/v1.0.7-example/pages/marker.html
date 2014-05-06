@@ -1,0 +1,109 @@
+<h3 class="ui-bar ui-bar-a">Marker</h3>
+<p>You can add markers using Map.addMarker() method.</p>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="simple" href="#one" data-ajax="false">Simple</a></li>
+      <li><a id="icon" href="#two" data-ajax="false">Icon</a></li>
+      <li><a id="draggable" href="#three" data-ajax="false">Draggable</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <p>Added marker instance will pass to the callback.</p>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE,
+  'title': "Hello GoogleMap for Cordova!"
+}, function(marker) {
+  marker.showInfoWindow();
+});</code>
+  </div>
+  <div id="two">
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <p>You can specify the icon either file path or URL.</p>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'icon': 'www/images/google_tokyo_icon.png'
+});</code>
+  </div>
+  <div id="three" class="ui-body-d ui-content">
+    <p>In order to drag the marker, press the marker longer.</p>
+    <img src="https://cloud.githubusercontent.com/assets/167831/2723884/d5b0b584-c599-11e3-803b-e35dced2ca26.gif">
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE,
+  'draggable': true,
+  'title': 'Drag me!',
+  'snippet': 'See the below instraction'
+}, function(marker) {
+  marker.showInfoWindow();
+
+  marker.on(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
+    marker.getPosition(function(latLng) {
+      marker.setTitle(latLng.toUrlValue());
+      marker.showInfoWindow();
+    });
+  });
+});</code>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#simple").click(function() {
+    map.clear();
+    map.moveCamera({
+      'target': GOOGLE
+    });
+    map.addMarker({
+      'position': GOOGLE,
+      'title': "Hello GoogleMap for Cordova!"
+    }, function(marker) {
+      marker.showInfoWindow();
+    });
+  });
+  $("#simple").click();
+  
+  $("#icon").click(function() {
+    map.clear();
+    map.moveCamera({
+      'target': GOOGLE_TOKYO
+    });
+    map.addMarker({
+      'position': GOOGLE_TOKYO,
+      'title': 'Google Tokyo!',
+      'icon': 'www/images/google_tokyo_icon.png'
+    });
+  });
+  
+  $("#draggable").click(function() {
+    map.clear();
+
+    map.moveCamera({
+      'target': GOOGLE
+    });
+    map.addMarker({
+      'position': GOOGLE,
+      'draggable': true,
+      'title': 'Drag me!',
+      'snippet': 'See the below instraction'
+    }, function(marker) {
+      marker.showInfoWindow();
+    
+      marker.addEventListener(plugin.google.maps.event.MARKER_DRAG_END, function(marker) {
+        marker.getPosition(function(latLng) {
+          marker.setTitle(latLng.toUrlValue());
+          marker.showInfoWindow();
+        });
+      });
+    });
+  });
+}
+</script>

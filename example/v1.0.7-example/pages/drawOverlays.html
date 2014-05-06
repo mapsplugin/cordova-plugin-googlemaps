@@ -1,0 +1,171 @@
+<h3 class="ui-bar ui-bar-a">Polyline, Polygon, Circle</h3>
+<p>Drawing lines, polygons, and circles.</p>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="polyline" href="#one" data-ajax="false">Polyline</a></li>
+      <li><a id="polygon" href="#two" data-ajax="false">Polygon</a></li>
+      <li><a id="circle" href="#three" data-ajax="false">Circle</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <p>Drawing polyline is easy. Just specify a few points and other parameters.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
+const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
+
+map.addPolyline({
+  'points': [
+    HND_AIR_PORT,
+    HNL_AIR_PORT,
+    SFO_AIR_PORT
+  ],
+  
+  // You can use HTML colors, such as rgba(255, 255, 255, 127)
+  'color' : '#AA00FF',
+  'width': 5,
+  'geodesic': true
+}, function(polyline) {
+  
+  map.moveCamera({
+    'target': polyline.getPoints()
+  });
+});</code>
+  </div>
+  <div id="two">
+    <p>Just pass the LatLng array. The plugin takes well.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">const GORYOKAKU_POINTS = [
+  new plugin.google.maps.LatLng(41.79883, 140.75675),
+  new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
+  new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
+  new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
+  new plugin.google.maps.LatLng(41.79567, 140.75845),
+  new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
+  new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
+  new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
+  new plugin.google.maps.LatLng(41.79576, 140.75475),
+  new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
+  new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
+  new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
+  new plugin.google.maps.LatLng(41.79883, 140.75673)
+];
+map.addPolygon({
+  'points': GORYOKAKU_POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(polygon) {
+
+  map.moveCamera({
+    'target': polygon.getPoints()
+  });
+});</code>
+  </div>
+  <div id="three" class="ui-body-d ui-content">
+    <p>You need to specify the <span class="highlight">center</span> and the <span class="highlight">radius</span> parameters at least.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+
+map.addCircle({
+  'center': GOOGLE,
+  'radius': 300,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+});
+
+map.moveCamera({
+  'target': GOOGLE,
+  'zoom': 14
+});</code>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  map.setDiv($("#map_canvas")[0]);
+  $("#polyline").click(function() {
+    map.clear();
+    drawPolyline(map);
+  });
+  $("#polygon").click(function() {
+    map.clear();
+    drawPolygon(map);
+  });
+  $("#circle").click(function() {
+    map.clear();
+    drawCircle(map);
+  });
+  
+  $("#polyline").click();
+}
+function drawPolyline(map) {
+  const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
+  const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+  const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
+
+  map.addPolyline({
+    'points': [
+      HND_AIR_PORT,
+      HNL_AIR_PORT,
+      SFO_AIR_PORT
+    ],
+    'color' : '#AA00FF',
+    'width': 5,
+    'geodesic': true
+  }, function(polyline) {
+    
+    map.moveCamera({
+      'target': polyline.getPoints(),
+      'zoom': 2
+    });
+  });
+}
+function drawPolygon (map) {
+  const GORYOKAKU_POINTS = [
+    new plugin.google.maps.LatLng(41.79883, 140.75675),
+    new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
+    new plugin.google.maps.LatLng(41.797650000000004, 140.75905),
+    new plugin.google.maps.LatLng(41.79637, 140.76018000000002),
+    new plugin.google.maps.LatLng(41.79567, 140.75845),
+    new plugin.google.maps.LatLng(41.794470000000004, 140.75714000000002),
+    new plugin.google.maps.LatLng(41.795010000000005, 140.75611),
+    new plugin.google.maps.LatLng(41.79477000000001, 140.75484),
+    new plugin.google.maps.LatLng(41.79576, 140.75475),
+    new plugin.google.maps.LatLng(41.796150000000004, 140.75364000000002),
+    new plugin.google.maps.LatLng(41.79744, 140.75454000000002),
+    new plugin.google.maps.LatLng(41.79909000000001, 140.75465),
+    new plugin.google.maps.LatLng(41.79883, 140.75673)
+  ];
+  map.addPolygon({
+    'points': GORYOKAKU_POINTS,
+    'strokeColor' : '#AA00FF',
+    'strokeWidth': 5,
+    'fillColor' : '#880000'
+  }, function(polygon) {
+
+    map.moveCamera({
+      'target': polygon.getPoints()
+    });
+  });
+}
+function drawCircle (map) {
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+
+  map.addCircle({
+    'center': GOOGLE,
+    'radius': 300,
+    'strokeColor' : '#AA00FF',
+    'strokeWidth': 5,
+    'fillColor' : '#880000'
+  });
+
+  map.moveCamera({
+    'target': GOOGLE,
+    'zoom': 14
+  });
+}
+</script>

@@ -1,0 +1,82 @@
+<h3 class="ui-bar ui-bar-a">Layers</h3>
+<p>You can overlay your map data.</p>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="groundOverlay" href="#one" data-ajax="false">GroundOverlay</a></li>
+      <li><a id="tileOverlay" href="#two" data-ajax="false">TileOverlay</a></li>
+    </ul>
+  </div>
+  <div id="one">
+    <p>A rectangular image overlay on the map.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">var bounds = [
+  new plugin.google.maps.LatLng(40.712216,-74.22655),
+  new plugin.google.maps.LatLng(40.773941,-74.12544)
+];
+
+map.addGroundOverlay({
+  'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+  'bounds': bounds,
+  'opacity': 0.5
+}, function(groundOverlay) {
+  map.moveCamera({
+    'target': bounds
+  });
+});</code>
+  </div>
+  
+  <div id="two" class="ui-body-d ui-content">
+    <p>You can overlay your tile images.</p>
+    <h4 class="ui-bar ui-bar-a">TileOverlay Code</h4>
+    <code class="prettyprint">map.addTileOverlay({
+  // &lt;x&gt;,&lt;y&gt; and &lt;zoom&gt; are replaced with actual values.
+  tileUrlFormat: "http://tile.stamen.com/watercolor/&lt;zoom>/&lt;x&gt;/&lt;y&gt;.jpg"
+}, function(tileOverlay) {
+  
+});</code>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  map.setDiv($("#map_canvas")[0]);
+  $("#tileOverlay").click(function() {
+    map.clear();
+    addTileOverlay(map);
+  });
+  $("#groundOverlay").click(function() {
+    map.clear();
+    addGroundOverlay(map);
+  });
+  
+  $("#groundOverlay").click();
+}
+function addTileOverlay(map) {
+  map.setZoom(0);
+  map.addTileOverlay({
+    // <x>,<y> and <zoom> are replaced with actual values.
+    tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
+  }, function(tileOverlay) {
+    
+  });
+}
+function addGroundOverlay(map) {
+  var bounds = [
+    new plugin.google.maps.LatLng(40.712216,-74.22655),
+    new plugin.google.maps.LatLng(40.773941,-74.12544)
+  ];
+  
+  map.addGroundOverlay({
+    'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    'bounds': bounds,
+    'opacity': 0.5
+  }, function(groundOverlay) {
+    map.moveCamera({
+      'target': bounds
+    });
+  });
+}
+ 
+</script>
