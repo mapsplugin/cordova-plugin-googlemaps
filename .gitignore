@@ -22,6 +22,7 @@ hooks/
 platforms/
 www/*
 !www/googlemaps-cdv-plugin.js
+plugins/
 
 # Google Maps iOS SDK directory
 GoogleMaps-iOS-SDK/
