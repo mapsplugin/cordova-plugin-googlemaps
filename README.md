@@ -7,43 +7,10 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 ![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
 
 
-###Snippet
-![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/first-example.gif)
-```js
-//Define the location
-var GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
-
-//Initialize a map
-var map = plugin.google.maps.Map.getMap();
-map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
-  
-  // The map is initialized, then show a map dialog
-  map.showDialog();
-
-  // Add a marker onto the map
-  map.addMarker({
-    'position': GOOGLE,
-    'title': ["Hello Google Map", "for", "Cordova!"].join("\n"),
-    'snippet': "This plugin is awesome!"
-  }, function(marker) {
-    
-    // Move camera position
-    map.animateCamera({
-      'target': GOOGLE,
-      'zoom': 15
-    }, function() {
-      
-      //Show the infoWindow assigned with the marker
-      marker.showInfoWindow();
-    });
-  });
-});
-```
-
 ###Example
-You can try the example of this plugin. [SimpleMap_v1.0.2.apk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/raw/Images/examples/SimpleMap_v1.0.2.apk)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.0.7.apk](http://goo.gl/OkCzk3)
 
-![image](https://raw2.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/simple.png)
+![image](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/example-v1.0.7.gif)
 
 
 ###Documentation
