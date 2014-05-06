@@ -1,6 +1,6 @@
 ## jQuery Mobile + phonegap-googlemaps-plugin
 
-###What is change in v1.0.7
+###What is change in v1.0.7?
 This plugin allows you to specify the area which you want to show the Google Maps since the plugin version 1.0.7.
 It means you can embed the map into your app design.
 
