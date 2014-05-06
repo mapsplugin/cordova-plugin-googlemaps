@@ -18,6 +18,8 @@ local.properties
 # Eclipse project files
 .settings/
 
+hook/
+
 # Google Maps iOS SDK directory
 GoogleMaps-iOS-SDK/
 
