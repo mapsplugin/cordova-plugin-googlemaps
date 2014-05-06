@@ -20,7 +20,8 @@ local.properties
 
 hooks/
 platforms/
-www/config.xml
+www/*
+!www/googlemaps-cdv-plugin.js
 
 # Google Maps iOS SDK directory
 GoogleMaps-iOS-SDK/
