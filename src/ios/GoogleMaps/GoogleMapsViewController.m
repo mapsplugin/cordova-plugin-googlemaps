@@ -15,7 +15,7 @@ NSDictionary *initOptions;
 
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
-    initOptions = options;
+    initOptions = [[NSDictionary alloc] initWithDictionary:options];
     self.plugins = [NSMutableDictionary dictionary];
     self.isFullScreen = NO;
     self.embedRect = nil;
