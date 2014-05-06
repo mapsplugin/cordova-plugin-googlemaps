@@ -1,4 +1,5 @@
 <h3 class="ui-bar ui-bar-a">Polyline, Polygon, Circle</h3>
+<p>Drawing lines, polygons, and circles.</p>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -9,17 +10,20 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">Polyline Code</h4>
+    <p>Drawing polyline is easy. Just specify a few points and other parameters.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
 const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
 const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
 
 map.addPolyline({
-  points: [
+  'points': [
     HND_AIR_PORT,
     HNL_AIR_PORT,
     SFO_AIR_PORT
   ],
+  
+  // You can use HTML colors, such as rgba(255, 255, 255, 127)
   'color' : '#AA00FF',
   'width': 5,
   'geodesic': true
@@ -31,7 +35,8 @@ map.addPolyline({
 });</code>
   </div>
   <div id="two">
-    <h4 class="ui-bar ui-bar-a">Polygon Code</h4>
+    <p>Just pass the LatLng array. The plugin takes well.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">const GORYOKAKU_POINTS = [
   new plugin.google.maps.LatLng(41.79883, 140.75675),
   new plugin.google.maps.LatLng(41.799240000000005, 140.75875000000002),
@@ -48,7 +53,7 @@ map.addPolyline({
   new plugin.google.maps.LatLng(41.79883, 140.75673)
 ];
 map.addPolygon({
-  points: GORYOKAKU_POINTS,
+  'points': GORYOKAKU_POINTS,
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
@@ -60,7 +65,8 @@ map.addPolygon({
 });</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">Circle Code</h4>
+    <p>You need to specify the <span class="highlight">center</span> and the <span class="highlight">radius</span> parameters at least.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 
 map.addCircle({
@@ -102,7 +108,7 @@ function drawPolyline(map) {
   const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
 
   map.addPolyline({
-    points: [
+    'points': [
       HND_AIR_PORT,
       HNL_AIR_PORT,
       SFO_AIR_PORT
@@ -135,7 +141,7 @@ function drawPolygon (map) {
     new plugin.google.maps.LatLng(41.79883, 140.75673)
   ];
   map.addPolygon({
-    points: GORYOKAKU_POINTS,
+    'points': GORYOKAKU_POINTS,
     'strokeColor' : '#AA00FF',
     'strokeWidth': 5,
     'fillColor' : '#880000'

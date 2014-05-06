@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 
 public class PluginKmlOverlay extends MyPlugin {
   
@@ -28,8 +29,9 @@ public class PluginKmlOverlay extends MyPlugin {
   @SuppressWarnings("unused")
   private void createKmlOverlay(JSONArray args, CallbackContext callbackContext) throws JSONException {
     JSONObject opts = args.getJSONObject(1);
+    Bundle params = PluginUtil.Json2Bundle(opts);
     
-    AsyncKmlParser kmlParser = new AsyncKmlParser((CordovaActivity) this.cordova.getActivity(), this.mapCtrl, callbackContext);
+    AsyncKmlParser kmlParser = new AsyncKmlParser((CordovaActivity) this.cordova.getActivity(), this.mapCtrl, callbackContext, params);
     kmlParser.execute(opts.getString("url"));
   }
 

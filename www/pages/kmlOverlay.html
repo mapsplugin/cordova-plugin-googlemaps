@@ -1,4 +1,5 @@
 <h3 class="ui-bar ui-bar-a">Create map from KML</h3>
+<p>KmlLayer objects render KML elements into a map.</p>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -182,7 +183,8 @@ function loadKml(map, url) {
 
   //Load the kml file
   map.addKmlOverlay({
-    url: url
+    url: url,
+    preserveViewport: true
   }, function(kmlLayer) {
     
   });

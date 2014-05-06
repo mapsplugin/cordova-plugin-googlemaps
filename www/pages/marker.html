@@ -1,4 +1,5 @@
 <h3 class="ui-bar ui-bar-a">Marker</h3>
+<p>You can add markers using Map.addMarker() method.</p>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -9,7 +10,8 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <p>Added marker instance will pass to the callback.</p>
     <code class="prettyprint">map.addMarker({
   'position': GOOGLE,
   'title': "Hello GoogleMap for Cordova!"
@@ -18,7 +20,8 @@
 });</code>
   </div>
   <div id="two">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <p>You can specify the icon either file path or URL.</p>
     <code class="prettyprint">map.addMarker({
   'position': GOOGLE_TOKYO,
   'title': 'Google Tokyo!',
@@ -26,8 +29,9 @@
 });</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
+    <p>In order to drag the marker, press the marker longer.</p>
     <img src="https://cloud.githubusercontent.com/assets/167831/2723884/d5b0b584-c599-11e3-803b-e35dced2ca26.gif">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">map.addMarker({
   'position': GOOGLE,
   'draggable': true,

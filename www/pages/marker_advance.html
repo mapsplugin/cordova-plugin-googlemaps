@@ -1,4 +1,5 @@
-<h3 class="ui-bar ui-bar-a">Marker</h3>
+<h3 class="ui-bar ui-bar-a">Marker Advanced</h3>
+<p>There are some unique feature for Marker.</p>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -9,7 +10,8 @@
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <p>You can specify the icon size.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">map.addMarker({
   'position': GOOGLE_TOKYO,
   'title': 'Google Tokyo!',
@@ -23,9 +25,10 @@
 });</code>
   </div>
   <div id="two">
+    <p>You can generate the InfoWindow contents using Canvas.toDataURL() of HTML5.</p>
     <h4 class="ui-bar ui-bar-a">HTML</h4>
     <code class="prettyprint">&lt;canvas id="canvas" width="114" height="131"&gt;&lt;/canvas&gt;</code>
-    <canvas id="canvas" width="114" height="131" ></canvas>
+    <canvas id="canvas" width="114" height="131" style="margin-top:1em;"></canvas>
     <script type="text/javascript">
 /**
  * http://mahdipedram.com/Demos/html5/
@@ -118,7 +121,7 @@ function html5Logo(canvasEle)
 }
 html5Logo(document.getElementById("canvas"));
 </script>
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">var canvas = document.getElementById("canvas");
 map.addMarker({
   'position': GOOGLE_TOKYO,
@@ -223,7 +226,8 @@ html5Logo(document.getElementById("canvas"));</code>
   </div>
   
   <div id="three" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <p>Flat marker is interested feature. You can place your marker as part of map tile.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">var pos1 = new plugin.google.maps.LatLng(37.422858, -122.086035);
 var pos2 = new plugin.google.maps.LatLng(37.422858, -122.084035);
 var cameraPos = new plugin.google.maps.LatLng(37.422858, -122.085035);
