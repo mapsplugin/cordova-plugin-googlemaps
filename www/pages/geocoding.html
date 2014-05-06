@@ -1,5 +1,6 @@
 <h3 class="ui-bar ui-bar-a">Geocoding</h3>
-<div id="map_canvas"></div>
+<p>You can convert address or landscape names to latitude and longitude.<br>
+In Android, this plugin uses Google Play Services feature, while in iOS this plugin uses iOS feature (not Google).</p>
     <table width="100%">
       <tr>
         <td width="70%">
@@ -10,7 +11,9 @@
         </td>
       </tr>
     </table>
-    <h4 class="ui-bar ui-bar-a">with jQuery</h4>
+    <div id="map_canvas"></div>
+
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">var request = {
   'address': $("#geocoder_input").val()
 };
@@ -60,7 +63,7 @@ function geocoding(map) {
       
       map.addMarker({
         'position': position,
-        'title':  JSON.stringify(result.position)
+        'title': JSON.stringify(result.position)
       }, function(marker) {
         
         map.animateCamera({

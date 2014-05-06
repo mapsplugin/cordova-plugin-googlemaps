@@ -53,7 +53,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "">
+               scriptText = "cordova prepare ios">
             </ActionContent>
          </ExecutionAction>
       </PreActions>
