@@ -19,6 +19,8 @@ local.properties
 .settings/
 
 hooks/
+platforms/
+www/config.xml
 
 # Google Maps iOS SDK directory
 GoogleMaps-iOS-SDK/
