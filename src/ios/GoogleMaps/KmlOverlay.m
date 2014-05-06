@@ -94,15 +94,6 @@
 
   [self.mapCtrl.view addSubview:self._loadingView];
   
-  /*
-  self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-  self.spinner.center = CGPointMake(160, 240);
-  self.spinner.hidesWhenStopped = YES;
-  [self.mapCtrl.view addSubview:self.spinner];
-  [self.spinner startAnimating];
-  */
-  
-  
   // Parse the kml file
   [self parseKML:tbxml command:command];
 }
@@ -121,7 +112,7 @@
   //--------------------------------
   __block NSMutableDictionary *kmlData;
   dispatch_async(gueue, ^{
-    NSLog(@"%@", [[TBXML elementName:tbxml.rootXMLElement] lowercaseString]);
+    //NSLog(@"%@", [[TBXML elementName:tbxml.rootXMLElement] lowercaseString]);
     kmlData = [self parseXML:tbxml.rootXMLElement];
 
   });
@@ -165,9 +156,16 @@
         
     
         //Change the viewport
-        NSMutableDictionary *cameraOptions = [NSMutableDictionary dictionary];
-        [cameraOptions setObject:defaultViewport forKey:@"target"];
-        [self _execOtherClassMethod:@"Map" methodName:@"animateCamera" options:cameraOptions callbackId:@"kmlOverlay.viewChange"];
+        NSDictionary *json = [command.arguments objectAtIndex:1];
+        if ([json valueForKey:@"preserveViewport"] == NO) {
+          NSString *changeMethod = "animateCamera";
+          if ([json valueForKey:@"animation"] == NO) {
+            changeMethod = @"moveCamera";
+          }
+          NSMutableDictionary *cameraOptions = [NSMutableDictionary dictionary];
+          [cameraOptions setObject:defaultViewport forKey:@"target"];
+          [self _execOtherClassMethod:@"Map" methodName:changeMethod options:cameraOptions callbackId:@"kmlOverlay.viewChange"];
+        }
       });
 
     } else {

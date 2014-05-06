@@ -4,8 +4,6 @@
 <button id='fullScreenBtn' class="ui-btn-inline">Full screen</button>
 <script type="text/javascript">
 function onPageLoaded(map) {
-  map.setDiv($("#map_canvas")[0]);
-  
   $("#fullScreenBtn").click(function() {
     map.showDialog();
   });
@@ -19,10 +17,13 @@ function onPageLoaded(map) {
   });
 }
 </script>
-
-From version 1.0.7, this plugin allows you to embed a map into the your specified HTML Dom, such as div tag.
+<b>This example shows you how to create your app with this plugin and jQuery Mobile.</b>
+<br>
+From version 1.0.7, this plugin allows you to embed a map into the your specified HTML DOM, such as div tag.
 You can specify the DOM element as the argument of Map.getMap() method, or Map.setDiv().
 But even the DOM element has z-index value, the map view shows always top.
+<h4 class="ui-bar ui-bar-a">HTML</h4>
+<code class="prettyprint">&lt;div id="map_canvas" style="width:100%;height:500px"&gt;&lt;/div&gt;</code>
 <h4 class="ui-bar ui-bar-a">JavaScript</h4>
 <code class="prettyprint">var mapDiv = $("#map_canvas")[0];
 var map = plugin.google.maps.Map.getMap(mapDiv);
@@ -38,5 +39,3 @@ map.on(plugin.google.maps.event.MAP_READY, function() {
   
 });
 </code>
-<h4 class="ui-bar ui-bar-a">HTML</h4>
-<code class="prettyprint">&lt;div id="map_canvas" style="width:500px;height:500px"&gt;&lt;/div&gt;</code>

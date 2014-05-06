@@ -61,22 +61,32 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     coordinates
   };
   private long start, end;
+  private boolean preserveViewport = false;
+  private boolean animation = true;
+  private Bundle mOption = null;
   
-  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
+  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
     Random random = new Random();
     kmlId = "kml" + random.nextInt();
-    init(activity, mapCtrl, callbackContext);
+    init(activity, mapCtrl, callbackContext, option);
   }
 
-  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext) {
+  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext, Bundle option) {
     this.kmlId = kmlId;
-    init(activity, mapCtrl, callbackContext);
+    init(activity, mapCtrl, callbackContext, option);
   }
   
-  private void init(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext) {
+  private void init(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
     mActivity = activity;
+    mOption = option;
+    if (option.containsKey("preserveViewport")) {
+      preserveViewport = option.getBoolean("preserveViewport");
+    }
+    if (option.containsKey("animation")) {
+      animation = option.getBoolean("animation");
+    }
 
     mProgress = ProgressDialog.show(activity, "", "Please wait...", false);
     start = System.currentTimeMillis();
@@ -178,7 +188,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           childNode = bundleIterator.next();
           tagName = childNode.getString("tagName");
           if ("link".equals(tagName)) {
-            AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, this.kmlId, mCallback);
+            AsyncKmlParser kmlParser = new AsyncKmlParser(this.mActivity, this.mMapCtrl, this.kmlId, mCallback, mOption);
             kmlParser.execute(childNode.getString("href"));
             return null;
           }
@@ -361,23 +371,19 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       }
     }
     
-    optionsJSON = new JSONObject();
-    try {
-      optionsJSON.put("target", defaultViewport);
-    } catch (JSONException e) {}
-    JSONArray paramsCamera = new JSONArray();
-    paramsCamera.put("Map.animateCamera");
-    paramsCamera.put(optionsJSON);
-    AsyncKmlParser.this.execOtherClassMethod(paramsCamera, new CallbackContext("kml-viewport-change", AsyncKmlParser.this.mMapCtrl.webView));
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /**
+     * Change the view port after mapping the mark-ups.
+     */
+    if (this.preserveViewport == false) {
+      optionsJSON = new JSONObject();
+      try {
+        optionsJSON.put("target", defaultViewport);
+      } catch (JSONException e) {}
+      JSONArray paramsCamera = new JSONArray();
+      paramsCamera.put(this.animation == true ? "Map.animateCamera": "Map.moveCamera");
+      paramsCamera.put(optionsJSON);
+      AsyncKmlParser.this.execOtherClassMethod(paramsCamera, new CallbackContext("kml-viewport-change", AsyncKmlParser.this.mMapCtrl.webView));
+    }
     
     
     return kmlData;

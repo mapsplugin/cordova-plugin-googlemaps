@@ -596,8 +596,8 @@
     var self = this;
     kmlOverlayOptions = kmlOverlayOptions || {};
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
-    //kmlOverlayOptions.visible = kmlOverlayOptions.visible || true;
-    //kmlOverlayOptions.zIndex = kmlOverlayOptions.zIndex || 0;
+    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
+    kmlOverlayOptions.animation = kmlOverlayOptions.animation || true;
  
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
@@ -1197,8 +1197,10 @@
     
     var self = this;
     self._objects = {};
-    self.set("visible", kmlOverlayOptions.visible || true);
-    self.set("zIndex", kmlOverlayOptions.zIndex || 0);
+    //self.set("visible", kmlOverlayOptions.visible || true);
+    //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
+    self.set("animation", kmlOverlayOptions.animation || true);
+    self.set("preserveViewport", kmlOverlayOptions.preserveViewport || false);
     Object.defineProperty(self, "id", {
       value: kmlOverlayId,
       writable: false
