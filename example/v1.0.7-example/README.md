@@ -9,9 +9,7 @@ It means you can embed the map into your app design.
 var div = document.getElementById("div");
 var map = plugin.google.maps.Map.getMap(div);
 ```
-
 or
-
 ```js
 var map = plugin.google.maps.Map.getMap();
 map.addEventListener(plugin.google.maps.event.MAP_READY, function(map) {
