@@ -85,32 +85,19 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"GoogleMaps\"><param name=\"ios-package\" value=\"GoogleMaps\" /></feature>",
+                            "xml": "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>",
                             "count": 1
                         }
                     ]
                 }
-            },
-            "*-Info.plist": {
-                "parents": {
-                    "Google Maps API Key": [
-                        {
-                            "xml": "<string>1234</string>",
-                            "count": 1
-                        }
-                    ]
-                }
-            }
-        },
-        "config.xml": {
-            "/*": {
-                "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>": 1
             }
         }
     },
     "installed_plugins": {
-        "plugin.google.maps": {
-            "API_KEY_FOR_IOS": "AIzaSyA6tsFPlaBcM_mHPK2k9rxCugXruF8Ly3Y",
+        "com.googlemaps.ios": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "com.google.playservices": {
             "PACKAGE_NAME": "com.example.myapp"
         },
         "org.apache.cordova.console": {
