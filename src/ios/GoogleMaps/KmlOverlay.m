@@ -157,9 +157,9 @@
     
         //Change the viewport
         NSDictionary *json = [command.arguments objectAtIndex:1];
-        if ([json valueForKey:@"preserveViewport"] == NO) {
+        if ([[json valueForKey:@"preserveViewport"] boolValue] == NO) {
           NSString *changeMethod = @"animateCamera";
-          if ([json valueForKey:@"animation"] == NO) {
+          if ([[json valueForKey:@"animation"] boolValue] == NO) {
             changeMethod = @"moveCamera";
           }
           NSMutableDictionary *cameraOptions = [NSMutableDictionary dictionary];
