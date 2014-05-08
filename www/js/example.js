@@ -78,9 +78,13 @@ function loadPage(map, pageName) {
       prettyPrint();
     }
     
-    // Embed a map into the div tag.
     map.clear();
-    map.setDiv($("#map_canvas")[0]);
+    
+    // Embed a map into the div tag.
+    var div = $("#map_canvas")[0];
+    if (div) {
+      map.setDiv(div);
+    }
     
     // Execute the code
     setTimeout(function() {
