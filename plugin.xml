@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.0.6" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.0.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="window.plugins.phonegap-googlemaps-plugin" />
@@ -43,6 +43,7 @@
         <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginExternal.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
@@ -92,6 +93,8 @@
 
         <header-file src="src/ios/GoogleMaps/Circle.h" />
         <source-file src="src/ios/GoogleMaps/Circle.m" />
+        <header-file src="src/ios/GoogleMaps/External.h" />
+        <source-file src="src/ios/GoogleMaps/External.m" />
         <header-file src="src/ios/GoogleMaps/Geocoder.h" />
         <source-file src="src/ios/GoogleMaps/Geocoder.m" />
         <header-file src="src/ios/GoogleMaps/GoogleMaps.h" />
