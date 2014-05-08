@@ -24,4 +24,5 @@
 - (void)setCompassEnabled:(CDVInvokedUrlCommand*)command;
 - (void)getCameraPosition:(CDVInvokedUrlCommand*)command;
 - (void)toDataURL:(CDVInvokedUrlCommand*)command;
+- (void)getVisibleRegion:(CDVInvokedUrlCommand*)command;
 @end
