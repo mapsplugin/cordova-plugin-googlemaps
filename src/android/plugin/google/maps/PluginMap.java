@@ -18,6 +18,7 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 public class PluginMap extends MyPlugin {
 
@@ -129,7 +130,7 @@ public class PluginMap extends MyPlugin {
       if ("org.json.JSONArray".equals(targetClass.getName())) {
         JSONArray points = cameraPos.getJSONArray("target");
         LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-        cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 10);
+        cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, (int)(20 * this.density));
         
       } else {
         latLng = cameraPos.getJSONObject("target");
@@ -356,5 +357,31 @@ public class PluginMap extends MyPlugin {
       }
     });
     
+  }
+  
+  /**
+   * Return the visible region of the map
+   * Thanks @fschmidt
+   */
+  @SuppressWarnings("unused")
+  private void getVisibleRegion(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
+    LatLngBounds latLngBounds = visibleRegion.latLngBounds;
+    JSONObject result = new JSONObject();
+    JSONObject northeast = new JSONObject();
+    JSONObject southwest = new JSONObject();
+    northeast.put("lat", latLngBounds.northeast.latitude);
+    northeast.put("lng", latLngBounds.northeast.longitude);
+    southwest.put("lat", latLngBounds.southwest.latitude);
+    southwest.put("lng", latLngBounds.southwest.longitude);
+    result.put("northeast", northeast);
+    result.put("southwest", southwest);
+    
+    JSONArray latLngArray = new JSONArray();
+    latLngArray.put(northeast);
+    latLngArray.put(southwest);
+    result.put("latLngArray", latLngArray);
+    
+    callbackContext.success(result);
   }
 }

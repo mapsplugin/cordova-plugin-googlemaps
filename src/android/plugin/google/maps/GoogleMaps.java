@@ -154,9 +154,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             String[] params = classMethod.split("\\.", 0);
             
             // Load the class plugin
-            if (classMethod.equals(params[0] + ".create" + params[0])) {
-              GoogleMaps.this.loadPlugin(params[0]);
-            }
+            GoogleMaps.this.loadPlugin(params[0]);
             
             
             PluginEntry entry = GoogleMaps.this.plugins.get(params[0]);
