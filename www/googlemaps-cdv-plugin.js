@@ -437,6 +437,16 @@
     }
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
   };
+ 
+  /**
+   * Return the visible region of the map.
+   * Thanks @fschmidt
+   */
+  App.prototype.getVisibleRegion = function(successCallback, errorCallback) {
+    var self = this;
+    cordova.exec(successCallback, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
+  };
+ 
   //-------------
   // Marker
   //-------------
