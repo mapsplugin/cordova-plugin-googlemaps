@@ -130,7 +130,7 @@ public class PluginMap extends MyPlugin {
       if ("org.json.JSONArray".equals(targetClass.getName())) {
         JSONArray points = cameraPos.getJSONArray("target");
         LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-        cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 10);
+        cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, (int)(20 * this.density));
         
       } else {
         latLng = cameraPos.getJSONObject("target");
