@@ -1,0 +1,35 @@
+<h3 class="ui-bar ui-bar-a">Direction</h3>
+<p>Launch direction app either Google Maps or Apple Maps.</p>
+<table>
+  <tr>
+    <th>From</th>
+    <td><input type="text" id="from" size="24" value="Los Angeles, USA"></td>
+  </tr>
+  <tr>
+    <th>To</th>
+    <td><input type="text" id="to" size="24" value="San Francisco, USA"></td>
+  </tr>
+  <tr>
+    <td><button id="direction">Direction</button></td>
+  </tr>
+</table>
+<p>You can just specify <span class="highlight">from</span> and  <span class="highlight">to</span> parameters.
+If the Google Maps app is available, launch it. Otherwise, the Apple Maps app is launched in iOS.</p>
+<h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">plugin.google.maps.external.launchNavigation({
+  "from": $("#from").val(),
+  "to": $("#to").val()
+});</code>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  map.setDiv(null);
+  $("#direction").click(function() {
+    plugin.google.maps.external.launchNavigation({
+      "from": $("#from").val(),
+      "to": $("#to").val()
+    });
+  });
+}
+
+</script>
