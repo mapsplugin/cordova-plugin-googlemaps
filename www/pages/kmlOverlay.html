@@ -190,8 +190,6 @@ map.addKmlOverlay({
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  map.clear();
-  map.setDiv($("#map_canvas")[0]);
   $("#polyline").click(function() {
     loadKml(map, "www/kml/polyline.kml");
   });

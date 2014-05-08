@@ -55,8 +55,6 @@ function onPageLoaded(map) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
 
-  map.setDiv($("#map_canvas")[0]);
-  
   $("#simple").click(function() {
     map.clear();
     map.moveCamera({

@@ -79,6 +79,7 @@ function loadPage(map, pageName) {
     }
     
     // Embed a map into the div tag.
+    map.clear();
     map.setDiv($("#map_canvas")[0]);
     
     // Execute the code

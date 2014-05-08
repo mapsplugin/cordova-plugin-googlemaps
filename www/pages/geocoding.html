@@ -43,8 +43,6 @@ map.geocode(request, function(results) {
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  map.setDiv($("#map_canvas")[0]);
-  map.clear();
   $("#geocoding").click(function() {
     map.clear();
     geocoding(map);
