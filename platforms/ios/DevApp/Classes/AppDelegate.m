@@ -28,7 +28,6 @@
 #import "AppDelegate.h"
 #import "MainViewController.h"
 
-#import <GoogleMaps/GoogleMaps.h>
 #import <Cordova/CDVPlugin.h>
 
 @implementation AppDelegate
