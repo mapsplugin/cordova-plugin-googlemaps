@@ -186,8 +186,14 @@
       longitude = [[latLng valueForKey:@"lng"] floatValue];
       [path addLatitude:latitude longitude:longitude];
     }
+    float scale = 1;
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+      scale = [[UIScreen mainScreen] scale];
+    }
+    [[UIScreen mainScreen] scale];
+    
     GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-    cameraPosition = [self.mapCtrl.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10, 10, 10, 10)];
+    cameraPosition = [self.mapCtrl.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
   } else {
     latLng = [json objectForKey:@"target"];
     latitude = [[latLng valueForKey:@"lat"] floatValue];
