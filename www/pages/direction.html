@@ -3,11 +3,11 @@
 <table>
   <tr>
     <th>From</th>
-    <td><input type="text" id="from" size="24" value="Tokyo, Japan"></td>
+    <td><input type="text" id="from" size="24" value="Los Angeles, USA"></td>
   </tr>
   <tr>
     <th>To</th>
-    <td><input type="text" id="to" size="24" value="Kyoto, Japan"></td>
+    <td><input type="text" id="to" size="24" value="San Francisco, USA"></td>
   </tr>
   <tr>
     <td><button id="direction">Direction</button></td>
@@ -23,6 +23,7 @@ If the Google Maps app is available, launch it. Otherwise, the Apple Maps app is
 <script type="text/javascript">
 
 function onPageLoaded(map) {
+  map.setDiv(null);
   $("#direction").click(function() {
     plugin.google.maps.external.launchNavigation({
       "from": $("#from").val(),
