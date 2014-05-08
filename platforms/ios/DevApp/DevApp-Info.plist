@@ -63,21 +63,16 @@
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>Google Maps API Key</key>
-    <string>1234</string>
+    <string>AIzaSyA6tsFPlaBcM_mHPK2k9rxCugXruF8Ly3Y</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSMainNibFile</key>
     <string></string>
     <key>NSMainNibFile~ipad</key>
     <string></string>
-    <key>UIStatusBarHidden</key>
-    <true/>
     <key>UISupportedInterfaceOrientations</key>
     <array>
       <string>UIInterfaceOrientationPortrait</string>
-      <string>UIInterfaceOrientationLandscapeRight</string>
-      <string>UIInterfaceOrientationLandscapeLeft</string>
-      <string>UIInterfaceOrientationPortraitUpsideDown</string>
     </array>
     <key>UISupportedInterfaceOrientations~ipad</key>
     <array>
