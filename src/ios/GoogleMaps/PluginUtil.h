@@ -18,6 +18,10 @@
 - (UIColor*)parsePluginColor;
 @end
 
+@interface NSString (GoogleMapsPlugin)
+- (NSString*)regReplace:(NSString*)pattern replaceTxt:(NSString*)replaceTxt options:(NSRegularExpressionOptions)options;
+@end
+
 
 @interface UIImage (GoogleMapsPlugin)
 - (UIImage*)imageByApplyingAlpha:(CGFloat) alpha;
