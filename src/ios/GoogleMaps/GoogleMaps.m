@@ -87,14 +87,17 @@
         frame.size.width = 50;
         frame.size.height = 40;
         [self.closeButton setFrame:frame];
-        self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+        self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+                                              UIViewAutoresizingFlexibleHeight;
         [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
         [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
         [self.footer addSubview:self.closeButton];
       
         // Create the legal notices button
         self.licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin;
+        self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+                                              UIViewAutoresizingFlexibleLeftMargin |
+                                              UIViewAutoresizingFlexibleHeight;
         [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
         [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
         [self.footer addSubview:self.licenseButton];
@@ -327,6 +330,10 @@
   
   
   int footerHeight = 40;
+  int headerHeight = 0;
+  if ([PluginUtil isIOS7] == false) {
+    headerHeight = 20;
+  }
 
   // Calculate the full screen size
   CGRect screenSize = self.mapCtrl.screenSize;
@@ -337,10 +344,10 @@
   if (direction == UIInterfaceOrientationLandscapeLeft ||
     direction == UIInterfaceOrientationLandscapeRight) {
     pluginRect.size.width = screenSize.size.height;
-    pluginRect.size.height = screenSize.size.width - footerHeight;
+    pluginRect.size.height = screenSize.size.width - footerHeight - headerHeight;
   } else {
     pluginRect.size.width = screenSize.size.width;
-    pluginRect.size.height = screenSize.size.height - footerHeight;
+    pluginRect.size.height = screenSize.size.height - footerHeight - headerHeight;
   }
   [self.mapCtrl.view setFrame:pluginRect];
   
