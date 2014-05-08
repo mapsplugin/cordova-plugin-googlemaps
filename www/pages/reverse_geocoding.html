@@ -30,9 +30,6 @@
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  map.setDiv($("#map_canvas")[0]);
-  map.clear();
-  
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   map.moveCamera({
     'target': GOOGLE,

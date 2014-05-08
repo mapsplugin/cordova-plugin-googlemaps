@@ -3,8 +3,6 @@
 <button id='updateLocationBtn' class="ui-btn-inline">update location</button>
 <script type="text/javascript">
 function onPageLoaded(map) {
-  map.setDiv($("#map_canvas")[0]);
-  
   $("#updateLocationBtn").click(function() {
     map.setZoom(10);
     showMyLocation(map);

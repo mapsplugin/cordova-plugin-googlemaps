@@ -1,0 +1,14 @@
+<h3 class="ui-bar ui-bar-a">getVisibleRegion</h3>
+<p>Return the visible region of the map.</p>
+<div id="map_canvas"></div>
+<button id="button">getVisibleRegion()</button>
+<script type="text/javascript">
+function onPageLoaded(map) {
+  $("#button").click(function() {
+    map.getVisibleRegion(function(region) {
+      alert(JSON.stringify(region, null, 2));
+    });
+  });
+}
+
+</script>
