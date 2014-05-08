@@ -33,9 +33,7 @@
       [NSString stringWithFormat: @"http://maps.apple.com/?saddr=%@&daddr=%@",
         from, to, nil];
   }
-  NSLog(@"directionsRequest=%@", directionsRequest);
   NSURL *directionsURL = [NSURL URLWithString:directionsRequest];
-  NSLog(@"directionsURL=%@", directionsURL);
   [[UIApplication sharedApplication] openURL:directionsURL];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
