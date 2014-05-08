@@ -62,6 +62,15 @@
 }
 @end
 
+@implementation NSString (GoogleMapsPlugin)
+- (NSString*)regReplace:(NSString*)pattern replaceTxt:(NSString*)replaceTxt options:(NSRegularExpressionOptions)options
+{
+  NSError *error = nil;
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:options error:&error];
+  return [regex stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, [self length]) withTemplate:replaceTxt];
+}
+@end
+
 // Generate a new image with the specified alpha from a uiImage
 // http://stackoverflow.com/questions/5084845/how-to-set-the-opacity-alpha-of-a-uiimage#10819117
 @implementation UIImage (GoogleMapsPlugin)
