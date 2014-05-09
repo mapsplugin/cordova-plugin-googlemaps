@@ -32,22 +32,23 @@
     marker.map = self.mapCtrl.map;
   }
   if ([json valueForKey:@"title"]) {
-    marker.title = [json valueForKey:@"title"];
+    [marker setTitle: [json valueForKey:@"title"]];
   }
   if ([json valueForKey:@"snippet"]) {
-    marker.snippet = [json valueForKey:@"snippet"];
+    [marker setSnippet: [json valueForKey:@"snippet"]];
   }
   if ([json valueForKey:@"draggable"]) {
-    marker.draggable = [[json valueForKey:@"draggable"] boolValue];
+    [marker setDraggable:[[json valueForKey:@"draggable"] boolValue]];
   }
   if ([json valueForKey:@"flat"]) {
-    marker.flat = [[json valueForKey:@"flat"] boolValue];
+    [marker setFlat:[[json valueForKey:@"flat"] boolValue]];
   }
   if ([json valueForKey:@"rotation"]) {
-    marker.rotation = [[json valueForKey:@"flat"] floatValue];
+    CLLocationDegrees degrees = [[json valueForKey:@"rotation"] doubleValue];
+    [marker setRotation:degrees];
   }
   if ([json valueForKey:@"opacity"]) {
-    marker.opacity = [[json valueForKey:@"opacity"] floatValue];
+    [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
   }
   
   NSString *id = [NSString stringWithFormat:@"marker_%d",  marker.hash];
@@ -285,6 +286,20 @@
   // Create icon
   NSObject *iconProperty = [command.arguments objectAtIndex:2];
   [self setIcon_:marker iconProperty:iconProperty];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+/**
+ * set rotation
+ */
+-(void)setRotation:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  
+  CLLocationDegrees degrees = [[command.arguments objectAtIndex:2] doubleValue];
+  [marker setRotation:degrees];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
