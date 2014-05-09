@@ -57,9 +57,8 @@
   NSString *circleKey = [command.arguments objectAtIndex:1];
   GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
  
-  NSDictionary *latLng = [command.arguments objectAtIndex:2];
-  float latitude = [[latLng objectForKey:@"lat"] floatValue];
-  float longitude = [[latLng objectForKey:@"lng"] floatValue];
+  float latitude = [[command.arguments objectAtIndex:2] floatValue];
+  float longitude = [[command.arguments objectAtIndex:3] floatValue];
   CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
   [circle setPosition:center];
   
