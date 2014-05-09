@@ -87,7 +87,8 @@ You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.0.9.apk](
   * CameraPosition Class Reference
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
-
+* [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
+  * Launch the navigation application
 ***
 
 * [Release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
