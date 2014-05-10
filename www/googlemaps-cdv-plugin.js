@@ -442,9 +442,17 @@
    * Return the visible region of the map.
    * Thanks @fschmidt
    */
-  App.prototype.getVisibleRegion = function(successCallback, errorCallback) {
+  App.prototype.getVisibleRegion = function(callback) {
     var self = this;
-    cordova.exec(successCallback, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
+    
+    cordova.exec(function(result) {
+      if (typeof callback === "function") {
+        var latLngBounds = new LatLngBounds(result.latLngArray);
+        latLngBounds.northeast = new LatLng(result.northeast.lat, result.northeast.lng);
+        latLngBounds.southwest = new LatLng(result.southwest.lat, result.southwest.lng);
+        callback.call(self, latLngBounds);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
   };
  
   //-------------
@@ -1236,6 +1244,59 @@
       self.off();
     }, 1000);
   };
+  
+  /*****************************************************************************
+   * LatLngBounds Class
+   *****************************************************************************/
+  var LatLngBounds = function() {
+    Array.apply(this);
+    
+    var args = [];
+    if (arguments.length === 1 &&
+        typeof arguments[0] === "object" &&
+        "push" in arguments[0]) {
+      args = arguments[0];
+    } else {
+      args = Array.prototype.slice.call(arguments, 0);
+    }
+    for (var i = 0; i < args.length; i++) {
+      if ("lat" in args[i] && "lng" in args[i]) {
+        this.push(args[i]);
+      }
+    }
+  };
+  
+  LatLngBounds.prototype = new Array;
+  
+  LatLngBounds.prototype.northeast = new LatLng(0, 0);
+  LatLngBounds.prototype.southwest = new LatLng(0, 0);
+  
+  LatLngBounds.prototype.toString = function() {
+    return "[[" + this.northeast.toUrlValue() + "],[" + this.southwest.toUrlValue() + "]]";
+  };
+  
+  LatLngBounds.prototype.extend = function(latLng) {
+    if ("lat" in latLng && "lng" in latLng) {
+      this.push(latLng);
+    }
+  };
+  LatLngBounds.prototype.contains = function(latLng, callback) {
+    if (!("lat" in latLng) || !("lng" in latLng)) {
+      return;
+    }
+    var self = this,
+        bounds = [];
+    for (var i = 0; i < this.length; i++) {
+      bounds.push(this[i]);
+    }
+    
+    cordova.exec(function(isContains) {
+      if (typeof callback === "function") {
+        callback.call(self, isContains === "true");
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['LatLngBounds.contains', bounds, latLng]);
+  };
+  
   /*****************************************************************************
    * Private functions
    *****************************************************************************/
@@ -1399,6 +1460,7 @@
   };
   window.plugin.google.maps.Map = new App();
   window.plugin.google.maps.LatLng = LatLng;
+  window.plugin.google.maps.LatLngBounds = LatLngBounds;
   window.plugin.google.maps.Marker = Marker;
   window.plugin.google.maps.MapTypeId = {
     'NORMAL': 'MAP_TYPE_NORMAL',
