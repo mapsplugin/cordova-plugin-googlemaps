@@ -46,6 +46,7 @@
 		7E7966E51810823500FA85AD /* icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DB1810823500FA85AD /* icon-76@2x.png */; };
 		7E7966E61810823500FA85AD /* icon-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DC1810823500FA85AD /* icon-small.png */; };
 		7E7966E71810823500FA85AD /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DD1810823500FA85AD /* icon-small@2x.png */; };
+		A045FE56191E029400D23AA1 /* LatLngBounds.m in Sources */ = {isa = PBXBuildFile; fileRef = A045FE55191E029400D23AA1 /* LatLngBounds.m */; };
 		A0ACC22A191B77D400115E6E /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = A0ACC210191B77D400115E6E /* Circle.m */; };
 		A0ACC22B191B77D400115E6E /* Geocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = A0ACC212191B77D400115E6E /* Geocoder.m */; };
 		A0ACC22C191B77D400115E6E /* GoogleMaps.m in Sources */ = {isa = PBXBuildFile; fileRef = A0ACC214191B77D400115E6E /* GoogleMaps.m */; };
@@ -139,6 +140,8 @@
 		7E7966DC1810823500FA85AD /* icon-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small.png"; sourceTree = "<group>"; };
 		7E7966DD1810823500FA85AD /* icon-small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small@2x.png"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* DevApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "DevApp-Info.plist"; path = "../DevApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		A045FE54191E029400D23AA1 /* LatLngBounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LatLngBounds.h; path = ../../../../src/ios/GoogleMaps/LatLngBounds.h; sourceTree = "<group>"; };
+		A045FE55191E029400D23AA1 /* LatLngBounds.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LatLngBounds.m; path = ../../../../src/ios/GoogleMaps/LatLngBounds.m; sourceTree = "<group>"; };
 		A0ACC20F191B77D400115E6E /* Circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Circle.h; path = ../../../../src/ios/GoogleMaps/Circle.h; sourceTree = "<group>"; };
 		A0ACC210191B77D400115E6E /* Circle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Circle.m; path = ../../../../src/ios/GoogleMaps/Circle.m; sourceTree = "<group>"; };
 		A0ACC211191B77D400115E6E /* Geocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Geocoder.h; path = ../../../../src/ios/GoogleMaps/Geocoder.h; sourceTree = "<group>"; };
@@ -324,6 +327,8 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				A045FE54191E029400D23AA1 /* LatLngBounds.h */,
+				A045FE55191E029400D23AA1 /* LatLngBounds.m */,
 				6938CB70191C092300193807 /* External.h */,
 				6938CB71191C092300193807 /* External.m */,
 				A0ACC237191B77EB00115E6E /* NSData+Base64.h */,
@@ -561,6 +566,7 @@
 				A0ACC22C191B77D400115E6E /* GoogleMaps.m in Sources */,
 				A0ACC22E191B77D400115E6E /* GroundOverlay.m in Sources */,
 				A0ACC236191B77D400115E6E /* TileOverlay.m in Sources */,
+				A045FE56191E029400D23AA1 /* LatLngBounds.m in Sources */,
 				A0ACC234191B77D400115E6E /* Polyline.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				A0ACC230191B77D400115E6E /* Map.m in Sources */,

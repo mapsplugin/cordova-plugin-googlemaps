@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.0.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.0.10" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="window.plugins.phonegap-googlemaps-plugin" />
@@ -53,6 +53,7 @@
         <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginLatLngBounds.java" target-dir="src/plugin/google/maps" />
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
@@ -103,6 +104,8 @@
         <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
         <header-file src="src/ios/GoogleMaps/GroundOverlay.h" />
         <source-file src="src/ios/GoogleMaps/GroundOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/LatLngBounds.h" />
+        <source-file src="src/ios/GoogleMaps/LatLngBounds.m" />
         <header-file src="src/ios/GoogleMaps/KmlOverlay.h" />
         <source-file src="src/ios/GoogleMaps/KmlOverlay.m" />
         <header-file src="src/ios/GoogleMaps/Map.h" />
