@@ -330,9 +330,9 @@
   
   
   int footerHeight = 40;
-  int headerHeight = 0;
+  int footerAdjustment = 0;
   if ([PluginUtil isIOS7] == false) {
-    headerHeight = 20;
+    footerAdjustment = 20;
   }
 
   // Calculate the full screen size
@@ -344,26 +344,24 @@
   if (direction == UIInterfaceOrientationLandscapeLeft ||
     direction == UIInterfaceOrientationLandscapeRight) {
     pluginRect.size.width = screenSize.size.height;
-    pluginRect.size.height = screenSize.size.width - footerHeight - headerHeight;
+    pluginRect.size.height = screenSize.size.width - footerHeight - footerAdjustment;
   } else {
     pluginRect.size.width = screenSize.size.width;
-    pluginRect.size.height = screenSize.size.height - footerHeight - headerHeight;
+    pluginRect.size.height = screenSize.size.height - footerHeight;
   }
   [self.mapCtrl.view setFrame:pluginRect];
   
   //self.mapCtrl.view.frame = pluginRect;
-  [self.footer setFrameWithInt:0 top:pluginRect.size.height width:pluginRect.size.width height:footerHeight];
+  [self.footer setFrameWithInt:0 top:pluginRect.size.height - footerAdjustment width:pluginRect.size.width height:footerHeight];
   [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
   [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
-  
-  // Add the footer
-  [self.webView addSubview:self.footer];
   
   // Show the map
   [self.webView addSubview:self.mapCtrl.view];
   
-  [self.mapCtrl updateMapViewLayout];
-
+  // Add the footer
+  [self.webView addSubview:self.footer];
+  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 

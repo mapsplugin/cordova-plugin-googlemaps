@@ -5,8 +5,8 @@
 <script type="text/javascript">
 function onPageLoaded(map) {
   $("#button").click(function() {
-    map.getVisibleRegion(function(region) {
-      alert(JSON.stringify(region, null, 2));
+    map.getVisibleRegion(function(latLngBounds) {
+      alert(latLngBounds);
     });
   });
 }
