@@ -1236,6 +1236,52 @@
       self.off();
     }, 1000);
   };
+  
+  /*****************************************************************************
+   * LatLngBounds Class
+   *****************************************************************************/
+  var LatLngBounds = function() {
+    Array.apply(this);
+    
+    var args = [];
+    if (arguments.length === 1 &&
+        typeof arguments[0] === "object" &&
+        "push" in arguments[0]) {
+      args = arguments[0];
+    } else {
+      args = Array.prototype.slice.call(arguments, 0);
+    }
+    for (var i = 0; i < args.length; i++) {
+      if ("lat" in args[i] && "lng" in args[i]) {
+        this.push(args[i]);
+      }
+    }
+  };
+  
+  LatLngBounds.prototype = new Array;
+  
+  LatLngBounds.prototype.extend = function(latLng) {
+    if ("lat" in latLng && "lng" in latLng) {
+      this.push(latLng);
+    }
+  };
+  LatLngBounds.prototype.contains = function(latLng, callback) {
+    if (!("lat" in latLng) || !("lng" in latLng)) {
+      return;
+    }
+    var self = this,
+        bounds = [];
+    for (var i = 0; i < this.length; i++) {
+      bounds.push(this[i]);
+    }
+    
+    cordova.exec(function(isContain) {
+      if (typeof callback === "function") {
+        callback.call(self, isContain === "true");
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['LatLngBounds.contains', bounds, latLng]);
+  };
+  
   /*****************************************************************************
    * Private functions
    *****************************************************************************/
@@ -1399,6 +1445,7 @@
   };
   window.plugin.google.maps.Map = new App();
   window.plugin.google.maps.LatLng = LatLng;
+  window.plugin.google.maps.LatLngBounds = LatLngBounds;
   window.plugin.google.maps.Marker = Marker;
   window.plugin.google.maps.MapTypeId = {
     'NORMAL': 'MAP_TYPE_NORMAL',
