@@ -442,9 +442,17 @@
    * Return the visible region of the map.
    * Thanks @fschmidt
    */
-  App.prototype.getVisibleRegion = function(successCallback, errorCallback) {
+  App.prototype.getVisibleRegion = function(callback) {
     var self = this;
-    cordova.exec(successCallback, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
+    
+    cordova.exec(function(result) {
+      if (typeof callback === "function") {
+        var latLngBounds = new LatLngBounds(result.latLngArray);
+        latLngBounds.northeast = new LatLng(result.northeast.lat, result.northeast.lng);
+        latLngBounds.southwest = new LatLng(result.southwest.lat, result.southwest.lng);
+        callback.call(self, latLngBounds);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
   };
  
   //-------------
@@ -1260,6 +1268,13 @@
   
   LatLngBounds.prototype = new Array;
   
+  LatLngBounds.prototype.northeast = new LatLng(0, 0);
+  LatLngBounds.prototype.southwest = new LatLng(0, 0);
+  
+  LatLngBounds.prototype.toString = function() {
+    return "[[" + this.northeast.toUrlValue() + "],[" + this.southwest.toUrlValue() + "]]";
+  };
+  
   LatLngBounds.prototype.extend = function(latLng) {
     if ("lat" in latLng && "lng" in latLng) {
       this.push(latLng);
@@ -1275,9 +1290,9 @@
       bounds.push(this[i]);
     }
     
-    cordova.exec(function(isContain) {
+    cordova.exec(function(isContains) {
       if (typeof callback === "function") {
-        callback.call(self, isContain === "true");
+        callback.call(self, isContains === "true");
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['LatLngBounds.contains', bounds, latLng]);
   };
