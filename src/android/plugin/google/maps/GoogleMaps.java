@@ -842,7 +842,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     if (snippet != null) {
-      float density = Resources.getSystem().getDisplayMetrics().density;
       snippet = snippet.replaceAll("\n", "");
       TextView textView2 = new TextView(this.cordova.getActivity());
       textView2.setText(snippet);
