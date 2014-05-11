@@ -282,7 +282,7 @@ NSDictionary *initOptions;
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker%lu');",
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker_%lu');",
                                       eventName, (unsigned long)marker.hash];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
