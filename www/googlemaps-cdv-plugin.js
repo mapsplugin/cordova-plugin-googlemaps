@@ -1448,6 +1448,7 @@
     MY_LOCATION_CHANGE: 'my_location_change', // for Android
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
     CAMERA_CHANGE: 'camera_change',
+    CANERA_IDLE: 'camera_idle',
     MAP_READY: 'map_ready',
     MAP_LOADED: 'map_loaded', //for Android
     MAP_WILL_MOVE: 'will_move', //for iOS
