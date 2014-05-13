@@ -60,7 +60,7 @@
           self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];
           self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
           [self.webView.scrollView addSubview:self.mapCtrl.view];
-          [self.mapCtrl updateMapViewLayout];
+          [self.mapCtrl updateMapViewLayout:NO];
           [self.mapCtrl.view setFrameWithDictionary:self.mapCtrl.embedRect];
         }
         
@@ -193,17 +193,16 @@
 }
 
 - (void)_removeMapView{
+  float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+  float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+  if (width > 0.0f && height > 0.0f) {
+    return;
+  }
+
   [self.mapCtrl.view removeFromSuperview];
   [self.footer removeFromSuperview];
   self.mapCtrl.isFullScreen = NO;
   self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
-  
-  float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
-  float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
-  if (width > 0.0f && height > 0.0f) {
-    [self.webView.scrollView addSubview:self.mapCtrl.view];
-    [self.mapCtrl updateMapViewLayout];
-  }
   
   //Notify to the JS
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('map_close');"];
@@ -301,7 +300,11 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
-  [self.mapCtrl updateMapViewLayout];
+  BOOL animated = NO;
+  if ([command.arguments count] == 2) {
+    animated = [command.arguments objectAtIndex: 1];
+  }
+  [self.mapCtrl updateMapViewLayout:animated];
 }
 
 
@@ -372,7 +375,6 @@
  */
 - (void)closeDialog:(CDVInvokedUrlCommand *)command {
   [self _removeMapView];
-  self.mapCtrl.isFullScreen = NO;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
