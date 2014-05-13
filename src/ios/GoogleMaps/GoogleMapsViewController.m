@@ -26,15 +26,21 @@ NSDictionary *initOptions;
 
 - (void)loadView {
   [super loadView];
-  [self updateMapViewLayout];
+  [self updateMapViewLayout:NO];
   
 }
-- (void)updateMapViewLayout {
+- (void)updateMapViewLayout:(BOOL) animated {
   
   if (self.isFullScreen == NO) {
-    self.view.hidden = YES;
-    [self.view setFrameWithDictionary:self.embedRect];
-    self.view.hidden = NO;
+    if (animated == NO) {
+      self.view.hidden = YES;
+      [self.view setFrameWithDictionary:self.embedRect];
+      self.view.hidden = NO;
+    } else {
+      [UIView animateWithDuration:0.5f animations:^{
+        [self.view setFrameWithDictionary:self.embedRect];
+      }];
+    }
   }
 }
 
