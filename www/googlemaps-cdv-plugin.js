@@ -409,8 +409,8 @@
   };
   
   
-  App.prototype.refreshLayout = function() {
-    onMapResize();
+  App.prototype.refreshLayout = function(animated) {
+    onMapResize(undefined, animated);
   };
   
   App.prototype.toDataURL = function(callback) {
@@ -1399,7 +1399,7 @@
     
     return divSize;
   }
-  function onMapResize() {
+  function onMapResize(event, animated) {
     var self = window.plugin.google.maps.Map;
     var div = self.get("div");
     if (!div) {
@@ -1410,7 +1410,7 @@
       cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
     } else {
       var divSize = getDivSize(div);
-      cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
+      cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize, animated]);
     }
     
   }
