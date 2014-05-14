@@ -7,9 +7,14 @@
         "files": {
             "AndroidManifest.xml": {
                 "parents": {
-                    "/manifest/application": [
+                    "/manifest/application": []
+                }
+            },
+            "res/xml/config.xml": {
+                "parents": {
+                    "/*": [
                         {
-                            "xml": "<meta-data android:name=\"com.google.android.gms.version\" android:value=\"@integer/google_play_services_version\" />",
+                            "xml": "<param name=\"android-package\" value=\"plugin.google.maps.GoogleMaps\" />",
                             "count": 1
                         }
                     ]
@@ -18,13 +23,13 @@
         }
     },
     "installed_plugins": {
+        "org.apache.cordova.console": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
         "com.googlemaps.ios": {
             "PACKAGE_NAME": "com.example.myapp"
         },
-        "com.google.playservices": {
-            "PACKAGE_NAME": "com.example.myapp"
-        },
-        "org.apache.cordova.console": {
+        "plugin.google.maps": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },
