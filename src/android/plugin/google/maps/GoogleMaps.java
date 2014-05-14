@@ -1,7 +1,5 @@
 package plugin.google.maps;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -29,7 +27,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -65,6 +62,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.panorama.PanoramaClient;
 
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -105,7 +103,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
-    this.locationClient = new LocationClient(activity, this, this);
   }
 
   @Override
@@ -208,6 +205,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       callbackContext.success();
       return;
     }
+    
+
+    int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
+    if (errorCode != ConnectionResult.SUCCESS) {
+      GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, 0);
+      callbackContext.error("Google Play Services is not available.");
+      return;
+    }
+    
+    
     // ------------------------------
     // Check of Google Play Services
     // ------------------------------
@@ -346,6 +353,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     if (isEnabled) {
+      this.locationClient = new LocationClient(activity, this, this);
       this.locationClient.connect();
     }
     

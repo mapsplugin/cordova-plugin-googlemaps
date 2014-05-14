@@ -1,0 +1,37 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {
+            "AndroidManifest.xml": {
+                "parents": {
+                    "/manifest/application": []
+                }
+            },
+            "res/xml/config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<param name=\"android-package\" value=\"plugin.google.maps.GoogleMaps\" />",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "installed_plugins": {
+        "org.apache.cordova.console": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "com.googlemaps.ios": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "plugin.google.maps": {
+            "PACKAGE_NAME": "com.example.myapp"
+        }
+    },
+    "dependent_plugins": {}
+}

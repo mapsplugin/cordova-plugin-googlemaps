@@ -6,7 +6,7 @@
 function onPageLoaded(map) {
   $("#button").click(function() {
     map.getVisibleRegion(function(latLngBounds) {
-      alert(latLngBounds);
+      alert(latLngBounds.toString());
     });
   });
 }
