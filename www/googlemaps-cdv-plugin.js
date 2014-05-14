@@ -409,8 +409,8 @@
   };
   
   
-  App.prototype.refreshLayout = function() {
-    onMapResize();
+  App.prototype.refreshLayout = function(animated) {
+    onMapResize(undefined, animated);
   };
   
   App.prototype.toDataURL = function(callback) {
@@ -1399,7 +1399,7 @@
     
     return divSize;
   }
-  function onMapResize() {
+  function onMapResize(event, animated) {
     var self = window.plugin.google.maps.Map;
     var div = self.get("div");
     if (!div) {
@@ -1410,7 +1410,7 @@
       cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
     } else {
       var divSize = getDivSize(div);
-      cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
+      cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize, animated]);
     }
     
   }
@@ -1448,7 +1448,7 @@
     MY_LOCATION_CHANGE: 'my_location_change', // for Android
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
     CAMERA_CHANGE: 'camera_change',
-    CANERA_IDLE: 'camera_idle',
+    CAMERA_IDLE: 'camera_idle', //for iOS
     MAP_READY: 'map_ready',
     MAP_LOADED: 'map_loaded', //for Android
     MAP_WILL_MOVE: 'will_move', //for iOS

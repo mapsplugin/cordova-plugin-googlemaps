@@ -4,20 +4,18 @@
     <feature name="App">
         <param name="android-package" value="org.apache.cordova.App" />
     </feature>
+    <param name="android-package" value="plugin.google.maps.GoogleMaps" />
     <name>DevApp</name>
     <description>
-        This is an example to understand how work Phonegap-GoogleMaps-Plugin
+        A sample Apache Cordova application that responds to the deviceready event.
     </description>
-    <author email="wf9a5m75@gmail.com" href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin/">
-        Masashi Katsumata
+    <author email="dev@cordova.apache.org" href="http://cordova.io">
+        Apache Cordova Team
     </author>
     <content src="index.html" />
     <access origin="*" />
     <feature name="GoogleMaps">
-        <param name="android-package" value="plugin.google.maps.GoogleMaps" />
         <param name="ios-package" value="GoogleMaps" />
-    </feature>
-    <feature name="Console">
-        <param name="ios-package" value="CDVLogger" />
+        <param name="android-package" value="plugin.google.maps.GoogleMaps" />
     </feature>
 </widget>
