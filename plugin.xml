@@ -34,7 +34,7 @@
         </config-file>
 
         <dependency id="com.google.playservices" url="https://github.com/wf9a5m75/google-play-services" commit="master" />
-        
+    
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncKmlParser.java" target-dir="src/plugin/google/maps" />
@@ -59,10 +59,9 @@
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
               android:value="$API_KEY_FOR_ANDROID" />
-
-            <meta-data
-              android:name="com.google.android.gms.version"
-              android:value="@integer/google_play_services_version" />
+            <!-- Google Play Services SDK -->
+            <meta-data android:name="com.google.android.gms.version"
+                       android:value="@integer/google_play_services_version" />
         </config-file>
         
         <config-file target="AndroidManifest.xml" parent="/manifest">
@@ -76,9 +75,6 @@
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
             <!-- OpenGL ES version 2 -->
             <uses-feature android:glEsVersion="0x00020000" android:required="true" />
-            <!-- Google Play Services SDK -->
-            <meta-data android:name="com.google.android.gms.version"
-                       android:value="@integer/google_play_services_version" />
         </config-file>
     </platform>
     
