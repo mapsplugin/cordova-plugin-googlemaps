@@ -409,8 +409,8 @@
   };
   
   
-  App.prototype.refreshLayout = function(animated) {
-    onMapResize(undefined, animated);
+  App.prototype.refreshLayout = function() {
+    onMapResize(undefined, false);
   };
   
   App.prototype.toDataURL = function(callback) {
@@ -1405,6 +1405,7 @@
     if (!div) {
       return;
     }
+    animated = false;
     if (isDom(div) == false) {
       self.set("div", null);
       cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
