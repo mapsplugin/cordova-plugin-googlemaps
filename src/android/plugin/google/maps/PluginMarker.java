@@ -276,7 +276,7 @@ public class PluginMarker extends MyPlugin {
     float anchorV = (float)args.getDouble(3);
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
-    marker.setAnchor(anchorU, anchorV);
+    marker.setInfoWindowAnchor(anchorU, anchorV);
     callbackContext.success();
   }
   
