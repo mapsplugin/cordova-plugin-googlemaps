@@ -7,7 +7,12 @@
         "files": {
             "AndroidManifest.xml": {
                 "parents": {
-                    "/manifest/application": []
+                    "/manifest/application": [
+                        {
+                            "xml": "<meta-data android:name=\"com.google.android.gms.version\" android:value=\"@integer/google_play_services_version\" />",
+                            "count": 1
+                        }
+                    ]
                 }
             },
             "res/xml/config.xml": {
@@ -30,6 +35,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "plugin.google.maps": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "com.google.playservices": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },

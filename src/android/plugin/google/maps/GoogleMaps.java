@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -13,10 +14,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -24,8 +25,11 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -40,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -54,7 +59,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
@@ -62,12 +66,11 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.panorama.PanoramaClient;
 
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, OnMyLocationChangeListener,
+      OnMyLocationButtonClickListener, 
       ConnectionCallbacks, OnConnectionFailedListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
@@ -184,7 +187,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
   private void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(0);
     if (this.windowLayer == null) {
@@ -209,7 +211,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
     if (errorCode != ConnectionResult.SUCCESS) {
-      GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, 0);
+      //GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, 0);
       callbackContext.error("Google Play Services is not available.");
       return;
     }
@@ -353,8 +355,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     if (isEnabled) {
-      this.locationClient = new LocationClient(activity, this, this);
-      this.locationClient.connect();
+      
+      try {
+        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
+        this.locationClient = constructor.newInstance(this.activity, this, this);
+      } catch (Exception e) {}
+      
+      //this.locationClient = new LocationClient(this.activity, this, this);
+      if (this.locationClient != null) {
+        // The LocationClient class is available. 
+        this.locationClient.connect();
+      }
     }
     
     // Set event listener
@@ -366,7 +377,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     map.setOnMarkerClickListener(this);
     map.setOnMarkerDragListener(this);
     map.setOnMyLocationButtonClickListener(this);
-    map.setOnMyLocationChangeListener(this);
     
     // Load PluginMap class
     this.loadPlugin("Map");
@@ -551,7 +561,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
-  @SuppressWarnings("unused")
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
     mapDivLayoutJSON = args.getJSONObject(0);
     updateMapViewLayout();
@@ -595,6 +604,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject result = null;
+    
+    if (this.locationClient == null) {
+      LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+      
+      Criteria criteria = new Criteria();
+      String bestProvider = locationManager.getBestProvider(criteria, false);
+      Location location = locationManager.getLastKnownLocation(bestProvider);
+      result = PluginUtil.location2Json(location);
+      callbackContext.success(result);
+      return;
+    }
+    
     if (this.locationClient.isConnected()) {
       Location location = this.locationClient.getLastLocation();
       result = PluginUtil.location2Json(location);
@@ -720,19 +741,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.onMapEvent("click", point);
   }
   
-  /**
-   * Notify the myLocationChange event to JS
-   */
-  @SuppressLint("NewApi")
-  @Override
-  public void onMyLocationChange(Location location) {
-    String jsonStr = "";
-    try {
-      jsonStr = PluginUtil.location2Json(location).toString();
-    } catch (JSONException e) {}
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMyLocationChange(" + jsonStr + ")");
-  }
-
   @Override
   public boolean onMyLocationButtonClick() {
     webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('my_location_button_click')");
@@ -842,8 +850,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         textView.setSingleLine(false);
         textView.setTextColor(Color.BLACK);
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
-        Build.VERSION version = new Build.VERSION();
-        if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
           textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         }
         windowLayer.addView(textView);
@@ -856,8 +863,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       textView2.setTextColor(Color.GRAY);
       textView2.setTextSize((textView2.getTextSize() / 6 * 5) / density);
       textView2.setGravity(Gravity.CENTER_HORIZONTAL);
-      Build.VERSION version = new Build.VERSION();
-      if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
         textView2.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
       }
       windowLayer.addView(textView2);
