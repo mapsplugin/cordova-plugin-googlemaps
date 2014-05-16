@@ -305,22 +305,33 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * @private
+ * Load the icon; then set to the marker
+ */
 -(void)setIcon_:(GMSMarker *)marker iconProperty:(NSObject *)iconProperty {
   NSString *iconPath = nil;
+  NSDictionary *iconJSON = nil;
   CGFloat width = 0;
   CGFloat height = 0;
+  CGFloat anchorX = 0;
+  CGFloat anchorY = 0;
   if ([iconProperty isKindOfClass:[NSString class]]) {
     iconPath = (NSString *)iconProperty;
   } else {
-    NSDictionary *iconJSON = (NSDictionary *)iconProperty;
+  
+    iconJSON = (NSDictionary *)iconProperty;
     if (iconJSON) {
+      // The url property
       iconPath = [iconJSON valueForKey:@"url"];
       
+      // The size property
       if ([iconJSON valueForKey:@"size"]) {
         NSDictionary *size = [iconJSON valueForKey:@"size"];
         width = [[size objectForKey:@"width"] floatValue];
         height = [[size objectForKey:@"height"] floatValue];
       }
+      
     }
   }
 
@@ -333,6 +344,9 @@
       if ([iconPath rangeOfString:@"data:image/"].location != NSNotFound &&
           [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
         
+        /**
+         * Base64 icon
+         */
         isTextMode = false;
         NSArray *tmp = [iconPath componentsSeparatedByString:@","];
         
@@ -345,6 +359,9 @@
         image = [[UIImage alloc] initWithData:decodedData];
         
       } else {
+        /**
+         * Load the icon from local path
+         */
         image = [UIImage imageNamed:iconPath];
         
         if (width && height) {
@@ -353,7 +370,20 @@
       }
       
       marker.icon = image;
+      
+      // The anchor property
+      if (iconJSON) {
+        if ([iconJSON valueForKey:@"anchor"]) {
+          NSArray *points = [iconJSON valueForKey:@"anchor"];
+          anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+          anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+          marker.groundAnchor = CGPointMake(anchorX, anchorY);
+        }
+      }
     } else {
+      /***
+       * Load the icon from over the internet
+       */
       NSData *imgData = [self.iconCache objectForKey:iconPath];
       if (imgData != nil) {
         UIImage* image = [UIImage imageWithData:imgData];
@@ -374,9 +404,22 @@
             image = [image resize:width height:height];
           }
           marker.icon = image;
+          
+          
+          // The anchor property
+          if (iconJSON) {
+            if ([iconJSON valueForKey:@"anchor"]) {
+              NSArray *points = [iconJSON valueForKey:@"anchor"];
+              CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+              CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+              marker.groundAnchor = CGPointMake(anchorX, anchorY);
+            }
+          }
         });
+        
       }
     }
   }
+  
 }
 @end
