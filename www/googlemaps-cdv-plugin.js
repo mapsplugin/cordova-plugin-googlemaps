@@ -641,12 +641,13 @@
       geocoderRequest.position.lat = geocoderRequest.position.lat || 0.0;
       geocoderRequest.position.lng = geocoderRequest.position.lng || 0.0;
     }
+    var geocoderCallback = function(results) {
+      if (typeof callback === "function") {
+        callback.call(self,  results);
+      }
+    };
     var pluginExec = function() {
-      cordova.exec(function(results) {
-        if (typeof callback === "function") {
-          callback.call(self,  results);
-        }
-      }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
+      cordova.exec(geocoderCallback, geocoderCallback, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
     };
     
     pluginExec();
