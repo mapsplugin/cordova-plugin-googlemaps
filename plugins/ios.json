@@ -102,6 +102,9 @@
         },
         "plugin.google.maps": {
             "PACKAGE_NAME": "com.example.myapp"
+        },
+        "com.google.playservices": {
+            "PACKAGE_NAME": "com.example.myapp"
         }
     },
     "dependent_plugins": {}
