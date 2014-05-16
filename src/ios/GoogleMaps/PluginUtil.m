@@ -20,7 +20,6 @@
       r.origin.y == top &&
       r.size.width == width &&
       r.size.height == height) {
-    NSLog(@"--ignore");
     return;
   }
   
@@ -39,7 +38,6 @@
       r.origin.y == top &&
       r.size.width == width &&
       r.size.height == height) {
-    NSLog(@"--ignore");
     return;
   }
   r.origin.x = left;
