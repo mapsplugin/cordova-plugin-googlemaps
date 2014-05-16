@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.json.JSONObject;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -23,7 +25,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
@@ -40,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -206,7 +211,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
     if (errorCode != ConnectionResult.SUCCESS) {
-      GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, 0);
+      //GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, 0);
       callbackContext.error("Google Play Services is not available.");
       return;
     }
@@ -350,18 +355,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     if (isEnabled) {
+      
       try {
-        this.locationClient = new LocationClient(webView.getContext(), this, this);
-      }catch (Exception e) {
-        Log.e("btServer", "---GoogleMaps");
-      }
+        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
+        this.locationClient = constructor.newInstance(this.activity, this, this);
+      } catch (Exception e) {}
+      
+      //this.locationClient = new LocationClient(this.activity, this, this);
       if (this.locationClient != null) {
-        Log.e("btServer", "locationClient is not Null!");
-      } else {
-
-        Log.e("btServer", "locationClient IS Null!");
+        // The LocationClient class is available. 
+        this.locationClient.connect();
       }
-      this.locationClient.connect();
     }
     
     // Set event listener
@@ -600,6 +604,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject result = null;
+    
+    if (this.locationClient == null) {
+      LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+      
+      Criteria criteria = new Criteria();
+      String bestProvider = locationManager.getBestProvider(criteria, false);
+      Location location = locationManager.getLastKnownLocation(bestProvider);
+      result = PluginUtil.location2Json(location);
+      callbackContext.success(result);
+      return;
+    }
+    
     if (this.locationClient.isConnected()) {
       Location location = this.locationClient.getLastLocation();
       result = PluginUtil.location2Json(location);
