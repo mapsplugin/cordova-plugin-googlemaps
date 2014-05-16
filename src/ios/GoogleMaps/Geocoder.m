@@ -171,7 +171,7 @@
         
     CLPlacemark *placemark;
     CLLocation *location;
-    CLLocationCoordinate2D coordinate = location.coordinate;
+    CLLocationCoordinate2D coordinate;
     for (int i = 0; i < placemarks.count; i++) {
       NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
       
