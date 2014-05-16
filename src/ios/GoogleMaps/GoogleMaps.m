@@ -193,17 +193,26 @@
 }
 
 - (void)_removeMapView{
+  if (self.mapCtrl.isFullScreen == YES) {
+    [self.mapCtrl.view removeFromSuperview];
+    [self.footer removeFromSuperview];
+    self.mapCtrl.isFullScreen = NO;
+    self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
+  }
+  
   float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
   float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
   if (width > 0.0f && height > 0.0f) {
+    [self.webView.scrollView addSubview:self.mapCtrl.view];
+    [self.mapCtrl updateMapViewLayout:NO];
     return;
   }
-
+/*
   [self.mapCtrl.view removeFromSuperview];
   [self.footer removeFromSuperview];
   self.mapCtrl.isFullScreen = NO;
   self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
-  
+*/
   //Notify to the JS
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('map_close');"];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
@@ -350,12 +359,12 @@
     pluginRect.size.height = screenSize.size.width - footerHeight - footerAdjustment;
   } else {
     pluginRect.size.width = screenSize.size.width;
-    pluginRect.size.height = screenSize.size.height - footerHeight;
+    pluginRect.size.height = screenSize.size.height - footerHeight - footerAdjustment;
   }
   [self.mapCtrl.view setFrame:pluginRect];
   
   //self.mapCtrl.view.frame = pluginRect;
-  [self.footer setFrameWithInt:0 top:pluginRect.size.height - footerAdjustment width:pluginRect.size.width height:footerHeight];
+  [self.footer setFrameWithInt:0 top:pluginRect.size.height width:pluginRect.size.width height:footerHeight];
   [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
   [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
   
@@ -375,6 +384,7 @@
  */
 - (void)closeDialog:(CDVInvokedUrlCommand *)command {
   [self _removeMapView];
+  self.mapCtrl.isFullScreen = NO;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
