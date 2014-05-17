@@ -98,19 +98,19 @@ NSDictionary *initOptions;
     NSDictionary *controls = [initOptions objectForKey:@"controls"];
     if (controls) {
       //compass
-      isEnabled = [[controls valueForKey:@"compass"] boolValue];
-      if (isEnabled) {
+      if ([controls valueForKey:@"compass"]) {
+        isEnabled = [[controls valueForKey:@"compass"] boolValue];
         self.map.settings.compassButton = isEnabled;
       }
       //myLocationButton
-      isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
-      if (isEnabled) {
+      if ([controls valueForKey:@"myLocationButton"]) {
+        isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
         self.map.settings.myLocationButton = isEnabled;
         self.map.myLocationEnabled = isEnabled;
       }
       //indoorPicker
-      isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
-      if (isEnabled) {
+      if ([controls valueForKey:@"indoorPicker"]) {
+        isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
         self.map.settings.indoorPicker = isEnabled;
         self.map.indoorEnabled = isEnabled;
       }
@@ -123,18 +123,18 @@ NSDictionary *initOptions;
     NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
     if (gestures) {
       //rotate
-      isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
-      if (isEnabled) {
+      if ([gestures valueForKey:@"rotate"]) {
+        isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
         self.map.settings.rotateGestures = isEnabled;
       }
       //scroll
-      isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
-      if (isEnabled) {
+      if ([gestures valueForKey:@"scroll"]) {
+        isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
         self.map.settings.scrollGestures = isEnabled;
       }
       //tilt
-      isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
-      if (isEnabled) {
+      if ([gestures valueForKey:@"tilt"]) {
+        isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
         self.map.settings.tiltGestures = isEnabled;
       }
     }
