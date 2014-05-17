@@ -1,0 +1,29 @@
+<div id="map_canvas"></div>
+
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+    map.clear();
+    map.moveCamera({
+      'target': GOOGLE_TOKYO,
+      'zoom' : 18
+    });
+    map.addMarker({
+      'position': GOOGLE_TOKYO,
+      'title': "Hello GoogleMap for Cordova!"
+    }, function(marker) {
+      var i = 0;
+        marker.setRotation(180);
+        marker.setIcon({
+          'url': 'www/images/google_tokyo_icon.png',
+          'anchor': [90, 30]
+        });
+        
+      //setInterval(function() {
+        i += 10;
+        
+      //}, 500);
+    });
+}
+</script>

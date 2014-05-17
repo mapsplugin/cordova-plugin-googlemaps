@@ -178,20 +178,48 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 /**
- * Set anchor
+ * Set anchor of the marker
  * @params MarkerKey
  */
 -(void)setAnchor:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
-  float anchorU = [[command.arguments objectAtIndex:2] floatValue];
-  float anchorV = [[command.arguments objectAtIndex:3] floatValue];
-  [marker setInfoWindowAnchor:CGPointMake(anchorU, anchorV)];
+  CGFloat anchorX = [[command.arguments objectAtIndex:2] floatValue];
+  CGFloat anchorY = [[command.arguments objectAtIndex:3] floatValue];
+  
+  if (marker.icon) {
+    anchorX = anchorX / marker.icon.size.width;
+    anchorY = anchorY / marker.icon.size.height;
+    [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
+  }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+/**
+ * Set anchor of the info window
+ * @params MarkerKey
+ */
+-(void)setInfoWindowAnchor:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  float anchorX = [[command.arguments objectAtIndex:2] floatValue];
+  float anchorY = [[command.arguments objectAtIndex:3] floatValue];
+  
+  if (marker.icon) {
+    anchorX = anchorX / marker.icon.size.width;
+    anchorY = anchorY / marker.icon.size.height;
+    [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
+  }
+  [marker setInfoWindowAnchor:CGPointMake(anchorX, anchorY)];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 
 /**
  * Set opacity

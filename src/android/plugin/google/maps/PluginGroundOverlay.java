@@ -75,7 +75,7 @@ public class PluginGroundOverlay extends MyPlugin {
     String url = opts.getString("url");
     if (url != null && url.length() > 0) {
       if (url.indexOf("http") == 0) {
-        AsyncLoadImage task = new AsyncLoadImage(groundOverlay, "setImage");
+        AsyncLoadImage task = new AsyncLoadImage(this, groundOverlay, "setImage");
         task.execute(url);
       } else {
         groundOverlay.setImage(BitmapDescriptorFactory.fromAsset(url));

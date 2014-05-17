@@ -79,10 +79,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
 
   protected void setInt(String methodName, String id, int value, final CallbackContext callbackContext) throws JSONException {
-    this.setValue(methodName, String.class, id, value, callbackContext);
+    this.setValue(methodName, int.class, id, value, callbackContext);
   }
   protected void setFloat(String methodName, String id, float value, final CallbackContext callbackContext) throws JSONException {
-    this.setValue(methodName, String.class, id, value, callbackContext);
+    this.setValue(methodName, float.class, id, value, callbackContext);
   }
   protected void setString(String methodName, String id, String value, final CallbackContext callbackContext) throws JSONException {
     this.setValue(methodName, String.class, id, value, callbackContext);
