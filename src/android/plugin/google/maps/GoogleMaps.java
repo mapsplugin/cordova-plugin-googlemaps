@@ -110,11 +110,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    /*if (args != null && args.length() > 0) {
-      Log.d(TAG, "action=" + action + " args[0]=" + args.getString(0));
-    } else {
-      Log.d(TAG, "action=" + action);
-    }*/
+    if (GoogleMaps.this.map != null) {
+      if (args != null && args.length() > 0) {
+        Log.d(TAG, "action=" + action + " args[0]=" + args.getString(0));
+      } else {
+        Log.d(TAG, "action=" + action);
+      }
+      return true;
+    }
 
     Runnable runnable = new Runnable() {
       public void run() {
@@ -208,14 +211,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
     
-
-    int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
-    if (errorCode != ConnectionResult.SUCCESS) {
-      //GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, 0);
-      callbackContext.error("Google Play Services is not available.");
-      return;
-    }
-    
     
     // ------------------------------
     // Check of Google Play Services
@@ -229,10 +224,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
        * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
        * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
        */
-      GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity,
-          1122).show();
+      GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 0).show();
 
-      callbackContext.error("google play services is missing!!!!");
+      callbackContext.error("Google Play Services is not available.");
       return;
     }
 
