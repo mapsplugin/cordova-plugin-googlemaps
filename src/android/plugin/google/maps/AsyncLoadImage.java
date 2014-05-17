@@ -1,7 +1,6 @@
 package plugin.google.maps;
 
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -9,50 +8,20 @@ import java.util.HashMap;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-
-@SuppressWarnings("rawtypes")
 public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
-  private Object targerClass;
-  private final String TAG = "AsyncLoadImage";
-  private String targetMethod = "";
-  private Bundle iconProperty = null;
-  private String mUrl = "";
   private HashMap<String, Bitmap> mCache = null;
-  private MyPlugin targetPlugin;
+  private AsyncLoadImageInterface targetPlugin;
 
-  public AsyncLoadImage(MyPlugin plugin, Object target, String method, Bundle options) {
-    targerClass = target;
-    targetMethod = method;
+  public AsyncLoadImage(AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
-    this.iconProperty = options;
   }
   
-  public AsyncLoadImage(MyPlugin plugin, Object target, String method) {
-    targerClass = target;
-    targetMethod = method;
-    targetPlugin = plugin;
-  }
-
-  public AsyncLoadImage(MyPlugin plugin, Object target, String method, Bundle options, HashMap<String, Bitmap> cache) {
-    targerClass = target;
-    targetMethod = method;
-    this.iconProperty = options;
+  public AsyncLoadImage(AsyncLoadImageInterface plugin, HashMap<String, Bitmap> cache) {
     mCache = cache;
     targetPlugin = plugin;
   }
   
-  public AsyncLoadImage(MyPlugin plugin, Object target, String method, HashMap<String, Bitmap> cache) {
-    targerClass = target;
-    targetMethod = method;
-    mCache = cache;
-    targetPlugin = plugin;
-  }
-
   protected Bitmap doInBackground(String... urls) {
     try {
       if (mCache != null && mCache.containsKey(urls[0])) {
@@ -61,7 +30,6 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
         //return Bitmap.createBitmap(mCache.get(urls[0]));
       }
       URL url= new URL(urls[0]);
-      mUrl = urls[0];
       HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
       http.setRequestMethod("GET");
       http.setUseCaches(true);
@@ -81,7 +49,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       }
       if (redirect) {
         
-        // get redirect url from "location" header field
+        // get redirect URL from "location" header field
         String newUrl = http.getHeaderField("Location");
      
         // get the cookie if need, for login
@@ -111,42 +79,8 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
 
   protected void onPostExecute(Bitmap image) {
     if (image != null) {
-      if (iconProperty != null &&
-          iconProperty.containsKey("size") == true) {
-          Object size = iconProperty.get("size");
-          
-        if (Bundle.class.isInstance(size)) {
-          
-          Bundle sizeInfo = (Bundle)size;
-          int width = sizeInfo.getInt("width", 0);
-          int height = sizeInfo.getInt("height", 0);
-          if (width > 0 && height > 0) {
-            image = PluginUtil.resizeBitmap(image, width, height);
-          }
-        }
-      }
-      
       image = PluginUtil.scaleBitmapForDevice(image);
-      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-      
-
-      // Save the information for the anchor property
-      Bundle imageSize = new Bundle();
-      imageSize.putInt("width", image.getWidth());
-      imageSize.putInt("height", image.getHeight());
-      targetPlugin.objects.put("imageSize", imageSize);
-      
-      Method method;
-      try {
-        Log.d(TAG, "method=" + targetMethod);
-        method = this.targerClass.getClass().getDeclaredMethod(targetMethod, BitmapDescriptor.class);
-        method.invoke(this.targerClass, bitmapDescriptor);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    } else {
-      Log.e(TAG, "Unable to load the image: " + mUrl);
-      
     }
+    this.targetPlugin.onPostExecute(image);
   }
 }

@@ -69,25 +69,45 @@ public class PluginGroundOverlay extends MyPlugin {
     // Load a dummy image
     options.image(this.dummyImg);
     
-    GroundOverlay groundOverlay = this.map.addGroundOverlay(options);
-
+    final GroundOverlay groundOverlay = this.map.addGroundOverlay(options);
+    
     // Load image
-    String url = opts.getString("url");
+    final String url = opts.getString("url");
     if (url != null && url.length() > 0) {
       if (url.indexOf("http") == 0) {
-        AsyncLoadImage task = new AsyncLoadImage(this, groundOverlay, "setImage");
+        AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
+
+          @Override
+          public void onPostExecute(Bitmap image) {
+            if (image == null) {
+              callbackContext.error("Can not load image from " + url);
+              return;
+            }
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+            groundOverlay.setImage(bitmapDescriptor);
+            _success(groundOverlay, callbackContext);
+          }
+        
+        });
         task.execute(url);
       } else {
         groundOverlay.setImage(BitmapDescriptorFactory.fromAsset(url));
+        _success(groundOverlay, callbackContext);
       }
     }
     
+  }
+  
+  private void _success(GroundOverlay groundOverlay, CallbackContext callbackContext) {
+
     String id = "ground_" + groundOverlay.getId();
     this.objects.put(id, groundOverlay);
 
     JSONObject result = new JSONObject();
-    result.put("hashCode", groundOverlay.hashCode());
-    result.put("id", id);
+    try {
+      result.put("hashCode", groundOverlay.hashCode());
+      result.put("id", id);
+    } catch (Exception e) {}
     callbackContext.success(result);
   }
 
@@ -106,4 +126,5 @@ public class PluginGroundOverlay extends MyPlugin {
     }
     groundOverlay.remove();
   }
+
 }
