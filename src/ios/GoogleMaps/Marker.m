@@ -55,8 +55,22 @@
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
   // Create icon
-  NSObject *iconProperty = [json valueForKey:@"icon"];
-  [self setIcon_:marker iconProperty:iconProperty];
+  NSMutableDictionary *iconProperty = nil;
+  NSObject *icon = [json valueForKey:@"icon"];
+  if ([icon isKindOfClass:[NSString class]]) {
+    iconProperty = [NSMutableDictionary dictionary];
+    [iconProperty setObject:icon forKey:@"url"];
+    
+  } else if ([icon isKindOfClass:[NSDictionary class]]) {
+    iconProperty = [json valueForKey:@"icon"];
+  }
+  if (iconProperty) {
+    if ([json valueForKey:@"infoWindowAnchor"]) {
+      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+    }
+  
+    [self setIcon_:marker iconProperty:iconProperty];
+  }
   
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
@@ -312,7 +326,7 @@
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
   // Create icon
-  NSObject *iconProperty = [command.arguments objectAtIndex:2];
+  NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
   [self setIcon_:marker iconProperty:iconProperty];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -337,30 +351,23 @@
  * @private
  * Load the icon; then set to the marker
  */
--(void)setIcon_:(GMSMarker *)marker iconProperty:(NSObject *)iconProperty {
+-(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty {
   NSString *iconPath = nil;
-  NSDictionary *iconJSON = nil;
   CGFloat width = 0;
   CGFloat height = 0;
   CGFloat anchorX = 0;
   CGFloat anchorY = 0;
-  if ([iconProperty isKindOfClass:[NSString class]]) {
-    iconPath = (NSString *)iconProperty;
-  } else {
   
-    iconJSON = (NSDictionary *)iconProperty;
-    if (iconJSON) {
-      // The url property
-      iconPath = [iconJSON valueForKey:@"url"];
-      
-      // The size property
-      if ([iconJSON valueForKey:@"size"]) {
-        NSDictionary *size = [iconJSON valueForKey:@"size"];
-        width = [[size objectForKey:@"width"] floatValue];
-        height = [[size objectForKey:@"height"] floatValue];
-      }
-      
-    }
+  NSLog(@"%@", iconProperty);
+  
+  // The `url` property
+  iconPath = [iconProperty valueForKey:@"url"];
+  
+  // The `size` property
+  if ([iconProperty valueForKey:@"size"]) {
+    NSDictionary *size = [iconProperty valueForKey:@"size"];
+    width = [[size objectForKey:@"width"] floatValue];
+    height = [[size objectForKey:@"height"] floatValue];
   }
 
   if (iconPath) {
@@ -398,15 +405,20 @@
       }
       
       marker.icon = image;
+      // The `anchor` property for the icon
+      if ([iconProperty valueForKey:@"anchor"]) {
+        NSArray *points = [iconProperty valueForKey:@"anchor"];
+        anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+        anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+        marker.groundAnchor = CGPointMake(anchorX, anchorY);
+      }
       
-      // The anchor property
-      if (iconJSON) {
-        if ([iconJSON valueForKey:@"anchor"]) {
-          NSArray *points = [iconJSON valueForKey:@"anchor"];
-          anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-          anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-          marker.groundAnchor = CGPointMake(anchorX, anchorY);
-        }
+      // The `infoWindowAnchor` property
+      if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+        NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+        anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+        anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+        marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
       }
     } else {
       /***
@@ -434,14 +446,21 @@
           marker.icon = image;
           
           
-          // The anchor property
-          if (iconJSON) {
-            if ([iconJSON valueForKey:@"anchor"]) {
-              NSArray *points = [iconJSON valueForKey:@"anchor"];
-              CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-              CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-              marker.groundAnchor = CGPointMake(anchorX, anchorY);
-            }
+          // The `anchor` property for the icon
+          if ([iconProperty valueForKey:@"anchor"]) {
+            NSArray *points = [iconProperty valueForKey:@"anchor"];
+            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+            marker.groundAnchor = CGPointMake(anchorX, anchorY);
+          }
+          
+          
+          // The `infoWindowAnchor` property
+          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+            NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+            marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
           }
         });
         
