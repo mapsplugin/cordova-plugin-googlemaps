@@ -1,16 +1,20 @@
 package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Constructor;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.util.Base64;
 
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -90,6 +94,29 @@ public class PluginMap extends MyPlugin {
           : mapTypeId;
       if (mapTypeId != -1) {
         this.map.setMapType(mapTypeId);
+      }
+    }
+    
+    //controls
+    Boolean isEnabled = true;
+    if (params.has("controls")) {
+      JSONObject controls = params.getJSONObject("controls");
+
+      if (controls.has("myLocationButton")) {
+        isEnabled = controls.getBoolean("myLocationButton");
+        map.setMyLocationEnabled(isEnabled);
+      }
+    }
+    if (isEnabled) {
+      try {
+        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
+        this.mapCtrl.locationClient = constructor.newInstance(this.cordova.getActivity(), this.mapCtrl, this.mapCtrl);
+      } catch (Exception e) {}
+      
+      //this.locationClient = new LocationClient(this.activity, this, this);
+      if (this.mapCtrl.locationClient != null) {
+        // The LocationClient class is available. 
+        this.mapCtrl.locationClient.connect();
       }
     }
 
