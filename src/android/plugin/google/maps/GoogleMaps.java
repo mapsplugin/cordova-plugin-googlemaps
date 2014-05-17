@@ -228,7 +228,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
        */
 
       try {
-        @SuppressWarnings("rawtypes")
+        @SuppressWarnings({ "rawtypes", "unused" })
         Class googlePlayServicesUtilClass = Class.forName(" com.google.android.gms.common.GooglePlayServicesUtil");
         
         GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 0).show();
@@ -414,6 +414,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
     return;
   }
+  @SuppressWarnings("deprecation")
   private int contentToView(long d) {
     return Math.round(d * webView.getScale());
   }
@@ -585,6 +586,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
   
+  @SuppressWarnings("deprecation")
   private void updateMapViewLayout() {
     try {
       int divW = contentToView(mapDivLayoutJSON.getLong("width") );
