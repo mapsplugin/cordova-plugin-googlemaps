@@ -121,6 +121,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     Runnable runnable = new Runnable() {
       public void run() {
+        if ("getMap".equals(action) == false && GoogleMaps.this.map == null) {
+          return;
+        }
         try {
           switch(METHODS.valueOf(action)) {
           case setVisible:
@@ -158,7 +161,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             
             // Load the class plugin
             GoogleMaps.this.loadPlugin(params[0]);
-            
             
             PluginEntry entry = GoogleMaps.this.plugins.get(params[0]);
             if (params.length == 2 && entry != null) { 
@@ -224,7 +226,29 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
        * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
        * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
        */
-      GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 0).show();
+
+      try {
+        @SuppressWarnings("rawtypes")
+        Class googlePlayServicesUtilClass = Class.forName(" com.google.android.gms.common.GooglePlayServicesUtil");
+        
+        GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 0).show();
+      } catch (Exception e) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        
+        alertDialogBuilder
+          .setMessage("Google Maps Android API v2 is not available, because this device does not have Google Play Service.")
+          .setCancelable(false)
+          .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int id) {
+              dialog.dismiss();
+            }
+          }); 
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        
+        // show it
+        alertDialog.show();
+        return;
+      }
 
       callbackContext.error("Google Play Services is not available.");
       return;
