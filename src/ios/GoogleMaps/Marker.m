@@ -195,7 +195,7 @@
  * Set anchor of the marker
  * @params MarkerKey
  */
--(void)setAnchor:(CDVInvokedUrlCommand *)command
+-(void)setIconAnchor:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
