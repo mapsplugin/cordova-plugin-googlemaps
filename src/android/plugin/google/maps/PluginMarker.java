@@ -305,9 +305,7 @@ public class PluginMarker extends MyPlugin {
     
     Bundle imageSize = (Bundle) this.objects.get("imageSize");
     if (imageSize != null) {
-      anchorX = anchorX / imageSize.getInt("width");
-      anchorY = anchorY / imageSize.getInt("height");
-      marker.setAnchor(anchorX, anchorY);
+      this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
     
     callbackContext.success();
@@ -326,12 +324,10 @@ public class PluginMarker extends MyPlugin {
     float anchorY = (float)args.getDouble(3);
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
-
+    
     Bundle imageSize = (Bundle) this.objects.get("imageSize");
     if (imageSize != null) {
-      anchorX = anchorX / imageSize.getInt("width");
-      anchorY = anchorY / imageSize.getInt("height");
-      marker.setInfoWindowAnchor(anchorX, anchorY);
+      this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
     callbackContext.success();
   }
@@ -388,7 +384,7 @@ public class PluginMarker extends MyPlugin {
     callbackContext.success();
   }
   
-  private void setIcon_(Marker marker, Bundle iconProperty) {
+  private void setIcon_(final Marker marker, final Bundle iconProperty) {
     String iconUrl = iconProperty.getString("url");
     if (iconUrl == null) {
       return;
@@ -444,9 +440,7 @@ public class PluginMarker extends MyPlugin {
       if (iconProperty.containsKey("anchor") == true) {
         double[] anchor = iconProperty.getDoubleArray("anchor");
         if (anchor.length == 2) {
-          anchor[0] = anchor[0] * this.density;
-          anchor[1] = anchor[1] * this.density;
-          marker.setAnchor((float)(anchor[0] / image.getWidth()), (float)(anchor[1] / image.getHeight()));
+          _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
         }
       }
       
@@ -455,22 +449,68 @@ public class PluginMarker extends MyPlugin {
       if (iconProperty.containsKey("infoWindowAnchor") == true) {
         double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
         if (anchor.length == 2) {
-          anchor[0] = anchor[0] * this.density;
-          anchor[1] = anchor[1] * this.density;
-          marker.setInfoWindowAnchor((float)(anchor[0] / image.getWidth()), (float)(anchor[1] / image.getHeight()));
+          _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
         }
       }
       return;
     }
     
     if (iconUrl.indexOf("http") == 0) {
-      AsyncLoadImage task;
-      if (iconProperty.containsKey("size") == false) {
-        task = new AsyncLoadImage(this, marker, "setIcon", cache);
-      } else {
-        task = new AsyncLoadImage(this, marker, "setIcon", iconProperty, cache);
-      }
+      AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
+
+        @Override
+        public void onPostExecute(Bitmap image) {
+          if (iconProperty.containsKey("size") == true) {
+              
+            Bundle sizeInfo = (Bundle) iconProperty.get("size");
+            int width = sizeInfo.getInt("width", 0);
+            int height = sizeInfo.getInt("height", 0);
+            if (width > 0 && height > 0) {
+              image = PluginUtil.resizeBitmap(image, width, height);
+            }
+            
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+            marker.setIcon(bitmapDescriptor);
+            
+            // Save the information for the anchor property
+            Bundle imageSize = new Bundle();
+            imageSize.putInt("width", image.getWidth());
+            imageSize.putInt("height", image.getHeight());
+            PluginMarker.this.objects.put("imageSize", imageSize);
+            
+            // The `anchor` of the `icon` property
+            if (iconProperty.containsKey("anchor") == true) {
+              double[] anchor = iconProperty.getDoubleArray("anchor");
+              if (anchor.length == 2) {
+                _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+            // The `anchor` property for the infoWindow
+            if (iconProperty.containsKey("infoWindowAnchor") == true) {
+              double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+              if (anchor.length == 2) {
+                _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+          }
+        }
+        
+      }, cache);
       task.execute(iconUrl);
     }
+  }
+
+  private void _setIconAnchor(Marker marker, double anchorX, double anchorY, int imageWidth, int imageHeight) {
+    // The `anchor` of the `icon` property
+    anchorX = anchorX * this.density;
+    anchorY = anchorY * this.density;
+    marker.setAnchor((float)(anchorX / imageWidth), (float)(anchorY / imageHeight));
+  }
+  private void _setInfoWindowAnchor(Marker marker, double anchorX, double anchorY, int imageWidth, int imageHeight) {
+    // The `anchor` of the `icon` property
+    anchorX = anchorX * this.density;
+    anchorY = anchorY * this.density;
+    marker.setInfoWindowAnchor((float)(anchorX / imageWidth), (float)(anchorY / imageHeight));
   }
 }

@@ -110,18 +110,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (GoogleMaps.this.map != null) {
-      if (args != null && args.length() > 0) {
-        Log.d(TAG, "action=" + action + " args[0]=" + args.getString(0));
-      } else {
-        Log.d(TAG, "action=" + action);
-      }
-      return true;
+    /*
+    if (args != null && args.length() > 0) {
+      Log.d(TAG, "action=" + action + " args[0]=" + args.getString(0));
+    } else {
+      Log.d(TAG, "action=" + action);
     }
+    */
 
     Runnable runnable = new Runnable() {
       public void run() {
         if ("getMap".equals(action) == false && GoogleMaps.this.map == null) {
+          Log.e(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
         }
         try {
