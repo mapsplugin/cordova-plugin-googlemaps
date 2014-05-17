@@ -310,9 +310,9 @@
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
   BOOL animated = NO;
-  if ([command.arguments count] == 2) {
-    animated = [[command.arguments objectAtIndex: 1] boolValue];
-  }
+  //if ([command.arguments count] == 2) {
+  //  animated = [[command.arguments objectAtIndex: 1] boolValue];
+  //}
   [self.mapCtrl updateMapViewLayout:animated];
 }
 
