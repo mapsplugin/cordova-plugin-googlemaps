@@ -277,4 +277,97 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)setOptions:(CDVInvokedUrlCommand *)command {
+  NSDictionary *initOptions = [command.arguments objectAtIndex:1];
+
+  if ([initOptions valueForKey:@"camera"]) {
+    // camera position
+    NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
+    NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
+    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
+    
+    if (cameraOpts) {
+      NSDictionary *latLngJSON = [cameraOpts objectForKey:@"latLng"];
+      [latLng setObject:[NSNumber numberWithFloat:[[latLngJSON valueForKey:@"lat"] floatValue]] forKey:@"lat"];
+      [latLng setObject:[NSNumber numberWithFloat:[[latLngJSON valueForKey:@"lng"] floatValue]] forKey:@"lng"];
+    }
+    GMSCameraPosition *camera = [GMSCameraPosition
+                                  cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
+                                  longitude: [[latLng valueForKey:@"lng"] floatValue]
+                                  zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
+                                  bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
+                                  viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
+    
+    self.mapCtrl.map.camera = camera;
+  }
+  
+  
+  Boolean isEnabled = false;
+  //controls
+  NSDictionary *controls = [initOptions objectForKey:@"controls"];
+  if (controls) {
+    //compass
+    if ([controls valueForKey:@"compass"]) {
+      isEnabled = [[controls valueForKey:@"compass"] boolValue];
+      self.mapCtrl.map.settings.compassButton = isEnabled;
+    }
+    //myLocationButton
+    if ([controls valueForKey:@"myLocationButton"]) {
+      isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
+      self.mapCtrl.map.settings.myLocationButton = isEnabled;
+      self.mapCtrl.map.myLocationEnabled = isEnabled;
+    }
+    //indoorPicker
+    if ([controls valueForKey:@"indoorPicker"]) {
+      isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
+      self.mapCtrl.map.settings.indoorPicker = isEnabled;
+      self.mapCtrl.map.indoorEnabled = isEnabled;
+    }
+  } else {
+    self.mapCtrl.map.settings.compassButton = TRUE;
+  }
+
+  //gestures
+  NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
+  if (gestures) {
+    //rotate
+    if ([gestures valueForKey:@"rotate"]) {
+      isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
+      self.mapCtrl.map.settings.rotateGestures = isEnabled;
+    }
+    //scroll
+    if ([gestures valueForKey:@"scroll"]) {
+      isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
+      self.mapCtrl.map.settings.scrollGestures = isEnabled;
+    }
+    //tilt
+    if ([gestures valueForKey:@"tilt"]) {
+      isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
+      self.mapCtrl.map.settings.tiltGestures = isEnabled;
+    }
+  }
+
+  //mapType
+  NSString *typeStr = [initOptions valueForKey:@"mapType"];
+  if (typeStr) {
+    
+    NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
+                              ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
+                              ^() {return kGMSTypeSatellite; }, @"MAP_TYPE_SATELLITE",
+                              ^() {return kGMSTypeTerrain; }, @"MAP_TYPE_TERRAIN",
+                              ^() {return kGMSTypeNormal; }, @"MAP_TYPE_NORMAL",
+                              ^() {return kGMSTypeNone; }, @"MAP_TYPE_NONE",
+                              nil];
+    
+    typedef GMSMapViewType (^CaseBlock)();
+    GMSMapViewType mapType;
+    CaseBlock caseBlock = mapTypes[typeStr];
+    if (caseBlock) {
+      // Change the map type
+      mapType = caseBlock();
+      self.mapCtrl.map.mapType = mapType;
+    }
+  }
+}
 @end

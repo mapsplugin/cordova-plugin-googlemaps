@@ -25,4 +25,5 @@
 - (void)getCameraPosition:(CDVInvokedUrlCommand*)command;
 - (void)toDataURL:(CDVInvokedUrlCommand*)command;
 - (void)getVisibleRegion:(CDVInvokedUrlCommand*)command;
+- (void)setOptions:(CDVInvokedUrlCommand*)command;
 @end
