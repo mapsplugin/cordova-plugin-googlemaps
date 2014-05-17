@@ -17,7 +17,6 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -77,7 +76,34 @@ public class PluginMarker extends MyPlugin {
       Bundle bundle = null;
       Object value = opts.get("icon");
       if (JSONObject.class.isInstance(value)) {
-        bundle = PluginUtil.Json2Bundle((JSONObject)value);
+        JSONObject iconProperty = (JSONObject)value;
+        bundle = PluginUtil.Json2Bundle(iconProperty);
+        
+        // The `anchor` of the `icon` property
+        if (iconProperty.has("anchor")) {
+          value = iconProperty.get("anchor");
+          if (JSONArray.class.isInstance(value)) {
+            JSONArray points = (JSONArray)value;
+            double[] anchorPoints = new double[points.length()];
+            for (int i = 0; i < points.length(); i++) {
+              anchorPoints[i] = points.getDouble(i);
+            }
+            bundle.putDoubleArray("anchor", anchorPoints);
+          }
+        }
+
+        // The `anchor` property for infowindow
+        if (opts.has("anchor")) {
+          value = opts.get("anchor");
+          if (JSONArray.class.isInstance(value)) {
+            JSONArray points = (JSONArray)value;
+            double[] anchorPoints = new double[points.length()];
+            for (int i = 0; i < points.length(); i++) {
+              anchorPoints[i] = points.getDouble(i);
+            }
+            bundle.putDoubleArray("infoAnchor", anchorPoints);
+          }
+        }
       } else {
         bundle = new Bundle();
         bundle.putString("url", (String)value);
@@ -265,18 +291,49 @@ public class PluginMarker extends MyPlugin {
   }
   
   /**
+   * Set anchor for the icon of the marker
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setIconAnchor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    float anchorX = (float)args.getDouble(2);
+    float anchorY = (float)args.getDouble(3);
+    String id = args.getString(1);
+    Marker marker = this.getMarker(id);
+    
+    Bundle imageSize = (Bundle) this.objects.get("imageSize");
+    if (imageSize != null) {
+      anchorX = anchorX / imageSize.getInt("width");
+      anchorY = anchorY / imageSize.getInt("height");
+      marker.setAnchor(anchorX, anchorY);
+    }
+    
+    callbackContext.success();
+  }
+  
+
+  /**
    * Set anchor for the InfoWindow of the marker
    * @param args
    * @param callbackContext
    * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private void setAnchor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    float anchorU = (float)args.getDouble(2);
-    float anchorV = (float)args.getDouble(3);
+  private void setInfoWindowAnchor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    float anchorX = (float)args.getDouble(2);
+    float anchorY = (float)args.getDouble(3);
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
-    marker.setAnchor(anchorU, anchorV);
+
+    Bundle imageSize = (Bundle) this.objects.get("imageSize");
+    if (imageSize != null) {
+      anchorX = anchorX / imageSize.getInt("width");
+      anchorY = anchorY / imageSize.getInt("height");
+      marker.setInfoWindowAnchor(anchorX, anchorY);
+      Log.d("btServer", "height=" + imageSize.getInt("height"));
+    }
     callbackContext.success();
   }
   
@@ -303,13 +360,31 @@ public class PluginMarker extends MyPlugin {
   private void setIcon(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
-    Bundle bundle = null;
     Object value = args.get(2);
+    Bundle bundle = null;
     if (JSONObject.class.isInstance(value)) {
-      bundle = PluginUtil.Json2Bundle((JSONObject)value);
-    } else {
+      JSONObject iconProperty = (JSONObject)value;
+      bundle = PluginUtil.Json2Bundle(iconProperty);
+          
+      // The `anchor` for icon
+      if (iconProperty.has("anchor")) {
+        value = iconProperty.get("anchor");
+        if (JSONArray.class.isInstance(value)) {
+          JSONArray points = (JSONArray)value;
+          double[] anchorPoints = new double[points.length()];
+          for (int i = 0; i < points.length(); i++) {
+            anchorPoints[i] = points.getDouble(i);
+          }
+          bundle.putDoubleArray("anchor", anchorPoints);
+        }
+      }
+      
+    } else if (String.class.isInstance(value)) {
       bundle = new Bundle();
       bundle.putString("url", (String)value);
+    }
+    if (bundle != null) {
+      this.setIcon_(marker, bundle);
     }
     callbackContext.success();
   }
@@ -358,15 +433,43 @@ public class PluginMarker extends MyPlugin {
       image = PluginUtil.scaleBitmapForDevice(image);
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       marker.setIcon(bitmapDescriptor);
+      
+      // Save the information for the anchor property
+      Bundle imageSize = new Bundle();
+      imageSize.putInt("width", image.getWidth());
+      imageSize.putInt("height", image.getHeight());
+      this.objects.put("imageSize", imageSize);
+      
+
+      // The `anchor` of the `icon` property
+      if (iconProperty.containsKey("anchor") == true) {
+        double[] anchor = iconProperty.getDoubleArray("anchor");
+        if (anchor.length == 2) {
+          anchor[0] = anchor[0] * this.density;
+          anchor[1] = anchor[1] * this.density;
+          marker.setAnchor((float)(anchor[0] / image.getWidth()), (float)(anchor[1] / image.getHeight()));
+        }
+      }
+      
+
+      // The `anchor` property for the infoWindow
+      if (iconProperty.containsKey("infoAnchor") == true) {
+        double[] anchor = iconProperty.getDoubleArray("infoAnchor");
+        if (anchor.length == 2) {
+          anchor[0] = anchor[0] * this.density;
+          anchor[1] = anchor[1] * this.density;
+          marker.setInfoWindowAnchor((float)(anchor[0] / image.getWidth()), (float)(anchor[1] / image.getHeight()));
+        }
+      }
       return;
     }
     
     if (iconUrl.indexOf("http") == 0) {
       AsyncLoadImage task;
       if (iconProperty.containsKey("size") == false) {
-        task = new AsyncLoadImage(marker, "setIcon", cache);
+        task = new AsyncLoadImage(this, marker, "setIcon", cache);
       } else {
-        task = new AsyncLoadImage(marker, "setIcon", iconProperty, cache);
+        task = new AsyncLoadImage(this, marker, "setIcon", iconProperty, cache);
       }
       task.execute(iconUrl);
     }

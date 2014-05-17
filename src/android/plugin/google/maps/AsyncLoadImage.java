@@ -23,29 +23,34 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private Bundle iconProperty = null;
   private String mUrl = "";
   private HashMap<String, Bitmap> mCache = null;
+  private MyPlugin targetPlugin;
 
-  public AsyncLoadImage(Object target, String method, Bundle options) {
+  public AsyncLoadImage(MyPlugin plugin, Object target, String method, Bundle options) {
     targerClass = target;
     targetMethod = method;
+    targetPlugin = plugin;
     this.iconProperty = options;
   }
   
-  public AsyncLoadImage(Object target, String method) {
+  public AsyncLoadImage(MyPlugin plugin, Object target, String method) {
     targerClass = target;
     targetMethod = method;
+    targetPlugin = plugin;
   }
 
-  public AsyncLoadImage(Object target, String method, Bundle options, HashMap<String, Bitmap> cache) {
+  public AsyncLoadImage(MyPlugin plugin, Object target, String method, Bundle options, HashMap<String, Bitmap> cache) {
     targerClass = target;
     targetMethod = method;
     this.iconProperty = options;
     mCache = cache;
+    targetPlugin = plugin;
   }
   
-  public AsyncLoadImage(Object target, String method, HashMap<String, Bitmap> cache) {
+  public AsyncLoadImage(MyPlugin plugin, Object target, String method, HashMap<String, Bitmap> cache) {
     targerClass = target;
     targetMethod = method;
     mCache = cache;
+    targetPlugin = plugin;
   }
 
   protected Bitmap doInBackground(String... urls) {
@@ -124,7 +129,13 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       image = PluginUtil.scaleBitmapForDevice(image);
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       
-      @SuppressWarnings("unchecked")
+
+      // Save the information for the anchor property
+      Bundle imageSize = new Bundle();
+      imageSize.putInt("width", image.getWidth());
+      imageSize.putInt("height", image.getHeight());
+      targetPlugin.objects.put("imageSize", imageSize);
+      
       Method method;
       try {
         Log.d(TAG, "method=" + targetMethod);

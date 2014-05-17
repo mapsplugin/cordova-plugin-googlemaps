@@ -1,8 +1,6 @@
 package plugin.google.maps;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Base64;
 
@@ -36,8 +35,7 @@ public class PluginUtil {
     JSONObject params = new JSONObject();
     params.put("latLng", latLng);
 
-    Build.VERSION version = new Build.VERSION();
-    if (version.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+    if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
       params.put("elapsedRealtimeNanos", location.getElapsedRealtimeNanos());
     } else {
       params.put("elapsedRealtimeNanos", 0);

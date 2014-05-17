@@ -797,9 +797,13 @@
   Marker.prototype.getAlpha = function() {
     return this.get('alpha');
   };
-  Marker.prototype.setAnchor = function(anchorU, anchorV) {
-    this.set('anchor', [anchorU, anchorV]);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnchor', this.getId(), anchorU, anchorV]);
+  Marker.prototype.setIconAnchor = function(anchorX, anchorY) {
+    this.set('anchor', [anchorX, anchorY]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIconAnchor', this.getId(), anchorX, anchorY]);
+  };
+  Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
+    this.set('anchor', [anchorX, anchorY]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setInfoWindowAnchor', this.getId(), anchorX, anchorY]);
   };
   Marker.prototype.setDraggable = function(draggable) {
     draggable = parseBoolean(draggable);

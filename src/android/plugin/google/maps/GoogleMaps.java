@@ -791,7 +791,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onDestroy() {
-    this.locationClient.disconnect();
+    if (this.locationClient != null) {
+      this.locationClient.disconnect();
+    }
     if (mapView != null) {
       mapView.onDestroy();
     }
