@@ -139,7 +139,6 @@ public class PluginUtil {
     }
  
     Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-    bitmap.recycle();
     
     return resizeBitmap;
   }
@@ -153,7 +152,6 @@ public class PluginUtil {
     int width = (int)(bitmap.getWidth() * density);
     int height = (int)(bitmap.getHeight() * density);
     Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-    bitmap.recycle();
     return resizeBitmap;
   }
   
