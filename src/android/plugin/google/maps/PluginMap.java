@@ -14,11 +14,13 @@ import android.util.Base64;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.gms.maps.model.CameraPosition.Builder;
 
 public class PluginMap extends MyPlugin {
 
@@ -32,6 +34,87 @@ public class PluginMap extends MyPlugin {
   private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.map.clear();
     callbackContext.success();
+  }
+
+  /**
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setOptions(JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+    GoogleMapOptions options = new GoogleMapOptions();
+    UiSettings settings = this.map.getUiSettings();
+    JSONObject params = args.getJSONObject(1);
+    //controls
+    if (params.has("controls")) {
+      JSONObject controls = params.getJSONObject("controls");
+
+      if (controls.has("compass")) {
+        settings.setCompassEnabled(controls.getBoolean("compass"));
+      }
+      if (controls.has("zoom")) {
+        settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
+      }
+    }
+    
+    //gestures
+    if (params.has("gestures")) {
+      JSONObject gestures = params.getJSONObject("gestures");
+
+      if (gestures.has("tilt")) {
+        settings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
+      }
+      if (gestures.has("scroll")) {
+        settings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
+      }
+      if (gestures.has("rotate")) {
+        settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
+      }
+    }
+    
+    // map type
+    if (params.has("mapType")) {
+      String typeStr = params.getString("mapType");
+      int mapTypeId = -1;
+      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
+          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
+          : mapTypeId;
+      if (mapTypeId != -1) {
+        this.map.setMapType(mapTypeId);
+      }
+    }
+
+    // move the camera position
+    if (params.has("camera")) {
+      JSONObject camera = params.getJSONObject("camera");
+      Builder builder = CameraPosition.builder();
+      if (camera.has("bearing")) {
+        builder.bearing((float) camera.getDouble("bearing"));
+      }
+      if (camera.has("latLng")) {
+        JSONObject latLng = camera.getJSONObject("latLng");
+        builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+      }
+      if (camera.has("tilt")) {
+        builder.tilt((float) camera.getDouble("tilt"));
+      }
+      if (camera.has("zoom")) {
+        builder.zoom((float) camera.getDouble("zoom"));
+      }
+      CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
+      map.moveCamera(cameraUpdate);
+    }
+    
+    
   }
   
   /**

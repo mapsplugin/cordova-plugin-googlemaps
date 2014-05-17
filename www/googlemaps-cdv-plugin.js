@@ -271,6 +271,10 @@
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'closeDialog', []);
   };
   
+  App.prototype.setOptions = function(options) {
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', options]);
+  };
+  
   App.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
     cordova.exec(null, this.errorHandler,
