@@ -92,16 +92,16 @@ public class PluginMarker extends MyPlugin {
           }
         }
 
-        // The `anchor` property for infowindow
-        if (opts.has("anchor")) {
-          value = opts.get("anchor");
+        // The `infoWindowAnchor` property for infowindow
+        if (opts.has("infoWindowAnchor")) {
+          value = opts.get("infoWindowAnchor");
           if (JSONArray.class.isInstance(value)) {
             JSONArray points = (JSONArray)value;
             double[] anchorPoints = new double[points.length()];
             for (int i = 0; i < points.length(); i++) {
               anchorPoints[i] = points.getDouble(i);
             }
-            bundle.putDoubleArray("infoAnchor", anchorPoints);
+            bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
           }
         }
       } else {
@@ -332,7 +332,6 @@ public class PluginMarker extends MyPlugin {
       anchorX = anchorX / imageSize.getInt("width");
       anchorY = anchorY / imageSize.getInt("height");
       marker.setInfoWindowAnchor(anchorX, anchorY);
-      Log.d("btServer", "height=" + imageSize.getInt("height"));
     }
     callbackContext.success();
   }
@@ -453,8 +452,8 @@ public class PluginMarker extends MyPlugin {
       
 
       // The `anchor` property for the infoWindow
-      if (iconProperty.containsKey("infoAnchor") == true) {
-        double[] anchor = iconProperty.getDoubleArray("infoAnchor");
+      if (iconProperty.containsKey("infoWindowAnchor") == true) {
+        double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
         if (anchor.length == 2) {
           anchor[0] = anchor[0] * this.density;
           anchor[1] = anchor[1] * this.density;
