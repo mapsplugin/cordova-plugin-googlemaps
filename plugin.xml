@@ -54,7 +54,6 @@
         <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/PluginLatLngBounds.java" target-dir="src/plugin/google/maps" />
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
@@ -101,8 +100,6 @@
         <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
         <header-file src="src/ios/GoogleMaps/GroundOverlay.h" />
         <source-file src="src/ios/GoogleMaps/GroundOverlay.m" />
-        <header-file src="src/ios/GoogleMaps/LatLngBounds.h" />
-        <source-file src="src/ios/GoogleMaps/LatLngBounds.m" />
         <header-file src="src/ios/GoogleMaps/KmlOverlay.h" />
         <source-file src="src/ios/GoogleMaps/KmlOverlay.m" />
         <header-file src="src/ios/GoogleMaps/Map.h" />
