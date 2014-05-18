@@ -164,7 +164,6 @@
 
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  NSString *targetClsName = [[json objectForKey:@"target"] className];
   
   int bearing = [[json valueForKey:@"bearing"] integerValue];
   double angle = [[json valueForKey:@"tilt"] doubleValue];
@@ -176,31 +175,40 @@
   float longitude;
   GMSCameraPosition *cameraPosition;
   
-  if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
-    int i = 0;
-    NSArray *latLngList = [json objectForKey:@"target"];
-    GMSMutablePath *path = [GMSMutablePath path];
-    for (i = 0; i < [latLngList count]; i++) {
-      latLng = [latLngList objectAtIndex:i];
+  if ([json objectForKey:@"target"]) {
+    NSString *targetClsName = [[json objectForKey:@"target"] className];
+    if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
+      int i = 0;
+      NSArray *latLngList = [json objectForKey:@"target"];
+      GMSMutablePath *path = [GMSMutablePath path];
+      for (i = 0; i < [latLngList count]; i++) {
+        latLng = [latLngList objectAtIndex:i];
+        latitude = [[latLng valueForKey:@"lat"] floatValue];
+        longitude = [[latLng valueForKey:@"lng"] floatValue];
+        [path addLatitude:latitude longitude:longitude];
+      }
+      float scale = 1;
+      if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+        scale = [[UIScreen mainScreen] scale];
+      }
+      [[UIScreen mainScreen] scale];
+      
+      GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+      cameraPosition = [self.mapCtrl.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
+    } else {
+      latLng = [json objectForKey:@"target"];
       latitude = [[latLng valueForKey:@"lat"] floatValue];
       longitude = [[latLng valueForKey:@"lng"] floatValue];
-      [path addLatitude:latitude longitude:longitude];
+      
+      cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
+                                          longitude:longitude
+                                          zoom:zoom
+                                          bearing:bearing
+                                          viewingAngle:angle];
     }
-    float scale = 1;
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-      scale = [[UIScreen mainScreen] scale];
-    }
-    [[UIScreen mainScreen] scale];
-    
-    GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-    cameraPosition = [self.mapCtrl.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
   } else {
-    latLng = [json objectForKey:@"target"];
-    latitude = [[latLng valueForKey:@"lat"] floatValue];
-    longitude = [[latLng valueForKey:@"lng"] floatValue];
-    
-    cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
-                                        longitude:longitude
+    cameraPosition = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
+                                        longitude:self.mapCtrl.map.camera.target.longitude
                                         zoom:zoom
                                         bearing:bearing
                                         viewingAngle:angle];
