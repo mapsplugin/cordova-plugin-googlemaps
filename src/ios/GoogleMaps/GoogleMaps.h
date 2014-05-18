@@ -28,5 +28,5 @@
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
 - (void)resizeMap:(CDVInvokedUrlCommand *)command;
 - (void)setDiv:(CDVInvokedUrlCommand *)command;
-- (void)isGoogleMapsAvailable:(CDVInvokedUrlCommand *)command;
+- (void)isAvailable:(CDVInvokedUrlCommand *)command;
 @end

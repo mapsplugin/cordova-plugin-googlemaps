@@ -85,7 +85,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeDialog,
     getMyLocation,
     exec,
-    isGoogleMapsAvailable
+    isAvailable
   }
   
   private enum EVENTS {
@@ -121,7 +121,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     Runnable runnable = new Runnable() {
       public void run() {
-        if (("getMap".equals(action) == false && "isGoogleMapsAvailable".equals(action) == false) &&
+        if (("getMap".equals(action) == false && "isAvailable".equals(action) == false) &&
             GoogleMaps.this.map == null) {
           Log.e(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
@@ -156,8 +156,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           case getMyLocation:
             GoogleMaps.this.getMyLocation(args, callbackContext);
             break;
-          case isGoogleMapsAvailable:
-            GoogleMaps.this.isGoogleMapsAvailable(args, callbackContext);
+          case isAvailable:
+            GoogleMaps.this.isAvailable(args, callbackContext);
             break;
           case exec:
           
@@ -618,7 +618,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
-  private void isGoogleMapsAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  private void isAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
     // ------------------------------
     // Check of Google Play Services

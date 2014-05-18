@@ -424,7 +424,7 @@
     onMapResize(undefined, false);
   };
   
-  App.prototype.isGoogleMapsAvailable = function(callback) {
+  App.prototype.isAvailable = function(callback) {
     var self = this;
     cordova.exec(function() {
       if (typeof callback === "function") {
@@ -434,7 +434,7 @@
       if (typeof callback === "function") {
         callback.call(self, false, message);
       }
-    }, PLUGIN_NAME, 'isGoogleMapsAvailable', []);
+    }, PLUGIN_NAME, 'isAvailable', []);
   };
   
   App.prototype.toDataURL = function(callback) {
