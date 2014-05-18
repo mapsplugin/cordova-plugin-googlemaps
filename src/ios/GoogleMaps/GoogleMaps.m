@@ -419,4 +419,13 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+/**
+ * Return always success
+ */
+-(void)isGoogleMapsAvailable:(CDVInvokedUrlCommand *)command
+{
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

@@ -424,6 +424,19 @@
     onMapResize(undefined, false);
   };
   
+  App.prototype.isGoogleMapsAvailable = function(callback) {
+    var self = this;
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback.call(self, true);
+      }
+    }, function(message) {
+      if (typeof callback === "function") {
+        callback.call(self, false, message);
+      }
+    }, PLUGIN_NAME, 'isGoogleMapsAvailable', []);
+  };
+  
   App.prototype.toDataURL = function(callback) {
     var self = this;
     cordova.exec(function(image) {
