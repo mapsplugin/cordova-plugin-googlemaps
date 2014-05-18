@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		1090919E032D41EBBCD58BD6 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D46F86A833F045C3AA7D14ED /* GLKit.framework */; };
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
@@ -40,7 +41,6 @@
 		69E72B811922C7B20007FA25 /* GoogleMapsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B631922C7B20007FA25 /* GoogleMapsViewController.m */; };
 		69E72B821922C7B20007FA25 /* GroundOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B651922C7B20007FA25 /* GroundOverlay.m */; };
 		69E72B831922C7B20007FA25 /* KmlOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B671922C7B20007FA25 /* KmlOverlay.m */; };
-		69E72B841922C7B20007FA25 /* LatLngBounds.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B691922C7B20007FA25 /* LatLngBounds.m */; };
 		69E72B851922C7B20007FA25 /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B6B1922C7B20007FA25 /* Map.m */; };
 		69E72B861922C7B20007FA25 /* Marker.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B6D1922C7B20007FA25 /* Marker.m */; };
 		69E72B871922C7B20007FA25 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B711922C7B20007FA25 /* NSData+Base64.m */; };
@@ -136,8 +136,6 @@
 		69E72B651922C7B20007FA25 /* GroundOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GroundOverlay.m; path = ../../../../src/ios/GoogleMaps/GroundOverlay.m; sourceTree = "<group>"; };
 		69E72B661922C7B20007FA25 /* KmlOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KmlOverlay.h; path = ../../../../src/ios/GoogleMaps/KmlOverlay.h; sourceTree = "<group>"; };
 		69E72B671922C7B20007FA25 /* KmlOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KmlOverlay.m; path = ../../../../src/ios/GoogleMaps/KmlOverlay.m; sourceTree = "<group>"; };
-		69E72B681922C7B20007FA25 /* LatLngBounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LatLngBounds.h; path = ../../../../src/ios/GoogleMaps/LatLngBounds.h; sourceTree = "<group>"; };
-		69E72B691922C7B20007FA25 /* LatLngBounds.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LatLngBounds.m; path = ../../../../src/ios/GoogleMaps/LatLngBounds.m; sourceTree = "<group>"; };
 		69E72B6A1922C7B20007FA25 /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Map.h; path = ../../../../src/ios/GoogleMaps/Map.h; sourceTree = "<group>"; };
 		69E72B6B1922C7B20007FA25 /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Map.m; path = ../../../../src/ios/GoogleMaps/Map.m; sourceTree = "<group>"; };
 		69E72B6C1922C7B20007FA25 /* Marker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Marker.h; path = ../../../../src/ios/GoogleMaps/Marker.h; sourceTree = "<group>"; };
@@ -341,8 +339,6 @@
 				69E72B651922C7B20007FA25 /* GroundOverlay.m */,
 				69E72B661922C7B20007FA25 /* KmlOverlay.h */,
 				69E72B671922C7B20007FA25 /* KmlOverlay.m */,
-				69E72B681922C7B20007FA25 /* LatLngBounds.h */,
-				69E72B691922C7B20007FA25 /* LatLngBounds.m */,
 				69E72B6A1922C7B20007FA25 /* Map.h */,
 				69E72B6B1922C7B20007FA25 /* Map.m */,
 				69E72B6C1922C7B20007FA25 /* Marker.h */,
@@ -577,7 +573,6 @@
 				69E72B8A1922C7B20007FA25 /* Polygon.m in Sources */,
 				69E72B7E1922C7B20007FA25 /* External.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
-				69E72B841922C7B20007FA25 /* LatLngBounds.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				69E72B7D1922C7B20007FA25 /* Circle.m in Sources */,
 				69E72B801922C7B20007FA25 /* GoogleMaps.m in Sources */,
