@@ -1258,8 +1258,6 @@
    * LatLngBounds Class
    *****************************************************************************/
   var LatLngBounds = function() {
-    Array.apply(this);
-    
     var args = [];
     if (arguments.length === 1 &&
         typeof arguments[0] === "object" &&
@@ -1270,40 +1268,49 @@
     }
     for (var i = 0; i < args.length; i++) {
       if ("lat" in args[i] && "lng" in args[i]) {
-        this.push(args[i]);
+        this.extend(args[i]);
       }
     }
   };
-  
-  LatLngBounds.prototype = new Array;
-  
-  LatLngBounds.prototype.northeast = new LatLng(0, 0);
-  LatLngBounds.prototype.southwest = new LatLng(0, 0);
+    
+  LatLngBounds.prototype.northeast = null;
+  LatLngBounds.prototype.southwest = null;
   
   LatLngBounds.prototype.toString = function() {
-    return "[[" + this.northeast.toUrlValue() + "],[" + this.southwest.toUrlValue() + "]]";
+    return "[[" + this.southwest.toUrlValue() + "],[" + this.northeast.toUrlValue() + "]]";
   };
   
   LatLngBounds.prototype.extend = function(latLng) {
     if ("lat" in latLng && "lng" in latLng) {
-      this.push(latLng);
+      if (!this.southwest && !this.northeast) {
+        this.southwest = latLng;
+        this.northeast = latLng;
+      } else {
+        var swLat = Math.min(latLng.lat, this.southwest.lat);
+        var swLng = Math.min(latLng.lng, this.southwest.lng);
+        var neLat = Math.max(latLng.lat, this.northeast.lat);
+        var neLng = Math.max(latLng.lng, this.northeast.lng);
+        
+        delete this.southwest;
+        delete this.northeast;
+        this.southwest = new LatLng(swLat, swLng);
+        this.northeast = new LatLng(neLat, neLng);
+      }
+      this[0] = this.southwest;
+      this[1] = this.northeast;
     }
   };
-  LatLngBounds.prototype.contains = function(latLng, callback) {
+  LatLngBounds.prototype.length = function() {
+    return (this.southwest && this.northeast) ? 2 : 0;
+  };
+  
+  LatLngBounds.prototype.contains = function(latLng) {
     if (!("lat" in latLng) || !("lng" in latLng)) {
-      return;
+      return false;
     }
-    var self = this,
-        bounds = [];
-    for (var i = 0; i < this.length; i++) {
-      bounds.push(this[i]);
-    }
-    
-    cordova.exec(function(isContains) {
-      if (typeof callback === "function") {
-        callback.call(self, isContains === "true");
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['LatLngBounds.contains', bounds, latLng]);
+    return (latLng.lat >= this.southwest.lat) && (latLng.lat <= this.northeast.lat) &&
+           (latLng.lng >= this.southwest.lng) && (latLng.lng <= this.northeast.lng);
+
   };
   
   /*****************************************************************************
