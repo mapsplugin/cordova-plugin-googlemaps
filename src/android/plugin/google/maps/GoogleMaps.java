@@ -84,7 +84,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     showDialog,
     closeDialog,
     getMyLocation,
-    exec
+    exec,
+    isGoogleMapsAvailable
   }
   
   private enum EVENTS {
@@ -120,7 +121,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     Runnable runnable = new Runnable() {
       public void run() {
-        if ("getMap".equals(action) == false && GoogleMaps.this.map == null) {
+        if (("getMap".equals(action) == false && "isGoogleMapsAvailable".equals(action) == false) &&
+            GoogleMaps.this.map == null) {
           Log.e(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
         }
@@ -153,6 +155,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             break;
           case getMyLocation:
             GoogleMaps.this.getMyLocation(args, callbackContext);
+            break;
+          case isGoogleMapsAvailable:
+            GoogleMaps.this.isGoogleMapsAvailable(args, callbackContext);
             break;
           case exec:
           
@@ -226,29 +231,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
        * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
        * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
        */
-
-      try {
-        @SuppressWarnings({ "rawtypes", "unused" })
-        Class googlePlayServicesUtilClass = Class.forName(" com.google.android.gms.common.GooglePlayServicesUtil");
-        
-        GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 0).show();
-      } catch (Exception e) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-        
-        alertDialogBuilder
-          .setMessage("Google Maps Android API v2 is not available, because this device does not have Google Play Service.")
-          .setCancelable(false)
-          .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int id) {
-              dialog.dismiss();
-            }
-          }); 
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        
-        // show it
-        alertDialog.show();
-        return;
-      }
+      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+      
+      alertDialogBuilder
+        .setMessage("Google Maps Android API v2 is not available, because this device does not have Google Play Service.")
+        .setCancelable(false)
+        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog,int id) {
+            dialog.dismiss();
+          }
+        }); 
+      AlertDialog alertDialog = alertDialogBuilder.create();
+      
+      // show it
+      alertDialog.show();
 
       callbackContext.error("Google Play Services is not available.");
       return;
@@ -622,6 +618,34 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  private void isGoogleMapsAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    
+    // ------------------------------
+    // Check of Google Play Services
+    // ------------------------------
+    int checkGooglePlayServices = GooglePlayServicesUtil
+        .isGooglePlayServicesAvailable(activity);
+    if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
+      // google play services is missing!!!!
+      callbackContext.error("Google Maps Android API v2 is not available, because this device does not have Google Play Service.");
+      return;
+    }
+    
+
+    // ------------------------------
+    // Check of Google Maps Android API v2
+    // ------------------------------
+    try {
+      @SuppressWarnings({ "rawtypes", "unused" })
+      Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
+    } catch (Exception e) {
+      Log.e("GoogleMaps", "Error", e);
+      callbackContext.error(e.getMessage());
+      return;
+    }
+    
+    callbackContext.success();
+  }
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject result = null;
     
