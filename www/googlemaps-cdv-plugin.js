@@ -326,8 +326,12 @@
    * @params {Function} [callback] This callback is involved when the animation is completed.
    */
   App.prototype.animateCamera = function(cameraPosition, callback) {
-    var self = this;
+    if (cameraPosition.target &&
+        cameraPosition.target.type === "LatLngBounds") {
+      cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
+    }
  
+    var self = this;
     cordova.exec(function() {
       if (typeof callback === "function") {
         callback.call(self);
@@ -340,7 +344,10 @@
    * @params {Function} [callback] This callback is involved when the animation is completed.
    */
   App.prototype.moveCamera = function(cameraPosition, callback) {
-    var argsLength = arguments.length;
+    if (cameraPosition.target &&
+        cameraPosition.target.type === "LatLngBounds") {
+      cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
+    }
     var self = this;
     cordova.exec(function() {
       if (typeof callback === "function") {
@@ -1258,6 +1265,11 @@
    * LatLngBounds Class
    *****************************************************************************/
   var LatLngBounds = function() {
+    Object.defineProperty(this, "type", {
+      value: "LatLngBounds",
+      writable: false
+    });
+    
     var args = [];
     if (arguments.length === 1 &&
         typeof arguments[0] === "object" &&
@@ -1277,7 +1289,10 @@
   LatLngBounds.prototype.southwest = null;
   
   LatLngBounds.prototype.toString = function() {
-    return "[[" + this.southwest.toUrlValue() + "],[" + this.northeast.toUrlValue() + "]]";
+    return "[[" + this.southwest.toString() + "],[" + this.northeast.toString() + "]]";
+  };
+  LatLngBounds.prototype.toUrlValue = function(precision) {
+    return "[[" + this.southwest.toUrlValue(precision) + "],[" + this.northeast.toUrlValue(precision) + "]]";
   };
   
   LatLngBounds.prototype.extend = function(latLng) {
@@ -1300,8 +1315,10 @@
       this[1] = this.northeast;
     }
   };
-  LatLngBounds.prototype.length = function() {
-    return (this.southwest && this.northeast) ? 2 : 0;
+  LatLngBounds.prototype.getCenter = function() {
+    return new LatLng(
+            (this.southwest.lat + this.northeast.lat) / 2,
+            (this.southwest.lng + this.northeast.lng) / 2);
   };
   
   LatLngBounds.prototype.contains = function(latLng) {
@@ -1310,7 +1327,6 @@
     }
     return (latLng.lat >= this.southwest.lat) && (latLng.lat <= this.northeast.lat) &&
            (latLng.lng >= this.southwest.lng) && (latLng.lng <= this.northeast.lng);
-
   };
   
   /*****************************************************************************
