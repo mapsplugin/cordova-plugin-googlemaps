@@ -249,8 +249,8 @@ public class PluginMap extends MyPlugin {
         cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
       }
     } else {
-      callbackContext.error("Error: moveCamera() or animateCamera() are required 'target' option.");
-      return;
+      builder.target(this.map.getCameraPosition().target);
+      cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
     }
 
     
