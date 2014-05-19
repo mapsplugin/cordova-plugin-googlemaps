@@ -41,7 +41,12 @@ public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
           iterator = geoResults.iterator();
         }
       } else {
-        geoResults = geocoder.getFromLocationName(address, 20);
+        try {
+          geoResults = geocoder.getFromLocationName(address, 20);
+        }catch (Exception e) {
+          callbackContext.error("Geocoder service is not available.");
+          return;
+        }
         iterator = geoResults.iterator();
       }
     }
