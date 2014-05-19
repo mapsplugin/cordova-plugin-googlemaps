@@ -35,7 +35,7 @@ proguard/
 # platform assets
 platforms/
 hooks/
-www/
+www/*
 !www/googlemaps-cdv-plugin.js
 config.xml
 plugins/
