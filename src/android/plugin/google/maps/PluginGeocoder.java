@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -54,14 +55,19 @@ public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
     // Reverse geocoding
     if (opts.has("position") && opts.has("address") == false) {
       JSONObject position = opts.getJSONObject("position");
-      geoResults = geocoder.getFromLocation(
-          position.getDouble("lat"), 
-          position.getDouble("lng"), 20);
+      try {
+        geoResults = geocoder.getFromLocation(
+            position.getDouble("lat"), 
+            position.getDouble("lng"), 20);
+      } catch (Exception e) {
+        callbackContext.error("Geocoder service is not available.");
+        return;
+      }
       iterator = geoResults.iterator();
     }
     
     if (iterator == null) {
-      callbackContext.error("Invalid request for geocoder");
+      callbackContext.error( "Invalid request for geocoder");
       return;
     }
     
