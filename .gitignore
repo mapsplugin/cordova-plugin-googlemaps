@@ -31,8 +31,12 @@ proguard/
 .idea/
 
 # platform assets
-platforms/android/assets/www/*
-platforms/ios/www/*
+platforms/
+hooks/
+www/
+!www/googlemaps-cdv-plugin.js
+config.xml
+plugins/
 
 .DS_Store
 ant-build/
