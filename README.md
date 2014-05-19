@@ -12,6 +12,10 @@ You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.0.apk](
 
 ![image](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/example-v1.0.7.gif)
 
+###Don't miss updates!
+The plugin will updates in very short terms.
+In order to watch this project, make a Github account(free), then push the [watch] button at the top-right of the github pages.
+
 
 ###Documentation
 
