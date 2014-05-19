@@ -420,8 +420,8 @@
   };
   
   
-  App.prototype.refreshLayout = function() {
-    onMapResize(undefined, false);
+  App.prototype.refreshLayout = function(animated) {
+    onMapResize(undefined, animated);
   };
   
   App.prototype.isAvailable = function(callback) {
@@ -1449,7 +1449,7 @@
     if (!div) {
       return;
     }
-    animated = false;
+    animated = !!animated;
     if (isDom(div) == false) {
       self.set("div", null);
       cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
