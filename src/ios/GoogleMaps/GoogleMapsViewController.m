@@ -170,8 +170,28 @@ NSDictionary *initOptions;
     [super didReceiveMemoryWarning];
 }
 
+/**
+ * Called when the My Location button is tapped.
+ *
+ * @return YES if the listener has consumed the event (i.e., the default behavior should not occur),
+ *         NO otherwise (i.e., the default behavior should occur). The default behavior is for the
+ *         camera to move such that it is centered on the user location.
+ */
+- (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
+
+  [self.webView stringByEvaluatingJavaScriptFromString:@"plugin.google.maps.Map._onMapEvent('my_location_button_click');"];
+
+  return NO;
+}
+
 #pragma mark - GMSMapViewDelegate
 
+/**
+ * @callback the my location button is clicked.
+ */
+- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+  [self triggerMapEvent:@"click" coordinate:coordinate];
+}
 /**
  * @callback map long_click
  */
@@ -179,12 +199,6 @@ NSDictionary *initOptions;
   [self triggerMapEvent:@"long_click" coordinate:coordinate];
 }
 
-/**
- * @callback map click
- */
-- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
-  [self triggerMapEvent:@"click" coordinate:coordinate];
-}
 /**
  * @callback map will_move
  */
