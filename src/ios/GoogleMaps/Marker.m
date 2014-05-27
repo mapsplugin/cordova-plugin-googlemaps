@@ -358,7 +358,7 @@
   CGFloat anchorX = 0;
   CGFloat anchorY = 0;
   
-  NSLog(@"%@", iconProperty);
+  // NSLog(@"%@", iconProperty);
   
   // The `url` property
   iconPath = [iconProperty valueForKey:@"url"];
