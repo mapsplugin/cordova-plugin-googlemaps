@@ -912,6 +912,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
 
+    if ((title == null) && (snippet == null)) {
+      return null;
+    }
+
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
     windowLayer.setPadding(3, 3, 3, 3);
@@ -941,7 +945,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     if (snippet != null) {
-      snippet = snippet.replaceAll("\n", "");
+      //snippet = snippet.replaceAll("\n", "");
       TextView textView2 = new TextView(this.cordova.getActivity());
       textView2.setText(snippet);
       textView2.setTextColor(Color.GRAY);
