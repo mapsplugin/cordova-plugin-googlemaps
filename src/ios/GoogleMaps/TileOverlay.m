@@ -19,7 +19,7 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
-  
+
 
   GMSTileURLConstructor constructor = ^(NSUInteger x, NSUInteger y, NSUInteger zoom) {
     NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%d", x]];
@@ -36,15 +36,15 @@
   if ([json valueForKey:@"zIndex"]) {
     layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
   }
-  
-  NSString *id = [NSString stringWithFormat:@"tileOverlay_%d", layer.hash];
+
+  NSString *id = [NSString stringWithFormat:@"tileOverlay_%lu", (unsigned long)layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
-  
-  
+
+
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
-  [result setObject:[NSString stringWithFormat:@"%d", layer.hash] forKey:@"hashCode"];
-  
+  [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)layer.hash] forKey:@"hashCode"];
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -64,7 +64,7 @@
   } else {
     layer.map = nil;
   }
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -82,7 +82,7 @@
   [layer clearTileCache];
   [self.mapCtrl removeObjectForKey:tileLayerKey];
   layer = nil;
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -97,7 +97,7 @@
   NSString *tileLayerKey = [command.arguments objectAtIndex:1];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   [layer clearTileCache];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
