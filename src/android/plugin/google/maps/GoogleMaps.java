@@ -911,6 +911,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   public View getInfoContents(Marker marker) {
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
+    if ((title == null) && (snippet == null)) {
+      return null;
+    }
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
