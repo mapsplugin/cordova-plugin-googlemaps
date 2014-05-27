@@ -18,13 +18,13 @@
 -(void)createGroundOverlay:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
-  
+
   NSArray *points = [json objectForKey:@"bounds"];
-  
+
   GMSGroundOverlay *layer;
   GMSMutablePath *path = [GMSMutablePath path];
   GMSCoordinateBounds *bounds;
-  
+
   if (points) {
     //Generate a bounds
     int i = 0;
@@ -36,8 +36,8 @@
   }
   bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
   layer = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
-  
-  
+
+
   if ([[json valueForKey:@"visible"] boolValue]) {
     layer.map = self.mapCtrl.map;
   }
@@ -58,23 +58,23 @@
         UIImage *layerImg = [UIImage imageWithData:data];
         layer.icon = layerImg;
       });
-      
+
     }
   }
   if ([json valueForKey:@"opacity"]) {
     CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
     layer.icon = [layer.icon imageByApplyingAlpha:opacity];
   }
-  
-  
-  NSString *id = [NSString stringWithFormat:@"groundOverlay_%d", layer.hash];
+
+
+  NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
-  
-  
+
+
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
-  [result setObject:[NSString stringWithFormat:@"%d", layer.hash] forKey:@"hashCode"];
-  
+  [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)layer.hash] forKey:@"hashCode"];
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -90,7 +90,7 @@
   layer.map = nil;
   [self.mapCtrl removeObjectForKey:key];
   layer = nil;
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
