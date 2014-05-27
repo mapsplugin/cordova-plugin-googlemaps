@@ -51,7 +51,7 @@
     [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
   }
 
-  NSString *id = [NSString stringWithFormat:@"marker_%lu",  (unsigned long)marker.hash];
+  NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
 
   // Create icon
