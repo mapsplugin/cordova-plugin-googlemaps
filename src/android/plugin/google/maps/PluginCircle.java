@@ -121,7 +121,7 @@ public class PluginCircle extends MyPlugin  {
   private void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     float radius = (float) args.getDouble(2);
-    this.setFloat("setRadius", id, radius, callbackContext);
+    this.setDouble("setRadius", id, radius, callbackContext);
   }
   
   /**
