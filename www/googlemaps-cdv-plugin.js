@@ -806,12 +806,12 @@
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
     this.off();
   };
-  Marker.prototype.setAlpha = function(alpha) {
-    this.set('alpha');
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAlpha', this.getId(), alpha]);
+  Marker.prototype.setOpacity = function(alpha) {
+    this.set('opacity');
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setOpacity', this.getId(), alpha]);
   };
-  Marker.prototype.getAlpha = function() {
-    return this.get('alpha');
+  Marker.prototype.getOpacity = function() {
+    return this.get('opacity');
   };
   Marker.prototype.setIconAnchor = function(anchorX, anchorY) {
     this.set('anchor', [anchorX, anchorY]);
