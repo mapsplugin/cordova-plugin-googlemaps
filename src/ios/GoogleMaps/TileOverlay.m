@@ -101,4 +101,19 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+/**
+ * Set z-index
+ * @params key
+ */
+-(void)setZIndex:(CDVInvokedUrlCommand *)command
+{
+  NSString *tileLayerKey = [command.arguments objectAtIndex:1];
+  GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
+  NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
+  [layer setZIndex:zIndex];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

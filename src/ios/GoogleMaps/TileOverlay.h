@@ -16,5 +16,6 @@
 -(void)setVisible:(CDVInvokedUrlCommand *)command;
 -(void)remove:(CDVInvokedUrlCommand *)command;
 -(void)clearTileCache:(CDVInvokedUrlCommand *)command;
+-(void)setZIndex:(CDVInvokedUrlCommand *)command;
 
 @end
