@@ -112,7 +112,7 @@ public class PluginCircle extends MyPlugin  {
   }
   
   /**
-   * set redius
+   * set radius
    * @param args
    * @param callbackContext
    * @throws JSONException
@@ -138,6 +138,18 @@ public class PluginCircle extends MyPlugin  {
   }
   
 
+  /**
+   * Set visibility for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(2);
+    String id = args.getString(1);
+    this.setBoolean("setVisible", id, visible, callbackContext);
+  }
+  
   /**
    * Remove the circle
    * @param args
