@@ -254,7 +254,7 @@
   App.prototype.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
       callback.call(self, null, txt);
-    }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo');
+    }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
   };
   
   /**
@@ -286,13 +286,6 @@
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
   };
  
-  App.prototype.clear = function(callback) {
-    cordova.exec(function(location) {
-      if (typeof callback === "function") {
-        callback();
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.clear']);
-  };
   /**
    * @desc Change the map type
    * @param {String} mapTypeId   Specifies the one of the follow strings:
@@ -1180,7 +1173,7 @@
     return this.id;
   };
   TileOverlay.prototype.getZIndex = function() {
-    return this.zIndex;
+    return this.get("zIndex");
   };
   TileOverlay.prototype.setZIndex = function(zIndex) {
     zIndex = parseBoolean(zIndex);

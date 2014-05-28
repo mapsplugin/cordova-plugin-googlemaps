@@ -87,7 +87,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeDialog,
     getMyLocation,
     exec,
-    isAvailable
+    isAvailable,
+    getLicenseInfo
   }
   
   private enum EVENTS {
@@ -130,6 +131,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
         try {
           switch(METHODS.valueOf(action)) {
+          case getLicenseInfo:
+            GoogleMaps.this.getLicenseInfo(args, callbackContext);
+            break;
           case setVisible:
             GoogleMaps.this.setVisible(args, callbackContext);
             break;

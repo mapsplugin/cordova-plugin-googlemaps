@@ -154,7 +154,7 @@ public class PluginMarker extends MyPlugin {
    * @throws JSONException 
    */
   @SuppressWarnings("unused")
-  private void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  private void setAlpha(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float alpha = (float)args.getDouble(2);
     String id = args.getString(1);
     this.setFloat("setAlpha", id, alpha, callbackContext);

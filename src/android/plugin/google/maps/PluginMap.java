@@ -316,7 +316,7 @@ public class PluginMap extends MyPlugin {
       }
     }
     callbackContext.success();
-}
+  }
 
   /**
    * Enable Indoor map feature if set true
