@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		1090919E032D41EBBCD58BD6 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D46F86A833F045C3AA7D14ED /* GLKit.framework */; };
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
