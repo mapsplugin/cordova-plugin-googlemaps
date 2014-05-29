@@ -392,6 +392,9 @@
           decodedData = [NSData dataFromBase64String:tmp[1]];
         }
         image = [[UIImage alloc] initWithData:decodedData];
+        if (width && height) {
+          image = [image resize:width height:height];
+        }
         
       } else {
         /**
