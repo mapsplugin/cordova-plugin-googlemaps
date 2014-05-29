@@ -34,4 +34,5 @@
 - (void)updateMapViewLayout: (BOOL)animated;
 
 - (void)removeObjectForKey: (NSString *)key;
+- (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
 @end

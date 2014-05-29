@@ -87,7 +87,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     closeDialog,
     getMyLocation,
     exec,
-    isAvailable
+    isAvailable,
+    getLicenseInfo
   }
   
   private enum EVENTS {
@@ -130,6 +131,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
         try {
           switch(METHODS.valueOf(action)) {
+          case getLicenseInfo:
+            GoogleMaps.this.getLicenseInfo(args, callbackContext);
+            break;
           case setVisible:
             GoogleMaps.this.setVisible(args, callbackContext);
             break;
@@ -911,6 +915,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   public View getInfoContents(Marker marker) {
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
+    if ((title == null) && (snippet == null)) {
+      return null;
+    }
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
@@ -941,7 +948,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     if (snippet != null) {
-      snippet = snippet.replaceAll("\n", "");
+      //snippet = snippet.replaceAll("\n", "");
       TextView textView2 = new TextView(this.cordova.getActivity());
       textView2.setText(snippet);
       textView2.setTextColor(Color.GRAY);
