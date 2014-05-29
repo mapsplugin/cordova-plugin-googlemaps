@@ -919,6 +919,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return null;
     }
 
+    if ((title == null) && (snippet == null)) {
+      return null;
+    }
+
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
     windowLayer.setPadding(3, 3, 3, 3);
