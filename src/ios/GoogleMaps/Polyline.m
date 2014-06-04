@@ -19,7 +19,7 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   GMSMutablePath *path = [GMSMutablePath path];
-  
+
   NSArray *points = [json objectForKey:@"points"];
   int i = 0;
   NSDictionary *latLng;
@@ -39,18 +39,18 @@
   }
   NSArray *rgbColor = [json valueForKey:@"color"];
   polyline.strokeColor = [rgbColor parsePluginColor];
-  
+
   polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
   polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
-  
-  NSString *id = [NSString stringWithFormat:@"polyline_%d", polyline.hash];
+
+  NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
   [self.mapCtrl.overlayManager setObject:polyline forKey: id];
-  
-  
+
+
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
-  [result setObject:[NSString stringWithFormat:@"%d", polyline.hash] forKey:@"hashCode"];
-  
+  [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)polyline.hash] forKey:@"hashCode"];
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -66,7 +66,7 @@
   NSString *polylineKey = [command.arguments objectAtIndex:1];
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   GMSMutablePath *path = [GMSMutablePath path];
-  
+
   NSArray *points = [command.arguments objectAtIndex:2];
   int i = 0;
   NSDictionary *latLng;
@@ -75,8 +75,8 @@
     [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
   [polyline setPath:path];
-  
-  
+
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -89,10 +89,10 @@
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
- 
+
   NSArray *rgbColor = [command.arguments objectAtIndex:2];
   [polyline setStrokeColor:[rgbColor parsePluginColor]];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -107,7 +107,7 @@
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   float width = [[command.arguments objectAtIndex:2] floatValue];
   [polyline setStrokeWidth:width];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -122,7 +122,7 @@
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
   [polyline setZIndex:zIndex];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -141,7 +141,7 @@
   } else {
     polyline.map = nil;
   }
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -155,7 +155,7 @@
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   Boolean isGeodisic = [[command.arguments objectAtIndex:2] boolValue];
   [polyline setGeodesic:isGeodisic];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -171,7 +171,7 @@
   polyline.map = nil;
   [self.mapCtrl removeObjectForKey:polylineKey];
   polyline = nil;
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }

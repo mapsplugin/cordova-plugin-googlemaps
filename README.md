@@ -8,9 +8,13 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.0.9.apk](http://goo.gl/p3zQGK)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.0.apk](http://goo.gl/MtJSE1)
 
 ![image](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/example-v1.0.7.gif)
+
+###Don't miss updates!
+The plugin will updates in very short terms.
+In order to watch this project, make a Github account(free), then push the [watch] button at the top-right of the github pages.
 
 
 ###Documentation
@@ -83,6 +87,9 @@ You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.0.9.apk](
 * [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng)
   * Create a LatLng object
   * LatLng Class Reference
+* [LatLngBounds](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLngBounds)
+  * Create a LatLngBounds object
+  * LatLngBounds Class Reference
 * [CameraPosition](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/CameraPosition)
   * CameraPosition Class Reference
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
