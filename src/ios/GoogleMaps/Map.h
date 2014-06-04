@@ -26,4 +26,5 @@
 - (void)toDataURL:(CDVInvokedUrlCommand*)command;
 - (void)getVisibleRegion:(CDVInvokedUrlCommand*)command;
 - (void)setOptions:(CDVInvokedUrlCommand*)command;
+- (void)setAllGesturesEnabled:(CDVInvokedUrlCommand*)command;
 @end

@@ -137,6 +137,11 @@ NSDictionary *initOptions;
         isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
         self.map.settings.tiltGestures = isEnabled;
       }
+      //zoom
+      if ([gestures valueForKey:@"zoom"]) {
+        isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
+        self.map.settings.zoomGestures = isEnabled;
+      }
     }
   
     //mapType

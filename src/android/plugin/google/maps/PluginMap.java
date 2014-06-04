@@ -76,6 +76,9 @@ public class PluginMap extends MyPlugin {
       if (gestures.has("rotate")) {
         settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
       }
+      if (gestures.has("zoom")) {
+        options.zoomGesturesEnabled(gestures.getBoolean("zoom"));
+      }
     }
     
     // map type
@@ -494,4 +497,21 @@ public class PluginMap extends MyPlugin {
     
     callbackContext.success(result);
   }
+  
+
+  /**
+   * Sets the preference for whether all gestures should be enabled or disabled.
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setAllGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Boolean isEnabled = args.getBoolean(1);
+    UiSettings uiSettings = map.getUiSettings();
+    uiSettings.setAllGesturesEnabled(isEnabled);
+    
+    callbackContext.success();
+  }
+
 }

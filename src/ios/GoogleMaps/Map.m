@@ -82,6 +82,15 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)setAllGesturesEnabled:(CDVInvokedUrlCommand *)command {
+  Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
+  [self.mapCtrl.map.settings setAllGesturesEnabled:isEnabled];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
 /**
  * Change the zoom level
  */
@@ -353,6 +362,11 @@
     if ([gestures valueForKey:@"tilt"]) {
       isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
       self.mapCtrl.map.settings.tiltGestures = isEnabled;
+    }
+    //zoom
+    if ([gestures valueForKey:@"zoom"]) {
+      isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
+      self.mapCtrl.map.settings.zoomGestures = isEnabled;
     }
   }
 

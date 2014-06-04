@@ -381,6 +381,14 @@
     isVisible = parseBoolean(isVisible);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setVisible', [isVisible]);
   };
+  /**
+   * Sets the preference for whether all gestures should be enabled or disabled.
+   */
+  App.prototype.setAllGesturesEnabled = function(enabled) {
+    var self = this;
+    enabled = parseBoolean(enabled);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setAllGesturesEnabled', enabled]);
+  };
  
   /**
    * Return the current position of the camera
