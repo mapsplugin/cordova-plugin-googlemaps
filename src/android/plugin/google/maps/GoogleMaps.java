@@ -318,6 +318,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       if (gestures.has("rotate")) {
         options.rotateGesturesEnabled(gestures.getBoolean("rotate"));
       }
+      if (gestures.has("zoom")) {
+        options.zoomGesturesEnabled(gestures.getBoolean("zoom"));
+      }
     }
     
     // map type
