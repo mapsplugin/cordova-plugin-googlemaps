@@ -51,7 +51,7 @@
     [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
   }
   
-  NSString *id = [NSString stringWithFormat:@"marker_%d",  marker.hash];
+  NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
   // Create icon
@@ -74,7 +74,7 @@
   
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
-  [result setObject:[NSString stringWithFormat:@"%d", marker.hash] forKey:@"hashCode"];
+  [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
