@@ -1007,7 +1007,7 @@
     this.set('points', points);
     var i,
         path = [];
-    for (i = 0; i < path.length; i++) {
+    for (i = 0; i < points.length; i++) {
       path.push({
         "lat": points[i].lat,
         "lng": points[i].lng
@@ -1093,7 +1093,7 @@
     this.set('points', points);
     var i,
         path = [];
-    for (i = 0; i < path.length; i++) {
+    for (i = 0; i < points.length; i++) {
       path.push({
         "lat": points[i].lat,
         "lng": points[i].lng
