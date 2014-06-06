@@ -17,8 +17,6 @@ local.properties
 
 # Eclipse project files
 .settings/
-.project
-.classpath
 
 # Google Maps iOS SDK directory
 GoogleMaps-iOS-SDK/
@@ -33,14 +31,8 @@ proguard/
 .idea/
 
 # platform assets
-platforms/
-hooks/
-www/*
-!www/googlemaps-cdv-plugin.js
-config.xml
-plugins/
-!example/*
-
+platforms/android/assets/www/*
+platforms/ios/www/*
 
 .DS_Store
 ant-build/
