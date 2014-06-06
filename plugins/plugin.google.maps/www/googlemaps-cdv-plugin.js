@@ -1,0 +1,1 @@
+../../../www/googlemaps-cdv-plugin.js
