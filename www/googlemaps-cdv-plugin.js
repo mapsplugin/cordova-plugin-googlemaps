@@ -1,5 +1,6 @@
+/* global cordova, plugin, CSSPrimitiveValue */
 (function(window){
-  const PLUGIN_NAME = 'GoogleMaps';
+  var PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
   var KML_LAYERS = {};
   var OVERLAYS = [];
@@ -48,11 +49,12 @@
     self.addEventListener = self.on;
     
     self.off = function(eventName, callback) {
+      var i;
       if (typeof eventName === "string" &&
           eventName in _listeners) {
         
         if (typeof callback === "function") {
-          for (var i = 0; i < _listeners[eventName].length; i++) {
+          for (i = 0; i < _listeners[eventName].length; i++) {
             if (_listeners[eventName][i].callback === callback) {
               document.removeEventListener(eventName, _listeners[eventName][i].listener);
               _listeners[eventName].splice(i, 1);
@@ -64,16 +66,14 @@
         }
       } else {
         //Remove all event listeners
-        var eventName, eventNames = Object.keys(_listeners);
-        for (var i = 0; i < eventNames.length; i++) {
+        var eventNames = Object.keys(_listeners);
+        for (i = 0; i < eventNames.length; i++) {
           eventName = eventNames[i];
           for (var j = 0; j < _listeners[eventName].length; j++) {
             document.removeEventListener(eventName, _listeners[eventName][j].listener);
           }
         }
-        delete _listeners;
-        
-        delete self;
+        _listeners = {};
       }
     };
     
@@ -102,7 +102,7 @@
   };
   var App = function() {
     BaseClass.apply(this);
-    Object.defineProperty(self, "type", {
+    Object.defineProperty(this, "type", {
       value: "Map",
       writable: false
     });
@@ -111,14 +111,15 @@
   
   
   App.prototype.errorHandler = function(msg) {
-    if (!msg)
-      return
+    if (!msg) {
+      return;
+    }
     
     console.error(msg);
     if (this.trigger) {
       this.trigger('error', msg);
-    } else {
-      alert(msg);
+    // } else {
+    //   alert(msg);
     }
     return false;
   };
@@ -148,7 +149,7 @@
     if (kmlLayer) {
  
       var args = [eventName];
-      if (eventName.substr(-4, 4) == "_add") {
+      if (eventName.substr(-4, 4) === "_add") {
         var objectType = eventName.replace(/_.*$/, ""),
             overlay = null;
         
@@ -252,6 +253,7 @@
   
   
   App.prototype.getLicenseInfo = function(callback) {
+    var self = this;
     cordova.exec(function(txt) {
       callback.call(self, null, txt);
     }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
@@ -296,8 +298,8 @@
    *                               MAP_TYPE_NONE
    */
   App.prototype.setMapTypeId = function(mapTypeId) {
-    if (mapTypeId != plugin.google.maps.MapTypeId[mapTypeId.replace("MAP_TYPE_", '')]) {
-      return errorHandler("Invalid MapTypeId was specified.");
+    if (mapTypeId !== plugin.google.maps.MapTypeId[mapTypeId.replace("MAP_TYPE_", '')]) {
+      return this.errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMapTypeId', mapTypeId]);
@@ -421,8 +423,8 @@
   };
   
   
-  App.prototype.refreshLayout = function() {
-    onMapResize(undefined, false);
+  App.prototype.refreshLayout = function(animated) {
+    onMapResize(undefined, animated);
   };
   
   App.prototype.isAvailable = function(callback) {
@@ -444,7 +446,7 @@
       if (typeof callback === "function") {
         callback.call(self, image);
       }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL']);;
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL']);
   };
   
   /**
@@ -454,7 +456,7 @@
     var self = this,
         args = [];
     
-    if (isDom(div) == false) {
+    if (isDom(div) === false) {
       self.set("div", null);
     } else {
       self.set("div", div);
@@ -535,7 +537,7 @@
     cordova.exec(function(result) {
       var circle = new Circle(result.id, circleOptions);
       OVERLAYS.push(circle);
-      if (typeof callback == "function") {
+      if (typeof callback === "function") {
         callback.call(self, circle, self);
       }
     }, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
@@ -591,7 +593,6 @@
     tilelayerOptions.tileUrlFormat = tilelayerOptions.tileUrlFormat || null;
     if (typeof tilelayerOptions.tileUrlFormat !== "string") {
       throw new Error("tilelayerOptions.tileUrlFormat should set a string.");
-      return;
     }
     tilelayerOptions.visible = tilelayerOptions.visible || true;
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
@@ -796,6 +797,7 @@
 
   
   Marker.prototype.getPosition = function(callback) {
+    var self = this;
     cordova.exec(function(latlng) {
       if (typeof callback === "function") {
         callback.call(self,  new LatLng(latlng.lat, latlng.lng));
@@ -810,8 +812,13 @@
   };
   
   Marker.prototype.remove = function(callback) {
+    var self = this;
     delete MARKERS[this.id];
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback.call(self);
+      }
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
     this.off();
   };
   Marker.prototype.setOpacity = function(alpha) {
@@ -833,7 +840,7 @@
     draggable = parseBoolean(draggable);
     this.set('draggable', draggable);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDraggable', this.getId(), draggable]);
-  };;
+  };
   Marker.prototype.isDraggable = function() {
     return this.get('draggable');
   };
@@ -879,7 +886,7 @@
   Marker.prototype.isInfoWindowShown = function(callback) {
     var self = this;
     cordova.exec(function(isVisible) {
-      isVisible = parseparseBoolean(isVisible);
+      isVisible = parseBoolean(isVisible);
       if (typeof callback === "function") {
         callback.call(self, isVisible);
       }
@@ -923,7 +930,7 @@
   Circle.prototype.getId = function() {
     return this.id;
   };
-  Circle.prototype.getCenter = function(callback) {
+  Circle.prototype.getCenter = function(/*callback*/) {
     return this.get('center');
   };
   Circle.prototype.getRadius = function() {
@@ -964,7 +971,7 @@
   Circle.prototype.setVisible = function(visible) {
     visible = parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setVisible', this.getId(), visible]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setVisible', this.getId(), visible]);
   };
   Circle.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
@@ -1233,7 +1240,7 @@
     return this.id;
   };
   GroundOverlay.prototype.remove = function() {
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
     this.off();
   };
   /*****************************************************************************
@@ -1392,7 +1399,7 @@
       try {
         var value = compStyle.getPropertyCSSValue ("color");
         var valueType = value.primitiveType;
-        if (valueType == CSSPrimitiveValue.CSS_RGBCOLOR) {
+        if (valueType === CSSPrimitiveValue.CSS_RGBCOLOR) {
           var rgb = value.getRGBColorValue ();
           result.r = rgb.red.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
           result.g = rgb.green.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
@@ -1433,7 +1440,7 @@
     var pageTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
     
     var rect = div.getBoundingClientRect();
-    divSize = {
+    var divSize = {
       'left': rect.left + pageLeft,
       'top': rect.top + pageTop,
       'width': rect.width,
@@ -1450,8 +1457,8 @@
     if (!div) {
       return;
     }
-    animated = false;
-    if (isDom(div) == false) {
+    animated = !!animated;
+    if (isDom(div) === false) {
       self.set("div", null);
       cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
     } else {
