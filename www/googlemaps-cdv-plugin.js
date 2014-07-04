@@ -499,6 +499,13 @@
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+    if ("styles" in markerOptions) {
+      markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
+      
+      if ("color" in markerOptions.styles) {
+        markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
+      }
+    }
  
     cordova.exec(function(result) {
       var marker = new Marker(result.id, markerOptions);
