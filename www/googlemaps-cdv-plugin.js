@@ -660,22 +660,8 @@
   // Geocoding
   //-------------
   App.prototype.geocode = function(geocoderRequest, callback) {
-    var self = this;
-    geocoderRequest = geocoderRequest || {};
-    
-    if ("position" in geocoderRequest) {
-      geocoderRequest.position.lat = geocoderRequest.position.lat || 0.0;
-      geocoderRequest.position.lng = geocoderRequest.position.lng || 0.0;
-    }
-    var pluginExec = function() {
-      cordova.exec(function(results) {
-        if (typeof callback === "function") {
-          callback.call(self,  results);
-        }
-      }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
-    };
-    
-    pluginExec();
+    console.log("Map.geocode will be deprecated. Please use Geocoder.geocode instead.");
+    Geocoder.geocode(geocoderRequest, callback);
   };
   /********************************************************************************
    * @name CameraPosition
@@ -1488,6 +1474,29 @@
     params.to = params.to.replace(/\s+/g, "%20");
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['External.launchNavigation', params]);
   };
+  /*****************************************************************************
+   * Geocoder class
+   *****************************************************************************/
+  var Geocoder = {};
+  
+  Geocoder.geocode = function(geocoderRequest, callback) {
+    var self = this;
+    geocoderRequest = geocoderRequest || {};
+    
+    if ("position" in geocoderRequest) {
+      geocoderRequest.position.lat = geocoderRequest.position.lat || 0.0;
+      geocoderRequest.position.lng = geocoderRequest.position.lng || 0.0;
+    }
+    var pluginExec = function() {
+      cordova.exec(function(results) {
+        if (typeof callback === "function") {
+          callback.call(self,  results);
+        }
+      }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
+    };
+    
+    pluginExec();
+  };
   
   /*****************************************************************************
    * Name space
@@ -1525,6 +1534,7 @@
     'NONE': 'MAP_TYPE_NONE'
   };
   window.plugin.google.maps.external = externalService;
+  window.plugin.google.maps.Geocoder = Geocoder;
   
   
   window.addEventListener("orientationchange", onMapResize);
