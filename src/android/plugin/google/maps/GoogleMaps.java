@@ -850,9 +850,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     JSONObject params = new JSONObject();
     String jsonStr = "";
     try {
+      JSONObject target = new JSONObject();
+      target.put("lat", position.target.latitude);
+      target.put("lng", position.target.longitude);
+      params.put("target", target);
       params.put("hashCode", position.hashCode());
       params.put("bearing", position.bearing);
-      params.put("target", position.target);
       params.put("tilt", position.tilt);
       params.put("zoom", position.zoom);
       jsonStr = params.toString();
