@@ -26,6 +26,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -930,13 +931,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     JSONObject styles = null;
     String styleId = "marker_style_" + marker.getId();
-    Log.d(TAG, "-----id=" + styleId);
     PluginEntry pluginEntry = this.plugins.get("Marker");
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
     if (pluginMarker.objects.containsKey(styleId)) {
       styles = (JSONObject) pluginMarker.objects.get(styleId);
-      Log.d(TAG, "-----styles----");
-      Log.d(TAG, styles.toString());
     }
     
 
@@ -960,10 +958,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         TextView textView = new TextView(this.cordova.getActivity());
         textView.setText(title);
         textView.setSingleLine(false);
-        textView.setTextColor(Color.BLACK);
         
+        int titleColor = Color.BLACK;
+        if (styles != null && styles.has("color")) {
+          try {
+            titleColor = PluginUtil.parsePluginColor(styles.getJSONArray("color"));
+          } catch (JSONException e) {}
+        }
+        textView.setTextColor(titleColor);
         
-        // text-align property
+        //----------------------------------------
+        // text-align = left | center | right
+        //----------------------------------------
         int gravity = Gravity.LEFT;
         int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
         
@@ -988,12 +994,29 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             
           } catch (Exception e) {}
         }
-        
-        
         textView.setGravity(gravity);
         if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
           textView.setTextAlignment(textAlignment);
         }
+        
+        
+        //----------------------------------------
+        // font-style = normal | italic
+        // font-weight = normal | bold
+        //----------------------------------------
+        int fontStyle = Typeface.NORMAL;
+        try {
+          if ("italic".equals(styles.getString("font-style"))) {
+            fontStyle = Typeface.ITALIC;
+          }
+        } catch (JSONException e) {}
+        try {
+          if ("bold".equals(styles.getString("font-weight"))) {
+            fontStyle = fontStyle | Typeface.BOLD;
+          }
+        } catch (JSONException e) {}
+        textView.setTypeface(Typeface.DEFAULT, fontStyle);
+        
         windowLayer.addView(textView);
       }
     }

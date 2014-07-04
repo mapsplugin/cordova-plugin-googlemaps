@@ -190,9 +190,14 @@
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  NSString *styleId = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
   marker.map = nil;
   [self.mapCtrl removeObjectForKey:markerKey];
   marker = nil;
+  
+  if ([self.mapCtrl.overlayManager objectForKey:styleId]) {
+    [self.mapCtrl removeObjectForKey:styleId];
+  }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
