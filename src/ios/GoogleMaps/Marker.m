@@ -28,7 +28,7 @@
   
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
   GMSMarker *marker = [GMSMarker markerWithPosition:position];
-  if ([[json valueForKey:@"visible"] boolValue]) {
+  if ([[json valueForKey:@"visible"] boolValue] == true) {
     marker.map = self.mapCtrl.map;
   }
   if ([json valueForKey:@"title"]) {

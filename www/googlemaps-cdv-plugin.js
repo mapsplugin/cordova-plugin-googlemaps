@@ -495,7 +495,7 @@
     markerOptions.icon = markerOptions.icon || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title || undefined;
-    markerOptions.visible = markerOptions.visible || true;
+    markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
@@ -537,7 +537,7 @@
     circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
     circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
-    circleOptions.visible = circleOptions.visible || true;
+    circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
     circleOptions.zIndex = circleOptions.zIndex || 0.0;
     circleOptions.radius = circleOptions.radius || 1;
  
@@ -557,7 +557,7 @@
     polylineOptions.points = polylineOptions.points || [];
     polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF0000");
     polylineOptions.width = polylineOptions.width || 10;
-    polylineOptions.visible = polylineOptions.visible || true;
+    polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
     polylineOptions.zIndex = polylineOptions.zIndex || 0.0;
     polylineOptions.geodesic = polylineOptions.geodesic || false;
     
@@ -578,7 +578,7 @@
     polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF0000");
     polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor || "#000000");
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
-    polygonOptions.visible = polygonOptions.visible || true;
+    polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
     polygonOptions.zIndex = polygonOptions.zIndex || 0.0;
     polygonOptions.geodesic = polygonOptions.geodesic || false;
     
@@ -601,7 +601,7 @@
     if (typeof tilelayerOptions.tileUrlFormat !== "string") {
       throw new Error("tilelayerOptions.tileUrlFormat should set a string.");
     }
-    tilelayerOptions.visible = tilelayerOptions.visible || true;
+    tilelayerOptions.visible = tilelayerOptions.visible === undefined ? true : tilelayerOptions.visible;
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.width = tilelayerOptions.width || 256;
     tilelayerOptions.height = tilelayerOptions.height || 256;
@@ -621,7 +621,7 @@
     var self = this;
     groundOverlayOptions = groundOverlayOptions || {};
     groundOverlayOptions.url = groundOverlayOptions.url || null;
-    groundOverlayOptions.visible = groundOverlayOptions.visible || true;
+    groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
     
@@ -648,7 +648,7 @@
     kmlOverlayOptions = kmlOverlayOptions || {};
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
     kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
-    kmlOverlayOptions.animation = kmlOverlayOptions.animation || true;
+    kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
  
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
@@ -1208,7 +1208,7 @@
     BaseClass.apply(this);
     
     var self = this;
-    self.set("visible", groundOverlayOptions.visible || true);
+    self.set("visible", groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible);
     self.set("zIndex", groundOverlayOptions.zIndex || 0);
     self.set("opacity", groundOverlayOptions.opacity || 1);
     self.set("points", groundOverlayOptions.points || undefined);
@@ -1244,9 +1244,9 @@
     
     var self = this;
     self._objects = {};
-    //self.set("visible", kmlOverlayOptions.visible || true);
+    //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
     //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
-    self.set("animation", kmlOverlayOptions.animation || true);
+    self.set("animation", kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation);
     self.set("preserveViewport", kmlOverlayOptions.preserveViewport || false);
     Object.defineProperty(self, "id", {
       value: kmlOverlayId,
