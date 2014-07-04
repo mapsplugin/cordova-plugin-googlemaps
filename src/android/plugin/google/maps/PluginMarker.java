@@ -65,11 +65,15 @@ public class PluginMarker extends MyPlugin {
       markerOptions.alpha((float) opts.getDouble("opacity"));
     }
     Marker marker = map.addMarker(markerOptions);
+
     
     // Store the marker
     String id = "marker_" + marker.getId();
     this.objects.put(id, marker);
-    
+
+    if (opts.has("styles")) {
+      this.objects.put("marker_style_" + marker.getId(), opts.getJSONObject("styles"));
+    }
     
     // Load icon
     if (opts.has("icon")) {

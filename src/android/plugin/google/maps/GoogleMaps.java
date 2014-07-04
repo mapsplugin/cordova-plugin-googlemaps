@@ -94,6 +94,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private enum EVENTS {
     onScrollChanged
   }
+  private enum TEXT_STYLE_ALIGNMENTS {
+    left, center, right
+  }
   
   private JSONObject mapDivLayoutJSON = null;
   private MapView mapView = null;
@@ -924,6 +927,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if ((title == null) && (snippet == null)) {
       return null;
     }
+    
+    JSONObject styles = null;
+    String styleId = "marker_style_" + marker.getId();
+    Log.d(TAG, "-----id=" + styleId);
+    PluginEntry pluginEntry = this.plugins.get("Marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    if (pluginMarker.objects.containsKey(styleId)) {
+      styles = (JSONObject) pluginMarker.objects.get(styleId);
+      Log.d(TAG, "-----styles----");
+      Log.d(TAG, styles.toString());
+    }
+    
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
@@ -946,9 +961,38 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         textView.setText(title);
         textView.setSingleLine(false);
         textView.setTextColor(Color.BLACK);
-        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+        
+        
+        // text-align property
+        int gravity = Gravity.LEFT;
+        int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+        
+        if (styles != null) {
+          try {
+            String textAlignValue = styles.getString("text-align");
+            
+            switch(TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
+            case left:
+              gravity = Gravity.LEFT;
+              textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+              break;
+            case center:
+              gravity = Gravity.CENTER;
+              textAlignment = View.TEXT_ALIGNMENT_CENTER;
+              break;
+            case right:
+              gravity = Gravity.RIGHT;
+              textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
+              break;
+            }
+            
+          } catch (Exception e) {}
+        }
+        
+        
+        textView.setGravity(gravity);
         if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-          textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+          textView.setTextAlignment(textAlignment);
         }
         windowLayer.addView(textView);
       }

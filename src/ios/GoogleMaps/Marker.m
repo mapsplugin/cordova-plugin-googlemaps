@@ -54,6 +54,12 @@
   NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
+  if ([json valueForKey:@"styles"]) {
+    NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
+    NSDictionary *styles = [json valueForKey:@"styles"];
+    [self.mapCtrl.overlayManager setObject:styles forKey: marker_style_id];
+  }
+  
   // Create icon
   NSMutableDictionary *iconProperty = nil;
   NSObject *icon = [json valueForKey:@"icon"];

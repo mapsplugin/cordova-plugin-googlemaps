@@ -331,6 +331,12 @@ NSDictionary *initOptions;
     return NULL;
   }
   
+  // Load styles
+  NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
+  NSDictionary *styles = [self.overlayManager objectForKey:marker_style_id];
+  NSLog(@"styles-----");
+  NSLog(@"%@", styles);
+  
   // Load images
   UIImage *leftImg = [self loadImageFromGoogleMap:@"bubble_left"];
   UIImage *rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
@@ -356,7 +362,7 @@ NSDictionary *initOptions;
   } else {
   
     if ([title rangeOfString:@"\n"].location == NSNotFound) {
-      return NULL;
+    //  return NULL;
     }
     isTextMode = true;
     
@@ -431,17 +437,39 @@ NSDictionary *initOptions;
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
   CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 15));
   
+  
   //-------------------------------------
   // Draw the contents
   //-------------------------------------
   if (isTextMode) {
     //Draw the title strings
     if (title) {
+    
+      //--------------------------------
+      // text-align: left/center/right
+      //--------------------------------
+      NSTextAlignment textAlignment = NSTextAlignmentLeft;
+      if (styles && [styles objectForKey:@"text-align"]) {
+        NSString *textAlignValue = [styles objectForKey:@"text-align"];
+        
+        NSDictionary *aligments = [NSDictionary dictionaryWithObjectsAndKeys:
+                                ^() {return NSTextAlignmentLeft; }, @"left",
+                                ^() {return NSTextAlignmentRight; }, @"right",
+                                ^() {return NSTextAlignmentCenter; }, @"center",
+                                nil];
+      
+        typedef NSTextAlignment (^CaseBlock)();
+        CaseBlock caseBlock = aligments[textAlignValue];
+        if (caseBlock) {
+          textAlignment = caseBlock();
+        }
+      }
+      
       [[UIColor blackColor] set];
       [title drawInRect:CGRectMake(2, 2, rectSize.width - 2, textSize.height )
               withFont:titleFont
               lineBreakMode:NSLineBreakByWordWrapping
-              alignment:NSTextAlignmentCenter];
+              alignment:textAlignment];
     }
     
     //Draw the snippet
