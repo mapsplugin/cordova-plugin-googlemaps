@@ -98,6 +98,12 @@
     };
     self.addEventListenerOnce = self.one;
     
+    self.errorHandler = function(msg) {
+      console.error(msg);
+      self.trigger('error', msg);
+      return false;
+    };
+    
     return self;
   };
   var App = function() {
@@ -108,21 +114,6 @@
     });
   };
   App.prototype = new BaseClass();
-  
-  
-  App.prototype.errorHandler = function(msg) {
-    if (!msg) {
-      return;
-    }
-    
-    console.error(msg);
-    if (this.trigger) {
-      this.trigger('error', msg);
-    // } else {
-    //   alert(msg);
-    }
-    return false;
-  };
   
   /*
    * Callback from Native
@@ -1528,6 +1519,7 @@
     MARKER_DRAG_START: 'drag_start',
     MARKER_DRAG_END: 'drag_end'
   };
+  window.plugin.google.maps.BaseClass = BaseClass;
   window.plugin.google.maps.Map = new App();
   window.plugin.google.maps.LatLng = LatLng;
   window.plugin.google.maps.LatLngBounds = LatLngBounds;
