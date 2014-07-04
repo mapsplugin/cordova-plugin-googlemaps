@@ -423,8 +423,8 @@
   };
   
   
-  App.prototype.refreshLayout = function(animated) {
-    onMapResize(undefined, animated);
+  App.prototype.refreshLayout = function() {
+    onMapResize(undefined, false);
   };
   
   App.prototype.isAvailable = function(callback) {
