@@ -37,6 +37,11 @@
 			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/src/android</locationURI>
 		</link>
 		<link>
+			<name>plugin.xml</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/plugin.xml</locationURI>
+		</link>
+		<link>
 			<name>config.xml</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/config.xml</locationURI>
