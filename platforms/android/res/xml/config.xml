@@ -14,6 +14,10 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
+        <clobbers target="plugin.google.maps" />
+        <clobbers target="cordova.plugins.googlemaps" />
+    </js-module>
     <feature name="GoogleMaps">
         <param name="ios-package" value="GoogleMaps" />
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />

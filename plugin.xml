@@ -2,17 +2,17 @@
 <plugin id="plugin.google.maps" version="1.1.2" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
-        <clobbers target="window.plugins.phonegap-googlemaps-plugin" />
+        <clobbers target="plugin.google.maps" />
     </js-module>
 
     
-    <description>You can implement Google Maps native SDK into your app easily!</description>
+    <description>Google Maps native SDK for Android / iOS</description>
     <repo>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/</repo>
     <issue>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues</issue>
 
     <license>Apache 2.0</license>
     
-    <keywords>google,maps</keywords>
+    <keywords>google,maps,geo</keywords>
     
     <engines>
       <engine name="cordova" version=">=3.0.0" />
