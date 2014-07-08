@@ -6,7 +6,7 @@
     </js-module>
 
     
-    <description>Google Maps native SDK for Android / iOS</description>
+    <description>Google Maps native SDK for Android and iOS</description>
     <repo>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/</repo>
     <issue>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues</issue>
 
