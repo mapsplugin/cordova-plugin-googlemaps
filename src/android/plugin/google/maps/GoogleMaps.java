@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.List;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -68,6 +69,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Polygon;
 
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -773,6 +775,41 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     
   }
+  
+  /**
+   * Notify overlay event to JS
+   * @param eventName
+   * @param polygon
+   */
+  private void onPolygonEvent(final String eventName, final Polygon polygon) {
+    String polygonId = "polygon_" + polygon.getId();
+    PluginEntry polygonPlugin = this.plugins.get("Polygon");
+    PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
+    if (polygonClass.objects.containsKey(polygonId)) {
+      webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onOverlayEvent('" + eventName + "','" + polygonId + "')");
+    } else {
+
+      Set<String> keySet = polygonClass.objects.keySet();
+      Iterator<String> iterator = keySet.iterator();
+      String key = null;
+      Boolean isHit = false;
+      while(iterator.hasNext()) {
+        key = iterator.next();
+        if (key.endsWith(polygonId)) {
+          isHit = true;
+          break;
+        }
+      }
+      if (isHit) {
+        String[] tmp = key.split(":");
+        
+        webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onOverlayEvent('" + eventName + "','" + tmp[1] + "')");
+      }
+    }
+    
+  }
 
   @Override
   public boolean onMarkerClick(Marker marker) {
@@ -825,9 +862,80 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.onMapEvent("long_click", point);
   }
 
-  @Override
+  /**
+   * Notify map click event to JS, also checks for click on a polygon and triggers onPolygonEvent
+   * @param point
+   */
   public void onMapClick(LatLng point) {
-    this.onMapEvent("click", point);
+	PluginEntry polygonPlugin = this.plugins.get("Polygon");
+	PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
+	boolean hitPoly = false;
+	
+	for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
+		String key = entry.getKey();
+		Polygon polygon = (Polygon) entry.getValue();
+		if(this.polygonContainsPoint(polygon, point)) {
+			hitPoly = true;
+			this.onPolygonEvent("overlay_click", polygon);
+		}
+	}
+	
+	// Only emit click event if no polygons hit
+	if(!hitPoly) {
+		this.onMapEvent("click", point);
+	}
+  }
+  
+  /**
+   * Check if a polygon contains a point, uses raycasting
+   * @param polygon
+   * @param point
+   */
+  private boolean polygonContainsPoint(Polygon polygon, LatLng point) {
+	  int crossings = 0;
+	  List<LatLng> path = polygon.getPoints();
+	  
+	  for (int i = 0; i < path.size(); i++) {
+		  LatLng a = path.get(i);
+		  
+		  int j = i + 1;
+		  if(j >= path.size()) {
+			  j = 0;
+		  }
+		  
+		  LatLng b = path.get(j);
+		  
+		  if(this.rayCrossesSegment(point, a, b)) {
+			  crossings++;
+		  }
+		  
+	  }
+	  
+	  return (crossings % 2 == 1);
+  }
+  
+  /**
+   * Used to raycast a point egainst each line segment
+   * @param point
+   * @param a
+   * @param b
+   */
+  private boolean rayCrossesSegment(LatLng point, LatLng a, LatLng b) {
+	  double pX = point.latitude;
+	  double pY = point.longitude;
+	  double aX = a.latitude;
+	  double aY = a.longitude;
+	  double bX = b.latitude;
+	  double bY = b.longitude;
+	  if ( (aY>pY && bY>pY) || (aY<pY && bY<pY) || (aX<pX && bX<pX) ) {
+		  return false;
+	  }
+	  
+	  double m = (aY-bY) / (aX-bX);
+	  double bee = (-aX) * m + aY;
+	  double x = (pY - bee) / m;
+
+	  return x > pX;
   }
   
   @Override
