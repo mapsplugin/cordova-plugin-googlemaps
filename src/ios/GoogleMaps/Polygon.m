@@ -46,6 +46,8 @@
 
   polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
+    
+  polygon.tappable = YES;
 
   NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
   [self.mapCtrl.overlayManager setObject:polygon forKey: id];

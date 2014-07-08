@@ -68,6 +68,7 @@ In order to watch this project, make a Github account(free), then push the [watc
 * [Polygon](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polygon)
   * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polygon.png)
   * Add a polygon
+  * Click a polygon
   * callback
   * Remove the polygon
   * Polygon Class Reference
