@@ -413,7 +413,7 @@ NSDictionary *initOptions;
   UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0f);
   
   // Draw the upper side
-  CGRect trimArea = CGRectMake(15, 0, 5, 45);
+  CGRect trimArea = CGRectMake(15, 0, 5, MIN(45, rectSize.height - 20));
   if (leftImg.scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
                       trimArea.origin.y * leftImg.scale,
@@ -423,6 +423,7 @@ NSDictionary *initOptions;
   CGImageRef trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
   
+  
   // Draw the body
   int x = 0;
   int width = x;
@@ -431,11 +432,11 @@ NSDictionary *initOptions;
     x += 5;
   }
   width = x;
+  
   [leftImg drawAtPoint:CGPointMake(rectSize.width * 0.5f - leftImg.size.width, rectSize.height - leftImg.size.height)];
   [rightImg drawAtPoint:CGPointMake(rectSize.width * 0.5f, rectSize.height - rightImg.size.height)];
-  
   // Draw the bottom side
-  trimArea = CGRectMake(15, 45, 5, 10);
+  trimArea = CGRectMake(15, MIN(45, rectSize.height - 20), 5, 10);
   if (leftImg.scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
                       trimArea.origin.y * leftImg.scale,
@@ -448,7 +449,7 @@ NSDictionary *initOptions;
   x = 0;
   while (rectSize.width - x > 5) {
     if (x < rectSize.width * 0.5f - leftImg.size.width + 5 || x > rectSize.width * 0.5f + rightImg.size.width - 10) {
-      [trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height)];
+      [trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 20)];
     }
     x += 5;
   }
@@ -457,7 +458,7 @@ NSDictionary *initOptions;
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-  CGContextFillRect(context, CGRectMake(0, 5, width, rectSize.height - 15));
+  CGContextFillRect(context, CGRectMake(0, 0, width, rectSize.height - 10));
   
   //--------------------------------
   // text-align: left/center/right
