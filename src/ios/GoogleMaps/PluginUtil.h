@@ -6,6 +6,9 @@
 //
 //
 
+#ifndef MIN
+#import <NSObjCRuntime.h>
+#endif
 #import <Foundation/Foundation.h>
 #import <Cordova/CDV.h>
 
