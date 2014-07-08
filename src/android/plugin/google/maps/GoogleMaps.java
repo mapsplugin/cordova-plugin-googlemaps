@@ -1005,16 +1005,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         // font-weight = normal | bold
         //----------------------------------------
         int fontStyle = Typeface.NORMAL;
-        try {
-          if ("italic".equals(styles.getString("font-style"))) {
-            fontStyle = Typeface.ITALIC;
-          }
-        } catch (JSONException e) {}
-        try {
-          if ("bold".equals(styles.getString("font-weight"))) {
-            fontStyle = fontStyle | Typeface.BOLD;
-          }
-        } catch (JSONException e) {}
+        if (styles != null) {
+          try {
+            if ("italic".equals(styles.getString("font-style"))) {
+              fontStyle = Typeface.ITALIC;
+            }
+          } catch (JSONException e) {}
+          try {
+            if ("bold".equals(styles.getString("font-weight"))) {
+              fontStyle = fontStyle | Typeface.BOLD;
+            }
+          } catch (JSONException e) {}
+        }
         textView.setTypeface(Typeface.DEFAULT, fontStyle);
         
         windowLayer.addView(textView);
