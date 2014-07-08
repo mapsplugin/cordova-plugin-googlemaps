@@ -68,8 +68,11 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.GroundOverlay;
 
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -810,6 +813,75 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     
   }
+  
+  /**
+   * Notify overlay event to JS
+   * @param eventName
+   * @param circle
+   */
+  private void onCircleEvent(final String eventName, final Circle circle) {
+    String circleId = "circle_" + circle.getId();
+    PluginEntry circlePlugin = this.plugins.get("Circle");
+    PluginCircle circleClass = (PluginCircle) circlePlugin.plugin;
+    if (circleClass.objects.containsKey(circleId)) {
+      webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onOverlayEvent('" + eventName + "','" + circleId + "')");
+    } else {
+
+      Set<String> keySet = circleClass.objects.keySet();
+      Iterator<String> iterator = keySet.iterator();
+      String key = null;
+      Boolean isHit = false;
+      while(iterator.hasNext()) {
+        key = iterator.next();
+        if (key.endsWith(circleId)) {
+          isHit = true;
+          break;
+        }
+      }
+      if (isHit) {
+        String[] tmp = key.split(":");
+        
+        webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onOverlayEvent('" + eventName + "','" + tmp[1] + "')");
+      }
+    } 
+  }
+  
+  /**
+   * Notify overlay event to JS
+   * @param eventName
+   * @param groundOverlay
+   */
+  private void onGroundOverlayEvent(final String eventName, final GroundOverlay groundOverlay) {
+    String groundOverlayId = "groundOverlay_" + groundOverlay.getId();
+	
+    PluginEntry groundOverlayPlugin = this.plugins.get("GroundOverlay");
+    PluginGroundOverlay groundOverlayClass = (PluginGroundOverlay) groundOverlayPlugin.plugin;
+    if (groundOverlayClass.objects.containsKey(groundOverlayId)) {
+      webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onOverlayEvent('" + eventName + "','" + groundOverlayId + "')");
+    } else {
+
+      Set<String> keySet = groundOverlayClass.objects.keySet();
+      Iterator<String> iterator = keySet.iterator();
+      String key = null;
+      Boolean isHit = false;
+      while(iterator.hasNext()) {
+        key = iterator.next();
+        if (key.endsWith(groundOverlayId)) {
+          isHit = true;
+          break;
+        }
+      }
+      if (isHit) {
+        String[] tmp = key.split(":");
+        
+        webView.loadUrl("javascript:plugin.google.maps.Map." +
+                  "_onOverlayEvent('" + eventName + "','" + tmp[1] + "')");
+      }
+    } 
+  }
 
   @Override
   public boolean onMarkerClick(Marker marker) {
@@ -867,16 +939,50 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param point
    */
   public void onMapClick(LatLng point) {
-	PluginEntry polygonPlugin = this.plugins.get("Polygon");
-	PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
 	boolean hitPoly = false;
 	
-	for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
-		String key = entry.getKey();
-		Polygon polygon = (Polygon) entry.getValue();
-		if(this.polygonContainsPoint(polygon, point)) {
-			hitPoly = true;
-			this.onPolygonEvent("overlay_click", polygon);
+	// Loop through all polygons to check if within the touch point
+	PluginEntry polygonPlugin = this.plugins.get("Polygon");
+	if(polygonPlugin != null) {
+		PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
+	
+		for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
+			String key = entry.getKey();
+			Polygon polygon = (Polygon) entry.getValue();
+			if(this.polygonContainsPoint(polygon, point)) {
+				hitPoly = true;
+				this.onPolygonEvent("overlay_click", polygon);
+			}
+		}
+	}
+	
+	// Loop through all circles to check if within the touch point
+	PluginEntry circlePlugin = this.plugins.get("Circle");
+	if(circlePlugin != null) {
+		PluginCircle circleClass = (PluginCircle) circlePlugin.plugin;
+	
+		for (HashMap.Entry<String, Object> entry : circleClass.objects.entrySet()) {
+			String key = entry.getKey();
+			Circle circle = (Circle) entry.getValue();
+			if(this.circleContainsPoint(circle, point)) {
+				hitPoly = true;
+				this.onCircleEvent("overlay_click", circle);
+			}
+		}
+	}
+	
+	// Loop through ground overlays to check if within the touch point
+	PluginEntry groundOverlayPlugin = this.plugins.get("GroundOverlay");
+	if(groundOverlayPlugin != null) {
+		PluginGroundOverlay groundOverlayClass = (PluginGroundOverlay) groundOverlayPlugin.plugin;
+	
+		for (HashMap.Entry<String, Object> entry : groundOverlayClass.objects.entrySet()) {
+			String key = entry.getKey();
+			GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
+			if(this.groundOverlayContainsPoint(groundOverlay, point)) {
+				hitPoly = true;
+				this.onGroundOverlayEvent("overlay_click", groundOverlay);
+			}
 		}
 	}
 	
@@ -936,6 +1042,41 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 	  double x = (pY - bee) / m;
 
 	  return x > pX;
+  }
+  
+  /**
+   * Check if a circle contains a point
+   * @param circle
+   * @param point
+   */
+  private boolean circleContainsPoint(Circle circle, LatLng point) {
+	  double r = circle.getRadius();
+	  LatLng center = circle.getCenter();
+	  double cX = center.latitude;
+	  double cY = center.longitude;
+	  double pX = point.latitude;
+	  double pY = point.longitude;
+	  
+	  float[] results = new float[1];
+	  
+	  Location.distanceBetween(cX, cY, pX, pY, results);
+	  
+	  if(results[0] < r) {
+		return true;
+	  } else {
+	  	return false;
+	  }
+  }
+  
+  /**
+   * Check if a ground overlay contains a point
+   * @param groundOverlay
+   * @param point
+   */
+  private boolean groundOverlayContainsPoint(GroundOverlay groundOverlay, LatLng point) {
+	  LatLngBounds groundOverlayBounds = groundOverlay.getBounds();
+	  
+	  return groundOverlayBounds.contains(point);
   }
   
   @Override
