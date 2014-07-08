@@ -2,6 +2,7 @@
 (function(window){
   var PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
+  var POLYS = {};
   var KML_LAYERS = {};
   var OVERLAYS = [];
  
@@ -134,6 +135,13 @@
     }
   };
   
+  App.prototype._onOverlayEvent = function(eventName, hashCode) {
+    var overlay = POLYS[hashCode] || null;
+    if (overlay) {
+	    overlay.trigger(eventName, overlay, this);
+    }
+  };
+  
   App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
     var id = result.id,
         objectType = id.replace(/_.*$/, "").toLowerCase(),
@@ -168,6 +176,7 @@
             
           case "polygon":
             overlay = new Polygon(result.id, options);
+			POLYS[result.id] = overlay;
             args.push({
               "type": "Polygon",
               "object": overlay
@@ -176,6 +185,7 @@
             
           case "polyline":
             overlay = new Polyline(result.id, options);
+			POLYS[result.id] = overlay;
             args.push({
               "type": "Polyline",
               "object": overlay
@@ -536,7 +546,11 @@
  
     cordova.exec(function(result) {
       var circle = new Circle(result.id, circleOptions);
+	  POLYS[result.id] = circle;
       OVERLAYS.push(circle);
+	  if (typeof circleOptions.onClick === "function") {
+		  circle.on(plugin.google.maps.event.OVERLAY_CLICK, circleOptions.onClick);
+	  }
       if (typeof callback === "function") {
         callback.call(self, circle, self);
       }
@@ -556,7 +570,11 @@
     
     cordova.exec(function(result) {
       var polyline = new Polyline(result.id, polylineOptions);
+	  POLYS[result.id] = polyline;
       OVERLAYS.push(polyline);
+	  if (typeof polylineOptions.onClick === "function") {
+		  polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
+	  }
       if (typeof callback === "function") {
         callback.call(self,  polyline, self);
       }
@@ -577,7 +595,11 @@
     
     cordova.exec(function(result) {
       var polygon = new Polygon(result.id, polygonOptions);
+	  POLYS[result.id] = polygon;
       OVERLAYS.push(polygon);
+	  if (typeof polygonOptions.onClick === "function") {
+		  polygon.on(plugin.google.maps.event.OVERLAY_CLICK, polygonOptions.onClick);
+	  }
       if (typeof callback === "function") {
         callback.call(self,  polygon, self);
       }
@@ -601,7 +623,11 @@
     
     cordova.exec(function(result) {
       var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
+	  POLYS[result.id] = tileOverlay;
       OVERLAYS.push(tileOverlay);
+	  if (typeof tilelayerOptions.onClick === "function") {
+		tileOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, tilelayerOptions.onClick);
+	  }
       if (typeof callback === "function") {
         callback.call(self,  tileOverlay, self);
       }
@@ -621,7 +647,11 @@
     var pluginExec = function() {
       cordova.exec(function(result) {
         var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
+		POLYS[result.id] = groundOverlay;
         OVERLAYS.push(groundOverlay);
+	    if (typeof groundOverlayOptions.onClick === "function") {
+		    groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+	    }
         if (typeof callback === "function") {
           callback.call(self,  groundOverlay, self);
         }
@@ -1507,6 +1537,7 @@
     MAP_WILL_MOVE: 'will_move', //for iOS
     MAP_CLOSE: 'map_close',
     MARKER_CLICK: 'click',
+	OVERLAY_CLICK: 'overlay_click',
     INFO_CLICK: 'info_click',
     MARKER_DRAG: 'drag',
     MARKER_DRAG_START: 'drag_start',

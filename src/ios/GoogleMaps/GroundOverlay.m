@@ -66,10 +66,10 @@
     layer.icon = [layer.icon imageByApplyingAlpha:opacity];
   }
 
+  layer.tappable = YES;
 
   NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
-
 
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
