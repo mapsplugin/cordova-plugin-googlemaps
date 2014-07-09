@@ -163,4 +163,18 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Set opacity
+ * @params key
+ */
+-(void)setOpacity:(CDVInvokedUrlCommand *)command
+{
+  NSString *key = [command.arguments objectAtIndex:1];
+  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  CGFloat opacity = [[command.arguments objectAtIndex:2] floatValue];
+  layer.icon = [layer.icon imageByApplyingAlpha:opacity];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

@@ -182,4 +182,17 @@ public class PluginGroundOverlay extends MyPlugin {
     
     callbackContext.success();
   }
+
+  /**
+   * Set opacity
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    float alpha = (float)args.getDouble(2);
+    String id = args.getString(1);
+    this.setFloat("setTransparency", id, alpha, callbackContext);
+  }
 }

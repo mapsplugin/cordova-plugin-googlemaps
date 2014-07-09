@@ -1251,6 +1251,11 @@ GroundOverlay.prototype.setBounds = function(points) {
   }
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBounds', this.getId(), bounds]);
 };
+
+GroundOverlay.prototype.setOpacity = function(alpha) {
+  this.set('opacity');
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), alpha]);
+};
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/

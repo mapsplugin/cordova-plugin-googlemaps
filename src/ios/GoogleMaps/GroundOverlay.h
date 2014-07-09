@@ -18,5 +18,6 @@
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
 - (void)setImage:(CDVInvokedUrlCommand*)command;
 - (void)setBounds:(CDVInvokedUrlCommand*)command;
+- (void)setOpacity:(CDVInvokedUrlCommand*)command;
 
 @end
