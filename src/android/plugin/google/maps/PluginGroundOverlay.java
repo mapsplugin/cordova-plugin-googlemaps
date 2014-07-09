@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileOverlay;
 
 public class PluginGroundOverlay extends MyPlugin {
@@ -69,10 +71,13 @@ public class PluginGroundOverlay extends MyPlugin {
     // Load a dummy image
     options.image(this.dummyImg);
     
-    final GroundOverlay groundOverlay = this.map.addGroundOverlay(options);
+    GroundOverlay groundOverlay = this.map.addGroundOverlay(options);
     
     // Load image
-    final String url = opts.getString("url");
+    String url = opts.getString("url");
+    _setImage(groundOverlay, url, callbackContext);
+  }
+  private void _setImage(final GroundOverlay groundOverlay, final String url, final CallbackContext callbackContext) {
     if (url != null && url.length() > 0) {
       if (url.indexOf("http") == 0) {
         AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
@@ -95,7 +100,6 @@ public class PluginGroundOverlay extends MyPlugin {
         _success(groundOverlay, callbackContext);
       }
     }
-    
   }
   
   private void _success(GroundOverlay groundOverlay, CallbackContext callbackContext) {
@@ -145,5 +149,22 @@ public class PluginGroundOverlay extends MyPlugin {
     }
     groundOverlay.setVisible(visible);
     callbackContext.success();
+  }
+  
+
+  /**
+   * Set image of the ground-overlay
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setImage(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    String url = args.getString(2);
+    
+    // Load image
+    _setImage(groundOverlay, url, callbackContext);
   }
 }

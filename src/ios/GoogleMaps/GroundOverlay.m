@@ -47,19 +47,7 @@
 
   NSString *urlStr = [json objectForKey:@"url"];
   if (urlStr) {
-    NSRange range = [urlStr rangeOfString:@"http"];
-    if (range.location == NSNotFound) {
-      layer.icon = [UIImage imageNamed:urlStr];
-    } else {
-      dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_createGroundOverlay", NULL);
-      dispatch_sync(gueue, ^{
-        NSURL *url = [NSURL URLWithString:urlStr];
-        NSData *data = [NSData dataWithContentsOfURL:url];
-        UIImage *layerImg = [UIImage imageWithData:data];
-        layer.icon = layerImg;
-      });
-
-    }
+    [self _setImage:layer urlStr:urlStr];
   }
   if ([json valueForKey:@"opacity"]) {
     CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
@@ -77,6 +65,22 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr {
+  NSRange range = [urlStr rangeOfString:@"http"];
+  if (range.location == NSNotFound) {
+    layer.icon = [UIImage imageNamed:urlStr];
+  } else {
+    dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_createGroundOverlay", NULL);
+    dispatch_sync(gueue, ^{
+      NSURL *url = [NSURL URLWithString:urlStr];
+      NSData *data = [NSData dataWithContentsOfURL:url];
+      UIImage *layerImg = [UIImage imageWithData:data];
+      layer.icon = layerImg;
+    });
+
+  }
 }
 
 /**
@@ -98,7 +102,7 @@
 
 /**
  * Set visibility
- * @params MarkerKey
+ * @params key
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
@@ -110,6 +114,24 @@
     layer.map = self.mapCtrl.map;
   } else {
     layer.map = nil;
+  }
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * set image
+ * @params key
+ */
+-(void)setImage:(CDVInvokedUrlCommand *)command
+{
+  NSString *key = [command.arguments objectAtIndex:1];
+  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  
+  NSString *urlStr = [command.arguments objectAtIndex:2];
+  if (urlStr) {
+    [self _setImage:layer urlStr:urlStr];
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
