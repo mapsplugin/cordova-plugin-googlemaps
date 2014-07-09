@@ -16,5 +16,6 @@
 - (void)createGroundOverlay:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand *)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
+- (void)setImage:(CDVInvokedUrlCommand*)command;
 
 @end

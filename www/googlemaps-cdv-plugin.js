@@ -1235,6 +1235,10 @@ GroundOverlay.prototype.setVisible = function(visible) {
 GroundOverlay.prototype.getVisible = function() {
   return this.get('visible');
 };
+
+GroundOverlay.prototype.setImage = function(url) {
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setIcon', this.getId(), url]);
+};
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
