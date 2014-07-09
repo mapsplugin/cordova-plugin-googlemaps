@@ -24,10 +24,10 @@
   
   NSURL *googleMapsURLScheme = [NSURL URLWithString:@"comgooglemaps-x-callback://"];
   if ([[UIApplication sharedApplication] canOpenURL:googleMapsURLScheme]) {
-    NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     directionsRequest =
       [NSString stringWithFormat: @"comgooglemaps-x-callback://?saddr=%@&daddr=%@&x-success=sourceapp://?resume=true&x-source=%@",
-        from, to, appName, nil];
+        from, to, bundleIdentifier, nil];
   } else {
     directionsRequest =
       [NSString stringWithFormat: @"http://maps.apple.com/?saddr=%@&daddr=%@",
