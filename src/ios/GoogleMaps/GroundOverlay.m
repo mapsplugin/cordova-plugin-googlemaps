@@ -181,4 +181,17 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Set bearing
+ * @params key
+ */
+-(void)setBearing:(CDVInvokedUrlCommand *)command
+{
+  NSString *key = [command.arguments objectAtIndex:1];
+  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  layer.bearing = [[command.arguments objectAtIndex:2] floatValue];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

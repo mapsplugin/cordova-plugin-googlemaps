@@ -195,4 +195,16 @@ public class PluginGroundOverlay extends MyPlugin {
     String id = args.getString(1);
     this.setFloat("setTransparency", id, alpha, callbackContext);
   }
+  /**
+   * Set bearing
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    float bearing = (float)args.getDouble(2);
+    String id = args.getString(1);
+    this.setFloat("setBearing", id, bearing, callbackContext);
+  }
 }
