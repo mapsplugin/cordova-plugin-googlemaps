@@ -1226,6 +1226,15 @@ GroundOverlay.prototype.remove = function() {
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
   this.off();
 };
+
+GroundOverlay.prototype.setVisible = function(visible) {
+  this.set('visible', visible);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setVisible', this.getId(), visible]);
+};
+
+GroundOverlay.prototype.getVisible = function() {
+  return this.get('visible');
+};
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/

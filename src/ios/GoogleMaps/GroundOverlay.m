@@ -96,4 +96,23 @@
 }
 
 
+/**
+ * Set visibility
+ * @params MarkerKey
+ */
+-(void)setVisible:(CDVInvokedUrlCommand *)command
+{
+  NSString *key = [command.arguments objectAtIndex:1];
+  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
+  
+  if (isVisible) {
+    layer.map = self.mapCtrl.map;
+  } else {
+    layer.map = nil;
+  }
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

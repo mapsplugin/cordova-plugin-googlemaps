@@ -125,6 +125,25 @@ public class PluginGroundOverlay extends MyPlugin {
       return;
     }
     groundOverlay.remove();
+    callbackContext.success();
   }
 
+  /**
+   * Set visibility for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(2);
+    
+    String id = args.getString(1);
+    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    if (groundOverlay == null) {
+      callbackContext.success();
+      return;
+    }
+    groundOverlay.setVisible(visible);
+    callbackContext.success();
+  }
 }
