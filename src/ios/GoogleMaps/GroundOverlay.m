@@ -53,6 +53,9 @@
     CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
     layer.icon = [layer.icon imageByApplyingAlpha:opacity];
   }
+  if ([json valueForKey:@"bearing"]) {
+    layer.bearing = [[json valueForKey:@"bearing"] floatValue];
+  }
 
 
   NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
@@ -177,4 +180,5 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
 @end
