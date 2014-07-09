@@ -137,4 +137,30 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+/**
+ * Set bounds
+ * @params key
+ */
+-(void)setBounds:(CDVInvokedUrlCommand *)command
+{
+  NSString *key = [command.arguments objectAtIndex:1];
+  GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  GMSMutablePath *path = [GMSMutablePath path];
+
+  NSArray *points = [command.arguments objectAtIndex:2];
+  int i = 0;
+  NSDictionary *latLng;
+  for (i = 0; i < points.count; i++) {
+    latLng = [points objectAtIndex:i];
+    [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+  }
+  GMSCoordinateBounds *bounds;
+  bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+  [layer setBounds:bounds];
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end

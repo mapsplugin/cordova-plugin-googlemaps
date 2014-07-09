@@ -1201,7 +1201,6 @@ var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
   self.set("visible", groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible);
   self.set("zIndex", groundOverlayOptions.zIndex || 0);
   self.set("opacity", groundOverlayOptions.opacity || 1);
-  self.set("points", groundOverlayOptions.points || undefined);
   self.set("bounds", groundOverlayOptions.bounds || []);
   self.set("width", groundOverlayOptions.width || undefined);
   self.set("height", groundOverlayOptions.height || undefined);
@@ -1238,6 +1237,19 @@ GroundOverlay.prototype.getVisible = function() {
 
 GroundOverlay.prototype.setImage = function(url) {
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setIcon', this.getId(), url]);
+};
+
+GroundOverlay.prototype.setBounds = function(points) {
+  this.set('bounds', points);
+  var i,
+      bounds = [];
+  for (i = 0; i < points.length; i++) {
+    bounds.push({
+      "lat": points[i].lat,
+      "lng": points[i].lng
+    });
+  }
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBounds', this.getId(), bounds]);
 };
 /*****************************************************************************
  * KmlOverlay Class
