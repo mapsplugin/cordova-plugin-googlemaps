@@ -9,16 +9,12 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.TileOverlay;
 
 public class PluginGroundOverlay extends MyPlugin {
   private BitmapDescriptor dummyImg;
@@ -166,5 +162,24 @@ public class PluginGroundOverlay extends MyPlugin {
     
     // Load image
     _setImage(groundOverlay, url, callbackContext);
+  }
+  
+
+  /**
+   * Set bounds
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setBounds(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    
+    JSONArray points = args.getJSONArray(2);
+    LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
+    groundOverlay.setPositionFromBounds(bounds);
+    
+    callbackContext.success();
   }
 }
