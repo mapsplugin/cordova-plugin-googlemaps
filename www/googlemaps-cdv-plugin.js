@@ -1256,6 +1256,10 @@ GroundOverlay.prototype.setOpacity = function(alpha) {
   this.set('opacity');
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), alpha]);
 };
+GroundOverlay.prototype.setBearing = function(bearing) {
+  this.set('bearing');
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBearing', this.getId(), bearing]);
+};
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
