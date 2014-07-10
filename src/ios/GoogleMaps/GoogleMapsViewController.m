@@ -591,6 +591,9 @@ NSDictionary *initOptions;
 - (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key {
   return [self.overlayManager objectForKey:key];
 }
+- (UIImage *)getUIImageByKey:(NSString *)key {
+  return [self.overlayManager objectForKey:key];
+}
 
 - (void)removeObjectForKey: (NSString *)key {
   [self.overlayManager removeObjectForKey:key];

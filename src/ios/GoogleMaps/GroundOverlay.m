@@ -71,9 +71,14 @@
 }
 
 - (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr {
+
+  NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
+  
+
   NSRange range = [urlStr rangeOfString:@"http"];
   if (range.location == NSNotFound) {
     layer.icon = [UIImage imageNamed:urlStr];
+    [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
   } else {
     dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_createGroundOverlay", NULL);
     dispatch_sync(gueue, ^{
@@ -81,6 +86,7 @@
       NSData *data = [NSData dataWithContentsOfURL:url];
       UIImage *layerImg = [UIImage imageWithData:data];
       layer.icon = layerImg;
+      [self.mapCtrl.overlayManager setObject:layerImg forKey: id];
     });
 
   }
@@ -94,8 +100,10 @@
 {
   NSString *key = [command.arguments objectAtIndex:1];
   GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
+  NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
   layer.map = nil;
   [self.mapCtrl removeObjectForKey:key];
+  [self.mapCtrl removeObjectForKey:id];
   layer = nil;
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -172,10 +180,16 @@
  */
 -(void)setOpacity:(CDVInvokedUrlCommand *)command
 {
+  
+  
   NSString *key = [command.arguments objectAtIndex:1];
   GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
   CGFloat opacity = [[command.arguments objectAtIndex:2] floatValue];
-  layer.icon = [layer.icon imageByApplyingAlpha:opacity];
+  
+  NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
+  UIImage *icon = [self.mapCtrl getUIImageByKey:id];
+  
+  layer.icon = [icon imageByApplyingAlpha:opacity];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
