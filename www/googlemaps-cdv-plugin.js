@@ -1177,6 +1177,14 @@ TileOverlay.prototype.setZIndex = function(zIndex) {
   this.set('zIndex', zIndex);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setZIndex', this.getId(), zIndex]);
 };
+TileOverlay.prototype.setFadeIn = function(fadeIn) {
+  fadeIn = parseBoolean(fadeIn);
+  this.set('fadeIn', fadeIn);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setFadeIn', this.getId(), fadeIn]);
+};
+TileOverlay.prototype.getFadeIn = function() {
+  return this.get('fadeIn');
+};
 TileOverlay.prototype.setVisible = function(visible) {
   visible = parseBoolean(visible);
   this.set('visible', visible);
