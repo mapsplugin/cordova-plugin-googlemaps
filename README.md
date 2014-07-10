@@ -4,17 +4,20 @@ This plugin helps you to control [Google Maps Android SDK v2](https://developers
 This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 
-![ScreenShot](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/phonegap-googlemaps-plugin_small.png)
+![ScreenShot](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/phonegap-googlemaps-plugin_small.png)
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.0.apk](http://goo.gl/MtJSE1)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.3.apk](http://goo.gl/xrz3Hj)
 
-![image](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/examples/example-v1.0.7.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.0.7.gif)
 
 ###Don't miss updates!
 The plugin will updates in very short terms.
 In order to watch this project, make a Github account(free), then push the [watch] button at the top-right of the github pages.
+
+And check the [Release Notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
+https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
 
 
 ###Documentation
@@ -45,6 +48,7 @@ In order to watch this project, make a Github account(free), then push the [watc
   * callback
   * Simple Icon
   * Scaled Icon
+  * Text Styling
   * Base64 Encoded Icon
   * Remove the marker
   * Click a marker
@@ -54,33 +58,33 @@ In order to watch this project, make a Github account(free), then push the [watc
   * Create a flat marker
   * Marker Class Reference
 * [Circle](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Circle)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/circle.png)
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/circle.png)
   * Add a circle
   * callback
   * Remove the circle
   * Circle Class Reference
 * [Polyline](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polyline)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polyline.png)
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/polyline.png)
   * Add a polyline
   * callback
   * Remove the polyline
   * Polyline Class Reference
 * [Polygon](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polygon)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/polygon.png)
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/polygon.png)
   * Add a polygon
   * callback
   * Remove the polygon
   * Polygon Class Reference
 * [Tile Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/TileOverlay)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/tile_overlay.png)
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/tile_overlay.png)
   * Add a tile overlay
   * TileOverlay Class Reference
 * [Ground Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/GroundOverlay)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/ground_overlay.png)
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/ground_overlay.png)
   * Add a ground overlay
   * GroundOverlay Class Reference
 * [Kml Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/KmlOverlay)
-  * ![img](https://raw.githubusercontent.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/kml-polygon.gif)
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/kml-polygon.gif)
   * Add a kml overlay
   * KmlOverlay Class Reference
 * [Geocode](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocode)
@@ -102,8 +106,3 @@ In order to watch this project, make a Github account(free), then push the [watc
   * BaseClass Reference
 * [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
   * Launch the navigation application
-
-***
-
-* [Release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
-
