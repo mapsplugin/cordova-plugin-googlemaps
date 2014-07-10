@@ -945,6 +945,34 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
     windowLayer.setLayoutParams(layoutParams);
+
+    //----------------------------------------
+    // text-align = left | center | right
+    //----------------------------------------
+    int gravity = Gravity.LEFT;
+    int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+    
+    if (styles != null) {
+      try {
+        String textAlignValue = styles.getString("text-align");
+        
+        switch(TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
+        case left:
+          gravity = Gravity.LEFT;
+          textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+          break;
+        case center:
+          gravity = Gravity.CENTER;
+          textAlignment = View.TEXT_ALIGNMENT_CENTER;
+          break;
+        case right:
+          gravity = Gravity.RIGHT;
+          textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
+          break;
+        }
+        
+      } catch (Exception e) {}
+    }
     
     if (title != null) {
       if (title.indexOf("data:image/") > -1 && title.indexOf(";base64,") > -1) {
@@ -966,39 +994,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           } catch (JSONException e) {}
         }
         textView.setTextColor(titleColor);
-        
-        //----------------------------------------
-        // text-align = left | center | right
-        //----------------------------------------
-        int gravity = Gravity.LEFT;
-        int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
-        
-        if (styles != null) {
-          try {
-            String textAlignValue = styles.getString("text-align");
-            
-            switch(TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
-            case left:
-              gravity = Gravity.LEFT;
-              textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
-              break;
-            case center:
-              gravity = Gravity.CENTER;
-              textAlignment = View.TEXT_ALIGNMENT_CENTER;
-              break;
-            case right:
-              gravity = Gravity.RIGHT;
-              textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
-              break;
-            }
-            
-          } catch (Exception e) {}
-        }
         textView.setGravity(gravity);
         if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
           textView.setTextAlignment(textAlignment);
         }
-        
         
         //----------------------------------------
         // font-style = normal | italic
@@ -1028,10 +1027,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       textView2.setText(snippet);
       textView2.setTextColor(Color.GRAY);
       textView2.setTextSize((textView2.getTextSize() / 6 * 5) / density);
-      textView2.setGravity(Gravity.CENTER_HORIZONTAL);
+      textView2.setGravity(gravity);
       if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-        textView2.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        textView2.setTextAlignment(textAlignment);
       }
+
       windowLayer.addView(textView2);
     }
     return windowLayer;
