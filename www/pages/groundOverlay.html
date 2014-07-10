@@ -1,0 +1,171 @@
+<style type="text/css">
+#two td {
+  white-space: nowrap;
+}
+</style>
+<h3 class="ui-bar ui-bar-a">GroundOverlay</h3>
+<p>GroundOverlay displays an image on the map.</p>
+<div id="map_canvas"></div>
+
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="basic" href="#one" data-ajax="false">Basic</a></li>
+      <li><a id="options" href="#two" data-ajax="false">Options</a></li>
+    </ul>
+  </div>
+  
+  
+  <div id="one" class="ui-body-d ui-content">
+    <p>Drawing polyline is easy. Just specify a few points and other parameters.</p>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">  var bounds = [
+  new plugin.google.maps.LatLng(40.712216,-74.22655),
+  new plugin.google.maps.LatLng(40.773941,-74.12544)
+];
+
+map.addGroundOverlay({
+  'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+  'bounds': bounds
+}, function(groundOverlay) {
+  // The image has added on the map as GroundOverlay.
+});</code>
+  </div>
+  
+  
+  
+  <div id="two">
+    <p>You can change the options</p>
+      <table>
+        <tr><td>Opacity</td><td><input type="range" id="opacityRange" min="0" max="1.0" step="0.1"></td></tr>
+        <tr><td>Bearing</td><td><input type="range" id="bearingRange" min="0" max="360" step="10"></td></tr>
+        <tr><td>Show/Hide</td><td><input type="checkbox" id="visibilitySwitch" checked></td></tr>
+        <tr><td>Change image</td><td><select id="imageSelect">
+          <option value="http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg">Original image</option>
+          <option value="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/newark_nj_1922.jpg">Colored image</option>
+        </select></td></tr>
+      </table>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">map.addGroundOverlay({
+  'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+  'bounds': bounds
+}, function(groundOverlay) {
+  
+  // Add event listeners
+  map.on("OPACITY_CHANGE", function(value) {
+    groundOverlay.setOpacity(value);
+  });
+  map.on("BEARING_CHANGE", function(value) {
+    groundOverlay.setBearing(value);
+  });
+  map.on("VISIBILITY_CHANGE", function(value) {
+    groundOverlay.setVisible(value);
+  });
+  map.on("IMAGE_CHANGE", function(url) {
+    groundOverlay.setImage(url);
+  });
+});
+
+$("#opacityRange").change(function() {
+  var value = $(this).val();
+  map.trigger("OPACITY_CHANGE", value);
+});
+$("#bearingRange").change(function() {
+  var value = $(this).val();
+  map.trigger("BEARING_CHANGE", value);
+});
+$("#visibilitySwitch").change(function() {
+  var checked = $(this).prop('checked');
+  map.trigger("VISIBILITY_CHANGE", checked);
+});
+$("#imageSelect").change(function() {
+  var url = $(this).val();
+  map.trigger("IMAGE_CHANGE", url);
+});</code>
+  </div>
+  
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+
+  $("#basic").click(function() {
+    map.clear();
+    addGroundOverlay(map);
+  });
+  $("#options").click(function() {
+    changeOptions(map);
+  });
+  
+  $("#basic").click();
+}
+
+
+function addGroundOverlay(map) {
+  map.off("OPACITY_CHANGE");
+  map.off("BEARING_CHANGE");
+  map.off("VISIBILITY_CHANGE");
+  map.off("IMAGE_CHANGE");
+  
+  var bounds = [
+    new plugin.google.maps.LatLng(40.712216,-74.22655),
+    new plugin.google.maps.LatLng(40.773941,-74.12544)
+  ];
+  
+  map.moveCamera({
+    'target': bounds
+  });
+  
+  
+  map.addGroundOverlay({
+    'url': "http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    'bounds': bounds
+  }, function(groundOverlay) {
+    
+    // Add event listeners
+    map.on("OPACITY_CHANGE", function(value) {
+      groundOverlay.setOpacity(value);
+    });
+    map.on("BEARING_CHANGE", function(value) {
+      groundOverlay.setBearing(value);
+    });
+    map.on("VISIBILITY_CHANGE", function(value) {
+      groundOverlay.setVisible(value);
+    });
+    map.on("IMAGE_CHANGE", function(url) {
+      groundOverlay.setImage(url);
+    });
+  });
+}
+
+
+function changeOptions(map) {
+  $("#opacityRange").off();
+  $("#bearingRange").off();
+  $("#visibilitySwitch").off();
+  $("#imageSelect").off();
+  
+  $("#opacityRange").change(function() {
+    var value = $(this).val();
+    map.trigger("OPACITY_CHANGE", value);
+  });
+  $("#bearingRange").change(function() {
+    var value = $(this).val();
+    map.trigger("BEARING_CHANGE", value);
+  });
+  $("#visibilitySwitch").change(function() {
+    var checked = $(this).prop('checked');
+    map.trigger("VISIBILITY_CHANGE", checked);
+  });
+  $("#imageSelect").change(function() {
+    var url = $(this).val();
+    map.trigger("IMAGE_CHANGE", url);
+  });
+  
+  
+  $("#opacityRange").val(1.0);
+  $("#bearingRange").val(0);
+  $("#visibilitySwitch").attr("checked", "checked");
+}
+ 
+</script>
