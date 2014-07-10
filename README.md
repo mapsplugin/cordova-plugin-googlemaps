@@ -41,7 +41,7 @@ https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
   * Get my location
   * Map Class Reference
 * [Marker](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Marker)
-  * ![img](https://camo.githubusercontent.com/9dd8644cf5038708d6a6af93ab31f8b1d2e45801/68747470733a2f2f726177322e6769746875622e636f6d2f77663961356d37352f70686f6e656761702d676f6f676c656d6170732d706c7567696e2f496d616765732f73637265656e636170747572652f6d61726b6572332e706e67) 
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8LUxUWmhsQmgxVVU/marker5.gif) 
   * Add a Marker
   * Show InfoWindow
   * Add a marker with multiple line
