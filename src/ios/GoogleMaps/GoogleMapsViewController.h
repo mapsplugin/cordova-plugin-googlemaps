@@ -31,6 +31,7 @@
 - (GMSPolyline *)getPolylineByKey: (NSString *)key;
 - (GMSTileLayer *)getTileLayerByKey: (NSString *)key;
 - (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key;
+- (UIImage *)getUIImageByKey: (NSString *)key;
 - (void)updateMapViewLayout: (BOOL)animated;
 
 - (void)removeObjectForKey: (NSString *)key;

@@ -1236,7 +1236,7 @@ GroundOverlay.prototype.getVisible = function() {
 };
 
 GroundOverlay.prototype.setImage = function(url) {
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setIcon', this.getId(), url]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setImage', this.getId(), url]);
 };
 
 GroundOverlay.prototype.setBounds = function(points) {

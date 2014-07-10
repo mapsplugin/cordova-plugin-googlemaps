@@ -49,7 +49,7 @@ public class PluginGroundOverlay extends MyPlugin {
       options.bearing((float)opts.getDouble("bearing"));
     }
     if (opts.has("opacity")) {
-      options.transparency((float)opts.getDouble("opacity"));
+      options.transparency(1 - (float)opts.getDouble("opacity"));
     }
     if (opts.has("zIndex")) {
       options.zIndex((float)opts.getDouble("zIndex"));
@@ -193,7 +193,7 @@ public class PluginGroundOverlay extends MyPlugin {
   private void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float alpha = (float)args.getDouble(2);
     String id = args.getString(1);
-    this.setFloat("setTransparency", id, alpha, callbackContext);
+    this.setFloat("setTransparency", id, 1 - alpha, callbackContext);
   }
   /**
    * Set bearing
