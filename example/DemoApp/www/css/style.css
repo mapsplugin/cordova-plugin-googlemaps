@@ -13,11 +13,12 @@ html, body, #container {
 code {
   border: 1px dotted gray;
   background-color: #E0E0E0;
-  padding: 1px;
-  white-space: pre-wrap;
+  padding: 7px;
+  white-space: pre;
   display: inline-block;
   word-break: keep-all;
   width: 100%;
+  overflow: scroll;
 }
 
 span.highlight {

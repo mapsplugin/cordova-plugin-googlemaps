@@ -4,6 +4,7 @@
 <p><span class="highlight">Map.animateCamera()</span> method changes the camera view with animation.</p>
 <h4 class="ui-bar ui-bar-a">JavaScript</h4>
 <code class="prettyprint">const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 
 map.moveCamera({
   'target': GOOGLE,
@@ -25,6 +26,7 @@ map.moveCamera({
 <script type="text/javascript">
 function onPageLoaded(map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 
   map.moveCamera({
     'target': GOOGLE,
