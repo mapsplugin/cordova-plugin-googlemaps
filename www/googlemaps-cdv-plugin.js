@@ -1202,8 +1202,6 @@ var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
   self.set("zIndex", groundOverlayOptions.zIndex || 0);
   self.set("opacity", groundOverlayOptions.opacity || 1);
   self.set("bounds", groundOverlayOptions.bounds || []);
-  self.set("width", groundOverlayOptions.width || undefined);
-  self.set("height", groundOverlayOptions.height || undefined);
   self.set("anchor", groundOverlayOptions.anchor || [0, 0]);
   self.set("bearing", groundOverlayOptions.bearing || 0);
   Object.defineProperty(self, "id", {
@@ -1252,12 +1250,20 @@ GroundOverlay.prototype.setBounds = function(points) {
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBounds', this.getId(), bounds]);
 };
 
+GroundOverlay.prototype.getOpacity = function() {
+  return this.get("opacity");
+};
+
+GroundOverlay.prototype.getBearing = function() {
+  return this.get("bearing");
+};
+
 GroundOverlay.prototype.setOpacity = function(alpha) {
-  this.set('opacity');
+  this.set('opacity', opacity);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), alpha]);
 };
 GroundOverlay.prototype.setBearing = function(bearing) {
-  this.set('bearing');
+  this.set('bearing', bearing);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBearing', this.getId(), bearing]);
 };
 /*****************************************************************************
