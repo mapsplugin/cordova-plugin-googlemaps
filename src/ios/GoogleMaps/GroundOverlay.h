@@ -20,5 +20,6 @@
 - (void)setBounds:(CDVInvokedUrlCommand*)command;
 - (void)setOpacity:(CDVInvokedUrlCommand*)command;
 - (void)setBearing:(CDVInvokedUrlCommand*)command;
+- (void)setZIndex:(CDVInvokedUrlCommand *)command;
 
 @end
