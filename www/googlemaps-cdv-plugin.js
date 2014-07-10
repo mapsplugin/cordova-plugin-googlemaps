@@ -1174,7 +1174,6 @@ TileOverlay.prototype.getZIndex = function() {
   return this.get("zIndex");
 };
 TileOverlay.prototype.setZIndex = function(zIndex) {
-  zIndex = parseBoolean(zIndex);
   this.set('zIndex', zIndex);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setZIndex', this.getId(), zIndex]);
 };
@@ -1265,6 +1264,14 @@ GroundOverlay.prototype.setOpacity = function(alpha) {
 GroundOverlay.prototype.setBearing = function(bearing) {
   this.set('bearing', bearing);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBearing', this.getId(), bearing]);
+};
+
+GroundOverlay.prototype.getZIndex = function() {
+  return this.get("zIndex");
+};
+GroundOverlay.prototype.setZIndex = function(zIndex) {
+  this.set('zIndex', zIndex);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setZIndex', this.getId(), zIndex]);
 };
 /*****************************************************************************
  * KmlOverlay Class

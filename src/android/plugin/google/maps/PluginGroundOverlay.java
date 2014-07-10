@@ -207,4 +207,16 @@ public class PluginGroundOverlay extends MyPlugin {
     String id = args.getString(1);
     this.setFloat("setBearing", id, bearing, callbackContext);
   }
+  /**
+   * set z-index
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    float zIndex = (float) args.getDouble(2);
+    this.setFloat("setZIndex", id, zIndex, callbackContext);
+  }
 }
