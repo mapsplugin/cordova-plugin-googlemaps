@@ -1265,9 +1265,9 @@ GroundOverlay.prototype.getBearing = function() {
   return this.get("bearing");
 };
 
-GroundOverlay.prototype.setOpacity = function(alpha) {
+GroundOverlay.prototype.setOpacity = function(opacity) {
   this.set('opacity', opacity);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), alpha]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), opacity]);
 };
 GroundOverlay.prototype.setBearing = function(bearing) {
   this.set('bearing', bearing);
