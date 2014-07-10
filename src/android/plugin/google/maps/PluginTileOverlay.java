@@ -116,4 +116,16 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
     tileOverlay.clearTileCache();
   }
+
+  /**
+   * Set fadeIn for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setFadeIn(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(2);
+    String id = args.getString(1);
+    this.setBoolean("setFadeIn", id, visible, callbackContext);
+  }
 }
