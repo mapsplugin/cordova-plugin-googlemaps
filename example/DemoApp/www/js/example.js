@@ -20,20 +20,6 @@ window.onerror = function(message, file, line) {
  * Start from here
  */
 $(document).on("deviceready", function() {
-  // Check the availability of Google Maps Android API v2.
-  // Return always true in iOS.
-  plugin.google.maps.Map.isAvailable(function(isAvailable, message) {
-    if (isAvailable) {
-      onMapInit();
-    } else {
-      alert(message);
-    }
-  });
-});
-
-function onMapInit() {
-  
-  
   var map = plugin.google.maps.Map.getMap();
   
   $("li[action]").click(function() {
@@ -74,7 +60,7 @@ function onMapInit() {
   });
   
   loadPage(map, "welcome");
-};
+});
 
 /**
  * Change the embed page view.
