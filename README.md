@@ -96,6 +96,10 @@ In order to watch this project, make a Github account(free), then push the [watc
   * CameraPosition Class Reference
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
+* [Geocoder](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocoder)
+  * Geocoder Class Reference
+* [BaseClass](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/BaseClass)
+  * BaseClass Reference
 * [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
   * Launch the navigation application
 
