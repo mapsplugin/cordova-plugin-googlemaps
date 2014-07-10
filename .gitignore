@@ -34,6 +34,7 @@ proguard/
 platforms/android/assets/www/*
 platforms/ios/www/*
 
+config.xml
 .DS_Store
 ant-build/
 ant-gen/
