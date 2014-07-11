@@ -1,7 +1,6 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
-  var POLYS = {};
   var KML_LAYERS = {};
   var OVERLAYS = [];
  
@@ -133,7 +132,7 @@ App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
 };
 
 App.prototype._onOverlayEvent = function(eventName, hashCode) {
-  var overlay = POLYS[hashCode] || null;
+  var overlay = OVERLAYS[hashCode] || null;
   if (overlay) {
     overlay.trigger(eventName, overlay, this);
   }
@@ -166,7 +165,6 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
           
         case "polygon":
           overlay = new Polygon(result.id, options);
-          POLYS[result.id] = overlay;
           args.push({
             "type": "Polygon",
             "object": overlay
@@ -175,7 +173,6 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
           
         case "polyline":
           overlay = new Polyline(result.id, options);
-          POLYS[result.id] = overlay;
           args.push({
             "type": "Polyline",
             "object": overlay
@@ -183,7 +180,7 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
           break;
       }
       if (overlay) {
-        OVERLAYS.push(overlay);
+        OVERLAYS[result.id] = overlay;
         overlay.hashCode = result.hashCode;
         kmlLayer.on("_REMOVE", function() {
           overlay.remove();
@@ -412,9 +409,13 @@ App.prototype.getCameraPosition = function(callback) {
  */
 App.prototype.clear = function(callback) {
   var self = this;
-  for (var i = OVERLAYS.length; i > 0; i--) {
-    delete OVERLAYS[i - 1];
+  var overlayIDs = Object.keys(OVERLAYS);
+  var overlayId;
+  for (var i = 0; i < overlayIDs.length; i++) {
+    overlayId = overlayIDs[i];
+    delete OVERLAYS[overlayId];
   }
+  OVERLAYS = {};
   cordova.exec(function() {
     if (typeof callback === "function") {
       callback.call(self);
@@ -543,8 +544,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
  
   cordova.exec(function(result) {
     var circle = new Circle(result.id, circleOptions);
-    POLYS[result.id] = circle;
-    OVERLAYS.push(circle);
+    OVERLAYS[result.id] = circle;
     if (typeof circleOptions.onClick === "function") {
       circle.on(plugin.google.maps.event.OVERLAY_CLICK, circleOptions.onClick);
     }
@@ -567,8 +567,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   
   cordova.exec(function(result) {
     var polyline = new Polyline(result.id, polylineOptions);
-    POLYS[result.id] = polyline;
-    OVERLAYS.push(polyline);
+    OVERLAYS[result.id] = polyline;
     if (typeof polylineOptions.onClick === "function") {
       polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
     }
@@ -592,8 +591,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
   
   cordova.exec(function(result) {
     var polygon = new Polygon(result.id, polygonOptions);
-    POLYS[result.id] = polygon;
-    OVERLAYS.push(polygon);
+    OVERLAYS[result.id] = polygon;
     if (typeof polygonOptions.onClick === "function") {
       polygon.on(plugin.google.maps.event.OVERLAY_CLICK, polygonOptions.onClick);
     }
@@ -620,8 +618,7 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   
   cordova.exec(function(result) {
     var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
-    POLYS[result.id] = tileOverlay;
-    OVERLAYS.push(tileOverlay);
+    OVERLAYS[result.id] = tileOverlay;
     if (typeof tilelayerOptions.onClick === "function") {
       tileOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, tilelayerOptions.onClick);
     }
@@ -644,8 +641,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   var pluginExec = function() {
     cordova.exec(function(result) {
       var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
-      POLYS[result.id] = groundOverlay;
-      OVERLAYS.push(groundOverlay);
+      OVERLAYS[result.id] = groundOverlay;
       if (typeof groundOverlayOptions.onClick === "function") {
         groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
       }
