@@ -271,6 +271,22 @@ NSDictionary *initOptions;
 	return NO;
 }
 
+- (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
+    NSString *overlayClass = NSStringFromClass([overlay class]);
+    if([overlayClass isEqualToString:@"GMSPolygon"]) {
+        [self triggerOverlayEvent:@"overlay_click" type:@"polygon" overlay:overlay];
+    }
+    if([overlayClass isEqualToString:@"GMSPolyline"]) {
+        [self triggerOverlayEvent:@"overlay_click" type:@"polyline" overlay:overlay];
+    }
+    if([overlayClass isEqualToString:@"GMSCircle"]) {
+        [self triggerOverlayEvent:@"overlay_click" type:@"circle" overlay:overlay];
+    }
+    if([overlayClass isEqualToString:@"GMSGroundOverlay"]) {
+        [self triggerOverlayEvent:@"overlay_click" type:@"groundOverlay" overlay:overlay];
+    }
+}
+
 /**
  * Involve App._onMapEvent
  */
@@ -311,6 +327,16 @@ NSDictionary *initOptions;
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker_%lu');",
                                       eventName, (unsigned long)marker.hash];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+
+/**
+ * Involve App._onOverlayEvent
+ */
+- (void)triggerOverlayEvent: (NSString *)eventName type:(NSString *) type overlay:(GMSOverlay *)overlay
+{
+    NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@_%lu');",
+                          eventName, type, (unsigned long)overlay.hash];
+    [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 //future support: custom info window

@@ -1,6 +1,7 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
+  var POLYS = {};
   var KML_LAYERS = {};
   var OVERLAYS = [];
  
@@ -128,18 +129,25 @@ App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
   var id = result.id,
       objectType = id.replace(/_.*$/, "").toLowerCase(),
       eventName = objectType + "_add";
+  this._onKmlEvent(eventName, kmlLayerId, result, options);
+};
+
+App.prototype._onOverlayEvent = function(eventName, hashCode) {
+  var overlay = POLYS[hashCode] || null;
+  if (overlay) {
+    overlay.trigger(eventName, overlay, this);
+  }
+};
  
-    this._onKmlEvent(eventName, kmlLayerId, result, options);
-  };
-  /*
+/*
  * Callback from Native
  */
-  App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
-    var kmlLayer = KML_LAYERS[kmlLayerId] || null;
-    if (kmlLayer) {
- 
-      var args = [eventName];
-      if (eventName.substr(-4, 4) === "_add") {
+App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
+  var kmlLayer = KML_LAYERS[kmlLayerId] || null;
+  if (kmlLayer) {
+
+    var args = [eventName];
+    if (eventName.substr(-4, 4) === "_add") {
       var objectType = eventName.replace(/_.*$/, ""),
           overlay = null;
       
@@ -158,6 +166,7 @@ App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
           
         case "polygon":
           overlay = new Polygon(result.id, options);
+          POLYS[result.id] = overlay;
           args.push({
             "type": "Polygon",
             "object": overlay
@@ -166,6 +175,7 @@ App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
           
         case "polyline":
           overlay = new Polyline(result.id, options);
+          POLYS[result.id] = overlay;
           args.push({
             "type": "Polyline",
             "object": overlay
@@ -453,9 +463,9 @@ App.prototype.setDiv = function(div) {
     args.push(getDivSize(div));
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
-  };
+};
  
-  /**
+/**
  * Return the visible region of the map.
  * Thanks @fschmidt
  */
@@ -470,9 +480,9 @@ App.prototype.getVisibleRegion = function(callback) {
       callback.call(self, latLngBounds);
     }
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
-  };
+};
  
-  //-------------
+//-------------
 // Marker
 //-------------
 App.prototype.addMarker = function(markerOptions, callback) {
@@ -526,15 +536,19 @@ App.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.center.lng = circleOptions.center.lng || 0.0;
   circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
   circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
-    circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
-    circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
-    circleOptions.zIndex = circleOptions.zIndex || 0.0;
-    circleOptions.radius = circleOptions.radius || 1;
+  circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
+  circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
+  circleOptions.zIndex = circleOptions.zIndex || 0.0;
+  circleOptions.radius = circleOptions.radius || 1;
  
-    cordova.exec(function(result) {
-      var circle = new Circle(result.id, circleOptions);
-      OVERLAYS.push(circle);
-      if (typeof callback === "function") {
+  cordova.exec(function(result) {
+    var circle = new Circle(result.id, circleOptions);
+    POLYS[result.id] = circle;
+    OVERLAYS.push(circle);
+    if (typeof circleOptions.onClick === "function") {
+      circle.on(plugin.google.maps.event.OVERLAY_CLICK, circleOptions.onClick);
+    }
+    if (typeof callback === "function") {
       callback.call(self, circle, self);
     }
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
@@ -553,7 +567,11 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   
   cordova.exec(function(result) {
     var polyline = new Polyline(result.id, polylineOptions);
+    POLYS[result.id] = polyline;
     OVERLAYS.push(polyline);
+    if (typeof polylineOptions.onClick === "function") {
+      polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
+    }
     if (typeof callback === "function") {
       callback.call(self,  polyline, self);
     }
@@ -574,7 +592,11 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
   
   cordova.exec(function(result) {
     var polygon = new Polygon(result.id, polygonOptions);
+    POLYS[result.id] = polygon;
     OVERLAYS.push(polygon);
+    if (typeof polygonOptions.onClick === "function") {
+      polygon.on(plugin.google.maps.event.OVERLAY_CLICK, polygonOptions.onClick);
+    }
     if (typeof callback === "function") {
       callback.call(self,  polygon, self);
     }
@@ -598,7 +620,11 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   
   cordova.exec(function(result) {
     var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
+    POLYS[result.id] = tileOverlay;
     OVERLAYS.push(tileOverlay);
+    if (typeof tilelayerOptions.onClick === "function") {
+      tileOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, tilelayerOptions.onClick);
+    }
     if (typeof callback === "function") {
       callback.call(self,  tileOverlay, self);
     }
@@ -618,7 +644,11 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   var pluginExec = function() {
     cordova.exec(function(result) {
       var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
+      POLYS[result.id] = groundOverlay;
       OVERLAYS.push(groundOverlay);
+      if (typeof groundOverlayOptions.onClick === "function") {
+        groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+      }
       if (typeof callback === "function") {
         callback.call(self,  groundOverlay, self);
       }
@@ -1566,6 +1596,7 @@ module.exports = {
     MAP_WILL_MOVE: 'will_move', //for iOS
     MAP_CLOSE: 'map_close',
     MARKER_CLICK: 'click',
+    OVERLAY_CLICK: 'overlay_click',
     INFO_CLICK: 'info_click',
     MARKER_DRAG: 'drag',
     MARKER_DRAG_START: 'drag_start',
