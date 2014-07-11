@@ -512,7 +512,7 @@ App.prototype.addMarker = function(markerOptions, callback) {
       var marker = new Marker(result.id, markerOptions);
       markerOptions.hashCode = result.hashCode;
       MARKERS[result.id] = marker;
-      OVERLAYS.push(marker);
+      OVERLAYS[result.id] = marker;
       
       if (typeof markerOptions.markerClick === "function") {
       marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
