@@ -106,4 +106,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     }
     callbackContext.success();
   }
+  public void clear() {
+    this.objects.clear();
+  }
 }

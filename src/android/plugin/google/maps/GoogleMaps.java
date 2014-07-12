@@ -95,7 +95,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     getMyLocation,
     exec,
     isAvailable,
-    getLicenseInfo
+    getLicenseInfo,
+    clear
   }
   
   private enum EVENTS {
@@ -174,6 +175,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             break;
           case isAvailable:
             GoogleMaps.this.isAvailable(args, callbackContext);
+            break;
+          case clear:
+            GoogleMaps.this.clear(args, callbackContext);
             break;
           case exec:
           
@@ -1284,5 +1288,28 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @Override
   public View getInfoWindow(Marker marker) {
     return null;
+  }
+
+  /**
+   * Clear all markups
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    Set<String> pluginNames = plugins.keySet();
+    Iterator<String> iterator = pluginNames.iterator();
+    String pluginName;
+    PluginEntry pluginEntry;
+    while(iterator.hasNext()) {
+      pluginName = iterator.next();
+      if ("Map".equals(pluginName) == false) {
+        pluginEntry = plugins.get(pluginName);
+        ((MyPlugin) pluginEntry.plugin).clear();
+      }
+    }
+    
+    this.map.clear();
+    callbackContext.success();
   }
 }
