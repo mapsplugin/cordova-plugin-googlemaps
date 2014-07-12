@@ -87,9 +87,6 @@ https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
   * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/kml-polygon.gif)
   * Add a kml overlay
   * KmlOverlay Class Reference
-* [Geocode](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocode)
-  * Geocoding
-  * Reverse geocoding
 * [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng)
   * Create a LatLng object
   * LatLng Class Reference
@@ -101,6 +98,8 @@ https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
 * [Geocoder](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocoder)
+  * Geocoding
+  * Reverse geocoding
   * Geocoder Class Reference
 * [BaseClass](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/BaseClass)
   * BaseClass Reference
