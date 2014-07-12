@@ -273,17 +273,12 @@ NSDictionary *initOptions;
 
 - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
   NSString *overlayClass = NSStringFromClass([overlay class]);
-  if([overlayClass isEqualToString:@"GMSPolygon"]) {
-    [self triggerOverlayEvent:@"overlay_click" type:@"polygon" overlay:overlay];
-  }
-  if([overlayClass isEqualToString:@"GMSPolyline"]) {
-    [self triggerOverlayEvent:@"overlay_click" type:@"polyline" overlay:overlay];
-  }
-  if([overlayClass isEqualToString:@"GMSCircle"]) {
-    [self triggerOverlayEvent:@"overlay_click" type:@"circle" overlay:overlay];
-  }
-  if([overlayClass isEqualToString:@"GMSGroundOverlay"]) {
-    [self triggerOverlayEvent:@"overlay_click" type:@"groundOverlay" overlay:overlay];
+  NSLog(@"clicked = %@", overlay.title);
+  if ([overlayClass isEqualToString:@"GMSPolygon"] ||
+      [overlayClass isEqualToString:@"GMSPolyline"] ||
+      [overlayClass isEqualToString:@"GMSCircle"] ||
+      [overlayClass isEqualToString:@"GMSGroundOverlay"]) {
+    [self triggerOverlayEvent:@"overlay_click" id:overlay.title];
   }
 }
 
@@ -332,10 +327,10 @@ NSDictionary *initOptions;
 /**
  * Involve App._onOverlayEvent
  */
-- (void)triggerOverlayEvent: (NSString *)eventName type:(NSString *) type overlay:(GMSOverlay *)overlay
+- (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@_%lu');",
-                                      eventName, type, (unsigned long)overlay.hash];
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
+                                      eventName, id];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 

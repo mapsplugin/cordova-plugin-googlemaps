@@ -61,6 +61,7 @@
 
   NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
+  layer.title = id;
 
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
