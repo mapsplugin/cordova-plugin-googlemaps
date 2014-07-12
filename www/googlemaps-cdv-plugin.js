@@ -413,6 +413,7 @@ App.prototype.clear = function(callback) {
   var overlayId;
   for (var i = 0; i < overlayIDs.length; i++) {
     overlayId = overlayIDs[i];
+    OVERLAYS[overlayId].off();
     delete OVERLAYS[overlayId];
   }
   OVERLAYS = {};
@@ -420,7 +421,7 @@ App.prototype.clear = function(callback) {
     if (typeof callback === "function") {
       callback.call(self);
     }
-  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.clear']);
+  }, self.errorHandler, PLUGIN_NAME, 'clear', []);
 };
 
 
@@ -568,9 +569,9 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   cordova.exec(function(result) {
     var polyline = new Polyline(result.id, polylineOptions);
     OVERLAYS[result.id] = polyline;
-    if (typeof polylineOptions.onClick === "function") {
+    /*if (typeof polylineOptions.onClick === "function") {
       polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
-    }
+    }*/
     if (typeof callback === "function") {
       callback.call(self,  polyline, self);
     }
@@ -619,9 +620,11 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   cordova.exec(function(result) {
     var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
     OVERLAYS[result.id] = tileOverlay;
+    /*
     if (typeof tilelayerOptions.onClick === "function") {
       tileOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, tilelayerOptions.onClick);
     }
+    */
     if (typeof callback === "function") {
       callback.call(self,  tileOverlay, self);
     }
@@ -1420,23 +1423,23 @@ LatLngBounds.prototype.contains = function(latLng) {
 // Convert HTML color to RGB
 //---------------------------
 var colorDiv = document.createElement("div");
-  document.head.appendChild(colorDiv);
+document.head.appendChild(colorDiv);
  
-  function HTMLColor2RGBA(colorStr) {
-    var alpha = Math.floor(255 * 0.75),
-        matches,
-        compStyle,
-        result = {
-          r: 0,
-          g: 0,
-          b: 0
-        };
-    if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
+function HTMLColor2RGBA(colorStr) {
+  var alpha = Math.floor(255 * 0.75),
+      matches,
+      compStyle,
+      result = {
+        r: 0,
+        g: 0,
+        b: 0
+      };
+  if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
     alpha = colorStr.substr(4, 1);
     alpha = parseInt(alpha + alpha, 16);
     colorStr = colorStr.substr(0, 4);
   }
-
+  
   if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
     alpha = colorStr.substr(7, 2);
     alpha = parseInt(alpha, 16);
@@ -1449,19 +1452,19 @@ var colorDiv = document.createElement("div");
     alpha = Math.floor(parseFloat(matches.pop()) * 256);
     matches = "rgb(" +  matches.join(",") + ")";
   }
-
+    
   // convert hsla() -> hsl()
   if (colorStr.match(/^hsla\([\d%,.\s]+\)$/)) {
     matches = colorStr.match(/([\d%.]+)/g);
     alpha = Math.floor(parseFloat(matches.pop()) * 256);
     matches = "hsl(" +  matches.join(",") + ")";
-    }
- 
-    colorDiv.style.color = colorStr;
-    if (window.getComputedStyle) {
-      compStyle = window.getComputedStyle(colorDiv, null);
-      try {
-        var value = compStyle.getPropertyCSSValue ("color");
+  }
+   
+  colorDiv.style.color = colorStr;
+  if (window.getComputedStyle) {
+    compStyle = window.getComputedStyle(colorDiv, null);
+    try {
+      var value = compStyle.getPropertyCSSValue ("color");
       var valueType = value.primitiveType;
       if (valueType === CSSPrimitiveValue.CSS_RGBCOLOR) {
         var rgb = value.getRGBColorValue ();
@@ -1471,15 +1474,15 @@ var colorDiv = document.createElement("div");
       }
     } catch (e) {
       console.log("The browser does not support the getPropertyCSSValue method!");
-      }
     }
-    return [result.r, result.g, result.b, alpha];
   }
- 
-  function parseBoolean(boolValue) {
-    return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
-         boolValue === true ||
-         boolValue === 1;
+  return [result.r, result.g, result.b, alpha];
+}
+
+function parseBoolean(boolValue) {
+  return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
+     boolValue === true ||
+     boolValue === 1;
 }
 
 function isDom(element) {
