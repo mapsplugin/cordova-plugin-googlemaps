@@ -31,6 +31,7 @@
 
   // Create the polygon, and assign it to the map.
   GMSPolygon *polygon = [GMSPolygon polygonWithPath:path];
+  polygon.title = @"polygon";
 
   if ([[json valueForKey:@"visible"] boolValue]) {
     polygon.map = self.mapCtrl.map;
@@ -51,7 +52,7 @@
 
   NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
   [self.mapCtrl.overlayManager setObject:polygon forKey: id];
-
+  polygon.title = id;
 
 
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
