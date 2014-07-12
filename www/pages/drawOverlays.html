@@ -149,6 +149,12 @@ function drawPolygon (map) {
     map.moveCamera({
       'target': polygon.getPoints()
     });
+    
+    polygon.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+      polygon.setFillColor("blue");
+      polygon.setStrokeColor("green");
+      polygon.setStrokeWidth(10);
+    });
   });
 }
 function drawCircle (map) {
@@ -160,6 +166,12 @@ function drawCircle (map) {
     'strokeColor' : '#AA00FF',
     'strokeWidth': 5,
     'fillColor' : '#880000'
+  }, function(circle) {
+    circle.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+      circle.setFillColor("blue");
+      circle.setStrokeColor("red");
+      circle.setStrokeWidth(10);
+    });
   });
 
   map.moveCamera({
