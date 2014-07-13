@@ -7,7 +7,19 @@ function onPageLoaded(map) {
   const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
   const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
   const LAX_AIR_PORT = new plugin.google.maps.LatLng(33.941588,-118.408529);
-
+/*
+  cordova.exec(function(result) {
+    
+  }, null, "GoogleMaps", 'exec', ['Polyline.createPolyline2', {
+    'points': [
+      HND_AIR_PORT,
+      HNL_AIR_PORT,
+      SFO_AIR_PORT,
+      LAX_AIR_PORT
+    ]
+  }]);
+return;
+*/
   map.addPolyline({
     'points': [
       HND_AIR_PORT,
@@ -17,11 +29,15 @@ function onPageLoaded(map) {
     ],
     'color' : '#AA00FF',
     'width': 5,
-    'geodesic': true
+    'geodesic': false
   }, function(polyline) {
     
-    polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+    polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function(polyline, latLng) {
       polyline.setColor("red");
+      console.log(latLng);
+      map.addMarker({
+        position: latLng
+      });
     });
     
     map.moveCamera({
@@ -30,10 +46,5 @@ function onPageLoaded(map) {
     });
   });
 
-  map.on(plugin.google.maps.event.MAP_CLICK, function(latLng) {
-    map.addMarker({
-      position: latLng
-    });
-  });
 }
 </script>

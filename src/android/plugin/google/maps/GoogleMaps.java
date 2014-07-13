@@ -76,6 +76,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -579,7 +580,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     webView.setVisibility(View.GONE);
     root.addView(windowLayer);
     
-    //Dummy view for the backbutton event
+    //Dummy view for the back-button event
     FrameLayout dummyLayout = new FrameLayout(activity);
     this.webView.showCustomView(dummyLayout, new WebChromeClient.CustomViewCallback() {
 
@@ -766,9 +767,28 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     webView.loadUrl("javascript:plugin.google.maps.Map." +
                   "_onMarkerEvent('" + eventName + "','" + markerId + "')");
   }
-  private void onOverlayEvent(String eventName, String overlayId) {
+  private void onOverlayEvent(String eventName, String overlayId, LatLng point) {
     webView.loadUrl("javascript:plugin.google.maps.Map." +
-                  "_onOverlayEvent('" + eventName + "','" + overlayId + "')");
+        "_onOverlayEvent(" +
+          "'" + eventName + "','" + overlayId + "', " +
+          "new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + ")" +
+        ")");
+  }
+  private void onPolylineClick(Polyline polyline, LatLng point) {
+    String overlayId = "polyline_" + polyline.getId();
+    this.onOverlayEvent("overlay_click", overlayId, point);
+  }
+  private void onPolygonClick(Polygon polygon, LatLng point) {
+    String overlayId = "polyline_" + polygon.getId();
+    this.onOverlayEvent("overlay_click", overlayId, point);
+  }
+  private void onCircleClick(Circle circle, LatLng point) {
+    String overlayId = "polyline_" + circle.getId();
+    this.onOverlayEvent("overlay_click", overlayId, point);
+  }
+  private void onGroundOverlayClick(GroundOverlay groundOverlay, LatLng point) {
+    String overlayId = "polyline_" + groundOverlay.getId();
+    this.onOverlayEvent("overlay_click", overlayId, point);
   }
 
   @Override
@@ -822,29 +842,49 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.onMapEvent("long_click", point);
   }
 
+  private double calculateDistance(LatLng pt1, LatLng pt2){
+    float[] results = new float[1];
+    Location.distanceBetween(pt1.latitude, pt1.longitude,
+                            pt2.latitude, pt2.longitude, results);
+    return results[0];
+  }
   /**
    * Notify map click event to JS, also checks for click on a polygon and triggers onPolygonEvent
    * @param point
    */
   public void onMapClick(LatLng point) {
     boolean hitPoly = false;
-
+    
     // Polyline
-    // @ref http://movingahead.seesaa.net/article/299962216.html
     PluginEntry polylinePlugin = this.plugins.get("Polyline");
     if(polylinePlugin != null) {
       PluginPolyline polylineClass = (PluginPolyline) polylinePlugin.plugin;
 
       List<LatLng> points ;
       Polyline polyline;
-      
+      Point origin = new Point();
+      Point hitArea = new Point();
+      hitArea.x = 1;
+      hitArea.y = 1;
+      Projection projection = map.getProjection();
+      double threshold = this.calculateDistance(
+          projection.fromScreenLocation(origin),
+          projection.fromScreenLocation(hitArea));
+
       for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
         polyline = (Polyline) entry.getValue();
         points = polyline.getPoints();
         
-        if (this.isPointOnTheLine(points, point)) {
-          hitPoly = true;
-          this.onOverlayEvent("overlay_click", "polyline_" + polyline.getId());
+        if (polyline.isGeodesic()) {
+          if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
+            hitPoly = true;
+            this.onPolylineClick(polyline, point);
+          }
+        } else {
+            if (this.isPointOnTheLine(points, point)) {
+              hitPoly = true;
+              this.onPolylineClick(polyline, point);
+            }
         }
       }
       if (hitPoly) {
@@ -860,7 +900,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         Polygon polygon = (Polygon) entry.getValue();
         if (this.isPolygonContains(polygon.getPoints(), point)) {
           hitPoly = true;
-          this.onOverlayEvent("overlay_click", "polygon_" + polygon.getId());
+          this.onPolygonClick(polygon, point);
         }
       }
       if (hitPoly) {
@@ -877,7 +917,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         Circle circle = (Circle) entry.getValue();
         if (this.isCircleContains(circle, point)) {
           hitPoly = true;
-          this.onOverlayEvent("overlay_click", "circle_" + circle.getId());
+          this.onCircleClick(circle, point);
         }
       }
       if (hitPoly) {
@@ -894,7 +934,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
         if (this.isGroundOverlayContains(groundOverlay, point)) {
           hitPoly = true;
-          this.onOverlayEvent("overlay_click", "groundOverlay_" + groundOverlay.getId());
+          this.onGroundOverlayClick(groundOverlay, point);
         }
       }
       if (hitPoly) {
@@ -906,9 +946,52 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.onMapEvent("click", point);
   }
   
+  /**
+   * Intersection for geodesic line
+   * @ref http://my-clip-devdiary.blogspot.com/2014/01/html5canvas.html
+   * 
+   * @param points
+   * @param point
+   * @param threshold
+   * @return
+   */
+  private boolean isPointOnTheGeodesicLine(List<LatLng> points, LatLng point, double threshold) {
+    double trueDistance, testDistance1, testDistance2;
+    Point p0, p1, touchPoint;
+    touchPoint = new Point();
+    touchPoint.x = (int) (point.latitude * 100000);
+    touchPoint.y = (int) (point.longitude * 100000);
+    
+    for (int i = 0; i < points.size() - 1; i++) {
+      p0 = new Point();
+      p0.x = (int) (points.get(i).latitude * 100000);
+      p0.y = (int) (points.get(i).longitude * 100000);
+      p1 = new Point();
+      p1.x = (int) (points.get(i + 1).latitude * 100000);
+      p1.y = (int) (points.get(i + 1).longitude * 100000);
+      trueDistance = this.calculateDistance(points.get(i), points.get(i + 1));
+      testDistance1 = this.calculateDistance(points.get(i), point);
+      testDistance2 = this.calculateDistance(point, points.get(i + 1));
+      // the distance is exactly same if the point is on the straight line
+      if (Math.abs(trueDistance - (testDistance1 + testDistance2)) < threshold) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
   
+  /**
+   * Intersection for non-geodesic line
+   * @ref http://movingahead.seesaa.net/article/299962216.html
+   * @ref http://www.softsurfer.com/Archive/algorithm_0104/algorithm_0104B.htm#Line-Plane
+   * 
+   * @param points
+   * @param point
+   * @return
+   */
   private boolean isPointOnTheLine(List<LatLng> points, LatLng point) {
-    float Sx, Sy;
+    double Sx, Sy;
     Projection projection = map.getProjection();
     Point p0, p1, touchPoint;
     touchPoint = projection.toScreenLocation(point);
@@ -916,8 +999,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     p0 = projection.toScreenLocation(points.get(0));
     for (int i = 1; i < points.size(); i++) {
       p1 = projection.toScreenLocation(points.get(i));
-      Sx = ((float)touchPoint.x - (float)p0.x) / ((float)p1.x - (float)p0.x);
-      Sy = ((float)touchPoint.y - (float)p0.y) / ((float)p1.y - (float)p0.y);
+      Sx = ((double)touchPoint.x - (double)p0.x) / ((double)p1.x - (double)p0.x);
+      Sy = ((double)touchPoint.y - (double)p0.y) / ((double)p1.y - (double)p0.y);
       if (Math.abs(Sx - Sy) < 0.05 && Sx < 1 && Sx > 0) {
         return true;
       }
@@ -942,7 +1025,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     Point touchPoint = projection.toScreenLocation(point);
     touchPoint.y = sw.y - touchPoint.y;
-    float vt;
+    double vt;
     
     for (int i = 0; i < path.size() - 1; i++) {
       Point a = projection.toScreenLocation(path.get(i));
@@ -951,14 +1034,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       b.y = sw.y - b.y;
       
       if ((a.y <= touchPoint.y) && (b.y > touchPoint.y)) {
-        vt = ((float)touchPoint.y - (float)a.y) / ((float)b.y - (float)a.y);
-        if (touchPoint.x < ((float)a.x + (vt * ((float)b.x - (a.x))))) {
+        vt = (touchPoint.y - a.y) / (b.y - a.y);
+        if (touchPoint.x < (a.x + (vt * (b.x - (a.x))))) {
           wn++;
         }
       } else if ((a.y > touchPoint.y) && (b.y <= touchPoint.y)) {
         
-        vt = ((float)touchPoint.y - (float)a.y) / ((float)b.y - (float)a.y);
-        if (touchPoint.x < ((float)a.x + ((float)vt * ((float)b.x - (float)a.x)))) {
+        vt = (touchPoint.y - a.y) / (b.y - a.y);
+        if (touchPoint.x < (a.x + (vt * (b.x - a.x)))) {
           wn--;
         }
       }
@@ -985,7 +1068,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     Location.distanceBetween(cX, cY, pX, pY, results);
     
     if(results[0] < r) {
-    return true;
+      return true;
     } else {
       return false;
     }
