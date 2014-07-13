@@ -17,7 +17,6 @@ The plugin will updates in very short terms.
 In order to watch this project, make a Github account(free), then push the [watch] button at the top-right of the github pages.
 
 And check the [Release Notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
-https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
 
 
 ###Documentation
