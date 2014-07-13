@@ -417,6 +417,7 @@ App.prototype.clear = function(callback) {
     delete OVERLAYS[overlayId];
   }
   OVERLAYS = {};
+  self.off();
   cordova.exec(function() {
     if (typeof callback === "function") {
       callback.call(self);
