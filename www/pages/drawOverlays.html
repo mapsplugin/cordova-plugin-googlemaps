@@ -105,18 +105,24 @@ function drawPolyline(map) {
   const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
   const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
   const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
+  const LAX_AIR_PORT = new plugin.google.maps.LatLng(33.941588,-118.408529);
 
+  var idx = 0;
   map.addPolyline({
     'points': [
       HND_AIR_PORT,
       HNL_AIR_PORT,
-      SFO_AIR_PORT
+      SFO_AIR_PORT,
+      LAX_AIR_PORT
     ],
     'color' : '#AA00FF',
     'width': 5,
     'geodesic': true
   }, function(polyline) {
-    
+    polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+      polyline.setColor(["red", "green", "blue", "orange"][idx++]);
+      idx = idx > 3 ? 0 : idx;
+    });
     map.moveCamera({
       'target': polyline.getPoints(),
       'zoom': 2

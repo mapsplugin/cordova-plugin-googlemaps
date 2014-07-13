@@ -3,31 +3,37 @@
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-const POINTS = [
-  new plugin.google.maps.LatLng(38.548852, 139.784086),
-  new plugin.google.maps.LatLng(32.548852, 139.784086),
-  new plugin.google.maps.LatLng(18.332898, -157.921418),
-  new plugin.google.maps.LatLng(24.332898, -157.921418),
-];
+  const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
+  const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
+  const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
+  const LAX_AIR_PORT = new plugin.google.maps.LatLng(33.941588,-118.408529);
 
-map.moveCamera({
-  'target': POINTS
-});
-map.addPolygon({
-  'points': POINTS,
-  'strokeColor' : '#AA00FF',
-  'strokeWidth': 5,
-}, function(polygon) {
-  polygon.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
-    polygon.setFillColor("blue");
-    alert("clicked");
+  map.addPolyline({
+    'points': [
+      HND_AIR_PORT,
+      HNL_AIR_PORT,
+      SFO_AIR_PORT,
+      LAX_AIR_PORT
+    ],
+    'color' : '#AA00FF',
+    'width': 5,
+    'geodesic': true
+  }, function(polyline) {
+    
+    polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+      polyline.setColor("red");
+    });
+    
+    map.moveCamera({
+      'target': polyline.getPoints(),
+      'zoom': 2
+    });
   });
-});
 
-map.on(plugin.google.maps.event.MAP_CLICK, function(latLng) {
-  map.addMarker({
-    position: latLng
+  map.on(plugin.google.maps.event.MAP_CLICK, function(latLng) {
+    map.addMarker({
+      position: latLng
+    });
   });
-});
 }
 </script>

@@ -211,7 +211,9 @@ function loadKml(map, url) {
     preserveViewport: false,
     animation: true
   }, function(kmlLayer) {
-    
+    kmlLayer.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+      alert("clicked");
+    });
   });
 }
 </script>
