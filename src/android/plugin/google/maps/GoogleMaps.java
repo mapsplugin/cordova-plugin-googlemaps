@@ -1079,35 +1079,35 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param point
    */
   private boolean polygonContainsPoint(List<LatLng> path, LatLng point) {
-    int crossings = 0;
+    int cn = 0;
     Projection projection = map.getProjection();
     VisibleRegion visibleRegion = projection.getVisibleRegion();
     LatLngBounds bounds = visibleRegion.latLngBounds;
     Point sw = projection.toScreenLocation(bounds.southwest);
-    Log.d("GoogleMaps", "sw.y = " + sw.y);
     
     Point touchPoint = projection.toScreenLocation(point);
     touchPoint.y = sw.y - touchPoint.y;
+    float vt;
     
-    for (int i = 0; i < path.size(); i++) {
+    for (int i = 0; i < path.size() - 1; i++) {
       Point a = projection.toScreenLocation(path.get(i));
       a.y = sw.y - a.y;
-      
-      int j = i + 1;
-      if(j >= path.size()) {
-        j = 0;
-      }
-
-      Point b = projection.toScreenLocation(path.get(j));
+      Point b = projection.toScreenLocation(path.get(i + 1));
       b.y = sw.y - b.y;
       
-      if(this.rayCrossesSegment(touchPoint, a, b)) {
-        crossings++;
+      if (((a.y <= touchPoint.y) && (b.y > touchPoint.y)) ||
+          ((a.y > touchPoint.y) && (b.y <= touchPoint.y))) {
+        
+        vt = ((float)touchPoint.y - (float)a.y) / ((float)b.y - (float)a.y);
+        Log.d("GoogleMaps", "(" + touchPoint.y + " - " + a.y+ ") / (" + b.y + " - " + a.y + ") = " + vt);
+        if ((float)touchPoint.x < ((float)((float)a.x + ((float)vt * ((float)b.x - (float)a.x))))) {
+          cn++;
+        }
       }
-      
     }
     
-    return (crossings % 2 == 1);
+    Log.d("GoogleMaps", cn + " % 2 = " + (cn % 2));
+    return (cn % 2 == 1);
   }
   
   /**
