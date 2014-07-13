@@ -209,4 +209,13 @@ public class PluginUtil {
     }
     return json;
   }
+  
+  public static  LatLngBounds convertToLatLngBounds(List<LatLng> points) {
+    LatLngBounds.Builder latLngBuilder = LatLngBounds.builder();
+    Iterator<LatLng> iterator = points.listIterator();
+    while (iterator.hasNext()) {
+      latLngBuilder.include(iterator.next());
+    }
+    return latLngBuilder.build();
+  }
 }
