@@ -120,7 +120,7 @@ App.prototype = new BaseClass();
 App.prototype._onMarkerEvent = function(eventName, hashCode) {
   var marker = MARKERS[hashCode] || null;
   if (marker) {
-    marker.trigger(eventName, marker, this);
+    marker.trigger(eventName, marker);
   }
 };
 
@@ -134,7 +134,11 @@ App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
 App.prototype._onOverlayEvent = function(eventName, hashCode) {
   var overlay = OVERLAYS[hashCode] || null;
   if (overlay) {
-    overlay.trigger(eventName, overlay, this);
+    var args = [eventName, overlay];
+    for (var i = 2; i < arguments.length; i++) {
+      args.push(arguments[i]);
+    }
+    overlay.trigger.apply(this, args);
   }
 };
  
@@ -511,7 +515,7 @@ App.prototype.addMarker = function(markerOptions, callback) {
     }
  
     cordova.exec(function(result) {
-      var marker = new Marker(result.id, markerOptions);
+      var marker = new Marker(self, result.id, markerOptions);
       markerOptions.hashCode = result.hashCode;
       MARKERS[result.id] = marker;
       OVERLAYS[result.id] = marker;
@@ -545,7 +549,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.radius = circleOptions.radius || 1;
  
   cordova.exec(function(result) {
-    var circle = new Circle(result.id, circleOptions);
+    var circle = new Circle(self, result.id, circleOptions);
     OVERLAYS[result.id] = circle;
     if (typeof circleOptions.onClick === "function") {
       circle.on(plugin.google.maps.event.OVERLAY_CLICK, circleOptions.onClick);
@@ -568,7 +572,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.geodesic = polylineOptions.geodesic || false;
   
   cordova.exec(function(result) {
-    var polyline = new Polyline(result.id, polylineOptions);
+    var polyline = new Polyline(self, result.id, polylineOptions);
     OVERLAYS[result.id] = polyline;
     /*if (typeof polylineOptions.onClick === "function") {
       polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
@@ -594,7 +598,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
   polygonOptions.geodesic = polygonOptions.geodesic || false;
   
   cordova.exec(function(result) {
-    var polygon = new Polygon(result.id, polygonOptions);
+    var polygon = new Polygon(self, result.id, polygonOptions);
     OVERLAYS[result.id] = polygon;
     if (typeof polygonOptions.onClick === "function") {
       polygon.on(plugin.google.maps.event.OVERLAY_CLICK, polygonOptions.onClick);
@@ -621,7 +625,7 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   tilelayerOptions.height = tilelayerOptions.height || 256;
   
   cordova.exec(function(result) {
-    var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
+    var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
     OVERLAYS[result.id] = tileOverlay;
     /*
     if (typeof tilelayerOptions.onClick === "function") {
@@ -646,7 +650,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   
   var pluginExec = function() {
     cordova.exec(function(result) {
-      var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
+      var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
       OVERLAYS[result.id] = groundOverlay;
       if (typeof groundOverlayOptions.onClick === "function") {
         groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
@@ -674,7 +678,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
  
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
-        var kmlOverlay = new KmlOverlay(kmlId, kmlOverlayOptions);
+        var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
         OVERLAYS.push(kmlOverlay);
         KML_LAYERS[kmlId] = kmlOverlay;
         if (typeof callback === "function") {
@@ -778,7 +782,7 @@ var Location = function(params) {
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
-var Marker = function(id, markerOptions) {
+var Marker = function(map, id, markerOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -791,6 +795,10 @@ var Marker = function(id, markerOptions) {
   self.set("visible", markerOptions.visible);
   self.set("flat", markerOptions.flat);
   self.set("opacity", markerOptions.opacity);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "hashCode", {
     value: markerOptions.hashCode,
     writable: false
@@ -821,6 +829,9 @@ Marker.prototype.getPosition = function(callback) {
 };
 Marker.prototype.getId = function() {
   return this.id;
+};
+Marker.prototype.getMap = function() {
+  return this.map;
 };
 Marker.prototype.getHashCode = function() {
   return this.hashCode;
@@ -920,7 +931,7 @@ Marker.prototype.setPosition = function(position) {
 /*****************************************************************************
  * Circle Class
  *****************************************************************************/
-var Circle = function(circleId, circleOptions) {
+var Circle = function(map, circleId, circleOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -931,6 +942,10 @@ var Circle = function(circleId, circleOptions) {
   self.set("strokeWidth", circleOptions.strokeWidth);
   self.set("visible", circleOptions.visible);
   self.set("zIndex", circleOptions.zIndex);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "id", {
     value: circleId,
     writable: false
@@ -942,10 +957,14 @@ var Circle = function(circleId, circleOptions) {
 };
 
 Circle.prototype = new BaseClass();
+
+Circle.prototype.getMap = function() {
+  return this.map;
+};
 Circle.prototype.getId = function() {
   return this.id;
 };
-Circle.prototype.getCenter = function(/*callback*/) {
+Circle.prototype.getCenter = function() {
   return this.get('center');
 };
 Circle.prototype.getRadius = function() {
@@ -999,7 +1018,7 @@ Circle.prototype.setRadius = function(radius) {
 /*****************************************************************************
  * Polyline Class
  *****************************************************************************/
-var Polyline = function(polylineId, polylineOptions) {
+var Polyline = function(map, polylineId, polylineOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1009,6 +1028,10 @@ var Polyline = function(polylineId, polylineOptions) {
   self.set("visible", polylineOptions.visible);
   self.set("zIndex", polylineOptions.zIndex);
   self.set("geodesic", polylineOptions.geodesic);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "id", {
     value: polylineId,
     writable: false
@@ -1082,10 +1105,13 @@ Polyline.prototype.remove = function() {
   this.off();
 };
 
+Polyline.prototype.getMap = function() {
+  return this.map;
+};
 /*****************************************************************************
  * Polygon Class
  *****************************************************************************/
-var Polygon = function(polygonId, polygonOptions) {
+var Polygon = function(map, polygonId, polygonOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1096,6 +1122,10 @@ var Polygon = function(polygonId, polygonOptions) {
   self.set("visible", polygonOptions.visible);
   self.set("zIndex", polygonOptions.zIndex);
   self.set("geodesic", polygonOptions.geodesic);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "id", {
     value: polygonId,
     writable: false
@@ -1108,6 +1138,9 @@ var Polygon = function(polygonId, polygonOptions) {
 
 Polygon.prototype = new BaseClass();
 
+Polygon.prototype.getMap = function() {
+  return this.map;
+};
 Polygon.prototype.getId = function() {
   return this.id;
 };
@@ -1178,7 +1211,7 @@ Polygon.prototype.remove = function() {
   /*****************************************************************************
  * TileOverlay Class
  *****************************************************************************/
-var TileOverlay = function(tileOverlayId, tileOverlayOptions) {
+var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1192,10 +1225,17 @@ var TileOverlay = function(tileOverlayId, tileOverlayOptions) {
     value: "TileOverlay",
     writable: false
   });
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
 };
 
 TileOverlay.prototype = new BaseClass();
 
+TileOverlay.prototype.getMap = function() {
+  return this.map;
+};
 TileOverlay.prototype.clearTileCache = function() {
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.clearTileCache', this.getId()]);
 };
@@ -1233,7 +1273,7 @@ TileOverlay.prototype.remove = function() {
 /*****************************************************************************
  * GroundOverlay Class
  *****************************************************************************/
-var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
+var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1251,10 +1291,17 @@ var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
     value: "GroundOverlay",
     writable: false
   });
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
 };
 
 GroundOverlay.prototype = new BaseClass();
 
+GroundOverlay.prototype.getMap = function() {
+  return this.map;
+};
 GroundOverlay.prototype.getId = function() {
   return this.id;
 };
@@ -1316,7 +1363,7 @@ GroundOverlay.prototype.setZIndex = function(zIndex) {
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
-var KmlOverlay = function(kmlOverlayId, kmlOverlayOptions) {
+var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1333,10 +1380,17 @@ var KmlOverlay = function(kmlOverlayId, kmlOverlayOptions) {
     value: "KmlOverlay",
     writable: false
   });
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
 };
 
 KmlOverlay.prototype = new BaseClass();
 
+KmlOverlay.prototype.getMap = function() {
+  return this.map;
+};
 KmlOverlay.prototype.getId = function() {
   return this.id;
 };

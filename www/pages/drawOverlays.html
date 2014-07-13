@@ -26,7 +26,7 @@ map.addPolyline({
   // You can use HTML colors, such as rgba(255, 255, 255, 127)
   'color' : '#AA00FF',
   'width': 5,
-  'geodesic': true
+  'geodesic': false
 }, function(polyline) {
   
   map.moveCamera({
@@ -117,7 +117,7 @@ function drawPolyline(map) {
     ],
     'color' : '#AA00FF',
     'width': 5,
-    'geodesic': true
+    'geodesic': false
   }, function(polyline) {
     polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
       polyline.setColor(["red", "green", "blue", "orange"][idx++]);
