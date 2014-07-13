@@ -116,8 +116,8 @@ function drawPolyline(map) {
       LAX_AIR_PORT
     ],
     'color' : '#AA00FF',
-    'width': 5,
-    'geodesic': false
+    'width': 10,
+    'geodesic': true
   }, function(polyline) {
     polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
       polyline.setColor(["red", "green", "blue", "orange"][idx++]);

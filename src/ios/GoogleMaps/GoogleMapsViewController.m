@@ -273,7 +273,6 @@ NSDictionary *initOptions;
 
 - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
   NSString *overlayClass = NSStringFromClass([overlay class]);
-  NSLog(@"clicked = %@", overlay.title);
   if ([overlayClass isEqualToString:@"GMSPolygon"] ||
       [overlayClass isEqualToString:@"GMSPolyline"] ||
       [overlayClass isEqualToString:@"GMSCircle"] ||
