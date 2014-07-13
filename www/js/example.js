@@ -59,7 +59,7 @@ $(document).on("deviceready", function() {
     "open": showMap
   });
   
-  loadPage(map, "welcome");
+  loadPage(map, "test");
 });
 
 /**

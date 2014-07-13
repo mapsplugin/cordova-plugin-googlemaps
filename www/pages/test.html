@@ -3,22 +3,31 @@
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  const latLng = new plugin.google.maps.LatLng(0, 0);
-  
-  map.addMarker({
-    'position': latLng,
-    'title': "You can change the text-align specifying by the 'text-align' property.\n" + 
-             "This text is where you will see the result of the selected text-align property.",
-    
-    'snippet': 'The text-align property also effects to the snippet.',
-    'styles' : {
-      'text-align': 'center',
-      'font-style': 'italic',
-      'font-weight': 'bold',
-      'color': 'red'
-    }
-  }, function(marker) {
-    marker.showInfoWindow();
+const POINTS = [
+  new plugin.google.maps.LatLng(38.548852, 139.784086),
+  new plugin.google.maps.LatLng(32.548852, 139.784086),
+  new plugin.google.maps.LatLng(18.332898, -157.921418),
+  new plugin.google.maps.LatLng(24.332898, -157.921418),
+];
+
+map.moveCamera({
+  'target': POINTS
+});
+map.addPolygon({
+  'points': POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+}, function(polygon) {
+  polygon.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+    polygon.setFillColor("blue");
+    alert("clicked");
   });
+});
+
+map.on(plugin.google.maps.event.MAP_CLICK, function(latLng) {
+  map.addMarker({
+    position: latLng
+  });
+});
 }
 </script>
