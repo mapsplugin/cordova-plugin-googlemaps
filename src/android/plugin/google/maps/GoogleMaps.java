@@ -779,15 +779,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     this.onOverlayEvent("overlay_click", overlayId, point);
   }
   private void onPolygonClick(Polygon polygon, LatLng point) {
-    String overlayId = "polyline_" + polygon.getId();
+    String overlayId = "polygon_" + polygon.getId();
     this.onOverlayEvent("overlay_click", overlayId, point);
   }
   private void onCircleClick(Circle circle, LatLng point) {
-    String overlayId = "polyline_" + circle.getId();
+    String overlayId = "circle_" + circle.getId();
     this.onOverlayEvent("overlay_click", overlayId, point);
   }
   private void onGroundOverlayClick(GroundOverlay groundOverlay, LatLng point) {
-    String overlayId = "polyline_" + groundOverlay.getId();
+    String overlayId = "groundOverlay_" + groundOverlay.getId();
     this.onOverlayEvent("overlay_click", overlayId, point);
   }
 
@@ -1034,14 +1034,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       b.y = sw.y - b.y;
       
       if ((a.y <= touchPoint.y) && (b.y > touchPoint.y)) {
-        vt = (touchPoint.y - a.y) / (b.y - a.y);
-        if (touchPoint.x < (a.x + (vt * (b.x - (a.x))))) {
+        vt = ((double)touchPoint.y - (double)a.y) / ((double)b.y - (double)a.y);
+        if (touchPoint.x < ((double)a.x + (vt * ((double)b.x - (double)a.x)))) {
           wn++;
         }
       } else if ((a.y > touchPoint.y) && (b.y <= touchPoint.y)) {
-        
-        vt = (touchPoint.y - a.y) / (b.y - a.y);
-        if (touchPoint.x < (a.x + (vt * (b.x - a.x)))) {
+        vt = ((double)touchPoint.y - (double)a.y) / ((double)b.y - (double)a.y);
+        if (touchPoint.x < ((double)a.x + (vt * ((double)b.x - (double)a.x)))) {
           wn--;
         }
       }
