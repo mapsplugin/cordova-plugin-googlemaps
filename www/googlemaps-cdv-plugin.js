@@ -584,7 +584,9 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
   var self = this;
   polygonOptions.points = polygonOptions.points || [];
   polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF0000");
-  polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor || "#000000");
+  if (polygonOptions.fillColor) {
+    polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor);
+  }
   polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
   polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
   polygonOptions.zIndex = polygonOptions.zIndex || 0.0;

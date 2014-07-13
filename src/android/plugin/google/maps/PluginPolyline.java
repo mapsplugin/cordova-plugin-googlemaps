@@ -46,7 +46,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       polylineOptions.visible(opts.getBoolean("visible"));
     }
     if (opts.has("geodesic")) {
-      polylineOptions.geodesic(opts.getBoolean("geodesic"));
+      //polylineOptions.geodesic(opts.getBoolean("geodesic"));
     }
     if (opts.has("zIndex")) {
       polylineOptions.zIndex(opts.getInt("zIndex"));
