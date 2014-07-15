@@ -38,3 +38,4 @@ config.xml
 .DS_Store
 ant-build/
 ant-gen/
+plugins/
