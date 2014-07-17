@@ -21,6 +21,13 @@ And check the [Release Notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 
 ###Documentation
 
+* Introduction
+  * [How different between JavaScritp API (web) and the mobile SDKs (native) ](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-different-between-JavaScritp-API-(web)-and-the-mobile-SDKs-(native))
+  * [Why use this plugin?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Why-use-this-plugin%3F)
+  * [Java Objective C or JavaScript. Which one do you like?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Java-Objective-C-or-JavaScript.-Which-one-do-you-like%3F)
+  * [Video: Android Development using Cordova PhoneGap and Google Maps Plugin](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Video:-Android-Development-using-Cordova-PhoneGap-and-Google-Maps-Plugin)
+
+
 * [Installation](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
   * Automatic Installation
   * Tutorials
