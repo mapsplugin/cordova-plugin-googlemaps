@@ -432,7 +432,7 @@ NSDictionary *initOptions;
   //-------------------------------------
   UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0f);
   
-  // Draw the upper side
+  // Draw the upper side;
   CGRect trimArea = CGRectMake(15, 0, 5, MIN(45, rectSize.height - 20));
   if (leftImg.scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
@@ -447,14 +447,50 @@ NSDictionary *initOptions;
   // Draw the body
   int x = 0;
   int width = x;
+  int y = 0;
   while (rectSize.width - x > 5) {
-    [trimmedImage drawAtPoint:CGPointMake(x, 0)];
+    //[trimmedImage drawAtPoint:CGPointMake(x, y)];
+    x += 5;
+  }
+  
+  //Draw left-bottom
+  trimArea = CGRectMake(0, 0, 20, leftImg.size.height);
+  if (leftImg.scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
+                      trimArea.origin.y * leftImg.scale,
+                      trimArea.size.width * leftImg.scale,
+                      trimArea.size.height * leftImg.scale);
+  }
+  CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
+  UIImage *shadowImage = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
+  y = 0;
+  while (y + shadowImage.size.height < rectSize.height) {
+    [shadowImage drawAtPoint:CGPointMake(0, y)];
+    y += trimArea.size.height;
+  }
+  [shadowImage drawAtPoint:CGPointMake(0, rectSize.height - shadowImage.size.height)];
+  
+  
+  
+  //Draw left-bottom -> center
+  /*
+  x = shadowImage.size.width;
+  trimArea = CGRectMake(9, 0, 13, leftImg.size.height);
+  if (leftImg.scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
+                      trimArea.origin.y * leftImg.scale,
+                      trimArea.size.width * leftImg.scale,
+                      trimArea.size.height * leftImg.scale);
+  }
+  while (rectSize.width - x > 5) {
+    [trimmedImage drawAtPoint:CGPointMake(x, y)];
     x += 5;
   }
   width = x;
-  
+*/
   [leftImg drawAtPoint:CGPointMake(rectSize.width * 0.5f - leftImg.size.width, rectSize.height - leftImg.size.height)];
   [rightImg drawAtPoint:CGPointMake(rectSize.width * 0.5f, rectSize.height - rightImg.size.height)];
+  
   // Draw the bottom side
   trimArea = CGRectMake(15, MIN(45, rectSize.height - 20), 5, 10);
   if (leftImg.scale > 1.0f) {
@@ -469,7 +505,7 @@ NSDictionary *initOptions;
   x = 0;
   while (rectSize.width - x > 5) {
     if (x < rectSize.width * 0.5f - leftImg.size.width + 5 || x > rectSize.width * 0.5f + rightImg.size.width - 10) {
-      [trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 20)];
+      //[trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 20)];
     }
     x += 5;
   }
@@ -478,7 +514,7 @@ NSDictionary *initOptions;
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-  CGContextFillRect(context, CGRectMake(0, 0, width, rectSize.height - 10));
+  //CGContextFillRect(context, CGRectMake(0, 0, width, rectSize.height - 10));
   
   //--------------------------------
   // text-align: left/center/right
@@ -522,12 +558,12 @@ NSDictionary *initOptions;
             NSFontAttributeName : titleFont,
             NSParagraphStyleAttributeName : style
         };
-        [title drawInRect:CGRectMake(2, 2, rectSize.width - 2, textSize.height )
+        [title drawInRect:CGRectMake(6.5, 4.5, rectSize.width - 2, textSize.height )
                withAttributes:attributes];
       } else {
         // iOS6
         [titleColor set];
-        [title drawInRect:CGRectMake(2, 2, rectSize.width - 2, textSize.height )
+        [title drawInRect:CGRectMake(6.5, 4.5, rectSize.width - 2, textSize.height )
                 withFont:titleFont
                 lineBreakMode:NSLineBreakByWordWrapping
                 alignment:textAlignment];
@@ -547,12 +583,12 @@ NSDictionary *initOptions;
               NSFontAttributeName : snippetFont,
               NSParagraphStyleAttributeName : style
           };
-          [snippet drawInRect:CGRectMake(2, textSize.height + 2, rectSize.width - 2, snippetSize.height)
+          [snippet drawInRect:CGRectMake(6.5, textSize.height + 4.5, rectSize.width - 2, snippetSize.height)
                  withAttributes:attributes];
         } else {
           // iOS6
           [[UIColor grayColor] set];
-          [snippet drawInRect:CGRectMake(2, textSize.height + 2, rectSize.width - 2, snippetSize.height)
+          [snippet drawInRect:CGRectMake(6.5, textSize.height + 4.5, rectSize.width - 2, snippetSize.height)
                   withFont:snippetFont
                   lineBreakMode:NSLineBreakByWordWrapping
                   alignment:textAlignment];
@@ -561,7 +597,7 @@ NSDictionary *initOptions;
   } else {
     //Draw the content image
     CGRect imageRect = CGRectMake((rectSize.width - base64Image.size.width) / 2 ,
-                                  -1 * ((rectSize.height - base64Image.size.height - 20) / 2 + 5),
+                                  -1 * ((rectSize.height - base64Image.size.height - 20) / 2 + 7.5),
                                   base64Image.size.width, base64Image.size.height);
     CGContextTranslateCTM(context, 0, base64Image.size.height);
     CGContextScaleCTM(context, 1.0, -1.0);
