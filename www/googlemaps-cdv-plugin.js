@@ -2,7 +2,7 @@
 var PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
   var KML_LAYERS = {};
-  var OVERLAYS = [];
+  var OVERLAYS = {};
  
   /**
  * Google Maps model.
@@ -679,7 +679,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
         var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
-        OVERLAYS.push(kmlOverlay);
+        OVERLAYS[kmlId] = kmlOverlay;
         KML_LAYERS[kmlId] = kmlOverlay;
         if (typeof callback === "function") {
         callback.call(self,  kmlOverlay, self);
