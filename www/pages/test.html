@@ -1,50 +1,94 @@
 <div id="map_canvas"></div>
 
 <script type="text/javascript">
-
+var nomer = 0;
 function onPageLoaded(map) {
-  const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
-  const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
-  const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
-  const LAX_AIR_PORT = new plugin.google.maps.LatLng(33.941588,-118.408529);
-/*
-  cordova.exec(function(result) {
+  map.on(plugin.google.maps.event.CAMERA_CHANGE, onCameraChange);
+
+}
+function onCameraChange(cameraPosition) {
+  var map = this;
+  nomer++;
+  console.log("executed " + nomer);
+  
+  map.getVisibleRegion(function(latLngBounds) {
     
-  }, null, "GoogleMaps", 'exec', ['Polyline.createPolyline2', {
-    'points': [
-      HND_AIR_PORT,
-      HNL_AIR_PORT,
-      SFO_AIR_PORT,
-      LAX_AIR_PORT
-    ]
-  }]);
-return;
-*/
-  map.addPolyline({
-    'points': [
-      HND_AIR_PORT,
-      HNL_AIR_PORT,
-      SFO_AIR_PORT,
-      LAX_AIR_PORT
-    ],
-    'color' : '#AA00FF',
-    'width': 5,
-    'geodesic': false
-  }, function(polyline) {
-    
-    polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function(polyline, latLng) {
-      polyline.setColor("red");
-      console.log(latLng);
-      map.addMarker({
-        position: latLng
-      });
-    });
-    
-    map.moveCamera({
-      'target': polyline.getPoints(),
-      'zoom': 2
+    $.ajax({
+      url: "http://www.panoramio.com/map/get_panoramas.php",
+      type: "GET",
+      dataType: "jsonp",
+      async: true,
+      data: {
+        "order": "popularity",
+        "set": "public",
+        "from": 0,
+        "to": 10,
+        "maxx": latLngBounds.northeast.lng,
+        "maxy": latLngBounds.northeast.lat,
+        "minx": latLngBounds.southwest.lng,
+        "miny": latLngBounds.southwest.lat
+      },
+      success: function(json){
+        
+        var photos = json.photos;
+        if (!photos) {
+          return;
+        }
+        
+        photos.forEach(function(photo) {
+          map.addMarker({
+            position: new plugin.google.maps.LatLng(photo.latitude, photo.longitude),
+            icon: {
+              'url': photo.photo_file_url,
+              'size': {
+                'width': 100,
+                'height': 100
+              }
+            },
+            markerClick: function() {
+              openPhoto(map, photo);
+            }
+          });
+          
+        });
+        console.log("<p>executed in ajax "+nomer+"</p>");
+      } 
     });
   });
-
+  
+}
+function openPhoto(map, photo) {
+  var photoDiv = $("<div>").css({
+    "position": "fixed",
+    "left": "10%",
+    "top": "10%",
+    "right": "10%",
+    "bottom": "10%",
+    "z-index": 1001,
+    "background-image": "url('" + photo.photo_file_url + "')",
+    "background-size": "cover",
+    "background-position": "center"
+  });
+  photoDiv.appendTo("body");
+  
+  var backGround = $("<div>").css({
+    opacity: 0.7,
+    backgroundColor: "black",
+    "position": "fixed",
+    "left": 0,
+    "top": 0,
+    "right": 0,
+    "bottom": 0,
+    "z-index": 1000
+  });
+  
+  backGround.one("click", function() {
+    $(backGround).remove();
+    $(photoDiv).remove();
+    map.setVisible(true);
+  });
+  backGround.appendTo("body");
+  
+  map.setVisible(false);
 }
 </script>
