@@ -468,7 +468,7 @@ NSDictionary *initOptions;
   x = shadowImageLeft.size.width;
   y = rectSize.height - shadowImageLeft.size.height;
   [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
-  //[shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f, y)];
+  [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f, y)];
   
   
   // Draw the bottom part
@@ -483,19 +483,22 @@ NSDictionary *initOptions;
   shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUp];
   shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUpMirrored];
   
+  int i = 0;
   x += shadowImageLeft.size.width;
-  while (rectSize.width * 0.5f - x > -shadowImageLeft.size.width) {
+  while (rectSize.width * 0.5f - x > 0) {
     y = 0;
     while (y + shadowImageLeft.size.height < rectSize.height) {
       [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
+      [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f + x - shadowImageLeft.size.width, y)];
       y += shadowImageRight.size.height;
     }
     y = rectSize.height - shadowImageLeft.size.height;
-    [shadowImageLeft drawAtPoint:CGPointMake(x, y)];
+    [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
+    [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f + x - shadowImageLeft.size.width, y)];
     x += shadowImageLeft.size.width;
+    i++;
   }
   
-  int i = 0;
   x = rectSize.width * 0.5f - leftImg.size.width;
   /*
   while ((rectSize.width / 2) - x > shadowImageLeft.size.width) {
