@@ -148,7 +148,7 @@ App.prototype._onOverlayEvent = function(eventName, hashCode) {
 App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
   var kmlLayer = KML_LAYERS[kmlLayerId] || null;
   if (kmlLayer) {
-
+    var self = this;
     var args = [eventName];
     if (eventName.substr(-4, 4) === "_add") {
       var objectType = eventName.replace(/_.*$/, ""),
@@ -156,7 +156,7 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
       
       switch(objectType) {
         case "marker":
-          overlay = new Marker(result.id, options);
+          overlay = new Marker(self, result.id, options);
           MARKERS[result.id] = overlay;
           args.push({
             "type": "Marker",
@@ -168,15 +168,19 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
           break;
           
         case "polygon":
-          overlay = new Polygon(result.id, options);
+          overlay = new Polygon(self, result.id, options);
           args.push({
             "type": "Polygon",
             "object": overlay
           });
+          
+          overlay.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay);
+          });
           break;
           
         case "polyline":
-          overlay = new Polyline(result.id, options);
+          overlay = new Polyline(self, result.id, options);
           args.push({
             "type": "Polyline",
             "object": overlay

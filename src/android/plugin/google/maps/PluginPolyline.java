@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -27,6 +28,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   private void createPolyline(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
     
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
@@ -35,6 +37,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       int i = 0;
       for (i = 0; i < path.size(); i++) {
         polylineOptions.add(path.get(i));
+        builder.include(path.get(i));
       }
     }
     if (opts.has("color")) {
@@ -57,6 +60,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     Polyline polyline = map.addPolyline(polylineOptions);
     String id = "polyline_" + polyline.getId();
     this.objects.put(id, polyline);
+
+    String boundsId = "polyline_bounds_" + polyline.getId();
+    this.objects.put(boundsId, builder.build());
     
     JSONObject result = new JSONObject();
     result.put("hashCode", polyline.hashCode());
@@ -240,6 +246,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       return;
     }
     this.objects.remove(id);
+    
+    id = "polyline_bounds_" + polyline.getId();
+    this.objects.remove(id);
+    
     polyline.remove();
     callbackContext.success();
   }
@@ -257,6 +267,12 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     JSONArray points = args.getJSONArray(2);
     List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
     polyline.setPoints(path);
+
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    for (int i = 0; i < path.size(); i++) {
+      builder.include(path.get(i));
+    }
+    this.objects.put("polyline_bounds_" + polyline.getId(), builder.build());
     
     callbackContext.success();
   }
