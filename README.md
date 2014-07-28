@@ -19,7 +19,7 @@ In order to watch this project, make a Github account(free), then push the [watc
 And check the [Release Notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
 
 ###Join the community
-If you have any questions or feature requests, please post the commnuity.
+If you have any questions or feature requests, please post the community.
 https://plus.google.com/u/0/communities/117427728522929652853
 
 ###Documentation
