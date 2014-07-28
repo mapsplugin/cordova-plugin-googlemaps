@@ -854,6 +854,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    */
   public void onMapClick(LatLng point) {
     boolean hitPoly = false;
+    String key;
+    LatLngBounds bounds;
     
     // Polyline
     PluginEntry polylinePlugin = this.plugins.get("Polyline");
@@ -872,35 +874,53 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           projection.fromScreenLocation(hitArea));
 
       for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
-        polyline = (Polyline) entry.getValue();
-        points = polyline.getPoints();
-        
-        if (polyline.isGeodesic()) {
-          if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
-            hitPoly = true;
-            this.onPolylineClick(polyline, point);
-          }
-        } else {
-            if (this.isPointOnTheLine(points, point)) {
-              hitPoly = true;
-              this.onPolylineClick(polyline, point);
+        key = entry.getKey();
+        if (key.contains("polyline_bounds_")) {
+          bounds = (LatLngBounds) entry.getValue();
+          if (bounds.contains(point)) {
+            key = key.replace("bounds_", "");
+            
+            polyline = polylineClass.getPolyline(key);
+            points = polyline.getPoints();
+            
+            if (polyline.isGeodesic()) {
+              if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
+                hitPoly = true;
+                this.onPolylineClick(polyline, point);
+              }
+            } else {
+                if (this.isPointOnTheLine(points, point)) {
+                  hitPoly = true;
+                  this.onPolylineClick(polyline, point);
+                }
             }
+          }
         }
       }
       if (hitPoly) {
         return;
       }
     }
+    
     // Loop through all polygons to check if within the touch point
     PluginEntry polygonPlugin = this.plugins.get("Polygon");
     if (polygonPlugin != null) {
       PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
     
       for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
-        Polygon polygon = (Polygon) entry.getValue();
-        if (this.isPolygonContains(polygon.getPoints(), point)) {
-          hitPoly = true;
-          this.onPolygonClick(polygon, point);
+        key = entry.getKey();
+        if (key.contains("polygon_bounds_")) {
+          bounds = (LatLngBounds) entry.getValue();
+          if (bounds.contains(point)) {
+            
+            key = key.replace("_bounds", "");
+            Polygon polygon = polygonClass.getPolygon(key);
+            
+            if (this.isPolygonContains(polygon.getPoints(), point)) {
+              hitPoly = true;
+              this.onPolygonClick(polygon, point);
+            }
+          }
         }
       }
       if (hitPoly) {
