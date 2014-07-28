@@ -459,6 +459,8 @@ public class PluginMarker extends MyPlugin {
           int width = sizeInfo.getInt("width", 0);
           int height = sizeInfo.getInt("height", 0);
           if (width > 0 && height > 0) {
+            width = (int)Math.round(width * webView.getScale());
+            height = (int)Math.round(height * webView.getScale());
             image = PluginUtil.resizeBitmap(image, width, height);
           }
         }
@@ -506,6 +508,8 @@ public class PluginMarker extends MyPlugin {
             int width = sizeInfo.getInt("width", 0);
             int height = sizeInfo.getInt("height", 0);
             if (width > 0 && height > 0) {
+              width = (int)Math.round(width * webView.getScale());
+              height = (int)Math.round(height * webView.getScale());
               image = PluginUtil.resizeBitmap(image, width, height);
             }
             
