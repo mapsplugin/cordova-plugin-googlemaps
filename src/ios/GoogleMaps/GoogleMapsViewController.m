@@ -414,9 +414,7 @@ NSDictionary *initOptions;
     
     // Calculate the size for the title strings
     textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13 * scale, mapView.frame.size.height - 13 * scale)];
-    rectSize = CGSizeMake(textSize.width + 13 * scale, textSize.height);
-    //rectSize.width += leftImg.size.width;
-    rectSize.height +=  13 * scale;
+    rectSize = CGSizeMake(textSize.width + 13 * scale, textSize.height + 13 * scale);
     
     // Calculate the size for the snippet strings
     if (snippet) {
@@ -452,8 +450,8 @@ NSDictionary *initOptions;
   int i = 0;
   int x = shadowImageLeft.size.width;
   float centerPos = rectSize.width * 0.5f;
-  while (centerPos - x > 0) {
-    y = 0;
+  while (centerPos - x > shadowImageLeft.size.width) {
+    y = 1;
     while (y + shadowImageLeft.size.height < rectSize.height) {
       [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
       [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
@@ -496,7 +494,7 @@ NSDictionary *initOptions;
   shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
   x += shadowImageLeft.size.width;
   
-  y = 0;
+  y = 1;
   while (y + shadowImageLeft.size.height < rectSize.height) {
     [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
     [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
@@ -505,13 +503,22 @@ NSDictionary *initOptions;
   y = rectSize.height - shadowImageLeft.size.height;
   [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
   [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
-
   
   // Fill the body area with WHITE color
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
-  CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-  CGContextFillRect(context, CGRectMake(centerPos - x, 3, rectSize.width - (centerPos - x), rectSize.height - 16));
+  CGContextSetRGBFillColor(context, 1.0, 0.0, 0.0, 0.5);
+  
+  if (isTextMode) {
+
+    if (snippet) {
+      CGContextFillRect(context, CGRectMake(centerPos - x + 5, 4, rectSize.width - (centerPos - x + 7), rectSize.height - 16));
+    } else {
+      CGContextFillRect(context, CGRectMake(centerPos - x + 5, 0, rectSize.width - (centerPos - x + 7), rectSize.height - 11));
+    }
+  } else {
+      CGContextFillRect(context, CGRectMake(centerPos - x + 5, 4, rectSize.width - (centerPos - x + 5), rectSize.height - 16));
+  }
   
   //--------------------------------
   // text-align: left/center/right
@@ -555,12 +562,12 @@ NSDictionary *initOptions;
             NSFontAttributeName : titleFont,
             NSParagraphStyleAttributeName : style
         };
-        [title drawInRect:CGRectMake(6 * scale, 5 * scale, rectSize.width - 2 * scale, textSize.height )
+        [title drawInRect:CGRectMake(6 * scale, 4 * scale, rectSize.width - 2 * scale, textSize.height )
                withAttributes:attributes];
       } else {
         // iOS6
         [titleColor set];
-        [title drawInRect:CGRectMake(6 * scale, 5 * scale, rectSize.width - 2 * scale, textSize.height )
+        [title drawInRect:CGRectMake(6 * scale, 4 * scale, rectSize.width - 2 * scale, textSize.height )
                 withFont:titleFont
                 lineBreakMode:NSLineBreakByWordWrapping
                 alignment:textAlignment];
