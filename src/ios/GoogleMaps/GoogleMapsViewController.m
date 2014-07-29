@@ -358,13 +358,8 @@ NSDictionary *initOptions;
   // Load images
   UIImage *leftImg = nil;
   UIImage *rightImg = nil;[self loadImageFromGoogleMap:@"bubble_right@2x"];
-  if ([PluginUtil isIOS7]) {
-    leftImg = [self loadImageFromGoogleMap:@"bubble_left@2x"];
-    rightImg = [self loadImageFromGoogleMap:@"bubble_right@2x"];
-  } else {
-    leftImg = [self loadImageFromGoogleMap:@"bubble_left"];
-    rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
-  }
+  leftImg = [self loadImageFromGoogleMap:@"bubble_left@2x"];
+  rightImg = [self loadImageFromGoogleMap:@"bubble_right@2x"];
   float scale = leftImg.scale;
   
   //-------------------------------------
@@ -436,57 +431,37 @@ NSDictionary *initOptions;
   }
   
   //-------------------------------------
-  // Drawing
+  // Draw the the info window
   //-------------------------------------
   UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0f);
   
-  // Draw the upper side;
   CGRect trimArea = CGRectMake(15, 0, 5, MIN(45, rectSize.height - 20));
-  if (scale > 1.0f) {
-    trimArea = CGRectMake(trimArea.origin.x * scale,
-                      trimArea.origin.y * scale,
-                      trimArea.size.width * scale,
-                      trimArea.size.height * scale);
-  }
-  CGImageRef trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-  UIImage *trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:scale orientation:leftImg.imageOrientation];
   
-  
-  // Draw the body
-  int x = 0;
-  int width = x;
-  int y = 0;
-  while (rectSize.width - x > 5) {
-    //[trimmedImage drawAtPoint:CGPointMake(x, y)];
-    x += 5;
-  }
-  
-  //Draw the the info window
   trimArea = CGRectMake(15, 0, 15, leftImg.size.height);
   if (scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * scale,
                       trimArea.origin.y * scale,
-                      trimArea.size.width * scale,
+                      trimArea.size.width * scale +1,
                       trimArea.size.height * scale);
   }
   CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
 
-  
+  int y;
   int i = 0;
-  x = shadowImageLeft.size.width;
-  
-  while (rectSize.width * 0.5f - x > 0) {
+  int x = shadowImageLeft.size.width;
+  float centerPos = rectSize.width * 0.5f;
+  while (centerPos - x > 0) {
     y = 0;
     while (y + shadowImageLeft.size.height < rectSize.height) {
-      [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
-      [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f + x - shadowImageLeft.size.width, y)];
+      [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
+      [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
       y += shadowImageRight.size.height;
     }
     y = rectSize.height - shadowImageLeft.size.height;
-    [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
-    [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f + x - shadowImageLeft.size.width, y)];
+    [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
+    [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
     
     if (i == 0) {
     
@@ -501,72 +476,42 @@ NSDictionary *initOptions;
       shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
       shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
     
-    
     } else {
       x += shadowImageLeft.size.width;
     }
     i++;
   }
   
-  x = rectSize.width * 0.5f - leftImg.size.width;
-  /*
-  while ((rectSize.width / 2) - x > shadowImageLeft.size.width) {
-    y = 0;
-    while (y + shadowImageLeft.size.height < rectSize.height) {
-      [shadowImageLeft drawAtPoint:CGPointMake(x, y)];
-      [shadowImageRight drawAtPoint:CGPointMake(rectSize.width - x  - shadowImageRight.size.width, y)];
-      y += shadowImageRight.size.height;
-    }
-    y = rectSize.height - shadowImageLeft.size.height;
-    [shadowImageLeft drawAtPoint:CGPointMake(x, y)];
-    [shadowImageRight drawAtPoint:CGPointMake(rectSize.width - x - shadowImageRight.size.width, y)];
-    NSLog(@"y= %d",  y);
-    NSLog(@"x= %d",  x);
-    
-    if (i == 0) {
-      trimArea = CGRectMake(10, 0, 15, leftImg.size.height);
-      if (scale > 1.0f) {
-        trimArea = CGRectMake(trimArea.origin.x * scale,
-                          trimArea.origin.y * scale,
-                          trimArea.size.width * scale,
-                          trimArea.size.height * scale);
-      }
-      shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-      shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
-      shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
-    }
-    i++;
-    x = i * shadowImageLeft.size.width  - shadowImageRight.size.width + 10;
-      //break;
-  }
-  
-  //[
-  //
-  /*
-  // Draw the bottom side
-  trimArea = CGRectMake(15, MIN(45, rectSize.height - 20), 5, 10);
+  // Draw left & right side edges
+  x -= shadowImageLeft.size.width;
+  trimArea = CGRectMake(0, 0, 10, leftImg.size.height);
   if (scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * scale,
                       trimArea.origin.y * scale,
                       trimArea.size.width * scale,
                       trimArea.size.height * scale);
   }
-  trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-  trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:scale orientation:leftImg.imageOrientation];
+  shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
+  shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
+  shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  x += shadowImageLeft.size.width;
   
-  x = 0;
-  while (rectSize.width - x > 5) {
-    if (x < rectSize.width * 0.5f - leftImg.size.width + 5 || x > rectSize.width * 0.5f + rightImg.size.width - 10) {
-      //[trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 20)];
-    }
-    x += 5;
-  }*/
+  y = 0;
+  while (y + shadowImageLeft.size.height < rectSize.height) {
+    [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
+    [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
+    y += shadowImageRight.size.height;
+  }
+  y = rectSize.height - shadowImageLeft.size.height;
+  [shadowImageLeft drawAtPoint:CGPointMake(centerPos - x, y)];
+  [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
+
   
   // Fill the body area with WHITE color
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-  //CGContextFillRect(context, CGRectMake(0, 0, rectSize.width, rectSize.height - shadowImageLeft.size.height));
+  CGContextFillRect(context, CGRectMake(centerPos - x, 3, rectSize.width - (centerPos - x), rectSize.height - 16));
   
   //--------------------------------
   // text-align: left/center/right
