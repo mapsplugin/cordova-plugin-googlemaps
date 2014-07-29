@@ -356,8 +356,16 @@ NSDictionary *initOptions;
   NSDictionary *styles = [self.overlayManager objectForKey:marker_style_id];
   
   // Load images
-  UIImage *leftImg = [self loadImageFromGoogleMap:@"bubble_left"];
-  UIImage *rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
+  UIImage *leftImg = nil;
+  UIImage *rightImg = nil;[self loadImageFromGoogleMap:@"bubble_right@2x"];
+  if ([PluginUtil isIOS7]) {
+    leftImg = [self loadImageFromGoogleMap:@"bubble_left@2x"];
+    rightImg = [self loadImageFromGoogleMap:@"bubble_right@2x"];
+  } else {
+    leftImg = [self loadImageFromGoogleMap:@"bubble_left"];
+    rightImg = [self loadImageFromGoogleMap:@"bubble_right"];
+  }
+  float scale = leftImg.scale;
   
   //-------------------------------------
   // Calculate the size for the contents
@@ -410,17 +418,17 @@ NSDictionary *initOptions;
     }
     
     // Calculate the size for the title strings
-    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
-    rectSize = CGSizeMake(textSize.width + 10 * leftImg.scale, textSize.height);
+    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13 * scale, mapView.frame.size.height - 13 * scale)];
+    rectSize = CGSizeMake(textSize.width + 13 * scale, textSize.height);
     //rectSize.width += leftImg.size.width;
-    rectSize.height +=  10 * leftImg.scale;
+    rectSize.height +=  13 * scale;
     
     // Calculate the size for the snippet strings
     if (snippet) {
       snippetFont = [UIFont systemFontOfSize:12.0f];
       snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 20, mapView.frame.size.height - 20)];
-      rectSize.height += snippetSize.height + 2;
+      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13 * scale, mapView.frame.size.height - 13 * scale)];
+      rectSize.height += snippetSize.height + 2 * scale;
       if (rectSize.width < snippetSize.width + leftImg.size.width) {
         rectSize.width = snippetSize.width + leftImg.size.width;
       }
@@ -434,14 +442,14 @@ NSDictionary *initOptions;
   
   // Draw the upper side;
   CGRect trimArea = CGRectMake(15, 0, 5, MIN(45, rectSize.height - 20));
-  if (leftImg.scale > 1.0f) {
-    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
-                      trimArea.origin.y * leftImg.scale,
-                      trimArea.size.width * leftImg.scale,
-                      trimArea.size.height * leftImg.scale);
+  if (scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * scale,
+                      trimArea.origin.y * scale,
+                      trimArea.size.width * scale,
+                      trimArea.size.height * scale);
   }
   CGImageRef trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-  UIImage *trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
+  UIImage *trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:scale orientation:leftImg.imageOrientation];
   
   
   // Draw the body
@@ -453,38 +461,22 @@ NSDictionary *initOptions;
     x += 5;
   }
   
-  //Draw the tall of the info window
+  //Draw the the info window
   trimArea = CGRectMake(15, 0, 15, leftImg.size.height);
-  if (leftImg.scale > 1.0f) {
-    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
-                      trimArea.origin.y * leftImg.scale,
-                      trimArea.size.width * leftImg.scale,
-                      trimArea.size.height * leftImg.scale);
+  if (scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * scale,
+                      trimArea.origin.y * scale,
+                      trimArea.size.width * scale,
+                      trimArea.size.height * scale);
   }
   CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-  UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUp];
-  UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUpMirrored];
-  
-  x = shadowImageLeft.size.width;
-  y = rectSize.height - shadowImageLeft.size.height;
-  [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
-  [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f, y)];
-  
-  
-  // Draw the bottom part
-  trimArea = CGRectMake(15, 0, 5, leftImg.size.height);
-  if (leftImg.scale > 1.0f) {
-    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
-                      trimArea.origin.y * leftImg.scale,
-                      trimArea.size.width * leftImg.scale,
-                      trimArea.size.height * leftImg.scale);
-  }
-  shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-  shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUp];
-  shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUpMirrored];
+  UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
+  UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+
   
   int i = 0;
-  x += shadowImageLeft.size.width;
+  x = shadowImageLeft.size.width;
+  
   while (rectSize.width * 0.5f - x > 0) {
     y = 0;
     while (y + shadowImageLeft.size.height < rectSize.height) {
@@ -495,7 +487,24 @@ NSDictionary *initOptions;
     y = rectSize.height - shadowImageLeft.size.height;
     [shadowImageLeft drawAtPoint:CGPointMake(rectSize.width * 0.5f - x, y)];
     [shadowImageRight drawAtPoint:CGPointMake(rectSize.width * 0.5f + x - shadowImageLeft.size.width, y)];
-    x += shadowImageLeft.size.width;
+    
+    if (i == 0) {
+    
+      trimArea = CGRectMake(15, 0, 5, leftImg.size.height);
+      if (scale > 1.0f) {
+        trimArea = CGRectMake(trimArea.origin.x * scale,
+                          trimArea.origin.y * scale,
+                          trimArea.size.width * scale,
+                          trimArea.size.height * scale);
+      }
+      shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
+      shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
+      shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+    
+    
+    } else {
+      x += shadowImageLeft.size.width;
+    }
     i++;
   }
   
@@ -516,35 +525,34 @@ NSDictionary *initOptions;
     
     if (i == 0) {
       trimArea = CGRectMake(10, 0, 15, leftImg.size.height);
-      if (leftImg.scale > 1.0f) {
-        trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
-                          trimArea.origin.y * leftImg.scale,
-                          trimArea.size.width * leftImg.scale,
-                          trimArea.size.height * leftImg.scale);
+      if (scale > 1.0f) {
+        trimArea = CGRectMake(trimArea.origin.x * scale,
+                          trimArea.origin.y * scale,
+                          trimArea.size.width * scale,
+                          trimArea.size.height * scale);
       }
       shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-      shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUp];
-      shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:leftImg.scale orientation:UIImageOrientationUpMirrored];
+      shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
+      shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
     }
     i++;
     x = i * shadowImageLeft.size.width  - shadowImageRight.size.width + 10;
       //break;
   }
-  */
   
   //[
   //
-  
+  /*
   // Draw the bottom side
   trimArea = CGRectMake(15, MIN(45, rectSize.height - 20), 5, 10);
-  if (leftImg.scale > 1.0f) {
-    trimArea = CGRectMake(trimArea.origin.x * leftImg.scale,
-                      trimArea.origin.y * leftImg.scale,
-                      trimArea.size.width * leftImg.scale,
-                      trimArea.size.height * leftImg.scale);
+  if (scale > 1.0f) {
+    trimArea = CGRectMake(trimArea.origin.x * scale,
+                      trimArea.origin.y * scale,
+                      trimArea.size.width * scale,
+                      trimArea.size.height * scale);
   }
   trimmedImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
-  trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:leftImg.scale orientation:leftImg.imageOrientation];
+  trimmedImage = [UIImage imageWithCGImage:trimmedImageRef scale:scale orientation:leftImg.imageOrientation];
   
   x = 0;
   while (rectSize.width - x > 5) {
@@ -552,13 +560,13 @@ NSDictionary *initOptions;
       //[trimmedImage drawAtPoint:CGPointMake(x, rectSize.height - trimmedImage.size.height - 20)];
     }
     x += 5;
-  }
+  }*/
   
   // Fill the body area with WHITE color
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-  //CGContextFillRect(context, CGRectMake(0, 0, width, rectSize.height - 10));
+  //CGContextFillRect(context, CGRectMake(0, 0, rectSize.width, rectSize.height - shadowImageLeft.size.height));
   
   //--------------------------------
   // text-align: left/center/right
@@ -602,12 +610,12 @@ NSDictionary *initOptions;
             NSFontAttributeName : titleFont,
             NSParagraphStyleAttributeName : style
         };
-        [title drawInRect:CGRectMake(4 * leftImg.scale, 3 * leftImg.scale, rectSize.width - 2, textSize.height )
+        [title drawInRect:CGRectMake(6 * scale, 5 * scale, rectSize.width - 2 * scale, textSize.height )
                withAttributes:attributes];
       } else {
         // iOS6
         [titleColor set];
-        [title drawInRect:CGRectMake(4 * leftImg.scale, 3 * leftImg.scale, rectSize.width - 2, textSize.height )
+        [title drawInRect:CGRectMake(6 * scale, 5 * scale, rectSize.width - 2 * scale, textSize.height )
                 withFont:titleFont
                 lineBreakMode:NSLineBreakByWordWrapping
                 alignment:textAlignment];
@@ -627,12 +635,12 @@ NSDictionary *initOptions;
               NSFontAttributeName : snippetFont,
               NSParagraphStyleAttributeName : style
           };
-          [snippet drawInRect:CGRectMake(4 * leftImg.scale, textSize.height + 3 * leftImg.scale, rectSize.width - 2, snippetSize.height)
+          [snippet drawInRect:CGRectMake(6 * scale, textSize.height + 5 * scale, rectSize.width - 2 * scale, snippetSize.height)
                  withAttributes:attributes];
         } else {
           // iOS6
           [[UIColor grayColor] set];
-          [snippet drawInRect:CGRectMake(4 * leftImg.scale, textSize.height  + 3 * leftImg.scale, rectSize.width - 2, snippetSize.height)
+          [snippet drawInRect:CGRectMake(6 * scale, textSize.height  + 5 * scale, rectSize.width - 2 * scale, snippetSize.height)
                   withFont:snippetFont
                   lineBreakMode:NSLineBreakByWordWrapping
                   alignment:textAlignment];
