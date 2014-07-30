@@ -361,6 +361,7 @@ NSDictionary *initOptions;
   leftImg = [self loadImageFromGoogleMap:@"bubble_left@2x"];
   rightImg = [self loadImageFromGoogleMap:@"bubble_right@2x"];
   float scale = leftImg.scale;
+  int sizeEdgeWidth = 10;
   
   //-------------------------------------
   // Calculate the size for the contents
@@ -429,6 +430,8 @@ NSDictionary *initOptions;
   }
   if (rectSize.width < leftImg.size.width * scale) {
     rectSize.width = leftImg.size.width * scale;
+  } else {
+    rectSize.width += sizeEdgeWidth;
   }
   
   //-------------------------------------
@@ -486,7 +489,7 @@ NSDictionary *initOptions;
   
   // Draw left & right side edges
   x -= shadowImageLeft.size.width;
-  trimArea = CGRectMake(0, 0, 10, leftImg.size.height);
+  trimArea = CGRectMake(0, 0, sizeEdgeWidth, leftImg.size.height);
   if (scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * scale,
                       trimArea.origin.y * scale,
@@ -579,12 +582,13 @@ NSDictionary *initOptions;
                 lineBreakMode:NSLineBreakByWordWrapping
                 alignment:textAlignment];
       }
-      CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 0.5);
-      CGContextStrokeRect(context, textRect);
+      //CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 0.5);
+      //CGContextStrokeRect(context, textRect);
     }
     
     //Draw the snippet
     if (snippet) {
+      CGRect textRect = CGRectMake(5, textSize.height + 4 * scale, rectSize.width - 10, snippetSize.height );
       if ([PluginUtil isIOS7] == true) {
           // iOS7 and above
           NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
@@ -596,12 +600,11 @@ NSDictionary *initOptions;
               NSFontAttributeName : snippetFont,
               NSParagraphStyleAttributeName : style
           };
-          [snippet drawInRect:CGRectMake(4 * scale, textSize.height + 4 * scale, rectSize.width - 4 * scale, snippetSize.height)
-                 withAttributes:attributes];
+          [snippet drawInRect:textRect withAttributes:attributes];
         } else {
           // iOS6
           [[UIColor grayColor] set];
-          [snippet drawInRect:CGRectMake(4 * scale, textSize.height  + 4 * scale, rectSize.width - 4 * scale, snippetSize.height)
+          [snippet drawInRect:textRect
                   withFont:snippetFont
                   lineBreakMode:NSLineBreakByWordWrapping
                   alignment:textAlignment];
