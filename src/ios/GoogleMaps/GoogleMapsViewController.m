@@ -414,7 +414,7 @@ NSDictionary *initOptions;
     
     // Calculate the size for the title strings
     textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13 * scale, mapView.frame.size.height - 13 * scale)];
-    rectSize = CGSizeMake(textSize.width + 13 * scale, textSize.height + 13 * scale);
+    rectSize = CGSizeMake(textSize.width , textSize.height + 11 * scale);
     
     // Calculate the size for the snippet strings
     if (snippet) {
@@ -426,6 +426,9 @@ NSDictionary *initOptions;
         rectSize.width = snippetSize.width + leftImg.size.width;
       }
     }
+  }
+  if (rectSize.width < leftImg.size.width * scale) {
+    rectSize.width = leftImg.size.width * scale;
   }
   
   //-------------------------------------
@@ -462,6 +465,7 @@ NSDictionary *initOptions;
     [shadowImageRight drawAtPoint:CGPointMake(centerPos + x - shadowImageLeft.size.width, y)];
     
     if (i == 0) {
+      x += 5;
     
       trimArea = CGRectMake(15, 0, 5, leftImg.size.height);
       if (scale > 1.0f) {
@@ -507,7 +511,7 @@ NSDictionary *initOptions;
   // Fill the body area with WHITE color
   CGContextRef context = UIGraphicsGetCurrentContext();
   CGContextSetAllowsAntialiasing(context, true);
-  CGContextSetRGBFillColor(context, 1.0, 0.0, 0.0, 0.5);
+  CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
   
   if (isTextMode) {
 
@@ -517,7 +521,7 @@ NSDictionary *initOptions;
       CGContextFillRect(context, CGRectMake(centerPos - x + 5, 0, rectSize.width - (centerPos - x + 7), rectSize.height - 11));
     }
   } else {
-      CGContextFillRect(context, CGRectMake(centerPos - x + 5, 4, rectSize.width - (centerPos - x + 5), rectSize.height - 16));
+    CGContextFillRect(context, CGRectMake(centerPos - x + 5, 4, rectSize.width - (centerPos - x + 5), rectSize.height - 16));
   }
   
   //--------------------------------
@@ -551,6 +555,7 @@ NSDictionary *initOptions;
         titleColor = [[styles valueForKey:@"color"] parsePluginColor];
       }
       
+      CGRect textRect = CGRectMake(5, 4 * scale, rectSize.width - 10, textSize.height );
       if ([PluginUtil isIOS7] == true) {
         // iOS7 and above
         NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
@@ -562,16 +567,20 @@ NSDictionary *initOptions;
             NSFontAttributeName : titleFont,
             NSParagraphStyleAttributeName : style
         };
-        [title drawInRect:CGRectMake(6 * scale, 4 * scale, rectSize.width - 2 * scale, textSize.height )
+        [title drawInRect:textRect
                withAttributes:attributes];
+        
+        
       } else {
         // iOS6
         [titleColor set];
-        [title drawInRect:CGRectMake(6 * scale, 4 * scale, rectSize.width - 2 * scale, textSize.height )
+        [title drawInRect:textRect
                 withFont:titleFont
                 lineBreakMode:NSLineBreakByWordWrapping
                 alignment:textAlignment];
       }
+      CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 0.5);
+      CGContextStrokeRect(context, textRect);
     }
     
     //Draw the snippet
@@ -587,12 +596,12 @@ NSDictionary *initOptions;
               NSFontAttributeName : snippetFont,
               NSParagraphStyleAttributeName : style
           };
-          [snippet drawInRect:CGRectMake(6 * scale, textSize.height + 5 * scale, rectSize.width - 2 * scale, snippetSize.height)
+          [snippet drawInRect:CGRectMake(4 * scale, textSize.height + 4 * scale, rectSize.width - 4 * scale, snippetSize.height)
                  withAttributes:attributes];
         } else {
           // iOS6
           [[UIColor grayColor] set];
-          [snippet drawInRect:CGRectMake(6 * scale, textSize.height  + 5 * scale, rectSize.width - 2 * scale, snippetSize.height)
+          [snippet drawInRect:CGRectMake(4 * scale, textSize.height  + 4 * scale, rectSize.width - 4 * scale, snippetSize.height)
                   withFont:snippetFont
                   lineBreakMode:NSLineBreakByWordWrapping
                   alignment:textAlignment];
