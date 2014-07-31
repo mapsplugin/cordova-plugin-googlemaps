@@ -442,31 +442,6 @@
       break;
   }
 }
-/*
-  CLLocationManager *locationManager = [[CLLocationManager alloc] init];
-  locationManager.distanceFilter = kCLDistanceFilterNone;
-  
-  NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-  [latLng setObject:[NSNumber numberWithFloat:locationManager.location.coordinate.latitude] forKey:@"lat"];
-  [latLng setObject:[NSNumber numberWithFloat:locationManager.location.coordinate.longitude] forKey:@"lng"];
-
-  NSMutableDictionary *json = [NSMutableDictionary dictionary];
-  [json setObject:latLng forKey:@"latLng"];
-  [json setObject:[NSNumber numberWithFloat:[locationManager.location speed]] forKey:@"speed"];
-  [json setObject:[NSNumber numberWithFloat:[locationManager.location altitude]] forKey:@"altitude"];
-  
-  //todo: calcurate the correct accuracy based on horizontalAccuracy and verticalAccuracy
-  [json setObject:[NSNumber numberWithFloat:[locationManager.location horizontalAccuracy]] forKey:@"accuracy"];
-  [json setObject:[NSNumber numberWithDouble:[locationManager.location.timestamp timeIntervalSince1970]] forKey:@"time"];
-  [json setObject:[NSNumber numberWithInteger:[locationManager.location hash]] forKey:@"hashCode"];
-
-  locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
-  [locationManager startUpdatingLocation];
-    
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-*/
-//}
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
   NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
