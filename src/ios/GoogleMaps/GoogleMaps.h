@@ -12,13 +12,15 @@
 #import "Map.h"
 #import "PluginUtil.h"
 
-@interface GoogleMaps : CDVPlugin
+@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) UIView *licenseLayer;
 @property (nonatomic) UIView *footer;
 @property (nonatomic) UIButton *closeButton;
 @property (nonatomic) UIButton *licenseButton;
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;
