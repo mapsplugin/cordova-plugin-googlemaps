@@ -373,15 +373,20 @@ App.prototype.setCompassEnabled = function(enabled) {
   enabled = parseBoolean(enabled);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
 };
-App.prototype.getMyLocation = function(callback) {
+App.prototype.getMyLocation = function(success_callback, error_callback) {
   var self = this;
-  cordova.exec(function(location) {
-    if (typeof callback === "function") {
+  var successHandler = function(location) {
+    if (typeof success_callback === "function") {
       location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
-      callback.call(self, location);
+      success_callback.call(self, location);
     }
-  
-  }, self.errorHandler, PLUGIN_NAME, 'getMyLocation', []);
+  };
+  var errorHandler = function() {
+    if (typeof error_callback === "function") {
+      error_callback.call(self);
+    }
+  };
+  cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', []);
 };
 App.prototype.setVisible = function(isVisible) {
   var self = this;
@@ -395,7 +400,7 @@ App.prototype.setAllGesturesEnabled = function(enabled) {
   var self = this;
   enabled = parseBoolean(enabled);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setAllGesturesEnabled', enabled]);
-  };
+};
  
   /**
  * Return the current position of the camera
