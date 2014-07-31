@@ -1,7 +1,7 @@
 package plugin.google.maps;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +34,7 @@ import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
@@ -54,6 +56,7 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
@@ -76,9 +79,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
 
@@ -251,6 +252,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     int checkGooglePlayServices = GooglePlayServicesUtil
         .isGooglePlayServicesAvailable(activity);
+    
     if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
       // google play services is missing!!!!
       /*
@@ -258,20 +260,85 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
        * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
        * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
        */
-      AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+      Log.e("CordovaLog", "---Google Play Services is not available: " + GooglePlayServicesUtil.getErrorString(checkGooglePlayServices));
+
+      Dialog errorDialog = null;
+      try {
+        //errorDialog = GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 1);
+        Method getErrorDialogMethod = GooglePlayServicesUtil.class.getMethod("getErrorDialog", int.class, Activity.class, int.class);
+        errorDialog = (Dialog)getErrorDialogMethod.invoke(null, checkGooglePlayServices, activity, 1);
+      } catch (Exception e) {};
       
-      alertDialogBuilder
-        .setMessage("Google Maps Android API v2 is not available, because this device does not have Google Play Service.")
-        .setCancelable(false)
-        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog,int id) {
-            dialog.dismiss();
-          }
-        }); 
-      AlertDialog alertDialog = alertDialogBuilder.create();
-      
-      // show it
-      alertDialog.show();
+      if (errorDialog != null) {
+        errorDialog.show();
+      } else {
+        boolean isNeedToUpdate = false;
+        
+        String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
+        switch (checkGooglePlayServices) {
+        case ConnectionResult.DATE_INVALID:
+          errorMsg = "It seems your device date is set incorrectly. Please update the correct date and time.";
+          break;
+        case ConnectionResult.DEVELOPER_ERROR:
+          errorMsg = "The application is misconfigured. This error is not recoverable and will be treated as fatal. The developer should look at the logs after this to determine more actionable information.";
+          break;
+        case ConnectionResult.INTERNAL_ERROR:
+          errorMsg = "An internal error of Google Play Services occurred. Please retry, and it should resolve the problem.";
+          break;
+        case ConnectionResult.INVALID_ACCOUNT:
+          errorMsg = "You attempted to connect to the service with an invalid account name specified.";
+          break;
+        case ConnectionResult.LICENSE_CHECK_FAILED:
+          errorMsg = "The application is not licensed to the user. This error is not recoverable and will be treated as fatal.";
+          break;
+        case ConnectionResult.NETWORK_ERROR:
+          errorMsg = "A network error occurred. Please retry, and it should resolve the problem.";
+          break;
+        case ConnectionResult.SERVICE_DISABLED:
+          errorMsg = "The installed version of Google Play services has been disabled on this device. Please turn on Google Play Services.";
+          break;
+        case ConnectionResult.SERVICE_INVALID:
+          errorMsg = "The version of the Google Play services installed on this device is not authentic. Please update the Google Play Services from Google Play Store.";
+          isNeedToUpdate = true;
+          break;
+        case ConnectionResult.SERVICE_MISSING:
+          errorMsg = "Google Play services is missing on this device. Please install the Google Play Services.";
+          isNeedToUpdate = true;
+          break;
+        case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+          errorMsg = "The installed version of Google Play services is out of date. Please update the Google Play Services from Google Play Store.";
+          isNeedToUpdate = true;
+          break;
+        case ConnectionResult.SIGN_IN_REQUIRED:
+          errorMsg = "You attempted to connect to the service but you are not signed in. Please check the Google Play Services configuration";
+          break;
+        default:
+          isNeedToUpdate = true;
+          break;
+        }
+        
+        final boolean finalIsNeedToUpdate = isNeedToUpdate;
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder
+          .setMessage(errorMsg)
+          .setCancelable(false)
+          .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int id) {
+              dialog.dismiss();
+              if (finalIsNeedToUpdate) {
+                try {
+                  activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                } catch (android.content.ActivityNotFoundException anfe) {
+                  activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
+                }
+              }
+            }
+          }); 
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        
+        // show it
+        alertDialog.show();
+      }
 
       callbackContext.error("Google Play Services is not available.");
       return;
@@ -398,18 +465,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         map.setMyLocationEnabled(isEnabled);
       }
     }
-    if (isEnabled) {
-      
-      try {
-        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
-        this.locationClient = constructor.newInstance(this.activity, this, this);
-      } catch (Exception e) {}
-      
-      //this.locationClient = new LocationClient(this.activity, this, this);
-      if (this.locationClient != null) {
-        // The LocationClient class is available. 
-        this.locationClient.connect();
-      }
+    
+    
+    try {
+      Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
+      this.locationClient = constructor.newInstance(this.activity, this, this);
+    } catch (Exception e) {}
+    
+    //this.locationClient = new LocationClient(this.activity, this, this);
+    if (this.locationClient != null) {
+      // The LocationClient class is available. 
+      this.locationClient.connect();
     }
     
     // Set event listener
@@ -490,7 +556,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     case onScrollChanged:
       if (android.os.Build.VERSION.SDK_INT < 11) {
         // Force redraw the map
-        mapView.requestLayout();
+        if (mapView != null) {
+          mapView.requestLayout();
+        }
       }
       break;
     }
@@ -690,6 +758,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                   //Launch settings, allowing user to make a change
                   Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                   activity.startActivity(intent);
+                  
+                  JSONObject result = new JSONObject();
+                  try {
+                    result.put("status", false);
+                    result.put("error_code", "open_settings");
+                    result.put("error_message", "User opened the settings of location service. So try again.");
+                  } catch (JSONException e) {}
+                  
+                  callbackContext.error(result);
               }
           });
           builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -697,7 +774,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               public void onClick(DialogInterface dialog, int which) {
                   //No location service, no Activity
                   dialog.dismiss();
-                  callbackContext.error("The GPS is disabled.");
+                  
+                  JSONObject result = new JSONObject();
+                  try {
+                    result.put("status", false);
+                    result.put("error_code", "service_denied");
+                    result.put("error_message", "This app has rejected to use Location Services.");
+                  } catch (JSONException e) {}
+                  
+                  callbackContext.error(result);
               }
           });
           builder.create().show();
@@ -705,9 +790,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
 
       PackageManager pm = this.activity.getPackageManager();
-      boolean hasGPS = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
-      if (hasGPS == false) {
-        callbackContext.error("This device don't have GPS.");
+      boolean hasLocation = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION);
+      if (hasLocation == false) {
+        result = new JSONObject();
+        try {
+          result.put("status", false);
+          result.put("error_code", "no_feature");
+          result.put("error_message", "This device does not have any location provider.");
+        } catch (JSONException e) {}
+        
+        callbackContext.error(result);
         return;
       }
       
@@ -716,19 +808,47 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       Location location = locationManager.getLastKnownLocation(bestProvider);
       if (location != null) {
         result = PluginUtil.location2Json(location);
+        result.put("status", true);
         callbackContext.success(result);
       } else {
-        callbackContext.error("Can not detect your location");
+        result = new JSONObject();
+        try {
+          result.put("status", false);
+          result.put("error_code", "unknown_error");
+          result.put("error_message", "Can not detect your locatin");
+        } catch (JSONException e) {}
+        
+        callbackContext.error(result);
       }
       return;
     }
     
+    if (this.locationClient.isConnected() == false) {
+      this.locationClient.connect();
+    }
+
     if (this.locationClient.isConnected()) {
       Location location = this.locationClient.getLastLocation();
-      result = PluginUtil.location2Json(location);
-      callbackContext.success(result);
+      if (location == null) {
+        result = new JSONObject();
+        try {
+          result.put("status", false);
+          result.put("error_code", "cannot_detect_location");
+          result.put("error_message", "Cannot detect your location.");
+        } catch (JSONException e) {}
+        callbackContext.error(result);
+      } else {
+        result = PluginUtil.location2Json(location);
+        callbackContext.success(result);
+      }
     } else {
-      callbackContext.error("Location client is not available.");
+      result = new JSONObject();
+      try {
+        result.put("status", false);
+        result.put("error_code", "provider_not_available");
+        result.put("error_message", "Location provider is not available.");
+      } catch (JSONException e) {}
+      callbackContext.error(result);
       /*
       JSONObject latLng = new JSONObject();
       latLng.put("lat", 0);
