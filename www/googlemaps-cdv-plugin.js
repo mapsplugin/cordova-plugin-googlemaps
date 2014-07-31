@@ -381,9 +381,9 @@ App.prototype.getMyLocation = function(success_callback, error_callback) {
       success_callback.call(self, location);
     }
   };
-  var errorHandler = function() {
+  var errorHandler = function(result) {
     if (typeof error_callback === "function") {
-      error_callback.call(self);
+      error_callback.call(self, result);
     }
   };
   cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', []);
