@@ -131,6 +131,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
+
+    Log.i("CordovaLog", "plugin.google.maps version " + PLUGIN_VERSION);
     
     // Is this app in debug mode?
     try {
