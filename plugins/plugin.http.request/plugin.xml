@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="plugin.http.request" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>phonegap-http-request</name>
+    <js-module name="phonegap-http-requst" src="www/http-request.js">
+        <clobbers target="cordova.plugins.http-request" />
+    </js-module>
+    <description>
+      This plugin helps you to access to the external server using HTTP request.
+    </description>
+
+    <license>BSD version 3</license>
+
+    <keywords>http,request</keywords>
+
+    <engines>
+      <engine name="cordova" version=">=3.0.0" />
+    </engines>
+
+    <!-- android -->
+    <platform name="android">
+      <source-file src="libs/android/google-volley.jar" target-dir="libs" />
+      <config-file target="res/xml/config.xml" parent="/*">
+        <feature name="HttpRequest">
+          <param name="android-package" value="plugin.http.request.HttpRequest" />
+        </feature>
+      </config-file>
+      <source-file src="src/android/plugin/http/request/HttpRequest.java" target-dir="src/plugin/http/request" />
+      <source-file src="src/android/plugin/http/request/StringRequest.java" target-dir="src/plugin/http/request" />
+
+      <config-file target="AndroidManifest.xml" parent="/manifest">
+        <uses-permission android:name="android.permission.INTERNET" />
+      </config-file>
+    </platform>
+
+    <!-- ios -->
+    <platform name="ios">
+      <config-file target="config.xml" parent="/*">
+        <feature name="HttpRequest">
+          <param name="ios-package" value="HttpRequest" />
+        </feature>
+      </config-file>
+      <header-file src="src/ios/HttpRequest/HttpRequest.h" target-dir="HttpRequest" />
+      <source-file src="src/ios/HttpRequest/HttpRequest.m" target-dir="HttpRequest" />
+      <header-file src="src/ios/HttpRequest/R9HTTPRequest/R9HTTPRequest/R9HTTPRequest.h" target-dir="HttpRequest/R9HTTPRequest" />
+      <source-file src="src/ios/HttpRequest/R9HTTPRequest/R9HTTPRequest/R9HTTPRequest.m" target-dir="HttpRequest/R9HTTPRequest" />
+      <source-file src="src/ios/HttpRequest/R9HTTPRequest/README" />
+      <source-file src="src/ios/HttpRequest/R9HTTPRequest/BSD-LICENSE" target-dir="HttpRequest/R9HTTPRequest" />
+    </platform>
+</plugin>

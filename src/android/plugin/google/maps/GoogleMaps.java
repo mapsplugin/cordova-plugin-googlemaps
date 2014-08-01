@@ -12,10 +12,12 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import plugin.http.request.HttpRequest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -56,7 +58,6 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
@@ -129,6 +130,50 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
+    
+    // Is this app in debug mode?
+    try {
+      PackageManager manager = activity.getPackageManager();
+      ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
+      Boolean isDebug = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
+      
+      if (isDebug) {
+        JSONArray params = new JSONArray();
+        params.put("get");
+        params.put("http://plugins.cordova.io/api/plugin.google.maps");
+        HttpRequest httpReq = new HttpRequest();
+        httpReq.initialize(cordova, null);
+        httpReq.execute("execute", params, new CallbackContext("version_check", webView) {
+          @Override
+          public void sendPluginResult(PluginResult pluginResult) {
+            if (pluginResult.getStatus() == PluginResult.Status.OK.ordinal()) {
+              try {
+                JSONObject result = new JSONObject(pluginResult.getStrMessage());
+                JSONObject distTags = result.getJSONObject("dist-tags");
+                Log.d("GoogleMaps", distTags.toString());
+                Log.d("GoogleMaps", "latest = "+ distTags.getString("latest"));
+              } catch (JSONException e) {
+                Log.e("GoogleMaps", "error---", e);
+              }
+              
+            }
+          }
+        });
+      }
+    } catch (NameNotFoundException e) {}
+    
+  }
+  private abstract class MyCallbackContext extends CallbackContext {
+
+    public MyCallbackContext(String callbackId, CordovaWebView webView) {
+      super(callbackId, webView);
+    }
+    @Override
+    public void sendPluginResult(PluginResult pluginResult) {
+      this.onResult(pluginResult);
+    }
+    
+    abstract public void onResult(PluginResult pluginResult);
   }
 
   @Override

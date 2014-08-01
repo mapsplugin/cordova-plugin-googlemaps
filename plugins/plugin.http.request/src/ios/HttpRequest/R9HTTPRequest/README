@@ -1,0 +1,7 @@
+R9HTTPRequest is an easy to use wrapper around the NSURLConnection API that makes some of the more tedious aspects of communicating with web servers easier. It is written in Objective-C and works in iOS applications.
+
+It is suitable performing basic HTTP requests and interacting with REST-based services (GET / POST / PUT / DELETE).The included R9HTTPWSSERequest subclass makes it easy to WSSE authentication request.
+
+R9HTTPRequest supports the ARC(Automatic Reference Counting) and Blocks.
+
+R9HTTPRequest is compatible with iOS 5.0 or later.
