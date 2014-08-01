@@ -121,6 +121,14 @@
 
     return NO;
 }
++ (BOOL) isInDebugMode
+{
+    #ifndef __OPTIMIZE__   // Debug Mode
+        return YES;
+    #else
+        return NO;
+    #endif
+}
 @end
 
 

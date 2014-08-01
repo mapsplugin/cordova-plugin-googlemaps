@@ -11,6 +11,7 @@
 #import "GoogleMapsViewController.h"
 #import "Map.h"
 #import "PluginUtil.h"
+#import "R9HTTPRequest.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 

@@ -15,6 +15,38 @@
   self.licenseLayer = nil;
   self.mapCtrl.isFullScreen = YES;
   self.locationCommandQueue = [[NSMutableArray alloc] init];
+ 
+  [self versionCheck];
+}
+/**
+ * @Private
+ * Execute the method of other plugin class internally.
+ */
+-(void)versionCheck
+{
+  NSString *PLUGIN_VERSION = @"1.1.4";
+  NSLog(@"phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
+  
+  if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7] == NO) {
+    return;
+  }
+  NSURL *URL = [NSURL URLWithString:@"http://plugins.cordova.io/api/plugin.google.maps"];
+  R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:URL];
+  
+  [request setHTTPMethod:@"GET"];
+  [request setTimeoutInterval:5];
+  
+  [request setCompletionHandler:^(NSHTTPURLResponse *responseHeader, NSString *responseString){
+    NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error;
+    NSMutableDictionary *info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
+    NSDictionary *distTags = [info objectForKey:@"dist-tags"];
+    NSString *latestVersion = [distTags objectForKey:@"latest"];
+    if ([PLUGIN_VERSION isEqualToString:latestVersion] == NO) {
+      NSLog(@"phonegap-googlemaps-plugin version %@ is available.", latestVersion);
+    }
+  }];
+  [request startRequest];
 }
 
 /**
