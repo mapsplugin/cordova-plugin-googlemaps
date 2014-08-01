@@ -466,16 +466,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     
-    
-    try {
-      Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
-      this.locationClient = constructor.newInstance(this.activity, this, this);
-    } catch (Exception e) {}
-    
-    //this.locationClient = new LocationClient(this.activity, this, this);
-    if (this.locationClient != null) {
-      // The LocationClient class is available. 
-      this.locationClient.connect();
+    if (isEnabled) {
+      try {
+        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
+        this.locationClient = constructor.newInstance(this.activity, this, this);
+      } catch (Exception e) {}
+      
+      //this.locationClient = new LocationClient(this.activity, this, this);
+      if (this.locationClient != null) {
+        // The LocationClient class is available. 
+        this.locationClient.connect();
+      }
     }
     
     // Set event listener
