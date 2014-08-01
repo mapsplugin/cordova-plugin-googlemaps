@@ -38,6 +38,7 @@
         </config-file>
 
         <dependency id="com.google.playservices" url="https://github.com/wf9a5m75/google-play-services" commit="master" />
+        <dependency id="plugin.http.request" />
         <dependency id="android.support.v4" />
     
         <!-- plugin src files -->
@@ -55,6 +56,7 @@
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarker.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginMarkerInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginPolygon.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps" />
@@ -138,6 +140,7 @@
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
         
-        <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" /> 
+        <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" />
+        <dependency id="plugin.http.request" />
     </platform>
 </plugin>

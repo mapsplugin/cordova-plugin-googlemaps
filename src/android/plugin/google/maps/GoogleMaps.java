@@ -124,6 +124,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
+  private final String PLUGIN_VERSION = "1.1.4";
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -150,17 +151,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               try {
                 JSONObject result = new JSONObject(pluginResult.getStrMessage());
                 JSONObject distTags = result.getJSONObject("dist-tags");
-                Log.d("GoogleMaps", distTags.toString());
-                Log.d("GoogleMaps", "latest = "+ distTags.getString("latest"));
-              } catch (JSONException e) {
-                Log.e("GoogleMaps", "error---", e);
-              }
+                String latestVersion = distTags.getString("latest");
+                if (latestVersion != PLUGIN_VERSION) {
+                  Log.i("CordovaLog", "plugin.google.maps version " + latestVersion + " is available.");
+                }
+              } catch (JSONException e) {}
               
             }
           }
         });
       }
-    } catch (NameNotFoundException e) {}
+    } catch (Exception e) {}
     
   }
   private abstract class MyCallbackContext extends CallbackContext {
