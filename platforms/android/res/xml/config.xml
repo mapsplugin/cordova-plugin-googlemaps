@@ -22,4 +22,7 @@
         <param name="ios-package" value="GoogleMaps" />
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
     </feature>
+    <feature name="HttpRequest">
+        <param name="android-package" value="plugin.http.request.HttpRequest" />
+    </feature>
 </widget>

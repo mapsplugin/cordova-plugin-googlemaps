@@ -68,6 +68,10 @@
 		A2289235F02B41D795FD74F8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17B96542294FF784702ADB /* libz.dylib */; };
 		D3743966BE11436F8AF37AEA /* GoogleMaps.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A280E55389FB4B2CAD1ABE26 /* GoogleMaps.bundle */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
+		04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */; };
+		CB5A6EAC79EE44B5BA2FAA87 /* R9HTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 595CC89A43E64E2F8ED522BA /* R9HTTPRequest.m */; };
+		6A8871042DE24C4B8CBB5587 /* README in Resources */ = {isa = PBXBuildFile; fileRef = F6E3E742159A4CE0A9B92407 /* README */; };
+		04949326B9CA4C3890FE37FB /* BSD-LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = A40A421300364D078A73DB0E /* BSD-LICENSE */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -179,6 +183,12 @@
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = DevApp/config.xml; sourceTree = "<group>"; };
+		C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "HttpRequest.m"; path = "plugin.http.request/HttpRequest/HttpRequest.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		595CC89A43E64E2F8ED522BA /* R9HTTPRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "R9HTTPRequest.m"; path = "plugin.http.request/HttpRequest/R9HTTPRequest/R9HTTPRequest.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		F6E3E742159A4CE0A9B92407 /* README */ = {isa = PBXFileReference; lastKnownFileType = unknown; name = "README"; path = "plugin.http.request/README"; sourceTree = "<group>"; fileEncoding = 4; };
+		A40A421300364D078A73DB0E /* BSD-LICENSE */ = {isa = PBXFileReference; lastKnownFileType = unknown; name = "BSD-LICENSE"; path = "plugin.http.request/HttpRequest/R9HTTPRequest/BSD-LICENSE"; sourceTree = "<group>"; fileEncoding = 4; };
+		A5DF3623B0D844BFBE68BC45 /* HttpRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "HttpRequest.h"; path = "plugin.http.request/HttpRequest/HttpRequest.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		B763337F810D4E9FAE96A7A3 /* R9HTTPRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "R9HTTPRequest.h"; path = "plugin.http.request/HttpRequest/R9HTTPRequest/R9HTTPRequest.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -356,6 +366,12 @@
 				69E72B7C1922C7B20007FA25 /* TileOverlay.m */,
 				1174ECF24E8A47BB90559952 /* CDVLogger.m */,
 				774B6CCB9D1C4B448F95FD9A /* CDVLogger.h */,
+				C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */,
+				595CC89A43E64E2F8ED522BA /* R9HTTPRequest.m */,
+				F6E3E742159A4CE0A9B92407 /* README */,
+				A40A421300364D078A73DB0E /* BSD-LICENSE */,
+				A5DF3623B0D844BFBE68BC45 /* HttpRequest.h */,
+				B763337F810D4E9FAE96A7A3 /* R9HTTPRequest.h */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -579,6 +595,10 @@
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				715D5CBBC3094301B31E3D3A /* CDVLogger.m in Sources */,
 				69E72B861922C7B20007FA25 /* Marker.m in Sources */,
+				04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */,
+				CB5A6EAC79EE44B5BA2FAA87 /* R9HTTPRequest.m in Sources */,
+				6A8871042DE24C4B8CBB5587 /* README in Resources */,
+				04949326B9CA4C3890FE37FB /* BSD-LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
