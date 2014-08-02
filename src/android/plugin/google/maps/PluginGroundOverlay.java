@@ -100,7 +100,7 @@ public class PluginGroundOverlay extends MyPlugin {
   
   private void _success(GroundOverlay groundOverlay, CallbackContext callbackContext) {
 
-    String id = "ground_" + groundOverlay.getId();
+    String id = "groundOverlay_" + groundOverlay.getId();
     this.objects.put(id, groundOverlay);
 
     JSONObject result = new JSONObject();

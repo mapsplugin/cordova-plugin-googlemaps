@@ -17,17 +17,6 @@
 }
 
 /**
- * Clear all markups
- */
-- (void)clear:(CDVInvokedUrlCommand *)command {
-  [self.mapCtrl.map clear];
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-
-/**
  * Move the center of the map
  */
 - (void)setCenter:(CDVInvokedUrlCommand *)command {
