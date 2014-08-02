@@ -8,15 +8,9 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.3.apk](http://goo.gl/xrz3Hj)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.4.apk](http://goo.gl/uq7viR)
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.0.7.gif)
-
-###Don't miss updates!
-The plugin will updates in very short terms.
-In order to watch this project, make a Github account(free), then push the [watch] button at the top-right of the github pages.
-
-And check the [Release Notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
 
 ###Join the community
 If you have any questions or feature requests, please post the community.
