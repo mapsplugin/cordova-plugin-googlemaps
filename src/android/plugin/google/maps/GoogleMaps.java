@@ -132,7 +132,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
 
-    Log.i("CordovaLog", "plugin.google.maps version " + PLUGIN_VERSION);
+    Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
     
     // Is this app in debug mode?
     try {
@@ -155,7 +155,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 JSONObject distTags = result.getJSONObject("dist-tags");
                 String latestVersion = distTags.getString("latest");
                 if (latestVersion != PLUGIN_VERSION) {
-                  Log.i("CordovaLog", "plugin.google.maps version " + latestVersion + " is available.");
+                  Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
                 }
               } catch (JSONException e) {}
               
@@ -165,18 +165,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     } catch (Exception e) {}
     
-  }
-  private abstract class MyCallbackContext extends CallbackContext {
-
-    public MyCallbackContext(String callbackId, CordovaWebView webView) {
-      super(callbackId, webView);
-    }
-    @Override
-    public void sendPluginResult(PluginResult pluginResult) {
-      this.onResult(pluginResult);
-    }
-    
-    abstract public void onResult(PluginResult pluginResult);
   }
 
   @Override
