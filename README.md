@@ -32,6 +32,7 @@ https://plus.google.com/u/0/communities/117427728522929652853
     * [PhoneGap Usage](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Phonegap-Usage)
   * Upgrade
     * [How to upgrade the Google Maps SDK for iOS to the latest version?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-to-upgrade-the-Google-Maps-SDK-for-iOS-to-the-latest-version%3F)
+* [Terms of Services](./Terms-of-Services)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
   * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif) 
   * Create a map
