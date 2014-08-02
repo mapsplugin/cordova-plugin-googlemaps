@@ -414,15 +414,15 @@ NSDictionary *initOptions;
     }
     
     // Calculate the size for the title strings
-    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13 * scale, mapView.frame.size.height - 13 * scale)];
-    rectSize = CGSizeMake(textSize.width , textSize.height + 11 * scale);
+    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
+    rectSize = CGSizeMake(textSize.width + 10, textSize.height + 22);
     
     // Calculate the size for the snippet strings
     if (snippet) {
       snippetFont = [UIFont systemFontOfSize:12.0f];
       snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13 * scale, mapView.frame.size.height - 13 * scale)];
-      rectSize.height += snippetSize.height + 2 * scale;
+      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
+      rectSize.height += snippetSize.height + 4;
       if (rectSize.width < snippetSize.width + leftImg.size.width) {
         rectSize.width = snippetSize.width + leftImg.size.width;
       }
@@ -558,7 +558,7 @@ NSDictionary *initOptions;
         titleColor = [[styles valueForKey:@"color"] parsePluginColor];
       }
       
-      CGRect textRect = CGRectMake(5, 4 * scale, rectSize.width - 10, textSize.height );
+      CGRect textRect = CGRectMake(5, 5 , rectSize.width - 10, textSize.height );
       if ([PluginUtil isIOS7] == true) {
         // iOS7 and above
         NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
@@ -588,7 +588,7 @@ NSDictionary *initOptions;
     
     //Draw the snippet
     if (snippet) {
-      CGRect textRect = CGRectMake(5, textSize.height + 4 * scale, rectSize.width - 10, snippetSize.height );
+      CGRect textRect = CGRectMake(5, textSize.height + 10 , rectSize.width - 10, snippetSize.height );
       if ([PluginUtil isIOS7] == true) {
           // iOS7 and above
           NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
