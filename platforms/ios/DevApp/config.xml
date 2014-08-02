@@ -22,6 +22,9 @@
     <feature name="Console">
         <param name="ios-package" value="CDVLogger" />
     </feature>
+    <feature name="HttpRequest">
+        <param name="ios-package" value="HttpRequest" />
+    </feature>
     <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -38,8 +41,5 @@
     <feature name="GoogleMaps">
         <param name="ios-package" value="GoogleMaps" />
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
-    </feature>
-    <feature name="HttpRequest">
-        <param name="ios-package" value="HttpRequest" />
     </feature>
 </widget>
