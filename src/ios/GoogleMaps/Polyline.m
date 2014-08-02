@@ -43,9 +43,11 @@
   polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
   polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
+  polyline.tappable = YES;
+  
   NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
   [self.mapCtrl.overlayManager setObject:polyline forKey: id];
-
+  polyline.title = id;
 
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];

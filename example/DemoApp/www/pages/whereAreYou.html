@@ -11,7 +11,8 @@ function onPageLoaded(map) {
 }
 function showMyLocation(map) {
   map.clear();
-  map.getMyLocation(function(location) {
+  
+  var success = function(location) {
     map.addMarker({
       'position': location.latLng,
       'title': "I am here!"
@@ -23,11 +24,18 @@ function showMyLocation(map) {
         marker.showInfoWindow();
       });
     });
-  });
+  };
+  
+  var error = function(result) {
+    alert("ERROR\n---\n" + result.error_message );
+  };
+  map.getMyLocation(success, error);
 }
 </script>
 <h4 class="ui-bar ui-bar-a">with jQuery</h4>
-<code class="prettyprint">map.getMyLocation(function(location) {
+<code class="prettyprint">map.clear();
+
+var success = function(location) {
   map.addMarker({
     'position': location.latLng,
     'title': "I am here!"
@@ -39,5 +47,10 @@ function showMyLocation(map) {
       marker.showInfoWindow();
     });
   });
-});
+};
+
+var error = function(result) {
+  alert("ERROR\n---\n" + result.error_message );
+};
+map.getMyLocation(success, error);
 </code>

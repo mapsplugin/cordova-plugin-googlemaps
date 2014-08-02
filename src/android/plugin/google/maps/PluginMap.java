@@ -27,19 +27,6 @@ import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 
 public class PluginMap extends MyPlugin {
-
-  /**
-   * Clear all markups
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  @SuppressWarnings("unused")
-  private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    this.map.clear();
-    callbackContext.success();
-  }
-
   /**
    * @param args
    * @param callbackContext

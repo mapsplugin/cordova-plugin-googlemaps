@@ -11,7 +11,6 @@
 
 @interface Map : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setTilt:(CDVInvokedUrlCommand*)command;
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setZoom:(CDVInvokedUrlCommand*)command;

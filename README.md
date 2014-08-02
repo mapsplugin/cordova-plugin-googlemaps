@@ -80,6 +80,7 @@ https://plus.google.com/u/0/communities/117427728522929652853
 * [Polygon](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polygon)
   * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/polygon.png)
   * Add a polygon
+  * Click a polygon
   * callback
   * Remove the polygon
   * Polygon Class Reference

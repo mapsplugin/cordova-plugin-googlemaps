@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
@@ -23,6 +24,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
   private void createPolygon(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final PolygonOptions polygonOptions = new PolygonOptions();
     int color;
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
     
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
@@ -31,6 +33,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
       int i = 0;
       for (i = 0; i < path.size(); i++) {
         polygonOptions.add(path.get(i));
+        builder.include(path.get(i));
       }
     }
     if (opts.has("strokeColor")) {
@@ -57,6 +60,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     Polygon polygon = map.addPolygon(polygonOptions);
     String id = "polygon_"+ polygon.getId();
     this.objects.put(id, polygon);
+    
+    String boundsId = "polygon_bounds_" + polygon.getId();
+    this.objects.put(boundsId, builder.build());
     
     JSONObject result = new JSONObject();
     result.put("hashCode", polygon.hashCode());
@@ -145,7 +151,12 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
       return;
     }
     this.objects.remove(id);
+    
+    id = "polygon_bounds_" + polygon.getId();
+    this.objects.remove(id);
+    
     polygon.remove();
+    
     callbackContext.success();
   }
   
@@ -163,6 +174,12 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     JSONArray points = args.getJSONArray(2);
     List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
     polygon.setPoints(path);
+    
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    for (int i = 0; i < path.size(); i++) {
+      builder.include(path.get(i));
+    }
+    this.objects.put("polygon_bounds_" + polygon.getId(), builder.build());
     
     callbackContext.success();
   }

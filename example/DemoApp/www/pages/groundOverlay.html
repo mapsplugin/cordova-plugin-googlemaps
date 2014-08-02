@@ -135,6 +135,9 @@ function addGroundOverlay(map) {
     map.on("IMAGE_CHANGE", function(url) {
       groundOverlay.setImage(url);
     });
+    groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, function(url) {
+      alert("clicked!");
+    });
   });
 }
 

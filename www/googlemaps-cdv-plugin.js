@@ -2,7 +2,7 @@
 var PLUGIN_NAME = 'GoogleMaps';
   var MARKERS = {};
   var KML_LAYERS = {};
-  var OVERLAYS = [];
+  var OVERLAYS = {};
  
   /**
  * Google Maps model.
@@ -120,7 +120,7 @@ App.prototype = new BaseClass();
 App.prototype._onMarkerEvent = function(eventName, hashCode) {
   var marker = MARKERS[hashCode] || null;
   if (marker) {
-    marker.trigger(eventName, marker, this);
+    marker.trigger(eventName, marker);
   }
 };
 
@@ -128,52 +128,70 @@ App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
   var id = result.id,
       objectType = id.replace(/_.*$/, "").toLowerCase(),
       eventName = objectType + "_add";
+  this._onKmlEvent(eventName, kmlLayerId, result, options);
+};
+
+App.prototype._onOverlayEvent = function(eventName, hashCode) {
+  var overlay = OVERLAYS[hashCode] || null;
+  if (overlay) {
+    var args = [eventName, overlay];
+    for (var i = 2; i < arguments.length; i++) {
+      args.push(arguments[i]);
+    }
+    overlay.trigger.apply(this, args);
+  }
+};
  
-    this._onKmlEvent(eventName, kmlLayerId, result, options);
-  };
-  /*
+/*
  * Callback from Native
  */
-  App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
-    var kmlLayer = KML_LAYERS[kmlLayerId] || null;
-    if (kmlLayer) {
- 
-      var args = [eventName];
-      if (eventName.substr(-4, 4) === "_add") {
+App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
+  var kmlLayer = KML_LAYERS[kmlLayerId] || null;
+  if (kmlLayer) {
+    var self = this;
+    var args = [eventName];
+    if (eventName.substr(-4, 4) === "_add") {
       var objectType = eventName.replace(/_.*$/, ""),
           overlay = null;
       
       switch(objectType) {
         case "marker":
-          overlay = new Marker(result.id, options);
+          overlay = new Marker(self, result.id, options);
           MARKERS[result.id] = overlay;
           args.push({
             "type": "Marker",
             "object": overlay
           });
           overlay.on(plugin.google.maps.event.MARKER_CLICK, function() {
-            kmlLayer.trigger("marker_click", overlay);
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay, overlay.getPosition());
           });
           break;
           
         case "polygon":
-          overlay = new Polygon(result.id, options);
+          overlay = new Polygon(self, result.id, options);
           args.push({
             "type": "Polygon",
             "object": overlay
           });
+          
+          overlay.on(plugin.google.maps.event.OVERLAY_CLICK, function(latLng) {
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay, latLng);
+          });
           break;
           
         case "polyline":
-          overlay = new Polyline(result.id, options);
+          overlay = new Polyline(self, result.id, options);
           args.push({
             "type": "Polyline",
             "object": overlay
           });
+          overlay.on(plugin.google.maps.event.OVERLAY_CLICK, function(latLng) {
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay, latLng);
+          });
           break;
       }
       if (overlay) {
-        OVERLAYS.push(overlay);
+        OVERLAYS[result.id] = overlay;
         overlay.hashCode = result.hashCode;
         kmlLayer.on("_REMOVE", function() {
           overlay.remove();
@@ -358,15 +376,20 @@ App.prototype.setCompassEnabled = function(enabled) {
   enabled = parseBoolean(enabled);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
 };
-App.prototype.getMyLocation = function(callback) {
+App.prototype.getMyLocation = function(success_callback, error_callback) {
   var self = this;
-  cordova.exec(function(location) {
-    if (typeof callback === "function") {
+  var successHandler = function(location) {
+    if (typeof success_callback === "function") {
       location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
-      callback.call(self, location);
+      success_callback.call(self, location);
     }
-  
-  }, self.errorHandler, PLUGIN_NAME, 'getMyLocation', []);
+  };
+  var errorHandler = function(result) {
+    if (typeof error_callback === "function") {
+      error_callback.call(self, result);
+    }
+  };
+  cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', []);
 };
 App.prototype.setVisible = function(isVisible) {
   var self = this;
@@ -380,7 +403,7 @@ App.prototype.setAllGesturesEnabled = function(enabled) {
   var self = this;
   enabled = parseBoolean(enabled);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setAllGesturesEnabled', enabled]);
-  };
+};
  
   /**
  * Return the current position of the camera
@@ -402,14 +425,20 @@ App.prototype.getCameraPosition = function(callback) {
  */
 App.prototype.clear = function(callback) {
   var self = this;
-  for (var i = OVERLAYS.length; i > 0; i--) {
-    delete OVERLAYS[i - 1];
+  var overlayIDs = Object.keys(OVERLAYS);
+  var overlayId;
+  for (var i = 0; i < overlayIDs.length; i++) {
+    overlayId = overlayIDs[i];
+    OVERLAYS[overlayId].off();
+    delete OVERLAYS[overlayId];
   }
+  OVERLAYS = {};
+  self.off();
   cordova.exec(function() {
     if (typeof callback === "function") {
       callback.call(self);
     }
-  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.clear']);
+  }, self.errorHandler, PLUGIN_NAME, 'clear', []);
 };
 
 
@@ -453,9 +482,9 @@ App.prototype.setDiv = function(div) {
     args.push(getDivSize(div));
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
-  };
+};
  
-  /**
+/**
  * Return the visible region of the map.
  * Thanks @fschmidt
  */
@@ -470,9 +499,9 @@ App.prototype.getVisibleRegion = function(callback) {
       callback.call(self, latLngBounds);
     }
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
-  };
+};
  
-  //-------------
+//-------------
 // Marker
 //-------------
 App.prototype.addMarker = function(markerOptions, callback) {
@@ -498,10 +527,10 @@ App.prototype.addMarker = function(markerOptions, callback) {
     }
  
     cordova.exec(function(result) {
-      var marker = new Marker(result.id, markerOptions);
+      var marker = new Marker(self, result.id, markerOptions);
       markerOptions.hashCode = result.hashCode;
       MARKERS[result.id] = marker;
-      OVERLAYS.push(marker);
+      OVERLAYS[result.id] = marker;
       
       if (typeof markerOptions.markerClick === "function") {
       marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
@@ -526,15 +555,18 @@ App.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.center.lng = circleOptions.center.lng || 0.0;
   circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
   circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
-    circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
-    circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
-    circleOptions.zIndex = circleOptions.zIndex || 0.0;
-    circleOptions.radius = circleOptions.radius || 1;
+  circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
+  circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
+  circleOptions.zIndex = circleOptions.zIndex || 0.0;
+  circleOptions.radius = circleOptions.radius || 1;
  
-    cordova.exec(function(result) {
-      var circle = new Circle(result.id, circleOptions);
-      OVERLAYS.push(circle);
-      if (typeof callback === "function") {
+  cordova.exec(function(result) {
+    var circle = new Circle(self, result.id, circleOptions);
+    OVERLAYS[result.id] = circle;
+    if (typeof circleOptions.onClick === "function") {
+      circle.on(plugin.google.maps.event.OVERLAY_CLICK, circleOptions.onClick);
+    }
+    if (typeof callback === "function") {
       callback.call(self, circle, self);
     }
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
@@ -552,8 +584,11 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.geodesic = polylineOptions.geodesic || false;
   
   cordova.exec(function(result) {
-    var polyline = new Polyline(result.id, polylineOptions);
-    OVERLAYS.push(polyline);
+    var polyline = new Polyline(self, result.id, polylineOptions);
+    OVERLAYS[result.id] = polyline;
+    /*if (typeof polylineOptions.onClick === "function") {
+      polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
+    }*/
     if (typeof callback === "function") {
       callback.call(self,  polyline, self);
     }
@@ -566,15 +601,20 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
   var self = this;
   polygonOptions.points = polygonOptions.points || [];
   polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF0000");
-  polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor || "#000000");
+  if (polygonOptions.fillColor) {
+    polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor);
+  }
   polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
   polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
   polygonOptions.zIndex = polygonOptions.zIndex || 0.0;
   polygonOptions.geodesic = polygonOptions.geodesic || false;
   
   cordova.exec(function(result) {
-    var polygon = new Polygon(result.id, polygonOptions);
-    OVERLAYS.push(polygon);
+    var polygon = new Polygon(self, result.id, polygonOptions);
+    OVERLAYS[result.id] = polygon;
+    if (typeof polygonOptions.onClick === "function") {
+      polygon.on(plugin.google.maps.event.OVERLAY_CLICK, polygonOptions.onClick);
+    }
     if (typeof callback === "function") {
       callback.call(self,  polygon, self);
     }
@@ -597,8 +637,13 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   tilelayerOptions.height = tilelayerOptions.height || 256;
   
   cordova.exec(function(result) {
-    var tileOverlay = new TileOverlay(result.id, tilelayerOptions);
-    OVERLAYS.push(tileOverlay);
+    var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
+    OVERLAYS[result.id] = tileOverlay;
+    /*
+    if (typeof tilelayerOptions.onClick === "function") {
+      tileOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, tilelayerOptions.onClick);
+    }
+    */
     if (typeof callback === "function") {
       callback.call(self,  tileOverlay, self);
     }
@@ -617,8 +662,11 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   
   var pluginExec = function() {
     cordova.exec(function(result) {
-      var groundOverlay = new GroundOverlay(result.id, groundOverlayOptions);
-      OVERLAYS.push(groundOverlay);
+      var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
+      OVERLAYS[result.id] = groundOverlay;
+      if (typeof groundOverlayOptions.onClick === "function") {
+        groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+      }
       if (typeof callback === "function") {
         callback.call(self,  groundOverlay, self);
       }
@@ -642,8 +690,8 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
  
     var pluginExec = function() {
       cordova.exec(function(kmlId) {
-        var kmlOverlay = new KmlOverlay(kmlId, kmlOverlayOptions);
-        OVERLAYS.push(kmlOverlay);
+        var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
+        OVERLAYS[kmlId] = kmlOverlay;
         KML_LAYERS[kmlId] = kmlOverlay;
         if (typeof callback === "function") {
         callback.call(self,  kmlOverlay, self);
@@ -700,39 +748,38 @@ var Location = function(params) {
  * @param {Number} latitude
  * @param {Number} longitude
  ******************************************************************************/
-  var LatLng = function(latitude, longitude) {
-    var self = this;
- 
-    /**
+var LatLng = function(latitude, longitude) {
+  var self = this;
+  /**
    * @property {Number} latitude
    */
-    self.lat = parseFloat(latitude || 0, 10);
+  self.lat = parseFloat(latitude || 0, 10);
  
-    /**
+  /**
    * @property {Number} longitude
    */
-    self.lng = parseFloat(longitude || 0, 10);
+  self.lng = parseFloat(longitude || 0, 10);
  
-    /**
+  /**
    * Comparison function.
    * @method
    * @return {Boolean}
    */
-    self.equals = function(other) {
-      other = other || {};
-      return other.lat === self.lat &&
-             other.lng === self.lng;
-    };
+  self.equals = function(other) {
+    other = other || {};
+    return other.lat === self.lat &&
+           other.lng === self.lng;
+  };
  
-    /**
+  /**
    * @method
    * @return {String} latitude,lontitude
    */
   self.toString = function() {
     return self.lat + "," + self.lng;
-    };
+  };
  
-    /**
+  /**
    * @method
    * @param {Number}
    * @return {String} latitude,lontitude
@@ -746,7 +793,7 @@ var Location = function(params) {
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
-var Marker = function(id, markerOptions) {
+var Marker = function(map, id, markerOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -759,6 +806,10 @@ var Marker = function(id, markerOptions) {
   self.set("visible", markerOptions.visible);
   self.set("flat", markerOptions.flat);
   self.set("opacity", markerOptions.opacity);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "hashCode", {
     value: markerOptions.hashCode,
     writable: false
@@ -789,6 +840,9 @@ Marker.prototype.getPosition = function(callback) {
 };
 Marker.prototype.getId = function() {
   return this.id;
+};
+Marker.prototype.getMap = function() {
+  return this.map;
 };
 Marker.prototype.getHashCode = function() {
   return this.hashCode;
@@ -888,7 +942,7 @@ Marker.prototype.setPosition = function(position) {
 /*****************************************************************************
  * Circle Class
  *****************************************************************************/
-var Circle = function(circleId, circleOptions) {
+var Circle = function(map, circleId, circleOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -899,6 +953,10 @@ var Circle = function(circleId, circleOptions) {
   self.set("strokeWidth", circleOptions.strokeWidth);
   self.set("visible", circleOptions.visible);
   self.set("zIndex", circleOptions.zIndex);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "id", {
     value: circleId,
     writable: false
@@ -910,10 +968,14 @@ var Circle = function(circleId, circleOptions) {
 };
 
 Circle.prototype = new BaseClass();
+
+Circle.prototype.getMap = function() {
+  return this.map;
+};
 Circle.prototype.getId = function() {
   return this.id;
 };
-Circle.prototype.getCenter = function(/*callback*/) {
+Circle.prototype.getCenter = function() {
   return this.get('center');
 };
 Circle.prototype.getRadius = function() {
@@ -967,7 +1029,7 @@ Circle.prototype.setRadius = function(radius) {
 /*****************************************************************************
  * Polyline Class
  *****************************************************************************/
-var Polyline = function(polylineId, polylineOptions) {
+var Polyline = function(map, polylineId, polylineOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -977,6 +1039,10 @@ var Polyline = function(polylineId, polylineOptions) {
   self.set("visible", polylineOptions.visible);
   self.set("zIndex", polylineOptions.zIndex);
   self.set("geodesic", polylineOptions.geodesic);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "id", {
     value: polylineId,
     writable: false
@@ -1050,10 +1116,13 @@ Polyline.prototype.remove = function() {
   this.off();
 };
 
+Polyline.prototype.getMap = function() {
+  return this.map;
+};
 /*****************************************************************************
  * Polygon Class
  *****************************************************************************/
-var Polygon = function(polygonId, polygonOptions) {
+var Polygon = function(map, polygonId, polygonOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1064,6 +1133,10 @@ var Polygon = function(polygonId, polygonOptions) {
   self.set("visible", polygonOptions.visible);
   self.set("zIndex", polygonOptions.zIndex);
   self.set("geodesic", polygonOptions.geodesic);
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
   Object.defineProperty(self, "id", {
     value: polygonId,
     writable: false
@@ -1076,6 +1149,9 @@ var Polygon = function(polygonId, polygonOptions) {
 
 Polygon.prototype = new BaseClass();
 
+Polygon.prototype.getMap = function() {
+  return this.map;
+};
 Polygon.prototype.getId = function() {
   return this.id;
 };
@@ -1146,7 +1222,7 @@ Polygon.prototype.remove = function() {
   /*****************************************************************************
  * TileOverlay Class
  *****************************************************************************/
-var TileOverlay = function(tileOverlayId, tileOverlayOptions) {
+var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1160,10 +1236,17 @@ var TileOverlay = function(tileOverlayId, tileOverlayOptions) {
     value: "TileOverlay",
     writable: false
   });
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
 };
 
 TileOverlay.prototype = new BaseClass();
 
+TileOverlay.prototype.getMap = function() {
+  return this.map;
+};
 TileOverlay.prototype.clearTileCache = function() {
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.clearTileCache', this.getId()]);
 };
@@ -1201,7 +1284,7 @@ TileOverlay.prototype.remove = function() {
 /*****************************************************************************
  * GroundOverlay Class
  *****************************************************************************/
-var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
+var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1219,10 +1302,17 @@ var GroundOverlay = function(groundOverlayId, groundOverlayOptions) {
     value: "GroundOverlay",
     writable: false
   });
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
 };
 
 GroundOverlay.prototype = new BaseClass();
 
+GroundOverlay.prototype.getMap = function() {
+  return this.map;
+};
 GroundOverlay.prototype.getId = function() {
   return this.id;
 };
@@ -1284,7 +1374,7 @@ GroundOverlay.prototype.setZIndex = function(zIndex) {
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
-var KmlOverlay = function(kmlOverlayId, kmlOverlayOptions) {
+var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
@@ -1301,10 +1391,17 @@ var KmlOverlay = function(kmlOverlayId, kmlOverlayOptions) {
     value: "KmlOverlay",
     writable: false
   });
+  Object.defineProperty(self, "map", {
+    value: map,
+    writable: false
+  });
 };
 
 KmlOverlay.prototype = new BaseClass();
 
+KmlOverlay.prototype.getMap = function() {
+  return this.map;
+};
 KmlOverlay.prototype.getId = function() {
   return this.id;
 };
@@ -1394,23 +1491,26 @@ LatLngBounds.prototype.contains = function(latLng) {
 // Convert HTML color to RGB
 //---------------------------
 var colorDiv = document.createElement("div");
-  document.head.appendChild(colorDiv);
+document.head.appendChild(colorDiv);
  
-  function HTMLColor2RGBA(colorStr) {
-    var alpha = Math.floor(255 * 0.75),
-        matches,
-        compStyle,
-        result = {
-          r: 0,
-          g: 0,
-          b: 0
-        };
-    if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
+function HTMLColor2RGBA(colorStr) {
+  if (colorStr === "transparent" || !colorStr) {
+    return [0, 0, 0, 0];
+  }
+  var alpha = Math.floor(255 * 0.75),
+      matches,
+      compStyle,
+      result = {
+        r: 0,
+        g: 0,
+        b: 0
+      };
+  if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
     alpha = colorStr.substr(4, 1);
     alpha = parseInt(alpha + alpha, 16);
     colorStr = colorStr.substr(0, 4);
   }
-
+  
   if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
     alpha = colorStr.substr(7, 2);
     alpha = parseInt(alpha, 16);
@@ -1423,19 +1523,19 @@ var colorDiv = document.createElement("div");
     alpha = Math.floor(parseFloat(matches.pop()) * 256);
     matches = "rgb(" +  matches.join(",") + ")";
   }
-
+    
   // convert hsla() -> hsl()
   if (colorStr.match(/^hsla\([\d%,.\s]+\)$/)) {
     matches = colorStr.match(/([\d%.]+)/g);
     alpha = Math.floor(parseFloat(matches.pop()) * 256);
     matches = "hsl(" +  matches.join(",") + ")";
-    }
- 
-    colorDiv.style.color = colorStr;
-    if (window.getComputedStyle) {
-      compStyle = window.getComputedStyle(colorDiv, null);
-      try {
-        var value = compStyle.getPropertyCSSValue ("color");
+  }
+   
+  colorDiv.style.color = colorStr;
+  if (window.getComputedStyle) {
+    compStyle = window.getComputedStyle(colorDiv, null);
+    try {
+      var value = compStyle.getPropertyCSSValue ("color");
       var valueType = value.primitiveType;
       if (valueType === CSSPrimitiveValue.CSS_RGBCOLOR) {
         var rgb = value.getRGBColorValue ();
@@ -1445,15 +1545,15 @@ var colorDiv = document.createElement("div");
       }
     } catch (e) {
       console.log("The browser does not support the getPropertyCSSValue method!");
-      }
     }
-    return [result.r, result.g, result.b, alpha];
   }
- 
-  function parseBoolean(boolValue) {
-    return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
-         boolValue === true ||
-         boolValue === 1;
+  return [result.r, result.g, result.b, alpha];
+}
+
+function parseBoolean(boolValue) {
+  return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
+     boolValue === true ||
+     boolValue === 1;
 }
 
 function isDom(element) {
@@ -1566,6 +1666,7 @@ module.exports = {
     MAP_WILL_MOVE: 'will_move', //for iOS
     MAP_CLOSE: 'map_close',
     MARKER_CLICK: 'click',
+    OVERLAY_CLICK: 'overlay_click',
     INFO_CLICK: 'info_click',
     MARKER_DRAG: 'drag',
     MARKER_DRAG_START: 'drag_start',
