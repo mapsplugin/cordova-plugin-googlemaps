@@ -163,7 +163,7 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
             "object": overlay
           });
           overlay.on(plugin.google.maps.event.MARKER_CLICK, function() {
-            kmlLayer.trigger("marker_click", overlay);
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay, overlay.getPosition());
           });
           break;
           
