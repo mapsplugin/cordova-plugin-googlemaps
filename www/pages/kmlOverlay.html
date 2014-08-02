@@ -14,12 +14,14 @@
     <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">//Load the kml file
 map.addKmlOverlay({
-  // HTTP URL or file path
-  'url': "www/kml/marker.kml",
-  'preserveViewport': false,
-  'animation': true
+  url: "www/kml/marker.kml",
+  preserveViewport: false,
+  animation: true
 }, function(kmlLayer) {
-  
+  kmlLayer.on(plugin.google.maps.event.OVERLAY_CLICK, function(overlay, latLng) {
+    overlay.setSnippet("Marker clicked!");
+    overlay.showInfoWindow();
+  });
 });</code>
     <h4 class="ui-bar ui-bar-a">KML file</h4>
     <code class="prettyprint">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
@@ -70,10 +72,16 @@ map.addKmlOverlay({
 map.addKmlOverlay({
   // HTTP URL or file path
   'url': "www/kml/polyline.kml",
-  'preserveViewport': false,
-  'animation': true
+  preserveViewport: false,
+  animation: true
 }, function(kmlLayer) {
-  
+  kmlLayer.on(plugin.google.maps.event.OVERLAY_CLICK, function(overlay, latLng) {
+    var width = overlay.getWidth();
+    overlay.setWidth(10);
+    setTimeout(function() {
+      overlay.setWidth(width);
+    }, 3000);
+  });
 });</code>
     <h4 class="ui-bar ui-bar-a">KML file</h4>
     <code class="prettyprint">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
@@ -139,10 +147,12 @@ map.addKmlOverlay({
 map.addKmlOverlay({
   // HTTP URL or file path
   'url': "www/kml/polygon.kml",
-  'preserveViewport': false,
-  'animation': true
+  preserveViewport: false,
+  animation: true
 }, function(kmlLayer) {
-  
+  kmlLayer.on(plugin.google.maps.event.OVERLAY_CLICK, function(overlay, latLng) {
+    overlay.setFillColor("red");
+  });
 });</code>
     <h4 class="ui-bar ui-bar-a">KML file</h4>
     <code class="prettyprint">&lt;?xml version='1.0' encoding='UTF-8'?&gt;
@@ -211,8 +221,24 @@ function loadKml(map, url) {
     preserveViewport: false,
     animation: true
   }, function(kmlLayer) {
-    kmlLayer.on(plugin.google.maps.event.OVERLAY_CLICK, function(overlay) {
-      overlay.setFillColor("red");
+    kmlLayer.on(plugin.google.maps.event.OVERLAY_CLICK, function(overlay, latLng) {
+      switch (overlay.type) {
+        case "Marker":
+          overlay.setSnippet("Marker clicked!");
+          overlay.showInfoWindow();
+          break;
+        case "Polygon":
+          overlay.setFillColor("red");
+          break;
+        case "Polyline":
+          var width = overlay.getWidth();
+          overlay.setWidth(10);
+          setTimeout(function() {
+            overlay.setWidth(width);
+          }, 3000);
+          break;
+      }
+      
     });
   });
 }
