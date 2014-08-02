@@ -174,8 +174,8 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
             "object": overlay
           });
           
-          overlay.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
-            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay);
+          overlay.on(plugin.google.maps.event.OVERLAY_CLICK, function(latLng) {
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay, latLng);
           });
           break;
           
@@ -184,6 +184,9 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
           args.push({
             "type": "Polyline",
             "object": overlay
+          });
+          overlay.on(plugin.google.maps.event.OVERLAY_CLICK, function(latLng) {
+            kmlLayer.trigger(plugin.google.maps.event.OVERLAY_CLICK, overlay, latLng);
           });
           break;
       }
@@ -745,39 +748,38 @@ var Location = function(params) {
  * @param {Number} latitude
  * @param {Number} longitude
  ******************************************************************************/
-  var LatLng = function(latitude, longitude) {
-    var self = this;
- 
-    /**
+var LatLng = function(latitude, longitude) {
+  var self = this;
+  /**
    * @property {Number} latitude
    */
-    self.lat = parseFloat(latitude || 0, 10);
+  self.lat = parseFloat(latitude || 0, 10);
  
-    /**
+  /**
    * @property {Number} longitude
    */
-    self.lng = parseFloat(longitude || 0, 10);
+  self.lng = parseFloat(longitude || 0, 10);
  
-    /**
+  /**
    * Comparison function.
    * @method
    * @return {Boolean}
    */
-    self.equals = function(other) {
-      other = other || {};
-      return other.lat === self.lat &&
-             other.lng === self.lng;
-    };
+  self.equals = function(other) {
+    other = other || {};
+    return other.lat === self.lat &&
+           other.lng === self.lng;
+  };
  
-    /**
+  /**
    * @method
    * @return {String} latitude,lontitude
    */
   self.toString = function() {
     return self.lat + "," + self.lng;
-    };
+  };
  
-    /**
+  /**
    * @method
    * @param {Number}
    * @return {String} latitude,lontitude
