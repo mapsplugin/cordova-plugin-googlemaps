@@ -18,7 +18,8 @@
       <engine name="cordova" version=">=3.0.0" />
     </engines>
     
-
+    <dependency id="plugin.http.request" />
+    
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
@@ -38,7 +39,6 @@
         </config-file>
 
         <dependency id="com.google.playservices" url="https://github.com/wf9a5m75/google-play-services" commit="master" />
-        <dependency id="plugin.http.request" />
         <dependency id="android.support.v4" />
     
         <!-- plugin src files -->
@@ -141,6 +141,5 @@
         </config-file>
         
         <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" />
-        <dependency id="plugin.http.request" />
     </platform>
 </plugin>

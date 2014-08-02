@@ -16,19 +16,21 @@
 const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
 const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
 
+var idx = 0;
 map.addPolyline({
   'points': [
     HND_AIR_PORT,
     HNL_AIR_PORT,
     SFO_AIR_PORT
   ],
-  
-  // You can use HTML colors, such as rgba(255, 255, 255, 127)
   'color' : '#AA00FF',
-  'width': 5,
-  'geodesic': false
+  'width': 10,
+  'geodesic': true
 }, function(polyline) {
-  
+  polyline.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+    polyline.setColor(["red", "green", "blue", "orange"][idx++]);
+    idx = idx > 3 ? 0 : idx;
+  });
   map.moveCamera({
     'target': polyline.getPoints()
   });
@@ -62,6 +64,12 @@ map.addPolygon({
   map.moveCamera({
     'target': polygon.getPoints()
   });
+  
+  polygon.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+    polygon.setFillColor("blue");
+    polygon.setStrokeColor("green");
+    polygon.setStrokeWidth(10);
+  });
 });</code>
   </div>
   <div id="three" class="ui-body-d ui-content">
@@ -75,6 +83,12 @@ map.addCircle({
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
+}, function(circle) {
+  circle.on(plugin.google.maps.event.OVERLAY_CLICK, function() {
+    circle.setFillColor("blue");
+    circle.setStrokeColor("red");
+    circle.setStrokeWidth(10);
+  });
 });
 
 map.moveCamera({
@@ -105,15 +119,13 @@ function drawPolyline(map) {
   const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
   const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
   const HNL_AIR_PORT = new plugin.google.maps.LatLng(21.332898,-157.921418);
-  const LAX_AIR_PORT = new plugin.google.maps.LatLng(33.941588,-118.408529);
 
   var idx = 0;
   map.addPolyline({
     'points': [
       HND_AIR_PORT,
       HNL_AIR_PORT,
-      SFO_AIR_PORT,
-      LAX_AIR_PORT
+      SFO_AIR_PORT
     ],
     'color' : '#AA00FF',
     'width': 10,
@@ -124,8 +136,7 @@ function drawPolyline(map) {
       idx = idx > 3 ? 0 : idx;
     });
     map.moveCamera({
-      'target': polyline.getPoints(),
-      'zoom': 2
+      'target': polyline.getPoints()
     });
   });
 }
