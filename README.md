@@ -19,7 +19,7 @@ https://plus.google.com/u/0/communities/117427728522929652853
 ###Documentation
 
 * Introduction
-  * [How different between JavaScritp API (web) and the mobile SDKs (native) ](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-different-between-JavaScritp-API-(web)-and-the-mobile-SDKs-(native))
+  * <a href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-different-between-JavaScritp-API-(web)-and-the-mobile-SDKs-(native)">How different between JavaScritp API (web) and the mobile SDKs (native)</a>
   * [Why use this plugin?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Why-use-this-plugin%3F)
   * [Java Objective C or JavaScript. Which one do you like?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Java-Objective-C-or-JavaScript.-Which-one-do-you-like%3F)
 
