@@ -103,6 +103,7 @@ New version will be announced through the official community. Stay tune!
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
 * [Geocoder](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocoder)
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/geocoding.gif" height="250"> 
   * Geocoding
   * Reverse geocoding
   * Geocoder Class Reference
