@@ -12,9 +12,10 @@ You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.4.apk](
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.0.7.gif)
 
-###Join the community
-If you have any questions or feature requests, please post the community.
-https://plus.google.com/u/0/communities/117427728522929652853
+### Join to the official community
+New version will be announced through the official community. Stay tune!
+
+<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
 
 ###Documentation
 
