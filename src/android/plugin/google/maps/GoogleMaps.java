@@ -154,7 +154,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 JSONObject result = new JSONObject(pluginResult.getStrMessage());
                 JSONObject distTags = result.getJSONObject("dist-tags");
                 String latestVersion = distTags.getString("latest");
-                if (latestVersion != PLUGIN_VERSION) {
+                if (latestVersion.equals(PLUGIN_VERSION) == false) {
                   Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
                 }
               } catch (JSONException e) {}
