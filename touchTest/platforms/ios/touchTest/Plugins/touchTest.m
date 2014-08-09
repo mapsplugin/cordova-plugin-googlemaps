@@ -12,11 +12,6 @@
 
 - (void)pluginInitialize {
   
-  CGRect rect = self.webView.frame;
-  rect.size.width = 300;
-  rect.size.height = 300;
-  //self.webView.frame = rect;
-  
   self.root = self.webView.superview;
   
   UIImageView *testView = [[UIImageView alloc] initWithFrame:self.webView.frame];
@@ -30,8 +25,13 @@
   [self.root addSubview:testView];
   [self.root addSubview:self.webView];
   
-  CDVViewController *cdvViewController =  (CDVViewController *)self.viewController;
-  NSLog(@"hogehoge = %@", [cdvViewController.settings objectForKey:@"hogehoge"]);
+  //CDVViewController *cdvViewController =  (CDVViewController *)self.viewController;
+  //NSLog(@"hogehoge = %@", [cdvViewController.settings objectForKey:@"hogehoge"]);
+  
+  
+  UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self.webView action:@selector(detectedTapGesture:)];
+  //UIWindow *window = [self getWindow];
+  [self.webView addGestureRecognizer:tapGestureRecognizer];
   
 }
 - (void)exec:(CDVInvokedUrlCommand *)command {
@@ -49,6 +49,12 @@
     if(!window)window=[[UIApplication sharedApplication].windows objectAtIndex:0];
     return window;
 }
-
+- (void)detectedTapGesture:(UITapGestureRecognizer *)sender {
+ 
+    //UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
+    CGPoint point = [sender locationOfTouch:0 inView:self.webView];
+    NSLog(@"tap point: %@", NSStringFromCGPoint(point));
+ 
+}
 
 @end
