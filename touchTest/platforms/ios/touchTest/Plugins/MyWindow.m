@@ -15,15 +15,16 @@
 
 - (void)sendEvent:(UIEvent *)event {
     [super sendEvent:event];
-    NSLog(@"---sendEvent");
     if (wView == nil || wDelegate == nil) {
         return;
     }
     // 2本指でのマルチタッチか
     NSSet *touches = [event allTouches];
+    /*
     if (touches.count != 2) {
         return;
     }
+    */
 
     UITouch *touch = touches.anyObject;
     // 指定のUIWebViewへのタッチか

@@ -9,6 +9,7 @@
 #import <Cordova/CDV.h>
 #import "MyWindow.h"
 
+
 @interface touchTest : CDVPlugin
 @property (nonatomic) UIView *root;
 @end
