@@ -28,7 +28,6 @@
 		30FC414916E50CA1004E6F35 /* icon-72@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FC414816E50CA1004E6F35 /* icon-72@2x.png */; };
 		5AEE5B35173C68D80009041E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AEE5B34173C68D80009041E /* CoreLocation.framework */; };
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
-		690A5918199574B300517D12 /* WebView.html in Resources */ = {isa = PBXBuildFile; fileRef = 690A5917199574B300517D12 /* WebView.html */; };
 		69256D8F1992C0D900916861 /* touchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 69256D8E1992C0D900916861 /* touchTest.m */; };
 		69256D921992C6B800916861 /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 69256D911992C6B800916861 /* test.png */; };
 		69292B24199423C300E81FEB /* TapDetectingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 69292B23199423C300E81FEB /* TapDetectingWindow.m */; };
@@ -92,7 +91,6 @@
 		32CA4F630368D1EE00C91783 /* touchTest-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "touchTest-Prefix.pch"; sourceTree = "<group>"; };
 		5AEE5B34173C68D80009041E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
-		690A5917199574B300517D12 /* WebView.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = WebView.html; path = ../../../../../../../Downloads/WebView/WebView.html; sourceTree = "<group>"; };
 		69256D8D1992C0D900916861 /* touchTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = touchTest.h; sourceTree = "<group>"; };
 		69256D8E1992C0D900916861 /* touchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = touchTest.m; sourceTree = "<group>"; };
 		69256D911992C6B800916861 /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
@@ -202,7 +200,6 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				690A5917199574B300517D12 /* WebView.html */,
 				69256D911992C6B800916861 /* test.png */,
 				30A0434214DC770100060A13 /* de.lproj */,
 				30A0434514DC770100060A13 /* se.lproj */,
@@ -387,7 +384,6 @@
 				7E7966DF1810823500FA85AD /* icon-40@2x.png in Resources */,
 				308D05371370CCF300D202BF /* icon-72.png in Resources */,
 				308D05381370CCF300D202BF /* icon.png in Resources */,
-				690A5918199574B300517D12 /* WebView.html in Resources */,
 				308D05391370CCF300D202BF /* icon@2x.png in Resources */,
 				1F766FE113BBADB100FB74C0 /* Localizable.strings in Resources */,
 				302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */,
