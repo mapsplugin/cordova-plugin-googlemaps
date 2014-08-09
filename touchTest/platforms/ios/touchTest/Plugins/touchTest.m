@@ -12,43 +12,38 @@
 
 - (void)pluginInitialize {
   
+  
+  
   self.root = self.webView.superview;
   
   MyWindow *myWindow = [[MyWindow alloc] initWithFrame:self.webView.frame];
-  myWindow.wDelegate = [[UIApplication sharedApplication] delegate];
+  self.mapCtrl_ = [[GoogleMapsViewController alloc] initMyWay];
+  self.mapCtrl_.webView = self.webView;
+  myWindow.wDelegate = self.mapCtrl_;
+  myWindow.wView = self.webView;
   
   UIImageView *testView = [[UIImageView alloc] initWithFrame:self.webView.frame];
   testView.image = [UIImage imageNamed:@"test.png"];
-  
-  
+
   self.webView.opaque = NO;
   self.webView.backgroundColor = [UIColor clearColor];
   [self.webView removeFromSuperview];
   [self.webView reload];
   
-  [myWindow addSubview:testView];
+  self.mapCtrl_.view.frame = self.webView.frame;
+  self.mapCtrl_.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  
+  [myWindow addSubview:self.mapCtrl_.view];
   [myWindow addSubview:self.webView];
   [self.root addSubview:myWindow];
   [myWindow makeKeyAndVisible];
-  myWindow.wView = self.webView;
-  
-  //CDVViewController *cdvViewController =  (CDVViewController *)self.viewController;
-  //NSLog(@"hogehoge = %@", [cdvViewController.settings objectForKey:@"hogehoge"]);
-  
-  
-  //UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self.webView action:@selector(detectedTapGesture:)];
-  //UIWindow *window = [self getWindow];
-  //[self.webView addGestureRecognizer:tapGestureRecognizer];
   
 }
 - (void)exec:(CDVInvokedUrlCommand *)command {
+  
+  //NSLog(@"%f,%f", self.mapCtrl_.view.frame.size.width, self.mapCtrl_.view.frame.size.height);
   self.webView.opaque = NO;
   self.webView.backgroundColor = [UIColor clearColor];
-  
-  NSLog(@"%@", self.webView.superview);
-  NSLog(@"%@", self.webView.superview.superview);
-  
-  
 }
 
 -(UIWindow*)getWindow{
@@ -56,14 +51,4 @@
     if(!window)window=[[UIApplication sharedApplication].windows objectAtIndex:0];
     return window;
 }
-/*
-- (void)detectedTapGesture:(UITapGestureRecognizer *)sender {
- 
-    //UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
-    CGPoint point = [sender locationOfTouch:0 inView:self.webView];
-    NSLog(@"tap point: %@", NSStringFromCGPoint(point));
- 
-}
-*/
-
 @end

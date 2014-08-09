@@ -14,10 +14,15 @@
 @synthesize wView, wDelegate;
 
 - (void)sendEvent:(UIEvent *)event {
+
     [super sendEvent:event];
+    return;
     if (wView == nil || wDelegate == nil) {
         return;
     }
+  
+    //NSLog(@"events = %@", event);
+  
     // 2本指でのマルチタッチか
     NSSet *touches = [event allTouches];
     /*
