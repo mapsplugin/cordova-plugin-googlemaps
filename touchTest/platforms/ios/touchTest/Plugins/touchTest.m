@@ -30,6 +30,7 @@
   [myWindow addSubview:self.webView];
   [self.root addSubview:myWindow];
   [myWindow makeKeyAndVisible];
+  myWindow.wView = self.webView;
   
   //CDVViewController *cdvViewController =  (CDVViewController *)self.viewController;
   //NSLog(@"hogehoge = %@", [cdvViewController.settings objectForKey:@"hogehoge"]);
