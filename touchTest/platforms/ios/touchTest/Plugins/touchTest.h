@@ -7,9 +7,8 @@
 //
 
 #import <Cordova/CDV.h>
-#import "TapDetectingWindow.h"
-#import "TouchDetectingViewController.h"
+#import "MyWindow.h"
 
-@interface touchTest : CDVPlugin<UIGestureRecognizerDelegate>
+@interface touchTest : CDVPlugin
 @property (nonatomic) UIView *root;
 @end
