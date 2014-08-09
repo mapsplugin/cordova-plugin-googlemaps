@@ -30,8 +30,6 @@
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
 		69256D8F1992C0D900916861 /* touchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 69256D8E1992C0D900916861 /* touchTest.m */; };
 		69256D921992C6B800916861 /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 69256D911992C6B800916861 /* test.png */; };
-		69292B24199423C300E81FEB /* TapDetectingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 69292B23199423C300E81FEB /* TapDetectingWindow.m */; };
-		69292B271994243500E81FEB /* TouchDetectingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69292B261994243500E81FEB /* TouchDetectingViewController.m */; };
 		7E7966DE1810823500FA85AD /* icon-40.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966D41810823500FA85AD /* icon-40.png */; };
 		7E7966DF1810823500FA85AD /* icon-40@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966D51810823500FA85AD /* icon-40@2x.png */; };
 		7E7966E01810823500FA85AD /* icon-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966D61810823500FA85AD /* icon-50.png */; };
@@ -95,10 +93,6 @@
 		69256D8D1992C0D900916861 /* touchTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = touchTest.h; sourceTree = "<group>"; };
 		69256D8E1992C0D900916861 /* touchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = touchTest.m; sourceTree = "<group>"; };
 		69256D911992C6B800916861 /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
-		69292B22199423C300E81FEB /* TapDetectingWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDetectingWindow.h; sourceTree = "<group>"; };
-		69292B23199423C300E81FEB /* TapDetectingWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TapDetectingWindow.m; sourceTree = "<group>"; };
-		69292B251994243500E81FEB /* TouchDetectingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TouchDetectingViewController.h; sourceTree = "<group>"; };
-		69292B261994243500E81FEB /* TouchDetectingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TouchDetectingViewController.m; sourceTree = "<group>"; };
 		7E7966D41810823500FA85AD /* icon-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-40.png"; sourceTree = "<group>"; };
 		7E7966D51810823500FA85AD /* icon-40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-40@2x.png"; sourceTree = "<group>"; };
 		7E7966D61810823500FA85AD /* icon-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-50.png"; sourceTree = "<group>"; };
@@ -240,10 +234,6 @@
 			children = (
 				69256D8D1992C0D900916861 /* touchTest.h */,
 				69256D8E1992C0D900916861 /* touchTest.m */,
-				69292B22199423C300E81FEB /* TapDetectingWindow.h */,
-				69292B23199423C300E81FEB /* TapDetectingWindow.m */,
-				69292B251994243500E81FEB /* TouchDetectingViewController.h */,
-				69292B261994243500E81FEB /* TouchDetectingViewController.m */,
 				A06ED82A1995C4FC00643B0A /* MyWindow.h */,
 				A06ED82B1995C4FC00643B0A /* MyWindow.m */,
 			);
@@ -440,10 +430,8 @@
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				A06ED82C1995C4FC00643B0A /* MyWindow.m in Sources */,
-				69292B24199423C300E81FEB /* TapDetectingWindow.m in Sources */,
 				69256D8F1992C0D900916861 /* touchTest.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
-				69292B271994243500E81FEB /* TouchDetectingViewController.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
