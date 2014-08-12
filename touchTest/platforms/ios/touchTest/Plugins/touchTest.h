@@ -8,10 +8,15 @@
 
 #import <Cordova/CDV.h>
 #import "MyWindow.h"
-#import <GoogleMaps/GoogleMaps.h>
-#import "GoogleMapsViewController.h"
 
-@interface touchTest : CDVPlugin
+@interface touchTest : CDVPlugin<UIGestureRecognizerDelegate>
 @property (nonatomic) UIView *root;
-@property (nonatomic) GoogleMapsViewController *mapCtrl_;
+@end
+@implementation UIGestureRecognizer (Cancel)
+
+- (void)cancel {
+    self.enabled = NO;
+    self.enabled = YES;
+}
+
 @end

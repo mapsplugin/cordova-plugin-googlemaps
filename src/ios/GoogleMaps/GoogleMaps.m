@@ -342,6 +342,7 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
+  self.mapCtrl.pluginWindow.embedRect = self.mapCtrl.embedRect;
   BOOL animated = NO;
   //if ([command.arguments count] == 2) {
   //  animated = [[command.arguments objectAtIndex: 1] boolValue];
