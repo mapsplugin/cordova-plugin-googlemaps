@@ -37,3 +37,12 @@
 + (BOOL)isIOS7;
 + (BOOL)isInDebugMode;
 @end
+
+
+
+@implementation UIGestureRecognizer (Cancel)
+- (void)cancel {
+    self.enabled = NO;
+    self.enabled = YES;
+}
+@end

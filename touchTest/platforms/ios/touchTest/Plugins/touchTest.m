@@ -12,15 +12,9 @@
 
 - (void)pluginInitialize {
   
-  
+  MyWindow *myWindow = [[MyWindow alloc] initWithFrame:self.webView.frame];
   
   self.root = self.webView.superview;
-  
-  MyWindow *myWindow = [[MyWindow alloc] initWithFrame:self.webView.frame];
-  self.mapCtrl_ = [[GoogleMapsViewController alloc] initMyWay];
-  self.mapCtrl_.webView = self.webView;
-  myWindow.wDelegate = self.mapCtrl_;
-  myWindow.wView = self.webView;
   
   UIImageView *testView = [[UIImageView alloc] initWithFrame:self.webView.frame];
   testView.image = [UIImage imageNamed:@"test.png"];
@@ -30,13 +24,19 @@
   [self.webView removeFromSuperview];
   [self.webView reload];
   
-  self.mapCtrl_.view.frame = self.webView.frame;
-  self.mapCtrl_.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  
-  [myWindow addSubview:self.mapCtrl_.view];
+  [myWindow addSubview:testView];
   [myWindow addSubview:self.webView];
   [self.root addSubview:myWindow];
   [myWindow makeKeyAndVisible];
+  
+  
+  UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeRightAction:)];
+  swipeRight.direction = UISwipeGestureRecognizerDirectionDown;
+  swipeRight.delegate = self;
+  swipeRight.numberOfTouchesRequired = 1;
+  swipeRight.delaysTouchesBegan = YES;
+  swipeRight.delaysTouchesEnded = YES;
+  [self.webView addGestureRecognizer:swipeRight];
   
 }
 - (void)exec:(CDVInvokedUrlCommand *)command {
@@ -50,5 +50,16 @@
     UIWindow* window=[UIApplication sharedApplication].keyWindow;
     if(!window)window=[[UIApplication sharedApplication].windows objectAtIndex:0];
     return window;
+}
+
+- (void)swipeRightAction:(UISwipeGestureRecognizer *)sender
+{
+  CGPoint location = [sender locationInView:self.webView];
+  NSLog(@"%f, %f", location.x, location.y);
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+  otherGestureRecognizer.enabled = NO;
+    return YES;
 }
 @end
