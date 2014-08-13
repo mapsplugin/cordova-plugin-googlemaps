@@ -49,7 +49,7 @@
   [request startRequest];
   
   
-  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.scrollView.frame];
+  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
   self.webView.scrollView.delegate = self;
 
   self.pluginWindow = [[PluginWindow alloc] initWithFrame:self.webView.frame];
@@ -59,12 +59,16 @@
   
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
-  [self.webView reload];
   
-  [self.pluginWindow addSubview:self.webView];
   [self.pluginWindow addSubview:self.pluinScrollView];
   [self.pluginWindow makeKeyAndVisible];
 
+  [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
+  NSLog(@"%f,%f", self.pluinScrollView.contentSize.width, self.pluinScrollView.contentSize.height);
+  
+  UIImageView *testView = [[UIImageView alloc] initWithFrame:self.webView.frame];
+  testView.image = [UIImage imageNamed:@"test.png"];
+  [self.pluinScrollView addSubview: testView];
   
 }
 
@@ -362,6 +366,11 @@
   if ([command.arguments count] == 1) {
     self.mapCtrl.isFullScreen = NO;
     [self.pluinScrollView addSubview:self.mapCtrl.view];
+    
+    //[self.pluinScrollView addSubview: self.mapCtrl.view];
+    
+  [self.pluginWindow addSubview:self.webView];
+    
     //[self.webView.scrollView addSubview:self.mapCtrl.view];
     [self resizeMap:command];
   } else {

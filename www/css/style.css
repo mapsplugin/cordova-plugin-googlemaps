@@ -3,7 +3,7 @@ html, body, #container {
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: transparent;
+  background-color: transparent !important;
 }
 #map_canvas {
   width: 100%;
@@ -11,7 +11,7 @@ html, body, #container {
   background-color: transparent !important;
   border: 1px solid red;
 }
-.ui-page {
+.ui-page, .ui-overlay-a, .ui-panel-wrapper {
   background-color: transparent !important;
 }
 code {

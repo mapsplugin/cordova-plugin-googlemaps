@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		04949326B9CA4C3890FE37FB /* BSD-LICENSE in Sources */ = {isa = PBXBuildFile; fileRef = A40A421300364D078A73DB0E /* BSD-LICENSE */; };
 		04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */; };
@@ -35,6 +36,7 @@
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
 		5D43035943F34481B4F11465 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D95A31D935F4F29B083B7F3 /* AVFoundation.framework */; };
 		643BE76747954469A586142C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B826A2E4501A4FF4A9CF8237 /* SystemConfiguration.framework */; };
+		6933C885199BE86E000E583C /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 6933C884199BE86E000E583C /* test.png */; };
 		69C7E005199AA35600C643D3 /* PluginWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C7E004199AA35600C643D3 /* PluginWindow.m */; };
 		69E72B7D1922C7B20007FA25 /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5B1922C7B20007FA25 /* Circle.m */; };
 		69E72B7E1922C7B20007FA25 /* External.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5D1922C7B20007FA25 /* External.m */; };
@@ -127,6 +129,7 @@
 		595CC89A43E64E2F8ED522BA /* R9HTTPRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = R9HTTPRequest.m; path = plugin.http.request/HttpRequest/R9HTTPRequest/R9HTTPRequest.m; sourceTree = "<group>"; };
 		5AEE5B34173C68D80009041E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		6933C884199BE86E000E583C /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
 		69C7E003199AA35600C643D3 /* PluginWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PluginWindow.h; path = ../../../../src/ios/GoogleMaps/PluginWindow.h; sourceTree = "<group>"; };
 		69C7E004199AA35600C643D3 /* PluginWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PluginWindow.m; path = ../../../../src/ios/GoogleMaps/PluginWindow.m; sourceTree = "<group>"; };
 		69E72B5A1922C7B20007FA25 /* Circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Circle.h; path = ../../../../src/ios/GoogleMaps/Circle.h; sourceTree = "<group>"; };
@@ -290,6 +293,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6933C884199BE86E000E583C /* test.png */,
 				30A0434214DC770100060A13 /* de.lproj */,
 				30A0434514DC770100060A13 /* se.lproj */,
 				1F766FDB13BBADB100FB74C0 /* en.lproj */,
@@ -529,6 +533,7 @@
 			files = (
 				7E7966E41810823500FA85AD /* icon-76.png in Resources */,
 				7E7966DF1810823500FA85AD /* icon-40@2x.png in Resources */,
+				6933C885199BE86E000E583C /* test.png in Resources */,
 				308D05371370CCF300D202BF /* icon-72.png in Resources */,
 				308D05381370CCF300D202BF /* icon.png in Resources */,
 				308D05391370CCF300D202BF /* icon@2x.png in Resources */,
