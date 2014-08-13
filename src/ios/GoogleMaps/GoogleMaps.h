@@ -12,6 +12,7 @@
 #import "Map.h"
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
+#import "DummyView.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 
@@ -22,9 +23,9 @@
 @property (nonatomic) UIButton *licenseButton;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
-@property (nonatomic) PluginWindow *pluginWindow;
 @property (nonatomic) UIScrollView *pluinScrollView;
 @property (nonatomic) UIView *root;
+@property (nonatomic) DummyView *dummyView;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;

@@ -13,7 +13,7 @@
 #import "NSData+Base64.h"
 #import "PluginWindow.h"
 
-@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, UIGestureRecognizerDelegate>
+@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate>
 
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic, strong) UIWebView* webView;

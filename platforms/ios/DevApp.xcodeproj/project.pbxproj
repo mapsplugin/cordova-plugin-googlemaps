@@ -37,7 +37,7 @@
 		5D43035943F34481B4F11465 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D95A31D935F4F29B083B7F3 /* AVFoundation.framework */; };
 		643BE76747954469A586142C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B826A2E4501A4FF4A9CF8237 /* SystemConfiguration.framework */; };
 		6933C885199BE86E000E583C /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 6933C884199BE86E000E583C /* test.png */; };
-		69C7E005199AA35600C643D3 /* PluginWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C7E004199AA35600C643D3 /* PluginWindow.m */; };
+		6933C88C199C10A3000E583C /* DummyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6933C88B199C10A3000E583C /* DummyView.m */; };
 		69E72B7D1922C7B20007FA25 /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5B1922C7B20007FA25 /* Circle.m */; };
 		69E72B7E1922C7B20007FA25 /* External.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5D1922C7B20007FA25 /* External.m */; };
 		69E72B7F1922C7B20007FA25 /* Geocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5F1922C7B20007FA25 /* Geocoder.m */; };
@@ -130,8 +130,8 @@
 		5AEE5B34173C68D80009041E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		6933C884199BE86E000E583C /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
-		69C7E003199AA35600C643D3 /* PluginWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PluginWindow.h; path = ../../../../src/ios/GoogleMaps/PluginWindow.h; sourceTree = "<group>"; };
-		69C7E004199AA35600C643D3 /* PluginWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PluginWindow.m; path = ../../../../src/ios/GoogleMaps/PluginWindow.m; sourceTree = "<group>"; };
+		6933C88A199C10A3000E583C /* DummyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DummyView.h; path = ../../../../src/ios/GoogleMaps/DummyView.h; sourceTree = "<group>"; };
+		6933C88B199C10A3000E583C /* DummyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DummyView.m; path = ../../../../src/ios/GoogleMaps/DummyView.m; sourceTree = "<group>"; };
 		69E72B5A1922C7B20007FA25 /* Circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Circle.h; path = ../../../../src/ios/GoogleMaps/Circle.h; sourceTree = "<group>"; };
 		69E72B5B1922C7B20007FA25 /* Circle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Circle.m; path = ../../../../src/ios/GoogleMaps/Circle.m; sourceTree = "<group>"; };
 		69E72B5C1922C7B20007FA25 /* External.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = External.h; path = ../../../../src/ios/GoogleMaps/External.h; sourceTree = "<group>"; };
@@ -379,8 +379,8 @@
 				A40A421300364D078A73DB0E /* BSD-LICENSE */,
 				A5DF3623B0D844BFBE68BC45 /* HttpRequest.h */,
 				B763337F810D4E9FAE96A7A3 /* R9HTTPRequest.h */,
-				69C7E003199AA35600C643D3 /* PluginWindow.h */,
-				69C7E004199AA35600C643D3 /* PluginWindow.m */,
+				6933C88A199C10A3000E583C /* DummyView.h */,
+				6933C88B199C10A3000E583C /* DummyView.m */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -594,7 +594,6 @@
 				69E72B821922C7B20007FA25 /* GroundOverlay.m in Sources */,
 				69E72B891922C7B20007FA25 /* PluginUtil.m in Sources */,
 				69E72B8C1922C7B20007FA25 /* TBXML.m in Sources */,
-				69C7E005199AA35600C643D3 /* PluginWindow.m in Sources */,
 				69E72B811922C7B20007FA25 /* GoogleMapsViewController.m in Sources */,
 				69E72B8A1922C7B20007FA25 /* Polygon.m in Sources */,
 				69E72B7E1922C7B20007FA25 /* External.m in Sources */,
@@ -605,6 +604,7 @@
 				69E72B851922C7B20007FA25 /* Map.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				715D5CBBC3094301B31E3D3A /* CDVLogger.m in Sources */,
+				6933C88C199C10A3000E583C /* DummyView.m in Sources */,
 				69E72B861922C7B20007FA25 /* Marker.m in Sources */,
 				04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */,
 				CB5A6EAC79EE44B5BA2FAA87 /* R9HTTPRequest.m in Sources */,
