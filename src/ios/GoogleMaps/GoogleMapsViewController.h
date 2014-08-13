@@ -13,7 +13,7 @@
 #import "NSData+Base64.h"
 #import "PluginWindow.h"
 
-@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, UIGestureRecognizerDelegate>
+@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate>
 
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic, strong) UIWebView* webView;
@@ -24,6 +24,8 @@
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) UIView *root;
 @property (nonatomic) PluginWindow *pluginWindow;
+@property (nonatomic) UIScrollView *pluinScrollView;
+
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;
