@@ -11,7 +11,6 @@
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
-#import "PluginWindow.h"
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate>
 
