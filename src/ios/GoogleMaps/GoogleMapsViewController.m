@@ -174,22 +174,34 @@ NSDictionary *initOptions;
     swipeRight.delaysTouchesBegan = YES;
     swipeRight.delaysTouchesEnded = YES;
     [self.webView addGestureRecognizer:swipeRight];
+  /*
+
   
+    self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.scrollView.frame];
+    self.webView.scrollView.delegate = self;
+    [self.pluinScrollView addSubview:self.map];
   
     self.pluginWindow = [[PluginWindow alloc] initWithFrame:self.webView.frame];
+    self.pluginWindow.backgroundColor = [UIColor blueColor];
     self.root = self.webView.superview;
     [self.webView removeFromSuperview];
-    [self.pluginWindow addSubview:self.map];
-    [self.pluginWindow addSubview:self.webView];
+    [self.pluginWindow addSubview:self.pluinScrollView];
     [self.pluginWindow makeKeyAndVisible];
-  
-    [self.webView setBackgroundColor:[UIColor clearColor]];
-    self.webView.opaque = NO;
-    [self.webView reload];
-    [self.webView stringByEvaluatingJavaScriptFromString:@"document.body.style.backgroundColor='transparent !important';"];
-    [self.root addSubview:self.pluginWindow];
+    [self.pluginWindow addSubview:self.webView];
+    */
+  self.webView.backgroundColor = [UIColor clearColor];
+  self.webView.opaque = NO;
+  [self.webView reload];
+    //[self.root addSubview:self.webView];
+    //[self.root addSubview:self.pluginWindow];
   
     //[self.view addSubview: self.map];
+}
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+  CGPoint offset = self.pluinScrollView.contentOffset;
+  offset.x = self.webView.scrollView.contentOffset.x;
+  offset.y = self.webView.scrollView.contentOffset.y;
+  [self.pluinScrollView setContentOffset:offset];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {

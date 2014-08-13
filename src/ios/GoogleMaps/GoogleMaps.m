@@ -97,10 +97,12 @@
           [self.mapCtrl.view setFrameWithDictionary:self.mapCtrl.embedRect];
         }
         
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
       });
     });
-    
+    /*
     // Create the dialog footer
     dispatch_async(gueue, ^{
       dispatch_sync(dispatch_get_main_queue(), ^{
@@ -140,6 +142,7 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       });
     });
+    */
   }
 }
 
@@ -327,7 +330,7 @@
 
   if ([command.arguments count] == 1) {
     self.mapCtrl.isFullScreen = NO;
-    [self.webView.scrollView addSubview:self.mapCtrl.view];
+    //[self.webView.scrollView addSubview:self.mapCtrl.view];
     [self resizeMap:command];
   } else {
     float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
