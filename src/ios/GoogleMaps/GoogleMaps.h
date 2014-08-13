@@ -13,7 +13,7 @@
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
 
-@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
+@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) UIView *licenseLayer;
@@ -22,6 +22,9 @@
 @property (nonatomic) UIButton *licenseButton;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
+@property (nonatomic) PluginWindow *pluginWindow;
+@property (nonatomic) UIScrollView *pluinScrollView;
+@property (nonatomic) UIView *root;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;
