@@ -166,32 +166,13 @@ NSDictionary *initOptions;
       }
     }
   
-    
-    UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeRightAction:)];
-    swipeRight.direction = UISwipeGestureRecognizerDirectionDown;
-    swipeRight.delegate = self;
-    swipeRight.numberOfTouchesRequired = 1;
-    swipeRight.delaysTouchesBegan = YES;
-    swipeRight.delaysTouchesEnded = YES;
-    [self.webView addGestureRecognizer:swipeRight];
-
     [self.view addSubview: self.map];
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    otherGestureRecognizer.enabled = YES;
-    return YES;
-}
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-}
-
-- (void)swipeRightAction:(UISwipeGestureRecognizer *)sender
-{
-  CGPoint location = [sender locationInView:self.webView];
-  NSLog(@"swipeDown = %f, %f", location.x, location.y);
 }
 
 /**

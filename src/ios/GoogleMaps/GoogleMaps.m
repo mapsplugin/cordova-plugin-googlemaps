@@ -48,28 +48,20 @@
   }];
   [request startRequest];
   
-  
-  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
-  self.webView.scrollView.delegate = self;
-
-  self.pluginWindow = [[PluginWindow alloc] initWithFrame:self.webView.frame];
-  self.pluginWindow.backgroundColor = [UIColor blueColor];
-  self.root = self.webView.superview;
-  [self.webView removeFromSuperview];
+  self.dummyView = [[DummyView alloc] initWithFrame:self.webView.frame];
+  self.dummyView.backgroundColor = [UIColor whiteColor];
+  self.dummyView.webView = self.webView;
   
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
+  self.root= self.webView.superview;
+  [self.root addSubview:self.dummyView];
   
-  [self.pluginWindow addSubview:self.pluinScrollView];
-  [self.pluginWindow makeKeyAndVisible];
-
+  
+  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
+  self.webView.scrollView.delegate = self;
   [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
-  NSLog(@"%f,%f", self.pluinScrollView.contentSize.width, self.pluinScrollView.contentSize.height);
-  
-  UIImageView *testView = [[UIImageView alloc] initWithFrame:self.webView.frame];
-  testView.image = [UIImage imageNamed:@"test.png"];
-  [self.pluinScrollView addSubview: testView];
-  
+
 }
 
 -(void)viewDidLayoutSubviews {
@@ -365,13 +357,21 @@
 
   if ([command.arguments count] == 1) {
     self.mapCtrl.isFullScreen = NO;
+    NSLog(@"%@", self.mapCtrl.view.subviews);
+    for (UIView *view in self.mapCtrl.map.subviews) {
+    NSLog(@"class=%@", view.class);
+      if ([[NSString stringWithFormat:@"%@", view.class] isEqualToString:@"GMSVectorMapView"]) {
+      NSLog(@"---hit");
+        self.dummyView.map = view;
+      }
+    }
+    
+    self.dummyView.webView = self.webView;
+    
+    [self.webView removeFromSuperview];
     [self.pluinScrollView addSubview:self.mapCtrl.view];
-    
-    //[self.pluinScrollView addSubview: self.mapCtrl.view];
-    
-  [self.pluginWindow addSubview:self.webView];
-    
-    //[self.webView.scrollView addSubview:self.mapCtrl.view];
+    [self.dummyView addSubview:self.pluinScrollView];
+    [self.dummyView addSubview:self.webView];
     [self resizeMap:command];
   } else {
     float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
@@ -386,7 +386,7 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
-  self.pluginWindow.embedRect = self.mapCtrl.embedRect;
+  self.dummyView.embedRect = self.mapCtrl.embedRect;
   BOOL animated = NO;
   //if ([command.arguments count] == 2) {
   //  animated = [[command.arguments objectAtIndex: 1] boolValue];
