@@ -47,6 +47,37 @@
     }
   }];
   [request startRequest];
+  
+  
+  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.scrollView.frame];
+  self.webView.scrollView.delegate = self;
+
+  self.pluginWindow = [[PluginWindow alloc] initWithFrame:self.webView.frame];
+  self.pluginWindow.backgroundColor = [UIColor blueColor];
+  self.root = self.webView.superview;
+  [self.webView removeFromSuperview];
+  
+  self.webView.backgroundColor = [UIColor clearColor];
+  self.webView.opaque = NO;
+  [self.webView reload];
+  
+  [self.pluginWindow addSubview:self.webView];
+  [self.pluginWindow addSubview:self.pluinScrollView];
+  [self.pluginWindow makeKeyAndVisible];
+
+  
+}
+
+-(void)viewDidLayoutSubviews {
+    [self.pluinScrollView setContentSize: self.webView.scrollView.contentSize];
+    [self.pluinScrollView flashScrollIndicators];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+  CGPoint offset = self.pluinScrollView.contentOffset;
+  offset.x = self.webView.scrollView.contentOffset.x;
+  offset.y = self.webView.scrollView.contentOffset.y;
+  [self.pluinScrollView setContentOffset:offset];
 }
 
 /**
@@ -330,6 +361,7 @@
 
   if ([command.arguments count] == 1) {
     self.mapCtrl.isFullScreen = NO;
+    [self.pluinScrollView addSubview:self.mapCtrl.view];
     //[self.webView.scrollView addSubview:self.mapCtrl.view];
     [self resizeMap:command];
   } else {
@@ -345,7 +377,7 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
-  self.mapCtrl.pluginWindow.embedRect = self.mapCtrl.embedRect;
+  self.pluginWindow.embedRect = self.mapCtrl.embedRect;
   BOOL animated = NO;
   //if ([command.arguments count] == 2) {
   //  animated = [[command.arguments objectAtIndex: 1] boolValue];
