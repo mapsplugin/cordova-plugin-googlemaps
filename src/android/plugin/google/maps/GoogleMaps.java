@@ -13,11 +13,13 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginResult;
+import org.apache.cordova.ScrollEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import plugin.http.request.HttpRequest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,6 +45,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -51,6 +54,7 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -121,50 +125,105 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private Activity activity;
   private LinearLayout windowLayer = null;
   private ViewGroup root;
+  private ScrollView pluginScrollView = null;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
   private final String PLUGIN_VERSION = "1.1.4";
 
   @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
+  public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
+    root = (ViewGroup) webView.getParent();
+    //root.setBackgroundColor(Color.WHITE);
 
     Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
     
-    // Is this app in debug mode?
-    try {
-      PackageManager manager = activity.getPackageManager();
-      ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
-      Boolean isDebug = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
-      
-      if (isDebug) {
-        JSONArray params = new JSONArray();
-        params.put("get");
-        params.put("http://plugins.cordova.io/api/plugin.google.maps");
-        HttpRequest httpReq = new HttpRequest();
-        httpReq.initialize(cordova, null);
-        httpReq.execute("execute", params, new CallbackContext("version_check", webView) {
-          @Override
-          public void sendPluginResult(PluginResult pluginResult) {
-            if (pluginResult.getStatus() == PluginResult.Status.OK.ordinal()) {
-              try {
-                JSONObject result = new JSONObject(pluginResult.getStrMessage());
-                JSONObject distTags = result.getJSONObject("dist-tags");
-                String latestVersion = distTags.getString("latest");
-                if (latestVersion.equals(PLUGIN_VERSION) == false) {
-                  Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
+    cordova.getThreadPool().execute(new Runnable() {
+
+      @Override
+      public void run() {
+
+        // Is this app in debug mode?
+        try {
+          PackageManager manager = activity.getPackageManager();
+          ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
+          Boolean isDebug = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
+          
+          if (isDebug) {
+            JSONArray params = new JSONArray();
+            params.put("get");
+            params.put("http://plugins.cordova.io/api/plugin.google.maps");
+            HttpRequest httpReq = new HttpRequest();
+            httpReq.initialize(cordova, null);
+            httpReq.execute("execute", params, new CallbackContext("version_check", webView) {
+              @Override
+              public void sendPluginResult(PluginResult pluginResult) {
+                if (pluginResult.getStatus() == PluginResult.Status.OK.ordinal()) {
+                  try {
+                    JSONObject result = new JSONObject(pluginResult.getStrMessage());
+                    JSONObject distTags = result.getJSONObject("dist-tags");
+                    String latestVersion = distTags.getString("latest");
+                    if (latestVersion.equals(PLUGIN_VERSION) == false) {
+                      Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
+                    }
+                  } catch (JSONException e) {}
+                  
                 }
-              } catch (JSONException e) {}
+              }
+            });
+          }
+        } catch (Exception e) {}
+      }
+      
+    });
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @SuppressLint("NewApi")
+      public void run() {
+        root.removeView(webView);
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        webView.setOnTouchListener(new View.OnTouchListener() {
+          
+          @Override
+          public boolean onTouch(View v, MotionEvent event) {
+            boolean resultBool = false;
+            try {
+              int touchX = (int) event.getX();
+              int touchY = (int) event.getY();
+              int divW = contentToView(mapDivLayoutJSON.getLong("width") );
+              int divH = contentToView(mapDivLayoutJSON.getLong("height"));
+              int divLeft = contentToView(mapDivLayoutJSON.getLong("left")) - webView.getScrollX();
+              int divTop = contentToView(mapDivLayoutJSON.getLong("top")) - webView.getScrollY();
               
-            }
+              if (divLeft < touchX && touchX < divLeft + divW &&
+                  divTop < touchY && touchY < divTop + divH) {
+                mapView.dispatchTouchEvent(event);
+                resultBool = true;
+              } else {
+                pluginScrollView.dispatchTouchEvent(event);
+              }
+            } catch (JSONException e) {}
+            
+            return resultBool;
           }
         });
+        
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        FrameLayout pluginLayer = new FrameLayout(activity);
+        pluginLayer.setLayoutParams(layoutParams);
+        
+        pluginScrollView = new ScrollView(activity);
+        pluginScrollView.setLayoutParams(webView.getLayoutParams());
+        pluginScrollView.setBackgroundColor(Color.WHITE);
+        
+        pluginLayer.addView(pluginScrollView);
+        pluginLayer.addView(webView);
+        root.addView(pluginLayer);
       }
-    } catch (Exception e) {}
-    
+    });
   }
 
   @Override
@@ -198,7 +257,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               webView.removeView(mapView);
             }
             if (args.length() == 1) {
-              webView.addView(mapView);
+              LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+              layoutParams.height = (int)(webView.getContentHeight() + webView.getHeight() + webView.getTop());
+              View dummyView = new View(activity);
+              dummyView.setLayoutParams(layoutParams);
+              
+              layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+              layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+              
+              FrameLayout layout = new FrameLayout(activity);
+              layout.setLayoutParams(layoutParams);
+              layout.addView(dummyView);
+              layout.addView(mapView);
+              
+              pluginScrollView.addView(layout);
               GoogleMaps.this.resizeMap(args, callbackContext);
             }
             break;
@@ -591,10 +663,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     switch(event) {
     case onScrollChanged:
+      ScrollEvent scrollEvent = (ScrollEvent)data;
+      this.pluginScrollView.scrollTo(scrollEvent.nl, scrollEvent.nt);
+      
       if (android.os.Build.VERSION.SDK_INT < 11) {
         // Force redraw the map
         if (mapView != null) {
-          mapView.requestLayout();
+          //mapView.requestLayout();
         }
       }
       break;
@@ -723,6 +798,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
       
       ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+      if (lParams instanceof android.widget.FrameLayout.LayoutParams) {
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.topMargin = divTop;
+        params.leftMargin = divLeft;
+        mapView.setLayoutParams(params);
+        return;
+      }
       if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
         AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
         params.width = divW;
