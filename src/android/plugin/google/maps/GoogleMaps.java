@@ -34,6 +34,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
@@ -98,6 +99,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
+  private Rect mapViewRect = null;
   
   private enum METHODS {
     setVisible,
@@ -263,7 +265,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               mapView.addView(layout);
               map.setPadding(200, 200, 200, 200);
               root.addView(mapView);
-              //GoogleMaps.this.resizeMap(args, callbackContext);
+              
+              
+              GoogleMaps.this.resizeMap(args, callbackContext);
             }
             break;
           case resizeMap:
@@ -789,6 +793,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
       
+      mapView.getGlobalVisibleRect(mapViewRect);
+      
+      
+      
+      /*
       ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
       if (lParams instanceof android.widget.FrameLayout.LayoutParams) {
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
@@ -817,7 +826,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         params.leftMargin = divLeft;
         mapView.setLayoutParams(params);
       }
-      
+      */
     } catch (JSONException e) {}
   }
   
