@@ -542,5 +542,24 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-
+/**
+ * Remove the map
+ */
+- (void)remove:(CDVInvokedUrlCommand *)command {
+  [self.mapCtrl.overlayManager removeAllObjects];
+  [self.mapCtrl.map clear];
+  [self.mapCtrl.map removeFromSuperview];
+  [self.mapCtrl.view removeFromSuperview];
+  self.mapCtrl.map = nil;
+  self.mapCtrl = nil;
+  self.licenseLayer = nil;
+  self.footer = nil;
+  self.closeButton = nil;
+  self.locationManager = nil;
+  self.locationCommandQueue = nil;
+  
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

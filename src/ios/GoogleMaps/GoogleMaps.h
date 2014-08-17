@@ -33,4 +33,5 @@
 - (void)setDiv:(CDVInvokedUrlCommand *)command;
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
 - (void)clear:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand*)command;
 @end
