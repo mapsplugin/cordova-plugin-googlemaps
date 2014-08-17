@@ -1582,7 +1582,11 @@ function getDivSize(div) {
     'left': rect.left + pageLeft,
     'top': rect.top + pageTop,
     'width': rect.width,
-    'height': rect.height
+    'height': rect.height,
+    'pageWidth': pageWidth,
+    'pageHeight': pageHeight,
+    'pageLeft': pageLeft,
+    'pageTop': pageTop
   };
   divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
   divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;
