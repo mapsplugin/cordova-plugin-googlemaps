@@ -439,6 +439,11 @@ App.prototype.clear = function(callback) {
       callback.call(self);
     }
   }, self.errorHandler, PLUGIN_NAME, 'clear', []);
+  for (var key in Object.keys(self._vars)) {
+    self._vars[key] = null;
+    delete self._vars[key];
+  }
+  self._vars = {};
 };
 
 
