@@ -19,8 +19,12 @@
 
 package com.example.myapp;
 
+import org.apache.cordova.Config;
+import org.apache.cordova.CordovaActivity;
+
 import android.os.Bundle;
-import org.apache.cordova.*;
+
+import com.android.debug.hv.ViewServer;
 
 public class DevApp extends CordovaActivity 
 {
@@ -31,7 +35,20 @@ public class DevApp extends CordovaActivity
         super.init();
         // Set by <content src="index.html" /> in config.xml
         super.loadUrl(Config.getStartUrl());
+        ViewServer.get(this).addWindow(this);
         //super.loadUrl("file:///android_asset/www/index.html");
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ViewServer.get(this).setFocusedWindow(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ViewServer.get(this).removeWindow(this);
     }
 }
 
