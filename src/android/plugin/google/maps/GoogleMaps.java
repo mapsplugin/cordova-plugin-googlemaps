@@ -782,22 +782,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
       
-      int pageW = contentToView(mapDivLayoutJSON.getLong("pageWidth"));
-      int pageH = contentToView(mapDivLayoutJSON.getLong("pageHeight"));
-      int pageLeft = contentToView(mapDivLayoutJSON.getLong("pageLeft"));
-      int pageTop = contentToView(mapDivLayoutJSON.getLong("pageTop"));
-
-      //backgroundScrollView.setLayoutParams(LAYOUT_MATCH_PARENT);
-
-      backgroundView.mapRect.left = divLeft;
-      backgroundView.mapRect.top = divTop - backgroundScrollView.getScrollY();
-      backgroundView.mapRect.right = divLeft + divW;
-      backgroundView.mapRect.bottom = divTop + divH - backgroundScrollView.getScrollY();
       
-      backgroundFrameView.mapRect = backgroundView.mapRect;
-      
-      
-      map.setPadding(divLeft - pageLeft, divTop + backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH + backgroundScrollView.getScrollY());
+      map.setPadding(divLeft, divTop - backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
+      Log.d("GoogleMaps", "scrollY=" + backgroundScrollView.getScrollY());
+      Log.d("GoogleMaps", "mapPadding= (" + 
+          (divLeft) + ", " +  (divTop - mapView.getScrollY()) + " - " +
+          (mapView.getWidth() - divW - divLeft) + ", " + (mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY()));
       
       backgroundScrollView.invalidate();
     } catch (JSONException e) {
@@ -831,9 +821,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       
       
       map.setPadding(divLeft - pageLeft, divTop - backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
-      Log.d("GoogleMaps", "mapPadding= (" + 
-          (divLeft - pageLeft) + ", " +  (divTop - mapView.getScrollY()) + " - " +
-          (mapView.getWidth() - divW - divLeft) + ", " + (mapView.getHeight() - divH - mapView.getScrollY()));
       /*map.setPadding(
           backgroundView.getLeft(),
           backgroundView.mapRect.top,
