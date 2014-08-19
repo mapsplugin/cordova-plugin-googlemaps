@@ -19,7 +19,7 @@ public class PluginBackgroundView extends View {
 
   @Override
   protected void onDraw(Canvas canvas) {
-    Log.d("GoogleMaps", "mapRect=" + mapRect);
+    //Log.d("GoogleMaps", "mapRect=" + mapRect);
     if (mapRect == null) {
       return;
     }
