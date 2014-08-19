@@ -16,7 +16,7 @@ public class PluginBackgroundView extends View {
     super(context);
     Log.d("GoogleMaps", "PluginBackgroundView is created");
   }
-
+/*
   @Override
   protected void onDraw(Canvas canvas) {
     //Log.d("GoogleMaps", "mapRect=" + mapRect);
@@ -34,4 +34,5 @@ public class PluginBackgroundView extends View {
     canvas.drawRect((float)mapRect.right, (float)mapRect.top, (float)width, (float)mapRect.bottom, paint);
     canvas.drawRect(0, (float)mapRect.bottom, (float)width, (float)height, paint);
   }
+  */
 }
