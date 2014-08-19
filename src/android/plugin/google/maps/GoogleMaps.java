@@ -797,7 +797,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       backgroundFrameView.mapRect = backgroundView.mapRect;
       
       
-      map.setPadding(divLeft - pageLeft, divTop - pageTop, pageW - divW - divLeft, pageH - divH - divTop);
+      map.setPadding(divLeft - pageLeft, divTop + backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH + backgroundScrollView.getScrollY());
+      
       backgroundScrollView.invalidate();
     } catch (JSONException e) {
       e.printStackTrace();
@@ -829,7 +830,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       backgroundFrameView.mapRect = backgroundView.mapRect;
       
       
-      map.setPadding(divLeft - pageLeft, divTop - pageTop, pageW - divW - divLeft, pageH - divH - divTop);
+      map.setPadding(divLeft - pageLeft, divTop - backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
+      Log.d("GoogleMaps", "mapPadding= (" + 
+          (divLeft - pageLeft) + ", " +  (divTop - mapView.getScrollY()) + " - " +
+          (mapView.getWidth() - divW - divLeft) + ", " + (mapView.getHeight() - divH - mapView.getScrollY()));
+      /*map.setPadding(
+          backgroundView.getLeft(),
+          backgroundView.mapRect.top,
+          backgroundView.getRight(),
+          backgroundView.mapRect.bottom);
+      Log.d("GoogleMaps", "mapPadding= (" + 
+          backgroundView.getLeft() + ", " +  backgroundView.mapRect.top + " - " +
+          backgroundView.getRight() + ", " + backgroundView.mapRect.bottom);
+          */
       backgroundScrollView.invalidate();
       
 
