@@ -128,7 +128,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
   private final String PLUGIN_VERSION = "1.1.4";
-  private MyScrollView backgroundScrollView = null;
+  //private MyScrollView backgroundScrollView = null;
   private MyFrameLayout backgroundFrameView = null;
 
   
@@ -185,6 +185,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       @SuppressLint("NewApi")
       public void run() {
         webView.setBackgroundColor(Color.TRANSPARENT);
+        backgroundFrameView = new MyFrameLayout(activity);
+        backgroundFrameView.backgroundScrollView.setOnScrollViewListener(GoogleMaps.this);
       }
     });
   }
@@ -217,31 +219,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           case setDiv:
             if (mapView.getParent() != null) {
               GoogleMaps.this.mapDivLayoutJSON = null;
-              webView.removeView(mapView);
+              root.removeView(mapView);
+              mapView.removeView(backgroundFrameView);
+              backgroundFrameView.dummyLayout.removeView(webView);
+              root.addView(webView);
             }
             if (args.length() == 1) {
               root.removeView(webView);
-
-              backgroundScrollView = new MyScrollView(activity);
-              backgroundScrollView.setBackgroundColor(Color.argb(30, 0, 0, 255));
-              backgroundScrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-              backgroundScrollView.setOnScrollViewListener(GoogleMaps.this);
-              
-              
-              FrameLayout dummyLayout = new FrameLayout(activity);
-              dummyLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-              dummyLayout.setBackgroundColor(Color.TRANSPARENT);
-              dummyLayout.addView(webView);
-              
-              backgroundScrollView.addView(dummyLayout);
-              
-              backgroundFrameView = new MyFrameLayout(activity);
-              backgroundFrameView.setBackgroundColor(Color.TRANSPARENT);
-              backgroundFrameView.addView(backgroundScrollView);
+              backgroundFrameView.dummyLayout.addView(webView);
               mapView.addView(backgroundFrameView);
               root.addView(mapView);
-              
-              Log.d("GoogleMaps", "backgroundFrameView=" + backgroundFrameView.getWidth() + "x" + backgroundFrameView.getHeight());
               GoogleMaps.this.resizeMap(args, callbackContext);
             }
             break;
@@ -766,8 +753,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @Override
   public void onScrollChanged(MyScrollView scrollView, int x, int y, int oldx,
       int oldy) {
-    
+    // TODO Auto-generated method stub
+
     try {
+
       int divW = contentToView(mapDivLayoutJSON.getLong("width"));
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
@@ -775,15 +764,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       
 
       map.setPadding(divLeft ,
-          divTop - backgroundScrollView.getScrollY(),
+          divTop - backgroundFrameView.backgroundScrollView.getScrollY(),
           mapView.getWidth() - divW - divLeft,
-          mapView.getHeight() - divTop - divH + backgroundScrollView.getScrollY());
+          mapView.getHeight() - divTop - divH + backgroundFrameView.backgroundScrollView.getScrollY());
       
 
       backgroundFrameView.mapRect.left = divLeft;
-      backgroundFrameView.mapRect.top = divTop - backgroundScrollView.getScrollY();
+      backgroundFrameView.mapRect.top = divTop - backgroundFrameView.backgroundScrollView.getScrollY();
       backgroundFrameView.mapRect.right = divLeft + divW;
-      backgroundFrameView.mapRect.bottom = divTop + divH - backgroundScrollView.getScrollY();
+      backgroundFrameView.mapRect.bottom = divTop + divH - backgroundFrameView.backgroundScrollView.getScrollY();
       
       backgroundFrameView.invalidate();
     } catch (JSONException e) {
@@ -802,17 +791,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
 
       backgroundFrameView.mapRect.left = divLeft;
-      backgroundFrameView.mapRect.top = divTop - backgroundScrollView.getScrollY();
+      backgroundFrameView.mapRect.top = divTop - backgroundFrameView.backgroundScrollView.getScrollY();
       backgroundFrameView.mapRect.right = divLeft + divW;
-      backgroundFrameView.mapRect.bottom = divTop + divH - backgroundScrollView.getScrollY();
+      backgroundFrameView.mapRect.bottom = divTop + divH - backgroundFrameView.backgroundScrollView.getScrollY();
 
       map.setPadding(divLeft,
-          divTop + backgroundScrollView.getScrollY(),
+          divTop + backgroundFrameView.backgroundScrollView.getScrollY(),
           mapView.getWidth() - divW - divLeft,
-          mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
+          mapView.getHeight() - divTop - divH - backgroundFrameView.backgroundScrollView.getScrollY());
       backgroundFrameView.invalidate();
       
-      backgroundScrollView.invalidate();
+      backgroundFrameView.backgroundScrollView.invalidate();
       
 
       
