@@ -782,14 +782,21 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
       
+
+      map.setPadding(divLeft ,
+          divTop - backgroundScrollView.getScrollY(),
+          mapView.getWidth() - divW - divLeft,
+          mapView.getHeight() - divTop - divH + backgroundScrollView.getScrollY());
       
-      map.setPadding(divLeft, divTop - backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
-      Log.d("GoogleMaps", "scrollY=" + backgroundScrollView.getScrollY());
-      Log.d("GoogleMaps", "mapPadding= (" + 
-          (divLeft) + ", " +  (divTop - mapView.getScrollY()) + " - " +
-          (mapView.getWidth() - divW - divLeft) + ", " + (mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY()));
+
+      backgroundFrameView.mapRect.left = divLeft;
+      backgroundFrameView.mapRect.top = divTop - backgroundScrollView.getScrollY();
+      backgroundFrameView.mapRect.right = divLeft + divW;
+      backgroundFrameView.mapRect.bottom = divTop + divH - backgroundScrollView.getScrollY();
       
-      backgroundScrollView.invalidate();
+      backgroundView.invalidate();
+      backgroundFrameView.invalidate();
+      mapView.invalidate();
     } catch (JSONException e) {
       e.printStackTrace();
     };
@@ -804,23 +811,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
-      
-      int pageW = contentToView(mapDivLayoutJSON.getLong("pageWidth"));
-      int pageH = contentToView(mapDivLayoutJSON.getLong("pageHeight"));
-      int pageLeft = contentToView(mapDivLayoutJSON.getLong("pageLeft"));
-      int pageTop = contentToView(mapDivLayoutJSON.getLong("pageTop"));
 
       //backgroundScrollView.setLayoutParams(LAYOUT_MATCH_PARENT);
 
       backgroundView.mapRect.left = divLeft;
       backgroundView.mapRect.top = divTop - backgroundScrollView.getScrollY();
       backgroundView.mapRect.right = divLeft + divW;
-      backgroundView.mapRect.bottom = divTop + divH - backgroundScrollView.getScrollY();
+      backgroundView.mapRect.bottom = divTop + divH + backgroundScrollView.getScrollY();
+
+      backgroundFrameView.mapRect.left = divLeft;
+      backgroundFrameView.mapRect.top = divTop - backgroundScrollView.getScrollY();
+      backgroundFrameView.mapRect.right = divLeft + divW;
+      backgroundFrameView.mapRect.bottom = divTop + divH - backgroundScrollView.getScrollY();
+
+      map.setPadding(divLeft,
+          divTop + backgroundScrollView.getScrollY(),
+          mapView.getWidth() - divW - divLeft,
+          mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
+      backgroundFrameView.invalidate();
+      backgroundView.invalidate();
       
-      backgroundFrameView.mapRect = backgroundView.mapRect;
-      
-      
-      map.setPadding(divLeft - pageLeft, divTop - backgroundScrollView.getScrollY(), mapView.getWidth() - divW - divLeft, mapView.getHeight() - divTop - divH - backgroundScrollView.getScrollY());
       /*map.setPadding(
           backgroundView.getLeft(),
           backgroundView.mapRect.top,
