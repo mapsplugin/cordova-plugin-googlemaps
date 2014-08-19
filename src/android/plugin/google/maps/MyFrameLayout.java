@@ -54,7 +54,6 @@ public class MyFrameLayout extends FrameLayout {
     }
     int width = canvas.getWidth();
     int height = canvas.getHeight();
-    Log.d("GoogleMaps", "width=" + width + ",height=" + height);
     
     Paint paint = new Paint();
     paint.setColor(Color.argb(177, 0, 255, 0));

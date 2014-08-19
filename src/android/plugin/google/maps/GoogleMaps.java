@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -62,6 +63,8 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -130,7 +133,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final String PLUGIN_VERSION = "1.1.4";
   //private MyScrollView backgroundScrollView = null;
   private MyFrameLayout backgroundFrameView = null;
-
+  private float prevScrollY = 0;
   
   
   @Override
@@ -187,6 +190,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         webView.setBackgroundColor(Color.TRANSPARENT);
         backgroundFrameView = new MyFrameLayout(activity);
         backgroundFrameView.backgroundScrollView.setOnScrollViewListener(GoogleMaps.this);
+
       }
     });
   }
@@ -761,24 +765,29 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
-      
+
+      float yPixel = backgroundFrameView.backgroundScrollView.getScrollY() - prevScrollY;
+      prevScrollY = backgroundFrameView.backgroundScrollView.getScrollY();
 
       map.setPadding(divLeft ,
           divTop - backgroundFrameView.backgroundScrollView.getScrollY(),
           mapView.getWidth() - divW - divLeft,
           mapView.getHeight() - divTop - divH + backgroundFrameView.backgroundScrollView.getScrollY());
       
-
+      
       backgroundFrameView.mapRect.left = divLeft;
       backgroundFrameView.mapRect.top = divTop - backgroundFrameView.backgroundScrollView.getScrollY();
       backgroundFrameView.mapRect.right = divLeft + divW;
       backgroundFrameView.mapRect.bottom = divTop + divH - backgroundFrameView.backgroundScrollView.getScrollY();
-      
+
       backgroundFrameView.invalidate();
+
+      Log.d("GoogleMaps", "y = " + y + ",oldy =" + oldy + ",diffY = " + (y - oldy) + ", yPixel=" + yPixel);
+      CameraUpdate update = CameraUpdateFactory.scrollBy(0, yPixel);
+      map.moveCamera(update);
     } catch (JSONException e) {
       e.printStackTrace();
     };
-    Log.d("GoogleMaps", "--onScrollChanged");
   }
   private void updateMapViewLayout() {
     Log.d("GoogleMaps", "--updateMapViewLayout");
