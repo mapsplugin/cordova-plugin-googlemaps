@@ -783,8 +783,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       backgroundFrameView.invalidate();
 
       Log.d("GoogleMaps", "y = " + y + ",oldy =" + oldy + ",diffY = " + (y - oldy) + ", yPixel=" + yPixel);
-      CameraUpdate update = CameraUpdateFactory.scrollBy(0, yPixel);
-      map.moveCamera(update);
+      //CameraUpdate update = CameraUpdateFactory.scrollBy(0, yPixel);
+     // map.moveCamera(update);
     } catch (JSONException e) {
       e.printStackTrace();
     };
