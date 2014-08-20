@@ -13,7 +13,6 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.ScrollEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,13 +47,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -95,7 +94,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
       OnMyLocationButtonClickListener, 
-      ConnectionCallbacks, OnConnectionFailedListener, InfoWindowAdapter, ScrollViewListener {
+      ConnectionCallbacks, OnConnectionFailedListener, InfoWindowAdapter, ScrollViewListener, OnTouchListener {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
@@ -133,8 +132,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final String PLUGIN_VERSION = "1.1.4";
   //private MyScrollView backgroundScrollView = null;
   private MyFrameLayout backgroundFrameView = null;
-  private float prevScrollY = 0;
-  
+  private float divScrollY = 0;
   
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -190,7 +188,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         webView.setBackgroundColor(Color.TRANSPARENT);
         backgroundFrameView = new MyFrameLayout(activity);
         backgroundFrameView.backgroundScrollView.setOnScrollViewListener(GoogleMaps.this);
-
+        backgroundFrameView.backgroundScrollView.setOnTouchListener(GoogleMaps.this);
+        webView.setOnTouchListener(GoogleMaps.this);
       }
     });
   }
@@ -755,9 +754,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   @Override
-  public void onScrollChanged(MyScrollView scrollView, int x, int y, int oldx,
-      int oldy) {
-    // TODO Auto-generated method stub
+  public boolean onTouch(View view, MotionEvent event) {
+    switch (event.getAction()) {
+    case MotionEvent.ACTION_DOWN:
+      this.divScrollY = 0;
+      Log.d("GoogleMaps", "(onTouch)action=ACTION_DOWN");
+      break;
+    case MotionEvent.ACTION_UP:
+      Log.d("GoogleMaps", "(onTouch)action=ACTION_UP, divScrollY=" + divScrollY);
+      CameraUpdate update = CameraUpdateFactory.scrollBy(0, this.divScrollY);
+      map.moveCamera(update);
+      break;
+    default:
+      //Log.d("GoogleMaps", "(onTouch)action=" + event.getAction());
+      break;
+    }
+    return false;
+  }
+
+  @Override
+  public void onScrollChanged(MyScrollView scrollView, int x, int y, int oldx,int oldy) {
 
     try {
 
@@ -765,9 +781,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
-
-      float yPixel = backgroundFrameView.backgroundScrollView.getScrollY() - prevScrollY;
-      prevScrollY = backgroundFrameView.backgroundScrollView.getScrollY();
 
       map.setPadding(divLeft ,
           divTop - backgroundFrameView.backgroundScrollView.getScrollY(),
@@ -781,10 +794,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       backgroundFrameView.mapRect.bottom = divTop + divH - backgroundFrameView.backgroundScrollView.getScrollY();
 
       backgroundFrameView.invalidate();
-
-      Log.d("GoogleMaps", "y = " + y + ",oldy =" + oldy + ",diffY = " + (y - oldy) + ", yPixel=" + yPixel);
-      //CameraUpdate update = CameraUpdateFactory.scrollBy(0, yPixel);
-     // map.moveCamera(update);
+      
+      divScrollY = divScrollY + y - oldy;
+      Log.d("GoogleMaps", "diff=" + (y - oldy) + ",divScrollY=" + divScrollY);
     } catch (JSONException e) {
       e.printStackTrace();
     };
