@@ -757,13 +757,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   public boolean onTouch(View view, MotionEvent event) {
     switch (event.getAction()) {
     case MotionEvent.ACTION_DOWN:
-      this.divScrollY = 0;
+      this.divScrollY = backgroundFrameView.backgroundScrollView.getScrollY();
       Log.d("GoogleMaps", "(onTouch)action=ACTION_DOWN");
       break;
     case MotionEvent.ACTION_UP:
       Log.d("GoogleMaps", "(onTouch)action=ACTION_UP, divScrollY=" + divScrollY);
-      CameraUpdate update = CameraUpdateFactory.scrollBy(0, this.divScrollY);
-      map.moveCamera(update);
+      backgroundFrameView.backgroundScrollView.startScrollerTask();
       break;
     default:
       //Log.d("GoogleMaps", "(onTouch)action=" + event.getAction());
@@ -772,8 +771,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return false;
   }
 
+
   @Override
-  public void onScrollChanged(MyScrollView scrollView, int x, int y, int oldx,int oldy) {
+  public void onEndScroll() {
+    int y = backgroundFrameView.backgroundScrollView.getScrollY();
+    
+    CameraUpdate update = CameraUpdateFactory.scrollBy(0, Math.abs(divScrollY - y) * (divScrollY < y ? 1 : -1));
+    map.moveCamera(update);
+  }
+
+  @Override
+  public void onScrollChanged(MyScrollView scrollView, int x, int y, int oldX, int oldY) {
 
     try {
 
@@ -795,8 +803,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
       backgroundFrameView.invalidate();
       
-      divScrollY = divScrollY + y - oldy;
-      Log.d("GoogleMaps", "diff=" + (y - oldy) + ",divScrollY=" + divScrollY);
     } catch (JSONException e) {
       e.printStackTrace();
     };
