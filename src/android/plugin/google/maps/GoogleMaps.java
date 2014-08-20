@@ -50,6 +50,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
@@ -130,9 +131,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
   private final String PLUGIN_VERSION = "1.1.4";
-  //private MyScrollView backgroundScrollView = null;
   private MyFrameLayout backgroundFrameView = null;
   private float divScrollY = 0;
+  private FrameLayout baseFrameLayout = null;
   
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -140,6 +141,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
     root = (ViewGroup) webView.getParent();
+    this.baseFrameLayout = new FrameLayout(activity);
 
     Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
     
@@ -187,9 +189,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void run() {
         webView.setBackgroundColor(Color.TRANSPARENT);
         backgroundFrameView = new MyFrameLayout(activity);
-        backgroundFrameView.backgroundScrollView.setOnScrollViewListener(GoogleMaps.this);
-        backgroundFrameView.backgroundScrollView.setOnTouchListener(GoogleMaps.this);
-        webView.setOnTouchListener(GoogleMaps.this);
+        //backgroundFrameView.backgroundScrollView.setOnScrollViewListener(GoogleMaps.this);
+        //backgroundFrameView.backgroundScrollView.setOnTouchListener(GoogleMaps.this);
+        //webView.setOnTouchListener(GoogleMaps.this);
       }
     });
   }
@@ -230,8 +232,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             if (args.length() == 1) {
               root.removeView(webView);
               backgroundFrameView.dummyLayout.addView(webView);
-              mapView.addView(backgroundFrameView);
-              root.addView(mapView);
+              baseFrameLayout.addView(mapView);
+              baseFrameLayout.addView(backgroundFrameView);
+              root.addView(baseFrameLayout);
               GoogleMaps.this.resizeMap(args, callbackContext);
             }
             break;
@@ -816,19 +819,53 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+      
+      
+      // Positioning the mapView layout params.
+      ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+      if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
+        AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.y = divTop;
+        params.x = divLeft;
+        mapView.setLayoutParams(params);
+        return;
+      }
+
+      if (lParams instanceof android.widget.LinearLayout.LayoutParams) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.topMargin = divTop;
+        params.leftMargin = divLeft;
+        mapView.setLayoutParams(params);
+      }
+
+      if (lParams instanceof android.widget.FrameLayout.LayoutParams) {
+        LayoutParams params = (LayoutParams) lParams;
+        params.width = divW;
+        params.height = divH;
+        params.topMargin = divTop;
+        params.leftMargin = divLeft;
+        mapView.setLayoutParams(params);
+      }
+      
+      // 
 
       backgroundFrameView.mapRect.left = divLeft;
       backgroundFrameView.mapRect.top = divTop - backgroundFrameView.backgroundScrollView.getScrollY();
       backgroundFrameView.mapRect.right = divLeft + divW;
       backgroundFrameView.mapRect.bottom = divTop + divH - backgroundFrameView.backgroundScrollView.getScrollY();
-
+/*
       map.setPadding(divLeft,
           divTop + backgroundFrameView.backgroundScrollView.getScrollY(),
           mapView.getWidth() - divW - divLeft,
           mapView.getHeight() - divTop - divH - backgroundFrameView.backgroundScrollView.getScrollY());
+*/
       backgroundFrameView.invalidate();
       
-      backgroundFrameView.backgroundScrollView.invalidate();
+      //backgroundFrameView.backgroundScrollView.invalidate();
       
 
       
