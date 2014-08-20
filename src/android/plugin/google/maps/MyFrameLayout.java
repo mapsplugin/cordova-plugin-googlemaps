@@ -1,17 +1,15 @@
 package plugin.google.maps;
 
-import plugin.google.maps.MyScrollView.ScrollViewListener;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 public class MyFrameLayout extends FrameLayout {
+
   public Rect mapRect = new Rect();
   private Context context;
   
@@ -37,6 +35,7 @@ public class MyFrameLayout extends FrameLayout {
     this.setBackgroundColor(Color.TRANSPARENT);
     this.addView(backgroundScrollView);
   }
+  
   
   @Override
   public boolean onInterceptTouchEvent(MotionEvent event) {
