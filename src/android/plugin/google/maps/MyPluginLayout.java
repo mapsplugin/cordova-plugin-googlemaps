@@ -29,6 +29,7 @@ public class MyPluginLayout extends FrameLayout  {
   private TouchableWrapper touchableWrapper;
   private ViewGroup myView = null;
   private boolean isScrolling = false;
+  private ViewGroup.LayoutParams orgLayoutParams = null;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -113,6 +114,9 @@ public class MyPluginLayout extends FrameLayout  {
     
     this.removeView(this.scrollView);
     this.scrollView.removeView(scrollFrameLayout);
+    if (orgLayoutParams != null) {
+      myView.setLayoutParams(orgLayoutParams);
+    }
     
     root.addView(webView);
     myView = null;
@@ -125,6 +129,11 @@ public class MyPluginLayout extends FrameLayout  {
     //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
     
     myView = pluginView;
+    ViewGroup.LayoutParams lParams = myView.getLayoutParams();
+    orgLayoutParams = null;
+    if (lParams != null) {
+      orgLayoutParams = new ViewGroup.LayoutParams(lParams);
+    }
     root.removeView(webView);
     scrollView.addView(scrollFrameLayout);
     this.addView(scrollView);
