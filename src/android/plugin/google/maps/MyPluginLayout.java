@@ -59,12 +59,9 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
-    //Log.d("GoogleMaps", "setSize=" + left +", " + top + " - " + right + ", " + bottom);
-    //updateViewPosition();
   }
   
   public void updateViewPosition() {
-    Log.d("GoogleMaps", "---updateViewPosition");
     ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
 
     if (lParams instanceof AbsoluteLayout.LayoutParams) {
