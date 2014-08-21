@@ -285,11 +285,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(0);
     if (this.windowLayer == null) {
-      if (visible && this.mapView.getParent() == null) {
-        this.webView.addView(mapView);
-      }
-      if (!visible && this.mapView.getParent() != null) {
-        this.webView.removeView(mapView);
+      if (visible) {
+        mapView.setVisibility(View.VISIBLE);
+      } else {
+        mapView.setVisibility(View.INVISIBLE);
       }
     }
     callbackContext.success();
