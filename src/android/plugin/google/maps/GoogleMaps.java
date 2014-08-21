@@ -121,7 +121,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
   
   private JSONObject mapDivLayoutJSON = null;
-  private MyMapView mapView = null;
+  private MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
   private LinearLayout windowLayer = null;
@@ -130,10 +130,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
   private final String PLUGIN_VERSION = "1.1.4";
-  private MyFrameLayout backgroundFrameView = null;
-  private FrameLayout baseFrameLayout = null;
-  private ScrollView scrollView = null;
-  private FrameLayout scrollFrameLayout = null;
+  private MyPluginLayout mPluginLayout = null;
   
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -186,22 +183,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-        webView.setBackgroundColor(Color.TRANSPARENT);
-
-        baseFrameLayout = new FrameLayout(activity);
-        baseFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        
-        backgroundFrameView = new MyFrameLayout(activity);
-        scrollView = new ScrollView(activity);
-        scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        
-        View dummy = new View(activity);
-        dummy.setBackgroundColor(Color.BLUE);
-        dummy.setLayoutParams(new LayoutParams(300, 9999));
-        
-        scrollFrameLayout = new FrameLayout(activity);
-        scrollFrameLayout.addView(dummy);
-        scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        mPluginLayout = new MyPluginLayout(webView);
       }
     });
   }
@@ -234,21 +216,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           case setDiv:
             if (mapView.getParent() != null) {
               GoogleMaps.this.mapDivLayoutJSON = null;
-              root.removeView(mapView);
-              mapView.removeView(backgroundFrameView);
-              backgroundFrameView.removeView(webView);
-              root.addView(webView);
+              mPluginLayout.detachMyView();
             }
             if (args.length() == 1) {
-              root.removeView(webView);
-              scrollView.addView(scrollFrameLayout);
-              baseFrameLayout.addView(scrollView);
-              scrollFrameLayout.addView(mapView);
-              
-              backgroundFrameView.addView(webView);
-              baseFrameLayout.addView(backgroundFrameView);
-              
-              root.addView(baseFrameLayout);
+              mPluginLayout.attachMyView(mapView);
               GoogleMaps.this.resizeMap(args, callbackContext);
             }
             break;
@@ -536,16 +507,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       options.camera(builder.build());
     }
     
-    mapView = new MyMapView(activity, options);
+    mapView = new MapView(activity, options);
     mapView.onCreate(null);
     mapView.onResume();
-    mapView.setOnDispatchTouchListener(new MyMapView.OnTouchListener() {
-      
-      @Override
-      public void onDispatchTouchListener() {
-        scrollView.requestDisallowInterceptTouchEvent(true);
-      }
-    });
     map = mapView.getMap();
     
     //controls
@@ -650,8 +614,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     switch(event) {
     case onScrollChanged:
       ScrollEvent scrollEvent = (ScrollEvent)data;
-      this.scrollView.scrollTo(scrollEvent.nl, scrollEvent.nt);
-      Log.d("GoogleMaps", "nl = " + scrollEvent.nl + ", nt=" + scrollEvent.nt);
+      mPluginLayout.scrollTo(scrollEvent.nl, scrollEvent.nt);
 
       try {
 
@@ -660,13 +623,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
         int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
 
-        backgroundFrameView.mapRect.left = divLeft;
-        backgroundFrameView.mapRect.top = divTop - scrollEvent.nt;
-        backgroundFrameView.mapRect.right = divLeft + divW;
-        backgroundFrameView.mapRect.bottom = divTop + divH - scrollEvent.nt;
-
-        backgroundFrameView.invalidate();
-        
+        mPluginLayout.setDrawingRect(
+            divLeft,
+            divTop - scrollEvent.nt, 
+            divLeft + divW, 
+            divTop + divH - scrollEvent.nt);
       } catch (JSONException e) {
         e.printStackTrace();
       };
@@ -845,12 +806,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         mapView.setLayoutParams(params);
       }
       
-      // 
-      backgroundFrameView.mapRect.left = divLeft;
-      backgroundFrameView.mapRect.top = divTop - webView.getScrollY();
-      backgroundFrameView.mapRect.right = divLeft + divW;
-      backgroundFrameView.mapRect.bottom = divTop + divH - webView.getScrollY();
-      backgroundFrameView.invalidate();
+      // Update the plugin drawing view rect
+      mPluginLayout.setDrawingRect(
+          divLeft,
+          divTop - webView.getScrollY(), 
+          divLeft + divW,
+          divTop + divH - webView.getScrollY());
       
       
     } catch (JSONException e) {
