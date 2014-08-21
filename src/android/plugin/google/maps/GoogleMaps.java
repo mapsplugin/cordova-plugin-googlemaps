@@ -614,9 +614,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     case onScrollChanged:
       ScrollEvent scrollEvent = (ScrollEvent)data;
       mPluginLayout.scrollTo(scrollEvent.nl, scrollEvent.nt);
-
+      Log.d("CordovaLog", "onScrollChanged= (webView.getTop)=" + webView.getTop());
       try {
-
         int divW = contentToView(mapDivLayoutJSON.getLong("width"));
         int divH = contentToView(mapDivLayoutJSON.getLong("height"));
         int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
@@ -741,7 +740,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         mapFrame.removeView(mapView);
         if (mapDivLayoutJSON != null) {
           mPluginLayout.attachMyView(mapView);
-          updateMapViewLayout();
         }
         root.removeView(windowLayer);
         webView.setVisibility(View.VISIBLE);
@@ -757,6 +755,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    Log.d("CordovaLog", "---resizeMap");
     mapDivLayoutJSON = args.getJSONObject(0);
     updateMapViewLayout();
     callbackContext.success();
@@ -764,19 +763,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   
   private void updateMapViewLayout() {
-    
+
+    Log.d("CordovaLog", "---updateMapViewLayout (webView.getTop)=" + webView.getTop() + ", scrollY=" + webView.getScrollY());
     try {
       int divW = contentToView(mapDivLayoutJSON.getLong("width"));
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
-      
+
       // Update the plugin drawing view rect
       mPluginLayout.setDrawingRect(
           divLeft,
-          divTop, 
+          divTop - webView.getScrollY()+ webView.getTop(), 
           divLeft + divW,
-          divTop + divH);
+          divTop + divH - webView.getScrollY() + webView.getTop());
       mPluginLayout.updateViewPosition();
     } catch (JSONException e) {
       e.printStackTrace();

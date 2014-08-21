@@ -1593,19 +1593,18 @@ function getDivSize(div) {
   
   return divSize;
 }
-function onMapResize(event, animated) {
+function onMapResize(event) {
   var self = window.plugin.google.maps.Map;
   var div = self.get("div");
   if (!div) {
     return;
   }
-  animated = !!animated;
   if (isDom(div) === false) {
     self.set("div", null);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
   } else {
     var divSize = getDivSize(div);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize, animated]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
   }
   
 }

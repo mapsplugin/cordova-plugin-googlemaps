@@ -30,6 +30,7 @@ public class MyPluginLayout extends FrameLayout  {
   private ViewGroup myView = null;
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
+  private boolean isDebug = false;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -60,6 +61,8 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
+    Log.d("CordovaLog", "drawRect=" + this.drawRect);
+    this.frontLayer.invalidate();
   }
   
   public void updateViewPosition() {
@@ -95,10 +98,14 @@ public class MyPluginLayout extends FrameLayout  {
       // Force redraw
       myView.requestLayout();
     }
+    this.frontLayer.invalidate();
   }
-  
+
   public View getMyView() {
     return myView;
+  }
+  public void setDebug(boolean debug) {
+    this.isDebug = debug;
   }
 
   public void detachMyView() {
@@ -114,6 +121,7 @@ public class MyPluginLayout extends FrameLayout  {
     
     this.removeView(this.scrollView);
     this.scrollView.removeView(scrollFrameLayout);
+    scrollView.scrollTo(0, 0);
     if (orgLayoutParams != null) {
       myView.setLayoutParams(orgLayoutParams);
     }
@@ -126,6 +134,7 @@ public class MyPluginLayout extends FrameLayout  {
     if (myView != null) {
       return;
     }
+    scrollView.scrollTo(webView.getScrollX(), webView.getScrollY());
     //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
     
     myView = pluginView;
@@ -168,6 +177,7 @@ public class MyPluginLayout extends FrameLayout  {
     
     public FrontLayerLayout(Context context) {
       super(context);
+      this.setWillNotDraw(false);
     }
     
     @Override
@@ -180,6 +190,21 @@ public class MyPluginLayout extends FrameLayout  {
       isScrolling = (action == MotionEvent.ACTION_UP) ? false : isScrolling;
       contains = isScrolling == true ? false : contains;
       return contains;
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+      if (drawRect == null) {
+        return;
+      }
+      int width = canvas.getWidth();
+      int height = canvas.getHeight();
+      
+      Paint paint = new Paint();
+      paint.setColor(Color.argb(100, 0, 255, 0));
+      canvas.drawRect(0f, 0f, width, drawRect.top, paint);
+      canvas.drawRect(0, drawRect.top, drawRect.left, drawRect.bottom, paint);
+      canvas.drawRect(drawRect.right, drawRect.top, width, drawRect.bottom, paint);
+      canvas.drawRect(0, drawRect.bottom, width, height, paint);
     }
   }
   
