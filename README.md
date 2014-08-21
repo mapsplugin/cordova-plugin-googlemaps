@@ -112,3 +112,11 @@ New version will be announced through the official community. Stay tune!
 * [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
   * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/direction.gif" height="250"> 
   * Launch the navigation application
+
+
+### Please encourage this project.
+I put in plenty of time for this project.
+If you donate some amount, I will notify you when I test new feature, or reply your question as much as possible.
+Thank you for your encouragement to this project. 
+
+[![Donation with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Phonegap%2dGoogleMaps%2dPlugin&item_number=phonegap&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
