@@ -631,15 +631,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         e.printStackTrace();
       };
       
-      
-      /*
-      if (android.os.Build.VERSION.SDK_INT < 11) {
-        // Force redraw the map
-        if (mapView != null) {
-          //mapView.requestLayout();
-        }
-      }
-      */
       break;
     }
     
@@ -753,7 +744,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    Log.d("GoogleMaps", "--resizeMap");
     mapDivLayoutJSON = args.getJSONObject(0);
     updateMapViewLayout();
     callbackContext.success();
@@ -761,49 +751,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   
   private void updateMapViewLayout() {
-    Log.d("GoogleMaps", "--updateMapViewLayout");
     
     try {
       int divW = contentToView(mapDivLayoutJSON.getLong("width"));
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
       int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
       int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
-      ViewGroup.LayoutParams lParams = null;
-      /*
-      lParams = this.scrollFrameLayout.getLayoutParams();
-      lParams.width = 300;
-      lParams.height = 9999;
-      this.scrollFrameLayout.setLayoutParams(lParams);
-      */
-      
-      // Positioning the mapView layout params.
-      lParams = mapView.getLayoutParams();
-      if (lParams instanceof android.widget.AbsoluteLayout.LayoutParams) {
-        AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-        params.width = divW;
-        params.height = divH;
-        params.y = divTop;
-        params.x = divLeft;
-        mapView.setLayoutParams(params);
-      }
-
-      if (lParams instanceof android.widget.LinearLayout.LayoutParams) {
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-        params.width = divW;
-        params.height = divH;
-        params.topMargin = divTop;
-        params.leftMargin = divLeft;
-        mapView.setLayoutParams(params);
-      }
-
-      if (lParams instanceof android.widget.FrameLayout.LayoutParams) {
-        LayoutParams params = (LayoutParams) lParams;
-        params.width = divW;
-        params.height = divH;
-        params.topMargin = divTop;
-        params.leftMargin = divLeft;
-        mapView.setLayoutParams(params);
-      }
       
       // Update the plugin drawing view rect
       mPluginLayout.setDrawingRect(
@@ -811,7 +764,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           divTop - webView.getScrollY(), 
           divLeft + divW,
           divTop + divH - webView.getScrollY());
-      
       
     } catch (JSONException e) {
       e.printStackTrace();

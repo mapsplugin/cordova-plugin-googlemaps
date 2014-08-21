@@ -8,10 +8,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 public class MyPluginLayout extends FrameLayout  {
@@ -25,6 +28,7 @@ public class MyPluginLayout extends FrameLayout  {
   private View backgroundView = null;
   private TouchableWrapper touchableWrapper;
   private ViewGroup myView = null;
+  private boolean isScrolling = false;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -55,6 +59,42 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
+    //Log.d("GoogleMaps", "setSize=" + left +", " + top + " - " + right + ", " + bottom);
+    if (this.isScrolling == false) {
+      updateViewPosition();
+    }
+  }
+  
+  public void updateViewPosition() {
+    ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
+
+    if (lParams instanceof AbsoluteLayout.LayoutParams) {
+      AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+      params.width = (int) this.drawRect.width();
+      params.height = (int) this.drawRect.height();
+      params.x = (int) this.drawRect.left;
+      params.y = (int) this.drawRect.top;
+      myView.setLayoutParams(params);
+    } else if (lParams instanceof LinearLayout.LayoutParams) {
+      LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+      params.width = (int) this.drawRect.width();
+      params.height = (int) this.drawRect.height();
+      params.topMargin = (int) this.drawRect.top;
+      params.leftMargin = (int) this.drawRect.left;
+      myView.setLayoutParams(params);
+    } else if (lParams instanceof FrameLayout.LayoutParams) {
+      FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+      params.width = (int) this.drawRect.width();
+      params.height = (int) this.drawRect.height();
+      params.topMargin = (int) this.drawRect.top;
+      params.leftMargin = (int) this.drawRect.left;
+      params.gravity = Gravity.TOP;
+      myView.setLayoutParams(params);
+    } 
+    if (android.os.Build.VERSION.SDK_INT < 11) {
+      // Force redraw
+      myView.requestLayout();
+    }
   }
 
   public void detachMyView() {
@@ -113,6 +153,9 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+      if (isScrolling == false) {
+        return false;
+      }
       int x = (int)event.getX();
       int y = (int)event.getY();
       return drawRect.contains(x, y);
@@ -128,7 +171,10 @@ public class MyPluginLayout extends FrameLayout  {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
       int action = event.getAction();
-      if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP) {
+      if (action == MotionEvent.ACTION_DOWN) {
+        isScrolling = true;
+      } else if (action == MotionEvent.ACTION_UP) {
+        isScrolling = false;
         scrollView.requestDisallowInterceptTouchEvent(true);
       }
       return super.dispatchTouchEvent(event);
