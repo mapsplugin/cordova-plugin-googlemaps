@@ -764,7 +764,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           divTop, 
           divLeft + divW,
           divTop + divH);
-      
       mPluginLayout.updateViewPosition();
     } catch (JSONException e) {
       e.printStackTrace();
