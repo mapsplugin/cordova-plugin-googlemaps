@@ -665,8 +665,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     mapFrame.setPadding(0, 0, 0, (int)(40 * density));
     dialogLayer.addView(mapFrame);
     
-    if (this.mapView.getParent() != null) {
-      this.webView.removeView(mapView);
+    if (this.mPluginLayout.getMyView() != null) {
+      this.mPluginLayout.detachMyView();
     }
     
     ViewGroup.LayoutParams mapLayout = (ViewGroup.LayoutParams) mapView.getLayoutParams();
@@ -714,8 +714,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
     
-    
-    root = (ViewGroup) webView.getParent();
     webView.setVisibility(View.GONE);
     root.addView(windowLayer);
     

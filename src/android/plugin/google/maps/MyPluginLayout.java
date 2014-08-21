@@ -62,6 +62,9 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void updateViewPosition() {
+    if (myView == null) {
+      return;
+    }
     ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
 
     if (lParams instanceof AbsoluteLayout.LayoutParams) {
@@ -92,8 +95,15 @@ public class MyPluginLayout extends FrameLayout  {
       myView.requestLayout();
     }
   }
+  
+  public View getMyView() {
+    return myView;
+  }
 
   public void detachMyView() {
+    if (myView == null) {
+      return;
+    }
     root.removeView(this);
     this.removeView(frontLayer);
     frontLayer.removeView(webView);
@@ -105,9 +115,13 @@ public class MyPluginLayout extends FrameLayout  {
     this.scrollView.removeView(scrollFrameLayout);
     
     root.addView(webView);
+    myView = null;
   }
   
   public void attachMyView(ViewGroup pluginView) {
+    if (myView != null) {
+      return;
+    }
     //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
     
     myView = pluginView;
