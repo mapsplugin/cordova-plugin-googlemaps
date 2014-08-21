@@ -669,13 +669,28 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       this.mPluginLayout.detachMyView();
     }
     
-    ViewGroup.LayoutParams mapLayout = (ViewGroup.LayoutParams) mapView.getLayoutParams();
-    if (mapLayout == null) {
-      mapLayout = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    ViewGroup.LayoutParams lParams = (ViewGroup.LayoutParams) mapView.getLayoutParams();
+    if (lParams == null) {
+      lParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
-    mapLayout.width = ViewGroup.LayoutParams.MATCH_PARENT;
-    mapLayout.height = ViewGroup.LayoutParams.MATCH_PARENT;
-    mapView.setLayoutParams(mapLayout);
+    lParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+    lParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+    if (lParams instanceof AbsoluteLayout.LayoutParams) {
+      AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+      params.x = 0;
+      params.y = 0;
+      mapView.setLayoutParams(params);
+    } else if (lParams instanceof LinearLayout.LayoutParams) {
+      LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+      params.topMargin = 0;
+      params.leftMargin = 0;
+      mapView.setLayoutParams(params);
+    } else if (lParams instanceof FrameLayout.LayoutParams) {
+      FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+      params.topMargin = 0;
+      params.leftMargin = 0;
+      mapView.setLayoutParams(params);
+    } 
     mapFrame.addView(this.mapView);
     
     // button frame
@@ -725,7 +740,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void onCustomViewHidden() {
         mapFrame.removeView(mapView);
         if (mapDivLayoutJSON != null) {
-          webView.addView(mapView);
+          mPluginLayout.attachMyView(mapView);
           updateMapViewLayout();
         }
         root.removeView(windowLayer);
