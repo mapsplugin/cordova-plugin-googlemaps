@@ -761,9 +761,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       // Update the plugin drawing view rect
       mPluginLayout.setDrawingRect(
           divLeft,
-          divTop - webView.getScrollY(), 
+          divTop, 
           divLeft + divW,
-          divTop + divH - webView.getScrollY());
+          divTop + divH);
       
       mPluginLayout.updateViewPosition();
     } catch (JSONException e) {
