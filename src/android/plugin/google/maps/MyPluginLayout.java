@@ -28,7 +28,6 @@ public class MyPluginLayout extends FrameLayout  {
   private View backgroundView = null;
   private TouchableWrapper touchableWrapper;
   private ViewGroup myView = null;
-  private boolean isScrolling = false;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -45,7 +44,7 @@ public class MyPluginLayout extends FrameLayout  {
     backgroundView.setBackgroundColor(Color.WHITE);
     backgroundView.setVerticalScrollBarEnabled(false);
     backgroundView.setHorizontalScrollBarEnabled(false);
-    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
+    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 9999));
     
     scrollFrameLayout = new FrameLayout(this.context);
     scrollFrameLayout.addView(backgroundView);
@@ -60,12 +59,11 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
     //Log.d("GoogleMaps", "setSize=" + left +", " + top + " - " + right + ", " + bottom);
-    if (this.isScrolling == false) {
-      updateViewPosition();
-    }
+    //updateViewPosition();
   }
   
   public void updateViewPosition() {
+    Log.d("GoogleMaps", "---updateViewPosition");
     ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
 
     if (lParams instanceof AbsoluteLayout.LayoutParams) {
@@ -112,7 +110,7 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void attachMyView(ViewGroup pluginView) {
-    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
+    //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
     
     myView = pluginView;
     root.removeView(webView);
@@ -153,9 +151,6 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (isScrolling == false) {
-        return false;
-      }
       int x = (int)event.getX();
       int y = (int)event.getY();
       return drawRect.contains(x, y);
@@ -171,10 +166,7 @@ public class MyPluginLayout extends FrameLayout  {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
       int action = event.getAction();
-      if (action == MotionEvent.ACTION_DOWN) {
-        isScrolling = true;
-      } else if (action == MotionEvent.ACTION_UP) {
-        isScrolling = false;
+      if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP) {
         scrollView.requestDisallowInterceptTouchEvent(true);
       }
       return super.dispatchTouchEvent(event);
