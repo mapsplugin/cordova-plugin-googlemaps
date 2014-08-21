@@ -33,6 +33,10 @@ public class MyScrollView extends ScrollView {
       }
     };
   }
+  @Override
+  public boolean onTouchEvent(MotionEvent ev) {
+    return true;
+  }
   
   public void setOnScrollViewListener(ScrollViewListener scrollViewListener) {
     this.scrollViewListener = scrollViewListener;
