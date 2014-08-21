@@ -192,7 +192,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         baseFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         backgroundFrameView = new MyFrameLayout(activity);
-        scrollView = new MyScrollView(activity);
+        scrollView = new ScrollView(activity);
         scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         View dummy = new View(activity);
@@ -200,13 +200,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         dummy.setLayoutParams(new LayoutParams(300, 9999));
         
         scrollFrameLayout = new FrameLayout(activity);
-        dummy.setOnTouchListener(new View.OnTouchListener() {
-          
-          @Override
-          public boolean onTouch(View v, MotionEvent event) {
-            return true;
-          }
-        });
         scrollFrameLayout.addView(dummy);
         scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
       }
@@ -248,12 +241,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             }
             if (args.length() == 1) {
               root.removeView(webView);
-              scrollFrameLayout.addView(mapView);
               scrollView.addView(scrollFrameLayout);
               baseFrameLayout.addView(scrollView);
+              scrollFrameLayout.addView(mapView);
               
               backgroundFrameView.addView(webView);
-              //baseFrameLayout.addView(backgroundFrameView);
+              baseFrameLayout.addView(backgroundFrameView);
               
               root.addView(baseFrameLayout);
               GoogleMaps.this.resizeMap(args, callbackContext);
@@ -546,6 +539,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     mapView = new MyMapView(activity, options);
     mapView.onCreate(null);
     mapView.onResume();
+    mapView.setOnDispatchTouchListener(new MyMapView.OnTouchListener() {
+      
+      @Override
+      public void onDispatchTouchListener() {
+        scrollView.requestDisallowInterceptTouchEvent(true);
+      }
+    });
     map = mapView.getMap();
     
     //controls
@@ -600,6 +600,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
     return;
   }
+  
   private int contentToView(long d) {
     return Math.round(d * webView.getScale());
   }
