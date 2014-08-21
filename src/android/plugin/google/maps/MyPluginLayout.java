@@ -28,6 +28,7 @@ public class MyPluginLayout extends FrameLayout  {
   private View backgroundView = null;
   private TouchableWrapper touchableWrapper;
   private ViewGroup myView = null;
+  private boolean isScrolling = false;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -153,7 +154,12 @@ public class MyPluginLayout extends FrameLayout  {
     public boolean onInterceptTouchEvent(MotionEvent event) {
       int x = (int)event.getX();
       int y = (int)event.getY();
-      return drawRect.contains(x, y);
+      boolean contains = drawRect.contains(x, y);
+      int action = event.getAction();
+      isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
+      isScrolling = (action == MotionEvent.ACTION_UP) ? false : isScrolling;
+      contains = isScrolling == true ? false : contains;
+      return contains;
     }
   }
   
