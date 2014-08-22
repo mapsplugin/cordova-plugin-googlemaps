@@ -30,7 +30,7 @@ public class MyPluginLayout extends FrameLayout  {
   private ViewGroup myView = null;
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
-  private boolean isDebug = true;
+  private boolean isDebug = false;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
