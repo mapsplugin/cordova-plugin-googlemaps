@@ -614,7 +614,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     case onScrollChanged:
       ScrollEvent scrollEvent = (ScrollEvent)data;
       mPluginLayout.scrollTo(scrollEvent.nl, scrollEvent.nt);
-      Log.d("CordovaLog", "onScrollChanged= (webView.getTop)=" + webView.getTop());
       try {
         int divW = contentToView(mapDivLayoutJSON.getLong("width"));
         int divH = contentToView(mapDivLayoutJSON.getLong("height"));
