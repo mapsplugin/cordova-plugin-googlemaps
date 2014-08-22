@@ -52,25 +52,16 @@ function onPageLoaded(map) {
 function geocoding(map) {
   map.clear();
   var request = {
-    'address': $("#geocoder_input").val()
+    'address': "Kyoto, Japan"
   };
-  map.geocode(request, function(results) {
+  plugin.google.maps.Geocoder.geocode(request, function(results) {
     if (results.length) {
+      map.showDialog();
       var result = results[0];
       var position = result.position; 
-      
+  
       map.addMarker({
-        'position': position,
-        'title': JSON.stringify(result.position)
-      }, function(marker) {
-        
-        map.animateCamera({
-          'target': position,
-          'zoom': 17
-        }, function() {
-          marker.showInfoWindow();
-        });
-        
+        'position': position
       });
     } else {
       alert("Not found");

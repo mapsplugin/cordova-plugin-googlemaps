@@ -1,13 +1,39 @@
 <div id="map_canvas">
-  <button id="showDialogBtn" style="margin: 10px; width: 250px;">My Button</button>
-  
+  <table style="width:98%;margin:1%;">
+    <tr>
+      <td width="70%"><input id="query" style="width: 100%" /></td>
+      <td width="30%"><button id="searchBtn">Search</button></td>
+    </tr>
+  </table>
 </div>
 
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  $("#showDialogBtn").click(function() {
-    alert("clicked");
+  $("#searchBtn").click(function() {
+    var request = {
+      'address': $("#query").val()
+    };
+    plugin.google.maps.Geocoder.geocode(request, function(results) {
+      if (results.length) {
+        var result = results[0];
+        var position = result.position; 
+    
+        map.addMarker({
+          'position': position,
+          'title':  JSON.stringify(result.position)
+        }, function(marker) {
+          map.animateCamera({
+            'target': position,
+            'zoom': 13
+          }, function() {
+            marker.showInfoWindow();
+          });
+        });
+      } else {
+        alert("Not found");
+      }
+    });
   });
 }
 </script>

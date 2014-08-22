@@ -482,15 +482,21 @@ App.prototype.setDiv = function(div) {
     args.push(getDivSize(div));
     var element, elements = [];
     var children = div.childNodes;
+    var elemId;
     
     for (var i = 0; i < children.length; i++) {
-      element = elements[i];
-      if (element.__pluginDomId) {
-        element.__pluginDomId = Math.floor(Math.random() * Date.now()) + i;
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      if (!elemId) {
+        elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+        element.setAttribute("__pluginDomId", elemId);
       }
       elements.push({
-        id: element.__pluginDomId,
-        size: getDivSize()
+        id: elemId,
+        size: getDivSize(element)
       });
     }
     args.push(elements);

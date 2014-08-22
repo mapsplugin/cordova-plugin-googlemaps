@@ -12,8 +12,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,7 +37,7 @@ public class MyPluginLayout extends FrameLayout  {
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
   private boolean isDebug = false;
-  private Map<String, Rect> HTMLNodes = new HashMap<String, Rect>();
+  private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -72,12 +72,12 @@ public class MyPluginLayout extends FrameLayout  {
     
   }
   
-  public void putHTMLElement(String domId, int left, int top, int right, int bottom) {
-    Rect rect = null;
+  public void putHTMLElement(String domId, float left, float top, float right, float bottom) {
+    RectF rect = null;
     if (this.HTMLNodes.containsKey(domId)) {
       rect = this.HTMLNodes.get(domId);
     } else {
-      rect = new Rect();
+      rect = new RectF();
     }
     rect.left = left;
     rect.top = top;
@@ -87,6 +87,9 @@ public class MyPluginLayout extends FrameLayout  {
   }
   public void removeHTMLElement(String domId) {
     this.HTMLNodes.remove(domId);
+  }
+  public void clearHTMLElement() {
+    this.HTMLNodes.clear();
   }
   
   
@@ -218,13 +221,13 @@ public class MyPluginLayout extends FrameLayout  {
       
       if (contains) {
         // Is the touch point on any HTML elements?
-        Set<Entry<String, Rect>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
-        Iterator<Entry<String, Rect>> iterator = elements.iterator();
-        Entry <String, Rect> entry;
+        Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
+        Iterator<Entry<String, RectF>> iterator = elements.iterator();
+        Entry <String, RectF> entry;
         while(iterator.hasNext()) {
           entry = iterator.next();
           if (entry.getValue().contains(x, y)) {
-            contains = true;
+            contains = false;
             break;
           }
         }
