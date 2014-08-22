@@ -1,13 +1,19 @@
 package plugin.google.maps;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.apache.cordova.CordovaWebView;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,6 +37,7 @@ public class MyPluginLayout extends FrameLayout  {
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
   private boolean isDebug = false;
+  private Map<String, Rect> HTMLNodes = new HashMap<String, Rect>();
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -64,6 +71,24 @@ public class MyPluginLayout extends FrameLayout  {
     this.frontLayer.invalidate();
     
   }
+  
+  public void putHTMLElement(String domId, int left, int top, int right, int bottom) {
+    Rect rect = null;
+    if (this.HTMLNodes.containsKey(domId)) {
+      rect = this.HTMLNodes.get(domId);
+    } else {
+      rect = new Rect();
+    }
+    rect.left = left;
+    rect.top = top;
+    rect.right = right;
+    rect.bottom = bottom;
+    this.HTMLNodes.put(domId, rect);
+  }
+  public void removeHTMLElement(String domId) {
+    this.HTMLNodes.remove(domId);
+  }
+  
   
   @SuppressWarnings("deprecation")
   public void updateViewPosition() {
@@ -111,7 +136,7 @@ public class MyPluginLayout extends FrameLayout  {
   }
 
   public void detachMyView() {
-    if (myView == null || isDebug == false) {
+    if (myView == null) {
       return;
     }
     root.removeView(this);
@@ -190,11 +215,25 @@ public class MyPluginLayout extends FrameLayout  {
       isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
       isScrolling = (action == MotionEvent.ACTION_UP) ? false : isScrolling;
       contains = isScrolling == true ? false : contains;
+      
+      if (contains) {
+        // Is the touch point on any HTML elements?
+        Set<Entry<String, Rect>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
+        Iterator<Entry<String, Rect>> iterator = elements.iterator();
+        Entry <String, Rect> entry;
+        while(iterator.hasNext()) {
+          entry = iterator.next();
+          if (entry.getValue().contains(x, y)) {
+            contains = true;
+            break;
+          }
+        }
+      }
       return contains;
     }
     @Override
     protected void onDraw(Canvas canvas) {
-      if (drawRect == null) {
+      if (drawRect == null || isDebug == false) {
         return;
       }
       int width = canvas.getWidth();
