@@ -99,20 +99,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
   
-  private enum METHODS {
-    setVisible,
-    setDiv,
-    resizeMap,
-    getMap,
-    showDialog,
-    closeDialog,
-    getMyLocation,
-    exec,
-    isAvailable,
-    getLicenseInfo,
-    clear
-  }
-  
   private enum EVENTS {
     onScrollChanged
   }
@@ -205,47 +191,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           Log.e(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
         }
-        try {
-          switch(METHODS.valueOf(action)) {
-          case getLicenseInfo:
-            GoogleMaps.this.getLicenseInfo(args, callbackContext);
-            break;
-          case setVisible:
-            GoogleMaps.this.setVisible(args, callbackContext);
-            break;
-          case setDiv:
-            if (mapView.getParent() != null) {
-              GoogleMaps.this.mapDivLayoutJSON = null;
-              mPluginLayout.detachMyView();
-            }
-            if (args.length() == 1) {
-              mPluginLayout.attachMyView(mapView);
-              GoogleMaps.this.resizeMap(args, callbackContext);
-            }
-            break;
-          case resizeMap:
-            GoogleMaps.this.resizeMap(args, callbackContext);
-            break;
-          case getMap:
-            GoogleMaps.this.getMap(args, callbackContext);
-            break;
-          case showDialog:
-            GoogleMaps.this.showDialog(args, callbackContext);
-            break;
-          case closeDialog:
-            GoogleMaps.this.closeDialog(args, callbackContext);
-            break;
-          case getMyLocation:
-            GoogleMaps.this.getMyLocation(args, callbackContext);
-            break;
-          case isAvailable:
-            GoogleMaps.this.isAvailable(args, callbackContext);
-            break;
-          case clear:
-            GoogleMaps.this.clear(args, callbackContext);
-            break;
-          case exec:
-          
+        if ("exec".equals(action)) {
+          try {
             String classMethod = args.getString(0);
             String[] params = classMethod.split("\\.", 0);
             
@@ -258,15 +205,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             } else {
               callbackContext.error("'" + action + "' parameter is invalid length.");
             }
-            break;
-        
-          default:
-            callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
-            break;
+          } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error("Java Error\n" + e.getCause().getMessage());
           }
-        } catch (Exception e) {
-          e.printStackTrace();
-          callbackContext.error("Java Error\n" + e.getMessage());
+        } else {
+          try {
+            Method method = GoogleMaps.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+            method.setAccessible(true);
+            method.invoke(GoogleMaps.this, args, callbackContext);
+          } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
+          }
         }
       }
     };
@@ -275,6 +226,44 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return true;
   }
 
+  @SuppressWarnings("unused")
+  private void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+    if (mapView.getParent() != null) {
+      this.mapDivLayoutJSON = null;
+      mPluginLayout.detachMyView();
+      return;
+    }
+    if (args.length() == 2) {
+      mPluginLayout.attachMyView(mapView);
+      
+      JSONArray HTMLs = args.getJSONArray(1);
+      JSONObject elemInfo, elemSize;
+      String elemId;
+      float divW, divH, divLeft, divTop;
+      this.mPluginLayout.clearHTMLElement();
+      Log.d("CordovaLog", "HTMLs= " + HTMLs.length());
+      
+      for (int i = 0; i < HTMLs.length(); i++) {
+        elemInfo = HTMLs.getJSONObject(i);
+        try {
+          elemId = elemInfo.getString("id");
+          elemSize = elemInfo.getJSONObject("size");
+          
+          divW = contentToView(elemSize.getLong("width"));
+          divH = contentToView(elemSize.getLong("height"));
+          divLeft = contentToView(elemSize.getLong("left"));
+          divTop = contentToView(elemSize.getLong("top"));
+          //Log.d("CordovaLog", "putHtml = " + elemId + "/ "  + divLeft + ", "+ divTop + " - " + divW + ", " + divH);
+          mPluginLayout.putHTMLElement(elemId, divLeft, divTop, divLeft + divW, divTop + divH);
+        } catch (Exception e){
+          e.printStackTrace();
+        }
+      }
+      
+      this.resizeMap(args, callbackContext);
+    }
+  }
 
   /**
    * Set visibility of the map
