@@ -480,6 +480,20 @@ App.prototype.setDiv = function(div) {
   } else {
     self.set("div", div);
     args.push(getDivSize(div));
+    var element, elements = [];
+    var children = div.childNodes;
+    
+    for (var i = 0; i < children.length; i++) {
+      element = elements[i];
+      if (element.__pluginDomId) {
+        element.__pluginDomId = Math.floor(Math.random() * Date.now()) + i;
+      }
+      elements.push({
+        id: element.__pluginDomId,
+        size: getDivSize()
+      });
+    }
+    args.push(elements);
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
 };

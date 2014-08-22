@@ -1,100 +1,13 @@
-<div id="map_canvas"></div>
+<div id="map_canvas">
+  <button id="showDialogBtn" style="margin: 10px; width: 250px;">My Button</button>
+  
+</div>
 
 <script type="text/javascript">
 
 function onPageLoaded(map) {
-  var dummy = [];
-  for (var i = 0; i < 50; i++) 
-    dummy.push(i);
-    
-  async.map(dummy, function(i, callback) {
-    map.addMarker({
-      visible: false
-    }, function(marker) {
-      //Listen the photo_change event
-      map.on("photo_change_" + i, function(photo) {
-        var position = new plugin.google.maps.LatLng(photo.latitude, photo.longitude);
-        marker.setPosition(position);
-        
-        marker.setVisible(true);
-        marker.set("photo_url", photo.photo_file_url);
-      });
-      
-      //Bind the same event listener for all markers
-      marker.on(plugin.google.maps.event.MARKER_CLICK, function() {
-        openPhoto(map, marker.get("photo_url"));
-      });
-      callback(null, marker);
-    });
-  }, function(markers) {
-    setInterval(function() {
-      map.getVisibleRegion(function(latLngBounds) {
-        
-        // Get 50 photos from Panoramio
-        $.ajax({
-          url: "http://www.panoramio.com/map/get_panoramas.php",
-          type: "GET",
-          dataType: "jsonp",
-          async: true,
-          data: {
-            "order": "popularity",
-            "set": "public",
-            "from": 0,
-            "to": 50,
-            "maxx": latLngBounds.northeast.lng,
-            "maxy": latLngBounds.northeast.lat,
-            "minx": latLngBounds.southwest.lng,
-            "miny": latLngBounds.southwest.lat
-          },
-          success: function(json){
-            
-            var photos = json.photos;
-            if (!photos) {
-              return;
-            }
-            
-            photos.forEach(function(photo, i) {
-              map.trigger("photo_change_" + i, photo);
-            });
-          } 
-        });
-      });
-    }, 10000);
-    
+  $("#showDialogBtn").click(function() {
+    alert("clicked");
   });
-}
-function openPhoto(map, photo_url) {
-  var photoDiv = $("<div>").css({
-    "position": "fixed",
-    "left": "10%",
-    "top": "10%",
-    "right": "10%",
-    "bottom": "10%",
-    "z-index": 1001,
-    "background-image": "url('" + photo_url + "')",
-    "background-size": "cover",
-    "background-position": "center"
-  });
-  photoDiv.appendTo("body");
-  
-  var backGround = $("<div>").css({
-    opacity: 0.7,
-    backgroundColor: "black",
-    "position": "fixed",
-    "left": 0,
-    "top": 0,
-    "right": 0,
-    "bottom": 0,
-    "z-index": 1000
-  });
-  
-  backGround.one("click", function() {
-    $(backGround).remove();
-    $(photoDiv).remove();
-    map.setVisible(true);
-  });
-  backGround.appendTo("body");
-  
-  map.setVisible(false);
 }
 </script>
