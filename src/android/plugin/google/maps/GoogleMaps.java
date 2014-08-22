@@ -755,7 +755,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    Log.d("CordovaLog", "---resizeMap");
     mapDivLayoutJSON = args.getJSONObject(0);
     updateMapViewLayout();
     callbackContext.success();
@@ -764,7 +763,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   
   private void updateMapViewLayout() {
 
-    Log.d("CordovaLog", "---updateMapViewLayout (webView.getTop)=" + webView.getTop() + ", scrollY=" + webView.getScrollY());
     try {
       int divW = contentToView(mapDivLayoutJSON.getLong("width"));
       int divH = contentToView(mapDivLayoutJSON.getLong("height"));
@@ -774,9 +772,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       // Update the plugin drawing view rect
       mPluginLayout.setDrawingRect(
           divLeft,
-          divTop - webView.getScrollY()+ webView.getTop(), 
+          divTop - webView.getScrollY(), 
           divLeft + divW,
-          divTop + divH - webView.getScrollY() + webView.getTop());
+          divTop + divH - webView.getScrollY());
       mPluginLayout.updateViewPosition();
     } catch (JSONException e) {
       e.printStackTrace();

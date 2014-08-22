@@ -30,7 +30,7 @@ public class MyPluginLayout extends FrameLayout  {
   private ViewGroup myView = null;
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
-  private boolean isDebug = false;
+  private boolean isDebug = true;
   
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
@@ -61,35 +61,37 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
-    Log.d("CordovaLog", "drawRect=" + this.drawRect);
     this.frontLayer.invalidate();
+    
   }
   
+  @SuppressWarnings("deprecation")
   public void updateViewPosition() {
     if (myView == null) {
       return;
     }
     ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
+    int scrollY = webView.getScrollY();
 
     if (lParams instanceof AbsoluteLayout.LayoutParams) {
       AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
       params.width = (int) this.drawRect.width();
       params.height = (int) this.drawRect.height();
       params.x = (int) this.drawRect.left;
-      params.y = (int) this.drawRect.top;
+      params.y = (int) this.drawRect.top + scrollY;
       myView.setLayoutParams(params);
     } else if (lParams instanceof LinearLayout.LayoutParams) {
       LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
       params.width = (int) this.drawRect.width();
       params.height = (int) this.drawRect.height();
-      params.topMargin = (int) this.drawRect.top;
+      params.topMargin = (int) this.drawRect.top + scrollY;
       params.leftMargin = (int) this.drawRect.left;
       myView.setLayoutParams(params);
     } else if (lParams instanceof FrameLayout.LayoutParams) {
       FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
       params.width = (int) this.drawRect.width();
       params.height = (int) this.drawRect.height();
-      params.topMargin = (int) this.drawRect.top;
+      params.topMargin = (int) this.drawRect.top + scrollY;
       params.leftMargin = (int) this.drawRect.left;
       params.gravity = Gravity.TOP;
       myView.setLayoutParams(params);
@@ -109,7 +111,7 @@ public class MyPluginLayout extends FrameLayout  {
   }
 
   public void detachMyView() {
-    if (myView == null) {
+    if (myView == null || isDebug == false) {
       return;
     }
     root.removeView(this);
@@ -121,7 +123,6 @@ public class MyPluginLayout extends FrameLayout  {
     
     this.removeView(this.scrollView);
     this.scrollView.removeView(scrollFrameLayout);
-    scrollView.scrollTo(0, 0);
     if (orgLayoutParams != null) {
       myView.setLayoutParams(orgLayoutParams);
     }
