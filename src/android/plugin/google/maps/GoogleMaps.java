@@ -228,8 +228,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @SuppressWarnings("unused")
   private void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
-
-    if (mapView.getParent() != null) {
+    if (args.length() == 0) {
       this.mapDivLayoutJSON = null;
       mPluginLayout.detachMyView();
       return;
@@ -553,8 +552,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return;
   }
   
-  private int contentToView(long d) {
-    return Math.round(d * webView.getScale());
+  private float contentToView(long d) {
+    return d * webView.getScale();
   }
   
   //-----------------------------------
@@ -604,10 +603,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       ScrollEvent scrollEvent = (ScrollEvent)data;
       mPluginLayout.scrollTo(scrollEvent.nl, scrollEvent.nt);
       try {
-        int divW = contentToView(mapDivLayoutJSON.getLong("width"));
-        int divH = contentToView(mapDivLayoutJSON.getLong("height"));
-        int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
-        int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+        float divW = contentToView(mapDivLayoutJSON.getLong("width"));
+        float divH = contentToView(mapDivLayoutJSON.getLong("height"));
+        float divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
+        float divTop = contentToView(mapDivLayoutJSON.getLong("top"));
 
         mPluginLayout.setDrawingRect(
             divLeft,
@@ -752,10 +751,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void updateMapViewLayout() {
 
     try {
-      int divW = contentToView(mapDivLayoutJSON.getLong("width"));
-      int divH = contentToView(mapDivLayoutJSON.getLong("height"));
-      int divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
-      int divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+      float divW = contentToView(mapDivLayoutJSON.getLong("width"));
+      float divH = contentToView(mapDivLayoutJSON.getLong("height"));
+      float divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
+      float divTop = contentToView(mapDivLayoutJSON.getLong("top"));
 
       // Update the plugin drawing view rect
       mPluginLayout.setDrawingRect(
