@@ -763,20 +763,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           divLeft + divW,
           divTop + divH - webView.getScrollY());
       mPluginLayout.updateViewPosition();
+      mapView.requestLayout();
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    
-    Runnable runable = new Runnable() {
-
-      @Override
-      public void run() {
-        mPluginLayout.updateViewPosition();
-      }
-      
-    };
-    Handler handler = new Handler();
-    handler.postDelayed(runable, 100);
   }
   
   private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
