@@ -727,6 +727,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         mapFrame.removeView(mapView);
         if (mapDivLayoutJSON != null) {
           mPluginLayout.attachMyView(mapView);
+          mPluginLayout.updateViewPosition();
         }
         root.removeView(windowLayer);
         webView.setVisibility(View.VISIBLE);
