@@ -8,11 +8,14 @@ import java.util.Set;
 
 import org.apache.cordova.CordovaWebView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Build;
+import android.os.Build.VERSION;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -39,12 +42,16 @@ public class MyPluginLayout extends FrameLayout  {
   private boolean isDebug = false;
   private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
   
+  @SuppressLint("NewApi")
   public MyPluginLayout(CordovaWebView webView) {
     super(webView.getContext());
     this.webView = webView;
     this.root = (ViewGroup) webView.getParent();
     this.context = webView.getContext();
     webView.setBackgroundColor(Color.TRANSPARENT);
+    if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+      webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+    }
     frontLayer = new FrontLayerLayout(this.context);
     
     scrollView = new ScrollView(this.context);
