@@ -42,6 +42,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -241,7 +242,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       String elemId;
       float divW, divH, divLeft, divTop;
       this.mPluginLayout.clearHTMLElement();
-      Log.d("CordovaLog", "HTMLs= " + HTMLs.length());
       
       for (int i = 0; i < HTMLs.length(); i++) {
         elemInfo = HTMLs.getJSONObject(i);
@@ -253,7 +253,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           divH = contentToView(elemSize.getLong("height"));
           divLeft = contentToView(elemSize.getLong("left"));
           divTop = contentToView(elemSize.getLong("top"));
-          //Log.d("CordovaLog", "putHtml = " + elemId + "/ "  + divLeft + ", "+ divTop + " - " + divW + ", " + divH);
           mPluginLayout.putHTMLElement(elemId, divLeft, divTop, divLeft + divW, divTop + divH);
         } catch (Exception e){
           e.printStackTrace();
@@ -767,6 +766,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     } catch (JSONException e) {
       e.printStackTrace();
     }
+    
+    Runnable runable = new Runnable() {
+
+      @Override
+      public void run() {
+        mPluginLayout.updateViewPosition();
+      }
+      
+    };
+    Handler handler = new Handler();
+    handler.postDelayed(runable, 100);
   }
   
   private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
