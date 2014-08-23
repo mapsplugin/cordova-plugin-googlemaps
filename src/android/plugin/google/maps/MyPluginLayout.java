@@ -234,6 +234,9 @@ public class MyPluginLayout extends FrameLayout  {
           }
         }
       }
+      if (!contains) {
+        webView.requestFocus(View.FOCUS_DOWN);
+      }
       return contains;
     }
     @Override
