@@ -1623,8 +1623,29 @@ function onMapResize(event) {
     self.set("div", null);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
   } else {
-    var divSize = getDivSize(div);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize]);
+    var args = [];
+    var element, elements = [];
+    var children = div.childNodes;
+    var elemId;
+    
+    args.push(getDivSize(div));
+    for (var i = 0; i < children.length; i++) {
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      if (!elemId) {
+        elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+        element.setAttribute("__pluginDomId", elemId);
+      }
+      elements.push({
+        id: elemId,
+        size: getDivSize(element)
+      });
+    }
+    args.push(elements);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', args);
   }
   
 }

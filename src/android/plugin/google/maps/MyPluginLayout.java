@@ -160,10 +160,12 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void attachMyView(ViewGroup pluginView) {
-    if (myView != null) {
-      return;
-    }
     scrollView.scrollTo(webView.getScrollX(), webView.getScrollY());
+    if (myView == pluginView) {
+      return;
+    } else {
+      this.detachMyView();
+    }
     //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
     
     myView = pluginView;
