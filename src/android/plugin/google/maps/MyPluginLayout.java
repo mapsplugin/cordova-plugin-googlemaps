@@ -39,7 +39,7 @@ public class MyPluginLayout extends FrameLayout  {
   private ViewGroup myView = null;
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
-  private boolean isDebug = false;
+  private boolean isDebug = true;
   private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
   
   @SuppressLint("NewApi")
@@ -229,12 +229,14 @@ public class MyPluginLayout extends FrameLayout  {
       contains = isScrolling == true ? false : contains;
       
       if (contains) {
+        Log.d("GoogleMaps", "x=" + x + ", y=" + y);
         // Is the touch point on any HTML elements?
         Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
         Iterator<Entry<String, RectF>> iterator = elements.iterator();
         Entry <String, RectF> entry;
         while(iterator.hasNext()) {
           entry = iterator.next();
+          Log.d("GoogleMaps", "entry=" + entry.getValue().contains(x, y) + " / " + entry.getValue().toString());
           if (entry.getValue().contains(x, y)) {
             contains = false;
             break;
@@ -244,6 +246,7 @@ public class MyPluginLayout extends FrameLayout  {
       if (!contains) {
         webView.requestFocus(View.FOCUS_DOWN);
       }
+      Log.d("GoogleMaps", "contains=" + contains);
       return contains;
     }
     @Override

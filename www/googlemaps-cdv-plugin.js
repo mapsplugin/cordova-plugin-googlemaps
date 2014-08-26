@@ -469,9 +469,10 @@ App.prototype.toDataURL = function(callback) {
 };
 
 var _append_child = function(event) {
+  console.log("_append_child", event);
   event = event || window.event;
   event = event || {};
-  var target = event.data;
+  var target = event.srcElement;
   if (!target || "nodeType" in target == false) {
     return;
   }
@@ -479,15 +480,17 @@ var _append_child = function(event) {
     return;
   }
   var size = getDivSize(target);
-  var elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+  var elemId = "pgm" + Math.floor(Math.random() * Date.now());
   target.setAttribute("__pluginDomId", elemId);
+  
+  console.log("_append_child", elemId, size);
   cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_pushHtmlElement', [elemId, size]);
 };
 
 var _remove_child = function(event) {
   event = event || window.event;
   event = event || {};
-  var target = event.data;
+  var target = event.srcElement;
   if (!target || "nodeType" in target == false) {
     return;
   }
