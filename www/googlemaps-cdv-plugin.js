@@ -469,7 +469,6 @@ App.prototype.toDataURL = function(callback) {
 };
 
 var _append_child = function(event) {
-  console.log("_append_child", event);
   event = event || window.event;
   event = event || {};
   var target = event.srcElement;
@@ -521,7 +520,7 @@ App.prototype.setDiv = function(div) {
       elemId = element.getAttribute("__pluginDomId");
       element.removeAttribute("__pluginDomId");
     }
-    div.removeEventListener("DOMNodeRemovedFromDocument", _remove_child);
+    div.removeEventListener("DOMNodeRemoved", _remove_child);
   } else {
     self.set("div", div);
     args.push(getDivSize(div));
@@ -545,7 +544,7 @@ App.prototype.setDiv = function(div) {
     }
     args.push(elements);
     
-    div.addEventListener("DOMNodeRemovedFromDocument", _remove_child);
+    div.addEventListener("DOMNodeRemoved", _remove_child);
     div.addEventListener("DOMNodeInserted", _append_child);
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
@@ -1649,11 +1648,11 @@ function getDivSize(div) {
     'left': rect.left + pageLeft,
     'top': rect.top + pageTop,
     'width': rect.width,
-    'height': rect.height,
+    'height': rect.height/*,
     'pageWidth': pageWidth,
     'pageHeight': pageHeight,
     'pageLeft': pageLeft,
-    'pageTop': pageTop
+    'pageTop': pageTop*/
   };
   divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
   divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;
@@ -1692,7 +1691,7 @@ function onMapResize(event) {
       });
     }
     args.push(elements);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', args);
+    cordova.exec(null, null, PLUGIN_NAME, 'resizeMap', args);
   }
   
 }
