@@ -482,7 +482,6 @@ var _append_child = function(event) {
   var elemId = "pgm" + Math.floor(Math.random() * Date.now());
   target.setAttribute("__pluginDomId", elemId);
   
-  console.log("_append_child", elemId, size);
   cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_pushHtmlElement', [elemId, size]);
 };
 
