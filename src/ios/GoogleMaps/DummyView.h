@@ -12,6 +12,6 @@
 @interface DummyView : UIView
 
 @property (nonatomic) UIWebView *webView;
-@property (nonatomic) UIView *map;
+@property (nonatomic) GMSMapView *map;
 @property (nonatomic) NSDictionary *embedRect;
 @end

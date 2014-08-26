@@ -109,6 +109,13 @@
 @end
 
 
+@implementation CDVViewController (MainViewController)
+- (void)webViewDidFinishLoad:(UIWebView*)theWebView {
+  theWebView.backgroundColor = [UIColor clearColor];
+  theWebView.opaque = NO;
+}
+@end
+
 @implementation PluginUtil
 + (BOOL)isIOS7
 {

@@ -15,8 +15,20 @@
   self.licenseLayer = nil;
   self.mapCtrl.isFullScreen = YES;
   self.locationCommandQueue = [[NSMutableArray alloc] init];
- 
+  
   [self versionCheck];
+  
+  
+  self.dummyView = [[DummyView alloc] initWithFrame:self.webView.frame];
+  self.dummyView.backgroundColor = [UIColor whiteColor];
+  self.dummyView.webView = self.webView;
+  
+  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
+  self.webView.scrollView.delegate = self;
+  [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
+  
+  self.root= self.webView.superview;
+  [self.root addSubview:self.dummyView];
 }
 /**
  * @Private
@@ -47,21 +59,6 @@
     }
   }];
   [request startRequest];
-  
-  self.dummyView = [[DummyView alloc] initWithFrame:self.webView.frame];
-  self.dummyView.backgroundColor = [UIColor whiteColor];
-  self.dummyView.webView = self.webView;
-  
-  self.webView.backgroundColor = [UIColor clearColor];
-  self.webView.opaque = NO;
-  self.root= self.webView.superview;
-  [self.root addSubview:self.dummyView];
-  
-  
-  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
-  self.webView.scrollView.delegate = self;
-  [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
-
 }
 
 -(void)viewDidLayoutSubviews {
@@ -354,18 +351,10 @@
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-
-  if ([command.arguments count] == 1) {
+  
+  if ([command.arguments count] == 2) {
     self.mapCtrl.isFullScreen = NO;
-    NSLog(@"%@", self.mapCtrl.view.subviews);
-    for (UIView *view in self.mapCtrl.map.subviews) {
-    NSLog(@"class=%@", view.class);
-      if ([[NSString stringWithFormat:@"%@", view.class] isEqualToString:@"GMSVectorMapView"]) {
-      NSLog(@"---hit");
-        self.dummyView.map = view;
-      }
-    }
-    
+    self.dummyView.map = self.mapCtrl.map;
     self.dummyView.webView = self.webView;
     
     [self.webView removeFromSuperview];
@@ -374,12 +363,13 @@
     [self.dummyView addSubview:self.webView];
     [self resizeMap:command];
   } else {
-    float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
-    float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+    //float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+    //float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
   
-    if (width > 0.0f || height > 0.0f) {
+    [self.mapCtrl.view removeFromSuperview];
+    //if (width > 0.0f || height > 0.0f) {
       [self.mapCtrl.view removeFromSuperview];
-    }
+    //}
   }
 }
 
