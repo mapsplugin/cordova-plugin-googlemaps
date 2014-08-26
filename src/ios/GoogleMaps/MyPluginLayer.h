@@ -14,6 +14,7 @@
 @property (nonatomic) UIWebView *webView;
 @property (nonatomic) GMSMapView *map;
 @property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) BOOL clickable;
 
 - (id)initWithFrame:(CGRect)aRect;
 - (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;

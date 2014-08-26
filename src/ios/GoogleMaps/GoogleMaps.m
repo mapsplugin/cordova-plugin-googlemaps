@@ -22,8 +22,10 @@
   self.pluginLayer = [[MyPluginLayer alloc] initWithFrame:self.webView.frame];
   self.pluginLayer.backgroundColor = [UIColor whiteColor];
   self.pluginLayer.webView = self.webView;
+  self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
   self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
+  self.pluinScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.webView.scrollView.delegate = self;
   [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
   
@@ -358,16 +360,6 @@
     self.pluginLayer.map = self.mapCtrl.map;
     self.pluginLayer.webView = self.webView;
     
-    NSArray *HTMLs = [command.arguments objectAtIndex:1];
-    NSString *elemId;
-    NSDictionary *elemSize, *elemInfo;
-    for (int i = 0; i < [HTMLs count]; i++) {
-      elemInfo = [HTMLs objectAtIndex:i];
-      elemSize = [elemInfo objectForKey:@"size"];
-      elemId = [elemInfo objectForKey:@"id"];
-      [self.pluginLayer putHTMLElement:elemId size:elemSize];
-    }
-    
     [self.webView removeFromSuperview];
     [self.pluinScrollView addSubview:self.mapCtrl.view];
     [self.pluginLayer addSubview:self.pluinScrollView];
@@ -383,6 +375,17 @@
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
   self.pluginLayer.embedRect = self.mapCtrl.embedRect;
+
+  NSArray *HTMLs = [command.arguments objectAtIndex:1];
+  NSString *elemId;
+  NSDictionary *elemSize, *elemInfo;
+  for (int i = 0; i < [HTMLs count]; i++) {
+    elemInfo = [HTMLs objectAtIndex:i];
+    elemSize = [elemInfo objectForKey:@"size"];
+    elemId = [elemInfo objectForKey:@"id"];
+    [self.pluginLayer putHTMLElement:elemId size:elemSize];
+  }
+  
   BOOL animated = NO;
   //if ([command.arguments count] == 2) {
   //  animated = [[command.arguments objectAtIndex: 1] boolValue];
@@ -585,14 +588,21 @@
 }
 
 - (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand *)command {
-  NSString *domId = [[command.arguments objectAtIndex:0] stringValue];
+  NSString *domId = [command.arguments objectAtIndex:0];
   NSDictionary *size = [command.arguments objectAtIndex:1];
   [self.pluginLayer putHTMLElement:domId size:size];
 }
 
 - (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand *)command {
-  NSString *domId = [[command.arguments objectAtIndex:0] stringValue];
+  NSString *domId = [command.arguments objectAtIndex:0];
   [self.pluginLayer removeHTMLElement:domId];
 }
 
+-(void)pluginLayer_setClickable:(CDVInvokedUrlCommand *)command
+{
+  Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
+  self.pluginLayer.clickable = isClickable;
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

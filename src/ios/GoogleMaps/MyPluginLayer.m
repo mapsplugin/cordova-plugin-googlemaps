@@ -17,6 +17,7 @@ NSMutableDictionary *HTMLNodes = nil;
 {
   self = [super initWithFrame:aRect];
   HTMLNodes = [[NSMutableDictionary alloc] init];
+  self.clickable = YES;
   return self;
 }
 
@@ -32,6 +33,9 @@ NSMutableDictionary *HTMLNodes = nil;
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+  if (self.clickable == NO) {
+    return [super hitTest:point withEvent:event];
+  }
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - self.webView.scrollView.contentOffset.x;
   float top = [[self.embedRect objectForKey:@"top"] floatValue] - self.webView.scrollView.contentOffset.y;
   float width = [[self.embedRect objectForKey:@"width"] floatValue];
