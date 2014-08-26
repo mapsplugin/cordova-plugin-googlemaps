@@ -6,9 +6,9 @@
 //
 //
 
-#import "DummyView.h"
+#import "MyPluginLayer.h"
 
-@implementation DummyView
+@implementation MyPluginLayer
 
 UIView *gmsVector = nil;
 
@@ -28,31 +28,18 @@ UIView *gmsVector = nil;
   
   if (isMapAction == YES) {
     if (gmsVector == nil) {
-      
-        NSLog(@"---%@", self.map.subviews);
-      
       for (UIView *view in self.map.subviews) {
         if ([[NSString stringWithFormat:@"%@", view.class] isEqualToString:@"GMSVectorMapView"]) {
           gmsVector = view;
-          NSLog(@"---hit");
           break;
         }
       }
     
     }
-    NSLog(@"gmsVector= %@",gmsVector);
     return gmsVector;
   }
   
-  return [super hitTest:point withEvent:event];
-/*
-  UIView *result = [super hitTest:point withEvent:event];
-  CGPoint buttonPoint = [underButton convertPoint:point fromView:self];
-  if ([underButton pointInside:buttonPoint withEvent:event]) {
-    return underButton;
-  }
-  return result;
-  */
+  return self.webView;
 }
 
 @end
