@@ -166,9 +166,9 @@ NSDictionary *initOptions;
       }
     }
   
-  
     [self.view addSubview: self.map];
 }
+
 
 - (void)didReceiveMemoryWarning
 {

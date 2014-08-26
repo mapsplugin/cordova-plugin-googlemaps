@@ -22,6 +22,7 @@
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
 
+
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;
 

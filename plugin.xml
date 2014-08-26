@@ -48,6 +48,7 @@
         <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMaps.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginExternal.java" target-dir="src/plugin/google/maps" />
