@@ -9,6 +9,9 @@
 #import "DummyView.h"
 
 @implementation DummyView
+
+UIView *gmsVector = nil;
+
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - self.webView.scrollView.contentOffset.x;
   float top = [[self.embedRect objectForKey:@"top"] floatValue] - self.webView.scrollView.contentOffset.y;
@@ -24,12 +27,22 @@
   }
   
   if (isMapAction == YES) {
-  NSLog(@"--map");
-
-    return self.map;
+    if (gmsVector == nil) {
+      
+        NSLog(@"---%@", self.map.subviews);
+      
+      for (UIView *view in self.map.subviews) {
+        if ([[NSString stringWithFormat:@"%@", view.class] isEqualToString:@"GMSVectorMapView"]) {
+          gmsVector = view;
+          NSLog(@"---hit");
+          break;
+        }
+      }
+    
+    }
+    NSLog(@"gmsVector= %@",gmsVector);
+    return gmsVector;
   }
-  NSLog(@"--browser");
-
   
   return [super hitTest:point withEvent:event];
 /*

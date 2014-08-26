@@ -31,6 +31,13 @@
 - (UIImage *)resize:(CGFloat)width height:(CGFloat)height;
 @end
 
+//
+// Override the webViewDidFinishLoad
+// http://stackoverflow.com/questions/5272451/overriding-methods-using-categories-in-objective-c#5272612
+//
+@interface CDVViewController (MainViewController)
+- (void)webViewDidFinishLoad:(UIWebView*)theWebView;
+@end
 
 
 @interface PluginUtil : NSObject
