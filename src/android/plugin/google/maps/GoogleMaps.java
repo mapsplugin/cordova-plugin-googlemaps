@@ -246,6 +246,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param callbackContext
    * @throws JSONException 
    */
+  @SuppressWarnings("unused")
   private void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(0);
     if (this.windowLayer == null) {
@@ -257,7 +258,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     callbackContext.success();
   }
-  
   
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   private void getMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -1533,4 +1533,24 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     mPluginLayout.removeHTMLElement(domId);
     this.mPluginLayout.inValidate();
   }
+
+  /**
+   * Set clickavility of the map
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void pluginLayer_setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(0);
+    if (this.windowLayer == null) {
+      if (visible) {
+        mapView.setVisibility(View.VISIBLE);
+      } else {
+        mapView.setVisibility(View.INVISIBLE);
+      }
+    }
+    callbackContext.success();
+  }
+  
 }

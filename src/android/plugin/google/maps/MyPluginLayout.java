@@ -40,6 +40,7 @@ public class MyPluginLayout extends FrameLayout  {
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
   private boolean isDebug = false;
+  private boolean isClickable = true;
   private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
   
   @SuppressLint("NewApi")
@@ -97,6 +98,10 @@ public class MyPluginLayout extends FrameLayout  {
   }
   public void clearHTMLElement() {
     this.HTMLNodes.clear();
+  }
+
+  public void setClickable(boolean clickable) {
+    this.isClickable = clickable;
   }
   
   
@@ -224,6 +229,10 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+      if (isClickable == false) {
+        webView.requestFocus(View.FOCUS_DOWN);
+        return false;
+      }
       int x = (int)event.getX();
       int y = (int)event.getY();
       boolean contains = drawRect.contains(x, y);
