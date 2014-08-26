@@ -1521,11 +1521,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void pluginLayer_pushHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
     String domId = args.getString(0);
     JSONObject elemSize = args.getJSONObject(1);
-    float left = elemSize.getLong("left");
-    float top = elemSize.getLong("top");
-    float width = elemSize.getLong("width");
-    float height = elemSize.getLong("height");
-    
+    float left = contentToView(elemSize.getLong("left"));
+    float top = contentToView(elemSize.getLong("top"));
+    float width = contentToView(elemSize.getLong("width"));
+    float height = contentToView(elemSize.getLong("height"));
+    Log.d("GoogleMaps", elemSize.toString());
     mPluginLayout.putHTMLElement(domId, left, top, (left + width), (top + height));
   }
   @SuppressWarnings("unused")
