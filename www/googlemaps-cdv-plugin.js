@@ -468,20 +468,61 @@ App.prototype.toDataURL = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL']);
 };
 
+var _append_child = function(event) {
+  event = event || window.event;
+  event = event || {};
+  var target = event.data;
+  if (!target || "nodeType" in target == false) {
+    return;
+  }
+  if (target.nodeType != 1) {
+    return;
+  }
+  var size = getDivSize(target);
+  var elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+  target.setAttribute("__pluginDomId", elemId);
+  cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_pushHtmlElement', [elemId, size]);
+};
+
+var _remove_child = function(event) {
+  event = event || window.event;
+  event = event || {};
+  var target = event.data;
+  if (!target || "nodeType" in target == false) {
+    return;
+  }
+  var elemId = target.getAttribute("__pluginDomId");
+  if (!elemId) {
+    return;
+  }
+  target.removeAttribute("__pluginDomId");
+  cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_removeHtmlElement', [elemId]);
+};
+
 /**
  * Show the map into the specified div.
  */
 App.prototype.setDiv = function(div) {
   var self = this,
-      args = [];
+      args = [],
+      element,
+      children = div.childNodes;
   
   if (isDom(div) === false) {
     self.set("div", null);
+    for (var i = 0; i < children.length; i++) {
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      element.removeAttribute("__pluginDomId");
+    }
+    div.removeEventListener("DOMNodeRemovedFromDocument", _remove_child);
   } else {
     self.set("div", div);
     args.push(getDivSize(div));
-    var element, elements = [];
-    var children = div.childNodes;
+    var elements = [];
     var elemId;
     
     for (var i = 0; i < children.length; i++) {
@@ -500,6 +541,9 @@ App.prototype.setDiv = function(div) {
       });
     }
     args.push(elements);
+    
+    div.addEventListener("DOMNodeRemovedFromDocument", _remove_child);
+    div.addEventListener("DOMNodeInserted", _append_child);
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
 };

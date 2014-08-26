@@ -584,4 +584,15 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand *)command {
+  NSString *domId = [[command.arguments objectAtIndex:0] stringValue];
+  NSDictionary *size = [command.arguments objectAtIndex:1];
+  [self.pluginLayer putHTMLElement:domId size:size];
+}
+
+- (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand *)command {
+  NSString *domId = [[command.arguments objectAtIndex:0] stringValue];
+  [self.pluginLayer removeHTMLElement:domId];
+}
+
 @end

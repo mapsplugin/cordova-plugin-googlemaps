@@ -1499,6 +1499,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param callbackContext
    * @throws JSONException 
    */
+  @SuppressWarnings("unused")
   private void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
     Set<String> pluginNames = plugins.keySet();
     Iterator<String> iterator = pluginNames.iterator();
@@ -1516,4 +1517,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  @SuppressWarnings("unused")
+  private void pluginLayer_pushHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String domId = args.getString(0);
+    JSONObject elemSize = args.getJSONObject(1);
+    float left = elemSize.getLong("left");
+    float top = elemSize.getLong("top");
+    float width = elemSize.getLong("width");
+    float height = elemSize.getLong("height");
+    
+    mPluginLayout.putHTMLElement(domId, left, top, (left + width), (top + height));
+  }
+  @SuppressWarnings("unused")
+  private void pluginLayer_removeHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String domId = args.getString(0);
+    mPluginLayout.removeHTMLElement(domId);
+  }
 }
