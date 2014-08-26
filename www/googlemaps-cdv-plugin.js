@@ -396,6 +396,11 @@ App.prototype.setVisible = function(isVisible) {
   isVisible = parseBoolean(isVisible);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setVisible', [isVisible]);
 };
+App.prototype.setClickable = function(isClickable) {
+  var self = this;
+  isClickable = parseBoolean(isClickable);
+  cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setClickable', [isClickable]);
+};
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
