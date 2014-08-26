@@ -10,6 +10,7 @@
 <script type="text/javascript">
 
 function onPageLoaded(map) {
+  map.setDiv($("#map_canvas")[0]);
   $("#searchBtn").click(function() {
     var request = {
       'address': $("#query").val()
