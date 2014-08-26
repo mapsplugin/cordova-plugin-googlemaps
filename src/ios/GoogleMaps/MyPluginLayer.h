@@ -14,4 +14,10 @@
 @property (nonatomic) UIWebView *webView;
 @property (nonatomic) GMSMapView *map;
 @property (nonatomic) NSDictionary *embedRect;
+
+- (id)initWithFrame:(CGRect)aRect;
+- (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;
+- (void)removeHTMLElement:(NSString *)domId;
+- (void)clearHTMLElement;
+
 @end

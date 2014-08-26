@@ -19,16 +19,16 @@
   [self versionCheck];
   
   
-  self.detectView = [[DetectView alloc] initWithFrame:self.webView.frame];
-  self.detectView.backgroundColor = [UIColor whiteColor];
-  self.detectView.webView = self.webView;
+  self.pluginLayer = [[MyPluginLayer alloc] initWithFrame:self.webView.frame];
+  self.pluginLayer.backgroundColor = [UIColor whiteColor];
+  self.pluginLayer.webView = self.webView;
   
   self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
   self.webView.scrollView.delegate = self;
   [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
   
   self.root = self.webView.superview;
-  [self.root addSubview:self.detectView];
+  [self.root addSubview:self.pluginLayer];
 }
 /**
  * @Private
@@ -353,14 +353,25 @@
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
   
   if ([command.arguments count] == 2) {
+    [self.pluginLayer clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
-    self.detectView.map = self.mapCtrl.map;
-    self.detectView.webView = self.webView;
+    self.pluginLayer.map = self.mapCtrl.map;
+    self.pluginLayer.webView = self.webView;
+    
+    NSArray *HTMLs = [command.arguments objectAtIndex:1];
+    NSString *elemId;
+    NSDictionary *elemSize, *elemInfo;
+    for (int i = 0; i < [HTMLs count]; i++) {
+      elemInfo = [HTMLs objectAtIndex:i];
+      elemSize = [elemInfo objectForKey:@"size"];
+      elemId = [elemInfo objectForKey:@"id"];
+      [self.pluginLayer putHTMLElement:elemId size:elemSize];
+    }
     
     [self.webView removeFromSuperview];
     [self.pluinScrollView addSubview:self.mapCtrl.view];
-    [self.detectView addSubview:self.pluinScrollView];
-    [self.detectView addSubview:self.webView];
+    [self.pluginLayer addSubview:self.pluinScrollView];
+    [self.pluginLayer addSubview:self.webView];
     [self resizeMap:command];
   } else {
     [self.mapCtrl.view removeFromSuperview];
@@ -371,7 +382,7 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
-  self.detectView.embedRect = self.mapCtrl.embedRect;
+  self.pluginLayer.embedRect = self.mapCtrl.embedRect;
   BOOL animated = NO;
   //if ([command.arguments count] == 2) {
   //  animated = [[command.arguments objectAtIndex: 1] boolValue];
