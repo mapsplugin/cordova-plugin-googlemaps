@@ -396,6 +396,11 @@ App.prototype.setVisible = function(isVisible) {
   isVisible = parseBoolean(isVisible);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setVisible', [isVisible]);
 };
+App.prototype.setClickable = function(isClickable) {
+  var self = this;
+  isClickable = parseBoolean(isClickable);
+  cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setClickable', [isClickable]);
+};
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
@@ -468,18 +473,83 @@ App.prototype.toDataURL = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL']);
 };
 
+var _append_child = function(event) {
+  event = event || window.event;
+  event = event || {};
+  var target = event.srcElement;
+  if (!target || "nodeType" in target == false) {
+    return;
+  }
+  if (target.nodeType != 1) {
+    return;
+  }
+  var size = getDivSize(target);
+  var elemId = "pgm" + Math.floor(Math.random() * Date.now());
+  target.setAttribute("__pluginDomId", elemId);
+  
+  cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_pushHtmlElement', [elemId, size]);
+};
+
+var _remove_child = function(event) {
+  event = event || window.event;
+  event = event || {};
+  var target = event.srcElement;
+  if (!target || "nodeType" in target == false) {
+    return;
+  }
+  var elemId = target.getAttribute("__pluginDomId");
+  if (!elemId) {
+    return;
+  }
+  target.removeAttribute("__pluginDomId");
+  cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_removeHtmlElement', [elemId]);
+};
+
 /**
  * Show the map into the specified div.
  */
 App.prototype.setDiv = function(div) {
   var self = this,
-      args = [];
+      args = [],
+      element,
+      children = div.childNodes;
   
   if (isDom(div) === false) {
     self.set("div", null);
+    for (var i = 0; i < children.length; i++) {
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      element.removeAttribute("__pluginDomId");
+    }
+    div.removeEventListener("DOMNodeRemoved", _remove_child);
   } else {
     self.set("div", div);
     args.push(getDivSize(div));
+    var elements = [];
+    var elemId;
+    
+    for (var i = 0; i < children.length; i++) {
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      if (!elemId) {
+        elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+        element.setAttribute("__pluginDomId", elemId);
+      }
+      elements.push({
+        id: elemId,
+        size: getDivSize(element)
+      });
+    }
+    args.push(elements);
+    
+    div.addEventListener("DOMNodeRemoved", _remove_child);
+    div.addEventListener("DOMNodeInserted", _append_child);
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
 };
@@ -1582,26 +1652,50 @@ function getDivSize(div) {
     'left': rect.left + pageLeft,
     'top': rect.top + pageTop,
     'width': rect.width,
-    'height': rect.height
+    'height': rect.height/*,
+    'pageWidth': pageWidth,
+    'pageHeight': pageHeight,
+    'pageLeft': pageLeft,
+    'pageTop': pageTop*/
   };
   divSize.width = divSize.width < pageWidth ? divSize.width : pageWidth;
   divSize.height = divSize.height < pageHeight ? divSize.height : pageHeight;
   
   return divSize;
 }
-function onMapResize(event, animated) {
+function onMapResize(event) {
   var self = window.plugin.google.maps.Map;
   var div = self.get("div");
   if (!div) {
     return;
   }
-  animated = !!animated;
   if (isDom(div) === false) {
     self.set("div", null);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
   } else {
-    var divSize = getDivSize(div);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'resizeMap', [divSize, animated]);
+    var args = [];
+    var element, elements = [];
+    var children = div.childNodes;
+    var elemId;
+    
+    args.push(getDivSize(div));
+    for (var i = 0; i < children.length; i++) {
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      if (!elemId) {
+        elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+        element.setAttribute("__pluginDomId", elemId);
+      }
+      elements.push({
+        id: elemId,
+        size: getDivSize(element)
+      });
+    }
+    args.push(elements);
+    cordova.exec(null, null, PLUGIN_NAME, 'resizeMap', args);
   }
   
 }

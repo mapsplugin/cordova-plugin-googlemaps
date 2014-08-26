@@ -15,8 +15,22 @@
   self.licenseLayer = nil;
   self.mapCtrl.isFullScreen = YES;
   self.locationCommandQueue = [[NSMutableArray alloc] init];
- 
+  
   [self versionCheck];
+  
+  
+  self.pluginLayer = [[MyPluginLayer alloc] initWithFrame:self.webView.frame];
+  self.pluginLayer.backgroundColor = [UIColor whiteColor];
+  self.pluginLayer.webView = self.webView;
+  self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  
+  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
+  self.pluinScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  self.webView.scrollView.delegate = self;
+  [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
+  
+  self.root = self.webView.superview;
+  [self.root addSubview:self.pluginLayer];
 }
 /**
  * @Private
@@ -47,6 +61,18 @@
     }
   }];
   [request startRequest];
+}
+
+-(void)viewDidLayoutSubviews {
+    [self.pluinScrollView setContentSize: self.webView.scrollView.contentSize];
+    [self.pluinScrollView flashScrollIndicators];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+  CGPoint offset = self.pluinScrollView.contentOffset;
+  offset.x = self.webView.scrollView.contentOffset.x;
+  offset.y = self.webView.scrollView.contentOffset.y;
+  [self.pluinScrollView setContentOffset:offset];
 }
 
 /**
@@ -97,10 +123,12 @@
           [self.mapCtrl.view setFrameWithDictionary:self.mapCtrl.embedRect];
         }
         
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
       });
     });
-    
+    /*
     // Create the dialog footer
     dispatch_async(gueue, ^{
       dispatch_sync(dispatch_get_main_queue(), ^{
@@ -140,6 +168,7 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       });
     });
+    */
   }
 }
 
@@ -324,24 +353,39 @@
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-
-  if ([command.arguments count] == 1) {
+  
+  if ([command.arguments count] == 2) {
+    [self.pluginLayer clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
-    [self.webView.scrollView addSubview:self.mapCtrl.view];
+    self.pluginLayer.map = self.mapCtrl.map;
+    self.pluginLayer.webView = self.webView;
+    
+    [self.webView removeFromSuperview];
+    [self.pluinScrollView addSubview:self.mapCtrl.view];
+    [self.pluginLayer addSubview:self.pluinScrollView];
+    [self.pluginLayer addSubview:self.webView];
     [self resizeMap:command];
   } else {
-    float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
-    float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
-  
-    if (width > 0.0f || height > 0.0f) {
-      [self.mapCtrl.view removeFromSuperview];
-    }
+    [self.mapCtrl.view removeFromSuperview];
+    [self.mapCtrl.view removeFromSuperview];
   }
 }
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
+  self.pluginLayer.embedRect = self.mapCtrl.embedRect;
+
+  NSArray *HTMLs = [command.arguments objectAtIndex:1];
+  NSString *elemId;
+  NSDictionary *elemSize, *elemInfo;
+  for (int i = 0; i < [HTMLs count]; i++) {
+    elemInfo = [HTMLs objectAtIndex:i];
+    elemSize = [elemInfo objectForKey:@"size"];
+    elemId = [elemInfo objectForKey:@"id"];
+    [self.pluginLayer putHTMLElement:elemId size:elemSize];
+  }
+  
   BOOL animated = NO;
   //if ([command.arguments count] == 2) {
   //  animated = [[command.arguments objectAtIndex: 1] boolValue];
@@ -543,4 +587,22 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand *)command {
+  NSString *domId = [command.arguments objectAtIndex:0];
+  NSDictionary *size = [command.arguments objectAtIndex:1];
+  [self.pluginLayer putHTMLElement:domId size:size];
+}
+
+- (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand *)command {
+  NSString *domId = [command.arguments objectAtIndex:0];
+  [self.pluginLayer removeHTMLElement:domId];
+}
+
+-(void)pluginLayer_setClickable:(CDVInvokedUrlCommand *)command
+{
+  Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
+  self.pluginLayer.clickable = isClickable;
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end
