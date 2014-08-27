@@ -243,12 +243,34 @@ App.prototype.getMap = function(div, params) {
     params = params || {};
     args.push(params);
   } else {
+    var children = div.childNodes;
     params = params || {};
     args.push(params);
     
     self.set("div", div);
-    var divSize = getDivSize(div);
-    args.push(divSize);
+    args.push(getDivSize(div));
+    var elements = [];
+    var elemId;
+    
+    for (var i = 0; i < children.length; i++) {
+      element = children[i];
+      if (element.nodeType != 1) {
+        continue;
+      }
+      elemId = element.getAttribute("__pluginDomId");
+      if (!elemId) {
+        elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+        element.setAttribute("__pluginDomId", elemId);
+      }
+      elements.push({
+        id: elemId,
+        size: getDivSize(element)
+      });
+    }
+    args.push(elements);
+    
+    div.addEventListener("DOMNodeRemoved", _remove_child);
+    div.addEventListener("DOMNodeInserted", _append_child);
   }
   cordova.exec(function() {
     setTimeout(function() {
@@ -511,21 +533,25 @@ var _remove_child = function(event) {
 App.prototype.setDiv = function(div) {
   var self = this,
       args = [],
-      element,
-      children = div.childNodes;
+      element;
   
   if (isDom(div) === false) {
-    self.set("div", null);
-    for (var i = 0; i < children.length; i++) {
-      element = children[i];
-      if (element.nodeType != 1) {
-        continue;
+    div = self.get("div");
+    if (div) {
+      var children = div.childNodes;
+      for (var i = 0; i < children.length; i++) {
+        element = children[i];
+        if (element.nodeType != 1) {
+          continue;
+        }
+        elemId = element.getAttribute("__pluginDomId");
+        element.removeAttribute("__pluginDomId");
       }
-      elemId = element.getAttribute("__pluginDomId");
-      element.removeAttribute("__pluginDomId");
+      div.removeEventListener("DOMNodeRemoved", _remove_child);
     }
-    div.removeEventListener("DOMNodeRemoved", _remove_child);
+    self.set("div", null);
   } else {
+    var children = div.childNodes;
     self.set("div", div);
     args.push(getDivSize(div));
     var elements = [];
