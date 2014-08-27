@@ -87,6 +87,8 @@ NSDictionary *initOptions;
       marginBottom = 20;
     }
     CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
+    //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
+    //NSLog(@"mapRect=%@", camera);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     //self.map.autoresizingMask = UIViewAutoresizingNone;
@@ -166,9 +168,9 @@ NSDictionary *initOptions;
       }
     }
   
-  
     [self.view addSubview: self.map];
 }
+
 
 - (void)didReceiveMemoryWarning
 {

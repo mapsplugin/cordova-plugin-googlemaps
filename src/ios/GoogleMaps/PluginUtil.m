@@ -22,7 +22,6 @@
       r.size.height == height) {
     return;
   }
-  
   r.origin.x = left;
   r.origin.y = top;
   r.size.width = width;
@@ -109,12 +108,19 @@
 @end
 
 
+@implementation CDVViewController (MainViewController)
+- (void)webViewDidFinishLoad:(UIWebView*)theWebView {
+  theWebView.backgroundColor = [UIColor clearColor];
+  theWebView.opaque = NO;
+}
+@end
+
 @implementation PluginUtil
 + (BOOL)isIOS7
 {
     NSArray  *aOsVersions = [[[UIDevice currentDevice]systemVersion] componentsSeparatedByString:@"."];
     NSInteger iOsVersionMajor  = [[aOsVersions objectAtIndex:0] intValue];
-    if (iOsVersionMajor == 7)
+    if (iOsVersionMajor > 6)
     {
         return YES;
     }
