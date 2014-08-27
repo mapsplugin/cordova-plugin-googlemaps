@@ -36,9 +36,14 @@ public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
         if (opts.has("bounds") == true) {
           JSONArray points = opts.getJSONArray("bounds");
           LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-          geoResults = geocoder.getFromLocationName(address, 20,
+          try {
+            geoResults = geocoder.getFromLocationName(address, 20,
                 bounds.southwest.latitude, bounds.southwest.longitude,
                 bounds.northeast.latitude, bounds.northeast.longitude);
+          }catch (Exception e) {
+            callbackContext.error("Geocoder service is not available.");
+            return;
+          }
           iterator = geoResults.iterator();
         }
       } else {
