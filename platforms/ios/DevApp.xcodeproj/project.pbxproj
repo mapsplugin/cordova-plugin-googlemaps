@@ -74,6 +74,7 @@
 		CB5A6EAC79EE44B5BA2FAA87 /* R9HTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 595CC89A43E64E2F8ED522BA /* R9HTTPRequest.m */; };
 		D3743966BE11436F8AF37AEA /* GoogleMaps.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A280E55389FB4B2CAD1ABE26 /* GoogleMaps.bundle */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
+		39AB5328EACA42B8BBD6B405 /* CDVDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = D1770F19A56140DB80AE299A /* CDVDevice.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -194,6 +195,8 @@
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		F6E3E742159A4CE0A9B92407 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = unknown; name = README; path = plugin.http.request/README; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = DevApp/config.xml; sourceTree = "<group>"; };
+		D1770F19A56140DB80AE299A /* CDVDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVDevice.m"; path = "org.apache.cordova.device/CDVDevice.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		0A3B6C117EE142859E17D9C7 /* CDVDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVDevice.h"; path = "org.apache.cordova.device/CDVDevice.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -380,6 +383,8 @@
 				A40A421300364D078A73DB0E /* BSD-LICENSE */,
 				A5DF3623B0D844BFBE68BC45 /* HttpRequest.h */,
 				B763337F810D4E9FAE96A7A3 /* R9HTTPRequest.h */,
+				D1770F19A56140DB80AE299A /* CDVDevice.m */,
+				0A3B6C117EE142859E17D9C7 /* CDVDevice.h */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -609,6 +614,7 @@
 				CB5A6EAC79EE44B5BA2FAA87 /* R9HTTPRequest.m in Sources */,
 				6A8871042DE24C4B8CBB5587 /* README in Sources */,
 				04949326B9CA4C3890FE37FB /* BSD-LICENSE in Sources */,
+				39AB5328EACA42B8BBD6B405 /* CDVDevice.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

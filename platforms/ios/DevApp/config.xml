@@ -25,6 +25,9 @@
     <feature name="HttpRequest">
         <param name="ios-package" value="HttpRequest" />
     </feature>
+    <feature name="Device">
+        <param name="ios-package" value="CDVDevice" />
+    </feature>
     <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
