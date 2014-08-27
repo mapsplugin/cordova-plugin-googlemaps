@@ -102,8 +102,8 @@
       NSDictionary *options = [command.arguments objectAtIndex:0];
       self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
       self.mapCtrl.webView = self.webView;
-      self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     });
+    
     
     // Create an instance of Map Class
     dispatch_async(gueue, ^{
@@ -117,7 +117,6 @@
       
         if ([command.arguments count] == 3) {
           self.mapCtrl.isFullScreen = NO;
-          [self.pluginLayer clearHTMLElement];
           self.pluginLayer.map = self.mapCtrl.map;
           self.pluginLayer.webView = self.webView;
           self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];
