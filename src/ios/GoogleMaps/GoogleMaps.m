@@ -38,7 +38,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.1.4";
+  NSString *PLUGIN_VERSION = @"1.2.0 beta2";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7] == NO) {
@@ -94,7 +94,11 @@
     return;
   }
   
-  if (!self.mapCtrl) {
+  if (self.mapCtrl) {
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  } else {
     dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
     
     // Create a map view
@@ -116,13 +120,11 @@
       dispatch_sync(dispatch_get_main_queue(), ^{
       
         if ([command.arguments count] == 3) {
+          [self.mapCtrl.view removeFromSuperview];
           self.mapCtrl.isFullScreen = NO;
           self.pluginLayer.map = self.mapCtrl.map;
           self.pluginLayer.webView = self.webView;
-          self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];
-          self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-          [self.mapCtrl.view setFrameWithDictionary:self.mapCtrl.embedRect];
-    
+          
           [self.webView removeFromSuperview];
           [self.pluinScrollView addSubview:self.mapCtrl.view];
           [self.pluginLayer addSubview:self.pluinScrollView];
@@ -357,6 +359,7 @@
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
   
   if ([command.arguments count] == 2) {
+    [self.mapCtrl.view removeFromSuperview];
     [self.pluginLayer clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
     self.pluginLayer.map = self.mapCtrl.map;
@@ -369,7 +372,6 @@
     [self resizeMap:command];
   } else {
     [self.mapCtrl.view removeFromSuperview];
-    [self.mapCtrl.view removeFromSuperview];
   }
 }
 
@@ -378,7 +380,6 @@
   NSInteger argCnt = [command.arguments count];
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
   self.pluginLayer.embedRect = self.mapCtrl.embedRect;
-  
 
   NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
   NSString *elemId;
