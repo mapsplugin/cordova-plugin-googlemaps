@@ -171,6 +171,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       @SuppressLint("NewApi")
       public void run() {
         mPluginLayout = new MyPluginLayout(webView);
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH &&
+            VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+          webView.reload();
+        }
       }
     });
   }
