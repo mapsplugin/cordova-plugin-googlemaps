@@ -515,10 +515,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // ------------------------------
     // Embed the map if a container is specified.
     // ------------------------------
-    if (args.length() == 2) {
+    if (args.length() == 3) {
       this.mapDivLayoutJSON = args.getJSONObject(1);
-      this.webView.addView(mapView);
-      this.updateMapViewLayout();
+      mPluginLayout.attachMyView(mapView);
+      this.resizeMap(args, callbackContext);
     }
     
     //Custom info window
@@ -719,8 +719,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    mapDivLayoutJSON = args.getJSONObject(0);
-    JSONArray HTMLs = args.getJSONArray(1);
+    mapDivLayoutJSON = args.getJSONObject(args.length() - 2);
+    JSONArray HTMLs = args.getJSONArray(args.length() - 1);
     JSONObject elemInfo, elemSize;
     String elemId;
     float divW, divH, divLeft, divTop;
