@@ -104,6 +104,7 @@
       self.mapCtrl.webView = self.webView;
     });
     
+    
     // Create an instance of Map Class
     dispatch_async(gueue, ^{
       Map *mapClass = [[NSClassFromString(@"Map")alloc] initWithWebView:self.webView];
@@ -114,21 +115,23 @@
       
       dispatch_sync(dispatch_get_main_queue(), ^{
       
-        if ([command.arguments count] == 2) {
+        if ([command.arguments count] == 3) {
           self.mapCtrl.isFullScreen = NO;
+          self.pluginLayer.map = self.mapCtrl.map;
+          self.pluginLayer.webView = self.webView;
           self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];
           self.mapCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-          [self.webView.scrollView addSubview:self.mapCtrl.view];
-          [self.mapCtrl updateMapViewLayout:NO];
           [self.mapCtrl.view setFrameWithDictionary:self.mapCtrl.embedRect];
+    
+          [self.webView removeFromSuperview];
+          [self.pluinScrollView addSubview:self.mapCtrl.view];
+          [self.pluginLayer addSubview:self.pluinScrollView];
+          [self.pluginLayer addSubview:self.webView];
+          [self resizeMap:command];
         }
-        
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
       });
     });
-    /*
     // Create the dialog footer
     dispatch_async(gueue, ^{
       dispatch_sync(dispatch_get_main_queue(), ^{
@@ -168,7 +171,6 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       });
     });
-    */
   }
 }
 
@@ -373,10 +375,12 @@
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
-  self.mapCtrl.embedRect = [command.arguments objectAtIndex:0];
+  NSInteger argCnt = [command.arguments count];
+  self.mapCtrl.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
   self.pluginLayer.embedRect = self.mapCtrl.embedRect;
+  
 
-  NSArray *HTMLs = [command.arguments objectAtIndex:1];
+  NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
   NSString *elemId;
   NSDictionary *elemSize, *elemInfo;
   for (int i = 0; i < [HTMLs count]; i++) {
