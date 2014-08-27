@@ -1819,4 +1819,47 @@ cordova.addConstructor(function() {
   window.plugin.google.maps = window.plugin.google.maps || module.exports;
 });
 window.addEventListener("orientationchange", onMapResize);
-window.addEventListener("resize", onMapResize);
+document.addEventListener("deviceready", function() {
+  if (device.platform == "Android" &&
+      device.version.indexOf("2.") == 0) {
+        
+    var prevSize = null;
+    var div, divSize;
+    var sameCnt = 0;
+    var timer = null;
+    window.addEventListener("resize", function() {
+      if (timer) {
+        return;
+      }
+      timer = setInterval(function() {
+        div = module.exports.Map.get("div");
+        if (div) {
+          divSize = getDivSize(div);
+          if (prevSize) {
+            if (divSize.left == prevSize.left &&
+              divSize.top == prevSize.top) {
+              if (divSize.width == prevSize.width &&
+                divSize.height == prevSize.height) {
+                  
+                  sameCnt++;
+                  if (sameCnt==2) {
+                    onMapResize();
+                    clearInterval(timer);
+                    timer = null;
+                    sameCnt = 0;
+                  }
+              } else {
+                sameCnt = 0;
+              }
+            } else {
+              onMapResize();
+            }
+          }
+          prevSize = divSize;
+        }
+      }, 100);
+    });
+  } else {
+    window.addEventListener("resize", onMapResize);
+  }
+});

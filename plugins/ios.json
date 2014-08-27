@@ -15,6 +15,10 @@
                         {
                             "xml": "<feature name=\"HttpRequest\"><param name=\"ios-package\" value=\"HttpRequest\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -111,6 +115,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "plugin.http.request": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "org.apache.cordova.device": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.cordova.CordovaWebView;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
