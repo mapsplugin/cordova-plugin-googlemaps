@@ -19,6 +19,7 @@
     </engines>
     
     <dependency id="plugin.http.request" />
+    <dependency id="org.apache.cordova.device" />
     
     <!-- android -->
     <platform name="android">

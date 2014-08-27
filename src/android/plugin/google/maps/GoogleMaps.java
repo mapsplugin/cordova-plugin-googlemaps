@@ -49,6 +49,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.WebChromeClient;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
@@ -116,7 +118,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
-  private final String PLUGIN_VERSION = "1.1.4";
+  private final String PLUGIN_VERSION = "1.2.0 beta2";
   private MyPluginLayout mPluginLayout = null;
   
   @Override
@@ -171,8 +173,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       @SuppressLint("NewApi")
       public void run() {
         mPluginLayout = new MyPluginLayout(webView);
-        if (VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH &&
-            VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+        if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+          activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        }
+        if (VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
           webView.reload();
         }
       }
@@ -745,7 +749,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         e.printStackTrace();
       }
     }
-    mPluginLayout.inValidate();
+    //mPluginLayout.inValidate();
     updateMapViewLayout();
     callbackContext.success();
   }
