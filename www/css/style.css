@@ -7,6 +7,10 @@ html, body, #container {
 #map_canvas {
   width: 100%;
   height: 300px;
+  border: 1px solid red;
+}
+.ui-page, .ui-overlay-a, .ui-panel-wrapper {
+  background-color: transparent !important;
 }
 code {
   border: 1px dotted gray;

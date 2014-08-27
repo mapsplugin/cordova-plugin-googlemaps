@@ -12,8 +12,9 @@
 #import "Map.h"
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
+#import "MyPluginLayer.h"
 
-@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
+@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) UIView *licenseLayer;
@@ -22,6 +23,9 @@
 @property (nonatomic) UIButton *licenseButton;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
+@property (nonatomic) UIScrollView *pluinScrollView;
+@property (nonatomic) UIView *root;
+@property (nonatomic) MyPluginLayer *pluginLayer;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;
@@ -33,5 +37,6 @@
 - (void)setDiv:(CDVInvokedUrlCommand *)command;
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
 - (void)clear:(CDVInvokedUrlCommand*)command;
-- (void)remove:(CDVInvokedUrlCommand*)command;
+- (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand*)command;
+- (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand*)command;
 @end
