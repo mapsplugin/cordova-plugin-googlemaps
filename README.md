@@ -8,19 +8,22 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.3.apk](http://goo.gl/xrz3Hj)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.4.apk](http://goo.gl/uq7viR)
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.0.7.gif)
 
-###Don't miss updates!
-The plugin will updates in very short terms.
-In order to watch this project, make a Github account(free), then push the [watch] button at the top-right of the github pages.
+### Join to the official community
+New version will be announced through the official community. Stay tune!
 
-And check the [Release Notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes)
-https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
-
+<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
 
 ###Documentation
+
+* Introduction
+  * <a href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-different-between-JavaScritp-API-(web)-and-the-mobile-SDKs-(native)">How different between JavaScritp API (web) and the mobile SDKs (native)</a>
+  * [Why use this plugin?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Why-use-this-plugin%3F)
+  * [Java Objective C or JavaScript. Which one do you like?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Java-Objective-C-or-JavaScript.-Which-one-do-you-like%3F)
+
 
 * [Installation](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Installation)
   * Automatic Installation
@@ -30,6 +33,7 @@ https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
     * [PhoneGap Usage](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Phonegap-Usage)
   * Upgrade
     * [How to upgrade the Google Maps SDK for iOS to the latest version?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-to-upgrade-the-Google-Maps-SDK-for-iOS-to-the-latest-version%3F)
+* [Terms of Services](./Terms-of-Services)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
   * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif) 
   * Create a map
@@ -77,15 +81,15 @@ https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
   * Remove the polygon
   * Polygon Class Reference
 * [Tile Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/TileOverlay)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/tile_overlay.png)
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/tileOverlay.gif" height="250">
   * Add a tile overlay
   * TileOverlay Class Reference
 * [Ground Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/GroundOverlay)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/ground_overlay.png)
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/ground_overlay.gif" height="250">
   * Add a ground overlay
   * GroundOverlay Class Reference
 * [Kml Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/KmlOverlay)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/kml-polygon.gif)
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/kml-polygon.gif" height="250">
   * Add a kml overlay
   * KmlOverlay Class Reference
 * [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng)
@@ -99,10 +103,20 @@ https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
 * [Geocoder](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocoder)
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/geocoding.gif" height="250"> 
   * Geocoding
   * Reverse geocoding
   * Geocoder Class Reference
 * [BaseClass](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/BaseClass)
   * BaseClass Reference
 * [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/direction.gif" height="250"> 
   * Launch the navigation application
+
+
+### Please encourage this project.
+I put in plenty of time for this project.
+If you donate some amount, I will notify you when I test new feature, or reply your question as much as possible.
+Thank you for your encouragement to this project. 
+
+[![Donation with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Phonegap%2dGoogleMaps%2dPlugin&item_number=phonegap&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)

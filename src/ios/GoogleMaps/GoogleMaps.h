@@ -13,6 +13,7 @@
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
 #import "MyPluginLayer.h"
+#import "Reachability.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 
@@ -39,4 +40,5 @@
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand*)command;
 - (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand*)command;
 @end
