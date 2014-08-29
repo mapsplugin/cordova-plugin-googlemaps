@@ -105,7 +105,6 @@ public class MyPluginLayout extends FrameLayout  {
     this.isClickable = clickable;
   }
   
-  
   @SuppressWarnings("deprecation")
   public void updateViewPosition() {
     if (myView == null) {

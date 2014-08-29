@@ -409,6 +409,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     GoogleMapOptions options = new GoogleMapOptions();
     JSONObject params = args.getJSONObject(0);
+    //background color
+    if (params.has("backgroundColor")) {
+      JSONArray rgba = params.getJSONArray("backgroundColor");
+      
+      int backgroundColor = Color.WHITE;
+      if (rgba != null && rgba.length() == 4) {
+        try {
+          backgroundColor = PluginUtil.parsePluginColor(rgba);
+          this.mPluginLayout.setBackgroundColor(backgroundColor);
+        } catch (JSONException e) {}
+      }
+      
+    }
+    
     //controls
     if (params.has("controls")) {
       JSONObject controls = params.getJSONObject("controls");
@@ -1543,7 +1557,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   /**
-   * Set clickavility of the map
+   * Set click-ability of the map
    * @param args
    * @param callbackContext
    * @throws JSONException 
@@ -1560,7 +1574,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     callbackContext.success();
   }
+  @SuppressWarnings("unused")
+  private void pluginLayer_setBackGroundColor(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    JSONArray rgba = args.getJSONArray(0);
+    
+    int backgroundColor = Color.WHITE;
+    if (rgba != null && rgba.length() == 4) {
+      try {
+        backgroundColor = PluginUtil.parsePluginColor(rgba);
+        this.mPluginLayout.setBackgroundColor(backgroundColor);
+      } catch (JSONException e) {}
+    }
+    callbackContext.success();
+  }
   
+  /**
+   * Destroy the map completely
+   * @param args
+   * @param callbackContext
+   */
+  @SuppressWarnings("unused")
   private void remove(JSONArray args, CallbackContext callbackContext) {
     webView.removeView(mapView);
     plugins.clear();
