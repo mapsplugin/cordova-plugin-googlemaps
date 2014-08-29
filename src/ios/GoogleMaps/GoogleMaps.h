@@ -12,6 +12,7 @@
 #import "Map.h"
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
+#import "Reachability.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 
