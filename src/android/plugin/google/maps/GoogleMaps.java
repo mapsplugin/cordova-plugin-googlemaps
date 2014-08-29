@@ -1561,4 +1561,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
   
+  private void remove(JSONArray args, CallbackContext callbackContext) {
+    webView.removeView(mapView);
+    plugins.clear();
+    mapView.onDestroy();
+    map = null;
+    mapView = null;
+    windowLayer = null;
+    mapDivLayoutJSON = null;
+    locationClient.disconnect();
+    locationClient = null;
+    callbackContext.success();
+  }
 }
