@@ -12,10 +12,20 @@ var BaseClass = function() {
   var _vars = {};
   var _listeners = {};
   
+  self.clear = function() {
+    for (var key in Object.keys(_vars)) {
+      _vars[key] = null;
+      delete _vars[key];
+    }
+  };
+  
   self.get = function(key) {
     return key in _vars ? _vars[key] : null;
   };
   self.set = function(key, value) {
+    if (_vars[key] !== value) {
+      self.trigger(key + "_changed");
+    }
     _vars[key] = value;
   };
   
@@ -441,6 +451,14 @@ App.prototype.clear = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'clear', []);
 };
 
+/**
+ * Remove the map completely.
+ */
+App.prototype.remove = function() {
+  this.set('div', undefined);
+  this.clear();
+  cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
+};
 
 App.prototype.refreshLayout = function() {
   onMapResize(undefined, false);

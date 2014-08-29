@@ -105,7 +105,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     exec,
     isAvailable,
     getLicenseInfo,
-    clear
+    clear,
+    remove
   }
   
   private enum EVENTS {
@@ -124,7 +125,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   public LocationClient locationClient = null;
-  private final String PLUGIN_VERSION = "1.1.4";
+  private final String PLUGIN_VERSION = "1.1.5";
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -154,7 +155,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 JSONObject result = new JSONObject(pluginResult.getStrMessage());
                 JSONObject distTags = result.getJSONObject("dist-tags");
                 String latestVersion = distTags.getString("latest");
-                if (latestVersion != PLUGIN_VERSION) {
+                if (latestVersion.equals(PLUGIN_VERSION) == false) {
                   Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
                 }
               } catch (JSONException e) {}
@@ -222,6 +223,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             break;
           case clear:
             GoogleMaps.this.clear(args, callbackContext);
+            break;
+          case remove:
+            GoogleMaps.this.remove(args, callbackContext);
             break;
           case exec:
           
@@ -1489,6 +1493,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     
     this.map.clear();
+    callbackContext.success();
+  }
+  
+  private void remove(JSONArray args, CallbackContext callbackContext) {
+    webView.removeView(mapView);
+    plugins.clear();
+    mapView.onDestroy();
+    map = null;
+    mapView = null;
+    windowLayer = null;
+    mapDivLayoutJSON = null;
+    locationClient.disconnect();
+    locationClient = null;
     callbackContext.success();
   }
 }

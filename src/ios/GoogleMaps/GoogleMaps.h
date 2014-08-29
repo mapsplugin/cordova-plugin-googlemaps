@@ -12,6 +12,7 @@
 #import "Map.h"
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
+#import "Reachability.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 
@@ -33,4 +34,5 @@
 - (void)setDiv:(CDVInvokedUrlCommand *)command;
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
 - (void)clear:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand*)command;
 @end
