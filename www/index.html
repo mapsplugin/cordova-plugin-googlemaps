@@ -24,7 +24,9 @@
     var map;
     document.addEventListener("deviceready", function() {
       var div = document.getElementById("map_canvas");
-      map = plugin.google.maps.Map.getMap(div);
+      map = plugin.google.maps.Map.getMap(div, {
+        "backgroundColor": "green"
+      });
       map.on(plugin.google.maps.event.MAP_READY, onMapInit);
     }, false);
 
@@ -35,6 +37,7 @@
         };
         plugin.google.maps.Geocoder.geocode(request, function(results) {
           if (results.length) {
+            map.setBackgroundColor("#ffccff");
             var backgroundDiv = $("<div>").css({
               "position": "absolute",
               "left": 0,

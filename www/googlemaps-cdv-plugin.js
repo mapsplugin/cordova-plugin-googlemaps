@@ -255,6 +255,7 @@ App.prototype.getMap = function(div, params) {
   } else {
     var children = div.childNodes;
     params = params || {};
+    params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
     
     self.set("div", div);
@@ -432,6 +433,11 @@ App.prototype.setClickable = function(isClickable) {
   var self = this;
   isClickable = parseBoolean(isClickable);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setClickable', [isClickable]);
+};
+
+App.prototype.setBackgroundColor = function(color) {
+  this.set('strokeColor', color);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.

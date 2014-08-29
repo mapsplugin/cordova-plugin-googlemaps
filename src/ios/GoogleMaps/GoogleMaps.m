@@ -30,6 +30,10 @@
   [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
   
   self.root = self.webView.superview;
+  [self.webView removeFromSuperview];
+  self.pluginLayer.webView = self.webView;
+  [self.pluginLayer addSubview:self.pluinScrollView];
+  [self.pluginLayer addSubview:self.webView];
   [self.root addSubview:self.pluginLayer];
 }
 /**
@@ -125,6 +129,11 @@
       NSDictionary *options = [command.arguments objectAtIndex:0];
       self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
       self.mapCtrl.webView = self.webView;
+      
+      if ([options objectForKey:@"backgroundColor"]) {
+        NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
+        self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+      }
     });
     
     
@@ -144,52 +153,14 @@
           self.pluginLayer.map = self.mapCtrl.map;
           self.pluginLayer.webView = self.webView;
           
-          [self.webView removeFromSuperview];
           [self.pluinScrollView addSubview:self.mapCtrl.view];
-          [self.pluginLayer addSubview:self.pluinScrollView];
-          [self.pluginLayer addSubview:self.webView];
           [self resizeMap:command];
         }
-
-      });
-    });
-    // Create the dialog footer
-    dispatch_async(gueue, ^{
-      dispatch_sync(dispatch_get_main_queue(), ^{
-        
-        // Create the footer background
-        self.footer = [[UIView alloc]init];
-        self.footer.backgroundColor = [UIColor lightGrayColor];
-        
-        self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-                                  UIViewAutoresizingFlexibleWidth;
-        
-        // Create the close button
-        self.closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        CGRect frame = [self.closeButton frame];
-        frame.origin.x = 10;
-        frame.origin.y = 0;
-        frame.size.width = 50;
-        frame.size.height = 40;
-        [self.closeButton setFrame:frame];
-        self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-                                              UIViewAutoresizingFlexibleHeight;
-        [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
-        [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
-        [self.footer addSubview:self.closeButton];
-      
-        // Create the legal notices button
-        self.licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-                                              UIViewAutoresizingFlexibleLeftMargin |
-                                              UIViewAutoresizingFlexibleHeight;
-        [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
-        [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
-        [self.footer addSubview:self.licenseButton];
         
     
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
       });
     });
   }
@@ -376,7 +347,7 @@
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-  
+  NSLog(@"--setDiv:%d", [command.arguments count]);
   if ([command.arguments count] == 2) {
     [self.mapCtrl.view removeFromSuperview];
     [self.pluginLayer clearHTMLElement];
@@ -384,10 +355,7 @@
     self.pluginLayer.map = self.mapCtrl.map;
     self.pluginLayer.webView = self.webView;
     
-    [self.webView removeFromSuperview];
     [self.pluinScrollView addSubview:self.mapCtrl.view];
-    [self.pluginLayer addSubview:self.pluinScrollView];
-    [self.pluginLayer addSubview:self.webView];
     [self resizeMap:command];
   } else {
     [self.mapCtrl.view removeFromSuperview];
@@ -424,6 +392,38 @@
 - (void)showDialog:(CDVInvokedUrlCommand *)command {
   if (self.mapCtrl.isFullScreen == YES) {
     return;
+  }
+  
+  if (self.footer == nil) {
+    // Create the footer background
+    self.footer = [[UIView alloc]init];
+    self.footer.backgroundColor = [UIColor lightGrayColor];
+    
+    self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+                              UIViewAutoresizingFlexibleWidth;
+  
+    // Create the close button
+    self.closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    CGRect frame = [self.closeButton frame];
+    frame.origin.x = 10;
+    frame.origin.y = 0;
+    frame.size.width = 50;
+    frame.size.height = 40;
+    [self.closeButton setFrame:frame];
+    self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+                                          UIViewAutoresizingFlexibleHeight;
+    [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
+    [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
+    [self.footer addSubview:self.closeButton];
+  
+    // Create the legal notices button
+    self.licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+                                          UIViewAutoresizingFlexibleLeftMargin |
+                                          UIViewAutoresizingFlexibleHeight;
+    [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
+    [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
+    [self.footer addSubview:self.licenseButton];
   }
   
   // remove the map view from the parent
@@ -627,6 +627,19 @@
   Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.clickable = isClickable;
     
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set background color
+ * @params key
+ */
+-(void)pluginLayer_setBackGroundColor:(CDVInvokedUrlCommand *)command
+{
+  NSArray *rgbColor = [command.arguments objectAtIndex:0];
+  self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
