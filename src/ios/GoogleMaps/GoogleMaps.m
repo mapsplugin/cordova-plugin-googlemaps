@@ -30,7 +30,6 @@
   [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
   
   self.root = self.webView.superview;
-  [self.root addSubview:self.pluginLayer];
 }
 /**
  * @Private
@@ -118,12 +117,15 @@
       
       
       dispatch_sync(dispatch_get_main_queue(), ^{
-      
         if ([command.arguments count] == 3) {
+          [self.pluginLayer removeFromSuperview];
+          [self.webView removeFromSuperview];
+          [self.pluinScrollView removeFromSuperview];
           [self.mapCtrl.view removeFromSuperview];
           self.mapCtrl.isFullScreen = NO;
           self.pluginLayer.map = self.mapCtrl.map;
           self.pluginLayer.webView = self.webView;
+          [self.root addSubview:self.pluginLayer];
           
           [self.webView removeFromSuperview];
           [self.pluinScrollView addSubview:self.mapCtrl.view];
@@ -364,6 +366,7 @@
     self.mapCtrl.isFullScreen = NO;
     self.pluginLayer.map = self.mapCtrl.map;
     self.pluginLayer.webView = self.webView;
+    [self.root addSubview:self.pluginLayer];
     
     [self.webView removeFromSuperview];
     [self.pluinScrollView addSubview:self.mapCtrl.view];
@@ -372,6 +375,10 @@
     [self resizeMap:command];
   } else {
     [self.mapCtrl.view removeFromSuperview];
+    [self.pluginLayer removeFromSuperview];
+    [self.webView removeFromSuperview];
+    [self.pluinScrollView removeFromSuperview];
+    [self.root addSubview:self.webView];
   }
 }
 
@@ -611,3 +618,4 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 @end
+
