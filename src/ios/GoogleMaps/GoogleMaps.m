@@ -44,6 +44,25 @@
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7] == NO) {
     return;
   }
+  
+  BOOL isNetworkAvailable = NO;
+  Reachability *reachablity = [Reachability reachabilityForInternetConnection];
+  NetworkStatus status = [reachablity currentReachabilityStatus];
+  switch (status) {
+  case ReachableViaWiFi:
+  case ReachableViaWWAN:
+    isNetworkAvailable = YES;
+    break;
+  case NotReachable:
+    NSLog(@"[info] Can not connect to the internet");
+    break;
+  default:
+    break;
+  }
+  if (isNetworkAvailable == NO) {
+    return;
+  }
+  
   NSURL *URL = [NSURL URLWithString:@"http://plugins.cordova.io/api/plugin.google.maps"];
   R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:URL];
   
@@ -607,6 +626,23 @@
 {
   Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.clickable = isClickable;
+/**
+ * Remove the map
+ */
+- (void)remove:(CDVInvokedUrlCommand *)command {
+  [self.mapCtrl.overlayManager removeAllObjects];
+  [self.mapCtrl.map clear];
+  [self.mapCtrl.map removeFromSuperview];
+  [self.mapCtrl.view removeFromSuperview];
+  self.mapCtrl.map = nil;
+  self.mapCtrl = nil;
+  self.licenseLayer = nil;
+  self.footer = nil;
+  self.closeButton = nil;
+  self.locationManager = nil;
+  self.locationCommandQueue = nil;
+  
+  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
