@@ -251,6 +251,7 @@ App.prototype.getMap = function(div, params) {
   if (!isDom(div)) {
     params = div;
     params = params || {};
+    params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
   } else {
     var children = div.childNodes;

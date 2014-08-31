@@ -347,7 +347,6 @@
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-  NSLog(@"--setDiv:%d", [command.arguments count]);
   if ([command.arguments count] == 2) {
     [self.mapCtrl.view removeFromSuperview];
     [self.pluginLayer clearHTMLElement];
