@@ -40,6 +40,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -813,6 +814,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final JSONObject result = new JSONObject();
     LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
     if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
     //Ask the user to enable GPS
@@ -826,7 +828,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
               activity.startActivity(intent);
               
-              JSONObject result = new JSONObject();
               try {
                 result.put("status", false);
                 result.put("error_code", "open_settings");
@@ -841,7 +842,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               //No location service, no Activity
               dialog.dismiss();
               
-              JSONObject result = new JSONObject();
               try {
                 result.put("status", false);
                 result.put("error_code", "service_denied");
@@ -857,6 +857,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     
     final LocationRequest locationRequest = new LocationRequest();
+    locationRequest.setExpirationDuration(SystemClock.elapsedRealtime() + 3000);
+    locationRequest.setFastestInterval(1000);
+    locationRequest.setNumUpdates(1);
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     JSONObject params = args.getJSONObject(0);
     if (params.has("enableHighAccuracy")) {
@@ -865,8 +868,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
       }
     }
-    Log.d("CordovaLog", "priority = " + priority);
     locationRequest.setPriority(priority);
+    
     
     if (googleApiClient.isConnected() == false) {
       googleApiClient.connect();
@@ -890,16 +893,21 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                   } catch (JSONException e) {}
                   googleApiClient.disconnect();
                 }
-                
+
               });
         }
       });
       googleApiClient.registerConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
         
         @Override
-        public void onConnectionFailed(ConnectionResult result) {
-          Log.e("CordovaLog", result.toString());
-          callbackContext.error("Can not connect to Google APIs client");
+        public void onConnectionFailed(ConnectionResult connectionResult) {
+          Log.e("CordovaLog", connectionResult.toString());
+          try {
+            result.put("status", false);
+            result.put("error_code", "service_denied");
+            result.put("error_message", "Can not connect to Google APIs client.");
+          } catch (JSONException e) {}
+          callbackContext.error(result);
         }
       });
       return;
