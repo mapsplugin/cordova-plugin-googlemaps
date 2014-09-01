@@ -23,6 +23,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -34,10 +35,12 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -810,6 +813,49 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+    if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+    //Ask the user to enable GPS
+      AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
+      builder.setTitle(this.activity.getApplication().getApplicationInfo().name);
+      builder.setMessage("Would you like to enable GPS?");
+      builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+              //Launch settings, allowing user to make a change
+              Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+              activity.startActivity(intent);
+              
+              JSONObject result = new JSONObject();
+              try {
+                result.put("status", false);
+                result.put("error_code", "open_settings");
+                result.put("error_message", "User opened the settings of location service. So try again.");
+              } catch (JSONException e) {}
+              callbackContext.error(result);
+          }
+      });
+      builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+              //No location service, no Activity
+              dialog.dismiss();
+              
+              JSONObject result = new JSONObject();
+              try {
+                result.put("status", false);
+                result.put("error_code", "service_denied");
+                result.put("error_message", "This app has rejected to use Location Services.");
+              } catch (JSONException e) {}
+              callbackContext.error(result);
+          }
+      });
+      builder.create().show();
+      return;
+    }
+    
+    
+    
     final LocationRequest locationRequest = new LocationRequest();
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     JSONObject params = args.getJSONObject(0);
@@ -819,8 +865,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
       }
     }
+    Log.d("CordovaLog", "priority = " + priority);
     locationRequest.setPriority(priority);
-    
     
     if (googleApiClient.isConnected() == false) {
       googleApiClient.connect();
@@ -878,48 +924,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     /*
     if (this.locationClient == null) {
       
-      LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
-      if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-          //Ask the user to enable GPS
-          AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
-          builder.setTitle(this.activity.getApplication().getApplicationInfo().name);
-          builder.setMessage("Would you like to enable GPS?");
-          builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                  //Launch settings, allowing user to make a change
-                  Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                  activity.startActivity(intent);
-                  
-                  JSONObject result = new JSONObject();
-                  try {
-                    result.put("status", false);
-                    result.put("error_code", "open_settings");
-                    result.put("error_message", "User opened the settings of location service. So try again.");
-                  } catch (JSONException e) {}
-                  
-                  callbackContext.error(result);
-              }
-          });
-          builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                  //No location service, no Activity
-                  dialog.dismiss();
-                  
-                  JSONObject result = new JSONObject();
-                  try {
-                    result.put("status", false);
-                    result.put("error_code", "service_denied");
-                    result.put("error_message", "This app has rejected to use Location Services.");
-                  } catch (JSONException e) {}
-                  
-                  callbackContext.error(result);
-              }
-          });
-          builder.create().show();
-          return;
-      }
+      
 
       PackageManager pm = this.activity.getPackageManager();
       boolean hasLocation = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION);
