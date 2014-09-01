@@ -32,7 +32,9 @@
     function onMapInit() {
       $("#getMyLocationBtn").click(function() {
         console.log("--->getMyLocationBtn is clicked");
-        map.getMyLocation(function(location) {
+        map.getMyLocation({
+          enableHighAccuracy: true
+        }, function(location) {
           alert(JSON.stringify(location));
         }, function(err) {
           alert(err);
