@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.apache.cordova.CordovaWebView;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -17,7 +16,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Build.VERSION;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -70,6 +68,7 @@ public class MyPluginLayout extends FrameLayout  {
     scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
     
     this.touchableWrapper = new TouchableWrapper(this.context);
+    
   }
   
   public void setDrawingRect(float left, float top, float right, float bottom) {
@@ -195,7 +194,6 @@ public class MyPluginLayout extends FrameLayout  {
     
     frontLayer.addView(webView);
     this.addView(frontLayer);
-    
     root.addView(this);
   }
   
@@ -212,7 +210,7 @@ public class MyPluginLayout extends FrameLayout  {
 
 
   public void setBackgroundColor(int color) {
-    this.backgroundView.setBackgroundColor(color);
+    this.scrollView.setBackgroundColor(color);
   }
   
   public void inValidate() {
