@@ -146,7 +146,7 @@
       
       
       dispatch_sync(dispatch_get_main_queue(), ^{
-      
+        NSLog(@"[command.arguments count] = %lu", (unsigned long)[command.arguments count]);
         if ([command.arguments count] == 3) {
           [self.mapCtrl.view removeFromSuperview];
           self.mapCtrl.isFullScreen = NO;
