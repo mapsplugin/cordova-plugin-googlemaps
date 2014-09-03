@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		04949326B9CA4C3890FE37FB /* BSD-LICENSE in Sources */ = {isa = PBXBuildFile; fileRef = A40A421300364D078A73DB0E /* BSD-LICENSE */; };
 		04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */; };
@@ -53,7 +54,6 @@
 		69E72B8B1922C7B20007FA25 /* Polyline.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B781922C7B20007FA25 /* Polyline.m */; };
 		69E72B8C1922C7B20007FA25 /* TBXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B7A1922C7B20007FA25 /* TBXML.m */; };
 		69E72B8D1922C7B20007FA25 /* TileOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B7C1922C7B20007FA25 /* TileOverlay.m */; };
-		69F8B91519B0F1E3004ACDA5 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 69F8B91419B0F1E3004ACDA5 /* Reachability.m */; };
 		6A8871042DE24C4B8CBB5587 /* README in Sources */ = {isa = PBXBuildFile; fileRef = F6E3E742159A4CE0A9B92407 /* README */; };
 		715D5CBBC3094301B31E3D3A /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 1174ECF24E8A47BB90559952 /* CDVLogger.m */; };
 		715F4C4593F24442B7FDAC8E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B308BFB2A64AE0B1C0696A /* CoreData.framework */; };
@@ -72,6 +72,7 @@
 		8BD72E6896BE4A428DA03B8C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24923B0141E24EA8944182D6 /* QuartzCore.framework */; };
 		8CEFF93132FD4D9B865D910A /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C75BAF71A68F4784AE3FF5D1 /* OpenGLES.framework */; };
 		A085565319AC3D290096FFFC /* MyPluginLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = A085565219AC3D290096FFFC /* MyPluginLayer.m */; };
+		A0C11F6819B6F0FB004A7E21 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C11F6719B6F0FB004A7E21 /* Reachability.m */; };
 		A2289235F02B41D795FD74F8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17B96542294FF784702ADB /* libz.dylib */; };
 		CB5A6EAC79EE44B5BA2FAA87 /* R9HTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 595CC89A43E64E2F8ED522BA /* R9HTTPRequest.m */; };
 		D3743966BE11436F8AF37AEA /* GoogleMaps.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A280E55389FB4B2CAD1ABE26 /* GoogleMaps.bundle */; };
@@ -164,8 +165,6 @@
 		69E72B7A1922C7B20007FA25 /* TBXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TBXML.m; path = ../../../../src/ios/GoogleMaps/TBXML.m; sourceTree = "<group>"; };
 		69E72B7B1922C7B20007FA25 /* TileOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TileOverlay.h; path = ../../../../src/ios/GoogleMaps/TileOverlay.h; sourceTree = "<group>"; };
 		69E72B7C1922C7B20007FA25 /* TileOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TileOverlay.m; path = ../../../../src/ios/GoogleMaps/TileOverlay.m; sourceTree = "<group>"; };
-		69F8B91319B0F1E3004ACDA5 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = ../../../../src/ios/GoogleMaps/Reachability/Reachability.h; sourceTree = "<group>"; };
-		69F8B91419B0F1E3004ACDA5 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = ../../../../src/ios/GoogleMaps/Reachability/Reachability.m; sourceTree = "<group>"; };
 		6E17B96542294FF784702ADB /* libz.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		774B6CCB9D1C4B448F95FD9A /* CDVLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDVLogger.h; path = org.apache.cordova.console/CDVLogger.h; sourceTree = "<group>"; };
 		7E7966D41810823500FA85AD /* icon-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-40.png"; sourceTree = "<group>"; };
@@ -181,6 +180,8 @@
 		8D1107310486CEB800E47090 /* DevApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "DevApp-Info.plist"; path = "../DevApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		A085565119AC3D290096FFFC /* MyPluginLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyPluginLayer.h; path = ../../../../src/ios/GoogleMaps/MyPluginLayer.h; sourceTree = "<group>"; };
 		A085565219AC3D290096FFFC /* MyPluginLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyPluginLayer.m; path = ../../../../src/ios/GoogleMaps/MyPluginLayer.m; sourceTree = "<group>"; };
+		A0C11F6619B6F0FB004A7E21 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = ../../../../src/ios/GoogleMaps/Reachability.h; sourceTree = "<group>"; };
+		A0C11F6719B6F0FB004A7E21 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = ../../../../src/ios/GoogleMaps/Reachability.m; sourceTree = "<group>"; };
 		A280E55389FB4B2CAD1ABE26 /* GoogleMaps.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = GoogleMaps.bundle; sourceTree = "<group>"; };
 		A40A421300364D078A73DB0E /* BSD-LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = unknown; name = "BSD-LICENSE"; path = "plugin.http.request/HttpRequest/R9HTTPRequest/BSD-LICENSE"; sourceTree = "<group>"; };
 		A5DF3623B0D844BFBE68BC45 /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpRequest.h; path = plugin.http.request/HttpRequest/HttpRequest.h; sourceTree = "<group>"; };
@@ -346,6 +347,8 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				A0C11F6619B6F0FB004A7E21 /* Reachability.h */,
+				A0C11F6719B6F0FB004A7E21 /* Reachability.m */,
 				69E72B5A1922C7B20007FA25 /* Circle.h */,
 				69E72B5B1922C7B20007FA25 /* Circle.m */,
 				69E72B5C1922C7B20007FA25 /* External.h */,
@@ -356,8 +359,6 @@
 				69E72B611922C7B20007FA25 /* GoogleMaps.m */,
 				69E72B621922C7B20007FA25 /* GoogleMapsViewController.h */,
 				69E72B631922C7B20007FA25 /* GoogleMapsViewController.m */,
-				69F8B91319B0F1E3004ACDA5 /* Reachability.h */,
-				69F8B91419B0F1E3004ACDA5 /* Reachability.m */,
 				69E72B641922C7B20007FA25 /* GroundOverlay.h */,
 				69E72B651922C7B20007FA25 /* GroundOverlay.m */,
 				69E72B661922C7B20007FA25 /* KmlOverlay.h */,
@@ -595,7 +596,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				69F8B91519B0F1E3004ACDA5 /* Reachability.m in Sources */,
+				A0C11F6819B6F0FB004A7E21 /* Reachability.m in Sources */,
 				69E72B831922C7B20007FA25 /* KmlOverlay.m in Sources */,
 				69E72B8B1922C7B20007FA25 /* Polyline.m in Sources */,
 				69E72B7F1922C7B20007FA25 /* Geocoder.m in Sources */,

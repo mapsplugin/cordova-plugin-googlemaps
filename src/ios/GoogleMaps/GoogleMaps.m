@@ -172,9 +172,9 @@
   Boolean isVisible = [[command.arguments objectAtIndex:0] boolValue];
   if (self.mapCtrl.isFullScreen == NO) {
     if (isVisible == YES) {
-      self.mapCtrl.view.hidden = NO;
+      self.mapCtrl.map.hidden = NO;
     } else {
-      self.mapCtrl.view.hidden = YES;
+      self.mapCtrl.map.hidden = YES;
     }
   }
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
