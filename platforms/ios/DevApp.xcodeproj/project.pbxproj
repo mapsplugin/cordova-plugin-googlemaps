@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		04949326B9CA4C3890FE37FB /* BSD-LICENSE in Sources */ = {isa = PBXBuildFile; fileRef = A40A421300364D078A73DB0E /* BSD-LICENSE */; };
 		04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */; };
