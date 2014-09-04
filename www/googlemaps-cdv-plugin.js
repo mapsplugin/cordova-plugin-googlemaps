@@ -418,7 +418,16 @@ App.prototype.setCompassEnabled = function(enabled) {
   enabled = parseBoolean(enabled);
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
 };
-App.prototype.getMyLocation = function(success_callback, error_callback) {
+App.prototype.getMyLocation = function(params, success_callback, error_callback) {
+  var args = [params || {}, success_callback || null, error_callback ];
+  if (typeof args[0] === "function") {
+    args.unshift({});
+  }
+  params = args[0];
+  success_callback = args[1];
+  error_callback = args[2];
+  
+  params.enableHighAccuracy = params.enableHighAccuracy || false;
   var self = this;
   var successHandler = function(location) {
     if (typeof success_callback === "function") {
@@ -431,7 +440,7 @@ App.prototype.getMyLocation = function(success_callback, error_callback) {
       error_callback.call(self, result);
     }
   };
-  cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', []);
+  cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', [params]);
 };
 App.prototype.setVisible = function(isVisible) {
   var self = this;

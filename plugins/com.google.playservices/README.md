@@ -13,4 +13,5 @@ See for example [chrome.identity](https://github.com/MobileChromeApps/mobile-chr
 1. Install the .jar via the Android SDK Manager (`android sdk`)
 2. Copy it from `android-sdk/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar`
 3. Update the version number in `plugin.xml` to match `Pkg.Revision` from `android-sdk/extras/google/google_play_services/source.properties`
-4. Run `plugman publish .` to publish to registry
+4. Copy in the new `version.xml` from `android-sdk/extras/google/google_play_services/libproject/google-play-services_lib/res/values`
+5. Run `plugman publish .` to publish to registry

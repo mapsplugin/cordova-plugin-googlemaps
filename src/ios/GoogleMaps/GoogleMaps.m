@@ -514,12 +514,25 @@
     case kCLAuthorizationStatusAuthorized:
     case kCLAuthorizationStatusNotDetermined:
       {
+        CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
+        NSDictionary *opts = [command.arguments objectAtIndex:0];
+        if ([opts objectForKey:@"enableHighAccuracy"]) {
+        BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
+          if (isEnabledHighAccuracy == YES) {
+            locationAccuracy = kCLLocationAccuracyBestForNavigation;
+          }
+        }
+        
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         self.locationManager.distanceFilter = kCLDistanceFilterNone;
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
+        self.locationManager.desiredAccuracy = locationAccuracy;
         [self.locationManager startUpdatingLocation];
         [self.locationCommandQueue addObject:command];
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }
       break;
     

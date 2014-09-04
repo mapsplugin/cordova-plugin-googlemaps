@@ -29,7 +29,9 @@ function showMyLocation(map) {
   var error = function(result) {
     alert("ERROR\n---\n" + result.error_message );
   };
-  map.getMyLocation(success, error);
+  map.getMyLocation({
+    enableHighAccuracy: true
+  }, success, error);
 }
 </script>
 <h4 class="ui-bar ui-bar-a">with jQuery</h4>
@@ -52,5 +54,7 @@ var success = function(location) {
 var error = function(result) {
   alert("ERROR\n---\n" + result.error_message );
 };
-map.getMyLocation(success, error);
+map.getMyLocation({
+  enableHighAccuracy: true
+}, success, error);
 </code>
