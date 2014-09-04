@@ -20,9 +20,7 @@ window.onerror = function(message, file, line) {
  * Start from here
  */
 $(document).on("deviceready", function() {
-  var map = plugin.google.maps.Map.getMap({
-    'backgroundColor': 'green'
-  });
+  var map = plugin.google.maps.Map.getMap();
   
   $("li[action]").click(function() {
     $("#menulist").panel("close");

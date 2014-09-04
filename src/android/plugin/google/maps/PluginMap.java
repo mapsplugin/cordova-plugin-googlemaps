@@ -100,18 +100,6 @@ public class PluginMap extends MyPlugin {
         map.setMyLocationEnabled(isEnabled);
       }
     }
-    if (isEnabled) {
-      try {
-        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
-        this.mapCtrl.locationClient = constructor.newInstance(this.cordova.getActivity(), this.mapCtrl, this.mapCtrl);
-      } catch (Exception e) {}
-      
-      //this.locationClient = new LocationClient(this.activity, this, this);
-      if (this.mapCtrl.locationClient != null) {
-        // The LocationClient class is available. 
-        this.mapCtrl.locationClient.connect();
-      }
-    }
 
     // move the camera position
     if (params.has("camera")) {
@@ -300,12 +288,12 @@ public class PluginMap extends MyPlugin {
     isEnabled = args.getBoolean(1);
     map.setMyLocationEnabled(isEnabled);
     if (isEnabled) {
-      if (!mapCtrl.locationClient.isConnected()) {
-        mapCtrl.locationClient.connect();
+      if (!mapCtrl.googleApiClient.isConnected()) {
+        mapCtrl.googleApiClient.connect();
       }
     } else {
-      if (mapCtrl.locationClient.isConnected()) {
-        mapCtrl.locationClient.disconnect();
+      if (mapCtrl.googleApiClient.isConnected()) {
+        mapCtrl.googleApiClient.disconnect();
       }
     }
     callbackContext.success();
