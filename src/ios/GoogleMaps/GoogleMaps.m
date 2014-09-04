@@ -42,7 +42,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.0 beta3";
+  NSString *PLUGIN_VERSION = @"1.2.0 beta4";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7] == NO) {
@@ -146,7 +146,7 @@
       
       
       dispatch_sync(dispatch_get_main_queue(), ^{
-      
+        NSLog(@"[command.arguments count] = %lu", (unsigned long)[command.arguments count]);
         if ([command.arguments count] == 3) {
           [self.mapCtrl.view removeFromSuperview];
           self.mapCtrl.isFullScreen = NO;
@@ -172,9 +172,9 @@
   Boolean isVisible = [[command.arguments objectAtIndex:0] boolValue];
   if (self.mapCtrl.isFullScreen == NO) {
     if (isVisible == YES) {
-      self.mapCtrl.view.hidden = NO;
+      self.mapCtrl.map.hidden = NO;
     } else {
-      self.mapCtrl.view.hidden = YES;
+      self.mapCtrl.map.hidden = YES;
     }
   }
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
