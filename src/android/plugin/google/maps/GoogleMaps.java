@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
@@ -201,9 +202,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           return;
         }
         if ("exec".equals(action)) {
+          
           try {
             String classMethod = args.getString(0);
             String[] params = classMethod.split("\\.", 0);
+            
+            if ("Map.setOptions".equals(classMethod)) {
+              
+              JSONObject jsonParams = args.getJSONObject(1);
+              if (jsonParams.has("backgroundColor")) {
+                JSONArray rgba = jsonParams.getJSONArray("backgroundColor");
+                int backgroundColor = Color.WHITE;
+                if (rgba != null && rgba.length() == 4) {
+                  try {
+                    backgroundColor = PluginUtil.parsePluginColor(rgba);
+                    mPluginLayout.setBackgroundColor(backgroundColor);
+                  } catch (JSONException e) {}
+                }
+              }
+              
+            }
             
             // Load the class plugin
             GoogleMaps.this.loadPlugin(params[0]);

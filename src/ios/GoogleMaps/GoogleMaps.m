@@ -146,7 +146,6 @@
       
       
       dispatch_sync(dispatch_get_main_queue(), ^{
-        NSLog(@"[command.arguments count] = %lu", (unsigned long)[command.arguments count]);
         if ([command.arguments count] == 3) {
           [self.mapCtrl.view removeFromSuperview];
           self.mapCtrl.isFullScreen = NO;
@@ -193,6 +192,14 @@
     NSString *className = [target objectAtIndex:0];
     CDVPlugin<MyPlgunProtocol> *pluginClass = nil;
     NSString *methodName;
+    
+    if ([classAndMethod isEqualToString:@"Map.setOptions"]) {
+      NSDictionary *options = [command.arguments objectAtIndex:1];
+      if ([options objectForKey:@"backgroundColor"]) {
+        NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
+        self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+      }
+    }
     
     if ([target count] == 2) {
       methodName = [NSString stringWithFormat:@"%@:", [target objectAtIndex:1]];

@@ -83,9 +83,9 @@ NSDictionary *initOptions;
   
     CGRect pluginRect = self.view.frame;
     int marginBottom = 0;
-    if ([PluginUtil isIOS7] == false) {
-      marginBottom = 20;
-    }
+    //if ([PluginUtil isIOS7] == false) {
+    //  marginBottom = 20;
+    //}
     CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
     //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
     //NSLog(@"mapRect=%@", camera);
