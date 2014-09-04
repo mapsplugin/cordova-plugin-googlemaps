@@ -283,6 +283,12 @@ App.prototype.getMap = function(div, params) {
     
     div.addEventListener("DOMNodeRemoved", _remove_child);
     div.addEventListener("DOMNodeInserted", _append_child);
+    
+    while(div.parentNode) {
+      console.log(div.tagName);
+      div.style.backgroundColor = 'rgba(0,0,0,0)';
+      div = div.parentNode;
+    }
   }
   cordova.exec(function() {
     setTimeout(function() {
@@ -316,6 +322,8 @@ App.prototype.closeDialog = function() {
 };
 
 App.prototype.setOptions = function(options) {
+  options = options || {};
+  options.backgroundColor = HTMLColor2RGBA(options.backgroundColor);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', options]);
 };
 
@@ -544,6 +552,9 @@ var _remove_child = function(event) {
   if (!target || "nodeType" in target == false) {
     return;
   }
+  if (target.nodeType != 1) {
+    return;
+  }
   var elemId = target.getAttribute("__pluginDomId");
   if (!elemId) {
     return;
@@ -598,6 +609,11 @@ App.prototype.setDiv = function(div) {
       });
     }
     args.push(elements);
+    
+    while(div.parentNode) {
+      div.style.backgroundColor = 'rgba(0,0,0,0)';
+      div = div.parentNode;
+    }
     
     div.addEventListener("DOMNodeRemoved", _remove_child);
     div.addEventListener("DOMNodeInserted", _append_child);
@@ -1845,46 +1861,22 @@ cordova.addConstructor(function() {
 });
 window.addEventListener("orientationchange", onMapResize);
 document.addEventListener("deviceready", function() {
-  if (device.platform == "Android" &&
-      device.version.indexOf("2.") == 0) {
-        
-    var prevSize = null;
-    var div, divSize;
-    var sameCnt = 0;
-    var timer = null;
-    window.addEventListener("resize", function() {
-      if (timer) {
-        return;
-      }
-      timer = setInterval(function() {
-        div = module.exports.Map.get("div");
-        if (div) {
-          divSize = getDivSize(div);
-          if (prevSize) {
-            if (divSize.left == prevSize.left &&
-              divSize.top == prevSize.top) {
-              if (divSize.width == prevSize.width &&
-                divSize.height == prevSize.height) {
-                  
-                  sameCnt++;
-                  if (sameCnt==2) {
-                    onMapResize();
-                    clearInterval(timer);
-                    timer = null;
-                    sameCnt = 0;
-                  }
-              } else {
-                sameCnt = 0;
-              }
-            } else {
-              onMapResize();
-            }
-          }
-          prevSize = divSize;
+  var prevSize = null;
+  var div, divSize;
+  var sameCnt = 0;
+  setInterval(function() {
+    div = module.exports.Map.get("div");
+    if (div) {
+      divSize = getDivSize(div);
+      if (prevSize) {
+        if (divSize.left != prevSize.left ||
+            divSize.top != prevSize.top ||
+            divSize.width != prevSize.width ||
+            divSize.height != prevSize.height ) {
+          onMapResize();
         }
-      }, 100);
-    });
-  } else {
-    window.addEventListener("resize", onMapResize);
-  }
+      }
+      prevSize = divSize;
+    }
+  }, 100);
 });
