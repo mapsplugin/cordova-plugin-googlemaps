@@ -48,6 +48,9 @@ public class PluginMap extends MyPlugin {
       if (controls.has("zoom")) {
         settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
       }
+      if (controls.has("indoorPicker")) {
+        settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+      }
     }
     
     //gestures
