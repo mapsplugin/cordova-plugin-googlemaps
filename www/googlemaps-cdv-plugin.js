@@ -1627,7 +1627,7 @@ function HTMLColor2RGBA(colorStr) {
   if (colorStr === "transparent" || !colorStr) {
     return [0, 0, 0, 0];
   }
-  var alpha = Math.floor(255 * 0.75),
+  var alpha = 255, //Math.floor(255 * 0.75),
       matches,
       compStyle,
       result = {

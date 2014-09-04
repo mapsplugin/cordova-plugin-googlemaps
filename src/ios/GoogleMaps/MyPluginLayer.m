@@ -33,7 +33,8 @@ NSMutableDictionary *HTMLNodes = nil;
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-  if (self.clickable == NO) {
+  if (self.clickable == NO ||
+      self.map.hidden == YES) {
     return [super hitTest:point withEvent:event];
   }
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - self.webView.scrollView.contentOffset.x;

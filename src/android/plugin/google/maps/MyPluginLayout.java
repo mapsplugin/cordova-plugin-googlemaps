@@ -227,7 +227,7 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (isClickable == false) {
+      if (isClickable == false || myView.getVisibility() != View.VISIBLE) {
         webView.requestFocus(View.FOCUS_DOWN);
         return false;
       }
