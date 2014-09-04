@@ -517,7 +517,7 @@
         CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
         NSDictionary *opts = [command.arguments objectAtIndex:0];
         if ([opts objectForKey:@"enableHighAccuracy"]) {
-        BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
+          BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
           if (isEnabledHighAccuracy == YES) {
             locationAccuracy = kCLLocationAccuracyBestForNavigation;
           }
