@@ -123,7 +123,7 @@
   NSString *polylineKey = [command.arguments objectAtIndex:1];
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
-  [polyline setZIndex:zIndex];
+  [polyline setZIndex:(int)zIndex];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

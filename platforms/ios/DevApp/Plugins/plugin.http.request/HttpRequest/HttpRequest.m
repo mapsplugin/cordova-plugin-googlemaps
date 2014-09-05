@@ -15,7 +15,7 @@
 {
     NSString *method = [command.arguments objectAtIndex:0];
     NSString *urlStr = [command.arguments objectAtIndex:1];
-    int argCnt = [command.arguments count];
+    int argCnt = (int)[command.arguments count];
     
     NSURL *URL = [NSURL URLWithString:urlStr];
     R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:URL];
