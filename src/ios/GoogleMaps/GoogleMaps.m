@@ -32,7 +32,7 @@
   }
   
   BOOL isNetworkAvailable = NO;
-  Reachability *reachablity = [Reachability reachabilityForInternetConnection];
+  MyReachability *reachablity = [MyReachability reachabilityForInternetConnection];
   NetworkStatus status = [reachablity currentReachabilityStatus];
   switch (status) {
   case ReachableViaWiFi:
@@ -110,7 +110,6 @@
       
       
       dispatch_sync(dispatch_get_main_queue(), ^{
-      
         if ([command.arguments count] == 2) {
           self.mapCtrl.isFullScreen = NO;
           self.mapCtrl.embedRect =  [command.arguments objectAtIndex:1];

@@ -154,7 +154,7 @@
   [json setObject:[NSNumber numberWithDouble:camera.viewingAngle] forKey:@"tilt"];
   [json setObject:latLng forKey:@"target"];
   [json setObject:[NSNumber numberWithFloat:camera.bearing] forKey:@"bearing"];
-  [json setObject:[NSNumber numberWithInt:camera.hash] forKey:@"hashCode"];
+  [json setObject:[NSNumber numberWithInt:(int)camera.hash] forKey:@"hashCode"];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -163,9 +163,9 @@
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
-  int bearing = [[json valueForKey:@"bearing"] integerValue];
+  int bearing = (int)[[json valueForKey:@"bearing"] integerValue];
   double angle = [[json valueForKey:@"tilt"] doubleValue];
-  int zoom = [[json valueForKey:@"zoom"] integerValue];
+  int zoom = (int)[[json valueForKey:@"zoom"] integerValue];
   
   
   NSDictionary *latLng = nil;

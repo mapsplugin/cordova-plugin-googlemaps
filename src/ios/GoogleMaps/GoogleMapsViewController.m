@@ -306,7 +306,7 @@ NSDictionary *initOptions;
   [json setObject:[NSNumber numberWithFloat:position.bearing] forKey:@"bearing"];
   [json setObject:target forKey:@"target"];
   [json setObject:[NSNumber numberWithDouble:position.viewingAngle] forKey:@"tilt"];
-  [json setObject:[NSNumber numberWithInt:position.hash] forKey:@"hashCode"];
+  [json setObject:[NSNumber numberWithInt:(int)position.hash] forKey:@"hashCode"];
   [json setObject:[NSNumber numberWithFloat:position.zoom] forKey:@"zoom"];
   
   

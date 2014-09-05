@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		04949326B9CA4C3890FE37FB /* BSD-LICENSE in Sources */ = {isa = PBXBuildFile; fileRef = A40A421300364D078A73DB0E /* BSD-LICENSE */; };
 		04CCB103679B48889CB717C9 /* HttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C026EA52C2CB49B3BB9ACCE4 /* HttpRequest.m */; };
@@ -36,6 +37,7 @@
 		5D43035943F34481B4F11465 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D95A31D935F4F29B083B7F3 /* AVFoundation.framework */; };
 		643BE76747954469A586142C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B826A2E4501A4FF4A9CF8237 /* SystemConfiguration.framework */; };
 		6933C885199BE86E000E583C /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 6933C884199BE86E000E583C /* test.png */; };
+		69B4C8D319BA60F000D09118 /* MyReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 69B4C8D219BA60F000D09118 /* MyReachability.m */; };
 		69E72B7D1922C7B20007FA25 /* Circle.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5B1922C7B20007FA25 /* Circle.m */; };
 		69E72B7E1922C7B20007FA25 /* External.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5D1922C7B20007FA25 /* External.m */; };
 		69E72B7F1922C7B20007FA25 /* Geocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E72B5F1922C7B20007FA25 /* Geocoder.m */; };
@@ -129,6 +131,8 @@
 		5AEE5B34173C68D80009041E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		6933C884199BE86E000E583C /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
+		69B4C8D119BA60F000D09118 /* MyReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyReachability.h; path = ../../../../src/ios/GoogleMaps/MyReachability.h; sourceTree = "<group>"; };
+		69B4C8D219BA60F000D09118 /* MyReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyReachability.m; path = ../../../../src/ios/GoogleMaps/MyReachability.m; sourceTree = "<group>"; };
 		69E72B5A1922C7B20007FA25 /* Circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Circle.h; path = ../../../../src/ios/GoogleMaps/Circle.h; sourceTree = "<group>"; };
 		69E72B5B1922C7B20007FA25 /* Circle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Circle.m; path = ../../../../src/ios/GoogleMaps/Circle.m; sourceTree = "<group>"; };
 		69E72B5C1922C7B20007FA25 /* External.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = External.h; path = ../../../../src/ios/GoogleMaps/External.h; sourceTree = "<group>"; };
@@ -340,6 +344,8 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				69B4C8D119BA60F000D09118 /* MyReachability.h */,
+				69B4C8D219BA60F000D09118 /* MyReachability.m */,
 				69E72B5A1922C7B20007FA25 /* Circle.h */,
 				69E72B5B1922C7B20007FA25 /* Circle.m */,
 				69E72B5C1922C7B20007FA25 /* External.h */,
@@ -597,6 +603,7 @@
 				69E72B8A1922C7B20007FA25 /* Polygon.m in Sources */,
 				69E72B7E1922C7B20007FA25 /* External.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				69B4C8D319BA60F000D09118 /* MyReachability.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				69E72B7D1922C7B20007FA25 /* Circle.m in Sources */,
 				69E72B801922C7B20007FA25 /* GoogleMaps.m in Sources */,
