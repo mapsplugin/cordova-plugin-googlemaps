@@ -8,11 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleMaps/GoogleMaps.h>
+#import "GoogleMapsViewController.h"
 
 @interface MyPluginLayer : UIView
 
 @property (nonatomic) UIWebView *webView;
-@property (nonatomic) GMSMapView *map;
+@property (nonatomic) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) BOOL clickable;
 
