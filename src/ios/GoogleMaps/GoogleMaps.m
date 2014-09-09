@@ -42,7 +42,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.0 beta5";
+  NSString *PLUGIN_VERSION = @"1.2.0 beta6";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7] == NO) {
