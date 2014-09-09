@@ -10,7 +10,6 @@
 
 @implementation MyPluginLayer
 
-UIView *gmsVector = nil;
 NSMutableDictionary *HTMLNodes = nil;
 
 -  (id)initWithFrame:(CGRect)aRect
@@ -34,11 +33,17 @@ NSMutableDictionary *HTMLNodes = nil;
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
   if (self.clickable == NO ||
-      self.map.hidden == YES) {
+      self.mapCtrl.view.hidden == YES) {
     return [super hitTest:point withEvent:event];
   }
-  float left = [[self.embedRect objectForKey:@"left"] floatValue] - self.webView.scrollView.contentOffset.x;
-  float top = [[self.embedRect objectForKey:@"top"] floatValue] - self.webView.scrollView.contentOffset.y;
+  point.x -= self.mapCtrl.view.frame.origin.x;
+  point.y -= self.mapCtrl.view.frame.origin.y;
+  
+  float offsetX = self.webView.scrollView.contentOffset.x + self.mapCtrl.view.frame.origin.x;
+  float offsetY = self.webView.scrollView.contentOffset.y + self.mapCtrl.view.frame.origin.y;
+  
+  float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
+  float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
   float width = [[self.embedRect objectForKey:@"width"] floatValue];
   float height = [[self.embedRect objectForKey:@"height"] floatValue];
   
@@ -54,8 +59,8 @@ NSMutableDictionary *HTMLNodes = nil;
     NSDictionary *elemSize;
     for (NSString *domId in HTMLNodes) {
       elemSize = [HTMLNodes objectForKey:domId];
-      left = [[elemSize objectForKey:@"left"] floatValue];
-      top = [[elemSize objectForKey:@"top"] floatValue];
+      left = [[elemSize objectForKey:@"left"] floatValue] - offsetX;
+      top = [[elemSize objectForKey:@"top"] floatValue] - offsetY;
       width = [[elemSize objectForKey:@"width"] floatValue];
       height = [[elemSize objectForKey:@"height"] floatValue];
       
@@ -69,17 +74,11 @@ NSMutableDictionary *HTMLNodes = nil;
   }
   
   if (isMapAction == YES) {
-    if (gmsVector == nil) {
-      for (UIView *view in self.map.subviews) {
-        if ([[NSString stringWithFormat:@"%@", view.class] isEqualToString:@"GMSVectorMapView"]) {
-          gmsVector = view;
-          break;
-        }
-      }
-    }
-    return gmsVector;
+    return [self.mapCtrl.view hitTest:point withEvent:event];
   }
   
+  point.x += self.mapCtrl.view.frame.origin.x;
+  point.y += self.mapCtrl.view.frame.origin.y;
   return [super hitTest:point withEvent:event];
 }
 

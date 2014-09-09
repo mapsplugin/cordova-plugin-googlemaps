@@ -149,7 +149,7 @@
         if ([command.arguments count] == 3) {
           [self.mapCtrl.view removeFromSuperview];
           self.mapCtrl.isFullScreen = NO;
-          self.pluginLayer.map = self.mapCtrl.map;
+          self.pluginLayer.mapCtrl = self.mapCtrl;
           self.pluginLayer.webView = self.webView;
           
           [self.pluinScrollView addSubview:self.mapCtrl.view];
@@ -358,7 +358,7 @@
     [self.mapCtrl.view removeFromSuperview];
     [self.pluginLayer clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
-    self.pluginLayer.map = self.mapCtrl.map;
+    self.pluginLayer.mapCtrl = self.mapCtrl;
     self.pluginLayer.webView = self.webView;
     
     [self.pluinScrollView addSubview:self.mapCtrl.view];
