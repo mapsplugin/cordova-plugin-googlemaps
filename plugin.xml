@@ -138,8 +138,8 @@
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
-        <header-file src="src/ios/GoogleMaps/Reachability.h" />
-        <source-file src="src/ios/GoogleMaps/Reachability.m" />
+        <header-file src="src/ios/GoogleMaps/MyReachability.h" />
+        <source-file src="src/ios/GoogleMaps/MyReachability.m" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
