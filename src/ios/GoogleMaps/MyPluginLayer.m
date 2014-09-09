@@ -33,7 +33,7 @@ NSMutableDictionary *HTMLNodes = nil;
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
   if (self.clickable == NO ||
-      self.mapCtrl.view.hidden == YES) {
+      self.mapCtrl.map.hidden == YES) {
     return [super hitTest:point withEvent:event];
   }
   
