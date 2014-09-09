@@ -31,9 +31,7 @@ NSDictionary *initOptions;
 - (void)updateMapViewLayout {
   
   if (self.isFullScreen == NO) {
-    [UIView animateWithDuration:0.5f animations:^{
-      [self.view setFrameWithDictionary:self.embedRect];
-    }];
+    [self.view setFrameWithDictionary:self.embedRect];
   }
 }
 
