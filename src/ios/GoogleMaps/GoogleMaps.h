@@ -13,7 +13,7 @@
 #import "PluginUtil.h"
 #import "R9HTTPRequest.h"
 #import "MyPluginLayer.h"
-#import "Reachability.h"
+#import "MyReachability.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 

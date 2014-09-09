@@ -1,5 +1,5 @@
 /*
-     File: Reachability.h
+     File: MyReachability.h
  Abstract: Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
   Version: 3.5
  
@@ -57,18 +57,18 @@ typedef enum : NSInteger {
 } NetworkStatus;
 
 
-extern NSString *kReachabilityChangedNotification;
+extern NSString *kNetworkMyReachabilityChangedNotification;
 
 
-@interface Reachability : NSObject
+@interface MyReachability : NSObject
 
 /*!
- * Use to check the reachability of a given host name.
+ * Use to check the MyReachability of a given host name.
  */
 + (instancetype)reachabilityWithHostName:(NSString *)hostName;
 
 /*!
- * Use to check the reachability of a given IP address.
+ * Use to check the MyReachability of a given IP address.
  */
 + (instancetype)reachabilityWithAddress:(const struct sockaddr_in *)hostAddress;
 
@@ -83,7 +83,7 @@ extern NSString *kReachabilityChangedNotification;
 + (instancetype)reachabilityForLocalWiFi;
 
 /*!
- * Start listening for reachability notifications on the current run loop.
+ * Start listening for MyReachability notifications on the current run loop.
  */
 - (BOOL)startNotifier;
 - (void)stopNotifier;

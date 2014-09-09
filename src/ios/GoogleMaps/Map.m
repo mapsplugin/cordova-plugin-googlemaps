@@ -154,7 +154,7 @@
   [json setObject:[NSNumber numberWithDouble:camera.viewingAngle] forKey:@"tilt"];
   [json setObject:latLng forKey:@"target"];
   [json setObject:[NSNumber numberWithFloat:camera.bearing] forKey:@"bearing"];
-  [json setObject:[NSNumber numberWithInt:camera.hash] forKey:@"hashCode"];
+  [json setObject:[NSNumber numberWithInt:(int)camera.hash] forKey:@"hashCode"];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -163,9 +163,9 @@
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
-  int bearing = [[json valueForKey:@"bearing"] integerValue];
+  int bearing = (int)[[json valueForKey:@"bearing"] integerValue];
   double angle = [[json valueForKey:@"tilt"] doubleValue];
-  int zoom = [[json valueForKey:@"zoom"] integerValue];
+  int zoom = (int)[[json valueForKey:@"zoom"] integerValue];
   
   
   NSDictionary *latLng = nil;
@@ -309,26 +309,25 @@
   }
   
   
-  Boolean isEnabled = false;
+  BOOL isEnabled = NO;
   //controls
   NSDictionary *controls = [initOptions objectForKey:@"controls"];
   if (controls) {
     //compass
-    if ([controls valueForKey:@"compass"]) {
+    if ([controls valueForKey:@"compass"] != nil) {
       isEnabled = [[controls valueForKey:@"compass"] boolValue];
       self.mapCtrl.map.settings.compassButton = isEnabled;
     }
     //myLocationButton
-    if ([controls valueForKey:@"myLocationButton"]) {
+    if ([controls valueForKey:@"myLocationButton"] != nil) {
       isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
       self.mapCtrl.map.settings.myLocationButton = isEnabled;
       self.mapCtrl.map.myLocationEnabled = isEnabled;
     }
     //indoorPicker
-    if ([controls valueForKey:@"indoorPicker"]) {
+    if ([controls valueForKey:@"indoorPicker"] != nil) {
       isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
       self.mapCtrl.map.settings.indoorPicker = isEnabled;
-      self.mapCtrl.map.indoorEnabled = isEnabled;
     }
   } else {
     self.mapCtrl.map.settings.compassButton = TRUE;
@@ -338,22 +337,22 @@
   NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
   if (gestures) {
     //rotate
-    if ([gestures valueForKey:@"rotate"]) {
+    if ([gestures valueForKey:@"rotate"] != nil) {
       isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
       self.mapCtrl.map.settings.rotateGestures = isEnabled;
     }
     //scroll
-    if ([gestures valueForKey:@"scroll"]) {
+    if ([gestures valueForKey:@"scroll"] != nil) {
       isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
       self.mapCtrl.map.settings.scrollGestures = isEnabled;
     }
     //tilt
-    if ([gestures valueForKey:@"tilt"]) {
+    if ([gestures valueForKey:@"tilt"] != nil) {
       isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
       self.mapCtrl.map.settings.tiltGestures = isEnabled;
     }
     //zoom
-    if ([gestures valueForKey:@"zoom"]) {
+    if ([gestures valueForKey:@"zoom"] != nil) {
       isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
       self.mapCtrl.map.settings.zoomGestures = isEnabled;
     }
