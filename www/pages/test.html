@@ -22,8 +22,8 @@ function onPageLoaded(map) {
     'zoom': 20,
     'bearing': 140
   });
-
-  $("#chk_compass").on("change", function() {
+  $(":checkbox").off();
+  $(":checkbox").on("change", function() {
     var optName = $(this).attr("id").replace("chk_", "");
     var options = {
       controls: {}

@@ -22,9 +22,9 @@
 
 
   GMSTileURLConstructor constructor = ^(NSUInteger x, NSUInteger y, NSUInteger zoom) {
-    NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%d", x]];
-    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<y>" withString:[NSString stringWithFormat:@"%d", y]];
-    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<zoom>" withString:[NSString stringWithFormat:@"%d", zoom]];
+    NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)x]];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<y>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)y]];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<zoom>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)zoom]];
     NSLog(@"%@", urlStr);
     return [NSURL URLWithString:urlStr];
   };
@@ -111,7 +111,7 @@
   NSString *tileLayerKey = [command.arguments objectAtIndex:1];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
-  [layer setZIndex:zIndex];
+  [layer setZIndex:(int)zIndex];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

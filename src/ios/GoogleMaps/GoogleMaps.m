@@ -50,7 +50,7 @@
   }
   
   BOOL isNetworkAvailable = NO;
-  Reachability *reachablity = [Reachability reachabilityForInternetConnection];
+  MyReachability *reachablity = [MyReachability reachabilityForInternetConnection];
   NetworkStatus status = [reachablity currentReachabilityStatus];
   switch (status) {
   case ReachableViaWiFi:
