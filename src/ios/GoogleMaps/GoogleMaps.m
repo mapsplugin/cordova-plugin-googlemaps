@@ -267,7 +267,7 @@
   float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
   if (width > 0.0f && height > 0.0f) {
     [self.webView.scrollView addSubview:self.mapCtrl.view];
-    [self.mapCtrl updateMapViewLayout:NO];
+    [self.mapCtrl updateMapViewLayout];
     return;
   }
 /*
@@ -384,11 +384,7 @@
     [self.pluginLayer putHTMLElement:elemId size:elemSize];
   }
   
-  BOOL animated = NO;
-  //if ([command.arguments count] == 2) {
-  //  animated = [[command.arguments objectAtIndex: 1] boolValue];
-  //}
-  [self.mapCtrl updateMapViewLayout:animated];
+  [self.mapCtrl updateMapViewLayout];
 }
 
 

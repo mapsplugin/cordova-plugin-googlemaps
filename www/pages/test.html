@@ -1,84 +1,35 @@
-<div id="map_canvas">
-  <table style="width:90%;margin:1% 1% 1% 30px;">
-    <tr>
-      <td width="70%"><input id="query" style="width: 100%" /></td>
-      <td width="30%"><button id="searchBtn">Search</button></td>
-    </tr>
-  </table>
-</div>
+<div id="map_canvas"></div>
+<fieldset data-role="controlgroup">
+  <input type="checkbox" id="chk_compass" />
+  <label for="chk_compass">compass</label>
+
+  <input type="checkbox" id="chk_myLocationButton" />
+  <label for="chk_myLocationButton">myLocationButton</label>
+
+  <input type="checkbox" id="chk_indoorPicker" />
+  <label for="chk_indoorPicker">indoorPicker</label>
+  
+  <input type="checkbox" id="chk_zoom" />
+  <label for="chk_zoom">zoom</label>
+</fieldset>
 
 <script type="text/javascript">
-
 function onPageLoaded(map) {
-  map.setDiv($("#map_canvas")[0]);
-  $("#map_canvas").css({
-    "position": "relative"
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  map.moveCamera({
+    'target': GOOGLE,
+    'tilt': 60,
+    'zoom': 20,
+    'bearing': 140
   });
-  $("#searchBtn").click(function() {
-    var request = {
-      'address': $("#query").val()
+
+  $("#chk_compass").on("change", function() {
+    var optName = $(this).attr("id").replace("chk_", "");
+    var options = {
+      controls: {}
     };
-    plugin.google.maps.Geocoder.geocode(request, function(results) {
-      if (results.length) {
-        var backgroundDiv = $("<div>").css({
-          "position": "absolute",
-          "left": 0,
-          "top": 0,
-          "width": "100%",
-          "height": "100%",
-          "background-color": "rgba(0, 0, 0, 0.5)"
-        });
-        
-        $("#map_canvas").append(backgroundDiv);
-        
-        var resultTable = $("<div>").css({
-          "position": "absolute",
-          "left": 0,
-          "top": 0,
-          "width": "100%",
-          "height": "100%",
-          "overflowY": "scroll"
-        });
-        resultTable.appendTo("#map_canvas");
-        
-        results.forEach(function(result) {
-          if (!result.position) {
-            return;
-          }
-          var child = $("<div>").css({
-            "color": "white",
-            "width": "100%",
-            "height": "100px",
-            "border-bottom": "1px dotted white",
-            "padding": "1em"
-          });
-          child.append(result.adminArea + " - " + result.country + "<br>");
-          child.append("<img src='http://maps.googleapis.com/maps/api/streetview?size=80x80&location=" + result.position.lat+ "," + result.position.lng + "&fov=90&heading=0&pitch=0&sensor=false'>");
-          child.click(function() {
-            backgroundDiv.remove();
-            resultTable.remove();
-            moveTo(map, result.position, result.adminArea + " - " + result.country);
-          });
-          child.appendTo(resultTable);
-        });
-        
-      } else {
-        alert("Not found");
-      }
-    });
-  });
-}
-function moveTo(map, position, title) {
-  map.addMarker({
-    'position': position,
-    'title':  title
-  }, function(marker) {
-    map.animateCamera({
-      'target': position,
-      'zoom': 13
-    }, function() {
-      marker.showInfoWindow();
-    });
+    options.controls[optName] = $(this).is(":checked");
+    map.setOptions(options);
   });
 }
 </script>

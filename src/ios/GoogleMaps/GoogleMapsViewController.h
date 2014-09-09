@@ -33,7 +33,7 @@
 - (GMSTileLayer *)getTileLayerByKey: (NSString *)key;
 - (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key;
 - (UIImage *)getUIImageByKey: (NSString *)key;
-- (void)updateMapViewLayout: (BOOL)animated;
+- (void)updateMapViewLayout;
 
 - (void)removeObjectForKey: (NSString *)key;
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
