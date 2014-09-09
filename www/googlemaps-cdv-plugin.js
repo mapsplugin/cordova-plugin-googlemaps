@@ -12,7 +12,7 @@ var BaseClass = function() {
   var _vars = {};
   var _listeners = {};
   
-  self.clear = function() {
+  self.empty = function() {
     for (var key in Object.keys(_vars)) {
       _vars[key] = null;
       delete _vars[key];
