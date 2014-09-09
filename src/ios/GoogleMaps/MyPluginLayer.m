@@ -36,11 +36,9 @@ NSMutableDictionary *HTMLNodes = nil;
       self.mapCtrl.view.hidden == YES) {
     return [super hitTest:point withEvent:event];
   }
-  point.x -= self.mapCtrl.view.frame.origin.x;
-  point.y -= self.mapCtrl.view.frame.origin.y;
   
-  float offsetX = self.webView.scrollView.contentOffset.x + self.mapCtrl.view.frame.origin.x;
-  float offsetY = self.webView.scrollView.contentOffset.y + self.mapCtrl.view.frame.origin.y;
+  float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
+  float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
   
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
   float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
@@ -54,7 +52,6 @@ NSMutableDictionary *HTMLNodes = nil;
   } else {
     isMapAction = NO;
   }
-  
   if (isMapAction == YES) {
     NSDictionary *elemSize;
     for (NSString *domId in HTMLNodes) {
@@ -72,13 +69,12 @@ NSMutableDictionary *HTMLNodes = nil;
       
     }
   }
-  
   if (isMapAction == YES) {
+    point.x -= self.mapCtrl.view.frame.origin.x - offsetX;
+    point.y -= self.mapCtrl.view.frame.origin.y - offsetY;
     return [self.mapCtrl.view hitTest:point withEvent:event];
   }
   
-  point.x += self.mapCtrl.view.frame.origin.x;
-  point.y += self.mapCtrl.view.frame.origin.y;
   return [super hitTest:point withEvent:event];
 }
 
