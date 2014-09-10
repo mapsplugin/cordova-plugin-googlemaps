@@ -664,6 +664,7 @@ App.prototype.addMarker = function(markerOptions, callback) {
   markerOptions.flat = markerOptions.flat || false;
   markerOptions.rotation = markerOptions.rotation || 0;
   markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+  markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false: markerOptions.disableAutoPan;
   if ("styles" in markerOptions) {
     markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
     
@@ -673,8 +674,8 @@ App.prototype.addMarker = function(markerOptions, callback) {
     }
  
     cordova.exec(function(result) {
-      var marker = new Marker(self, result.id, markerOptions);
       markerOptions.hashCode = result.hashCode;
+      var marker = new Marker(self, result.id, markerOptions);
       MARKERS[result.id] = marker;
       OVERLAYS[result.id] = marker;
       
@@ -723,7 +724,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
 App.prototype.addPolyline = function(polylineOptions, callback) {
   var self = this;
   polylineOptions.points = polylineOptions.points || [];
-  polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF0000");
+  polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF000080");
   polylineOptions.width = polylineOptions.width || 10;
   polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
   polylineOptions.zIndex = polylineOptions.zIndex || 0.0;
@@ -746,7 +747,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
 App.prototype.addPolygon = function(polygonOptions, callback) {
   var self = this;
   polygonOptions.points = polygonOptions.points || [];
-  polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF0000");
+  polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080");
   if (polygonOptions.fillColor) {
     polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor);
   }
@@ -943,15 +944,7 @@ var Marker = function(map, id, markerOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self.set("position", markerOptions.position);
-  self.set("anchor", markerOptions.anchor);
-  self.set("draggable", markerOptions.draggable);
-  self.set("icon", markerOptions.icon);
-  self.set("snippet", markerOptions.snippet);
-  self.set("title", markerOptions.title);
-  self.set("visible", markerOptions.visible);
-  self.set("flat", markerOptions.flat);
-  self.set("opacity", markerOptions.opacity);
+  
   Object.defineProperty(self, "map", {
     value: map,
     writable: false
@@ -968,6 +961,13 @@ var Marker = function(map, id, markerOptions) {
     value: "Marker",
     writable: false
   });
+  
+  var ignores = ["hashCode", "id", "hashCode", "type"];
+  for (var key in markerOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, markerOptions[key]);
+    }
+  }
 };
 Marker.prototype = new BaseClass();
 
@@ -1092,13 +1092,6 @@ var Circle = function(map, circleId, circleOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self.set("center", circleOptions.center);
-  self.set("fillColor", circleOptions.fillColor);
-  self.set("radius", circleOptions.radius);
-  self.set("strokeColor", circleOptions.strokeColor);
-  self.set("strokeWidth", circleOptions.strokeWidth);
-  self.set("visible", circleOptions.visible);
-  self.set("zIndex", circleOptions.zIndex);
   Object.defineProperty(self, "map", {
     value: map,
     writable: false
@@ -1111,6 +1104,13 @@ var Circle = function(map, circleId, circleOptions) {
     value: "Circle",
     writable: false
   });
+  
+  var ignores = ["map", "id",  "type"];
+  for (var key in circleOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, circleOptions[key]);
+    }
+  }
 };
 
 Circle.prototype = new BaseClass();
@@ -1179,12 +1179,6 @@ var Polyline = function(map, polylineId, polylineOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self.set("points", polylineOptions.points);
-  self.set("color", polylineOptions.color);
-  self.set("width", polylineOptions.width);
-  self.set("visible", polylineOptions.visible);
-  self.set("zIndex", polylineOptions.zIndex);
-  self.set("geodesic", polylineOptions.geodesic);
   Object.defineProperty(self, "map", {
     value: map,
     writable: false
@@ -1197,6 +1191,13 @@ var Polyline = function(map, polylineId, polylineOptions) {
     value: "Polyline",
     writable: false
   });
+  
+  var ignores = ["map", "id",  "type"];
+  for (var key in polylineOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, polylineOptions[key]);
+    }
+  }
 };
 
 Polyline.prototype = new BaseClass();
@@ -1272,13 +1273,6 @@ var Polygon = function(map, polygonId, polygonOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self.set("points", polygonOptions.points);
-  self.set("fillColor", polygonOptions.fillColor);
-  self.set("strokeColor", polygonOptions.strokeColor);
-  self.set("strokeWidth", polygonOptions.strokeWidth);
-  self.set("visible", polygonOptions.visible);
-  self.set("zIndex", polygonOptions.zIndex);
-  self.set("geodesic", polygonOptions.geodesic);
   Object.defineProperty(self, "map", {
     value: map,
     writable: false
@@ -1291,6 +1285,12 @@ var Polygon = function(map, polygonId, polygonOptions) {
     value: "Polygon",
     writable: false
   });
+  var ignores = ["map", "id",  "type"];
+  for (var key in polygonOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, polygonOptions[key]);
+    }
+  }
 };
 
 Polygon.prototype = new BaseClass();
@@ -1372,8 +1372,6 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self.set("visible", tileOverlayOptions.visible);
-  self.set("zIndex", tileOverlayOptions.zIndex);
   Object.defineProperty(self, "id", {
     value: tileOverlayId,
     writable: false
@@ -1386,6 +1384,12 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
     value: map,
     writable: false
   });
+  var ignores = ["map", "id",  "type"];
+  for (var key in tileOverlayOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, tileOverlayOptions[key]);
+    }
+  }
 };
 
 TileOverlay.prototype = new BaseClass();
@@ -1434,12 +1438,12 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self.set("visible", groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible);
-  self.set("zIndex", groundOverlayOptions.zIndex || 0);
-  self.set("opacity", groundOverlayOptions.opacity || 1);
-  self.set("bounds", groundOverlayOptions.bounds || []);
-  self.set("anchor", groundOverlayOptions.anchor || [0, 0]);
-  self.set("bearing", groundOverlayOptions.bearing || 0);
+  groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
+  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
+  groundOverlayOptions.opacity = groundOverlayOptions.opacity || 1;
+  groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
+  groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0, 0];
+  groundOverlayOptions.bearing = groundOverlayOptions.bearing || 0;
   Object.defineProperty(self, "id", {
     value: groundOverlayId,
     writable: false
@@ -1452,6 +1456,12 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
     value: map,
     writable: false
   });
+  var ignores = ["map", "id",  "type"];
+  for (var key in groundOverlayOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, groundOverlayOptions[key]);
+    }
+  }
 };
 
 GroundOverlay.prototype = new BaseClass();
@@ -1527,8 +1537,8 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
   self._objects = {};
   //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
   //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
-  self.set("animation", kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation);
-  self.set("preserveViewport", kmlOverlayOptions.preserveViewport || false);
+  kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
+  kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
   Object.defineProperty(self, "id", {
     value: kmlOverlayId,
     writable: false
@@ -1541,6 +1551,12 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
     value: map,
     writable: false
   });
+  var ignores = ["map", "id",  "type"];
+  for (var key in kmlOverlayOptions) {
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, kmlOverlayOptions[key]);
+    }
+  }
 };
 
 KmlOverlay.prototype = new BaseClass();
