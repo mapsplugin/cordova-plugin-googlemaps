@@ -364,7 +364,7 @@ NSDictionary *initOptions;
     isTextMode = false;
     NSArray *tmp = [title componentsSeparatedByString:@","];
     NSData *decodedData;
-    if ([PluginUtil isIOS7]) {
+    if ([PluginUtil isIOS7_OR_OVER]) {
       decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
     } else {
       decodedData = [NSData dataFromBase64String:tmp[1]];
@@ -388,7 +388,7 @@ NSDictionary *initOptions;
       }
     }
     if (isBold == TRUE && isItalic == TRUE) {
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
         // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
         titleFont = [UIFont systemFontOfSize:17.0f];
         UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
@@ -551,7 +551,7 @@ NSDictionary *initOptions;
       }
       
       CGRect textRect = CGRectMake(5, 5 , rectSize.width - 10, textSize.height );
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
         // iOS7 and above
         NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
         style.lineBreakMode = NSLineBreakByWordWrapping;
@@ -581,7 +581,7 @@ NSDictionary *initOptions;
     //Draw the snippet
     if (snippet) {
       CGRect textRect = CGRectMake(5, textSize.height + 10 , rectSize.width - 10, snippetSize.height );
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
           // iOS7 and above
           NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
           style.lineBreakMode = NSLineBreakByWordWrapping;

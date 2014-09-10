@@ -395,7 +395,7 @@
         NSArray *tmp = [iconPath componentsSeparatedByString:@","];
         
         NSData *decodedData;
-        if ([PluginUtil isIOS7]) {
+        if ([PluginUtil isIOS7_OR_OVER]) {
           decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
         } else {
           decodedData = [NSData dataFromBase64String:tmp[1]];
