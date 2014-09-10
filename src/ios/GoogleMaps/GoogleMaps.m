@@ -45,7 +45,7 @@
   NSString *PLUGIN_VERSION = @"1.2.0 beta6";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
-  if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7] == NO) {
+  if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
     return;
   }
   
@@ -293,7 +293,7 @@
     dialogRect.origin.y = dialogRect.size.height / 10;
     dialogRect.size.width -= dialogRect.origin.x * 2;
     dialogRect.size.height -= dialogRect.origin.y * 2;
-    if ([PluginUtil isIOS7] == false) {
+    if ([PluginUtil isIOS7_OR_OVER] == false) {
       dialogRect.size.height -= 20;
     }
     
@@ -446,7 +446,7 @@
   
   int footerHeight = 40;
   int footerAdjustment = 0;
-  if ([PluginUtil isIOS7] == false) {
+  if ([PluginUtil isIOS7_OR_OVER] == false) {
     footerAdjustment = 20;
   }
 
@@ -500,15 +500,15 @@
 {
   // Obtain the authorizationStatus
   CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-  
   if (self.locationManager != nil) {
     [self.locationCommandQueue addObject:command];
     return;
   }
   
   switch (status) {
-    case kCLAuthorizationStatusAuthorized:
     case kCLAuthorizationStatusNotDetermined:
+    case kCLAuthorizationStatusAuthorizedWhenInUse:
+    case kCLAuthorizationStatusAuthorized:
       {
         CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
         NSDictionary *opts = [command.arguments objectAtIndex:0];
@@ -518,11 +518,14 @@
             locationAccuracy = kCLLocationAccuracyBestForNavigation;
           }
         }
-        
+
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         self.locationManager.distanceFilter = kCLDistanceFilterNone;
         self.locationManager.desiredAccuracy = locationAccuracy;
+        if ([PluginUtil isIOS8_OR_OVER]) {
+          [self.locationManager requestWhenInUseAuthorization];
+        }
         [self.locationManager startUpdatingLocation];
         [self.locationCommandQueue addObject:command];
         
