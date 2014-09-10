@@ -1,30 +1,27 @@
 package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.util.Base64;
+import android.util.Log;
 
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
-import com.google.android.gms.maps.model.CameraPosition.Builder;
 
 public class PluginMap extends MyPlugin {
   /**
@@ -50,6 +47,10 @@ public class PluginMap extends MyPlugin {
       }
       if (controls.has("indoorPicker")) {
         settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+      }
+      if (controls.has("myLocationButton")) {
+        settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
+        map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
       }
     }
     
@@ -92,14 +93,6 @@ public class PluginMap extends MyPlugin {
     
     //controls
     Boolean isEnabled = true;
-    if (params.has("controls")) {
-      JSONObject controls = params.getJSONObject("controls");
-
-      if (controls.has("myLocationButton")) {
-        isEnabled = controls.getBoolean("myLocationButton");
-        map.setMyLocationEnabled(isEnabled);
-      }
-    }
 
     // move the camera position
     if (params.has("camera")) {

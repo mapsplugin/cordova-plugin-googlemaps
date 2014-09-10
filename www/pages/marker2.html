@@ -145,13 +145,6 @@ function canvasMarker(map, latLng) {
       marker.showInfoWindow();
     });
   };
-  map.addMarker({
-    'position': latLng,
-    'title': canvas.toDataURL(),
-    'icon': icon
-  }, function(marker) {
-    marker.showInfoWindow();
-  });
 }
 function textStyle(map, latLng) {
   map.addMarker({
