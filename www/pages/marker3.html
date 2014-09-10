@@ -1,0 +1,69 @@
+<h3 class="ui-bar ui-bar-a">Marker Advanced</h3>
+<p>There are some unique feature for Marker.</p>
+<div id="map_canvas"></div>
+<div data-role="tabs" id="tabs">
+  <div data-role="navbar">
+    <ul>
+      <li><a id="disableAutoPan" href="#one" data-ajax="false">Disable Auto Pan</a></li>
+      <li><a id="base64Icon" href="#two" data-ajax="false">Demo2</a></li>
+      <li><a id="textStyle" href="#three" data-ajax="false">Demo3</a></li>
+    </ul>
+  </div>
+  <div id="one" class="ui-body-d ui-content">
+    <input type="checkbox" id="disableAutoPanChkBox" checked="checked">
+    <label for="disableAutoPanChkBox">Disable Auto Pan</label>
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'disableAutoPan': true
+});</code>
+  </div>
+  <div id="two">
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint"></code>
+  
+  </div>
+  <div id="three" class="ui-body-d ui-content">
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+    <code class="prettyprint"></code>
+  </div>
+</div>
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+
+  $("#disableAutoPan").click(function() {
+    init(map, disableAutoPan);
+  });
+  
+  $("#disableAutoPan").click();
+}
+function init(map, next) {
+  const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
+  map.clear();
+  map.moveCamera({
+    'target': GOOGLE_TOKYO,
+    'tilt': 90,
+    'zoom': 15,
+    'bearing': 0
+  });
+  next(map, GOOGLE_TOKYO);
+}
+function disableAutoPan(map, latLng) {
+  $("#disableAutoPanChkBox").off();
+  map.addMarker({
+    'position': latLng,
+    'title': "Click me!",
+    'disableAutoPan': true
+  }, function(marker) {
+    
+    $("#disableAutoPanChkBox").on("change", function() {
+      var isChecked = $(this).is(":checked");
+      marker.setDisableAutoPan(isChecked);
+    });
+    
+  });
+}
+
+</script>

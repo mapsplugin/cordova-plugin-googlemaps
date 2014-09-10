@@ -508,6 +508,7 @@ App.prototype.clear = function(callback) {
 App.prototype.remove = function() {
   this.set('div', undefined);
   this.clear();
+  self.empty();
   cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
 };
 
@@ -1004,9 +1005,13 @@ Marker.prototype.remove = function(callback) {
   }, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.remove', this.getId()]);
   this.off();
 };
-Marker.prototype.setOpacity = function(alpha) {
-  this.set('opacity');
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setOpacity', this.getId(), alpha]);
+Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
+  this.set('disableAutoPan', disableAutoPan);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDisableAutoPan', this.getId(), disableAutoPan]);
+};
+Marker.prototype.setOpacity = function(opacity) {
+  this.set('opacity', opacity);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setOpacity', this.getId(), opacity]);
 };
 Marker.prototype.getOpacity = function() {
   return this.get('opacity');

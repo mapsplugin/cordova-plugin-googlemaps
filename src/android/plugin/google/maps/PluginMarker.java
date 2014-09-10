@@ -13,6 +13,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -74,9 +75,16 @@ public class PluginMarker extends MyPlugin {
     String id = "marker_" + marker.getId();
     this.objects.put(id, marker);
 
+    JSONObject properties = new JSONObject();
     if (opts.has("styles")) {
-      this.objects.put("marker_style_" + marker.getId(), opts.getJSONObject("styles"));
+      properties.put("styles", opts.getJSONObject("styles"));
     }
+    if (opts.has("disableAutoPan")) {
+      properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
+    } else {
+      properties.put("disableAutoPan", false);
+    }
+    this.objects.put("marker_property_" + marker.getId(), properties);
 
     // Prepare the result
     final JSONObject result = new JSONObject();
@@ -222,6 +230,26 @@ public class PluginMarker extends MyPlugin {
     boolean visible = args.getBoolean(2);
     String id = args.getString(1);
     this.setBoolean("setVisible", id, visible, callbackContext);
+  }
+  /**
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setDisableAutoPan(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean disableAutoPan = args.getBoolean(2);
+    String id = args.getString(1);
+    Marker marker = this.getMarker(id);
+    String propertyId = "marker_property_" + marker.getId();
+    JSONObject properties = null;
+    if (this.objects.containsKey(propertyId)) {
+      properties = (JSONObject)this.objects.get(propertyId);
+    } else {
+      properties = new JSONObject();
+    }
+    properties.put("disableAutoPan", disableAutoPan);
+    this.objects.put(propertyId, properties);
+    callbackContext.success();
   }
   /**
    * Set title for the marker

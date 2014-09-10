@@ -1063,6 +1063,25 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @Override
   public boolean onMarkerClick(Marker marker) {
     this.onMarkerEvent("click", marker);
+    
+    JSONObject properties = null;
+    String propertyId = "marker_property_" + marker.getId();
+    PluginEntry pluginEntry = this.plugins.get("Marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    if (pluginMarker.objects.containsKey(propertyId)) {
+      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+      if (properties.has("disableAutoPan")) {
+        boolean disableAutoPan = false;
+        try {
+          disableAutoPan = properties.getBoolean("disableAutoPan");
+        } catch (JSONException e) {}
+        if (disableAutoPan) {
+          marker.showInfoWindow();
+          return true;
+        }
+      }
+    }
+    
     return false;
   }
   
@@ -1468,12 +1487,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return null;
     }
     
+    JSONObject properties = null;
     JSONObject styles = null;
-    String styleId = "marker_style_" + marker.getId();
+    String propertyId = "marker_property_" + marker.getId();
     PluginEntry pluginEntry = this.plugins.get("Marker");
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
-    if (pluginMarker.objects.containsKey(styleId)) {
-      styles = (JSONObject) pluginMarker.objects.get(styleId);
+    if (pluginMarker.objects.containsKey(propertyId)) {
+      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+
+      if (properties.has("styles")) {
+        try {
+          styles = (JSONObject) properties.getJSONObject("styles");
+        } catch (JSONException e) {}
+      }
     }
     
 
