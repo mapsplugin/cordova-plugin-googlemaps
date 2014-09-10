@@ -285,7 +285,6 @@ App.prototype.getMap = function(div, params) {
     div.addEventListener("DOMNodeInserted", _append_child);
     
     while(div.parentNode) {
-      console.log(div.tagName);
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       div = div.parentNode;
     }
