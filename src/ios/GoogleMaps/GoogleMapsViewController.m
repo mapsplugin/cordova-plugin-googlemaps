@@ -260,6 +260,19 @@ NSDictionary *initOptions;
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
   [self triggerMarkerEvent:@"click" marker:marker];
 
+  
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSLog(@"%@", markerPropertyId);
+  
+  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  BOOL disableAutoPan = false;
+  if ([properties objectForKey:@"disableAutoPan"] != nil) {
+    disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
+    if (disableAutoPan) {
+      self.map.selectedMarker = marker;
+      return YES;
+    }
+  }
 	return NO;
 }
 
@@ -344,8 +357,12 @@ NSDictionary *initOptions;
   }
   
   // Load styles
-  NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
-  NSDictionary *styles = [self.overlayManager objectForKey:marker_style_id];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  NSDictionary *styles = nil;
+  if ([properties objectForKey:@"styles"]) {
+    styles = [properties objectForKey:@"styles"];
+  }
   
   // Load images
   UIImage *leftImg = nil;

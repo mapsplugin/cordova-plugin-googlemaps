@@ -340,8 +340,8 @@ public class PluginMarker extends MyPlugin {
     marker.remove();
     this.objects.remove(id);
     
-    String styleId = "marker_style_" + id;
-    this.objects.remove(styleId);
+    String propertyId = "marker_property_" + id;
+    this.objects.remove(propertyId);
     
     callbackContext.success();
   }
