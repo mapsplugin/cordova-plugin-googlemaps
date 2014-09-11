@@ -302,7 +302,7 @@ App.prototype.getMap = function(div, params) {
 App.prototype.getLicenseInfo = function(callback) {
   var self = this;
   cordova.exec(function(txt) {
-    callback.call(self, null, txt);
+    callback.call(self, txt);
   }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
 };
 
