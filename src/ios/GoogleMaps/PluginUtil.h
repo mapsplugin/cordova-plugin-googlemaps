@@ -41,7 +41,8 @@
 
 
 @interface PluginUtil : NSObject
-+ (BOOL)isIOS7;
++ (BOOL)isIOS7_OR_OVER;
++ (BOOL)isIOS8_OR_OVER;
 + (BOOL)isInDebugMode;
 @end
 

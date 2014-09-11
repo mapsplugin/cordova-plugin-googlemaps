@@ -54,11 +54,22 @@
   NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
+  // Custom properties
+  NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSLog(@"%@", markerPropertyId);
+  
   if ([json valueForKey:@"styles"]) {
-    NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
     NSDictionary *styles = [json valueForKey:@"styles"];
-    [self.mapCtrl.overlayManager setObject:styles forKey: marker_style_id];
+    [properties setObject:styles forKey:@"styles"];
   }
+  
+  BOOL disableAutoPan = NO;
+  if ([json valueForKey:@"disableAutoPan"] != nil) {
+    disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
+  }
+  [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
+  [self.mapCtrl.overlayManager setObject:properties forKey: markerPropertyId];
   
   // Create icon
   NSMutableDictionary *iconProperty = nil;
@@ -190,13 +201,13 @@
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
-  NSString *styleId = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
+  NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
   marker.map = nil;
   [self.mapCtrl removeObjectForKey:markerKey];
   marker = nil;
   
-  if ([self.mapCtrl.overlayManager objectForKey:styleId]) {
-    [self.mapCtrl removeObjectForKey:styleId];
+  if ([self.mapCtrl.overlayManager objectForKey:propertyId]) {
+    [self.mapCtrl removeObjectForKey:propertyId];
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -269,6 +280,26 @@
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   Boolean isEnabled = [[command.arguments objectAtIndex:2] boolValue];
   [marker setDraggable:isEnabled];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Set disable auto pan
+ * @params MarkerKey
+ */
+-(void)setDisableAutoPan:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  BOOL disableAutoPan = [[command.arguments objectAtIndex:2] boolValue];
+  
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                      [self.mapCtrl.overlayManager objectForKey:markerPropertyId]];
+  [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
+  [self.mapCtrl.overlayManager setObject:properties forKey:markerPropertyId];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -395,7 +426,7 @@
         NSArray *tmp = [iconPath componentsSeparatedByString:@","];
         
         NSData *decodedData;
-        if ([PluginUtil isIOS7]) {
+        if ([PluginUtil isIOS7_OR_OVER]) {
           decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
         } else {
           decodedData = [NSData dataFromBase64String:tmp[1]];
