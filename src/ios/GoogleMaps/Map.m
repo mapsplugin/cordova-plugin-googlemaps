@@ -316,21 +316,34 @@
     //compass
     if ([controls valueForKey:@"compass"] != nil) {
       isEnabled = [[controls valueForKey:@"compass"] boolValue];
-      self.mapCtrl.map.settings.compassButton = isEnabled;
+      if (isEnabled == true) {
+        self.mapCtrl.map.settings.compassButton = YES;
+      } else {
+        self.mapCtrl.map.settings.compassButton = NO;
+      }
     }
     //myLocationButton
     if ([controls valueForKey:@"myLocationButton"] != nil) {
       isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
-      self.mapCtrl.map.settings.myLocationButton = isEnabled;
-      self.mapCtrl.map.myLocationEnabled = isEnabled;
+      if (isEnabled == true) {
+        self.mapCtrl.map.settings.myLocationButton = YES;
+        self.mapCtrl.map.myLocationEnabled = YES;
+      } else {
+        self.mapCtrl.map.settings.myLocationButton = NO;
+        self.mapCtrl.map.myLocationEnabled = NO;
+      }
     }
     //indoorPicker
     if ([controls valueForKey:@"indoorPicker"] != nil) {
       isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
-      self.mapCtrl.map.settings.indoorPicker = isEnabled;
+      if (isEnabled == true) {
+        self.mapCtrl.map.settings.indoorPicker = YES;
+      } else {
+        self.mapCtrl.map.settings.indoorPicker = NO;
+      }
     }
   } else {
-    self.mapCtrl.map.settings.compassButton = TRUE;
+    self.mapCtrl.map.settings.compassButton = YES;
   }
 
   //gestures

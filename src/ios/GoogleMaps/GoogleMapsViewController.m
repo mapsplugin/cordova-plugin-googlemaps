@@ -12,6 +12,7 @@
 
 @implementation GoogleMapsViewController
 NSDictionary *initOptions;
+bool isFirst = true;
 
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
@@ -51,8 +52,11 @@ NSDictionary *initOptions;
     //------------------
     // Create a map view
     //------------------
-    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-    [GMSServices provideAPIKey:APIKey];
+    if (isFirst) {
+      NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+      [GMSServices provideAPIKey:APIKey];
+    }
+    isFirst = false;
   
     //Intial camera position
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
@@ -260,6 +264,19 @@ NSDictionary *initOptions;
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
   [self triggerMarkerEvent:@"click" marker:marker];
 
+  
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSLog(@"%@", markerPropertyId);
+  
+  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  BOOL disableAutoPan = false;
+  if ([properties objectForKey:@"disableAutoPan"] != nil) {
+    disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
+    if (disableAutoPan) {
+      self.map.selectedMarker = marker;
+      return YES;
+    }
+  }
 	return NO;
 }
 
@@ -344,8 +361,12 @@ NSDictionary *initOptions;
   }
   
   // Load styles
-  NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
-  NSDictionary *styles = [self.overlayManager objectForKey:marker_style_id];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  NSDictionary *styles = nil;
+  if ([properties objectForKey:@"styles"]) {
+    styles = [properties objectForKey:@"styles"];
+  }
   
   // Load images
   UIImage *leftImg = nil;
@@ -364,7 +385,7 @@ NSDictionary *initOptions;
     isTextMode = false;
     NSArray *tmp = [title componentsSeparatedByString:@","];
     NSData *decodedData;
-    if ([PluginUtil isIOS7]) {
+    if ([PluginUtil isIOS7_OR_OVER]) {
       decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
     } else {
       decodedData = [NSData dataFromBase64String:tmp[1]];
@@ -388,7 +409,7 @@ NSDictionary *initOptions;
       }
     }
     if (isBold == TRUE && isItalic == TRUE) {
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
         // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
         titleFont = [UIFont systemFontOfSize:17.0f];
         UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
@@ -551,7 +572,7 @@ NSDictionary *initOptions;
       }
       
       CGRect textRect = CGRectMake(5, 5 , rectSize.width - 10, textSize.height );
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
         // iOS7 and above
         NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
         style.lineBreakMode = NSLineBreakByWordWrapping;
@@ -581,7 +602,7 @@ NSDictionary *initOptions;
     //Draw the snippet
     if (snippet) {
       CGRect textRect = CGRectMake(5, textSize.height + 10 , rectSize.width - 10, snippetSize.height );
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
           // iOS7 and above
           NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
           style.lineBreakMode = NSLineBreakByWordWrapping;
