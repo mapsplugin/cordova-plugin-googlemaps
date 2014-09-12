@@ -447,7 +447,7 @@
   int footerHeight = 40;
   int footerAdjustment = 0;
   if ([PluginUtil isIOS7_OR_OVER] == false) {
-    footerAdjustment = 20;
+    //footerAdjustment = 20;
   }
 
   // Calculate the full screen size
