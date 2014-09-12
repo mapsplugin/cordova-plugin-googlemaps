@@ -183,15 +183,19 @@ bool isFirst = true;
   // Obtain the authorizationStatus
   CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
   
+  
   switch (status) {
     case kCLAuthorizationStatusNotDetermined:
     {
+      NSLog(@"not determined");
       if ([PluginUtil isIOS8_OR_OVER]) {
         CLLocationManager *locationManager = [[CLLocationManager alloc] init];
+        locationManager.delegate = self;
         [locationManager requestWhenInUseAuthorization];
       }
+      break;
     }
-    
+      
     default:
       break;
   }
