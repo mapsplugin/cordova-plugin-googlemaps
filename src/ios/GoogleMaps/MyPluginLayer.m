@@ -70,8 +70,20 @@ NSMutableDictionary *HTMLNodes = nil;
     }
   }
   if (isMapAction == YES) {
-    point.x -= self.mapCtrl.view.frame.origin.x - offsetX;
-    point.y -= self.mapCtrl.view.frame.origin.y - offsetY;
+    offsetX += self.mapCtrl.view.frame.origin.x;
+    offsetY += self.mapCtrl.view.frame.origin.y;
+    point.x -= offsetX;
+    point.y -= offsetY;
+    
+    UIView *hit =[self.mapCtrl.view hitTest:point withEvent:event];
+    NSString *hitClass = [NSString stringWithFormat:@"%@", [hit class]];
+    if ([PluginUtil isIOS7_OR_OVER] &&
+        [hitClass isEqualToString:@"UIButton"] &&
+        self.mapCtrl.map.isMyLocationEnabled &&
+        (point.x  + offsetX) >= (left + width - 50) &&
+         (point.y + offsetY) >= (top + height - 50)) {
+      [self.mapCtrl didTapMyLocationButtonForMapView:self.mapCtrl.map];
+    }
     return [self.mapCtrl.view hitTest:point withEvent:event];
   }
   
