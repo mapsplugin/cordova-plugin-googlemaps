@@ -291,6 +291,7 @@ App.prototype.getMap = function(div, params) {
   }
   cordova.exec(function() {
     setTimeout(function() {
+      self.refreshLayout();
       self.trigger(plugin.google.maps.event.MAP_READY, self);
     }, 100);
   }, self.errorHandler, PLUGIN_NAME, 'getMap', args);
@@ -619,13 +620,16 @@ App.prototype.setDiv = function(div) {
     }
     args.push(elements);
     
+    div.addEventListener("DOMNodeRemoved", _remove_child);
+    div.addEventListener("DOMNodeInserted", _append_child);
+    
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       div = div.parentNode;
     }
-    
-    div.addEventListener("DOMNodeRemoved", _remove_child);
-    div.addEventListener("DOMNodeInserted", _append_child);
+    setTimeout(function() {
+      self.refreshLayout();
+    }, 1000);
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
 };
