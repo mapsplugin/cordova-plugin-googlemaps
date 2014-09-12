@@ -179,9 +179,7 @@ bool isFirst = true;
  *         camera to move such that it is centered on the user location.
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
-
   [self.webView stringByEvaluatingJavaScriptFromString:@"plugin.google.maps.Map._onMapEvent('my_location_button_click');"];
-
   return NO;
 }
 
@@ -266,7 +264,6 @@ bool isFirst = true;
 
   
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSLog(@"%@", markerPropertyId);
   
   NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
   BOOL disableAutoPan = false;
