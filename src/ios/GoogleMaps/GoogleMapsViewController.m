@@ -179,28 +179,7 @@ bool isFirst = true;
  *         camera to move such that it is centered on the user location.
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
-  
-  // Obtain the authorizationStatus
-  CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-  
-  
-  switch (status) {
-    case kCLAuthorizationStatusNotDetermined:
-    {
-      NSLog(@"not determined");
-      if ([PluginUtil isIOS8_OR_OVER]) {
-        CLLocationManager *locationManager = [[CLLocationManager alloc] init];
-        locationManager.delegate = self;
-        [locationManager requestWhenInUseAuthorization];
-      }
-      break;
-    }
-      
-    default:
-      break;
-  }
   [self.webView stringByEvaluatingJavaScriptFromString:@"plugin.google.maps.Map._onMapEvent('my_location_button_click');"];
-
   return NO;
 }
 

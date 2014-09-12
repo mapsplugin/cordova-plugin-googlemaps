@@ -75,16 +75,20 @@ NSMutableDictionary *HTMLNodes = nil;
     point.x -= offsetX;
     point.y -= offsetY;
     
-    UIView *hit =[self.mapCtrl.view hitTest:point withEvent:event];
-    NSString *hitClass = [NSString stringWithFormat:@"%@", [hit class]];
+    UIView *hitView =[self.mapCtrl.view hitTest:point withEvent:event];
+    NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
     if ([PluginUtil isIOS7_OR_OVER] &&
         [hitClass isEqualToString:@"UIButton"] &&
         self.mapCtrl.map.isMyLocationEnabled &&
         (point.x  + offsetX) >= (left + width - 50) &&
          (point.y + offsetY) >= (top + height - 50)) {
-      [self.mapCtrl didTapMyLocationButtonForMapView:self.mapCtrl.map];
+      
+      BOOL retValue = [self.mapCtrl didTapMyLocationButtonForMapView:self.mapCtrl.map];
+      if (retValue == YES) {
+        return nil;
+      }
     }
-    return [self.mapCtrl.view hitTest:point withEvent:event];
+    return hitView;
   }
   
   return [super hitTest:point withEvent:event];
