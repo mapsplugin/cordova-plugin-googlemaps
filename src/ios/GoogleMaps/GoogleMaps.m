@@ -505,39 +505,12 @@
     return;
   }
   
-  switch (status) {
-    case kCLAuthorizationStatusNotDetermined:
-    case kCLAuthorizationStatusAuthorizedWhenInUse:
-    case kCLAuthorizationStatusAuthorized:
-      {
-        CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
-        NSDictionary *opts = [command.arguments objectAtIndex:0];
-        if ([opts objectForKey:@"enableHighAccuracy"]) {
-          BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
-          if (isEnabledHighAccuracy == YES) {
-            locationAccuracy = kCLLocationAccuracyBestForNavigation;
-          }
-        }
-
-        self.locationManager = [[CLLocationManager alloc] init];
-        self.locationManager.delegate = self;
-        self.locationManager.distanceFilter = kCLDistanceFilterNone;
-        self.locationManager.desiredAccuracy = locationAccuracy;
-        if ([PluginUtil isIOS8_OR_OVER]) {
-          [self.locationManager requestWhenInUseAuthorization];
-        }
-        [self.locationManager startUpdatingLocation];
-        [self.locationCommandQueue addObject:command];
-        
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-        [pluginResult setKeepCallbackAsBool:YES];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }
-      break;
-    
-    case kCLAuthorizationStatusDenied:
-    case kCLAuthorizationStatusRestricted:
-    {
+  if (status == kCLAuthorizationStatusDenied ||
+      status == kCLAuthorizationStatusRestricted) {
+    //----------------------------------------------------
+    // kCLAuthorizationStatusDenied
+    // kCLAuthorizationStatusRestricted
+    //----------------------------------------------------
       UIAlertView *alertView = [[UIAlertView alloc]
                                 initWithTitle:@"Location Services disabled"
                                 message:@"This app needs access to your location. Please turn on Location Services in your device settings."
@@ -554,10 +527,35 @@
       
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  } else {
+    //----------------------------------------------------
+    // kCLAuthorizationStatusNotDetermined
+    // kCLAuthorizationStatusAuthorized
+    // kCLAuthorizationStatusAuthorizedAlways
+    // kCLAuthorizationStatusAuthorizedWhenInUse
+    //----------------------------------------------------
+    CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
+    NSDictionary *opts = [command.arguments objectAtIndex:0];
+    if ([opts objectForKey:@"enableHighAccuracy"]) {
+      BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
+      if (isEnabledHighAccuracy == YES) {
+        locationAccuracy = kCLLocationAccuracyBestForNavigation;
+      }
     }
 
-    default:
-      break;
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+    self.locationManager.distanceFilter = kCLDistanceFilterNone;
+    self.locationManager.desiredAccuracy = locationAccuracy;
+    if ([PluginUtil isIOS8_OR_OVER]) {
+      [self.locationManager requestWhenInUseAuthorization];
+    }
+    [self.locationManager startUpdatingLocation];
+    [self.locationCommandQueue addObject:command];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
 }
 
