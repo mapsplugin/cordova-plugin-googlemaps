@@ -1805,7 +1805,6 @@ function onMapResize(event) {
 var externalService = {};
 
 externalService.launchNavigation = function(params) {
-  var self = window.plugin.google.maps.Map;
   params = params || {};
   if (!params.from || !params.to) {
     return;
@@ -1818,7 +1817,7 @@ externalService.launchNavigation = function(params) {
   }
   params.from = params.from.replace(/\s+/g, "%20");
   params.to = params.to.replace(/\s+/g, "%20");
-  cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['External.launchNavigation', params]);
+  cordova.exec(null, null, "External", 'launchNavigation', [params]);
 };
 /*****************************************************************************
  * Geocoder class

@@ -855,12 +855,40 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final JSONObject result = new JSONObject();
     LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
-    if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-    //Ask the user to enable GPS
+    List<String> providers = locationManager.getAllProviders();
+    if (providers.size() == 0) {
+      callbackContext.error("Since this device does not have any location provider, this app can not detect your location.");
+      return;
+    }
+
+    // enableHighAccuracy = true -> PRIORITY_HIGH_ACCURACY
+    // enableHighAccuracy = false -> PRIORITY_BALANCED_POWER_ACCURACY
+    int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+    JSONObject params = args.getJSONObject(0);
+    if (params.has("enableHighAccuracy")) {
+      boolean enableHighAccuracy = params.getBoolean("enableHighAccuracy");
+      if (enableHighAccuracy) {
+        priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
+      }
+    }
+    
+    boolean isEnabled = false;
+    String provider;
+    Iterator<String> iterator = providers.iterator();
+    while(iterator.hasNext()) {
+      provider = iterator.next();
+      if (locationManager.isProviderEnabled(provider)) {
+        isEnabled = true;
+      }
+    }
+    if (isEnabled == false) {
+      //Ask the user to turn on the location services.
       AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
-      builder.setTitle(this.activity.getApplication().getApplicationInfo().name);
-      builder.setMessage("Would you like to enable GPS?");
-      builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+      builder.setTitle("Improve location accuracy");
+      builder.setMessage("To enhance your Maps experience:\n\n" +
+          " - Enable Google apps location access\n\n" +
+          " - Turn on GPS and mobile network location");
+      builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
               //Launch settings, allowing user to make a change
@@ -875,7 +903,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               callbackContext.error(result);
           }
       });
-      builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+      builder.setNegativeButton("Skip", new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
               //No location service, no Activity
@@ -893,20 +921,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
     
-    
-    
     final LocationRequest locationRequest = new LocationRequest();
     locationRequest.setExpirationDuration(SystemClock.elapsedRealtime() + 3000);
     locationRequest.setFastestInterval(1000);
     locationRequest.setNumUpdates(1);
-    int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-    JSONObject params = args.getJSONObject(0);
-    if (params.has("enableHighAccuracy")) {
-      boolean enableHighAccuracy = params.getBoolean("enableHighAccuracy");
-      if (enableHighAccuracy) {
-        priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
-      }
-    }
     locationRequest.setPriority(priority);
     
     
