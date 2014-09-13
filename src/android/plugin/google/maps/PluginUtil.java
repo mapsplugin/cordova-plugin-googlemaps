@@ -138,9 +138,10 @@ public class PluginUtil {
     if (bitmap == null) {
       return null;
     }
- 
+
+    float density = Resources.getSystem().getDisplayMetrics().density;
     Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-    
+    resizeBitmap.setDensity((int) density);
     return resizeBitmap;
   }
 
@@ -150,14 +151,12 @@ public class PluginUtil {
     }
     
     float density = Resources.getSystem().getDisplayMetrics().density;
-    int width = (int)(bitmap.getWidth() * density);
-    int height = (int)(bitmap.getHeight() * density);
-    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-    return resizeBitmap;
+    Log.d("CordovaLog", "scaleBitmapForDevice density=" + density);
+    bitmap.setDensity((int) density);
+    return bitmap;
   }
   
   public static Bitmap getBitmapFromBase64encodedImage(String base64EncodedImage) {
-    Log.d("GoogleMaps", "---getBitmapFromBase64encodedImage");
     byte[] byteArray= Base64.decode(base64EncodedImage, Base64.DEFAULT);
     Bitmap image= null;
     try {
