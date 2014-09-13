@@ -25,7 +25,11 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<param name=\"android-package\" value=\"plugin.google.maps.GoogleMaps\" />",
+                            "xml": "<feature name=\"External\"><param name=\"android-package\" value=\"plugin.google.maps.External\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"GoogleMaps\"><param name=\"android-package\" value=\"plugin.google.maps.GoogleMaps\" /></feature>",
                             "count": 1
                         },
                         {
