@@ -17,4 +17,8 @@
       <param name="ios-package" value="GoogleMaps" />
       <param name="android-package" value="plugin.google.maps.GoogleMaps" />
     </feature>
+    <feature name="External">
+      <param name="ios-package" value="External" />
+      <param name="android-package" value="plugin.google.maps.External" />
+    </feature>
 </widget>

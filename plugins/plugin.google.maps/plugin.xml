@@ -22,6 +22,9 @@
             <feature name="GoogleMaps">
                 <param name="android-package" value="plugin.google.maps.GoogleMaps" />
             </feature>
+            <feature name="External">
+                <param name="android-package" value="plugin.google.maps.External" />
+            </feature>
         </config-file>
     </platform>
     
@@ -30,6 +33,9 @@
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
                 <param name="ios-package" value="GoogleMaps" />
+            </feature>
+            <feature name="External">
+                <param name="ios-package" value="External" />
             </feature>
         </config-file>
     </platform>

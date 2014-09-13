@@ -4,7 +4,6 @@
     <feature name="App">
         <param name="android-package" value="org.apache.cordova.App" />
     </feature>
-    <param name="android-package" value="plugin.google.maps.GoogleMaps" />
     <feature name="HttpRequest">
         <param name="android-package" value="plugin.http.request.HttpRequest" />
     </feature>
@@ -27,5 +26,9 @@
     <feature name="GoogleMaps">
         <param name="ios-package" value="GoogleMaps" />
         <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+    </feature>
+    <feature name="External">
+        <param name="ios-package" value="External" />
+        <param name="android-package" value="plugin.google.maps.External" />
     </feature>
 </widget>

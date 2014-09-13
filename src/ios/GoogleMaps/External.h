@@ -9,9 +9,8 @@
 #import "GoogleMaps.h"
 #import "MyPlgunProtocol.h"
 
-@interface External : CDVPlugin<MyPlgunProtocol>
+@interface External : CDVPlugin
 
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 -(void)launchNavigation:(CDVInvokedUrlCommand *)command;
 
 @end
