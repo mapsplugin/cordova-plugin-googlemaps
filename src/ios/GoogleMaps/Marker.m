@@ -81,20 +81,26 @@
   } else if ([icon isKindOfClass:[NSDictionary class]]) {
     iconProperty = [json valueForKey:@"icon"];
   }
-  if (iconProperty) {
-    if ([json valueForKey:@"infoWindowAnchor"]) {
-      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
-    }
-  
-    [self setIcon_:marker iconProperty:iconProperty];
-  }
   
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
   [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  CDVPluginResult* pluginResult = nil;
+  if (iconProperty) {
+    if ([json valueForKey:@"infoWindowAnchor"]) {
+      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+    }
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }
 }
 
 /**
@@ -367,12 +373,14 @@
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
-  // Create icon
-  NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
-  [self setIcon_:marker iconProperty:iconProperty];
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+  [pluginResult setKeepCallbackAsBool:YES];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+  // Create icon
+  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
+  [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
 }
 /**
  * set rotation
@@ -393,7 +401,9 @@
  * @private
  * Load the icon; then set to the marker
  */
--(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty {
+-(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
+                pluginResult:(CDVPluginResult *)pluginResult
+                callbackId:(NSString*)callbackId {
   NSString *iconPath = nil;
   CGFloat width = 0;
   CGFloat height = 0;
@@ -463,6 +473,8 @@
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
         marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
       }
+      NSLog(@"----icon loaded");
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     } else {
       /***
        * Load the icon from over the internet
@@ -474,6 +486,7 @@
           image = [image resize:width height:height];
         }
         marker.icon = image;
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
       } else {
         dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
         dispatch_sync(gueue, ^{
@@ -505,6 +518,8 @@
             CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
             marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
           }
+          
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
         });
         
       }
