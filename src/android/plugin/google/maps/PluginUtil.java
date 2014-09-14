@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -157,7 +156,6 @@ public class PluginUtil {
   }
   
   public static Bitmap getBitmapFromBase64encodedImage(String base64EncodedImage) {
-    Log.d("GoogleMaps", "---getBitmapFromBase64encodedImage");
     byte[] byteArray= Base64.decode(base64EncodedImage, Base64.DEFAULT);
     Bitmap image= null;
     try {
