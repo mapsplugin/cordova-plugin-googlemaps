@@ -138,10 +138,9 @@ public class PluginUtil {
     if (bitmap == null) {
       return null;
     }
-
-    float density = Resources.getSystem().getDisplayMetrics().density;
+ 
     Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-    resizeBitmap.setDensity((int) density);
+    
     return resizeBitmap;
   }
 
@@ -151,9 +150,10 @@ public class PluginUtil {
     }
     
     float density = Resources.getSystem().getDisplayMetrics().density;
-    Log.d("CordovaLog", "scaleBitmapForDevice density=" + density);
-    bitmap.setDensity((int) density);
-    return bitmap;
+    int width = (int)(bitmap.getWidth() * density);
+    int height = (int)(bitmap.getHeight() * density);
+    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+    return resizeBitmap;
   }
   
   public static Bitmap getBitmapFromBase64encodedImage(String base64EncodedImage) {
