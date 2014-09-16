@@ -57,7 +57,6 @@
   // Custom properties
   NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSLog(@"%@", markerPropertyId);
   
   if ([json valueForKey:@"styles"]) {
     NSDictionary *styles = [json valueForKey:@"styles"];
@@ -446,6 +445,14 @@
           image = [image resize:width height:height];
         }
         
+        // The `anchor` property for the icon
+        if ([iconProperty valueForKey:@"anchor"]) {
+          NSArray *points = [iconProperty valueForKey:@"anchor"];
+          anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+          anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+          marker.groundAnchor = CGPointMake(anchorX, anchorY);
+        }
+        
       } else {
         /**
          * Load the icon from local path
@@ -473,7 +480,6 @@
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
         marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
       }
-      NSLog(@"----icon loaded");
       [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     } else {
       /***
