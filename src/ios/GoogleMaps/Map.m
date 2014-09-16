@@ -257,6 +257,44 @@
 }
 
 /**
+ * Maps an Earth coordinate to a point coordinate in the map's view.
+ */
+- (void)fromLatLngToPoint:(CDVInvokedUrlCommand*)command {
+  
+  float latitude = [[command.arguments objectAtIndex:1] floatValue];
+  float longitude = [[command.arguments objectAtIndex:2] floatValue];
+  
+  CGPoint point = [self.mapCtrl.map.projection
+                      pointForCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+  
+  NSMutableArray *pointJSON = [[NSMutableArray alloc] init];
+  [pointJSON addObject:[NSNumber numberWithDouble:point.x]];
+  [pointJSON addObject:[NSNumber numberWithDouble:point.y]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:pointJSON];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Maps a point coordinate in the map's view to an Earth coordinate.
+ */
+- (void)fromPointToLatLng:(CDVInvokedUrlCommand*)command {
+  
+  float pointX = [[command.arguments objectAtIndex:1] floatValue];
+  float pointY = [[command.arguments objectAtIndex:2] floatValue];
+  
+  CLLocationCoordinate2D latLng = [self.mapCtrl.map.projection
+                      coordinateForPoint:CGPointMake(pointX, pointY)];
+  
+  NSMutableArray *latLngJSON = [[NSMutableArray alloc] init];
+  [latLngJSON addObject:[NSNumber numberWithDouble:latLng.latitude]];
+  [latLngJSON addObject:[NSNumber numberWithDouble:latLng.longitude]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:latLngJSON];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  * Return the visible region of the map
  * Thanks @fschmidt
  */

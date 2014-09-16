@@ -1,0 +1,96 @@
+<style type="text/css">
+  #map_canvas {
+    position: relative;
+  }
+  #myOverlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  #infoWnd_frame {
+    position: absolute;
+    width: 200px;
+    height: 144px;
+    background-image: url("images/myinfo.png");
+    background-size: contain;
+  }
+  #infoWnd_body {
+    position: absolute;
+    width: 144px;
+    height: 66px;
+    left: 24px;
+    top: 28px;
+  }
+</style>
+<div id="map_canvas">
+  <div id="myOverlay" data-clickable='false'></div>
+</div>
+
+<script type="text/javascript">
+var myInfo = null;
+function onPageLoaded(map) {
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  $("#map_canvas").css({
+    "position": "relative"
+  });
+  
+  map.moveCamera({
+    'target': GOOGLE,
+    'zoom': 15
+  });
+  map.addMarker({
+    'position': GOOGLE,
+    "mytitle": "Hello World!"
+  }, function(marker) {
+    marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
+  });
+}
+function onMarkerClicked(marker) {
+  var map = marker.getMap();
+  if (!myInfo) {
+    myInfo = createMyInfo(marker);
+  }
+  
+}
+
+function createMyInfo(marker) {
+  $("#infoWnd_frame").trigger("remove");
+  
+  var frame = $("<div id='infoWnd_frame'>");
+  var map = marker.getMap();
+  var timer = null;
+  var updatePosition = function() {
+    marker.getPosition(function(latLng) {
+      map.fromLatLngToPoint(latLng, function(point) {
+        frame.css({
+          "left": point[0] - 108,
+          "top": point[1] - 180
+        });
+        
+        // Update the children position.
+        map.refreshLayout();
+      });
+    });
+  };
+  setInterval(updatePosition, 100);
+  
+  var removeInfoWnd = function() {
+    clearInterval(timer);
+    frame.remove();
+    frmae = null;
+    timer = null;
+    map.off();
+  };
+  frame.on("click", removeInfoWnd);
+  map.on(plugin.google.maps.event.MAP_CLICK, removeInfoWnd);
+  frame.one("remove", removeInfoWnd);
+  
+  $("<div id='infoWnd_body'>").text(marker.get("mytitle")).appendTo(frame);
+  
+  $("#myOverlay").append(frame);
+  updatePosition();
+}
+</script>

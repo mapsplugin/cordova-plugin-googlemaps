@@ -32,7 +32,7 @@ $(document).on("deviceready", function() {
     loadPage(map, action);
   });
   
-  loadPage(map, "test");
+  loadPage(map, "customInfoWindow");
 });
 
 /**
