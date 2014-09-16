@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.util.Base64;
 import android.util.Log;
 
@@ -441,6 +442,33 @@ public class PluginMap extends MyPlugin {
       }
     });
     
+  }
+  @SuppressWarnings({ "unused", "deprecation" })
+  private void fromLatLngToPoint(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    double lat, lng;
+    lat = args.getDouble(1);
+    lng = args.getDouble(2);
+    LatLng latLng = new LatLng(lat, lng);
+    Point point = map.getProjection().toScreenLocation(latLng);
+    JSONArray pointJSON = new JSONArray();
+    pointJSON.put(point.x / webView.getScale());
+    pointJSON.put(point.y / webView.getScale());
+    callbackContext.success(pointJSON);
+  }
+  
+  @SuppressWarnings("unused")
+  private void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    int pointX, pointY;
+    pointX = args.getInt(1);
+    pointY = args.getInt(2);
+    Point point = new Point();
+    point.x = pointX;
+    point.y = pointY;
+    LatLng latlng = map.getProjection().fromScreenLocation(point);
+    JSONArray pointJSON = new JSONArray();
+    pointJSON.put(latlng.latitude);
+    pointJSON.put(latlng.longitude);
+    callbackContext.success(pointJSON);
   }
   
   /**
