@@ -45,6 +45,27 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.Locale;
 
+/**
+ * What this class provides:
+ * 1. Helpers for reading & writing to URLs.
+ *   - E.g. handles assets, resources, content providers, files, data URIs, http[s]
+ *   - E.g. Can be used to query for mime-type & content length.
+ *
+ * 2. To allow plugins to redirect URLs (via remapUrl).
+ *   - All plugins should call remapUrl() on URLs they receive from JS *before*
+ *     passing the URL onto other utility functions in this class.
+ *   - For an example usage of this, refer to the org.apache.cordova.file plugin.
+ *
+ * 3. It exposes a way to use the OkHttp library that ships with Cordova.
+ *   - Through createHttpConnection().
+ *
+ * Future Work:
+ *   - Consider using a Cursor to query content URLs for their size (like the file plugin does).
+ *   - Allow plugins to remapUri to "cdv-plugin://plugin-name/$ID", which CordovaResourceApi
+ *     would then delegate to pluginManager.getPlugin(plugin-name).openForRead($ID)
+ *     - Currently, plugins *can* do this by remapping to a data: URL, but it's inefficient
+ *       for large payloads.
+ */
 public class CordovaResourceApi {
     @SuppressWarnings("unused")
     private static final String LOG_TAG = "CordovaResourceApi";
@@ -84,6 +105,7 @@ public class CordovaResourceApi {
     public boolean isThreadCheckingEnabled() {
         return threadCheckingEnabled;
     }
+    
     
     public static int getUriType(Uri uri) {
         assertNonRelative(uri);
@@ -178,6 +200,8 @@ public class CordovaResourceApi {
         return null;
     }
     
+    
+    //This already exists
     private String getMimeTypeFromPath(String path) {
         String extension = path;
         int lastDot = extension.lastIndexOf('.');
@@ -196,7 +220,7 @@ public class CordovaResourceApi {
     }
     
     /**
-     * Opens a stream to the givne URI, also providing the MIME type & length.
+     * Opens a stream to the given URI, also providing the MIME type & length.
      * @return Never returns null.
      * @throws Throws an InvalidArgumentException for relative URIs. Relative URIs should be
      *     resolved before being passed into this function.
@@ -208,7 +232,7 @@ public class CordovaResourceApi {
     }
 
     /**
-     * Opens a stream to the givne URI, also providing the MIME type & length.
+     * Opens a stream to the given URI, also providing the MIME type & length.
      * @return Never returns null.
      * @throws Throws an InvalidArgumentException for relative URIs. Relative URIs should be
      *     resolved before being passed into this function.
@@ -346,6 +370,10 @@ public class CordovaResourceApi {
         copyResource(openForRead(sourceUri), outputStream);
     }
 
+    // Added in 3.5.0.
+    public void copyResource(Uri sourceUri, Uri dstUri) throws IOException {
+        copyResource(openForRead(sourceUri), openOutputStream(dstUri));
+    }
     
     private void assertBackgroundThread() {
         if (threadCheckingEnabled) {
