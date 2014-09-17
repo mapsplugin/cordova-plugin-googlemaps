@@ -46,7 +46,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.widget.AbsoluteLayout;
@@ -580,6 +579,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
       PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
       this.plugins.put(serviceName, pluginEntry);
+      
+      try {
+        Class cordovaPref = Class.forName("org.apache.cordova.CordovaPreferences");
+        Method privateInit = CordovaPlugin.class.getMethod("privateInitialize", CordovaInterface.class, CordovaWebView.class, cordovaPref);
+        if (privateInit != null) {
+          privateInit.invoke(plugin, this.cordova, webView, null);
+        }
+      } catch (Exception e2) {}
+      
       plugin.initialize(this.cordova, webView);
       ((MyPluginInterface)plugin).setMapCtrl(this);
       if (map == null) {
