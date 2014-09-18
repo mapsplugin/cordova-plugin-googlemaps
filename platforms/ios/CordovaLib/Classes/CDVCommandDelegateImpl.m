@@ -95,14 +95,9 @@
     }
 }
 
-- (BOOL)isValidCallbackId:(NSString*)callbackId
+- (BOOL)isValidCallbackId:(NSString *)callbackId
 {
-    NSError* err = nil;
-
-    if (callbackId == nil) {
-        return NO;
-    }
-
+    NSError *err = nil;
     // Initialize on first use
     if (_callbackIdPattern == nil) {
         // Catch any invalid characters in the callback id.
@@ -153,6 +148,11 @@
     } else {
         [self evalJsHelper2:js];
     }
+}
+
+- (BOOL)execute:(CDVInvokedUrlCommand*)command
+{
+    return [_commandQueue execute:command];
 }
 
 - (id)getCommandInstance:(NSString*)pluginName
