@@ -106,7 +106,6 @@ public class CordovaResourceApi {
         return threadCheckingEnabled;
     }
     
-    
     public static int getUriType(Uri uri) {
         assertNonRelative(uri);
         String scheme = uri.getScheme();
@@ -200,8 +199,6 @@ public class CordovaResourceApi {
         return null;
     }
     
-    
-    //This already exists
     private String getMimeTypeFromPath(String path) {
         String extension = path;
         int lastDot = extension.lastIndexOf('.');
@@ -220,7 +217,7 @@ public class CordovaResourceApi {
     }
     
     /**
-     * Opens a stream to the given URI, also providing the MIME type & length.
+     * Opens a stream to the givne URI, also providing the MIME type & length.
      * @return Never returns null.
      * @throws Throws an InvalidArgumentException for relative URIs. Relative URIs should be
      *     resolved before being passed into this function.
@@ -232,7 +229,7 @@ public class CordovaResourceApi {
     }
 
     /**
-     * Opens a stream to the given URI, also providing the MIME type & length.
+     * Opens a stream to the givne URI, also providing the MIME type & length.
      * @return Never returns null.
      * @throws Throws an InvalidArgumentException for relative URIs. Relative URIs should be
      *     resolved before being passed into this function.

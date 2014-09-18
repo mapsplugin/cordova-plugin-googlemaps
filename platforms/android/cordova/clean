@@ -19,26 +19,18 @@
        under the License.
 */
 
-var build = require('./lib/build'),
+var clean = require('./lib/clean'),
     reqs  = require('./lib/check_reqs'),
     args  = process.argv;
-var path  = require('path');
 
-// Support basic help commands
-if(args[2] == '--help' ||
-   args[2] == '/?' ||
-   args[2] == '-h' ||
-   args[2] == 'help' ||
-   args[2] == '-help' ||
-   args[2] == '/help') {
-    console.log('Usage: ' + path.relative(process.cwd(), process.argv[1]));
-    console.log('Cleans the project directory.');
-    process.exit(0);
+// Usage support for when args are given
+if(args.length > 2) {
+    clean.help();
 } else {
     reqs.run().done(function() {
-        return build.runClean(args.slice(2));
+        return clean.run();
     }, function(err) {
-        console.error(err);
+        console.error('ERROR: ' + err);
         process.exit(2);
     });
 }
