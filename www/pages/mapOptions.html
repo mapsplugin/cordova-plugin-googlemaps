@@ -14,7 +14,7 @@
 </fieldset>
 
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   map.moveCamera({
     'target': GOOGLE,
@@ -31,5 +31,5 @@ function onPageLoaded(map) {
     options.controls[optName] = $(this).is(":checked");
     map.setOptions(options);
   });
-}
+});
 </script>

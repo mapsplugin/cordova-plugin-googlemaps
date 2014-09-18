@@ -2,13 +2,14 @@
 <div id="map_canvas"></div>
 <button id='updateLocationBtn' class="ui-btn-inline">update location</button>
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#updateLocationBtn").click(function() {
     map.setZoom(10);
     showMyLocation(map);
   });
   showMyLocation(map);
-}
+});
+
 function showMyLocation(map) {
   map.clear();
   

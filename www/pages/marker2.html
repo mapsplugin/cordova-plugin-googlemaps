@@ -82,7 +82,7 @@ map.addMarker({
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
 
   $("#scaledIcon").click(function() {
     init(map, scaledIconMarker);
@@ -95,7 +95,8 @@ function onPageLoaded(map) {
     init(map, textStyle);
   });
   $("#scaledIcon").click();
-}
+});
+
 function init(map, next) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
   map.clear();
@@ -136,6 +137,8 @@ function canvasMarker(map, latLng) {
     context.fillStyle = 'blue';
     context.fillText('Google', 40, 15);
     context.fillText('Tokyo!', 60, 35);
+    
+    console.log(canvas.toDataURL());
     
     map.addMarker({
       'position': latLng,

@@ -24,7 +24,7 @@ map.moveCamera({
 </code>
   
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 
@@ -43,5 +43,5 @@ function onPageLoaded(map) {
     }, 2000);
     
   });
-}
+});
 </script>

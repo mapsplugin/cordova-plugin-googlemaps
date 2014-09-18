@@ -44,6 +44,7 @@ $(document).on("deviceready", function() {
  * @param {String} pageName
  */
 function loadPage(map, pageName) {
+  $(document).trigger("pageLeave");
   $.get("./pages/" + pageName + ".html", function(html) {
     $("#container").html(html);
     $.mobile.activePage.trigger("create");
@@ -55,6 +56,7 @@ function loadPage(map, pageName) {
     }
     
     map.clear();
+    map.off();
     
     // Embed a map into the div tag.
     var div = $("#map_canvas")[0];
@@ -64,7 +66,7 @@ function loadPage(map, pageName) {
     
     // Execute the code
     setTimeout(function() {
-      onPageLoaded(map);
+      $(document).trigger("pageLoad", map);
     }, 1000);
   });
 }
