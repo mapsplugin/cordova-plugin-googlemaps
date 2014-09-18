@@ -28,6 +28,9 @@ $(document).on("deviceready", function() {
     // Map.clear() method removes all mark-ups, such as marker.
     map.clear();
     
+    // Map.off() method removes all event listeners.
+    map.off();
+    
     var action = $(this).attr("action");
     loadPage(map, action);
   });
