@@ -31,7 +31,14 @@
 
 <script type="text/javascript">
 var myInfo = null;
-function onPageLoaded(map) {
+var timer = null;
+$(document).one("pageLeave", function() {
+  if (timer) {
+    clearInterval(timer);
+  }
+});
+
+$(document).one("pageLoad", function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   $("#map_canvas").css({
     "position": "relative"
@@ -47,7 +54,8 @@ function onPageLoaded(map) {
   }, function(marker) {
     marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
   });
-}
+});
+
 function onMarkerClicked(marker) {
   var map = marker.getMap();
   if (!myInfo) {
@@ -61,7 +69,6 @@ function createMyInfo(marker) {
   
   var frame = $("<div id='infoWnd_frame'>");
   var map = marker.getMap();
-  var timer = null;
   var updatePosition = function() {
     marker.getPosition(function(latLng) {
       map.fromLatLngToPoint(latLng, function(point) {
@@ -75,7 +82,7 @@ function createMyInfo(marker) {
       });
     });
   };
-  setInterval(updatePosition, 100);
+  timer = setInterval(updatePosition, 100);
   
   var removeInfoWnd = function() {
     clearInterval(timer);

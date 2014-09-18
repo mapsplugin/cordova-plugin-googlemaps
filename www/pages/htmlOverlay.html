@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   
   map.moveCamera({
@@ -83,7 +83,8 @@ function onPageLoaded(map) {
       }
     });
   });
-}
+});
+
 function moveTo(map, position, title) {
   map.addMarker({
     'position': position,

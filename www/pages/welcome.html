@@ -3,7 +3,7 @@
 <div id="map_canvas"></div>
 <button id='fullScreenBtn' class="ui-btn-inline">Full screen</button>
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#fullScreenBtn").click(function() {
     map.showDialog();
   });
@@ -20,7 +20,7 @@ function onPageLoaded(map) {
   }, function(marker) {
     marker.showInfoWindow();
   });
-}
+});
 </script>
 <b>This example shows you how to create your app with this plugin and jQuery Mobile.</b>
 <br>

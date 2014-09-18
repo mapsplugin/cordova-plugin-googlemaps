@@ -3,12 +3,12 @@
 <div id="map_canvas"></div>
 <button id="button">getVisibleRegion()</button>
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#button").click(function() {
     map.getVisibleRegion(function(latLngBounds) {
       alert(latLngBounds.toString());
     });
   });
-}
+});
 
 </script>

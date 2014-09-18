@@ -22,7 +22,7 @@ If the Google Maps app is available, launch it. Otherwise, the Apple Maps app is
 });</code>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   map.setDiv(null);
   $("#direction").click(function() {
     plugin.google.maps.external.launchNavigation({
@@ -30,6 +30,6 @@ function onPageLoaded(map) {
       "to": $("#to").val()
     });
   });
-}
+});
 
 </script>

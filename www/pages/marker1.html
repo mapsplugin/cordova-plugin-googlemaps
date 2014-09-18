@@ -30,7 +30,7 @@
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
 
   $("#simple").click(function() {
     init(map, addMarker);
@@ -40,7 +40,8 @@ function onPageLoaded(map) {
   $("#icon").click(function() {
     init(map, addIconMarker);
   });
-}
+});
+
 function init(map, next) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
   map.clear();

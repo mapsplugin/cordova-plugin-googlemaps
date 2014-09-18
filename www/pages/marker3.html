@@ -94,7 +94,7 @@ $("#dragSwitch").attr("checked", "checked");</code>
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
 
   $("#disableAutoPan").click(function() {
     init(map, disableAutoPan);
@@ -105,7 +105,8 @@ function onPageLoaded(map) {
   });
   
   $("#disableAutoPan").click();
-}
+});
+
 function init(map, next) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
   map.clear();

@@ -2,7 +2,7 @@
 <button id="removeAttachBtn">map.remove()</button>
 
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#removeAttachBtn").off();
   $("#removeAttachBtn").click(function() {
     if (map) {
@@ -15,5 +15,5 @@ function onPageLoaded(map) {
       $("#removeAttachBtn").text("map.remove()");
     }
   });
-}
+});
 </script>
