@@ -17,6 +17,17 @@
  under the License.
  */
 
-// This file was emptied out in 3.6.0 release (July 2014).
-// It will be deleted in a future release.
+#import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+
+@interface NSError (JSONMethods)
+
+- (NSString*)JSONRepresentation;
+
+@end
+
+@interface CLLocation (JSONMethods)
+
+- (NSString*)JSONRepresentation;
+
+@end
