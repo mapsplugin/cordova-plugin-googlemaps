@@ -116,7 +116,7 @@ public class PluginMap extends MyPlugin {
       map.moveCamera(cameraUpdate);
     }
     
-    
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -290,7 +290,7 @@ public class PluginMap extends MyPlugin {
         mapCtrl.googleApiClient.disconnect();
       }
     }
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -303,7 +303,7 @@ public class PluginMap extends MyPlugin {
   private void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean isEnabled = args.getBoolean(1);
     map.setIndoorEnabled(isEnabled);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -316,7 +316,7 @@ public class PluginMap extends MyPlugin {
   private void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean isEnabled = args.getBoolean(1);
     map.setTrafficEnabled(isEnabled);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -330,8 +330,7 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = args.getBoolean(1);
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setCompassEnabled(isEnabled);
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -362,7 +361,7 @@ public class PluginMap extends MyPlugin {
     
     final int myMapTypeId = mapTypeId;
     map.setMapType(myMapTypeId);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
 
@@ -509,8 +508,7 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = args.getBoolean(1);
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setAllGesturesEnabled(isEnabled);
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
 }

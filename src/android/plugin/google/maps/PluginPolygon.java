@@ -147,7 +147,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(1);
     Polygon polygon = this.getPolygon(id);
     if (polygon == null) {
-      callbackContext.success();
+      this.sendNoResult(callbackContext);
       return;
     }
     this.objects.remove(id);
@@ -156,8 +156,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     this.objects.remove(id);
     
     polygon.remove();
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -180,8 +179,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
       builder.include(path.get(i));
     }
     this.objects.put("polygon_bounds_" + polygon.getId(), builder.build());
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**

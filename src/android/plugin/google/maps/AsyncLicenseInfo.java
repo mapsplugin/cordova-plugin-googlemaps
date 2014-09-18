@@ -34,21 +34,29 @@ public class AsyncLicenseInfo extends AsyncTask<Void, Void, AlertDialog.Builder>
     
     return alertDialogBuilder;
   }
-  protected void onPostExecute(AlertDialog.Builder alertDialogBuilder) {
-    // create alert dialog
-    AlertDialog alertDialog = alertDialogBuilder.create();
-    
-    alertDialog.setOnShowListener(new OnShowListener() {
+  protected void onPostExecute(final AlertDialog.Builder alertDialogBuilder) {
+    Runnable runnable = new Runnable() {
 
       @Override
-      public void onShow(DialogInterface arg0) {
-        mProgress.dismiss();
+      public void run() {
+     // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        
+        alertDialog.setOnShowListener(new OnShowListener() {
+
+          @Override
+          public void onShow(DialogInterface arg0) {
+            mProgress.dismiss();
+          }
+          
+        });
+
+        // show it
+        alertDialog.show();
       }
       
-    });
-
-    // show it
-    alertDialog.show();
+    };
+    mActivity.runOnUiThread(runnable);
   }
 
 }
