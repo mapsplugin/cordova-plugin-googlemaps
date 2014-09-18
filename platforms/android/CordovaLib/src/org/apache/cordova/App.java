@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.telephony.TelephonyManager;
-import android.view.KeyEvent;
 
 import java.util.HashMap;
 
@@ -47,11 +46,15 @@ public class App extends CordovaPlugin {
     /**
      * Sets the context of the Command. This can then be used to do things like
      * get file paths associated with the Activity.
+     *
+     * @param cordova The context of the main Activity.
+     * @param webView The CordovaWebView Cordova is running in.
      */
-    @Override
-    public void pluginInitialize() {
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
         this.initTelephonyReceiver();
     }
+
 
     /**
      * Executes the request and returns PluginResult.
@@ -187,11 +190,7 @@ public class App extends CordovaPlugin {
      * Clear page history for the app.
      */
     public void clearHistory() {
-        cordova.getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                webView.clearHistory();
-            }
-        });
+        this.webView.clearHistory();
     }
 
     /**
@@ -214,7 +213,7 @@ public class App extends CordovaPlugin {
      */
     public void overrideBackbutton(boolean override) {
         LOG.i("App", "WARNING: Back Button Default Behavior will be overridden.  The backbutton event will be fired!");
-        webView.setButtonPlumbedToJs(KeyEvent.KEYCODE_BACK, override);
+        webView.bindButton(override);
     }
 
     /**
@@ -226,12 +225,7 @@ public class App extends CordovaPlugin {
      */
     public void overrideButton(String button, boolean override) {
         LOG.i("App", "WARNING: Volume Button Default Behavior will be overridden.  The volume event will be fired!");
-        if (button.equals("volumeup")) {
-            webView.setButtonPlumbedToJs(KeyEvent.KEYCODE_VOLUME_UP, override);
-        }
-        else if (button.equals("volumedown")) {
-            webView.setButtonPlumbedToJs(KeyEvent.KEYCODE_VOLUME_DOWN, override);
-        }
+        webView.bindButton(button, override);
     }
 
     /**
@@ -240,7 +234,7 @@ public class App extends CordovaPlugin {
      * @return boolean
      */
     public boolean isBackbuttonOverridden() {
-        return webView.isButtonPlumbedToJs(KeyEvent.KEYCODE_BACK);
+        return webView.isBackButtonBound();
     }
 
     /**
