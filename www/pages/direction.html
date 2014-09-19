@@ -33,6 +33,43 @@
   <div id="two">
     <p>Touch your destination on the map.</p>
     <div id="map_canvas"></div>
+    
+    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
+        <code class="prettyprint">var yourLocation = null;
+map.getMyLocation(function(location) {
+  yourLocation = location.latLng;
+
+  map.addMarker({
+    "position": yourLocation,
+    "title": "I am around here!"
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
+
+  map.moveCamera({
+    "target": yourLocation,
+    "zoom": 12
+  });
+});
+
+map.on(plugin.google.maps.event.MAP_CLICK, function(latLng) {
+  map.addMarker({
+    "position": latLng,
+    "title": "Destination"
+  }, function(marker) {
+    marker.showInfoWindow();
+
+    setTimeout(function() {
+
+      if (confirm("Do you want to go?")) {
+        plugin.google.maps.external.launchNavigation({
+          "from": yourLocation,
+          "to": latLng
+        });
+      }
+    }, 2000);
+  });
+});</code>
   </div>
 </div>
 <script type="text/javascript">
