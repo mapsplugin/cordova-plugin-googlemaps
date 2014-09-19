@@ -1,5 +1,19 @@
 <div id="map_canvas"></div>
 <button id="removeAttachBtn">map.remove()</button>
+<h4 class="ui-bar ui-bar-a">JavaScript</h4>
+<code class="prettyprint">
+$("#removeAttachBtn").click(function() {
+  if (map) {
+    map.remove();
+    $("#removeAttachBtn").text("Map.getMap()");
+    map = null;
+  } else {
+    var div = $("#map_canvas")[0];
+    map = plugin.google.maps.Map.getMap(div);
+    $("#removeAttachBtn").text("map.remove()");
+  }
+});
+</code>
 
 <script type="text/javascript">
 $(document).one("pageLoad", function(event, map) {
