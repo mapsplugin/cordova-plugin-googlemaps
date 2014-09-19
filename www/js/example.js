@@ -35,7 +35,7 @@ $(document).on("deviceready", function() {
     loadPage(map, action);
   });
   
-  loadPage(map, "customInfoWindow");
+  loadPage(map, "direction");
 });
 
 /**
