@@ -10,16 +10,36 @@
   <label for="chk_indoorPicker">indoorPicker</label>
   
   <input type="checkbox" id="chk_zoom" />
-  <label for="chk_zoom">zoom</label>
+  <label for="chk_zoom">zoom (Android only)</label>
 </fieldset>
+
+<h4 class="ui-bar ui-bar-a">JavaScript</h4>
+<code class="prettyprint">
+const GOOGLE = new plugin.google.maps.LatLng(37.422848, -122.085565);
+map.moveCamera({
+  'target': GOOGLE,
+  'tilt': 60,
+  'zoom': 18,
+  'bearing': 140
+});
+$(":checkbox").off();
+$(":checkbox").on("change", function() {
+  var optName = $(this).attr("id").replace("chk_", "");
+  var options = {
+    controls: {}
+  };
+  options.controls[optName] = $(this).is(":checked");
+  map.setOptions(options);
+});
+</code>
 
 <script type="text/javascript">
 $(document).one("pageLoad", function(event, map) {
-  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  const GOOGLE = new plugin.google.maps.LatLng(37.422848, -122.085565);
   map.moveCamera({
     'target': GOOGLE,
     'tilt': 60,
-    'zoom': 20,
+    'zoom': 18,
     'bearing': 140
   });
   $(":checkbox").off();

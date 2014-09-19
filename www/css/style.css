@@ -6,11 +6,7 @@ html, body, #container {
 }
 #map_canvas {
   width: 95%;
-  height: 50%;
   min-height: 300px;
-}
-.ui-page, .ui-overlay-a, .ui-panel-wrapper {
-  background-color: transparent !important;
 }
 code {
   border: 1px dotted gray;
@@ -28,14 +24,20 @@ span.highlight {
   color: #5F9EA0;
 }
 
-@media screen and (min-height: 500px) {
+@media screen and (min-height: 500px and max-height: 800px) {
   #map_canvas {
-    min-height: 250px;
+    min-height: 400px;
   }
 }
 
-@media screen and (min-height: 700px) {
+@media screen and (min-height: 800px and max-height: 1300px) {
   #map_canvas {
-    min-height: 500px;
+    min-height: 600px;
+  }
+}
+
+@media screen and (min-height: 1300px) {
+  #map_canvas {
+    min-height: 800px;
   }
 }
