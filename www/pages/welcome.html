@@ -1,56 +1,141 @@
-<h3 class="ui-bar ui-bar-a">Phonegap-GoogleMaps-Plugin</h3>
-<p>This plugin helps you to control Google Maps Android SDK v2 and Google Maps SDK for iOS from your JavaScript code.</p>
-<div id="map_canvas"></div>
-<button id='fullScreenBtn' class="ui-btn-inline">Full screen</button>
+<style type="text/css">
+.ui-content {
+  padding: 0;
+}
+.match_parent {
+  width: 100% !important;
+  left: 0 !important;
+  margin: 20px 0;
+}
+#introduction {
+  width: auto !important;
+  background-color: #966D73;
+  padding :10px;
+  color: white;
+  line-height: 1.5em;
+  background-size: 25%;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+.title {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+#demoBtn {
+  position: absolute !important;
+  left: 20% !important;
+  width: 60% !important;
+  bottom: 5% !important;
+}
+
+#myOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+#infoWnd_frame {
+  position: absolute;
+  width: 200px;
+  height: 144px;
+  background-image: url("images/myinfo.png");
+  background-size: contain;
+}
+#infoWnd_body {
+  position: absolute;
+  width: 144px;
+  height: 66px;
+  left: 24px;
+  top: 28px;
+}
+</style>
+<div id="map_canvas" class="match_parent">
+  <div id="myOverlay" data-clickable='false'></div>
+  <button id="demoBtn">Demo</button>
+</div>
+
+<div id="introduction" class="match_parent">
+  <div class="title">PhoneGap-GoogleMaps-Plugin</div>
+  <p>This plugin brings Google Maps native view into your PhoneGap App! As of v1.2.0, you can put any HTMLs on the map. Thus, you can create your app more flexisible!</p>
+</div>
+
 <script type="text/javascript">
+var timer = null;
+var myInfo = null;
+$(document).one("pageLeave", function() {
+  if (timer) {
+    clearInterval(timer);
+  }
+});
 $(document).one("pageLoad", function(event, map) {
-  $("#fullScreenBtn").click(function() {
-    map.showDialog();
-  });
   
   map.moveCamera({
     'target': new plugin.google.maps.LatLng(0, 0),
     'zoom': 0
   });
   
-  map.addMarker({
-    'position': new plugin.google.maps.LatLng(0, 0),
-    'title': ["Hello Google Map for", "Apache Cordova!"].join("\n"),
-    'snippet': "This plugin is awesome!"
-  }, function(marker) {
-    marker.showInfoWindow();
+  $("#demoBtn").click(function() {
+    map.getVisibleRegion(function(latLngBounds) {
+      
+      map.addMarker({
+        'position': latLngBounds.getCenter(),
+        "mytitle": ["Hello Google Map for", "Apache Cordova!"].join("\n")
+      }, function(marker) {
+        marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
+        
+        marker.trigger(plugin.google.maps.event.MARKER_CLICK);
+      });
+    });
   });
 });
+function onMarkerClicked() {
+  var marker = this;
+  var map = marker.getMap();
+  if (!myInfo) {
+    myInfo = createMyInfo(marker);
+  }
+  
+}
+
+function createMyInfo(marker) {
+  $("#infoWnd_frame").trigger("remove");
+  
+  var frame = $("<div id='infoWnd_frame'>");
+  var map = marker.getMap();
+  var beforePoint = [];
+  var updatePosition = function() {
+    map.fromLatLngToPoint(marker.get("position"), function(point) {
+      if (beforePoint[0] != point[0] || beforePoint[1] != point[1]) {
+        frame.css({
+          "left": point[0] - 108,
+          "top": point[1] - 180
+        });
+        // Update the children position.
+        map.refreshLayout();
+      }
+      beforePoint = point;
+    });
+  };
+  timer = setInterval(updatePosition, 200);
+  
+  var removeInfoWnd = function() {
+    clearInterval(timer);
+    frame.remove();
+    frmae = null;
+    timer = null;
+    map.off();
+  };
+  frame.on("click", removeInfoWnd);
+  map.on(plugin.google.maps.event.MAP_CLICK, removeInfoWnd);
+  frame.one("remove", removeInfoWnd);
+  
+  $("<div id='infoWnd_body'>").text(marker.get("mytitle")).appendTo(frame);
+  
+  $("#myOverlay").append(frame);
+  updatePosition();
+}
 </script>
-<b>This example shows you how to create your app with this plugin and jQuery Mobile.</b>
-<br>
-This plugin allows you to embed a map into the your specified HTML DOM, such as div tag.
-You can specify the DOM element as the argument of Map.getMap() method, or Map.setDiv().
-<h4 class="ui-bar ui-bar-a">HTML</h4>
-<code class="prettyprint">&lt;div id="map_canvas" style="width:100%;height:500px"&gt;&lt;/div&gt;</code>
-<h4 class="ui-bar ui-bar-a">JavaScript</h4>
-<code class="prettyprint">var mapDiv = $("#map_canvas")[0];
-var map = plugin.google.maps.Map.getMap(mapDiv);
-map.on(plugin.google.maps.event.MAP_READY, function() {
-  
-  map.addMarker({
-    'position': new plugin.google.maps.LatLng(0, 0),
-    'title': ["Hello Google Map for", "Apache Cordova!"].join("\n"),
-    'snippet': "This plugin is awesome!"
-  }, function(marker) {
-    marker.showInfoWindow();
-  });
-  
-});
-</code>
-<p>If you want to show the map as full screen, call <span class="highlight">Map.showDialog()</span>.</p>
-<h4 class="ui-bar ui-bar-a">JavaScript</h4>
-<code class="prettyprint">var mapDiv = $("#map_canvas")[0];
-$("#fullScreenBtn").click(function() {
-  map.showDialog();
-  
-  map.one(plugin.google.maps.event.MAP_CLOSE, function() {
-    console.log("The map dialog is closed.");
-  });
-});
+
 </code>

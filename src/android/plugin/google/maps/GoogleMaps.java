@@ -524,6 +524,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       if (controls.has("myLocationButton")) {
         Boolean isEnabled = controls.getBoolean("myLocationButton");
         map.setMyLocationEnabled(isEnabled);
+        map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
+      }
+      if (controls.has("indoorPicker")) {
+        Boolean isEnabled = controls.getBoolean("indoorPicker");
+        map.setIndoorEnabled(isEnabled);
       }
     }
     

@@ -85,7 +85,8 @@ $(document).one("pageLoad", function(event, map) {
   });
 });
 
-function onMarkerClicked(marker) {
+function onMarkerClicked() {
+  var marker = this;
   var map = marker.getMap();
   if (!myInfo) {
     myInfo = createMyInfo(marker);
@@ -154,10 +155,13 @@ $(document).one("pageLoad", function(event, map) {
     "mytitle": "Hello World!"
   }, function(marker) {
     marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
+    
+    marker.trigger(plugin.google.maps.event.MARKER_CLICK);
   });
 });
 
-function onMarkerClicked(marker) {
+function onMarkerClicked() {
+  var marker = this;
   var map = marker.getMap();
   if (!myInfo) {
     myInfo = createMyInfo(marker);
@@ -170,20 +174,21 @@ function createMyInfo(marker) {
   
   var frame = $("<div id='infoWnd_frame'>");
   var map = marker.getMap();
+  var beforePoint = [];
   var updatePosition = function() {
-    marker.getPosition(function(latLng) {
-      map.fromLatLngToPoint(latLng, function(point) {
+    map.fromLatLngToPoint(marker.get("position"), function(point) {
+      if (beforePoint[0] != point[0] || beforePoint[1] != point[1]) {
         frame.css({
           "left": point[0] - 108,
           "top": point[1] - 180
         });
-        
         // Update the children position.
         map.refreshLayout();
-      });
+      }
+      beforePoint = point;
     });
   };
-  timer = setInterval(updatePosition, 100);
+  timer = setInterval(updatePosition, 200);
   
   var removeInfoWnd = function() {
     clearInterval(timer);
