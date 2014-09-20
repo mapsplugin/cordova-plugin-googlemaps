@@ -33,7 +33,7 @@ public class PluginMap extends MyPlugin {
   @SuppressWarnings("unused")
   private void setOptions(JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-    GoogleMapOptions options = new GoogleMapOptions();
+    
     UiSettings settings = this.map.getUiSettings();
     JSONObject params = args.getJSONObject(1);
     //controls
@@ -51,7 +51,7 @@ public class PluginMap extends MyPlugin {
       }
       if (controls.has("myLocationButton")) {
         settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
-        map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
+        //map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
       }
     }
     
@@ -69,7 +69,8 @@ public class PluginMap extends MyPlugin {
         settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
       }
       if (gestures.has("zoom")) {
-        options.zoomGesturesEnabled(gestures.getBoolean("zoom"));
+        GoogleMapOptions options = new GoogleMapOptions();
+        settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
       }
     }
     
