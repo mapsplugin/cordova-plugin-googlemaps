@@ -1686,10 +1686,19 @@ LatLngBounds.prototype.extend = function(latLng) {
     this[1] = this.northeast;
   }
 };
+
 LatLngBounds.prototype.getCenter = function() {
-  return new LatLng(
-          (this.southwest.lat + this.northeast.lat) / 2,
-          (this.southwest.lng + this.northeast.lng) / 2);
+  var centerLat = (this.southwest.lat + this.northeast.lat) / 2;
+  
+  var swLng = this.southwest.lng;
+  var neLng = this.northeast.lng;
+  var sumLng = swLng + neLng;
+  var centerLng = sumLng / 2;
+  
+  if ((swLng > 0 && neLng < 0 && sumLng < 180)) {
+    centerLng += sumLng > 0 ? -180 : 180;
+  }
+  return new LatLng(centerLat, centerLng);
 };
 
 LatLngBounds.prototype.contains = function(latLng) {
