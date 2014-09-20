@@ -53,7 +53,7 @@
 </style>
 <div id="map_canvas" class="match_parent">
   <div id="myOverlay" data-clickable='false'></div>
-  <button id="demoBtn">Demo</button>
+  <button id="demoBtn">Touch me!</button>
 </div>
 
 <div id="introduction" class="match_parent">
@@ -77,16 +77,25 @@ $(document).one("pageLoad", function(event, map) {
   });
   
   $("#demoBtn").click(function() {
-    map.getVisibleRegion(function(latLngBounds) {
-      
+    map.getMyLocation({
+      enableHighAccuracy: true
+    }, function(location) {
       map.addMarker({
-        'position': latLngBounds.getCenter(),
+        'position': location.latLng,
         "mytitle": ["Hello Google Map for", "Apache Cordova!"].join("\n")
       }, function(marker) {
         marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
         
-        marker.trigger(plugin.google.maps.event.MARKER_CLICK);
+        map.animateCamera({
+          'target': location.latLng,
+          'zoom': 15
+        }, function() {
+          marker.trigger(plugin.google.maps.event.MARKER_CLICK);
+        });
+      }, function() {
+        alert("Can not detect your location");
       });
+      
     });
   });
 });
