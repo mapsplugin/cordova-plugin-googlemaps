@@ -35,6 +35,23 @@ $(document).on("deviceready", function() {
     loadPage(map, action);
   });
   
+  /**
+   * The side menu overlays above the map, but it's not the children of the map div.
+   * In this case, you must call map.setClickable(false) to be able to click the side menu.
+   */
+  function onSideMenuClose() {
+    map.setClickable(true);
+  }
+  
+  function onSideMenuOpen() {
+    map.setClickable(false);
+  }
+  
+  $("#menulist").panel({
+    "close": onSideMenuClose,
+    "open": onSideMenuOpen
+  });
+  
   loadPage(map, "welcome");
 });
 
