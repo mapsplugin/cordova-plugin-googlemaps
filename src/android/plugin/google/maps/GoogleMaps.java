@@ -1719,13 +1719,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    */
   @SuppressWarnings("unused")
   private void pluginLayer_setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(0);
+    boolean clickable = args.getBoolean(0);
     if (mapView != null && this.windowLayer == null) {
-      if (visible) {
-        mapView.setVisibility(View.VISIBLE);
-      } else {
-        mapView.setVisibility(View.INVISIBLE);
-      }
+      this.mPluginLayout.setClickable(clickable);
     }
     this.sendNoResult(callbackContext);
   }
