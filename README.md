@@ -1,7 +1,7 @@
 phonegap-googlemaps-plugin
 ==========================
 This plugin helps you to control [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/) from your JavaScript code.
-This plugin works with [Apache Cordova](http://cordova.apache.org/).
+This plugin works with [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/).
 
 
 ![ScreenShot](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/phonegap-googlemaps-plugin_small.png)
