@@ -167,28 +167,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       }
     }
 
-    callbackContext.success();
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /*
-    Polyline polyline = map.addPolyline(polylineOptions);
-    String id = "polyline_" + polyline.getId();
-    this.objects.put(id, polyline);
-    
-    JSONObject result = new JSONObject();
-    result.put("hashCode", polyline.hashCode());
-    result.put("id", id);
-    callbackContext.success(result);
-    */
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -242,7 +221,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(1);
     Polyline polyline = this.getPolyline(id);
     if (polyline == null) {
-      callbackContext.success();
+      this.sendNoResult(callbackContext);
       return;
     }
     this.objects.remove(id);
@@ -251,7 +230,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     this.objects.remove(id);
     
     polyline.remove();
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   /**
    * Set points
@@ -273,8 +252,8 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       builder.include(path.get(i));
     }
     this.objects.put("polyline_bounds_" + polyline.getId(), builder.build());
-    
-    callbackContext.success();
+
+    this.sendNoResult(callbackContext);
   }
   /**
    * set geodesic

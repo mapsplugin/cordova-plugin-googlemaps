@@ -28,11 +28,31 @@ $(document).on("deviceready", function() {
     // Map.clear() method removes all mark-ups, such as marker.
     map.clear();
     
+    // Map.off() method removes all event listeners.
+    map.off();
+    
     var action = $(this).attr("action");
     loadPage(map, action);
   });
   
-  loadPage(map, "test");
+  /**
+   * The side menu overlays above the map, but it's not the children of the map div.
+   * In this case, you must call map.setClickable(false) to be able to click the side menu.
+   */
+  function onSideMenuClose() {
+    map.setClickable(true);
+  }
+  
+  function onSideMenuOpen() {
+    map.setClickable(false);
+  }
+  
+  $("#menulist").panel({
+    "close": onSideMenuClose,
+    "open": onSideMenuOpen
+  });
+  
+  loadPage(map, "welcome");
 });
 
 /**
@@ -41,6 +61,7 @@ $(document).on("deviceready", function() {
  * @param {String} pageName
  */
 function loadPage(map, pageName) {
+  $(document).trigger("pageLeave");
   $.get("./pages/" + pageName + ".html", function(html) {
     $("#container").html(html);
     $.mobile.activePage.trigger("create");
@@ -52,6 +73,7 @@ function loadPage(map, pageName) {
     }
     
     map.clear();
+    map.off();
     
     // Embed a map into the div tag.
     var div = $("#map_canvas")[0];
@@ -61,7 +83,7 @@ function loadPage(map, pageName) {
     
     // Execute the code
     setTimeout(function() {
-      onPageLoaded(map);
+      $(document).trigger("pageLoad", map);
     }, 1000);
   });
 }

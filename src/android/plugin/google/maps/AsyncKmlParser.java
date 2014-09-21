@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Random;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -19,8 +18,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +27,7 @@ import android.util.Log;
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
   private GoogleMaps mMapCtrl;
-  private CordovaActivity mActivity;
+  private Activity mActivity;
   private CallbackContext mCallback;
   private String kmlId = null;
   private ProgressDialog mProgress;
@@ -65,18 +64,18 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private boolean animation = true;
   private Bundle mOption = null;
   
-  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
+  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
     Random random = new Random();
     kmlId = "kml" + random.nextInt();
     init(activity, mapCtrl, callbackContext, option);
   }
 
-  public AsyncKmlParser(CordovaActivity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext, Bundle option) {
+  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext, Bundle option) {
     this.kmlId = kmlId;
     init(activity, mapCtrl, callbackContext, option);
   }
   
-  private void init(CordovaActivity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
+  private void init(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
     mActivity = activity;

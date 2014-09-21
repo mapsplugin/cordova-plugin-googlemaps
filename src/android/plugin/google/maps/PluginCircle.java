@@ -161,11 +161,11 @@ public class PluginCircle extends MyPlugin  {
     String id = args.getString(1);
     Circle circle = this.getCircle(id);
     if (circle == null) {
-      callbackContext.success();
+      this.sendNoResult(callbackContext);
       return;
     }
     circle.remove();
     this.objects.remove(id);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 }

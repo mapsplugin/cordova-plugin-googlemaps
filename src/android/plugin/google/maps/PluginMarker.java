@@ -13,7 +13,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -162,7 +161,7 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
     marker.showInfoWindow();
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -176,7 +175,6 @@ public class PluginMarker extends MyPlugin {
     float rotation = (float)args.getDouble(2);
     String id = args.getString(1);
     this.setFloat("setRotation", id, rotation, callbackContext);
-    callbackContext.success();
   }
   
   /**
@@ -204,7 +202,7 @@ public class PluginMarker extends MyPlugin {
     LatLng position = new LatLng(args.getDouble(2), args.getDouble(3));
     Marker marker = this.getMarker(id);
     marker.setPosition(position);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -249,7 +247,7 @@ public class PluginMarker extends MyPlugin {
     }
     properties.put("disableAutoPan", disableAutoPan);
     this.objects.put(propertyId, properties);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   /**
    * Set title for the marker
@@ -288,7 +286,7 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
     marker.hideInfoWindow();
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -342,8 +340,7 @@ public class PluginMarker extends MyPlugin {
     
     String propertyId = "marker_property_" + id;
     this.objects.remove(propertyId);
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -363,8 +360,7 @@ public class PluginMarker extends MyPlugin {
     if (imageSize != null) {
       this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
 
@@ -385,7 +381,7 @@ public class PluginMarker extends MyPlugin {
     if (imageSize != null) {
       this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -439,12 +435,12 @@ public class PluginMarker extends MyPlugin {
 
         @Override
         public void onMarkerIconLoaded(Marker marker) {
-          callbackContext.success();
+          PluginMarker.this.sendNoResult(callbackContext);
         }
         
       });
     } else {
-      callbackContext.success();
+      this.sendNoResult(callbackContext);
     }
   }
   

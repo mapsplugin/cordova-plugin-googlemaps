@@ -7,12 +7,12 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
-import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
@@ -104,9 +104,14 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       e.printStackTrace();
       callbackContext.error(e.getMessage());
     }
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   public void clear() {
     this.objects.clear();
+  }
+  
+  protected void sendNoResult(CallbackContext callbackContext) {
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+    callbackContext.sendPluginResult(pluginResult);
   }
 }
