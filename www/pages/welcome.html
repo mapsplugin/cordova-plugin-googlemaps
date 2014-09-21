@@ -43,10 +43,10 @@
   }
   
   #introduction {
-    top: 20%;
-    left: 0;
+    top: 70px;
     right: 50%;
-    bottom: 10%;
+    left: 0;
+    bottom: auto;
   }
 }
 .title {
@@ -116,15 +116,15 @@ $(document).one("pageLoad", function(event, map) {
         
         map.animateCamera({
           'target': location.latLng,
-          'zoom': 10,
-          'tilt': 45
+          'zoom': 17,
+          'tilt': 80
         }, function() {
           setTimeout(function() {
             marker.trigger(plugin.google.maps.event.MARKER_CLICK);
           }, 1500);
         });
-      }, function() {
-        alert("Can not detect your location");
+      }, function(error) {
+        alert(error.message);
       });
       
     });
