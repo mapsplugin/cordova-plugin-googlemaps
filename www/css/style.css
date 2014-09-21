@@ -5,8 +5,9 @@ html, body, #container {
   height: 100%;
 }
 #map_canvas {
-  width: 95%;
+  width: 100%;
   min-height: 300px;
+  height: 50%;
   position: relative;
 }
 code {
@@ -24,21 +25,6 @@ span.highlight {
   white-space: pre;
   color: #5F9EA0;
 }
-
-@media screen and (min-height: 500px and max-height: 800px) {
-  #map_canvas {
-    min-height: 400px;
-  }
-}
-
-@media screen and (min-height: 800px and max-height: 1300px) {
-  #map_canvas {
-    min-height: 600px;
-  }
-}
-
-@media screen and (min-height: 1300px) {
-  #map_canvas {
-    min-height: 800px;
-  }
+.ui-panel-wrapper {
+  
 }

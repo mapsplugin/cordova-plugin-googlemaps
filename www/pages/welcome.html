@@ -1,14 +1,13 @@
 <style type="text/css">
-.ui-content {
-  padding: 0;
-}
-.match_parent {
-  width: 100% !important;
-  left: 0 !important;
-  margin: 20px 0;
+
+
+#map_canvas {
+  position: fixed;
+  width: auto;
+  height: auto;
 }
 #introduction {
-  width: auto !important;
+  position: fixed;
   background-color: #966D73;
   padding :10px;
   color: white;
@@ -16,6 +15,39 @@
   background-size: 25%;
   background-position: right bottom;
   background-repeat: no-repeat;
+}
+@media only screen and (orientation:portrait) {
+  /* For portrait layouts only */
+  #map_canvas {
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 33%;
+  }
+  
+  #introduction {
+    top: 68%;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+  }
+}
+
+@media only screen and (orientation:landscape) {
+  /* For landscape layouts only */
+ #map_canvas {
+    top: 50px;
+    left: 50%;
+    right: 0;
+    bottom: 5%;
+  }
+  
+  #introduction {
+    top: 20%;
+    left: 0;
+    right: 50%;
+    bottom: 10%;
+  }
 }
 .title {
   font-size: 1.3em;
@@ -28,14 +60,6 @@
   bottom: 5% !important;
 }
 
-#myOverlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
 #infoWnd_frame {
   position: absolute;
   width: 200px;
@@ -51,14 +75,14 @@
   top: 28px;
 }
 </style>
-<div id="map_canvas" class="match_parent">
-  <div id="myOverlay" data-clickable='false'></div>
+<div id="map_canvas">
   <button id="demoBtn">Touch me!</button>
 </div>
 
-<div id="introduction" class="match_parent">
+<div id="introduction" >
   <div class="title">PhoneGap-GoogleMaps-Plugin</div>
-  <p>This plugin brings Google Maps native view into your PhoneGap App! As of v1.2.0, you can put any HTMLs on the map. Thus, you can create your app more flexisible!</p>
+  <p>This plugin brings Google Maps native view into your PhoneGap App! As of v1.2.0, you can put any HTMLs on the map.</p>
+  <p>Thus, you can create your app more flexisible!</p>
 </div>
 
 <script type="text/javascript">
@@ -71,26 +95,33 @@ $(document).one("pageLeave", function() {
 });
 $(document).one("pageLoad", function(event, map) {
   
-  map.moveCamera({
-    'target': new plugin.google.maps.LatLng(0, 0),
-    'zoom': 0
-  });
-  
   $("#demoBtn").click(function() {
+    $("#infoWnd_frame").trigger("remove");
+    
+    map.clear();
+    
+    map.moveCamera({
+      'zoom': 0,
+      'tilt': 0
+    });
+    
     map.getMyLocation({
       enableHighAccuracy: true
     }, function(location) {
       map.addMarker({
         'position': location.latLng,
-        "mytitle": ["Hello Google Map for", "Apache Cordova!"].join("\n")
+        "mytitle": ["Hello Google Map", "for PhoneGap &", "Apache Cordova!"].join("\n")
       }, function(marker) {
         marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
         
         map.animateCamera({
           'target': location.latLng,
-          'zoom': 15
+          'zoom': 10,
+          'tilt': 45
         }, function() {
-          marker.trigger(plugin.google.maps.event.MARKER_CLICK);
+          setTimeout(function() {
+            marker.trigger(plugin.google.maps.event.MARKER_CLICK);
+          }, 1500);
         });
       }, function() {
         alert("Can not detect your location");
@@ -109,7 +140,6 @@ function onMarkerClicked() {
 }
 
 function createMyInfo(marker) {
-  $("#infoWnd_frame").trigger("remove");
   
   var frame = $("<div id='infoWnd_frame'>");
   var map = marker.getMap();
@@ -142,8 +172,20 @@ function createMyInfo(marker) {
   
   $("<div id='infoWnd_body'>").text(marker.get("mytitle")).appendTo(frame);
   
-  $("#myOverlay").append(frame);
-  updatePosition();
+  map.fromLatLngToPoint(marker.get("position"), function(point) {
+    
+    frame.css({
+      "left": point[0] - 108,
+      "top": point[1] - 180
+    });
+    
+    // Update the children position.
+    map.refreshLayout();
+    
+    $("#map_canvas").append(frame);
+    
+    beforePoint = point;
+  });
 }
 </script>
 

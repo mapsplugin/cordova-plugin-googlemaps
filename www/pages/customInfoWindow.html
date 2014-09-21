@@ -22,6 +22,8 @@
     top: 28px;
   }
 </style>
+<h3 class="ui-bar ui-bar-a">Cutome infoWindow</h3>
+<p><span class="highlight">Map.fromLatLngToPoint()</span> method returns the pixel position from the left-top of the map div for the given latitude, longitude.</p>
 <div id="map_canvas">
   <div id="myOverlay" data-clickable='false'></div>
 </div>
@@ -61,16 +63,16 @@
 <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <code class="prettyprint">var myInfo = null;
 var timer = null;
-$(document).one("pageLeave", function() {
+$(document).one(&quot;pageLeave&quot;, function() {
   if (timer) {
     clearInterval(timer);
   }
 });
 
-$(document).one("pageLoad", function(event, map) {
+$(document).one(&quot;pageLoad&quot;, function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
-  $("#map_canvas").css({
-    "position": "relative"
+  $(&quot;#map_canvas&quot;).css({
+    &quot;position&quot;: &quot;relative&quot;
   });
   
   map.moveCamera({
@@ -79,9 +81,11 @@ $(document).one("pageLoad", function(event, map) {
   });
   map.addMarker({
     'position': GOOGLE,
-    "mytitle": "Hello World!"
+    &quot;mytitle&quot;: &quot;Hello World!&quot;
   }, function(marker) {
     marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
+    
+    marker.trigger(plugin.google.maps.event.MARKER_CLICK);
   });
 });
 
@@ -95,24 +99,25 @@ function onMarkerClicked() {
 }
 
 function createMyInfo(marker) {
-  $("#infoWnd_frame").trigger("remove");
+  $(&quot;#infoWnd_frame&quot;).trigger(&quot;remove&quot;);
   
-  var frame = $("&lt;div id='infoWnd_frame'&gt;");
+  var frame = $(&quot;&lt;div id='infoWnd_frame'&gt;&quot;);
   var map = marker.getMap();
+  var beforePoint = [];
   var updatePosition = function() {
-    marker.getPosition(function(latLng) {
-      map.fromLatLngToPoint(latLng, function(point) {
+    map.fromLatLngToPoint(marker.get(&quot;position&quot;), function(point) {
+      if (beforePoint[0] != point[0] || beforePoint[1] != point[1]) {
         frame.css({
-          "left": point[0] - 108,
-          "top": point[1] - 180
+          &quot;left&quot;: point[0] - 108,
+          &quot;top&quot;: point[1] - 180
         });
-        
         // Update the children position.
         map.refreshLayout();
-      });
+      }
+      beforePoint = point;
     });
   };
-  timer = setInterval(updatePosition, 100);
+  timer = setInterval(updatePosition, 200);
   
   var removeInfoWnd = function() {
     clearInterval(timer);
@@ -121,14 +126,23 @@ function createMyInfo(marker) {
     timer = null;
     map.off();
   };
-  frame.on("click", removeInfoWnd);
+  frame.on(&quot;click&quot;, removeInfoWnd);
   map.on(plugin.google.maps.event.MAP_CLICK, removeInfoWnd);
-  frame.one("remove", removeInfoWnd);
+  frame.one(&quot;remove&quot;, removeInfoWnd);
   
-  $("&lt;div id='infoWnd_body'&gt;").text(marker.get("mytitle")).appendTo(frame);
+  $(&quot;&lt;div id='infoWnd_body'&gt;&quot;).text(marker.get(&quot;mytitle&quot;)).appendTo(frame);
   
-  $("#myOverlay").append(frame);
-  updatePosition();
+  map.fromLatLngToPoint(marker.get(&quot;position&quot;), function(point) {
+    frame.css({
+      &quot;left&quot;: point[0] - 108,
+      &quot;top&quot;: point[1] - 180
+    });
+    $(&quot;#myOverlay&quot;).append(frame);
+    
+    // Update the children position.
+    map.refreshLayout();
+    beforePoint = point;
+  });
 }</code>
 
 <script type="text/javascript">
@@ -203,7 +217,16 @@ function createMyInfo(marker) {
   
   $("<div id='infoWnd_body'>").text(marker.get("mytitle")).appendTo(frame);
   
-  $("#myOverlay").append(frame);
-  updatePosition();
+  map.fromLatLngToPoint(marker.get("position"), function(point) {
+    frame.css({
+      "left": point[0] - 108,
+      "top": point[1] - 180
+    });
+    $("#myOverlay").append(frame);
+    
+    // Update the children position.
+    map.refreshLayout();
+    beforePoint = point;
+  });
 }
 </script>
