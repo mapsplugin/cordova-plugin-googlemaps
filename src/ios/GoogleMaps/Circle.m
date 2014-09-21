@@ -138,7 +138,7 @@
   NSString *circleKey = [command.arguments objectAtIndex:1];
   GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
-  [circle setZIndex:zIndex];
+  [circle setZIndex:(int)zIndex];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

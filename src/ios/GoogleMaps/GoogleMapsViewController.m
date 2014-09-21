@@ -12,6 +12,7 @@
 
 @implementation GoogleMapsViewController
 NSDictionary *initOptions;
+bool isFirst = true;
 
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
@@ -26,21 +27,12 @@ NSDictionary *initOptions;
 
 - (void)loadView {
   [super loadView];
-  [self updateMapViewLayout:NO];
-  
+  [self updateMapViewLayout];
 }
-- (void)updateMapViewLayout:(BOOL) animated {
+- (void)updateMapViewLayout {
   
   if (self.isFullScreen == NO) {
-    if (animated == NO) {
-      self.view.hidden = YES;
-      [self.view setFrameWithDictionary:self.embedRect];
-      self.view.hidden = NO;
-    } else {
-      [UIView animateWithDuration:0.5f animations:^{
-        [self.view setFrameWithDictionary:self.embedRect];
-      }];
-    }
+    [self.view setFrameWithDictionary:self.embedRect];
   }
 }
 
@@ -60,8 +52,11 @@ NSDictionary *initOptions;
     //------------------
     // Create a map view
     //------------------
-    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-    [GMSServices provideAPIKey:APIKey];
+    if (isFirst) {
+      NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+      [GMSServices provideAPIKey:APIKey];
+    }
+    isFirst = false;
   
     //Intial camera position
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
@@ -83,36 +78,37 @@ NSDictionary *initOptions;
   
     CGRect pluginRect = self.view.frame;
     int marginBottom = 0;
-    if ([PluginUtil isIOS7] == false) {
-      marginBottom = 20;
-    }
+    //if ([PluginUtil isIOS7] == false) {
+    //  marginBottom = 20;
+    //}
     CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
+    //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
+    //NSLog(@"mapRect=%@", camera);
     self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
     self.map.delegate = self;
     //self.map.autoresizingMask = UIViewAutoresizingNone;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
   
-    Boolean isEnabled = false;
+    BOOL isEnabled = NO;
     //controls
     NSDictionary *controls = [initOptions objectForKey:@"controls"];
     if (controls) {
       //compass
-      if ([controls valueForKey:@"compass"]) {
+      if ([controls valueForKey:@"compass"] != nil) {
         isEnabled = [[controls valueForKey:@"compass"] boolValue];
         self.map.settings.compassButton = isEnabled;
       }
       //myLocationButton
-      if ([controls valueForKey:@"myLocationButton"]) {
+      if ([controls valueForKey:@"myLocationButton"] != nil) {
         isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
         self.map.settings.myLocationButton = isEnabled;
         self.map.myLocationEnabled = isEnabled;
       }
       //indoorPicker
-      if ([controls valueForKey:@"indoorPicker"]) {
+      if ([controls valueForKey:@"indoorPicker"] != nil) {
         isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
         self.map.settings.indoorPicker = isEnabled;
-        self.map.indoorEnabled = isEnabled;
       }
     } else {
       self.map.settings.compassButton = TRUE;
@@ -123,22 +119,22 @@ NSDictionary *initOptions;
     NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
     if (gestures) {
       //rotate
-      if ([gestures valueForKey:@"rotate"]) {
+      if ([gestures valueForKey:@"rotate"] != nil) {
         isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
         self.map.settings.rotateGestures = isEnabled;
       }
       //scroll
-      if ([gestures valueForKey:@"scroll"]) {
+      if ([gestures valueForKey:@"scroll"] != nil) {
         isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
         self.map.settings.scrollGestures = isEnabled;
       }
       //tilt
-      if ([gestures valueForKey:@"tilt"]) {
+      if ([gestures valueForKey:@"tilt"] != nil) {
         isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
         self.map.settings.tiltGestures = isEnabled;
       }
       //zoom
-      if ([gestures valueForKey:@"zoom"]) {
+      if ([gestures valueForKey:@"zoom"] != nil) {
         isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
         self.map.settings.zoomGestures = isEnabled;
       }
@@ -166,9 +162,9 @@ NSDictionary *initOptions;
       }
     }
   
-  
     [self.view addSubview: self.map];
 }
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -183,9 +179,7 @@ NSDictionary *initOptions;
  *         camera to move such that it is centered on the user location.
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
-
   [self.webView stringByEvaluatingJavaScriptFromString:@"plugin.google.maps.Map._onMapEvent('my_location_button_click');"];
-
   return NO;
 }
 
@@ -268,6 +262,18 @@ NSDictionary *initOptions;
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
   [self triggerMarkerEvent:@"click" marker:marker];
 
+  
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  
+  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  BOOL disableAutoPan = false;
+  if ([properties objectForKey:@"disableAutoPan"] != nil) {
+    disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
+    if (disableAutoPan) {
+      self.map.selectedMarker = marker;
+      return YES;
+    }
+  }
 	return NO;
 }
 
@@ -304,7 +310,7 @@ NSDictionary *initOptions;
   [json setObject:[NSNumber numberWithFloat:position.bearing] forKey:@"bearing"];
   [json setObject:target forKey:@"target"];
   [json setObject:[NSNumber numberWithDouble:position.viewingAngle] forKey:@"tilt"];
-  [json setObject:[NSNumber numberWithInt:position.hash] forKey:@"hashCode"];
+  [json setObject:[NSNumber numberWithInt:(int)position.hash] forKey:@"hashCode"];
   [json setObject:[NSNumber numberWithFloat:position.zoom] forKey:@"zoom"];
   
   
@@ -352,8 +358,12 @@ NSDictionary *initOptions;
   }
   
   // Load styles
-  NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
-  NSDictionary *styles = [self.overlayManager objectForKey:marker_style_id];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  NSDictionary *styles = nil;
+  if ([properties objectForKey:@"styles"]) {
+    styles = [properties objectForKey:@"styles"];
+  }
   
   // Load images
   UIImage *leftImg = nil;
@@ -372,7 +382,7 @@ NSDictionary *initOptions;
     isTextMode = false;
     NSArray *tmp = [title componentsSeparatedByString:@","];
     NSData *decodedData;
-    if ([PluginUtil isIOS7]) {
+    if ([PluginUtil isIOS7_OR_OVER]) {
       decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
     } else {
       decodedData = [NSData dataFromBase64String:tmp[1]];
@@ -396,7 +406,7 @@ NSDictionary *initOptions;
       }
     }
     if (isBold == TRUE && isItalic == TRUE) {
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
         // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
         titleFont = [UIFont systemFontOfSize:17.0f];
         UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
@@ -559,7 +569,7 @@ NSDictionary *initOptions;
       }
       
       CGRect textRect = CGRectMake(5, 5 , rectSize.width - 10, textSize.height );
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
         // iOS7 and above
         NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
         style.lineBreakMode = NSLineBreakByWordWrapping;
@@ -589,7 +599,7 @@ NSDictionary *initOptions;
     //Draw the snippet
     if (snippet) {
       CGRect textRect = CGRectMake(5, textSize.height + 10 , rectSize.width - 10, snippetSize.height );
-      if ([PluginUtil isIOS7] == true) {
+      if ([PluginUtil isIOS7_OR_OVER] == true) {
           // iOS7 and above
           NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
           style.lineBreakMode = NSLineBreakByWordWrapping;

@@ -74,9 +74,16 @@ public class PluginMarker extends MyPlugin {
     String id = "marker_" + marker.getId();
     this.objects.put(id, marker);
 
+    JSONObject properties = new JSONObject();
     if (opts.has("styles")) {
-      this.objects.put("marker_style_" + marker.getId(), opts.getJSONObject("styles"));
+      properties.put("styles", opts.getJSONObject("styles"));
     }
+    if (opts.has("disableAutoPan")) {
+      properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
+    } else {
+      properties.put("disableAutoPan", false);
+    }
+    this.objects.put("marker_property_" + marker.getId(), properties);
 
     // Prepare the result
     final JSONObject result = new JSONObject();
@@ -154,7 +161,7 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
     marker.showInfoWindow();
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -168,7 +175,6 @@ public class PluginMarker extends MyPlugin {
     float rotation = (float)args.getDouble(2);
     String id = args.getString(1);
     this.setFloat("setRotation", id, rotation, callbackContext);
-    callbackContext.success();
   }
   
   /**
@@ -196,7 +202,7 @@ public class PluginMarker extends MyPlugin {
     LatLng position = new LatLng(args.getDouble(2), args.getDouble(3));
     Marker marker = this.getMarker(id);
     marker.setPosition(position);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -222,6 +228,26 @@ public class PluginMarker extends MyPlugin {
     boolean visible = args.getBoolean(2);
     String id = args.getString(1);
     this.setBoolean("setVisible", id, visible, callbackContext);
+  }
+  /**
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setDisableAutoPan(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean disableAutoPan = args.getBoolean(2);
+    String id = args.getString(1);
+    Marker marker = this.getMarker(id);
+    String propertyId = "marker_property_" + marker.getId();
+    JSONObject properties = null;
+    if (this.objects.containsKey(propertyId)) {
+      properties = (JSONObject)this.objects.get(propertyId);
+    } else {
+      properties = new JSONObject();
+    }
+    properties.put("disableAutoPan", disableAutoPan);
+    this.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
   }
   /**
    * Set title for the marker
@@ -260,7 +286,7 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     Marker marker = this.getMarker(id);
     marker.hideInfoWindow();
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -312,10 +338,9 @@ public class PluginMarker extends MyPlugin {
     marker.remove();
     this.objects.remove(id);
     
-    String styleId = "marker_style_" + id;
-    this.objects.remove(styleId);
-    
-    callbackContext.success();
+    String propertyId = "marker_property_" + id;
+    this.objects.remove(propertyId);
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -335,8 +360,7 @@ public class PluginMarker extends MyPlugin {
     if (imageSize != null) {
       this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
 
@@ -357,7 +381,7 @@ public class PluginMarker extends MyPlugin {
     if (imageSize != null) {
       this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -411,12 +435,12 @@ public class PluginMarker extends MyPlugin {
 
         @Override
         public void onMarkerIconLoaded(Marker marker) {
-          callbackContext.success();
+          PluginMarker.this.sendNoResult(callbackContext);
         }
         
       });
     } else {
-      callbackContext.success();
+      this.sendNoResult(callbackContext);
     }
   }
   

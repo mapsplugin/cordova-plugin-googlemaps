@@ -1,30 +1,28 @@
 package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.util.Base64;
+import android.util.Log;
 
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
-import com.google.android.gms.maps.model.CameraPosition.Builder;
 
 public class PluginMap extends MyPlugin {
   /**
@@ -35,7 +33,7 @@ public class PluginMap extends MyPlugin {
   @SuppressWarnings("unused")
   private void setOptions(JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-    GoogleMapOptions options = new GoogleMapOptions();
+    
     UiSettings settings = this.map.getUiSettings();
     JSONObject params = args.getJSONObject(1);
     //controls
@@ -47,6 +45,13 @@ public class PluginMap extends MyPlugin {
       }
       if (controls.has("zoom")) {
         settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
+      }
+      if (controls.has("indoorPicker")) {
+        settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+      }
+      if (controls.has("myLocationButton")) {
+        settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
+        //map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
       }
     }
     
@@ -64,7 +69,8 @@ public class PluginMap extends MyPlugin {
         settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
       }
       if (gestures.has("zoom")) {
-        options.zoomGesturesEnabled(gestures.getBoolean("zoom"));
+        GoogleMapOptions options = new GoogleMapOptions();
+        settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
       }
     }
     
@@ -89,26 +95,6 @@ public class PluginMap extends MyPlugin {
     
     //controls
     Boolean isEnabled = true;
-    if (params.has("controls")) {
-      JSONObject controls = params.getJSONObject("controls");
-
-      if (controls.has("myLocationButton")) {
-        isEnabled = controls.getBoolean("myLocationButton");
-        map.setMyLocationEnabled(isEnabled);
-      }
-    }
-    if (isEnabled) {
-      try {
-        Constructor<LocationClient> constructor = LocationClient.class.getConstructor(Context.class, GooglePlayServicesClient.ConnectionCallbacks.class,  GooglePlayServicesClient.OnConnectionFailedListener.class);
-        this.mapCtrl.locationClient = constructor.newInstance(this.cordova.getActivity(), this.mapCtrl, this.mapCtrl);
-      } catch (Exception e) {}
-      
-      //this.locationClient = new LocationClient(this.activity, this, this);
-      if (this.mapCtrl.locationClient != null) {
-        // The LocationClient class is available. 
-        this.mapCtrl.locationClient.connect();
-      }
-    }
 
     // move the camera position
     if (params.has("camera")) {
@@ -131,7 +117,7 @@ public class PluginMap extends MyPlugin {
       map.moveCamera(cameraUpdate);
     }
     
-    
+    this.sendNoResult(callbackContext);
   }
   
   /**
@@ -297,15 +283,15 @@ public class PluginMap extends MyPlugin {
     isEnabled = args.getBoolean(1);
     map.setMyLocationEnabled(isEnabled);
     if (isEnabled) {
-      if (!mapCtrl.locationClient.isConnected()) {
-        mapCtrl.locationClient.connect();
+      if (!mapCtrl.googleApiClient.isConnected()) {
+        mapCtrl.googleApiClient.connect();
       }
     } else {
-      if (mapCtrl.locationClient.isConnected()) {
-        mapCtrl.locationClient.disconnect();
+      if (mapCtrl.googleApiClient.isConnected()) {
+        mapCtrl.googleApiClient.disconnect();
       }
     }
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -318,7 +304,7 @@ public class PluginMap extends MyPlugin {
   private void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean isEnabled = args.getBoolean(1);
     map.setIndoorEnabled(isEnabled);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -331,7 +317,7 @@ public class PluginMap extends MyPlugin {
   private void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean isEnabled = args.getBoolean(1);
     map.setTrafficEnabled(isEnabled);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -345,8 +331,7 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = args.getBoolean(1);
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setCompassEnabled(isEnabled);
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
   /**
@@ -377,7 +362,7 @@ public class PluginMap extends MyPlugin {
     
     final int myMapTypeId = mapTypeId;
     map.setMapType(myMapTypeId);
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
 
@@ -458,6 +443,33 @@ public class PluginMap extends MyPlugin {
     });
     
   }
+  @SuppressWarnings({ "unused", "deprecation" })
+  private void fromLatLngToPoint(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    double lat, lng;
+    lat = args.getDouble(1);
+    lng = args.getDouble(2);
+    LatLng latLng = new LatLng(lat, lng);
+    Point point = map.getProjection().toScreenLocation(latLng);
+    JSONArray pointJSON = new JSONArray();
+    pointJSON.put(point.x / webView.getScale());
+    pointJSON.put(point.y / webView.getScale());
+    callbackContext.success(pointJSON);
+  }
+  
+  @SuppressWarnings("unused")
+  private void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    int pointX, pointY;
+    pointX = args.getInt(1);
+    pointY = args.getInt(2);
+    Point point = new Point();
+    point.x = pointX;
+    point.y = pointY;
+    LatLng latlng = map.getProjection().fromScreenLocation(point);
+    JSONArray pointJSON = new JSONArray();
+    pointJSON.put(latlng.latitude);
+    pointJSON.put(latlng.longitude);
+    callbackContext.success(pointJSON);
+  }
   
   /**
    * Return the visible region of the map
@@ -497,8 +509,23 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = args.getBoolean(1);
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setAllGesturesEnabled(isEnabled);
-    
-    callbackContext.success();
+    this.sendNoResult(callbackContext);
   }
 
+  /**
+   * Sets padding of the map
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setPadding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    JSONObject padding = args.getJSONObject(1);
+    int left = padding.getInt("left");
+    int top = padding.getInt("top");
+    int bottom = padding.getInt("bottom");
+    int right = padding.getInt("right");
+    map.setPadding(left, top, right, bottom);
+    this.sendNoResult(callbackContext);
+  }
 }

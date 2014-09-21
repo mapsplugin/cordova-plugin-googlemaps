@@ -154,7 +154,7 @@
   [json setObject:[NSNumber numberWithDouble:camera.viewingAngle] forKey:@"tilt"];
   [json setObject:latLng forKey:@"target"];
   [json setObject:[NSNumber numberWithFloat:camera.bearing] forKey:@"bearing"];
-  [json setObject:[NSNumber numberWithInt:camera.hash] forKey:@"hashCode"];
+  [json setObject:[NSNumber numberWithInt:(int)camera.hash] forKey:@"hashCode"];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -163,9 +163,9 @@
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   
-  int bearing = [[json valueForKey:@"bearing"] integerValue];
+  int bearing = (int)[[json valueForKey:@"bearing"] integerValue];
   double angle = [[json valueForKey:@"tilt"] doubleValue];
-  int zoom = [[json valueForKey:@"zoom"] integerValue];
+  int zoom = (int)[[json valueForKey:@"zoom"] integerValue];
   
   
   NSDictionary *latLng = nil;
@@ -257,6 +257,44 @@
 }
 
 /**
+ * Maps an Earth coordinate to a point coordinate in the map's view.
+ */
+- (void)fromLatLngToPoint:(CDVInvokedUrlCommand*)command {
+  
+  float latitude = [[command.arguments objectAtIndex:1] floatValue];
+  float longitude = [[command.arguments objectAtIndex:2] floatValue];
+  
+  CGPoint point = [self.mapCtrl.map.projection
+                      pointForCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+  
+  NSMutableArray *pointJSON = [[NSMutableArray alloc] init];
+  [pointJSON addObject:[NSNumber numberWithDouble:point.x]];
+  [pointJSON addObject:[NSNumber numberWithDouble:point.y]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:pointJSON];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * Maps a point coordinate in the map's view to an Earth coordinate.
+ */
+- (void)fromPointToLatLng:(CDVInvokedUrlCommand*)command {
+  
+  float pointX = [[command.arguments objectAtIndex:1] floatValue];
+  float pointY = [[command.arguments objectAtIndex:2] floatValue];
+  
+  CLLocationCoordinate2D latLng = [self.mapCtrl.map.projection
+                      coordinateForPoint:CGPointMake(pointX, pointY)];
+  
+  NSMutableArray *latLngJSON = [[NSMutableArray alloc] init];
+  [latLngJSON addObject:[NSNumber numberWithDouble:latLng.latitude]];
+  [latLngJSON addObject:[NSNumber numberWithDouble:latLng.longitude]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:latLngJSON];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  * Return the visible region of the map
  * Thanks @fschmidt
  */
@@ -309,51 +347,63 @@
   }
   
   
-  Boolean isEnabled = false;
+  BOOL isEnabled = NO;
   //controls
   NSDictionary *controls = [initOptions objectForKey:@"controls"];
   if (controls) {
     //compass
-    if ([controls valueForKey:@"compass"]) {
+    if ([controls valueForKey:@"compass"] != nil) {
       isEnabled = [[controls valueForKey:@"compass"] boolValue];
-      self.mapCtrl.map.settings.compassButton = isEnabled;
+      if (isEnabled == true) {
+        self.mapCtrl.map.settings.compassButton = YES;
+      } else {
+        self.mapCtrl.map.settings.compassButton = NO;
+      }
     }
     //myLocationButton
-    if ([controls valueForKey:@"myLocationButton"]) {
+    if ([controls valueForKey:@"myLocationButton"] != nil) {
       isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
-      self.mapCtrl.map.settings.myLocationButton = isEnabled;
-      self.mapCtrl.map.myLocationEnabled = isEnabled;
+      if (isEnabled == true) {
+        self.mapCtrl.map.settings.myLocationButton = YES;
+        self.mapCtrl.map.myLocationEnabled = YES;
+      } else {
+        self.mapCtrl.map.settings.myLocationButton = NO;
+        self.mapCtrl.map.myLocationEnabled = NO;
+      }
     }
     //indoorPicker
-    if ([controls valueForKey:@"indoorPicker"]) {
+    if ([controls valueForKey:@"indoorPicker"] != nil) {
       isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
-      self.mapCtrl.map.settings.indoorPicker = isEnabled;
-      self.mapCtrl.map.indoorEnabled = isEnabled;
+      if (isEnabled == true) {
+        self.mapCtrl.map.settings.indoorPicker = YES;
+      } else {
+        self.mapCtrl.map.settings.indoorPicker = NO;
+      }
     }
   } else {
-    self.mapCtrl.map.settings.compassButton = TRUE;
+    self.mapCtrl.map.settings.compassButton = YES;
   }
 
   //gestures
   NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
   if (gestures) {
     //rotate
-    if ([gestures valueForKey:@"rotate"]) {
+    if ([gestures valueForKey:@"rotate"] != nil) {
       isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
       self.mapCtrl.map.settings.rotateGestures = isEnabled;
     }
     //scroll
-    if ([gestures valueForKey:@"scroll"]) {
+    if ([gestures valueForKey:@"scroll"] != nil) {
       isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
       self.mapCtrl.map.settings.scrollGestures = isEnabled;
     }
     //tilt
-    if ([gestures valueForKey:@"tilt"]) {
+    if ([gestures valueForKey:@"tilt"] != nil) {
       isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
       self.mapCtrl.map.settings.tiltGestures = isEnabled;
     }
     //zoom
-    if ([gestures valueForKey:@"zoom"]) {
+    if ([gestures valueForKey:@"zoom"] != nil) {
       isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
       self.mapCtrl.map.settings.zoomGestures = isEnabled;
     }
@@ -380,5 +430,18 @@
       self.mapCtrl.map.mapType = mapType;
     }
   }
+}
+
+
+- (void)setPadding:(CDVInvokedUrlCommand *)command {
+  NSDictionary *paddingJson = [command.arguments objectAtIndex:1];
+  float top = [[paddingJson objectForKey:@"top"] floatValue];
+  float left = [[paddingJson objectForKey:@"left"] floatValue];
+  float right = [[paddingJson objectForKey:@"right"] floatValue];
+  float bottom = [[paddingJson objectForKey:@"bottom"] floatValue];
+  
+  UIEdgeInsets padding = UIEdgeInsetsMake(top, left, bottom, right);
+  
+  [self.mapCtrl.map setPadding:padding];
 }
 @end

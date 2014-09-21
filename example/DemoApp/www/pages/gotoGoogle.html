@@ -1,5 +1,5 @@
 <h3 class="ui-bar ui-bar-a">Go to Google!</h3>
-<p>Google Maps for mobile has a view camera. You see the map through the camera. This plugin provides animateCamera() and moveCamera() methods.</p>
+<p>Google Maps for mobile has a view camera. You see the map through the camera. This plugin provides <span class="highlight">animateCamera()</span> and <span class="highlight">moveCamera()</span> methods.</p>
 <div id="map_canvas"></div>
 <p><span class="highlight">Map.animateCamera()</span> method changes the camera view with animation.</p>
 <h4 class="ui-bar ui-bar-a">JavaScript</h4>
@@ -24,7 +24,7 @@ map.moveCamera({
 </code>
   
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
 
@@ -43,5 +43,5 @@ function onPageLoaded(map) {
     }, 2000);
     
   });
-}
+});
 </script>

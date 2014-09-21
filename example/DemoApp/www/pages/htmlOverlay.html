@@ -1,0 +1,207 @@
+<h3 class="ui-bar ui-bar-a">HTML on the map</h3>
+<p>You can put your HTML on the map.</p>
+<p>If you change the position of child element, you must call <span class="highlight">Map.refreshLayout()</span> to let the plugin know.</p>
+<div id="map_canvas" >
+  <table style="width:90%;margin:1% 1% 1% 30px;">
+    <tr>
+      <td width="70%"><input id="query" style="width: 100%" placeholder="i.e. San Francisco"/></td>
+      <td width="30%"><button id="searchBtn">Search</button></td>
+    </tr>
+  </table>
+</div>
+
+<h4 class="ui-bar ui-bar-a">HTML</h4>
+<code class="prettyprint">
+&lt;div id=&quot;map_canvas&quot; &gt;
+  &lt;table style=&quot;width:90%;margin:1% 1% 1% 30px;&quot;&gt;
+    &lt;tr&gt;
+      &lt;td width=&quot;70%&quot;&gt;&lt;input id=&quot;query&quot; style=&quot;width: 100%&quot; placeholder=&quot;i.e. San Francisco&quot;/&gt;&lt;/td&gt;
+      &lt;td width=&quot;30%&quot;&gt;&lt;button id=&quot;searchBtn&quot;&gt;Search&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/div&gt;
+</code>
+
+<h4 class="ui-bar ui-bar-a">JavaScript</h4>
+<code class="prettyprint">
+const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  
+map.moveCamera({
+  'target': GOOGLE,
+  'tilt': 60,
+  'zoom': 18,
+  'bearing': 140
+});
+map.setOptions({
+  'controls': {
+    'compass': false,
+    'myLocationButton': false,
+    'indoorPicker': false,
+    'zoom': false
+  }
+});
+map.setDiv($("#map_canvas")[0]);
+$("#map_canvas").css({
+  "position": "relative"
+});
+$("#searchBtn").click(function() {
+  var request = {
+    'address': $("#query").val()
+  };
+  plugin.google.maps.Geocoder.geocode(request, function(results) {
+    if (results.length) {
+      var backgroundDiv = $("&lt;div&gt;").css({
+        "position": "absolute",
+        "left": 0,
+        "top": 0,
+        "width": "100%",
+        "height": "100%",
+        "background-color": "rgba(0, 0, 0, 0.5)"
+      });
+      
+      $("#map_canvas").append(backgroundDiv);
+      
+      var resultTable = $("&lt;div&gt;").css({
+        "position": "absolute",
+        "left": 0,
+        "top": 0,
+        "width": "100%",
+        "height": "100%",
+        "overflowY": "scroll"
+      });
+      resultTable.appendTo("#map_canvas");
+      
+      results.forEach(function(result) {
+        if (!result.position) {
+          return;
+        }
+        var child = $("&lt;div&gt;").css({
+          "color": "white",
+          "width": "100%",
+          "height": "100px",
+          "border-bottom": "1px dotted white",
+          "padding": "1em"
+        });
+        child.append(result.adminArea + " - " + result.country + "&lt;br&gt;");
+        child.append("&lt;img src='http://maps.googleapis.com/maps/api/streetview?size=80x80&amp;location=" + result.position.lat+ "," + result.position.lng + "&amp;fov=90&amp;heading=0&amp;pitch=0&amp;sensor=false'&gt;");
+        child.click(function() {
+          backgroundDiv.remove();
+          resultTable.remove();
+          moveTo(map, result.position, result.adminArea + " - " + result.country);
+        });
+        child.appendTo(resultTable);
+      });
+      
+    } else {
+      alert("Not found");
+    }
+  });
+});
+
+function moveTo(map, position, title) {
+  map.addMarker({
+    'position': position,
+    'title':  title
+  }, function(marker) {
+    map.animateCamera({
+      'target': position,
+      'zoom': 13
+    }, function() {
+      marker.showInfoWindow();
+    });
+  });
+}
+</code>
+
+<script type="text/javascript">
+
+$(document).one("pageLoad", function(event, map) {
+  const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  
+  map.moveCamera({
+    'target': GOOGLE,
+    'tilt': 60,
+    'zoom': 18,
+    'bearing': 140
+  });
+  map.setOptions({
+    'controls': {
+      'compass': false,
+      'myLocationButton': false,
+      'indoorPicker': false,
+      'zoom': false
+    }
+  });
+  map.setDiv($("#map_canvas")[0]);
+  $("#map_canvas").css({
+    "position": "relative"
+  });
+  $("#searchBtn").click(function() {
+    var request = {
+      'address': $("#query").val()
+    };
+    plugin.google.maps.Geocoder.geocode(request, function(results) {
+      if (results.length) {
+        var backgroundDiv = $("<div>").css({
+          "position": "absolute",
+          "left": 0,
+          "top": 0,
+          "width": "100%",
+          "height": "100%",
+          "background-color": "rgba(0, 0, 0, 0.5)"
+        });
+        
+        $("#map_canvas").append(backgroundDiv);
+        
+        var resultTable = $("<div>").css({
+          "position": "absolute",
+          "left": 0,
+          "top": 0,
+          "width": "100%",
+          "height": "100%",
+          "overflowY": "scroll"
+        });
+        resultTable.appendTo("#map_canvas");
+        
+        results.forEach(function(result) {
+          if (!result.position) {
+            return;
+          }
+          var child = $("<div>").css({
+            "color": "white",
+            "width": "100%",
+            "height": "100px",
+            "border-bottom": "1px dotted white",
+            "padding": "1em"
+          });
+          child.append(result.adminArea + " - " + result.country + "<br>");
+          child.append("<img src='http://maps.googleapis.com/maps/api/streetview?size=80x80&location=" + result.position.lat+ "," + result.position.lng + "&fov=90&heading=0&pitch=0&sensor=false'>");
+          child.click(function() {
+            backgroundDiv.remove();
+            resultTable.remove();
+            moveTo(map, result.position, result.adminArea + " - " + result.country);
+          });
+          child.appendTo(resultTable);
+        });
+        
+      } else {
+        alert("Not found");
+      }
+    });
+  });
+});
+
+function moveTo(map, position, title) {
+  map.addMarker({
+    'position': position,
+    'title':  title
+  }, function(marker) {
+    map.animateCamera({
+      'target': position,
+      'zoom': 13
+    }, function() {
+      marker.showInfoWindow();
+    });
+  });
+}
+</script>
