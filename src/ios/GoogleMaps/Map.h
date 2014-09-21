@@ -26,4 +26,5 @@
 - (void)getVisibleRegion:(CDVInvokedUrlCommand*)command;
 - (void)setOptions:(CDVInvokedUrlCommand*)command;
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand*)command;
+- (void)setPadding:(CDVInvokedUrlCommand*)command;
 @end

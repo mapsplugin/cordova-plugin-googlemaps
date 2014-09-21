@@ -5,8 +5,7 @@
   <div data-role="navbar">
     <ul>
       <li><a id="disableAutoPan" href="#one" data-ajax="false">Disable Auto Pan</a></li>
-      <li><a id="base64Icon" href="#two" data-ajax="false">Demo2</a></li>
-      <li><a id="textStyle" href="#three" data-ajax="false">Demo3</a></li>
+      <li><a id="options" href="#two" data-ajax="false">Options</a></li>
     </ul>
   </div>
   <div id="one" class="ui-body-d ui-content">
@@ -20,25 +19,93 @@
 });</code>
   </div>
   <div id="two">
+    <p>You can change the options</p>
+    <table>
+      <tr><td>Opacity</td><td><input type="range" id="opacityRange" min="0" max="1.0" step="0.1"></td></tr>
+      <tr><td>Rotation</td><td><input type="range" id="rotationRange" min="0" max="360" step="10"></td></tr>
+      <tr><td>Flat</td><td><input type="checkbox" id="flatSwitch" checked></td></tr>
+      <tr><td>Show/Hide</td><td><input type="checkbox" id="visibilitySwitch" checked></td></tr>
+      <tr><td>Draggable</td><td><input type="checkbox" id="dragSwitch" checked></td></tr>
+      <tr><td>&nbsp;</td><td>
+        <p>In order to drag the marker, press the marker longer.</p>
+        <img src="https://cloud.githubusercontent.com/assets/167831/2723884/d5b0b584-c599-11e3-803b-e35dced2ca26.gif">
+      </td></tr>
+    </table>
+    
     <h4 class="ui-bar ui-bar-a">JavaScript</h4>
-    <code class="prettyprint"></code>
+    <code class="prettyprint">  $("#opacityRange").off();
+$("#rotationRange").off();
+$("#flatSwitch").off();
+$("#dragSwitch").off();
+$("#visibilitySwitch").off();
+
+map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': "You can change the options below."
+}, function(marker) {
+  marker.showInfoWindow();
   
-  </div>
-  <div id="three" class="ui-body-d ui-content">
-    <h4 class="ui-bar ui-bar-a">JavaScript</h4>
-    <code class="prettyprint"></code>
+  // Add event listeners
+  map.on("OPACITY_CHANGE", function(value) {
+    marker.setOpacity(value);
+  });
+  map.on("ROTATION_CHANGE", function(value) {
+    marker.setRotation(value);
+  });
+  map.on("VISIBILITY_CHANGE", function(value) {
+    marker.setVisible(value);
+  });
+  map.on("FLAT_CHANGE", function(value) {
+    marker.setFlat(value);
+  });
+  map.on("DRAG_CHANGE", function(value) {
+    marker.setDraggable(value);
+  });
+});
+
+$("#opacityRange").change(function() {
+  var value = $(this).val();
+  map.trigger("OPACITY_CHANGE", value);
+});
+$("#rotationRange").change(function() {
+  var value = $(this).val();
+  map.trigger("ROTATION_CHANGE", value);
+});
+$("#visibilitySwitch").change(function() {
+  var checked = $(this).prop('checked');
+  map.trigger("VISIBILITY_CHANGE", checked);
+});
+$("#flatSwitch").change(function() {
+  var checked = $(this).prop('checked');
+  map.trigger("FLAT_CHANGE", checked);
+});
+$("#dragSwitch").change(function() {
+  var checked = $(this).prop('checked');
+  map.trigger("DRAG_CHANGE", checked);
+});
+
+$("#opacityRange").val(1.0);
+$("#rotationRange").val(0);
+$("#flatSwitch").removeAttr("checked");
+$("#visibilitySwitch").attr("checked", "checked");
+$("#dragSwitch").attr("checked", "checked");</code>
   </div>
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
 
   $("#disableAutoPan").click(function() {
     init(map, disableAutoPan);
   });
   
+  $("#options").click(function() {
+    init(map, changeOptions);
+  });
+  
   $("#disableAutoPan").click();
-}
+});
+
 function init(map, next) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
   map.clear();
@@ -66,4 +133,62 @@ function disableAutoPan(map, latLng) {
   });
 }
 
+function changeOptions(map, latLng) {
+  $("#opacityRange").off();
+  $("#rotationRange").off();
+  $("#flatSwitch").off();
+  $("#dragSwitch").off();
+  $("#visibilitySwitch").off();
+  
+  map.addMarker({
+    'position': latLng,
+    'title': "You can change the options below."
+  }, function(marker) {
+    marker.showInfoWindow();
+    
+    // Add event listeners
+    map.on("OPACITY_CHANGE", function(value) {
+      marker.setOpacity(value);
+    });
+    map.on("ROTATION_CHANGE", function(value) {
+      marker.setRotation(value);
+    });
+    map.on("VISIBILITY_CHANGE", function(value) {
+      marker.setVisible(value);
+    });
+    map.on("FLAT_CHANGE", function(value) {
+      marker.setFlat(value);
+    });
+    map.on("DRAG_CHANGE", function(value) {
+      marker.setDraggable(value);
+    });
+  });
+  
+  $("#opacityRange").change(function() {
+    var value = $(this).val();
+    map.trigger("OPACITY_CHANGE", value);
+  });
+  $("#rotationRange").change(function() {
+    var value = $(this).val();
+    map.trigger("ROTATION_CHANGE", value);
+  });
+  $("#visibilitySwitch").change(function() {
+    var checked = $(this).prop('checked');
+    map.trigger("VISIBILITY_CHANGE", checked);
+  });
+  $("#flatSwitch").change(function() {
+    var checked = $(this).prop('checked');
+    map.trigger("FLAT_CHANGE", checked);
+  });
+  $("#dragSwitch").change(function() {
+    var checked = $(this).prop('checked');
+    map.trigger("DRAG_CHANGE", checked);
+  });
+  
+  $("#opacityRange").val(1.0);
+  $("#rotationRange").val(0);
+  $("#flatSwitch").removeAttr("checked");
+  $("#visibilitySwitch").attr("checked", "checked");
+  $("#dragSwitch").attr("checked", "checked");
+}
 </script>

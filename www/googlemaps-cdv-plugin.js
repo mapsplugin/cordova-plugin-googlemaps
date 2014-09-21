@@ -262,11 +262,15 @@ App.prototype.getMap = function(div, params) {
     self.set("div", div);
     args.push(getDivSize(div));
     var elements = [];
-    var elemId;
+    var elemId, clickable;
     
     for (var i = 0; i < children.length; i++) {
       element = children[i];
       if (element.nodeType != 1) {
+        continue;
+      }
+      clickable = element.getAttribute("data-clickable");
+      if (clickable && parseBoolean(clickable) == false) {
         continue;
       }
       elemId = element.getAttribute("__pluginDomId");
@@ -494,7 +498,6 @@ App.prototype.clear = function(callback) {
     delete OVERLAYS[overlayId];
   }
   OVERLAYS = {};
-  self.off();
   cordova.exec(function() {
     if (typeof callback === "function") {
       callback.call(self);
@@ -508,7 +511,7 @@ App.prototype.clear = function(callback) {
 App.prototype.remove = function() {
   this.set('div', undefined);
   this.clear();
-  self.empty();
+  this.empty();
   cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
 };
 
@@ -602,10 +605,15 @@ App.prototype.setDiv = function(div) {
     args.push(getDivSize(div));
     var elements = [];
     var elemId;
+    var clickable;
     
     for (var i = 0; i < children.length; i++) {
       element = children[i];
       if (element.nodeType != 1) {
+        continue;
+      }
+      clickable = element.getAttribute("data-clickable");
+      if (clickable && parseBoolean(clickable) == false) {
         continue;
       }
       elemId = element.getAttribute("__pluginDomId");
@@ -651,6 +659,87 @@ App.prototype.getVisibleRegion = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
 };
  
+/**
+ * Maps an Earth coordinate to a point coordinate in the map's view.
+ */
+App.prototype.fromLatLngToPoint = function(latLng, callback) {
+  var self = this;
+  if ("lat" in latLng && "lng" in latLng) {
+    cordova.exec(function(result) {
+      if (typeof callback === "function") {
+        callback.call(self, result);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.fromLatLngToPoint', latLng.lat, latLng.lng]);
+  } else {
+    if (typeof callback === "function") {
+      callback.call(self, [undefined, undefined]);
+    }
+  }
+  
+};
+/**
+ * Maps a point coordinate in the map's view to an Earth coordinate.
+ */
+App.prototype.fromPointToLatLng = function(pixel, callback) {
+  var self = this;
+  if (pixel.length == 2 && Array.isArray(pixel)) {
+    cordova.exec(function(result) {
+      if (typeof callback === "function") {
+        var latLng = new LatLng(result[0] || 0, result[1] || 0);
+        callback.call(self, result);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.fromPointToLatLng', pixel[0], pixel[1]]);
+  } else {
+    if (typeof callback === "function") {
+      callback.call(self, [undefined, undefined]);
+    }
+  }
+  
+};
+
+App.prototype.setPadding = function(p1, p2, p3, p4) {
+  if (arguments.length === 0 || arguments.length > 4) {
+    return;
+  }
+  var padding = {};
+  padding.top = parseInt(p1, 10);
+  switch (arguments.length) {
+    case 4:
+      // top right bottom left
+      padding.right = parseInt(p2, 10);
+      padding.bottom = parseInt(p3, 10);
+      padding.left = parseInt(p4, 10);
+      break;
+    
+    case 3:
+      // top right&left bottom
+      padding.right = parseInt(p2, 10);
+      padding.left = padding.right;
+      padding.bottom = parseInt(p3, 10);
+      break;
+      
+    case 2:
+      // top & bottom right&left
+      padding.bottom = parseInt(p1, 10);
+      padding.right = parseInt(p2, 10);
+      padding.left = padding.right;
+      break;
+      
+    case 1:
+      // top & bottom right & left
+      padding.bottom = padding.top;
+      padding.right = padding.top;
+      padding.left = padding.top;
+      break;
+  }
+  cordova.exec(function(result) {
+    if (typeof callback === "function") {
+      var latLng = new LatLng(result[0] || 0, result[1] || 0);
+      callback.call(self, result);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setPadding', padding]);
+};
+
 //-------------
 // Marker
 //-------------
@@ -1640,10 +1729,19 @@ LatLngBounds.prototype.extend = function(latLng) {
     this[1] = this.northeast;
   }
 };
+
 LatLngBounds.prototype.getCenter = function() {
-  return new LatLng(
-          (this.southwest.lat + this.northeast.lat) / 2,
-          (this.southwest.lng + this.northeast.lng) / 2);
+  var centerLat = (this.southwest.lat + this.northeast.lat) / 2;
+  
+  var swLng = this.southwest.lng;
+  var neLng = this.northeast.lng;
+  var sumLng = swLng + neLng;
+  var centerLng = sumLng / 2;
+  
+  if ((swLng > 0 && neLng < 0 && sumLng < 180)) {
+    centerLng += sumLng > 0 ? -180 : 180;
+  }
+  return new LatLng(centerLat, centerLng);
 };
 
 LatLngBounds.prototype.contains = function(latLng) {
@@ -1776,12 +1874,16 @@ function onMapResize(event) {
     var args = [];
     var element, elements = [];
     var children = div.childNodes;
-    var elemId;
+    var elemId, clickable;
     
     args.push(getDivSize(div));
     for (var i = 0; i < children.length; i++) {
       element = children[i];
       if (element.nodeType != 1) {
+        continue;
+      }
+      clickable = element.getAttribute("data-clickable");
+      if (clickable && parseBoolean(clickable) == false) {
         continue;
       }
       elemId = element.getAttribute("__pluginDomId");

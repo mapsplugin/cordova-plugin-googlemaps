@@ -1,7 +1,6 @@
 package plugin.google.maps;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
@@ -31,7 +30,7 @@ public class PluginKmlOverlay extends MyPlugin {
     JSONObject opts = args.getJSONObject(1);
     Bundle params = PluginUtil.Json2Bundle(opts);
     
-    AsyncKmlParser kmlParser = new AsyncKmlParser((CordovaActivity) this.cordova.getActivity(), this.mapCtrl, callbackContext, params);
+    AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.mapCtrl, callbackContext, params);
     kmlParser.execute(opts.getString("url"));
   }
 

@@ -547,9 +547,15 @@
     self.locationManager.delegate = self;
     self.locationManager.distanceFilter = kCLDistanceFilterNone;
     self.locationManager.desiredAccuracy = locationAccuracy;
-    if ([PluginUtil isIOS8_OR_OVER]) {
-      [self.locationManager requestWhenInUseAuthorization];
-    }
+    
+    //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
+    #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
+      // target is iOS
+      #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 80000
+        // iOS8
+        [self.locationManager requestWhenInUseAuthorization];
+      #endif
+    #endif
     [self.locationManager startUpdatingLocation];
     [self.locationCommandQueue addObject:command];
     

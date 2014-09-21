@@ -42,12 +42,12 @@ map.geocode(request, function(results) {
 
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#geocoding").click(function() {
     map.clear();
     geocoding(map);
   });
-}
+});
 
 function geocoding(map) {
   map.clear();
