@@ -99,7 +99,7 @@ map.moveCamera({
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#polyline").click(function() {
     map.clear();
     drawPolyline(map);
@@ -114,7 +114,8 @@ function onPageLoaded(map) {
   });
   
   $("#polyline").click();
-}
+});
+
 function drawPolyline(map) {
   const HND_AIR_PORT = new plugin.google.maps.LatLng(35.548852,139.784086);
   const SFO_AIR_PORT = new plugin.google.maps.LatLng(37.615223,-122.389979);
