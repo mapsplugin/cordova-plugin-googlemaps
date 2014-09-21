@@ -42,12 +42,12 @@ map.geocode(request, function(results) {
 
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#geocoding").click(function() {
     map.clear();
     geocoding(map);
   });
-}
+});
 
 function geocoding(map) {
   map.clear();
@@ -61,7 +61,7 @@ function geocoding(map) {
       
       map.addMarker({
         'position': position,
-        'title': JSON.stringify(result.position)
+        'title':  JSON.stringify(result.position)
       }, function(marker) {
         
         map.animateCamera({

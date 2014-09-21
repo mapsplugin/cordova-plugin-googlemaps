@@ -15,7 +15,7 @@
 });</code>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#fadeInSwitch").off();
   $("#fadeInSwitch").change(function() {
     var checked = $(this).prop('checked');
@@ -31,5 +31,5 @@ function onPageLoaded(map) {
       tileOverlay.setFadeIn(isEnabled);
     });
   });
-}
+});
 </script>
