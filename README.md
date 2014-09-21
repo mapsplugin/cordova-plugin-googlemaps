@@ -10,7 +10,7 @@ This plugin works with [Apache Cordova](http://cordova.apache.org/).
 ###Example
 You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.4.apk](http://goo.gl/uq7viR)
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.0.7.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0.gif)
 
 ### Join to the official community
 New version will be announced through the official community. Stay tune!
