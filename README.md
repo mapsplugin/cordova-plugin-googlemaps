@@ -20,6 +20,14 @@ New version will be announced through the official community. Stay tune!
 
 <a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
 
+###What's up at v1.2.0!?
+
+As of v1.2.0, you can put your HTMLs on the map, such as button, because the map places under the browser.
+
+![](https://googledrive.com/host/0B1ECfqTCcLE8R0h6T3dIdWFBOHM/mechanism.png)
+
+
+
 ###Documentation
 
 * Introduction
