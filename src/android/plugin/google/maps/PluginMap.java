@@ -512,4 +512,20 @@ public class PluginMap extends MyPlugin {
     this.sendNoResult(callbackContext);
   }
 
+  /**
+   * Sets padding of the map
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void setPadding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    JSONObject padding = args.getJSONObject(1);
+    int left = padding.getInt("left");
+    int top = padding.getInt("top");
+    int bottom = padding.getInt("bottom");
+    int right = padding.getInt("right");
+    map.setPadding(left, top, right, bottom);
+    this.sendNoResult(callbackContext);
+  }
 }

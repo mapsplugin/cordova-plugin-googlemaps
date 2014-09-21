@@ -431,4 +431,17 @@
     }
   }
 }
+
+
+- (void)setPadding:(CDVInvokedUrlCommand *)command {
+  NSDictionary *paddingJson = [command.arguments objectAtIndex:1];
+  float top = [[paddingJson objectForKey:@"top"] floatValue];
+  float left = [[paddingJson objectForKey:@"left"] floatValue];
+  float right = [[paddingJson objectForKey:@"right"] floatValue];
+  float bottom = [[paddingJson objectForKey:@"bottom"] floatValue];
+  
+  UIEdgeInsets padding = UIEdgeInsetsMake(top, left, bottom, right);
+  
+  [self.mapCtrl.map setPadding:padding];
+}
 @end
