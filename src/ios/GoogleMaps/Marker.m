@@ -54,11 +54,21 @@
   NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
   [self.mapCtrl.overlayManager setObject:marker forKey: id];
   
+  // Custom properties
+  NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  
   if ([json valueForKey:@"styles"]) {
-    NSString *marker_style_id = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
     NSDictionary *styles = [json valueForKey:@"styles"];
-    [self.mapCtrl.overlayManager setObject:styles forKey: marker_style_id];
+    [properties setObject:styles forKey:@"styles"];
   }
+  
+  BOOL disableAutoPan = NO;
+  if ([json valueForKey:@"disableAutoPan"] != nil) {
+    disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
+  }
+  [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
+  [self.mapCtrl.overlayManager setObject:properties forKey: markerPropertyId];
   
   // Create icon
   NSMutableDictionary *iconProperty = nil;
@@ -70,20 +80,26 @@
   } else if ([icon isKindOfClass:[NSDictionary class]]) {
     iconProperty = [json valueForKey:@"icon"];
   }
-  if (iconProperty) {
-    if ([json valueForKey:@"infoWindowAnchor"]) {
-      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
-    }
-  
-    [self setIcon_:marker iconProperty:iconProperty];
-  }
   
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
   [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  CDVPluginResult* pluginResult = nil;
+  if (iconProperty) {
+    if ([json valueForKey:@"infoWindowAnchor"]) {
+      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+    }
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }
 }
 
 /**
@@ -190,13 +206,13 @@
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
-  NSString *styleId = [NSString stringWithFormat:@"marker_style_%lu", (unsigned long)marker.hash];
+  NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
   marker.map = nil;
   [self.mapCtrl removeObjectForKey:markerKey];
   marker = nil;
   
-  if ([self.mapCtrl.overlayManager objectForKey:styleId]) {
-    [self.mapCtrl removeObjectForKey:styleId];
+  if ([self.mapCtrl.overlayManager objectForKey:propertyId]) {
+    [self.mapCtrl removeObjectForKey:propertyId];
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -275,6 +291,26 @@
 }
 
 /**
+ * Set disable auto pan
+ * @params MarkerKey
+ */
+-(void)setDisableAutoPan:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  BOOL disableAutoPan = [[command.arguments objectAtIndex:2] boolValue];
+  
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                      [self.mapCtrl.overlayManager objectForKey:markerPropertyId]];
+  [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
+  [self.mapCtrl.overlayManager setObject:properties forKey:markerPropertyId];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  * Set visibility
  * @params MarkerKey
  */
@@ -336,12 +372,14 @@
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
-  // Create icon
-  NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
-  [self setIcon_:marker iconProperty:iconProperty];
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+  [pluginResult setKeepCallbackAsBool:YES];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+  // Create icon
+  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
+  [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
 }
 /**
  * set rotation
@@ -362,7 +400,9 @@
  * @private
  * Load the icon; then set to the marker
  */
--(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty {
+-(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
+                pluginResult:(CDVPluginResult *)pluginResult
+                callbackId:(NSString*)callbackId {
   NSString *iconPath = nil;
   CGFloat width = 0;
   CGFloat height = 0;
@@ -395,7 +435,7 @@
         NSArray *tmp = [iconPath componentsSeparatedByString:@","];
         
         NSData *decodedData;
-        if ([PluginUtil isIOS7]) {
+        if ([PluginUtil isIOS7_OR_OVER]) {
           decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
         } else {
           decodedData = [NSData dataFromBase64String:tmp[1]];
@@ -403,6 +443,14 @@
         image = [[UIImage alloc] initWithData:decodedData];
         if (width && height) {
           image = [image resize:width height:height];
+        }
+        
+        // The `anchor` property for the icon
+        if ([iconProperty valueForKey:@"anchor"]) {
+          NSArray *points = [iconProperty valueForKey:@"anchor"];
+          anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+          anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+          marker.groundAnchor = CGPointMake(anchorX, anchorY);
         }
         
       } else {
@@ -432,6 +480,7 @@
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
         marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
       }
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     } else {
       /***
        * Load the icon from over the internet
@@ -443,6 +492,7 @@
           image = [image resize:width height:height];
         }
         marker.icon = image;
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
       } else {
         dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
         dispatch_sync(gueue, ^{
@@ -474,6 +524,8 @@
             CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
             marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
           }
+          
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
         });
         
       }

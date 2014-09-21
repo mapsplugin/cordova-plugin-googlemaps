@@ -99,11 +99,12 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     String id = args.getString(1);
     TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
     if (tileOverlay == null) {
-      callbackContext.success();
+      this.sendNoResult(callbackContext);
       return;
     }
     tileOverlay.remove();
     tileOverlay.clearTileCache();
+    this.sendNoResult(callbackContext);
   }
   /**
    * Clear cache
@@ -115,6 +116,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     String id = args.getString(1);
     TileOverlay tileOverlay = (TileOverlay)this.objects.get(id);
     tileOverlay.clearTileCache();
+    this.sendNoResult(callbackContext);
   }
 
   /**

@@ -11,17 +11,30 @@
   </div>
   <div id="one" class="ui-body-d ui-content">
     <p>You can specify the icon size.</p>
+    <input type="range" id="iconPercent" min="0.1" max="1.0" step="0.1">
+    <h4 class="ui-bar ui-bar-a">HTML</h4>
+    <code class="prettyprint">&lt;input type="range" id="iconPercent" min="0.1" max="1.0" step="0.1"&gt;</code>
     <h4 class="ui-bar ui-bar-a">JavaScript</h4>
-    <code class="prettyprint">map.addMarker({
-  'position': GOOGLE_TOKYO,
-  'title': 'Google Tokyo!',
-  'icon': {
-    'url': 'www/images/google_tokyo_icon.png',
-    'size': {
-      'width': 74,
-      'height': 128
-    }
-  }
+    <code class="prettyprint">var iconSize = {
+  width: 92,
+  height: 148
+};
+map.addMarker({
+  'position': latLng,
+  'icon': 'www/images/icon-yellow.png'
+}, function(marker) {
+  $("#iconPercent").off();
+  $("#iconPercent").change(function() {
+    var scale = $(this).val();
+    marker.setIcon({
+      'url': 'www/images/icon-yellow.png',
+      'size': {
+        width: Math.round(iconSize.width * scale),
+        height: Math.round(iconSize.height * scale)
+      }
+    });
+  });
+  
 });</code>
   </div>
   <div id="two">
@@ -82,9 +95,10 @@ map.addMarker({
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
 
   $("#scaledIcon").click(function() {
+    $("#iconPercent").off();
     init(map, scaledIconMarker);
   });
   
@@ -95,7 +109,8 @@ function onPageLoaded(map) {
     init(map, textStyle);
   });
   $("#scaledIcon").click();
-}
+});
+
 function init(map, next) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
   map.clear();
@@ -108,17 +123,28 @@ function init(map, next) {
   next(map, GOOGLE_TOKYO);
 }
 function scaledIconMarker(map, latLng) {
+  var iconSize = {
+    width: 92,
+    height: 148
+  };
   map.addMarker({
     'position': latLng,
-    'title': 'Google Tokyo!',
-    'icon': {
-      'url': 'www/images/google_tokyo_icon.png',
-      'size': {
-        'width': 74,
-        'height': 128
-      }
-    }
+    'icon': 'www/images/icon-yellow.png'
+  }, function(marker) {
+    $("#iconPercent").off();
+    $("#iconPercent").change(function() {
+      var scale = $(this).val();
+      marker.setIcon({
+        'url': 'www/images/icon-yellow.png',
+        'size': {
+          width: Math.round(iconSize.width * scale),
+          height: Math.round(iconSize.height * scale)
+        }
+      });
+    });
+    
   });
+  
 }
 function canvasMarker(map, latLng) {
   var icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAACVUlEQVRIS8WWjVXCMBRGwwTqBMIEuAG4ARuIE6gTKBOgEyAT4AbABjKBMIE/C+h3m6S2pWlJ8BzfOTkpad6770teEzom3bZy/VbrpYTopDjJZ6w2c77X6p9j46SCUXvuYDxHq04BZ2rPHXa3y/DRqlPAmdqZW+hrkMZEq44F52q3oGTdrjEpqmPBudoxKVBVKqsU1THgPbW+klNUt4GHCn6idqEGuMveerUeXFGtNTCvah9qaz+n2gMmKMGBnLrfjPFcMirZ7231XUF19RUJkIhPZqXnT8AM9Osy62v0VPihUqIfjWwx1RkJvbxIpjArhabfbEJ6zQYwysiiT3CW8kJ6Q4BgqMALEnqVNAqQZGSkM/R7nMOBLhZ/B/ZQeg9V/1EsrpLy5dIqP8aAXV6WlQIlZrWq/wzeBK0DM3Y0vA0aAh8FPwTaBC7B2W8+qUOMT4l9dYUUrJK2k4tCOHl7O7zK+Xx69nbWU/iebgKz1+9E+OYPToR1fqOe+SquujeBWdzlYGBPohhjW9b2lGbRa72bwLdyml5d2auvaPyeTOzIw4MxzCkal8h8no3cqT3WJd0ExuFmOjXmlhRIXbnfKZQ7hfJ4HDTM8wVIMi6xJ01y3mV8E5glGlDRGIEKS75DrAtFn/0DA3x/b0ddZbPgGt23JnBW0agpKPzUGCvhoT4iv1HG9Zodtc6HGBTYnoXAXc3UR5SbBwK1d8y+8RUAzxNwU2orOwQeyolF/lLT7mUqQ8BqCj4Bt+j1lR0Cs3Sopt8GFLYNF/2JU7K2k6stePL7fwP/AER2xy+mY1/QAAAAAElFTkSuQmCC";
@@ -137,6 +163,8 @@ function canvasMarker(map, latLng) {
     context.fillText('Google', 40, 15);
     context.fillText('Tokyo!', 60, 35);
     
+    console.log(canvas.toDataURL());
+    
     map.addMarker({
       'position': latLng,
       'title': canvas.toDataURL(),
@@ -145,13 +173,6 @@ function canvasMarker(map, latLng) {
       marker.showInfoWindow();
     });
   };
-  map.addMarker({
-    'position': latLng,
-    'title': canvas.toDataURL(),
-    'icon': icon
-  }, function(marker) {
-    marker.showInfoWindow();
-  });
 }
 function textStyle(map, latLng) {
   map.addMarker({

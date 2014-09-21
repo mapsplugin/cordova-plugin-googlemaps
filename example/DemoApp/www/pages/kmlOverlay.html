@@ -199,7 +199,7 @@ map.addKmlOverlay({
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#polyline").click(function() {
     loadKml(map, "www/kml/polyline.kml");
   });
@@ -210,7 +210,8 @@ function onPageLoaded(map) {
     loadKml(map, "www/kml/polygon.kml");
   });
   $("#marker").click();
-}
+});
+
 function loadKml(map, url) {
   map.clear();
   map.setZoom(0);

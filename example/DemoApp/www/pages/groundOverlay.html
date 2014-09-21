@@ -87,7 +87,7 @@ $("#imageSelect").change(function() {
 </div>
 <script type="text/javascript">
 
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
 
   $("#basic").click(function() {
     map.clear();
@@ -98,7 +98,7 @@ function onPageLoaded(map) {
   });
   
   $("#basic").click();
-}
+});
 
 
 function addGroundOverlay(map) {

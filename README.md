@@ -1,21 +1,32 @@
 phonegap-googlemaps-plugin
 ==========================
 This plugin helps you to control [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/) from your JavaScript code.
-This plugin works with [Apache Cordova](http://cordova.apache.org/).
+This plugin works with [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/).
 
 
 ![ScreenShot](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/phonegap-googlemaps-plugin_small.png)
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.4.apk](http://goo.gl/uq7viR)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.2.0.apk](http://goo.gl/6JW0Wo)
+```bash
+$> adb install phonegap-googlemaps-plugin-v1.2.0.apk
+```
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.0.7.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0.gif)
 
 ### Join to the official community
 New version will be announced through the official community. Stay tune!
 
 <a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
+
+###What's up at v1.2.0!?
+
+As of v1.2.0, you can put your HTMLs on the map, such as button, because the map places under the browser.
+
+![](https://googledrive.com/host/0B1ECfqTCcLE8R0h6T3dIdWFBOHM/mechanism.png)
+
+
 
 ###Documentation
 

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.1.5" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.2.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="plugin.google.maps" />
@@ -36,9 +36,12 @@
             <feature name="GoogleMaps">
                 <param name="android-package" value="plugin.google.maps.GoogleMaps" />
             </feature>
+            <feature name="External">
+                <param name="android-package" value="plugin.google.maps.External" />
+            </feature>
         </config-file>
 
-        <dependency id="com.google.playservices" url="https://github.com/wf9a5m75/google-play-services" commit="master" />
+        <dependency id="com.google.playservices" />
         <dependency id="android.support.v4" />
     
         <!-- plugin src files -->
@@ -48,9 +51,10 @@
         <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMaps.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/PluginExternal.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/External.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
@@ -101,6 +105,9 @@
             <feature name="GoogleMaps">
                 <param name="ios-package" value="GoogleMaps" />
             </feature>
+            <feature name="External">
+                <param name="ios-package" value="External" />
+            </feature>
         </config-file>
 
         <header-file src="src/ios/GoogleMaps/Circle.h" />
@@ -135,11 +142,19 @@
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.h" />
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.podspec" />
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
-        <header-file src="src/ios/GoogleMaps/Reachability.h" />
-        <source-file src="src/ios/GoogleMaps/Reachability.m" />
+        <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
+        <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
+        <header-file src="src/ios/GoogleMaps/MyReachability.h" />
+        <source-file src="src/ios/GoogleMaps/MyReachability.m" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+            <string>Show your location on the map</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
+            <string>Trace your location on the map</string>
         </config-file>
         
         <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" />
