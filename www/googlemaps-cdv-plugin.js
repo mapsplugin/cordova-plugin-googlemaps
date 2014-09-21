@@ -697,6 +697,49 @@ App.prototype.fromPointToLatLng = function(pixel, callback) {
   
 };
 
+App.prototype.setPadding = function(p1, p2, p3, p4) {
+  if (arguments.length === 0 || arguments.length > 4) {
+    return;
+  }
+  var padding = {};
+  padding.top = parseInt(p1, 10);
+  switch (arguments.length) {
+    case 4:
+      // top right bottom left
+      padding.right = parseInt(p2, 10);
+      padding.bottom = parseInt(p3, 10);
+      padding.left = parseInt(p4, 10);
+      break;
+    
+    case 3:
+      // top right&left bottom
+      padding.right = parseInt(p2, 10);
+      padding.left = padding.right;
+      padding.bottom = parseInt(p3, 10);
+      break;
+      
+    case 2:
+      // top & bottom right&left
+      padding.bottom = parseInt(p1, 10);
+      padding.right = parseInt(p2, 10);
+      padding.left = padding.right;
+      break;
+      
+    case 1:
+      // top & bottom right & left
+      padding.bottom = padding.top;
+      padding.right = padding.top;
+      padding.left = padding.top;
+      break;
+  }
+  cordova.exec(function(result) {
+    if (typeof callback === "function") {
+      var latLng = new LatLng(result[0] || 0, result[1] || 0);
+      callback.call(self, result);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setPadding', padding]);
+};
+
 //-------------
 // Marker
 //-------------
