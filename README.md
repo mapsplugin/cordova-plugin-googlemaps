@@ -8,7 +8,10 @@ This plugin works with [PhoneGap](http://phonegap.com/) and [Apache Cordova](htt
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.1.4.apk](http://goo.gl/uq7viR)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.2.0.apk](http://goo.gl/6JW0Wo)
+```bash
+$> adb install phonegap-googlemaps-plugin-v1.2.0.apk
+```
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0.gif)
 
