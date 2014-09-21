@@ -15,7 +15,7 @@
     <keywords>google,maps,geo</keywords>
     
     <engines>
-      <engine name="cordova" version=">=3.0.0" />
+      <engine name="cordova" version=">=3.5.0" />
     </engines>
     
     <dependency id="plugin.http.request" />
