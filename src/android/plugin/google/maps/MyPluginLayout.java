@@ -10,6 +10,7 @@ import org.apache.cordova.CordovaWebView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -233,6 +234,7 @@ public class MyPluginLayout extends FrameLayout  {
       }
       int x = (int)event.getX();
       int y = (int)event.getY();
+      int scrollY = webView.getScrollY();
       boolean contains = drawRect.contains(x, y);
       int action = event.getAction();
       isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
@@ -244,12 +246,17 @@ public class MyPluginLayout extends FrameLayout  {
         Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
         Iterator<Entry<String, RectF>> iterator = elements.iterator();
         Entry <String, RectF> entry;
-        while(iterator.hasNext()) {
+        RectF rect;
+        while(iterator.hasNext() && contains == true) {
           entry = iterator.next();
+          rect = entry.getValue();
+          rect.top -= scrollY;
+          rect.bottom -= scrollY;
           if (entry.getValue().contains(x, y)) {
             contains = false;
-            break;
           }
+          rect.top += scrollY;
+          rect.bottom += scrollY;
         }
       }
       if (!contains) {
@@ -264,6 +271,7 @@ public class MyPluginLayout extends FrameLayout  {
       }
       int width = canvas.getWidth();
       int height = canvas.getHeight();
+      int scrollY = webView.getScrollY();
       
       Paint paint = new Paint();
       paint.setColor(Color.argb(100, 0, 255, 0));
@@ -281,7 +289,11 @@ public class MyPluginLayout extends FrameLayout  {
       while(iterator.hasNext()) {
         entry = iterator.next();
         rect = entry.getValue();
+        rect.top -= scrollY;
+        rect.bottom -= scrollY;
         canvas.drawRect(rect, paint);
+        rect.top += scrollY;
+        rect.bottom += scrollY;
       }
     }
   }
