@@ -303,7 +303,6 @@ App.prototype.getMap = function(div, params) {
 };
 
 
-
 App.prototype.getLicenseInfo = function(callback) {
   var self = this;
   cordova.exec(function(txt) {
@@ -461,6 +460,14 @@ App.prototype.setBackgroundColor = function(color) {
   this.set('strokeColor', color);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
+
+
+App.prototype.setDebuggable = function(debug) {
+  var self = this;
+  debug = parseBoolean(debug);
+  cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+};
+
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
