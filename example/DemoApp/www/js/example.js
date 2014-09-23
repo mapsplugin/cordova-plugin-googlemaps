@@ -28,35 +28,28 @@ $(document).on("deviceready", function() {
     // Map.clear() method removes all mark-ups, such as marker.
     map.clear();
     
+    // Map.off() method removes all event listeners.
+    map.off();
+    
     var action = $(this).attr("action");
     loadPage(map, action);
   });
   
   /**
-   * jQuery Mobile's panel feature uses CSS transition,
-   * However this plugin can not detect when CSS transition is started.
-   * 
-   * For better performance, hide the map before transition,
-   * then show it again after the transition is finished.
+   * The side menu overlays above the map, but it's not the children of the map div.
+   * In this case, you must call map.setClickable(false) to be able to click the side menu.
    */
-  function hideMap() {
-    map.setVisible(false);
+  function onSideMenuClose() {
+    map.setClickable(true);
   }
   
-  function showMap() {
-    // Map.refreshLayout() changes the map position forcely.
-    // It causes slow or hang up on iOS,
-    // so do not use too much.
-    map.refreshLayout();
-    
-    map.setVisible(true);
+  function onSideMenuOpen() {
+    map.setClickable(false);
   }
   
   $("#menulist").panel({
-    "beforeclose": hideMap,
-    "close": showMap,
-    "beforeopen": hideMap,
-    "open": showMap
+    "close": onSideMenuClose,
+    "open": onSideMenuOpen
   });
   
   loadPage(map, "welcome");
@@ -68,6 +61,7 @@ $(document).on("deviceready", function() {
  * @param {String} pageName
  */
 function loadPage(map, pageName) {
+  $(document).trigger("pageLeave", map);
   $.get("./pages/" + pageName + ".html", function(html) {
     $("#container").html(html);
     $.mobile.activePage.trigger("create");
@@ -79,6 +73,7 @@ function loadPage(map, pageName) {
     }
     
     map.clear();
+    map.off();
     
     // Embed a map into the div tag.
     var div = $("#map_canvas")[0];
@@ -88,7 +83,7 @@ function loadPage(map, pageName) {
     
     // Execute the code
     setTimeout(function() {
-      onPageLoaded(map);
+      $(document).trigger("pageLoad", map);
     }, 1000);
   });
 }
