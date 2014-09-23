@@ -30,6 +30,7 @@ v1.2.1
 - Bug fix: detect the touch region
 - Add: `map.setDebuggable( true / false )`
 
+Many bugs are fixed, and many methods are added. Check out the [release nodes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
 ###Documentation
 
