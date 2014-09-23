@@ -5,24 +5,6 @@
     },
     "config_munge": {
         "files": {
-            "config.xml": {
-                "parents": {
-                    "/*": [
-                        {
-                            "xml": "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"HttpRequest\"><param name=\"ios-package\" value=\"HttpRequest\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
-                            "count": 1
-                        }
-                    ]
-                }
-            },
             "framework": {
                 "parents": {
                     "AVFoundation.framework": [
@@ -98,26 +80,52 @@
                         }
                     ]
                 }
+            },
+            "config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"GoogleMaps\"><param name=\"ios-package\" value=\"GoogleMaps\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"External\"><param name=\"ios-package\" value=\"External\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"HttpRequest\"><param name=\"ios-package\" value=\"HttpRequest\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
             }
         }
     },
     "installed_plugins": {
-        "org.apache.cordova.console": {
+        "com.google.playservices": {
             "PACKAGE_NAME": "com.example.myapp"
         },
         "com.googlemaps.ios": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "org.apache.cordova.console": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "org.apache.cordova.device": {
             "PACKAGE_NAME": "com.example.myapp"
         },
         "plugin.google.maps": {
             "PACKAGE_NAME": "com.example.myapp"
         },
         "plugin.http.request": {
-            "PACKAGE_NAME": "com.example.myapp"
-        },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "com.example.myapp"
-        },
-        "com.google.playservices": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },

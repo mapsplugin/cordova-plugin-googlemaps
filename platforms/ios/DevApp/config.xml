@@ -22,11 +22,17 @@
     <feature name="Console">
         <param name="ios-package" value="CDVLogger" />
     </feature>
-    <feature name="HttpRequest">
-        <param name="ios-package" value="HttpRequest" />
-    </feature>
     <feature name="Device">
         <param name="ios-package" value="CDVDevice" />
+    </feature>
+    <feature name="GoogleMaps">
+        <param name="ios-package" value="GoogleMaps" />
+    </feature>
+    <feature name="External">
+        <param name="ios-package" value="External" />
+    </feature>
+    <feature name="HttpRequest">
+        <param name="ios-package" value="HttpRequest" />
     </feature>
     <name>DevApp</name>
     <description>
