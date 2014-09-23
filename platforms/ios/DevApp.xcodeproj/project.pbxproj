@@ -49,6 +49,7 @@
 		6904C37619D0F1A3008FFD15 /* Polyline.m in Sources */ = {isa = PBXBuildFile; fileRef = 6904C36219D0F1A3008FFD15 /* Polyline.m */; };
 		6904C37719D0F1A3008FFD15 /* TBXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 6904C36419D0F1A3008FFD15 /* TBXML.m */; };
 		6904C37819D0F1A3008FFD15 /* TileOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 6904C36619D0F1A3008FFD15 /* TileOverlay.m */; };
+		6904C37B19D0FD77008FFD15 /* MyPluginLayerDebugView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6904C37A19D0FD77008FFD15 /* MyPluginLayerDebugView.m */; };
 		77B78C306E874281AF1086E1 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AA07AA262EC406682A7871B /* libc++.dylib */; };
 		780FA01DE22C4BB48628FFB4 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D3FDEF66AE48CC80416946 /* CoreText.framework */; };
 		7E7966DE1810823500FA85AD /* icon-40.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966D41810823500FA85AD /* icon-40.png */; };
@@ -171,6 +172,8 @@
 		6904C36419D0F1A3008FFD15 /* TBXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TBXML.m; path = ../../../../src/ios/GoogleMaps/TBXML.m; sourceTree = "<group>"; };
 		6904C36519D0F1A3008FFD15 /* TileOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TileOverlay.h; path = ../../../../src/ios/GoogleMaps/TileOverlay.h; sourceTree = "<group>"; };
 		6904C36619D0F1A3008FFD15 /* TileOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TileOverlay.m; path = ../../../../src/ios/GoogleMaps/TileOverlay.m; sourceTree = "<group>"; };
+		6904C37919D0FD77008FFD15 /* MyPluginLayerDebugView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyPluginLayerDebugView.h; path = ../../../../src/ios/GoogleMaps/MyPluginLayerDebugView.h; sourceTree = "<group>"; };
+		6904C37A19D0FD77008FFD15 /* MyPluginLayerDebugView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyPluginLayerDebugView.m; path = ../../../../src/ios/GoogleMaps/MyPluginLayerDebugView.m; sourceTree = "<group>"; };
 		7C4908AACC0A4A578F821DC6 /* GLKit.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		7E7966D41810823500FA85AD /* icon-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-40.png"; sourceTree = "<group>"; };
 		7E7966D51810823500FA85AD /* icon-40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-40@2x.png"; sourceTree = "<group>"; };
@@ -388,6 +391,8 @@
 				6431F6FBEFD6470A95E58D05 /* BSD-LICENSE */,
 				94B42436A54042BB8390247A /* HttpRequest.h */,
 				5210F5E958CC4FCFA68923E4 /* R9HTTPRequest.h */,
+				6904C37919D0FD77008FFD15 /* MyPluginLayerDebugView.h */,
+				6904C37A19D0FD77008FFD15 /* MyPluginLayerDebugView.m */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -614,6 +619,7 @@
 				6904C36D19D0F1A3008FFD15 /* KmlOverlay.m in Sources */,
 				6904C37019D0F1A3008FFD15 /* MyPluginLayer.m in Sources */,
 				6904C37219D0F1A3008FFD15 /* NSData+Base64.m in Sources */,
+				6904C37B19D0FD77008FFD15 /* MyPluginLayerDebugView.m in Sources */,
 				6904C36A19D0F1A3008FFD15 /* GoogleMaps.m in Sources */,
 				6904C36E19D0F1A3008FFD15 /* Map.m in Sources */,
 				6904C37719D0F1A3008FFD15 /* TBXML.m in Sources */,

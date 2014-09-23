@@ -16,6 +16,7 @@ NSMutableDictionary *HTMLNodes = nil;
 {
   self = [super initWithFrame:aRect];
   HTMLNodes = [[NSMutableDictionary alloc] init];
+  self.debugView = [[MyPluginLayerDebugView alloc] init];
   self.clickable = YES;
   return self;
 }
@@ -23,6 +24,7 @@ NSMutableDictionary *HTMLNodes = nil;
 
 - (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size {
   [HTMLNodes setObject:size forKey:domId];
+  [self setNeedsDisplay];
 }
 - (void)removeHTMLElement:(NSString *)domId {
   [HTMLNodes removeObjectForKey:domId];
@@ -93,5 +95,68 @@ NSMutableDictionary *HTMLNodes = nil;
   
   return [super hitTest:point withEvent:event];
 }
+
+- (void)drawRect:(CGRect)rect
+{
+NSLog(@"drawRect----");
+  
+  float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
+  float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
+  
+  float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
+  float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
+  float width = [[self.embedRect objectForKey:@"width"] floatValue];
+  float height = [[self.embedRect objectForKey:@"height"] floatValue];
+  
+  //-----------------------
+  // Draw the HTML region
+  //-----------------------
+  CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSetRGBFillColor(context, 0, 1.0, 0, 0.4);
+  
+  CGRect rectangle = CGRectMake(0, 0, rect.size.width, top);
+  CGContextFillRect(context, rectangle);
+  
+  rectangle.origin.x = 0;
+  rectangle.origin.y = top;
+  rectangle.size.width = left;
+  rectangle.size.height = height;
+  CGContextFillRect(context, rectangle);
+  
+  rectangle.origin.x = left + width;
+  rectangle.origin.y = top;
+  rectangle.size.width = self.webView.scrollView.contentSize.width;
+  rectangle.size.height = height;
+  CGContextFillRect(context, rectangle);
+  
+  rectangle.origin.x = 0;
+  rectangle.origin.y = top + height;
+  rectangle.size.width = self.webView.scrollView.contentSize.width;
+  rectangle.size.height = self.webView.scrollView.contentSize.height;
+  CGContextFillRect(context, rectangle);
+  
+  
+  //---------------------------------
+  // Draw the HTML elements region
+  //---------------------------------
+  CGContextSetRGBFillColor(context, 1.0, 0, 0, 0.4);
+  NSDictionary *elemSize;
+  for (NSString *domId in HTMLNodes) {
+    elemSize = [HTMLNodes objectForKey:domId];
+    left = [[elemSize objectForKey:@"left"] floatValue] - offsetX;
+    top = [[elemSize objectForKey:@"top"] floatValue] - offsetY;
+    width = [[elemSize objectForKey:@"width"] floatValue];
+    height = [[elemSize objectForKey:@"height"] floatValue];
+    
+    rectangle.origin.x = left;
+    rectangle.origin.y = top;
+    rectangle.size.width = width;
+    rectangle.size.height = height;
+    NSLog(@"rectangle=%f,%f / %f,%f",left,top,width,height);
+    CGContextFillRect(context, rectangle);
+  
+  }
+}
+
 
 @end
