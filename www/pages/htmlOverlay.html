@@ -24,6 +24,7 @@
 
 <h4 class="ui-bar ui-bar-a">JavaScript</h4>
 <code class="prettyprint">
+map.setDebuggable(true);
 const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   
 map.moveCamera({
@@ -116,8 +117,12 @@ function moveTo(map, position, title) {
 
 <script type="text/javascript">
 
+$(document).one("pageLeave", function(event, map) {
+  map.setDebuggable(false);
+});
 $(document).one("pageLoad", function(event, map) {
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
+  map.setDebuggable(true);
   
   map.moveCamera({
     'target': GOOGLE,

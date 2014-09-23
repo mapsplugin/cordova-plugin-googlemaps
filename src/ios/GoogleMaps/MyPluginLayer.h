@@ -15,6 +15,7 @@
 @property (nonatomic) UIWebView *webView;
 @property (nonatomic) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) BOOL debuggable;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
 

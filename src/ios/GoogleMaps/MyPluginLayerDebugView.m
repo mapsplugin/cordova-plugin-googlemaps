@@ -16,6 +16,7 @@
   self = [super initWithFrame:aRect];
   self.HTMLNodes = [[NSMutableDictionary alloc] init];
   self.opaque = NO;
+  self.debuggable = NO;
   return self;
 }
 
@@ -34,6 +35,9 @@
 
 - (void)drawRect:(CGRect)rect
 {
+  if (self.debuggable == NO) {
+    return;
+  }
   CGContextRef context = UIGraphicsGetCurrentContext();
   
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - self.offsetX;

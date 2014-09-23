@@ -647,7 +647,7 @@
   [self.pluginScrollView.debugView clearHTMLElement];
   [self.pluginLayer clearHTMLElement];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -664,13 +664,25 @@
   [self.pluginScrollView.debugView removeHTMLElement:domId];
 }
 
+
+-(void)pluginLayer_setDebuggable:(CDVInvokedUrlCommand *)command
+{
+  Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
+  self.pluginLayer.debuggable = isDebuggable;
+  self.pluginScrollView.debugView.debuggable = isDebuggable;
+    
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
 -(void)pluginLayer_setClickable:(CDVInvokedUrlCommand *)command
 {
   Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.clickable = isClickable;
   self.pluginScrollView.debugView.clickable = isClickable;
     
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -683,7 +695,7 @@
   NSArray *rgbColor = [command.arguments objectAtIndex:0];
   self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
