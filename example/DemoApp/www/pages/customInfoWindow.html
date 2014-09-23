@@ -148,13 +148,15 @@ function createMyInfo(marker) {
 <script type="text/javascript">
 var myInfo = null;
 var timer = null;
-$(document).one("pageLeave", function() {
+$(document).one("pageLeave", function(event, map) {
   if (timer) {
     clearInterval(timer);
   }
+  map.setDebuggable(false);
 });
 
 $(document).one("pageLoad", function(event, map) {
+  map.setDebuggable(true);
   const GOOGLE = new plugin.google.maps.LatLng(37.422858, -122.085065);
   $("#map_canvas").css({
     "position": "relative"

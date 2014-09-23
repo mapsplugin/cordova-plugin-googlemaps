@@ -1,25 +1,21 @@
 //
-//  MyPluginLayer.h
+//  MyPluginLayerDebugView.h
 //  DevApp
 //
-//  Created by masashi on 8/13/14.
+//  Created by Katsumata Masashi on 9/22/14.
 //
 //
 
 #import <UIKit/UIKit.h>
-#import <GoogleMaps/GoogleMaps.h>
-#import "GoogleMapsViewController.h"
 
-@interface MyPluginLayer : UIView
-
-@property (nonatomic) UIWebView *webView;
-@property (nonatomic) GoogleMapsViewController* mapCtrl;
+@interface MyPluginLayerDebugView : UIView
 @property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) UIWebView *webView;
+@property (nonatomic) float offsetX;
+@property (nonatomic) float offsetY;
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
-
-- (id)initWithFrame:(CGRect)aRect;
 - (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;
 - (void)removeHTMLElement:(NSString *)domId;
 - (void)clearHTMLElement;
