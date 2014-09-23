@@ -662,6 +662,9 @@
   NSString *domId = [command.arguments objectAtIndex:0];
   [self.pluginLayer removeHTMLElement:domId];
   [self.pluginScrollView.debugView removeHTMLElement:domId];
+    
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 
@@ -670,6 +673,7 @@
   Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.debuggable = isDebuggable;
   self.pluginScrollView.debugView.debuggable = isDebuggable;
+  [self.pluginScrollView.debugView setNeedsDisplay];
     
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -681,6 +685,7 @@
   Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.clickable = isClickable;
   self.pluginScrollView.debugView.clickable = isClickable;
+  [self.pluginScrollView.debugView setNeedsDisplay];
     
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
