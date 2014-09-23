@@ -61,7 +61,7 @@ $(document).on("deviceready", function() {
  * @param {String} pageName
  */
 function loadPage(map, pageName) {
-  $(document).trigger("pageLeave");
+  $(document).trigger("pageLeave", map);
   $.get("./pages/" + pageName + ".html", function(html) {
     $("#container").html(html);
     $.mobile.activePage.trigger("create");

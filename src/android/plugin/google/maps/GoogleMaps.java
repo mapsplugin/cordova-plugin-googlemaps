@@ -115,7 +115,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private final String PLUGIN_VERSION = "1.2.0 beta8";
+  private final String PLUGIN_VERSION = "1.2.1";
   private MyPluginLayout mPluginLayout = null;
   public GoogleApiClient googleApiClient = null;
   
@@ -1689,6 +1689,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     this.sendNoResult(callbackContext);
   }
+  
+  /**
+   * Set the app background
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
   @SuppressWarnings("unused")
   private void pluginLayer_setBackGroundColor(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout != null) {
@@ -1700,6 +1707,21 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           this.mPluginLayout.setBackgroundColor(backgroundColor);
         } catch (JSONException e) {}
       }
+    }
+    this.sendNoResult(callbackContext);
+  }
+  
+  /**
+   * Set the debug flag of myPluginLayer
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void pluginLayer_setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean debuggable = args.getBoolean(0);
+    if (mapView != null && this.windowLayer == null) {
+      this.mPluginLayout.setDebug(debuggable);
     }
     this.sendNoResult(callbackContext);
   }
