@@ -8,9 +8,9 @@ This plugin works with [PhoneGap](http://phonegap.com/) and [Apache Cordova](htt
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.2.0.apk](http://goo.gl/6JW0Wo)
+You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.2.1.apk](http://goo.gl/YVdqD9)
 ```bash
-$> adb install phonegap-googlemaps-plugin-v1.2.0.apk
+$> adb install phonegap-googlemaps-plugin-v1.2.1.apk
 ```
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0.gif)
@@ -20,12 +20,15 @@ New version will be announced through the official community. Stay tune!
 
 <a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
 
-###What's up at v1.2.0!?
+###What's up?
 
 As of v1.2.0, you can put your HTMLs on the map, such as button, because the map places under the browser.
 
 ![](https://googledrive.com/host/0B1ECfqTCcLE8R0h6T3dIdWFBOHM/mechanism.png)
 
+v1.2.1
+- Bug fix: detect the touch region
+- Add: `map.setDebuggable( true / false )`
 
 
 ###Documentation
