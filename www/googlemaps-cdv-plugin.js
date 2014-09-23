@@ -2021,7 +2021,7 @@ document.addEventListener("deviceready", function() {
     }
   }, 100);
 });
-function　getAllChildren(root) {
+function getAllChildren(root) {
   var list = [];
   var clickable;
   var search = function (node)
@@ -2034,12 +2034,13 @@ function　getAllChildren(root) {
         if (!clickable ||
            parseBoolean(clickable) == true) {
           list.push(node);
+        } else {
+          Array.prototype.push.apply(list, getAllChildren(node));
         }
-        Array.prototype.push.apply(list, getAllChildren(node));
       }
       node = node.nextSibling;
     }
-  }
+  };
   for (var i = 0; i < root.childNodes.length; i++) {
     search(root.childNodes[i]);
   }

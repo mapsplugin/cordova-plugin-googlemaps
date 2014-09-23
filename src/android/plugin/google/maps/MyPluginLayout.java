@@ -77,8 +77,9 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
-    this.frontLayer.invalidate();
-    
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   
   public void putHTMLElement(String domId, float left, float top, float right, float bottom) {
@@ -93,16 +94,28 @@ public class MyPluginLayout extends FrameLayout  {
     rect.right = right;
     rect.bottom = bottom;
     this.HTMLNodes.put(domId, rect);
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   public void removeHTMLElement(String domId) {
     this.HTMLNodes.remove(domId);
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   public void clearHTMLElement() {
     this.HTMLNodes.clear();
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
 
   public void setClickable(boolean clickable) {
     this.isClickable = clickable;
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   
   @SuppressWarnings("deprecation")
@@ -148,6 +161,9 @@ public class MyPluginLayout extends FrameLayout  {
   }
   public void setDebug(boolean debug) {
     this.isDebug = debug;
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
 
   public void detachMyView() {
@@ -275,10 +291,15 @@ public class MyPluginLayout extends FrameLayout  {
       
       Paint paint = new Paint();
       paint.setColor(Color.argb(100, 0, 255, 0));
+      if (isClickable == false) {
+        canvas.drawRect(0f, 0f, width, height, paint);
+        return;
+      }
       canvas.drawRect(0f, 0f, width, drawRect.top, paint);
       canvas.drawRect(0, drawRect.top, drawRect.left, drawRect.bottom, paint);
       canvas.drawRect(drawRect.right, drawRect.top, width, drawRect.bottom, paint);
       canvas.drawRect(0, drawRect.bottom, width, height, paint);
+      
       
       paint.setColor(Color.argb(100, 255, 0, 0));
       
