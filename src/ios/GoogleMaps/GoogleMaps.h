@@ -14,6 +14,7 @@
 #import "R9HTTPRequest.h"
 #import "MyPluginLayer.h"
 #import "MyReachability.h"
+#import "MyPluginLayerDebugView.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 
@@ -24,7 +25,7 @@
 @property (nonatomic) UIButton *licenseButton;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
-@property (nonatomic) UIScrollView *pluinScrollView;
+@property (nonatomic) UIScrollView *pluginScrollView;
 @property (nonatomic) UIView *root;
 @property (nonatomic) MyPluginLayer *pluginLayer;
 

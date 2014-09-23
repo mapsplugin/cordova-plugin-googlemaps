@@ -15,7 +15,9 @@
 @property (nonatomic) UIWebView *webView;
 @property (nonatomic) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) BOOL clickable;
+@property (nonatomic) MyPluginLayerDebugView *debugView;
 
 - (id)initWithFrame:(CGRect)aRect;
 - (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;

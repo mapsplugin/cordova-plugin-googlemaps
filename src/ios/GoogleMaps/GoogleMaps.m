@@ -24,15 +24,15 @@
   self.pluginLayer.webView = self.webView;
   self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
-  self.pluinScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
-  self.pluinScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  self.pluginScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
+  self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.webView.scrollView.delegate = self;
-  [self.pluinScrollView setContentSize:CGSizeMake(320, 960) ];
+  [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
   
   self.root = self.webView.superview;
   [self.webView removeFromSuperview];
   self.pluginLayer.webView = self.webView;
-  [self.pluginLayer addSubview:self.pluinScrollView];
+  [self.pluginLayer addSubview:self.pluginScrollView];
   [self.pluginLayer addSubview:self.webView];
   [self.root addSubview:self.pluginLayer];
 }
@@ -87,15 +87,17 @@
 }
 
 -(void)viewDidLayoutSubviews {
-    [self.pluinScrollView setContentSize: self.webView.scrollView.contentSize];
-    [self.pluinScrollView flashScrollIndicators];
+    [self.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
+    [self.pluginScrollView flashScrollIndicators];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-  CGPoint offset = self.pluinScrollView.contentOffset;
+  CGPoint offset = self.pluginScrollView.contentOffset;
   offset.x = self.webView.scrollView.contentOffset.x;
   offset.y = self.webView.scrollView.contentOffset.y;
-  [self.pluinScrollView setContentOffset:offset];
+  [self.pluginScrollView setContentOffset:offset];
+  NSLog(@"--scrolled");
+  [self.pluginLayer setNeedsDisplay];
 }
 
 /**
@@ -152,7 +154,7 @@
           self.pluginLayer.mapCtrl = self.mapCtrl;
           self.pluginLayer.webView = self.webView;
           
-          [self.pluinScrollView addSubview:self.mapCtrl.view];
+          [self.pluginScrollView addSubview:self.mapCtrl.view];
           [self resizeMap:command];
         }
         
@@ -361,7 +363,7 @@
     self.pluginLayer.mapCtrl = self.mapCtrl;
     self.pluginLayer.webView = self.webView;
     
-    [self.pluinScrollView addSubview:self.mapCtrl.view];
+    [self.pluginScrollView addSubview:self.mapCtrl.view];
     [self resizeMap:command];
   } else {
     [self.mapCtrl.view removeFromSuperview];
