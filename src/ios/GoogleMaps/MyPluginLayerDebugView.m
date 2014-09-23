@@ -17,6 +17,7 @@
   self.HTMLNodes = [[NSMutableDictionary alloc] init];
   self.opaque = NO;
   self.debuggable = NO;
+  self.clickable = YES;
   return self;
 }
 
@@ -40,6 +41,11 @@
   }
   CGContextRef context = UIGraphicsGetCurrentContext();
   
+  if (self.clickable == NO) {
+    CGContextSetRGBFillColor(context, 0.0, 1.0, 0, 0.4);
+    CGContextFillRect(context, rect);
+    return;
+  }
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - self.offsetX;
   float top = [[self.embedRect objectForKey:@"top"] floatValue] - self.offsetY;
   float width = [[self.embedRect objectForKey:@"width"] floatValue];
@@ -58,7 +64,6 @@
     top = [[elemSize objectForKey:@"top"] floatValue] - self.offsetY;
     width = [[elemSize objectForKey:@"width"] floatValue];
     height = [[elemSize objectForKey:@"height"] floatValue];
-  
     
     rectangle.origin.x = left;
     rectangle.origin.y = top;

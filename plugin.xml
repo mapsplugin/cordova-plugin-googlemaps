@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.2.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.2.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="plugin.google.maps" />
@@ -15,7 +15,7 @@
     <keywords>google,maps,geo</keywords>
     
     <engines>
-      <engine name="cordova" version=">=3.0.0" />
+      <engine name="cordova" version=">=3.5.0" />
     </engines>
     
     <dependency id="plugin.http.request" />
@@ -144,6 +144,10 @@
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
+        <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h" />
+        <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m" />
+        <header-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.h" />
+        <source-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.m" />
         <header-file src="src/ios/GoogleMaps/MyReachability.h" />
         <source-file src="src/ios/GoogleMaps/MyReachability.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.h" />
