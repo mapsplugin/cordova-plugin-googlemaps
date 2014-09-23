@@ -10,6 +10,7 @@ import org.apache.cordova.CordovaWebView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -76,8 +77,9 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
-    this.frontLayer.invalidate();
-    
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   
   public void putHTMLElement(String domId, float left, float top, float right, float bottom) {
@@ -92,16 +94,28 @@ public class MyPluginLayout extends FrameLayout  {
     rect.right = right;
     rect.bottom = bottom;
     this.HTMLNodes.put(domId, rect);
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   public void removeHTMLElement(String domId) {
     this.HTMLNodes.remove(domId);
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   public void clearHTMLElement() {
     this.HTMLNodes.clear();
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
 
   public void setClickable(boolean clickable) {
     this.isClickable = clickable;
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
   
   @SuppressWarnings("deprecation")
@@ -147,6 +161,9 @@ public class MyPluginLayout extends FrameLayout  {
   }
   public void setDebug(boolean debug) {
     this.isDebug = debug;
+    if (this.isDebug == true) {
+      this.inValidate();
+    }
   }
 
   public void detachMyView() {
@@ -233,6 +250,7 @@ public class MyPluginLayout extends FrameLayout  {
       }
       int x = (int)event.getX();
       int y = (int)event.getY();
+      int scrollY = webView.getScrollY();
       boolean contains = drawRect.contains(x, y);
       int action = event.getAction();
       isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
@@ -244,12 +262,17 @@ public class MyPluginLayout extends FrameLayout  {
         Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
         Iterator<Entry<String, RectF>> iterator = elements.iterator();
         Entry <String, RectF> entry;
-        while(iterator.hasNext()) {
+        RectF rect;
+        while(iterator.hasNext() && contains == true) {
           entry = iterator.next();
+          rect = entry.getValue();
+          rect.top -= scrollY;
+          rect.bottom -= scrollY;
           if (entry.getValue().contains(x, y)) {
             contains = false;
-            break;
           }
+          rect.top += scrollY;
+          rect.bottom += scrollY;
         }
       }
       if (!contains) {
@@ -264,13 +287,19 @@ public class MyPluginLayout extends FrameLayout  {
       }
       int width = canvas.getWidth();
       int height = canvas.getHeight();
+      int scrollY = webView.getScrollY();
       
       Paint paint = new Paint();
       paint.setColor(Color.argb(100, 0, 255, 0));
+      if (isClickable == false) {
+        canvas.drawRect(0f, 0f, width, height, paint);
+        return;
+      }
       canvas.drawRect(0f, 0f, width, drawRect.top, paint);
       canvas.drawRect(0, drawRect.top, drawRect.left, drawRect.bottom, paint);
       canvas.drawRect(drawRect.right, drawRect.top, width, drawRect.bottom, paint);
       canvas.drawRect(0, drawRect.bottom, width, height, paint);
+      
       
       paint.setColor(Color.argb(100, 255, 0, 0));
       
@@ -281,7 +310,11 @@ public class MyPluginLayout extends FrameLayout  {
       while(iterator.hasNext()) {
         entry = iterator.next();
         rect = entry.getValue();
+        rect.top -= scrollY;
+        rect.bottom -= scrollY;
         canvas.drawRect(rect, paint);
+        rect.top += scrollY;
+        rect.bottom += scrollY;
       }
     }
   }

@@ -443,7 +443,7 @@ public class PluginMap extends MyPlugin {
     });
     
   }
-  @SuppressWarnings({ "unused", "deprecation" })
+  @SuppressWarnings({ "unused" })
   private void fromLatLngToPoint(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     double lat, lng;
     lat = args.getDouble(1);
@@ -451,8 +451,8 @@ public class PluginMap extends MyPlugin {
     LatLng latLng = new LatLng(lat, lng);
     Point point = map.getProjection().toScreenLocation(latLng);
     JSONArray pointJSON = new JSONArray();
-    pointJSON.put(point.x / webView.getScale());
-    pointJSON.put(point.y / webView.getScale());
+    pointJSON.put(point.x / this.density);
+    pointJSON.put(point.y / this.density);
     callbackContext.success(pointJSON);
   }
   
