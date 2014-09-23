@@ -19,20 +19,11 @@
     <feature name="LocalStorage">
         <param name="ios-package" value="CDVLocalStorage" />
     </feature>
-    <feature name="Console">
-        <param name="ios-package" value="CDVLogger" />
-    </feature>
-    <feature name="Device">
-        <param name="ios-package" value="CDVDevice" />
-    </feature>
-    <feature name="GoogleMaps">
-        <param name="ios-package" value="GoogleMaps" />
-    </feature>
-    <feature name="External">
-        <param name="ios-package" value="External" />
-    </feature>
     <feature name="HttpRequest">
         <param name="ios-package" value="HttpRequest" />
+    </feature>
+    <feature name="Console">
+        <param name="ios-package" value="CDVLogger" />
     </feature>
     <name>DevApp</name>
     <description>
@@ -47,4 +38,12 @@
         <clobbers target="plugin.google.maps" />
         <clobbers target="cordova.plugins.googlemaps" />
     </js-module>
+    <feature name="GoogleMaps">
+        <param name="ios-package" value="GoogleMaps" />
+        <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+    </feature>
+    <feature name="External">
+        <param name="ios-package" value="External" />
+        <param name="android-package" value="plugin.google.maps.External" />
+    </feature>
 </widget>

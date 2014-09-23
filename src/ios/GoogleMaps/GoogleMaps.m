@@ -24,7 +24,8 @@
   self.pluginLayer.webView = self.webView;
   self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
-  self.pluginScrollView = [[UIScrollView alloc] initWithFrame:self.webView.frame];
+  self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
+  self.pluginScrollView.debugView.webView = self.webView;
   self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.webView.scrollView.delegate = self;
   [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
@@ -42,7 +43,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.0 beta8";
+  NSString *PLUGIN_VERSION = @"1.2.1";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
@@ -96,8 +97,8 @@
   offset.x = self.webView.scrollView.contentOffset.x;
   offset.y = self.webView.scrollView.contentOffset.y;
   [self.pluginScrollView setContentOffset:offset];
-  NSLog(@"--scrolled");
   [self.pluginLayer setNeedsDisplay];
+  [self.pluginScrollView.debugView setNeedsDisplay];
 }
 
 /**
@@ -154,7 +155,9 @@
           self.pluginLayer.mapCtrl = self.mapCtrl;
           self.pluginLayer.webView = self.webView;
           
-          [self.pluginScrollView addSubview:self.mapCtrl.view];
+          
+         [self.pluginScrollView attachView:self.mapCtrl.view];
+          //[self.pluginScrollView addSubview:self.mapCtrl.view];
           [self resizeMap:command];
         }
         
@@ -259,8 +262,11 @@
 
 - (void)_removeMapView{
   if (self.mapCtrl.isFullScreen == YES) {
-    [self.mapCtrl.view removeFromSuperview];
+    //[self.mapCtrl.view removeFromSuperview];
+    [self.pluginScrollView dettachView];
     [self.footer removeFromSuperview];
+    [self.pluginLayer clearHTMLElement];
+    [self.pluginScrollView.debugView clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
     self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
   }
@@ -268,7 +274,8 @@
   float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
   float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
   if (width > 0.0f && height > 0.0f) {
-    [self.webView.scrollView addSubview:self.mapCtrl.view];
+    //[self.webView.scrollView addSubview:self.mapCtrl.view];
+    [self.pluginScrollView attachView:self.mapCtrl.view];
     [self.mapCtrl updateMapViewLayout];
     return;
   }
@@ -357,16 +364,19 @@
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
   if ([command.arguments count] == 2) {
-    [self.mapCtrl.view removeFromSuperview];
+    //[self.mapCtrl.view removeFromSuperview];
+    [self.pluginScrollView dettachView];
     [self.pluginLayer clearHTMLElement];
+    [self.pluginScrollView.debugView clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
     self.pluginLayer.mapCtrl = self.mapCtrl;
     self.pluginLayer.webView = self.webView;
     
-    [self.pluginScrollView addSubview:self.mapCtrl.view];
+   [self.pluginScrollView attachView:self.mapCtrl.view];
     [self resizeMap:command];
   } else {
-    [self.mapCtrl.view removeFromSuperview];
+    //[self.mapCtrl.view removeFromSuperview];
+    [self.pluginScrollView dettachView];
   }
 }
 
@@ -375,6 +385,9 @@
   NSInteger argCnt = [command.arguments count];
   self.mapCtrl.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
   self.pluginLayer.embedRect = self.mapCtrl.embedRect;
+  self.pluginScrollView.debugView.embedRect = self.mapCtrl.embedRect;
+  [self.pluginLayer clearHTMLElement];
+  [self.pluginScrollView.debugView clearHTMLElement];
 
   NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
   NSString *elemId;
@@ -384,6 +397,7 @@
     elemSize = [elemInfo objectForKey:@"size"];
     elemId = [elemInfo objectForKey:@"id"];
     [self.pluginLayer putHTMLElement:elemId size:elemSize];
+    [self.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
   }
   
   [self.mapCtrl updateMapViewLayout];
@@ -630,6 +644,8 @@
 - (void)clear:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
+  [self.pluginScrollView.debugView clearHTMLElement];
+  [self.pluginLayer clearHTMLElement];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -639,17 +655,20 @@
   NSString *domId = [command.arguments objectAtIndex:0];
   NSDictionary *size = [command.arguments objectAtIndex:1];
   [self.pluginLayer putHTMLElement:domId size:size];
+  [self.pluginScrollView.debugView putHTMLElement:domId size:size];
 }
 
 - (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand *)command {
   NSString *domId = [command.arguments objectAtIndex:0];
   [self.pluginLayer removeHTMLElement:domId];
+  [self.pluginScrollView.debugView removeHTMLElement:domId];
 }
 
 -(void)pluginLayer_setClickable:(CDVInvokedUrlCommand *)command
 {
   Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.clickable = isClickable;
+  self.pluginScrollView.debugView.clickable = isClickable;
     
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
