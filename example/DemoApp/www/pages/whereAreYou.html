@@ -1,14 +1,16 @@
 <h3 class="ui-bar ui-bar-a">Where are you?</h3>
+<p><span class="highlight">Map.getMyLocation()</span> returns your location. <span class="highlight">enableHighAccuracy</span> option allows you to use GPS mandatorily.</p>
 <div id="map_canvas"></div>
 <button id='updateLocationBtn' class="ui-btn-inline">update location</button>
 <script type="text/javascript">
-function onPageLoaded(map) {
+$(document).one("pageLoad", function(event, map) {
   $("#updateLocationBtn").click(function() {
     map.setZoom(10);
     showMyLocation(map);
   });
   showMyLocation(map);
-}
+});
+
 function showMyLocation(map) {
   map.clear();
   
@@ -29,7 +31,9 @@ function showMyLocation(map) {
   var error = function(result) {
     alert("ERROR\n---\n" + result.error_message );
   };
-  map.getMyLocation(success, error);
+  map.getMyLocation({
+    enableHighAccuracy: true
+  }, success, error);
 }
 </script>
 <h4 class="ui-bar ui-bar-a">with jQuery</h4>
@@ -52,5 +56,7 @@ var success = function(location) {
 var error = function(result) {
   alert("ERROR\n---\n" + result.error_message );
 };
-map.getMyLocation(success, error);
+map.getMyLocation({
+  enableHighAccuracy: true
+}, success, error);
 </code>

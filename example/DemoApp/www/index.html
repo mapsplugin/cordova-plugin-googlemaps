@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
     <title>Google Maps Plugin for Cordova</title>
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.2/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.4.min.css" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link href="css/prettify.css" type="text/css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
-    <script src="js/jquery.mobile.min.js"></script>
+    <script src="js/jquery.mobile-1.4.4.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/example.js"></script>
     <script src="js/prettify.js"></script>
@@ -29,16 +29,20 @@
       </div><!-- /content -->
     
     
-      <div data-role="panel" id="menulist" data-position="left" data-display="reveal">
+      <div data-role="panel" id="menulist" data-position="left" data-display="overlay">
         <ul data-role="listview">
           <li action="welcome">Welcome</li>
           <li data-role="list-divider">Map</li>
           <li action="gotoGoogle">Go to Google</li>
           <li action="whereAreYou">Where are you?</li>
-          <li action="getVisibleRegion">Get visible region?</li>
+          <li action="mapOptions">Map Options</li>
+          <li action="mapRemove">Remove the map</li>
+          <li action="htmlOverlay">Put HTML on the map</li>
+          <li action="customInfoWindow">Custom InfoWindow</li>
           <li data-role="list-divider">Marker</li>
-          <li action="marker">Marker</li>
-          <li action="marker_advance">Marker Advance</li>
+          <li action="marker1">Marker 1</li>
+          <li action="marker2">Marker 2</li>
+          <li action="marker3">Marker 3</li>
           <li data-role="list-divider">Overlays</li>
           <li action="drawOverlays">Polyline, Polygon, Circle</li>
           <li action="groundOverlay">Ground Overlay</li>
@@ -53,7 +57,5 @@
       </div><!-- /menu panel -->
     
     </div><!-- /page -->
-    
-    
   </body>
 </html>
