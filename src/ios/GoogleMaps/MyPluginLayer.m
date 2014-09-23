@@ -15,6 +15,7 @@
   self = [super initWithFrame:aRect];
   self.HTMLNodes = [[NSMutableDictionary alloc] init];
   self.clickable = YES;
+  self.debuggable = NO;
   return self;
 }
 
@@ -97,6 +98,9 @@
 
 - (void)drawRect:(CGRect)rect
 {
+  if (self.debuggable == NO) {
+    return;
+  }
   float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
   float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
   

@@ -13,6 +13,7 @@
 @property (nonatomic) UIWebView *webView;
 @property (nonatomic) float offsetX;
 @property (nonatomic) float offsetY;
+@property (nonatomic) BOOL debuggable;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
 - (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;
