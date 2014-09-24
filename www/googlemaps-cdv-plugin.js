@@ -71,6 +71,9 @@ var BaseClass = function() {
           }
         }
       } else {
+        for (i = 0; i < _listeners[eventName].length; i++) {
+          document.removeEventListener(eventName, _listeners[eventName][i].listener);
+        }
         delete _listeners[eventName];
       }
     } else {
