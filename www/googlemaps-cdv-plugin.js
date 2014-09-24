@@ -516,6 +516,7 @@ App.prototype.remove = function() {
   this.set('div', undefined);
   this.clear();
   this.empty();
+  this.off();
   cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
 };
 
