@@ -23,7 +23,7 @@
     </feature>
     <feature name="Geocoder">
       <param name="ios-package" value="Geocoder" />
-      <param name="android-package" value="plugin.google.maps.Geocoder" />
+      <param name="android-package" value="plugin.google.maps.MyGeocoder" />
     </feature>
     <feature name="Console">
       <param name="ios-package" value="CDVLogger" />
