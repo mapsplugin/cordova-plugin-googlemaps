@@ -85,6 +85,10 @@
                 "parents": {
                     "/*": [
                         {
+                            "xml": "<feature name=\"Geocoder\"><param name=\"ios-package\" value=\"Geocoder\" /></feature>",
+                            "count": 1
+                        },
+                        {
                             "xml": "<feature name=\"GoogleMaps\"><param name=\"ios-package\" value=\"GoogleMaps\" /></feature>",
                             "count": 1
                         },
