@@ -71,6 +71,9 @@ var BaseClass = function() {
           }
         }
       } else {
+        for (i = 0; i < _listeners[eventName].length; i++) {
+          document.removeEventListener(eventName, _listeners[eventName][i].listener);
+        }
         delete _listeners[eventName];
       }
     } else {
@@ -254,7 +257,7 @@ App.prototype.getMap = function(div, params) {
     params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
   } else {
-    var children = div.childNodes;
+    var children = getAllChildren(div);
     params = params || {};
     params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
@@ -266,13 +269,6 @@ App.prototype.getMap = function(div, params) {
     
     for (var i = 0; i < children.length; i++) {
       element = children[i];
-      if (element.nodeType != 1) {
-        continue;
-      }
-      clickable = element.getAttribute("data-clickable");
-      if (clickable && parseBoolean(clickable) == false) {
-        continue;
-      }
       elemId = element.getAttribute("__pluginDomId");
       if (!elemId) {
         elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
@@ -282,6 +278,7 @@ App.prototype.getMap = function(div, params) {
         id: elemId,
         size: getDivSize(element)
       });
+      i++;
     }
     args.push(elements);
     
@@ -301,7 +298,6 @@ App.prototype.getMap = function(div, params) {
   }, self.errorHandler, PLUGIN_NAME, 'getMap', args);
   return self;
 };
-
 
 
 App.prototype.getLicenseInfo = function(callback) {
@@ -461,6 +457,14 @@ App.prototype.setBackgroundColor = function(color) {
   this.set('strokeColor', color);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
+
+
+App.prototype.setDebuggable = function(debug) {
+  var self = this;
+  debug = parseBoolean(debug);
+  cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+};
+
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
@@ -512,6 +516,7 @@ App.prototype.remove = function() {
   this.set('div', undefined);
   this.clear();
   this.empty();
+  this.off();
   cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
 };
 
@@ -587,12 +592,9 @@ App.prototype.setDiv = function(div) {
   if (isDom(div) === false) {
     div = self.get("div");
     if (div) {
-      var children = div.childNodes;
+      var children = getAllChildren(div);
       for (var i = 0; i < children.length; i++) {
         element = children[i];
-        if (element.nodeType != 1) {
-          continue;
-        }
         elemId = element.getAttribute("__pluginDomId");
         element.removeAttribute("__pluginDomId");
       }
@@ -600,7 +602,7 @@ App.prototype.setDiv = function(div) {
     }
     self.set("div", null);
   } else {
-    var children = div.childNodes;
+    var children = getAllChildren(div);;
     self.set("div", div);
     args.push(getDivSize(div));
     var elements = [];
@@ -1873,7 +1875,7 @@ function onMapResize(event) {
   } else {
     var args = [];
     var element, elements = [];
-    var children = div.childNodes;
+    var children = getAllChildren(div);
     var elemId, clickable;
     
     args.push(getDivSize(div));
@@ -1939,7 +1941,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
       if (typeof callback === "function") {
         callback.call(self,  results);
       }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
+    }, self.errorHandler, "Geocoder", 'geocode', [geocoderRequest]);
   };
   
   pluginExec();
@@ -1996,11 +1998,20 @@ cordova.addConstructor(function() {
 window.addEventListener("orientationchange", onMapResize);
 document.addEventListener("deviceready", function() {
   var prevSize = null;
-  var div, divSize;
-  var sameCnt = 0;
+  var children;
+  var prevChildrenCnt = 0;
+  var div, divSize, childCnt = 0;
   setInterval(function() {
     div = module.exports.Map.get("div");
     if (div) {
+      children= getAllChildren(div);
+      childCnt = children.length;
+      if (childCnt != prevChildrenCnt) {
+        onMapResize();
+        prevChildrenCnt = childCnt;
+        return;
+      }
+      prevChildrenCnt = childCnt;
       divSize = getDivSize(div);
       if (prevSize) {
         if (divSize.left != prevSize.left ||
@@ -2014,3 +2025,35 @@ document.addEventListener("deviceready", function() {
     }
   }, 100);
 });
+function getAllChildren(root) {
+  var list = [];
+  var clickable;
+  var style, displayCSS, opacityCSS, visibilityCSS;
+  var search = function (node)
+  {
+    while (node != null)
+    {
+      if (node.nodeType == 1) {
+        style = window.getComputedStyle(node);
+        visibilityCSS = style.getPropertyValue('visibility');
+        displayCSS = style.getPropertyValue('display');
+        opacityCSS = style.getPropertyValue('opacity');
+        if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden") {
+          clickable = node.getAttribute("data-clickable");
+          if (clickable &&
+              clickable.toLowerCase() === "false" &&
+              node.hasChildNodes()) {
+            Array.prototype.push.apply(list, getAllChildren(node));
+          } else {
+            list.push(node);
+          }
+        }
+      }
+      node = node.nextSibling;
+    }
+  };
+  for (var i = 0; i < root.childNodes.length; i++) {
+    search(root.childNodes[i]);
+  }
+  return list;
+}

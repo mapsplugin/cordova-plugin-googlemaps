@@ -1,11 +1,13 @@
 package plugin.google.maps;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,13 +19,29 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
-public class PluginGeocoder extends MyPlugin implements MyPluginInterface {
+public class MyGeocoder extends CordovaPlugin {
 
+  @Override
+  public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {
+    try {
+      Method method = this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+      if (method.isAccessible() == false) {
+        method.setAccessible(true);
+      }
+      method.invoke(this, args, callbackContext);
+      return true;
+    } catch (Exception e) {
+      Log.e("CordovaLog", "An error occurred", e);
+      callbackContext.error(e.toString());
+      return false;
+    }
+  }
+  
   @SuppressWarnings("unused")
-  private void createGeocoder(final JSONArray args,
+  private void geocode(final JSONArray args,
       final CallbackContext callbackContext) throws JSONException, IOException {
 
-    JSONObject opts = args.getJSONObject(1);
+    JSONObject opts = args.getJSONObject(0);
     Geocoder geocoder = new Geocoder(this.cordova.getActivity());
     List<Address> geoResults;
     JSONArray results = new JSONArray();
