@@ -39,6 +39,9 @@
             <feature name="External">
                 <param name="android-package" value="plugin.google.maps.External" />
             </feature>
+            <feature name="Geocoder">
+                <param name="android-package" value="plugin.google.maps.Geocoder" />
+            </feature>
         </config-file>
 
         <dependency id="com.google.playservices" />
@@ -107,6 +110,9 @@
             </feature>
             <feature name="External">
                 <param name="ios-package" value="External" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="ios-package" value="Geocoder" />
             </feature>
         </config-file>
 

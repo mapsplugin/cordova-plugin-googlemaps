@@ -10,21 +10,16 @@
 
 @implementation Geocoder
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)geocode:(CDVInvokedUrlCommand *)command
 {
-  self.mapCtrl = viewCtrl;
-}
-
--(void)createGeocoder:(CDVInvokedUrlCommand *)command
-{
-  NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSDictionary *json = [command.arguments objectAtIndex:0];
   NSDictionary *position = [json objectForKey:@"position"];
   NSString *address = [json objectForKey:@"address"];
 
   if (!self.geocoder) {
     self.geocoder = [[CLGeocoder alloc] init];
-    self.reverseGeocoder = [GMSGeocoder geocoder];
   }
+
   if (address && position == nil) {
   
     NSArray *points = [json objectForKey:@"bounds"];
@@ -70,7 +65,7 @@
         }
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
-
+      
     } else {
       //No region specified.
       [self.geocoder geocodeAddressString:address completionHandler:^(NSArray *placemarks, NSError *error) {
@@ -93,6 +88,9 @@
   
   // Reverse geocoding
   if (position && address == nil) {
+    if (!self.reverseGeocoder) {
+      self.reverseGeocoder = [GMSGeocoder geocoder];
+    }
     
     NSDictionary *latLng = [json objectForKey:@"position"];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
