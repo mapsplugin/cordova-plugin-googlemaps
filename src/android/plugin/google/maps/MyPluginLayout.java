@@ -231,7 +231,7 @@ public class MyPluginLayout extends FrameLayout  {
 
 
   public void setBackgroundColor(int color) {
-    this.scrollView.setBackgroundColor(color);
+    this.backgroundView.setBackgroundColor(color);
   }
   
   public void inValidate() {
