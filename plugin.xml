@@ -39,6 +39,9 @@
             <feature name="External">
                 <param name="android-package" value="plugin.google.maps.External" />
             </feature>
+            <feature name="Geocoder">
+                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
+            </feature>
         </config-file>
 
         <dependency id="com.google.playservices" />
@@ -55,7 +58,7 @@
         <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/External.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/MyGeocoder.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps" />
@@ -107,6 +110,9 @@
             </feature>
             <feature name="External">
                 <param name="ios-package" value="External" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="ios-package" value="Geocoder" />
             </feature>
         </config-file>
 
