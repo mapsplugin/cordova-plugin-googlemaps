@@ -516,6 +516,7 @@ App.prototype.remove = function() {
   this.set('div', undefined);
   this.clear();
   this.empty();
+  this.off();
   cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
 };
 
@@ -1940,7 +1941,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
       if (typeof callback === "function") {
         callback.call(self,  results);
       }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
+    }, self.errorHandler, "Geocoder", 'geocode', [geocoderRequest]);
   };
   
   pluginExec();
@@ -2027,18 +2028,25 @@ document.addEventListener("deviceready", function() {
 function getAllChildren(root) {
   var list = [];
   var clickable;
+  var style, displayCSS, opacityCSS, visibilityCSS;
   var search = function (node)
   {
     while (node != null)
     {
       if (node.nodeType == 1) {
-        
-        clickable = node.getAttribute("data-clickable");
-        if (!clickable ||
-           parseBoolean(clickable) == true) {
-          list.push(node);
-        } else {
-          Array.prototype.push.apply(list, getAllChildren(node));
+        style = window.getComputedStyle(node);
+        visibilityCSS = style.getPropertyValue('visibility');
+        displayCSS = style.getPropertyValue('display');
+        opacityCSS = style.getPropertyValue('opacity');
+        if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden") {
+          clickable = node.getAttribute("data-clickable");
+          if (clickable &&
+              clickable.toLowerCase() === "false" &&
+              node.hasChildNodes()) {
+            Array.prototype.push.apply(list, getAllChildren(node));
+          } else {
+            list.push(node);
+          }
         }
       }
       node = node.nextSibling;
