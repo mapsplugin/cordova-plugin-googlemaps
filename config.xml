@@ -21,4 +21,11 @@
       <param name="ios-package" value="External" />
       <param name="android-package" value="plugin.google.maps.External" />
     </feature>
+    <feature name="Geocoder">
+      <param name="ios-package" value="Geocoder" />
+      <param name="android-package" value="plugin.google.maps.Geocoder" />
+    </feature>
+    <feature name="Console">
+      <param name="ios-package" value="CDVLogger" />
+    </feature>
 </widget>
