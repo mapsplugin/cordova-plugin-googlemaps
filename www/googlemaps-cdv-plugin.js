@@ -2028,15 +2028,17 @@ document.addEventListener("deviceready", function() {
 function getAllChildren(root) {
   var list = [];
   var clickable;
-  var style, displayCSS;
+  var style, displayCSS, opacityCSS, visibilityCSS;
   var search = function (node)
   {
     while (node != null)
     {
       if (node.nodeType == 1) {
         style = window.getComputedStyle(node);
+        visibilityCSS = style.getPropertyValue('visibility');
         displayCSS = style.getPropertyValue('display');
-        if (displayCSS !== "none") {
+        opacityCSS = style.getPropertyValue('opacity');
+        if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden") {
           clickable = node.getAttribute("data-clickable");
           if (clickable &&
               clickable.toLowerCase() === "false" &&
