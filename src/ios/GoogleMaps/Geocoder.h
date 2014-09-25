@@ -7,16 +7,14 @@
 //
 
 #import "GoogleMaps.h"
-#import "MyPlgunProtocol.h"
 #import "PluginUtil.h"
 #import <CoreLocation/CoreLocation.h>
 
-@interface Geocoder : CDVPlugin<MyPlgunProtocol>
+@interface Geocoder : CDVPlugin
 
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic, strong) CLGeocoder *geocoder;
 @property (nonatomic, strong) GMSGeocoder *reverseGeocoder;
-- (void)createGeocoder:(CDVInvokedUrlCommand*)command;
+- (void)geocode:(CDVInvokedUrlCommand*)command;
 - (NSArray *)geocoder_callback:(NSArray *)placemarks error:(NSError *)error;
 
 @end
