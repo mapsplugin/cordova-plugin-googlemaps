@@ -43,7 +43,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.1";
+  NSString *PLUGIN_VERSION = @"1.2.2 beta";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
@@ -644,8 +644,6 @@
 - (void)clear:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
-  [self.pluginScrollView.debugView clearHTMLElement];
-  [self.pluginLayer clearHTMLElement];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
