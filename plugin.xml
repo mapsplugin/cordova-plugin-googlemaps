@@ -45,7 +45,6 @@
         </config-file>
 
         <dependency id="com.google.playservices" />
-        <dependency id="android.support.v4" />
     
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
@@ -87,8 +86,6 @@
                  Google Maps Android API v2, but are recommended. -->
             <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-            <!-- OpenGL ES version 2 -->
-            <uses-feature android:glEsVersion="0x00020000" android:required="true" />
         </config-file>
     </platform>
     
