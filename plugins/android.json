@@ -42,9 +42,6 @@
         }
     },
     "installed_plugins": {
-        "org.apache.cordova.console": {
-            "PACKAGE_NAME": "com.example.myapp"
-        },
         "com.googlemaps.ios": {
             "PACKAGE_NAME": "com.example.myapp"
         },
@@ -55,6 +52,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "com.google.playservices": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "org.apache.cordova.console": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },
