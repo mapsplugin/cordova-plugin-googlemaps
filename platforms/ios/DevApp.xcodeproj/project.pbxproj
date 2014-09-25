@@ -64,6 +64,7 @@
 		8FEC2B9CD827442298AA1B17 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D03A823343FFBED6DB34 /* ImageIO.framework */; };
 		92824D78C3A44B5ABB7C7A36 /* R9HTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A0B320D7E0048619974FE4C /* R9HTTPRequest.m */; };
 		9FB4C9ACEF484DE4A8D5143F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B83D77D8DF42C0BB1A9DEF /* AVFoundation.framework */; };
+		A0B15AF119D406AE00CECFE9 /* plugin.xml in Resources */ = {isa = PBXBuildFile; fileRef = A0B15AF019D406AD00CECFE9 /* plugin.xml */; };
 		A0C8C25419D11E8B00E46F7E /* MyPluginScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */; };
 		A0C8C25719D120FC00E46F7E /* MyPluginLayerDebugView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C8C25619D120FC00E46F7E /* MyPluginLayerDebugView.m */; };
 		A5DD3B6DBCE94888A0E4FC85 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D3F4D4F248A48AB8BFDD106 /* CoreLocation.framework */; };
@@ -186,6 +187,7 @@
 		8D1107310486CEB800E47090 /* DevApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "DevApp-Info.plist"; path = "../DevApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		94B42436A54042BB8390247A /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpRequest.h; path = plugin.http.request/HttpRequest/HttpRequest.h; sourceTree = "<group>"; };
 		9D0482B04E60450894AB403B /* libz.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		A0B15AF019D406AD00CECFE9 /* plugin.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = plugin.xml; path = ../../plugin.xml; sourceTree = "<group>"; };
 		A0C8C25219D11E8B00E46F7E /* MyPluginScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyPluginScrollView.h; path = ../../../../src/ios/GoogleMaps/MyPluginScrollView.h; sourceTree = "<group>"; };
 		A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyPluginScrollView.m; path = ../../../../src/ios/GoogleMaps/MyPluginScrollView.m; sourceTree = "<group>"; };
 		A0C8C25519D120FC00E46F7E /* MyPluginLayerDebugView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyPluginLayerDebugView.h; path = ../../../../src/ios/GoogleMaps/MyPluginLayerDebugView.h; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				A0B15AF019D406AD00CECFE9 /* plugin.xml */,
 				EB87FDF41871DAF40020F90C /* config.xml */,
 				EB87FDF31871DA8E0020F90C /* www */,
 				EB87FDF21871DA7A0020F90C /* merges */,
@@ -542,6 +545,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7E7966E41810823500FA85AD /* icon-76.png in Resources */,
+				A0B15AF119D406AE00CECFE9 /* plugin.xml in Resources */,
 				7E7966DF1810823500FA85AD /* icon-40@2x.png in Resources */,
 				308D05371370CCF300D202BF /* icon-72.png in Resources */,
 				308D05381370CCF300D202BF /* icon.png in Resources */,

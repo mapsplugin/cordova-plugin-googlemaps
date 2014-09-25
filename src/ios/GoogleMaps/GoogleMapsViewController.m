@@ -12,7 +12,6 @@
 
 @implementation GoogleMapsViewController
 NSDictionary *initOptions;
-bool isFirst = true;
 
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
@@ -52,11 +51,6 @@ bool isFirst = true;
     //------------------
     // Create a map view
     //------------------
-    if (isFirst) {
-      NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-      [GMSServices provideAPIKey:APIKey];
-    }
-    isFirst = false;
   
     //Intial camera position
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];

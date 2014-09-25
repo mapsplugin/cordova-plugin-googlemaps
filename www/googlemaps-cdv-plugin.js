@@ -1941,7 +1941,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
       if (typeof callback === "function") {
         callback.call(self,  results);
       }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Geocoder.createGeocoder', geocoderRequest]);
+    }, self.errorHandler, "Geocoder", 'geocode', [geocoderRequest]);
   };
   
   pluginExec();
