@@ -2028,18 +2028,23 @@ document.addEventListener("deviceready", function() {
 function getAllChildren(root) {
   var list = [];
   var clickable;
+  var style, displayCSS;
   var search = function (node)
   {
     while (node != null)
     {
       if (node.nodeType == 1) {
-        
-        clickable = node.getAttribute("data-clickable");
-        if (!clickable ||
-           parseBoolean(clickable) == true) {
-          list.push(node);
-        } else {
-          Array.prototype.push.apply(list, getAllChildren(node));
+        style = window.getComputedStyle(node);
+        displayCSS = style.getPropertyValue('display');
+        if (displayCSS !== "none") {
+          clickable = node.getAttribute("data-clickable");
+          if (clickable &&
+              clickable.toLowerCase() === "false" &&
+              node.hasChildNodes()) {
+            Array.prototype.push.apply(list, getAllChildren(node));
+          } else {
+            list.push(node);
+          }
         }
       }
       node = node.nextSibling;
