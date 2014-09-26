@@ -13,13 +13,32 @@
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript">
     $(document).on('deviceready', function() {
-    
-      var request = {
-        'address': "Tokyo, Japan"
+      var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
+      
+      var onSuccess = function(location) {
+        var msg = ["Current your location:\n",
+          "latitude:" + location.latLng.lat,
+          "longitude:" + location.latLng.lng,
+          "speed:" + location.speed,
+          "time:" + location.time,
+          "bearing:" + location.bearing].join("\n");
+      
+        map.addMarker({
+          'position': location.latLng,
+          'title': msg
+        }, function(marker) {
+          marker.showInfoWindow();
+        });
       };
-      plugin.google.maps.Geocoder.geocode(request, function(results) {
-        alert(JSON.stringify(results));
+      
+      var onError = function(msg) {
+        alert("error: " + msg);
+      };
+      $("#testBtn").click(function() {
+        map.clear();
+        map.getMyLocation(onSuccess, onError);
       });
+      
     });
     </script>
     
@@ -27,9 +46,6 @@
   <body>
     <div id="map_canvas" style="width:90%;height:90%;min-height:600px;border:1px solid red;position:relative;">
       <button id="testBtn">Test button</button>
-      <div id="markerInfo" style="position:fixed;bottom:0;height:100px;left:0;width:100%;display:none">Marker is clicked!
-        <button id="closeBtn" >Close</button>
-      </div>
     </div>
   </body>
 </html>
