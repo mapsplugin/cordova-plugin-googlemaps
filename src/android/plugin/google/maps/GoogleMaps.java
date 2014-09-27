@@ -1,10 +1,12 @@
 package plugin.google.maps;
 
 import java.lang.reflect.Method;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -34,14 +36,12 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -951,12 +951,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     //locationRequest.setNumUpdates(1);
     locationRequest.setPriority(priority);
     locationRequest.setInterval(5000);
-    
+
+    final long nowMSec = System.currentTimeMillis();
     if (googleApiClient.isConnected() == false) {
 
-      Log.d("GoogleMaps", "--->isConnected = false");
       googleApiClient.connect();
-      Log.d("GoogleMaps", "--->connect()");
       
       googleApiClient.registerConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
         @Override
@@ -964,21 +963,38 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
         @Override
         public void onConnected(Bundle bundle) {
-          Log.d("GoogleMaps", "--->onConnected()");
 
           if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
+            
+            boolean isWaiting = false;
+            Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (nowMSec - location.getTime() < 60 * 10000) {
+              try {
+                JSONObject result = PluginUtil.location2Json(location);
+                result.put("status", true);
+                callbackContext.success(result);
+              } catch (JSONException e) {}
+            } else {
+              isWaiting = true;
+            }
+            
+            final boolean isWaitingFinal = isWaiting;
             LocationServices.FusedLocationApi.requestLocationUpdates(
               googleApiClient, locationRequest, new LocationListener() {
 
                 @Override
                 public void onLocationChanged(Location location) {
+                  if (isWaitingFinal == false) {
+                    googleApiClient.disconnect();
+                    return;
+                  }
                   JSONObject result;
                   try {
                     result = PluginUtil.location2Json(location);
                     result.put("status", true);
                     callbackContext.success(result);
                   } catch (JSONException e) {}
+                  googleApiClient.disconnect();
                 }
                 
               });
@@ -1013,18 +1029,37 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     } else {
 
       if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
+        
+        boolean isWaiting = false;
+        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        if (nowMSec - location.getTime() < 60 * 10000) {
+          try {
+            JSONObject result = PluginUtil.location2Json(location);
+            result.put("status", true);
+            callbackContext.success(result);
+          } catch (JSONException e) {}
+        } else {
+          isWaiting = true;
+        }
+        
+        final boolean isWaitingFinal = isWaiting;
+        
         LocationServices.FusedLocationApi.requestLocationUpdates(
           googleApiClient, locationRequest, new LocationListener() {
 
             @Override
             public void onLocationChanged(Location location) {
+              if (isWaitingFinal == false) {
+                googleApiClient.disconnect();
+                return;
+              }
               JSONObject result;
               try {
                 result = PluginUtil.location2Json(location);
                 result.put("status", true);
                 callbackContext.success(result);
               } catch (JSONException e) {}
+              googleApiClient.disconnect();
             }
             
           });
