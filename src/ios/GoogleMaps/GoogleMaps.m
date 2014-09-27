@@ -533,12 +533,14 @@
   // Obtain the authorizationStatus
   CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
   if (self.locationManager != nil) {
+  NSLog(@"--location manager is not nil");
     [self.locationCommandQueue addObject:command];
     return;
   }
   
   if (status == kCLAuthorizationStatusDenied ||
       status == kCLAuthorizationStatusRestricted) {
+  NSLog(@"--status == kCLAuthorizationStatusDenied");
     //----------------------------------------------------
     // kCLAuthorizationStatusDenied
     // kCLAuthorizationStatusRestricted
@@ -588,6 +590,7 @@
         [self.locationManager requestWhenInUseAuthorization];
       #endif
     #endif
+  NSLog(@"--status == startUpdatingLocation");
     [self.locationManager startUpdatingLocation];
     [self.locationCommandQueue addObject:command];
     
@@ -598,6 +601,7 @@
 }
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+NSLog(@"---didUpdateLocations");
   NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
   [latLng setObject:[NSNumber numberWithFloat:self.locationManager.location.coordinate.latitude] forKey:@"lat"];
   [latLng setObject:[NSNumber numberWithFloat:self.locationManager.location.coordinate.longitude] forKey:@"lng"];
