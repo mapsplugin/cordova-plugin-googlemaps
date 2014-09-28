@@ -62,6 +62,10 @@ public class MyGeocoder extends CordovaPlugin {
             callbackContext.error("Geocoder service is not available.");
             return;
           }
+          if (geoResults.size() == 0) {
+            callbackContext.error("Not found");
+            return;
+          }
           iterator = geoResults.iterator();
         }
       } else {
@@ -69,6 +73,10 @@ public class MyGeocoder extends CordovaPlugin {
           geoResults = geocoder.getFromLocationName(address, 20);
         }catch (Exception e) {
           callbackContext.error("Geocoder service is not available.");
+          return;
+        }
+        if (geoResults.size() == 0) {
+          callbackContext.error("Not found");
           return;
         }
         iterator = geoResults.iterator();
@@ -84,6 +92,10 @@ public class MyGeocoder extends CordovaPlugin {
             position.getDouble("lng"), 20);
       } catch (Exception e) {
         callbackContext.error("Geocoder service is not available.");
+        return;
+      }
+      if (geoResults.size() == 0) {
+        callbackContext.error("Not found");
         return;
       }
       iterator = geoResults.iterator();
