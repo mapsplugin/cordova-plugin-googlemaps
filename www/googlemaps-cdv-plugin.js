@@ -765,16 +765,16 @@ App.prototype.addMarker = function(markerOptions, callback) {
     
     if ("color" in markerOptions.styles) {
       markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
-      }
     }
+  }
  
-    cordova.exec(function(result) {
-      markerOptions.hashCode = result.hashCode;
-      var marker = new Marker(self, result.id, markerOptions);
-      MARKERS[result.id] = marker;
-      OVERLAYS[result.id] = marker;
-      
-      if (typeof markerOptions.markerClick === "function") {
+  cordova.exec(function(result) {
+    markerOptions.hashCode = result.hashCode;
+    var marker = new Marker(self, result.id, markerOptions);
+    MARKERS[result.id] = marker;
+    OVERLAYS[result.id] = marker;
+    
+    if (typeof markerOptions.markerClick === "function") {
       marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
     }
     if (typeof markerOptions.infoClick === "function") {
@@ -795,8 +795,8 @@ App.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.center = circleOptions.center || {};
   circleOptions.center.lat = circleOptions.center.lat || 0.0;
   circleOptions.center.lng = circleOptions.center.lng || 0.0;
-  circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000");
-  circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000");
+  circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000", 0.75);
+  circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
   circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
   circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
   circleOptions.zIndex = circleOptions.zIndex || 0.0;
@@ -819,7 +819,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
 App.prototype.addPolyline = function(polylineOptions, callback) {
   var self = this;
   polylineOptions.points = polylineOptions.points || [];
-  polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF000080");
+  polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
   polylineOptions.width = polylineOptions.width || 10;
   polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
   polylineOptions.zIndex = polylineOptions.zIndex || 0.0;
@@ -842,9 +842,9 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
 App.prototype.addPolygon = function(polygonOptions, callback) {
   var self = this;
   polygonOptions.points = polygonOptions.points || [];
-  polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080");
+  polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
   if (polygonOptions.fillColor) {
-    polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor);
+    polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
   }
   polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
   polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
@@ -1248,11 +1248,11 @@ Circle.prototype.setCenter = function(center) {
 };
 Circle.prototype.setFillColor = function(color) {
   this.set('fillColor', color);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setFillColor', this.getId(), HTMLColor2RGBA(color)]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setFillColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
 };
 Circle.prototype.setStrokeColor = function(color) {
   this.set('strokeColor', color);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeColor', this.getId(), HTMLColor2RGBA(color)]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
 };
 Circle.prototype.setStrokeWidth = function(width) {
   this.set('strokeWidth', width);
@@ -1322,7 +1322,7 @@ Polyline.prototype.getPoints = function() {
 };
 Polyline.prototype.setColor = function(color) {
   this.set('color', color);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setColor', this.getId(), HTMLColor2RGBA(color)]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
 };
 Polyline.prototype.getColor = function() {
   return this.get('color');
@@ -1417,14 +1417,14 @@ Polygon.prototype.getPoints = function() {
 };
 Polygon.prototype.setFillColor = function(color) {
   this.set('fillColor', color);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setFillColor', this.getId(), HTMLColor2RGBA(color)]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setFillColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
 };
 Polygon.prototype.getFillColor = function() {
   return this.get('fillColor');
 };
 Polygon.prototype.setStrokeColor = function(color) {
   this.set('strokeColor', color);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setStrokeColor', this.getId(), HTMLColor2RGBA(color)]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setStrokeColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
 };
 Polygon.prototype.getStrokeColor = function() {
   return this.get('strokeColor');
@@ -1763,11 +1763,12 @@ LatLngBounds.prototype.contains = function(latLng) {
 var colorDiv = document.createElement("div");
 document.head.appendChild(colorDiv);
  
-function HTMLColor2RGBA(colorStr) {
+function HTMLColor2RGBA(colorStr, defaultOpacity) {
+  defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
   if (colorStr === "transparent" || !colorStr) {
     return [0, 0, 0, 0];
   }
-  var alpha = 255, //Math.floor(255 * 0.75),
+  var alpha = Math.floor(255 * defaultOpacity),
       matches,
       compStyle,
       result = {
@@ -1784,6 +1785,7 @@ function HTMLColor2RGBA(colorStr) {
   if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
     alpha = colorStr.substr(7, 2);
     alpha = parseInt(alpha, 16);
+    alert(alpha);
     colorStr = colorStr.substring(0, 7);
   }
   
