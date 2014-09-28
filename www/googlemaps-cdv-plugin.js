@@ -1929,7 +1929,6 @@ externalService.launchNavigation = function(params) {
 var Geocoder = {};
 
 Geocoder.geocode = function(geocoderRequest, callback) {
-  var self = this;
   geocoderRequest = geocoderRequest || {};
   
   if ("position" in geocoderRequest) {
@@ -1939,9 +1938,13 @@ Geocoder.geocode = function(geocoderRequest, callback) {
   var pluginExec = function() {
     cordova.exec(function(results) {
       if (typeof callback === "function") {
-        callback.call(self,  results);
+        callback(results);
       }
-    }, self.errorHandler, "Geocoder", 'geocode', [geocoderRequest]);
+    }, function(error) {
+      if (typeof callback === "function") {
+        callback([], error);
+      }
+    }, "Geocoder", 'geocode', [geocoderRequest]);
   };
   
   pluginExec();
