@@ -72,8 +72,9 @@
     }
   }
   if (isMapAction == YES) {
-    offsetX += self.mapCtrl.view.frame.origin.x;
-    offsetY += self.mapCtrl.view.frame.origin.y;
+    // The issue #217 is fixed by @YazeedFares. Thank you!
+    offsetX = self.mapCtrl.view.frame.origin.x - offsetX;
+    offsetY = self.mapCtrl.view.frame.origin.y - offsetY;
     point.x -= offsetX;
     point.y -= offsetY;
     
