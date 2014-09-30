@@ -94,6 +94,19 @@
 }
 
 /**
+ * Pan by
+ */
+- (void)panBy:(CDVInvokedUrlCommand *)command {
+  int x = [[command.arguments objectAtIndex:1] intValue];
+  int y = [[command.arguments objectAtIndex:2] intValue];
+  
+  [self.mapCtrl.map moveCamera:[GMSCameraUpdate scrollByX:x * -1 Y:y * -1]];
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  * Change the Map Type
  */
 - (void)setMapTypeId:(CDVInvokedUrlCommand *)command {

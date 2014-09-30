@@ -250,6 +250,23 @@ public class PluginMap extends MyPlugin {
 
     this.myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
   }
+
+  /**
+   * Pan by the specified pixel
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    int x = args.getInt(1);
+    int y = args.getInt(2);
+    float xPixel = -x * this.density;
+    float yPixel = -y * this.density;
+    
+    CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
+    this.myMoveCamera(cameraUpdate, callbackContext);
+  }
   
   /**
    * Move the camera of the map
