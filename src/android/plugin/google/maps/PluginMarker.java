@@ -526,44 +526,47 @@ public class PluginMarker extends MyPlugin {
 
         @Override
         public void onPostExecute(Bitmap image) {
+          int width = image.getWidth();
+          int height = image.getHeight();
+          
           if (iconProperty.containsKey("size") == true) {
               
             Bundle sizeInfo = (Bundle) iconProperty.get("size");
-            int width = sizeInfo.getInt("width", 0);
-            int height = sizeInfo.getInt("height", 0);
-            if (width > 0 && height > 0) {
+            width = sizeInfo.getInt("width", width);
+            height = sizeInfo.getInt("height", height);
+            if (width != image.getWidth() && height > image.getHeight()) {
               //width = (int)Math.round(width * webView.getScale());
               //height = (int)Math.round(height * webView.getScale());
               image = PluginUtil.resizeBitmap(image, width, height);
             }
-            
-            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-            marker.setIcon(bitmapDescriptor);
-            
-            // Save the information for the anchor property
-            Bundle imageSize = new Bundle();
-            imageSize.putInt("width", image.getWidth());
-            imageSize.putInt("height", image.getHeight());
-            PluginMarker.this.objects.put("imageSize", imageSize);
-            
-            // The `anchor` of the `icon` property
-            if (iconProperty.containsKey("anchor") == true) {
-              double[] anchor = iconProperty.getDoubleArray("anchor");
-              if (anchor.length == 2) {
-                _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-              }
-            }
-
-            // The `anchor` property for the infoWindow
-            if (iconProperty.containsKey("infoWindowAnchor") == true) {
-              double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-              if (anchor.length == 2) {
-                _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-              }
-            }
-
-            callback.onMarkerIconLoaded(marker);
           }
+            
+          BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+          marker.setIcon(bitmapDescriptor);
+          
+          // Save the information for the anchor property
+          Bundle imageSize = new Bundle();
+          imageSize.putInt("width", image.getWidth());
+          imageSize.putInt("height", image.getHeight());
+          PluginMarker.this.objects.put("imageSize", imageSize);
+          
+          // The `anchor` of the `icon` property
+          if (iconProperty.containsKey("anchor") == true) {
+            double[] anchor = iconProperty.getDoubleArray("anchor");
+            if (anchor.length == 2) {
+              _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            }
+          }
+
+          // The `anchor` property for the infoWindow
+          if (iconProperty.containsKey("infoWindowAnchor") == true) {
+            double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+            if (anchor.length == 2) {
+              _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            }
+          }
+
+          callback.onMarkerIconLoaded(marker);
         }
         
       }, cache);
