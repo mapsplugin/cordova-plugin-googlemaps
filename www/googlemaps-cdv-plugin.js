@@ -336,7 +336,12 @@ App.prototype.setCenter = function(latLng) {
 App.prototype.setZoom = function(zoom) {
   this.set('zoom', zoom);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
-  };
+};
+App.prototype.panBy = function(x, y) {
+  x = parseInt(x, 10);
+  y = parseInt(y, 10);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.panBy', x, y]);
+};
  
   /**
  * @desc Change the map type
