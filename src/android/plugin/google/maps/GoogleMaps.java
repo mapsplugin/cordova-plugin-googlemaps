@@ -549,7 +549,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     // Load PluginMap class
     this.loadPlugin("Map");
+    //Custom info window
+    map.setInfoWindowAdapter(this);
 
+    callbackContext.success();
     // ------------------------------
     // Embed the map if a container is specified.
     // ------------------------------
@@ -558,11 +561,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       mPluginLayout.attachMyView(mapView);
       this.resizeMap(args, callbackContext);
     }
-    
-    //Custom info window
-    map.setInfoWindowAdapter(this);
-    
-    callbackContext.success();
   }
   
   private float contentToView(long d) {
