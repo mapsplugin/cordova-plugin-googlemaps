@@ -265,7 +265,7 @@ public class PluginMap extends MyPlugin {
     float yPixel = -y * this.density;
     
     CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
-    this.myMoveCamera(cameraUpdate, callbackContext);
+    map.animateCamera(cameraUpdate);
   }
   
   /**
