@@ -24,7 +24,7 @@ var BaseClass = function() {
   };
   self.set = function(key, value) {
     if (_vars[key] !== value) {
-      self.trigger(key + "_changed");
+      self.trigger(key + "_changed", _vars[key], value);
     }
     _vars[key] = value;
   };
@@ -285,6 +285,7 @@ App.prototype.getMap = function(div, params) {
     div.addEventListener("DOMNodeRemoved", _remove_child);
     div.addEventListener("DOMNodeInserted", _append_child);
     
+    self.set("keepWatching", true);
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       div = div.parentNode;
@@ -606,6 +607,7 @@ App.prototype.setDiv = function(div) {
       div.removeEventListener("DOMNodeRemoved", _remove_child);
     }
     self.set("div", null);
+    self.set("keepWatching", false);
   } else {
     var children = getAllChildren(div);;
     self.set("div", div);
@@ -644,6 +646,7 @@ App.prototype.setDiv = function(div) {
     }
     setTimeout(function() {
       self.refreshLayout();
+      self.set("keepWatching", true);
     }, 1000);
   }
   cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
@@ -1096,6 +1099,7 @@ Marker.prototype.getHashCode = function() {
 
 Marker.prototype.remove = function(callback) {
   var self = this;
+  self.set("keepWatching", false);
   delete MARKERS[this.id];
   cordova.exec(function() {
     if (typeof callback === "function") {
@@ -1958,6 +1962,57 @@ Geocoder.geocode = function(geocoderRequest, callback) {
 };
 
 /*****************************************************************************
+ * Watch dog timer for child elements
+ *****************************************************************************/
+var _mapInstance = new App();
+
+var watchDogTimer = null;
+_mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValue) {
+  if (newValue !== true) {
+    return;
+  }
+  var prevSize = null;
+  var children;
+  var prevChildrenCnt = 0;
+  var div, divSize, childCnt = 0;
+  if (watchDogTimer) {
+    clearInterval(watchDogTimer);
+  }
+  watchDogTimer = setInterval(function() {
+    div = module.exports.Map.get("div");
+    if (div) {
+      children= getAllChildren(div);
+      childCnt = children.length;
+      if (childCnt != prevChildrenCnt) {
+        onMapResize();
+        prevChildrenCnt = childCnt;
+        return;
+      }
+      prevChildrenCnt = childCnt;
+      divSize = getDivSize(div);
+      if (prevSize) {
+        if (divSize.left != prevSize.left ||
+            divSize.top != prevSize.top ||
+            divSize.width != prevSize.width ||
+            divSize.height != prevSize.height ) {
+          onMapResize();
+        }
+      }
+      prevSize = divSize;
+    }
+  }, 100);
+});
+
+_mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValue) {
+  if (newValue !== false) {
+    return;
+  }
+  if (watchDogTimer) {
+    clearInterval(watchDogTimer);
+  }
+  watchDogTimer = null;
+});
+/*****************************************************************************
  * Name space
  *****************************************************************************/
 module.exports = {
@@ -1981,7 +2036,7 @@ module.exports = {
   },
   
   BaseClass: BaseClass,
-  Map: new App(),
+  Map: _mapInstance,
   LatLng: LatLng,
   LatLngBounds: LatLngBounds,
   Marker: Marker,
@@ -2006,35 +2061,8 @@ cordova.addConstructor(function() {
   window.plugin.google.maps = window.plugin.google.maps || module.exports;
 });
 window.addEventListener("orientationchange", onMapResize);
-document.addEventListener("deviceready", function() {
-  var prevSize = null;
-  var children;
-  var prevChildrenCnt = 0;
-  var div, divSize, childCnt = 0;
-  setInterval(function() {
-    div = module.exports.Map.get("div");
-    if (div) {
-      children= getAllChildren(div);
-      childCnt = children.length;
-      if (childCnt != prevChildrenCnt) {
-        onMapResize();
-        prevChildrenCnt = childCnt;
-        return;
-      }
-      prevChildrenCnt = childCnt;
-      divSize = getDivSize(div);
-      if (prevSize) {
-        if (divSize.left != prevSize.left ||
-            divSize.top != prevSize.top ||
-            divSize.width != prevSize.width ||
-            divSize.height != prevSize.height ) {
-          onMapResize();
-        }
-      }
-      prevSize = divSize;
-    }
-  }, 100);
-});
+
+
 function getAllChildren(root) {
   var list = [];
   var clickable;
