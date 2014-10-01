@@ -299,15 +299,6 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = false;
     isEnabled = args.getBoolean(1);
     map.setMyLocationEnabled(isEnabled);
-    if (isEnabled) {
-      if (!mapCtrl.googleApiClient.isConnected()) {
-        mapCtrl.googleApiClient.connect();
-      }
-    } else {
-      if (mapCtrl.googleApiClient.isConnected()) {
-        mapCtrl.googleApiClient.disconnect();
-      }
-    }
     this.sendNoResult(callbackContext);
   }
 
