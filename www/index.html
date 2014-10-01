@@ -11,76 +11,43 @@
     $(document).on('deviceready', function() {
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       
-      map.on(plugin.google.maps.event.MAP_READY, function() {
-        var canvas = $("canvas")[0];
-        canvas.width = $("#map_canvas").width();
-        canvas.height = $("#map_canvas").height();
-        
-        //http://stackoverflow.com/questions/15397036/drawing-dashed-lines-on-html5-canvas#15968095
-        CanvasRenderingContext2D.prototype.dashedLine = function (x1, y1, x2, y2, dashLen) {
-            this.beginPath();
-            if (dashLen == undefined) dashLen = 2;
-            this.moveTo(x1, y1);
-        
-            var dX = x2 - x1;
-            var dY = y2 - y1;
-            var dashes = Math.floor(Math.sqrt(dX * dX + dY * dY) / dashLen);
-            var dashX = dX / dashes;
-            var dashY = dY / dashes;
-        
-            var q = 0;
-            while (q++ < dashes) {
-                x1 += dashX;
-                y1 += dashY;
-                this[q % 2 == 0 ? 'moveTo' : 'lineTo'](x1, y1);
-            }
-            this[q % 2 == 0 ? 'moveTo' : 'lineTo'](x2, y2);
-            this.stroke();
-        };
-        var context = canvas.getContext("2d");
-        var width = canvas.width;
-        var height = canvas.height;
-        var offsetX = width / 2;
-        var offsetY = height / 2;
-        var y, x, cnt = 0;
-        var box = 100;
-        while(box * cnt < height) {
-          y = offsetY + cnt * box;
-          context.dashedLine(0, y, width, y);
-          y = offsetY - cnt * box;
-          context.dashedLine(0, y, width, y);
-          
-          x = offsetX + cnt * box;
-          context.dashedLine(x, 0, x, height);
-          
-          x = offsetX - cnt * box;
-          context.dashedLine(x, 0, x, height);
-          
-          cnt++;
-        }
-        
-        map.getVisibleRegion(function(latLngBounds) {
+      $("#testBtn").click(function() {
+        map.getMyLocation({
+          'enableHighAccuracy': true
+        }, function(location) {
           map.addMarker({
-            "position": latLngBounds.getCenter()
+            'position': location.latLng
+          });
+          
+          map.animateCamera({
+            'target': location.latLng,
+            'zoom': 16,
+            'tilt': 90
           });
         });
-      });
-      
-      $("#testBtn").click(function() {
-        map.panBy(100, 100);
       });
     });
     </script>
     <style type="text/css">
-      body {
-        margin-top: 100px;
+      button {
+        margin: 20px;
+      }
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        border: 3px solid red;
+      }
+      #map_canvas {
+        width: 90%;
+        height: 90%;
       }
     </style>
   </head>
   <body>
-    <button id="testBtn">map.panBy(100, 100)</button>
-    <div id="map_canvas" style="width:100%;height:500px;position:relative">
-      <canvas id="canvas" data-clickable="false"></canvas>
+    <div id="map_canvas" >
+      <button id="testBtn">getMyLocation()</button>
     </div>
   </body>
 </html>
