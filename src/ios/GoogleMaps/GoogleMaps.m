@@ -530,11 +530,14 @@
  */
 -(void)getMyLocation:(CDVInvokedUrlCommand *)command
 {
+NSLog(@"---getMyLocaiton");
   // Obtain the authorizationStatus
   CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
   
+NSLog(@"---status=%d", status);
   if (status == kCLAuthorizationStatusDenied ||
       status == kCLAuthorizationStatusRestricted) {
+NSLog(@"---status=denied");
     //----------------------------------------------------
     // kCLAuthorizationStatusDenied
     // kCLAuthorizationStatusRestricted
@@ -556,6 +559,14 @@
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   } else {
+NSLog(@"---status=authorized");
+
+    if (self.locationManager == nil) {
+      self.locationManager = [[CLLocationManager alloc] init];
+      self.locationManager.delegate = self;
+    }
+    
+    
     //----------------------------------------------------
     // kCLAuthorizationStatusNotDetermined
     // kCLAuthorizationStatusAuthorized
@@ -564,26 +575,25 @@
     //----------------------------------------------------
     CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
     NSDictionary *opts = [command.arguments objectAtIndex:0];
+    BOOL isEnabledHighAccuracy = NO;
     if ([opts objectForKey:@"enableHighAccuracy"]) {
-      BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
-      if (isEnabledHighAccuracy == YES) {
-        locationAccuracy = kCLLocationAccuracyBestForNavigation;
-      }
+      isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
     }
-
-    self.locationManager = [[CLLocationManager alloc] init];
-    self.locationManager.delegate = self;
-    self.locationManager.distanceFilter = kCLDistanceFilterNone;
-    self.locationManager.desiredAccuracy = locationAccuracy;
     
+    if (isEnabledHighAccuracy == YES) {
+      locationAccuracy = kCLLocationAccuracyBestForNavigation;
+      self.locationManager.distanceFilter = 5;
+    } else {
+      self.locationManager.distanceFilter = 10;
+    }
+    self.locationManager.desiredAccuracy = locationAccuracy;
+
     //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
-    #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-      // target is iOS
-      #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 80000
-        // iOS8
-        [self.locationManager requestWhenInUseAuthorization];
-      #endif
+    #ifdef __IPHONE_8_0
+      // iOS8
+      [self.locationManager requestWhenInUseAuthorization];
     #endif
+    [self.locationManager stopUpdatingLocation];
     [self.locationManager startUpdatingLocation];
     [self.locationCommandQueue addObject:command];
     
@@ -617,11 +627,10 @@
   
   [self.locationCommandQueue removeAllObjects];
   [self.locationManager stopUpdatingLocation];
-  self.locationManager.delegate = nil;
-  self.locationManager = nil;
+  //self.locationManager.delegate = nil;
+  //self.locationManager = nil;
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-
   NSMutableDictionary *json = [NSMutableDictionary dictionary];
   [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
   NSString *error_code = @"error";
