@@ -36,6 +36,22 @@
   [self.pluginLayer addSubview:self.pluginScrollView];
   [self.pluginLayer addSubview:self.webView];
   [self.root addSubview:self.pluginLayer];
+  
+  NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+  if (APIKey == nil) {
+    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+    NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
+    NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"API key is not setted."
+                                              message:message
+                                              delegate:self
+                                              cancelButtonTitle:@"CLOSE"
+                                              otherButtonTitles:nil];
+    [alert show];
+  } else {
+    [GMSServices provideAPIKey:APIKey];
+  }
 }
 /**
  * @Private
@@ -43,7 +59,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.1";
+  NSString *PLUGIN_VERSION = @"1.2.2";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
@@ -106,7 +122,7 @@
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
   NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-  if ([APIKey isEqualToString:@"API_KEY_FOR_IOS"]) {
+  if (APIKey == nil) {
     NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
     NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
     NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
@@ -514,15 +530,14 @@
  */
 -(void)getMyLocation:(CDVInvokedUrlCommand *)command
 {
+NSLog(@"---getMyLocaiton");
   // Obtain the authorizationStatus
   CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-  if (self.locationManager != nil) {
-    [self.locationCommandQueue addObject:command];
-    return;
-  }
   
+NSLog(@"---status=%d", status);
   if (status == kCLAuthorizationStatusDenied ||
       status == kCLAuthorizationStatusRestricted) {
+NSLog(@"---status=denied");
     //----------------------------------------------------
     // kCLAuthorizationStatusDenied
     // kCLAuthorizationStatusRestricted
@@ -544,6 +559,14 @@
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   } else {
+NSLog(@"---status=authorized");
+
+    if (self.locationManager == nil) {
+      self.locationManager = [[CLLocationManager alloc] init];
+      self.locationManager.delegate = self;
+    }
+    
+    
     //----------------------------------------------------
     // kCLAuthorizationStatusNotDetermined
     // kCLAuthorizationStatusAuthorized
@@ -552,26 +575,25 @@
     //----------------------------------------------------
     CLLocationAccuracy locationAccuracy = kCLLocationAccuracyNearestTenMeters;
     NSDictionary *opts = [command.arguments objectAtIndex:0];
+    BOOL isEnabledHighAccuracy = NO;
     if ([opts objectForKey:@"enableHighAccuracy"]) {
-      BOOL isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
-      if (isEnabledHighAccuracy == YES) {
-        locationAccuracy = kCLLocationAccuracyBestForNavigation;
-      }
+      isEnabledHighAccuracy = [[opts objectForKey:@"enableHighAccuracy"] boolValue];
     }
-
-    self.locationManager = [[CLLocationManager alloc] init];
-    self.locationManager.delegate = self;
-    self.locationManager.distanceFilter = kCLDistanceFilterNone;
-    self.locationManager.desiredAccuracy = locationAccuracy;
     
+    if (isEnabledHighAccuracy == YES) {
+      locationAccuracy = kCLLocationAccuracyBestForNavigation;
+      self.locationManager.distanceFilter = 5;
+    } else {
+      self.locationManager.distanceFilter = 10;
+    }
+    self.locationManager.desiredAccuracy = locationAccuracy;
+
     //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
-    #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-      // target is iOS
-      #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 80000
-        // iOS8
-        [self.locationManager requestWhenInUseAuthorization];
-      #endif
+    #ifdef __IPHONE_8_0
+      // iOS8
+      [self.locationManager requestWhenInUseAuthorization];
     #endif
+    [self.locationManager stopUpdatingLocation];
     [self.locationManager startUpdatingLocation];
     [self.locationCommandQueue addObject:command];
     
@@ -605,11 +627,10 @@
   
   [self.locationCommandQueue removeAllObjects];
   [self.locationManager stopUpdatingLocation];
-  self.locationManager.delegate = nil;
-  self.locationManager = nil;
+  //self.locationManager.delegate = nil;
+  //self.locationManager = nil;
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-
   NSMutableDictionary *json = [NSMutableDictionary dictionary];
   [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
   NSString *error_code = @"error";
@@ -644,8 +665,6 @@
 - (void)clear:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
-  [self.pluginScrollView.debugView clearHTMLElement];
-  [self.pluginLayer clearHTMLElement];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

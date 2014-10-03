@@ -108,10 +108,12 @@
 @end
 
 
-@implementation CDVViewController (MainViewController)
-- (void)webViewDidFinishLoad:(UIWebView*)theWebView {
+@implementation MainViewController (CDVViewController)
+- (void)webViewDidFinishLoad:(UIWebView*)theWebView
+{
   theWebView.backgroundColor = [UIColor clearColor];
   theWebView.opaque = NO;
+  return [super webViewDidFinishLoad:theWebView];
 }
 @end
 

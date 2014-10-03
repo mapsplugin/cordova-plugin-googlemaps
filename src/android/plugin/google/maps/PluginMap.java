@@ -250,6 +250,23 @@ public class PluginMap extends MyPlugin {
 
     this.myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
   }
+
+  /**
+   * Pan by the specified pixel
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  @SuppressWarnings("unused")
+  private void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    int x = args.getInt(1);
+    int y = args.getInt(2);
+    float xPixel = -x * this.density;
+    float yPixel = -y * this.density;
+    
+    CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
+    map.animateCamera(cameraUpdate);
+  }
   
   /**
    * Move the camera of the map
@@ -282,15 +299,6 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = false;
     isEnabled = args.getBoolean(1);
     map.setMyLocationEnabled(isEnabled);
-    if (isEnabled) {
-      if (!mapCtrl.googleApiClient.isConnected()) {
-        mapCtrl.googleApiClient.connect();
-      }
-    } else {
-      if (mapCtrl.googleApiClient.isConnected()) {
-        mapCtrl.googleApiClient.disconnect();
-      }
-    }
     this.sendNoResult(callbackContext);
   }
 
