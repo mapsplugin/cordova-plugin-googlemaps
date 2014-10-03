@@ -117,7 +117,8 @@ public class MyGeocoder extends CordovaPlugin {
 
       result.put("locality", addr.getLocality());
       result.put("adminArea", addr.getAdminArea());
-      result.put("country", addr.getCountryCode());
+      result.put("countryCode", addr.getCountryCode());
+      result.put("country", addr.getCountryName());
       result.put("locale", addr.getLocale());
       result.put("postalCode", addr.getPostalCode());
       result.put("subAdminArea", addr.getSubAdminArea());
