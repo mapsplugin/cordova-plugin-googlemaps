@@ -10,6 +10,22 @@
 
 @implementation Geocoder
 
+- (void)pluginInitialize
+{
+  NSArray *countryCodes = [NSLocale ISOCountryCodes];
+  NSMutableArray *countries = [NSMutableArray arrayWithCapacity:[countryCodes count]];
+
+  for (NSString *countryCode in countryCodes)
+  {
+      NSString *identifier = [NSLocale localeIdentifierFromComponents: [NSDictionary dictionaryWithObject: countryCode forKey: NSLocaleCountryCode]];
+      NSString *country = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_UK"] displayNameForKey: NSLocaleIdentifier value: identifier];
+      NSLog(@"countryCode = %@, name = %@", countryCode, country);
+      [countries addObject: country];
+  }
+
+  self.codeForCountryDictionary = [[NSDictionary alloc] initWithObjects:countryCodes forKeys:countries];
+}
+
 -(void)geocode:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:0];
@@ -107,6 +123,7 @@
       
         NSMutableArray *results = [NSMutableArray array];
         GMSAddress *address;
+        NSString *countryCode;
         int i;
         for (i = 0; i < [response.results count]; i++) {
           address = [response.results objectAtIndex:i];
@@ -123,6 +140,8 @@
           [result setObject:[NSString stringWithFormat:@"%@", address.locality] forKey:@"locality"];
           [result setObject:[NSString stringWithFormat:@"%@", address.administrativeArea] forKey:@"adminArea"];
           [result setObject:[NSString stringWithFormat:@"%@", address.country] forKey:@"country"];
+          countryCode = [self.codeForCountryDictionary objectForKey:address.country];
+          [result setObject:[NSString stringWithFormat:@"%@", countryCode] forKey:@"countryCode"];
           [result setObject:@"" forKey:@"locale"];
           [result setObject:[NSString stringWithFormat:@"%@", address.postalCode] forKey:@"postalCode"];
           [result setObject:@"" forKey:@"subAdminArea"];
