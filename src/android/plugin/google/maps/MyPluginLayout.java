@@ -9,8 +9,8 @@ import java.util.Set;
 import org.apache.cordova.CordovaWebView;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -42,10 +42,12 @@ public class MyPluginLayout extends FrameLayout  {
   private boolean isDebug = false;
   private boolean isClickable = true;
   private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
+  private Activity mActivity = null;
   
   @SuppressLint("NewApi")
-  public MyPluginLayout(CordovaWebView webView) {
+  public MyPluginLayout(CordovaWebView webView, Activity activity) {
     super(webView.getContext());
+    mActivity = activity;
     this.webView = webView;
     this.root = (ViewGroup) webView.getParent();
     this.context = webView.getContext();
@@ -185,6 +187,7 @@ public class MyPluginLayout extends FrameLayout  {
     
     root.addView(webView);
     myView = null;
+    mActivity.getWindow().getDecorView().requestFocus();
   }
   
   public void attachMyView(ViewGroup pluginView) {
@@ -212,6 +215,7 @@ public class MyPluginLayout extends FrameLayout  {
     frontLayer.addView(webView);
     this.addView(frontLayer);
     root.addView(this);
+    mActivity.getWindow().getDecorView().requestFocus();
   }
   
   public void setPageSize(int width, int height) {
@@ -227,7 +231,7 @@ public class MyPluginLayout extends FrameLayout  {
 
 
   public void setBackgroundColor(int color) {
-    this.scrollView.setBackgroundColor(color);
+    this.backgroundView.setBackgroundColor(color);
   }
   
   public void inValidate() {

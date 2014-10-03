@@ -34,14 +34,12 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -60,10 +58,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -93,9 +90,7 @@ import com.google.android.gms.maps.model.VisibleRegion;
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, 
-      ConnectionCallbacks, OnConnectionFailedListener, InfoWindowAdapter,
-      GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+      OnMyLocationButtonClickListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
@@ -115,9 +110,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private final String PLUGIN_VERSION = "1.2.1";
+  private final String PLUGIN_VERSION = "1.2.2 beta";
   private MyPluginLayout mPluginLayout = null;
-  public GoogleApiClient googleApiClient = null;
+  private LocationClient locationClient = null;
   
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -179,6 +174,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
       }
     });
+    
   }
 
   @Override
@@ -292,7 +288,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
     
-    mPluginLayout = new MyPluginLayout(webView);
+    mPluginLayout = new MyPluginLayout(webView, activity);
     
     // ------------------------------
     // Check of Google Play Services
@@ -531,12 +527,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     }
     
-    try {
-      this.googleApiClient = new GoogleApiClient.Builder(this.activity)
-        .addApi(LocationServices.API)
-        .build();
-    } catch (Exception e) {}
-    
     // Set event listener
     map.setOnCameraChangeListener(this);
     map.setOnInfoWindowClickListener(this);
@@ -549,7 +539,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     // Load PluginMap class
     this.loadPlugin("Map");
+    //Custom info window
+    map.setInfoWindowAdapter(this);
 
+    callbackContext.success();
     // ------------------------------
     // Embed the map if a container is specified.
     // ------------------------------
@@ -558,11 +551,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       mPluginLayout.attachMyView(mapView);
       this.resizeMap(args, callbackContext);
     }
-    
-    //Custom info window
-    map.setInfoWindowAdapter(this);
-    
-    callbackContext.success();
   }
   
   private float contentToView(long d) {
@@ -871,6 +859,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @SuppressWarnings("unused")
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    
     LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
     List<String> providers = locationManager.getAllProviders();
     if (providers.size() == 0) {
@@ -882,16 +871,35 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
     
-    boolean isEnabled = false;
-    String provider;
-    Iterator<String> iterator = providers.iterator();
-    while(iterator.hasNext()) {
-      provider = iterator.next();
-      if (locationManager.isProviderEnabled(provider)) {
-        isEnabled = true;
+    // enableHighAccuracy = true -> PRIORITY_HIGH_ACCURACY
+    // enableHighAccuracy = false -> PRIORITY_BALANCED_POWER_ACCURACY
+    
+    JSONObject params = args.getJSONObject(0);
+    boolean isHigh = false;
+    if (params.has("enableHighAccuracy")) {
+      isHigh = params.getBoolean("enableHighAccuracy");
+    }
+    final boolean enableHighAccuracy = isHigh;
+    
+    String provider = null;
+    if (enableHighAccuracy == true) {
+      if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        provider = LocationManager.GPS_PROVIDER;
+      } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        provider = LocationManager.NETWORK_PROVIDER;
+      } else if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+        provider = LocationManager.PASSIVE_PROVIDER;
+      }
+    } else {
+      if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+        provider = LocationManager.PASSIVE_PROVIDER;
+      } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        provider = LocationManager.NETWORK_PROVIDER;
+      } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        provider = LocationManager.GPS_PROVIDER;
       }
     }
-    if (isEnabled == false) {
+    if (provider == null) {
       //Ask the user to turn on the location services.
       AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
       builder.setTitle("Improve location accuracy");
@@ -932,109 +940,61 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       builder.create().show();
       return;
     }
-    
-    // enableHighAccuracy = true -> PRIORITY_HIGH_ACCURACY
-    // enableHighAccuracy = false -> PRIORITY_BALANCED_POWER_ACCURACY
-    int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-    JSONObject params = args.getJSONObject(0);
-    if (params.has("enableHighAccuracy")) {
-      boolean enableHighAccuracy = params.getBoolean("enableHighAccuracy");
-      if (enableHighAccuracy) {
-        priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
-      }
+
+    Log.d("openCV", "provider = " + provider);
+    Location location = locationManager.getLastKnownLocation(provider);
+    if (location != null) {
+      JSONObject result = PluginUtil.location2Json(location);
+      result.put("status", true);
+      callbackContext.success(result);
+      return;
     }
     
+    PluginResult tmpResult = new PluginResult(PluginResult.Status.NO_RESULT);
+    tmpResult.setKeepCallback(true);
+    callbackContext.sendPluginResult(tmpResult);
     
-    final LocationRequest locationRequest = LocationRequest.create();
-    //locationRequest.setExpirationDuration(SystemClock.elapsedRealtime() + 3000);
-    locationRequest.setFastestInterval(1000);
-    //locationRequest.setNumUpdates(1);
-    locationRequest.setPriority(priority);
-    locationRequest.setInterval(5000);
-    
-    if (googleApiClient.isConnected() == false) {
+    locationClient = new LocationClient(this.activity, new ConnectionCallbacks() {
 
-      Log.d("GoogleMaps", "--->isConnected = false");
-      googleApiClient.connect();
-      Log.d("GoogleMaps", "--->connect()");
-      
-      googleApiClient.registerConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-        @Override
-        public void onConnectionSuspended(int cause) {}
+      @Override
+      public void onConnected(Bundle bundle) {
+        LocationRequest request = new LocationRequest();
+        int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+        if (enableHighAccuracy) {
+          priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
+        }
+        request.setPriority(priority);
+        locationClient.requestLocationUpdates(request, new LocationListener() {
 
-        @Override
-        public void onConnected(Bundle bundle) {
-          Log.d("GoogleMaps", "--->onConnected()");
-
-          if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-              googleApiClient, locationRequest, new LocationListener() {
-
-                @Override
-                public void onLocationChanged(Location location) {
-                  JSONObject result;
-                  try {
-                    result = PluginUtil.location2Json(location);
-                    result.put("status", true);
-                    callbackContext.success(result);
-                  } catch (JSONException e) {}
-                }
-                
-              });
-          } else {
-            Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+          @Override
+          public void onLocationChanged(Location location) {
             JSONObject result;
             try {
               result = PluginUtil.location2Json(location);
               result.put("status", true);
               callbackContext.success(result);
             } catch (JSONException e) {}
+            locationClient.disconnect();
           }
-          
-        }
-      });
-      googleApiClient.registerConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
         
-        @Override
-        public void onConnectionFailed(ConnectionResult connectionResult) {
-          Log.d("GoogleMaps", "--->onConnectionFailed()");
-          Log.e("CordovaLog", connectionResult.toString());
-          JSONObject result = new JSONObject();
-          try {
-            result.put("status", false);
-            result.put("error_code", "service_denied");
-            result.put("error_message", "Can not connect to Google APIs client.");
-          } catch (JSONException e) {}
-          callbackContext.error(result);
-        }
-      });
-      return;
-    } else {
-
-      if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-          googleApiClient, locationRequest, new LocationListener() {
-
-            @Override
-            public void onLocationChanged(Location location) {
-              JSONObject result;
-              try {
-                result = PluginUtil.location2Json(location);
-                result.put("status", true);
-                callbackContext.success(result);
-              } catch (JSONException e) {}
-            }
-            
-          });
-      } else {
-        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        JSONObject result = PluginUtil.location2Json(location);
-        result.put("status", true);
-        callbackContext.success(result);
+        });
       }
-    }
+
+      @Override
+      public void onDisconnected() {}
+      
+    }, new OnConnectionFailedListener() {
+
+      @Override
+      public void onConnectionFailed(ConnectionResult connectionResult) {
+        int errorCode = connectionResult.getErrorCode();
+        String errorMsg = GooglePlayServicesUtil.getErrorString(errorCode);
+        PluginResult result = new PluginResult(PluginResult.Status.ERROR, errorMsg);
+        callbackContext.sendPluginResult(result);
+      }
+      
+    });
+    locationClient.connect();
   }
   
   private void showLicenseText() {
@@ -1465,9 +1425,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onDestroy() {
-    if (this.googleApiClient != null) {
-      this.googleApiClient.disconnect();
-    }
     if (mapView != null) {
       mapView.onDestroy();
     }
@@ -1488,16 +1445,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
   }
   
-
-  @Override
-  public void onConnectionFailed(ConnectionResult result) {}
-
-  @Override
-  public void onConnected(Bundle connectionHint) {}
-
-  @Override
-  public void onDisconnected() {}
-
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
@@ -1746,20 +1693,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     mapView = null;
     windowLayer = null;
     mapDivLayoutJSON = null;
-    if (googleApiClient != null) {
-      googleApiClient.disconnect();
-    }
-    googleApiClient = null;
     this.sendNoResult(callbackContext);
   }
 
-  @Override
-  public void onConnectionSuspended(int arg0) {
-    // TODO Auto-generated method stub
-    
-  }
   protected void sendNoResult(CallbackContext callbackContext) {
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
     callbackContext.sendPluginResult(pluginResult);
   }
+
 }
