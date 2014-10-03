@@ -8,12 +8,12 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 
 ###Example
-You can see an example here. [phonegap-googlemaps-plugin-v1.2.1.apk](http://goo.gl/YVdqD9)
+You can see an example here. [phonegap-googlemaps-plugin-v1.2.2.apk](http://goo.gl/EJ67sm)
 ```bash
-$> adb install phonegap-googlemaps-plugin-v1.2.1.apk
+$> adb install phonegap-googlemaps-plugin-v1.2.2.apk
 ```
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.2.gif)
 
 ### Join the official community
 New versions will be announced through the official community. Stay tuned!
@@ -22,15 +22,11 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
-As of v1.2.0, you can place buttons and other HTML over the map, because the map is now placed underneath the browser.
+v1.2.2
+- Many critical bugs are fixed. Please update this plugin in your app.
+- Add: `map.panBy()`
 
-![](https://googledrive.com/host/0B1ECfqTCcLE8R0h6T3dIdWFBOHM/mechanism.png)
-
-v1.2.1
-- Bug fix: detect the touch region
-- Add: `map.setDebuggable( true / false )`
-
-Many bugs are fixed, and many methods are added. Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
+Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
 ###Documentation
 
