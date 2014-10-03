@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -64,6 +65,7 @@
 		8FEC2B9CD827442298AA1B17 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D03A823343FFBED6DB34 /* ImageIO.framework */; };
 		92824D78C3A44B5ABB7C7A36 /* R9HTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A0B320D7E0048619974FE4C /* R9HTTPRequest.m */; };
 		9FB4C9ACEF484DE4A8D5143F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B83D77D8DF42C0BB1A9DEF /* AVFoundation.framework */; };
+		A0A6C8B519DE8B61006FA408 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 2642A164D871458CAA0E7CD2 /* CDVLogger.m */; };
 		A0B15AF119D406AE00CECFE9 /* plugin.xml in Resources */ = {isa = PBXBuildFile; fileRef = A0B15AF019D406AD00CECFE9 /* plugin.xml */; };
 		A0C8C25419D11E8B00E46F7E /* MyPluginScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */; };
 		A0C8C25719D120FC00E46F7E /* MyPluginLayerDebugView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C8C25619D120FC00E46F7E /* MyPluginLayerDebugView.m */; };
@@ -599,6 +601,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0A6C8B519DE8B61006FA408 /* CDVLogger.m in Sources */,
 				6904C37819D0F1A3008FFD15 /* TileOverlay.m in Sources */,
 				6904C36B19D0F1A3008FFD15 /* GoogleMapsViewController.m in Sources */,
 				A0C8C25419D11E8B00E46F7E /* MyPluginScrollView.m in Sources */,
