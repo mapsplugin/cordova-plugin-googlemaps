@@ -13,7 +13,7 @@ You can see an example here. [phonegap-googlemaps-plugin-v1.2.2.apk](http://goo.
 $> adb install phonegap-googlemaps-plugin-v1.2.2.apk
 ```
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.2.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0_v2.gif)
 
 ### Join the official community
 New versions will be announced through the official community. Stay tuned!
