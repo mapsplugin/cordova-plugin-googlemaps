@@ -1794,7 +1794,6 @@ function HTMLColor2RGBA(colorStr, defaultOpacity) {
   if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
     alpha = colorStr.substr(7, 2);
     alpha = parseInt(alpha, 16);
-    alert(alpha);
     colorStr = colorStr.substring(0, 7);
   }
   
