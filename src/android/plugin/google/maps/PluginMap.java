@@ -7,11 +7,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Display;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -487,6 +489,16 @@ public class PluginMap extends MyPlugin {
   private void getVisibleRegion(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
     LatLngBounds latLngBounds = visibleRegion.latLngBounds;
+    
+    // Bug patch:
+    // https://code.google.com/p/gmaps-api-issues/issues/detail?id=5285&q=getVisibleRegion&colspec=ID%20Type%20Status%20Introduced%20Fixed%20Summary%20Stars%20ApiType%20Internal
+    if (getScreenOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
+      LatLng ne = new LatLng(latLngBounds.northeast.latitude, latLngBounds.southwest.longitude);
+      LatLng sw = new LatLng(latLngBounds.southwest.latitude, latLngBounds.northeast.longitude);
+      latLngBounds = new LatLngBounds(sw, ne);
+    }
+    
+    
     JSONObject result = new JSONObject();
     JSONObject northeast = new JSONObject();
     JSONObject southwest = new JSONObject();
@@ -506,6 +518,22 @@ public class PluginMap extends MyPlugin {
   }
   
 
+  @SuppressWarnings("deprecation")
+  private int getScreenOrientation()
+  {
+      Display getOrient = cordova.getActivity().getWindowManager().getDefaultDisplay();
+      int orientation = Configuration.ORIENTATION_UNDEFINED;
+      if(getOrient.getWidth()==getOrient.getHeight()){
+          orientation = Configuration.ORIENTATION_SQUARE;
+      } else{ 
+          if(getOrient.getWidth() < getOrient.getHeight()){
+              orientation = Configuration.ORIENTATION_PORTRAIT;
+          }else { 
+              orientation = Configuration.ORIENTATION_LANDSCAPE;
+          }
+      }
+      return orientation;
+  }
   /**
    * Sets the preference for whether all gestures should be enabled or disabled.
    * @param args
