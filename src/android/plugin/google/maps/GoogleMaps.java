@@ -123,11 +123,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     density = Resources.getSystem().getDisplayMetrics().density;
     root = (ViewGroup) webView.getParent();
     
-    webView.getSettings().setRenderPriority(RenderPriority.HIGH);
-    webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-    if (Build.VERSION.SDK_INT >= 11){
-      webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-    }
     
     Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
     
@@ -173,6 +168,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
+        
+        webView.getSettings().setRenderPriority(RenderPriority.HIGH);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        if (Build.VERSION.SDK_INT >= 11){
+          webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+        
         root.setBackgroundColor(Color.WHITE);
         if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
           activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
