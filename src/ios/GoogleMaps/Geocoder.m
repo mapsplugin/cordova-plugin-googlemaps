@@ -18,7 +18,7 @@
   for (NSString *countryCode in countryCodes)
   {
       NSString *identifier = [NSLocale localeIdentifierFromComponents: [NSDictionary dictionaryWithObject: countryCode forKey: NSLocaleCountryCode]];
-      NSString *country = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_UK"] displayNameForKey: NSLocaleIdentifier value: identifier];
+      NSString *country = [[[NSLocale alloc] initWithLocaleIdentifier:currentLanguage] displayNameForKey: NSLocaleIdentifier value: identifier];
       NSLog(@"countryCode = %@, name = %@", countryCode, country);
       [countries addObject: country];
   }
