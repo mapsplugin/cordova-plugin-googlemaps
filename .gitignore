@@ -41,3 +41,10 @@ ant-gen/
 plugins/
 #platforms/
 hooks/
+
+
+#other project files
+src/android/plugin/google/maps/experimental
+src/android/plugin/google/maps/PluginMarkerCluster.java
+platforms/android/rex/xml/drawable/
+www/test.json
