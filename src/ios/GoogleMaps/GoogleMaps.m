@@ -278,7 +278,7 @@
 
 - (void)_removeMapView{
   if (self.mapCtrl.isFullScreen == YES) {
-    //[self.mapCtrl.view removeFromSuperview];
+    [self.mapCtrl.view removeFromSuperview];
     [self.pluginScrollView dettachView];
     [self.footer removeFromSuperview];
     [self.pluginLayer clearHTMLElement];
@@ -590,8 +590,10 @@ NSLog(@"---status=authorized");
 
     //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
     #ifdef __IPHONE_8_0
-      // iOS8
-      [self.locationManager requestWhenInUseAuthorization];
+      if ([PluginUtil isIOS8_OR_OVER]) {
+        // iOS8
+        [self.locationManager requestWhenInUseAuthorization];
+      }
     #endif
     [self.locationManager stopUpdatingLocation];
     [self.locationManager startUpdatingLocation];

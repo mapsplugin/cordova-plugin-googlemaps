@@ -47,6 +47,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebSettings.RenderPriority;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
@@ -114,13 +116,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private MyPluginLayout mPluginLayout = null;
   private LocationClient locationClient = null;
   
-  @Override
+  @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
     root = (ViewGroup) webView.getParent();
-
+    
+    
     Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
     
     cordova.getThreadPool().execute(new Runnable() {
@@ -165,6 +168,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
+        
+        webView.getSettings().setRenderPriority(RenderPriority.HIGH);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        if (Build.VERSION.SDK_INT >= 11){
+          webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+        
         root.setBackgroundColor(Color.WHITE);
         if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
           activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
