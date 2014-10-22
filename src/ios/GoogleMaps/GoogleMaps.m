@@ -278,7 +278,7 @@
 
 - (void)_removeMapView{
   if (self.mapCtrl.isFullScreen == YES) {
-    //[self.mapCtrl.view removeFromSuperview];
+    [self.mapCtrl.view removeFromSuperview];
     [self.pluginScrollView dettachView];
     [self.footer removeFromSuperview];
     [self.pluginLayer clearHTMLElement];
