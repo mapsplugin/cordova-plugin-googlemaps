@@ -14,6 +14,7 @@
 {
   NSArray *countryCodes = [NSLocale ISOCountryCodes];
   NSMutableArray *countries = [NSMutableArray arrayWithCapacity:[countryCodes count]];
+  NSString *currentLanguage = [[NSLocale preferredLanguages] objectAtIndex:0];
 
   for (NSString *countryCode in countryCodes)
   {
