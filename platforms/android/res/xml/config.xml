@@ -13,6 +13,9 @@
     <feature name="HttpRequest">
         <param name="android-package" value="plugin.http.request.HttpRequest" />
     </feature>
+    <feature name="MarkerCluster">
+        <param name="android-package" value="plugin.google.maps.MarkerCluster" />
+    </feature>
     <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
