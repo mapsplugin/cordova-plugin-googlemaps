@@ -290,7 +290,7 @@ App.prototype.getMap = function(div, params) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? " " : "") + "_gmaps_cdv_";
+      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
       div = div.parentNode;
     }
   }
@@ -523,10 +523,17 @@ App.prototype.clear = function(callback) {
  */
 App.prototype.remove = function() {
   var div = this.get('div');
+  console.log("div = " + div);
   if (div) {
     while(div) {
-      div.style.backgroundColor = '';
-      div.className = div.className.replace(" _gmaps_cdv_", "");
+      if (div.style) {
+  console.log("backgroundColor = " + div.style.backgroundColor);
+        div.style.backgroundColor ='';
+      }
+      if (div.className) {
+        div.className = div.className.replace("_gmaps_cdv_", "");
+        div.className = div.className.replace("  ", " ");
+      }
       div = div.parentNode;
     }
   }
@@ -621,8 +628,13 @@ App.prototype.setDiv = function(div) {
       var div = this.get('div');
       if (div) {
         while(div) {
-          div.style.backgroundColor = '';
-          div.className = div.className.replace(" _gmaps_cdv_", "");
+          if (div.style) {
+            div.style.backgroundColor ='';
+          }
+          if (div.className) {
+            div.className = div.className.replace("_gmaps_cdv_", "");
+            div.className = div.className.replace("  ", " ");
+          }
           div = div.parentNode;
         }
       }
@@ -665,7 +677,7 @@ App.prototype.setDiv = function(div) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? " " : "") + "_gmaps_cdv_";
+      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
       div = div.parentNode;
     }
     setTimeout(function() {
@@ -2121,6 +2133,6 @@ function getAllChildren(root) {
 
 
 document.addEventListener("deviceready", function() {
+  document.removeEventListener("deviceready", arguments.callee);
   plugin.google.maps.Map.isAvailable();
-  document.removeEventListener("deviceready", this);
 });
