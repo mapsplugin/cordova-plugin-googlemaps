@@ -540,7 +540,7 @@ App.prototype.isAvailable = function(callback) {
     if (typeof callback === "function") {
       callback.call(self, false, message);
     }
-  }, PLUGIN_NAME, 'isAvailable', []);
+  }, PLUGIN_NAME, 'isAvailable', ['']);
 };
 
 App.prototype.toDataURL = function(callback) {
@@ -2094,3 +2094,9 @@ function getAllChildren(root) {
   }
   return list;
 }
+
+
+document.addEventListener("deviceready", function() {
+  plugin.google.maps.Map.isAvailable();
+  document.removeEventListener("deviceready", this);
+});
