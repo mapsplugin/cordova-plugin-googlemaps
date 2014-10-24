@@ -286,8 +286,11 @@ App.prototype.getMap = function(div, params) {
     div.addEventListener("DOMNodeInserted", _append_child);
     
     self.set("keepWatching", true);
+    var className;
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
+      className = div.className;
+      div.className = (divClassName ? " " : "") + "_gmaps_cdv_";
       div = div.parentNode;
     }
   }
@@ -519,6 +522,14 @@ App.prototype.clear = function(callback) {
  * Remove the map completely.
  */
 App.prototype.remove = function() {
+  var div = this.get('div');
+  if (div) {
+    while(div) {
+      div.style.backgroundColor = '';
+      div.className = div.className.replace(" _gmaps_cdv_", "");
+      div = div.parentNode;
+    }
+  }
   this.set('div', undefined);
   this.clear();
   this.empty();
@@ -605,6 +616,16 @@ App.prototype.setDiv = function(div) {
         element.removeAttribute("__pluginDomId");
       }
       div.removeEventListener("DOMNodeRemoved", _remove_child);
+      
+      
+      var div = this.get('div');
+      if (div) {
+        while(div) {
+          div.style.backgroundColor = '';
+          div.className = div.className.replace(" _gmaps_cdv_", "");
+          div = div.parentNode;
+        }
+      }
     }
     self.set("div", null);
     self.set("keepWatching", false);
@@ -640,8 +661,11 @@ App.prototype.setDiv = function(div) {
     div.addEventListener("DOMNodeRemoved", _remove_child);
     div.addEventListener("DOMNodeInserted", _append_child);
     
+    var className;
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
+      className = div.className;
+      div.className = (divClassName ? " " : "") + "_gmaps_cdv_";
       div = div.parentNode;
     }
     setTimeout(function() {
