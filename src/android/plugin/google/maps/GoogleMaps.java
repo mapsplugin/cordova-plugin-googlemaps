@@ -1691,6 +1691,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @SuppressWarnings("unused")
   private void remove(JSONArray args, CallbackContext callbackContext) {
     if (mPluginLayout != null) {
+      this.mPluginLayout.setClickable(false);
       this.mPluginLayout.detachMyView();
       plugins.clear();
       mapView.onDestroy();
