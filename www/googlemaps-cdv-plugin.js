@@ -290,7 +290,7 @@ App.prototype.getMap = function(div, params) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (divClassName ? " " : "") + "_gmaps_cdv_";
+      div.className = (className ? " " : "") + "_gmaps_cdv_";
       div = div.parentNode;
     }
   }
@@ -665,7 +665,7 @@ App.prototype.setDiv = function(div) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (divClassName ? " " : "") + "_gmaps_cdv_";
+      div.className = (className ? " " : "") + "_gmaps_cdv_";
       div = div.parentNode;
     }
     setTimeout(function() {
