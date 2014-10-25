@@ -89,7 +89,7 @@
   
   [request setHTTPMethod:@"GET"];
   [request setTimeoutInterval:5];
-  
+  [request setFailedHandler:^(NSError *error){}];
   [request setCompletionHandler:^(NSHTTPURLResponse *responseHeader, NSString *responseString){
     NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *error;
