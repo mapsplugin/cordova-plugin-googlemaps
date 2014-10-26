@@ -41,7 +41,7 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"MarkerCluster\"><param name=\"android-package\" value=\"plugin.google.maps.MarkerCluster\" /></feature>",
+                            "xml": "<feature name=\"MarkerCluster\"><param name=\"android-package\" value=\"plugin.google.maps.experimental.MarkerCluster\" /></feature>",
                             "count": 1
                         }
                     ]
