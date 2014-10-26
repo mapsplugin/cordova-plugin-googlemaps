@@ -14,7 +14,7 @@
         <param name="android-package" value="plugin.http.request.HttpRequest" />
     </feature>
     <feature name="MarkerCluster">
-        <param name="android-package" value="plugin.google.maps.MarkerCluster" />
+        <param name="android-package" value="plugin.google.maps.experimental.MarkerCluster" />
     </feature>
     <name>DevApp</name>
     <description>

@@ -7,23 +7,21 @@
     <title>Google Maps Plugin for Cordova</title>
     <script src="js/jquery.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="test.json"></script>
+    <script type="text/javascript" src="js/async.js"></script>
     <script type="text/javascript">
     $(document).on('deviceready', function() {
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       
-      $("#testBtn").click(function() {
-        map.getMyLocation({
-          'enableHighAccuracy': true
-        }, function(location) {
-          map.addMarker({
-            'position': location.latLng
+      console.log(JSON.stringify(plugin.google.maps.experimental.MarkerCluster));
+      plugin.google.maps.experimental.MarkerCluster.createCluster(map, function(cluster) {
+        async.map(data.photos, function(info, next) {
+          next(null, {
+            'position': new plugin.google.maps.LatLng(info.lat, info.lng),
+            'title': info.photo_title
           });
-          
-          map.animateCamera({
-            'target': location.latLng,
-            'zoom': 16,
-            'tilt': 90
-          });
+        }, function(err, markers) {
+          cluster.addMarker(markers);
         });
       });
     });
@@ -46,8 +44,6 @@
     </style>
   </head>
   <body>
-    <div id="map_canvas" >
-      <button id="testBtn">getMyLocation()</button>
-    </div>
+    <div id="map_canvas" ></div>
   </body>
 </html>
