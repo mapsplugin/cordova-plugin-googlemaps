@@ -1422,6 +1422,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onPause(boolean multitasking) {
+    if (locationClient != null) {
+      locationClient.disconnect();
+    }
     if (mapView != null) {
       mapView.onPause();
     }
@@ -1433,11 +1436,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (mapView != null) {
       mapView.onResume();
     }
+    if (locationClient != null) {
+      locationClient.connect();
+    }
     super.onResume(multitasking);
   }
 
   @Override
   public void onDestroy() {
+    if (locationClient != null) {
+      locationClient.disconnect();
+    }
     if (mapView != null) {
       mapView.onDestroy();
     }
