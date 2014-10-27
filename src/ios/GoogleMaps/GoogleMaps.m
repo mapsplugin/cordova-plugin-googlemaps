@@ -281,8 +281,8 @@
     [self.mapCtrl.view removeFromSuperview];
     [self.pluginScrollView dettachView];
     [self.footer removeFromSuperview];
-    [self.pluginLayer clearHTMLElement];
-    [self.pluginScrollView.debugView clearHTMLElement];
+    //[self.pluginLayer clearHTMLElement];
+    //[self.pluginScrollView.debugView clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
     self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
   }
