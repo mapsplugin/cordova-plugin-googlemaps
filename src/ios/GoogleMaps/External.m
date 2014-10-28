@@ -23,10 +23,21 @@
   
   NSURL *googleMapsURLScheme = [NSURL URLWithString:@"comgooglemaps-x-callback://"];
   if ([[UIApplication sharedApplication] canOpenURL:googleMapsURLScheme]) {
+  
+    NSMutableArray *params = [NSMutableArray array];
+    [params addObject:[NSString stringWithFormat:@"saddr=%@", from, nil]];
+    [params addObject:[NSString stringWithFormat:@"daddr=%@", to, nil]];
+    if ([json objectForKey:@"travelMode"] != nil) {
+      [params addObject:[NSString stringWithFormat:@"directionsmode=%@", [json objectForKey:@"travelMode"], nil]];
+    }
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    [params addObject:[NSString stringWithFormat:@"x-success=%@://?resume=true", bundleIdentifier, nil]];
+    
     NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    [params addObject:[NSString stringWithFormat:@"x-source=%@", appName, nil]];
+    
     directionsRequest =
-      [NSString stringWithFormat: @"comgooglemaps-x-callback://?saddr=%@&daddr=%@&x-success=sourceapp://?resume=true&x-source=%@",
-        from, to, appName, nil];
+      [NSString stringWithFormat: @"comgooglemaps-x-callback://?%@", [params componentsJoinedByString: @"&"], nil];
   } else {
     directionsRequest =
       [NSString stringWithFormat: @"http://maps.apple.com/?saddr=%@&daddr=%@",
