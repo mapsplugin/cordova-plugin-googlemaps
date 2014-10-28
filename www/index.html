@@ -12,18 +12,10 @@
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       
       $("#testBtn").click(function() {
-        map.getMyLocation({
-          'enableHighAccuracy': true
-        }, function(location) {
-          map.addMarker({
-            'position': location.latLng
-          });
-          
-          map.animateCamera({
-            'target': location.latLng,
-            'zoom': 16,
-            'tilt': 90
-          });
+        plugin.google.maps.external.launchNavigation({
+          "from": "Tokyo, Japan",
+          "to": "Kyoto, Japan",
+          "travelMode": "transit"
         });
       });
     });
