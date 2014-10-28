@@ -69,7 +69,7 @@
 			<string>com.exmaple.myapp</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>AIzaSyA6tsFPlaBcM_mHPK2k9rxCugXruF8Ly3Y</string>
+				<string>com.example.myapp</string>
 			</array>
 		</dict>
 	</array>
