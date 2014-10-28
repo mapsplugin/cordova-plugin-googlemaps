@@ -263,8 +263,17 @@
   UIGraphicsEndImageContext();
 
   NSData *imageData = UIImagePNGRepresentation(image);
-  NSString *base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
-
+  NSString *base64Encoded = nil;
+  #ifdef __IPHONE_7_0
+    if ([PluginUtil isIOS7_OR_OVER] == true) {
+      base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64EncodedString]];
+    } else {
+      base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
+    }
+  #else
+    base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
+  #endif
+  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
