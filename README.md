@@ -22,9 +22,9 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
-v1.2.2
-- Many critical bugs are fixed. Please update this plugin in your app.
-- Add: `map.panBy()`
+v1.2.3
+- Bug fixes
+- `travelMode` property is added to `external.launchNavigation()`
 
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
