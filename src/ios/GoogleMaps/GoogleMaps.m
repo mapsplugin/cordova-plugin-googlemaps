@@ -59,7 +59,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.2";
+  NSString *PLUGIN_VERSION = @"1.2.3";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
@@ -89,7 +89,7 @@
   
   [request setHTTPMethod:@"GET"];
   [request setTimeoutInterval:5];
-  
+  [request setFailedHandler:^(NSError *error){}];
   [request setCompletionHandler:^(NSHTTPURLResponse *responseHeader, NSString *responseString){
     NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *error;
@@ -278,11 +278,11 @@
 
 - (void)_removeMapView{
   if (self.mapCtrl.isFullScreen == YES) {
-    //[self.mapCtrl.view removeFromSuperview];
+    [self.mapCtrl.view removeFromSuperview];
     [self.pluginScrollView dettachView];
     [self.footer removeFromSuperview];
-    [self.pluginLayer clearHTMLElement];
-    [self.pluginScrollView.debugView clearHTMLElement];
+    //[self.pluginLayer clearHTMLElement];
+    //[self.pluginScrollView.debugView clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
     self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
   }
@@ -590,8 +590,10 @@ NSLog(@"---status=authorized");
 
     //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
     #ifdef __IPHONE_8_0
-      // iOS8
-      [self.locationManager requestWhenInUseAuthorization];
+      if ([PluginUtil isIOS8_OR_OVER]) {
+        // iOS8
+        [self.locationManager requestWhenInUseAuthorization];
+      }
     #endif
     [self.locationManager stopUpdatingLocation];
     [self.locationManager startUpdatingLocation];
