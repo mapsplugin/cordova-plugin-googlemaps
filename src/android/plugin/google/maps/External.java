@@ -15,6 +15,13 @@ import android.util.Log;
 
 public class External extends CordovaPlugin {
 
+  private enum TRAVEL_MODE {
+    driving,
+    transit,
+    bicycling,
+    walking
+  }
+  
   @Override
   public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {
     try {
@@ -42,8 +49,41 @@ public class External extends CordovaPlugin {
     JSONObject params = args.getJSONObject(0);
     String from = params.getString("from");
     String to = params.getString("to");
-    Intent intent = new Intent(android.content.Intent.ACTION_VIEW, 
-    Uri.parse("http://maps.google.com/maps?saddr=" + from + "&daddr=" + to ));
+        
+    Uri.Builder builder = new Uri.Builder();
+    builder.scheme("http")
+           .authority("maps.google.com")
+           .appendPath("maps")
+           .appendQueryParameter("saddr", from)
+           .appendQueryParameter("daddr", to);
+    
+    if (params.has("travelMode")) {
+      TRAVEL_MODE mode = null;
+      try {
+        mode = TRAVEL_MODE.valueOf(params.getString("travelMode"));
+      } catch (Exception e){}
+      //travel mode
+      if (mode != null) {
+        String dirFlag = "d";
+        switch (mode) {
+        case walking:
+          dirFlag="w";
+          break;
+
+        case transit:
+          dirFlag="r";
+          break;
+
+        case bicycling:
+          dirFlag="b";
+          break;
+          
+        }
+        builder.appendQueryParameter("dirflg", dirFlag);
+      }
+    }
+
+    Intent intent = new Intent(android.content.Intent.ACTION_VIEW, builder.build());
     this.cordova.getActivity().startActivity(intent);
     
     PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);

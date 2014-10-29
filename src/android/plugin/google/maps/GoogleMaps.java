@@ -47,6 +47,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebSettings.RenderPriority;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
@@ -110,31 +112,34 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private final String PLUGIN_VERSION = "1.2.2";
+  private final String PLUGIN_VERSION = "1.2.3";
   private MyPluginLayout mPluginLayout = null;
   private LocationClient locationClient = null;
+  private boolean isDebug = false;
   
-  @Override
+  @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
     root = (ViewGroup) webView.getParent();
 
-    Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
+    // Is this app in debug mode?
+    try {
+      PackageManager manager = activity.getPackageManager();
+      ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
+      isDebug = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
+    } catch (Exception e) {}
     
-    cordova.getThreadPool().execute(new Runnable() {
+    Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
 
-      @Override
-      public void run() {
-
-        // Is this app in debug mode?
-        try {
-          PackageManager manager = activity.getPackageManager();
-          ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
-          Boolean isDebug = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
-          
-          if (isDebug) {
+    if (isDebug) {
+      cordova.getThreadPool().execute(new Runnable() {
+        @Override
+        public void run() {
+  
+          try {
+            
             JSONArray params = new JSONArray();
             params.put("get");
             params.put("http://plugins.cordova.io/api/plugin.google.maps");
@@ -156,20 +161,28 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 }
               }
             });
-          }
-        } catch (Exception e) {}
-      }
-      
-    });
+          } catch (Exception e) {}
+        }
+      });
+    }
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
+        
+        webView.getSettings().setRenderPriority(RenderPriority.HIGH);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        if (Build.VERSION.SDK_INT >= 11){
+          webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+        
         root.setBackgroundColor(Color.WHITE);
         if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
           activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
         if (VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+          Log.d(TAG, "Google Maps Plugin reloads the browser to change the background color as transparent.");
+          webView.setBackgroundColor(0);
           webView.reload();
         }
       }
@@ -179,19 +192,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    /*
-    if (args != null && args.length() > 0) {
-      Log.d(TAG, "action=" + action + " args[0]=" + args.getString(0));
-    } else {
-      Log.d(TAG, "action=" + action);
+    if (isDebug) {
+      if (args != null && args.length() > 0) {
+        Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
+      } else {
+        Log.d(TAG, "(debug)action=" + action);
+      }
     }
-    */
 
     Runnable runnable = new Runnable() {
       public void run() {
         if (("getMap".equals(action) == false && "isAvailable".equals(action) == false) &&
             GoogleMaps.this.map == null) {
-          Log.e(TAG, "Can not execute '" + action + "' because the map is not created.");
+          Log.w(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
         }
         if ("exec".equals(action)) {
@@ -1409,6 +1422,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onPause(boolean multitasking) {
+    if (locationClient != null) {
+      locationClient.disconnect();
+    }
     if (mapView != null) {
       mapView.onPause();
     }
@@ -1420,11 +1436,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (mapView != null) {
       mapView.onResume();
     }
+    if (locationClient != null) {
+      locationClient.connect();
+    }
     super.onResume(multitasking);
   }
 
   @Override
   public void onDestroy() {
+    if (locationClient != null) {
+      locationClient.disconnect();
+    }
     if (mapView != null) {
       mapView.onDestroy();
     }
@@ -1681,18 +1703,23 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @SuppressWarnings("unused")
   private void remove(JSONArray args, CallbackContext callbackContext) {
     if (mPluginLayout != null) {
+      this.mPluginLayout.setClickable(false);
       this.mPluginLayout.detachMyView();
-      plugins.clear();
-      mapView.onDestroy();
       this.mPluginLayout = null;
     }
+    plugins.clear();
     if (map != null) {
       map.setMyLocationEnabled(false);
+      map.clear();
+    }
+    if (mapView != null) {
+      mapView.onDestroy();
     }
     map = null;
     mapView = null;
     windowLayer = null;
     mapDivLayoutJSON = null;
+    System.gc();
     this.sendNoResult(callbackContext);
   }
 

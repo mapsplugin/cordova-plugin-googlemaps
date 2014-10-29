@@ -243,7 +243,16 @@
         [extra setObject:placemark.inlandWater forKey:@"inlandWater"];
       }
       if (placemark.region) {
-        [extra setObject:[NSString stringWithFormat:@"%f", placemark.region.radius] forKey:@"radius"];
+        // iOS8 SDK still uses CLRegion inside CLPlaceMarker though,
+        // to supress the warning, cast to CLCircularRegion.
+        // http://www.4byte.cn/question/288833/deprecated-clregion-methods-how-to-get-radius.html
+        #ifdef __IPHONE_7_0
+          CLCircularRegion *circularRegion = (CLCircularRegion *)placemark.region;
+          [extra setObject:[NSString stringWithFormat:@"%f", circularRegion.radius] forKey:@"radius"];
+        #else
+          [extra setObject:[NSString stringWithFormat:@"%f", placemark.region.radius] forKey:@"radius"];
+        #endif
+        
         
         [extra setObject:placemark.region.identifier forKey:@"identifier"];
       }
