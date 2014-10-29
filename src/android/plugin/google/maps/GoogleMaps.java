@@ -85,6 +85,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
 
@@ -116,6 +117,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private MyPluginLayout mPluginLayout = null;
   private LocationClient locationClient = null;
   private boolean isDebug = false;
+  private boolean isCrossWalk = false;
   
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -169,9 +171,22 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
+        String settingClassName = webView.getSettings().getClass().toString();
+        if (settingClassName.indexOf("XWalkSetting") > 0) {
+          Log.d("GoogleMaps", "--->CrossWalk mode");
+          isCrossWalk = true;
+        }
         
-        webView.getSettings().setRenderPriority(RenderPriority.HIGH);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        if (isCrossWalk == false) {
+          try {
+            Method method = webView.getClass().getMethod("getSettings", null);
+            WebSettings settings = (WebSettings)method.invoke(null, null);
+            settings.setRenderPriority(RenderPriority.HIGH);
+            settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
@@ -183,7 +198,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         if (VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
           Log.d(TAG, "Google Maps Plugin reloads the browser to change the background color as transparent.");
           webView.setBackgroundColor(0);
-          webView.reload();
+          if (isCrossWalk == false) {
+            try {
+              Method method = webView.getClass().getMethod("reload", null);
+              method.invoke(null, null);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
         }
       }
     });
@@ -605,7 +627,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       e.printStackTrace();
     }
   }
-  
+
+  @SuppressWarnings("unused")
+  private Boolean myTest(JSONArray args, CallbackContext callbackContext) {
+    PolygonOptions options = new PolygonOptions();
+    options.add(new LatLng(-45, -90));
+    options.add(new LatLng(-45, -180));
+    options.add(new LatLng(0, -180));
+    options.add(new LatLng(0, -90));
+    map.addPolygon(options);
+    
+    
+    callbackContext.success();
+    return true;
+  }
   @SuppressWarnings("unused")
   private Boolean getLicenseInfo(JSONArray args, CallbackContext callbackContext) {
     String msg = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity);
@@ -654,7 +689,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void closeWindow() {
-    webView.hideCustomView();
+    if (isCrossWalk == false) {
+      try {
+        Method method = webView.getClass().getMethod("hideCustomView", null);
+        method.invoke(null, null);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
   @SuppressWarnings("unused")
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
@@ -752,6 +794,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     //Dummy view for the back-button event
     FrameLayout dummyLayout = new FrameLayout(activity);
+    
+    /*
     this.webView.showCustomView(dummyLayout, new WebChromeClient.CustomViewCallback() {
 
       @Override
@@ -770,7 +814,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         GoogleMaps.this.onMapEvent("map_close");
       }
     });
-
+    */
+    
     this.sendNoResult(callbackContext);
   }
 
@@ -1074,8 +1119,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
       }
     }
-    
-    return false;
+
+    marker.showInfoWindow();
+    return true;
+    //return false;
   }
   
   @Override
@@ -1422,9 +1469,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onPause(boolean multitasking) {
-    if (locationClient != null) {
-      locationClient.disconnect();
-    }
     if (mapView != null) {
       mapView.onPause();
     }
@@ -1436,17 +1480,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (mapView != null) {
       mapView.onResume();
     }
-    if (locationClient != null) {
-      locationClient.connect();
-    }
     super.onResume(multitasking);
   }
 
   @Override
   public void onDestroy() {
-    if (locationClient != null) {
-      locationClient.disconnect();
-    }
     if (mapView != null) {
       mapView.onDestroy();
     }
