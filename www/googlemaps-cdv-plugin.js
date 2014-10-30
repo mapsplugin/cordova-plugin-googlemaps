@@ -2009,18 +2009,24 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
   var prevSize = null;
   var children;
   var prevChildrenCnt = 0;
-  var div, divSize, childCnt = 0;
-  if (watchDogTimer) {
-    clearInterval(watchDogTimer);
+  var divSize, childCnt = 0;
+  if (window.ref) {
+    clearInterval(window.ref);
   }
-  watchDogTimer = setInterval(function() {
-    div = module.exports.Map.get("div");
+  function init()
+  {
+    window.ref = window.setInterval(function() { myFunc(); }, 100);
+  }
+  function myFunc()
+  {
+    var div = module.exports.Map.get("div");
     if (div) {
       children= getAllChildren(div);
       childCnt = children.length;
       if (childCnt != prevChildrenCnt) {
         onMapResize();
         prevChildrenCnt = childCnt;
+        watchDogTimer = setTimeout(myFunc, 100);
         return;
       }
       prevChildrenCnt = childCnt;
@@ -2035,7 +2041,14 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
       }
       prevSize = divSize;
     }
-  }, 100);
+    div = null;
+    divSize = null;
+    childCnt = null;
+    children = null;
+    clearInterval(window.ref);
+    init();
+  }
+  init();
 });
 
 _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValue) {
