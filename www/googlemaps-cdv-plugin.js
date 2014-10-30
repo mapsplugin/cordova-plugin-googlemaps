@@ -2001,7 +2001,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
  *****************************************************************************/
 var _mapInstance = new App();
 
-var watchDogTimer = null;
+window._watchDogTimer = null;
 _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValue) {
   if (newValue !== true) {
     return;
@@ -2010,12 +2010,12 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
   var children;
   var prevChildrenCnt = 0;
   var divSize, childCnt = 0;
-  if (window.ref) {
-    clearInterval(window.ref);
+  if (window._watchDogTimer) {
+    clearInterval(window._watchDogTimer);
   }
   function init()
   {
-    window.ref = window.setInterval(function() { myFunc(); }, 100);
+    window._watchDogTimer = window.setInterval(function() { myFunc(); }, 100);
   }
   function myFunc()
   {
@@ -2045,7 +2045,7 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
     divSize = null;
     childCnt = null;
     children = null;
-    clearInterval(window.ref);
+    clearInterval(window._watchDogTimer);
     init();
   }
   init();
@@ -2055,10 +2055,10 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
   if (newValue !== false) {
     return;
   }
-  if (watchDogTimer) {
-    clearInterval(watchDogTimer);
+  if (window._watchDogTimer) {
+    clearInterval(window._watchDogTimer);
   }
-  watchDogTimer = null;
+  window._watchDogTimer = null;
 });
 /*****************************************************************************
  * Name space
