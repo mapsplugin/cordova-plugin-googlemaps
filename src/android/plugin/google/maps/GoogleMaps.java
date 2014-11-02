@@ -113,7 +113,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private final String PLUGIN_VERSION = "1.2.2";
+  private final String PLUGIN_VERSION = "1.2.4 beta";
   private MyPluginLayout mPluginLayout = null;
   private LocationClient locationClient = null;
   private boolean isDebug = false;
