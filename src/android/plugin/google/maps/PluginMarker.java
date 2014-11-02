@@ -526,6 +526,10 @@ public class PluginMarker extends MyPlugin {
 
         @Override
         public void onPostExecute(Bitmap image) {
+          if (image == null) {
+            callback.onMarkerIconLoaded(marker);
+            return;
+          }
           int width = image.getWidth();
           int height = image.getHeight();
           
