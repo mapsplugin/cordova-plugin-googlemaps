@@ -8,17 +8,20 @@
     <script src="js/jquery.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript">
-    $(document).on('deviceready', function() {
-      var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
-      
-      $("#testBtn").click(function() {
-        plugin.google.maps.external.launchNavigation({
-          "from": "Tokyo, Japan",
-          "to": "Kyoto, Japan",
-          "travelMode": "transit"
-        });
-      });
-    });
+$(document).on('deviceready', function() {
+  var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
+  
+  map.addMarker({
+    icon: {
+      url: "https://cloud.githubusercontent.com/assets/504909/4591244/d56b15e6-5069-11e4-889f-05b109da37c2.png",
+      size: {
+        width: 40,
+        height: 50
+      }
+    },
+    position: new plugin.google.maps.LatLng(0, 0)
+  });
+});
     </script>
     <style type="text/css">
       button {
@@ -38,8 +41,8 @@
     </style>
   </head>
   <body>
-    <div id="map_canvas" >
-      <button id="testBtn">getMyLocation()</button>
-    </div>
+<div id="map_canvas" >
+  <img src="https://cloud.githubusercontent.com/assets/504909/4591244/d56b15e6-5069-11e4-889f-05b109da37c2.png" width="40" height="50">
+</div>
   </body>
 </html>
