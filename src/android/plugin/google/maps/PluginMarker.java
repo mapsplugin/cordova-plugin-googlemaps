@@ -483,8 +483,8 @@ public class PluginMarker extends MyPlugin {
           int width = sizeInfo.getInt("width", 0);
           int height = sizeInfo.getInt("height", 0);
           if (width > 0 && height > 0) {
-            //width = (int)Math.round(width * webView.getScale());
-            //height = (int)Math.round(height * webView.getScale());
+            width = (int)Math.round(width * PluginMarker.this.density);
+            height = (int)Math.round(height * PluginMarker.this.density);
             image = PluginUtil.resizeBitmap(image, width, height);
           }
         }
@@ -538,9 +538,9 @@ public class PluginMarker extends MyPlugin {
             Bundle sizeInfo = (Bundle) iconProperty.get("size");
             width = sizeInfo.getInt("width", width);
             height = sizeInfo.getInt("height", height);
-            if (width != image.getWidth() && height > image.getHeight()) {
-              //width = (int)Math.round(width * webView.getScale());
-              //height = (int)Math.round(height * webView.getScale());
+            if (width > 0 && height > 0) {
+              width = (int)Math.round(width * PluginMarker.this.density);
+              height = (int)Math.round(height * PluginMarker.this.density);
               image = PluginUtil.resizeBitmap(image, width, height);
             }
           }
