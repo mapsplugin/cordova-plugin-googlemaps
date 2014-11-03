@@ -13,18 +13,61 @@
     $(document).on('deviceready', function() {
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       
-      console.log(JSON.stringify(plugin.google.maps.experimental.MarkerCluster));
       plugin.google.maps.experimental.MarkerCluster.createCluster(map, function(cluster) {
         async.map(data.photos, function(info, next) {
           next(null, {
             'position': new plugin.google.maps.LatLng(info.lat, info.lng),
-            'title': info.photo_title
+            'photoData': info,
+            'icon': info.photo_file_url.replace("medium", "mini_square"),
+            'markerClick': onMarkerClicked
           });
         }, function(err, markers) {
-          cluster.addMarker(markers);
+          cluster.addMarkers(markers);
         });
       });
     });
+    
+    function onMarkerClicked(marker) {
+      var map = marker.getMap();
+      var info = marker.get('photoData');
+      $("div#photoDiv").remove();
+      $("div#backGroundDiv").remove();
+      var photoDiv = $("<div id='photoDiv'>").css({
+        "position": "fixed",
+        "left": "10%",
+        "top": "10%",
+        "right": "10%",
+        "bottom": "10%",
+        "z-index": 1001,
+        "background-image": "url('" + info.photo_file_url + "')",
+        "background-size": "cover",
+        "background-position": "center"
+      });
+      photoDiv.appendTo("body");
+      
+      var backGround = $("<div id='backGroundDiv'>").css({
+        opacity: 0.7,
+        backgroundColor: "black",
+        "position": "fixed",
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "z-index": 1000
+      });
+      backGround.appendTo("body");
+      
+      var doClose = function() {
+        $(backGround).remove();
+        $(photoDiv).remove();
+        map.setClickable(true);
+      };
+      
+      $("body").one("touchstart", doClose);
+      $(document).one("backbutton", doClose);
+      
+      map.setClickable(false);
+    }
     </script>
     <style type="text/css">
       button {
