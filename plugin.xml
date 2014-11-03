@@ -44,8 +44,8 @@
             </feature>
         </config-file>
 
-        <!--<dependency id="com.google.playservices" />
-        <dependency id="android.support.v4" />-->
+        <dependency id="com.google.playservices" />
+        <!--<dependency id="android.support.v4" />-->
     
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
