@@ -170,8 +170,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       @SuppressLint("NewApi")
       public void run() {
         
-        webView.getSettings().setRenderPriority(RenderPriority.HIGH);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        //webView.getSettings().setRenderPriority(RenderPriority.HIGH);
+        //webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
