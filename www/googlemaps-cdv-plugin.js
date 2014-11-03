@@ -523,11 +523,9 @@ App.prototype.clear = function(callback) {
  */
 App.prototype.remove = function() {
   var div = this.get('div');
-  console.log("div = " + div);
   if (div) {
     while(div) {
       if (div.style) {
-  console.log("backgroundColor = " + div.style.backgroundColor);
         div.style.backgroundColor ='';
       }
       if (div.className) {
