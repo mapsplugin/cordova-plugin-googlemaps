@@ -23,7 +23,8 @@ typedef NSURL *(^GMSTileURLConstructor)(NSUInteger x, NSUInteger y, NSUInteger z
  * GMSTileURLConstructor. For example:
  * <pre>
  *   GMSTileURLConstructor constructor = ^(NSUInteger x, NSUInteger y, NSUInteger zoom) {
- *     NSString *URLStr = [NSString stringWithFormat:@"http://example.com/%d/%d/%d.png", x, y, zoom];
+ *     NSString *URLStr =
+ *         [NSString stringWithFormat:@"https://example.com/%d/%d/%d.png", x, y, zoom];
  *     return [NSURL URLWithString:URLStr];
  *   };
  *   GMSTileLayer *layer =

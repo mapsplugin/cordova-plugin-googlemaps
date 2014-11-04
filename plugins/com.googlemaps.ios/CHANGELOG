@@ -1,3 +1,21 @@
+Version 1.9.0 - October 2014
+============================
+Features:
+  - Support for iOS 8
+  - Support for iPhone 6/6+
+  - Support for Swift
+  - UI elements have been updated for material design
+
+Resolved Issues:
+  - Fixed some memory reclamation issues
+  - Improved handling of application background state transition
+
+Notes:
+  ! In order to improve compatibility with Swift, two geometry library
+    functions have been renamed to avoid function overloading
+    The new names are GMSGeometryIsLocationOnPathTolerance and
+    GMSStyleSpansOffset
+
 Version 1.8.1 - May 2014
 ========================
 Resolved Issues:
