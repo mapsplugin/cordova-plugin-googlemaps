@@ -176,7 +176,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         
-        root.setBackgroundColor(Color.WHITE);
+        //root.setBackgroundColor(Color.WHITE);
         if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
           activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
