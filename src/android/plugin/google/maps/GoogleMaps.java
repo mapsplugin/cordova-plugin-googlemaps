@@ -132,7 +132,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     } catch (Exception e) {}
     
     Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
-
+    Log.d("CordovaLog", "packagename=" + activity.getApplicationContext().getPackageName());
     if (isDebug) {
       cordova.getThreadPool().execute(new Runnable() {
         @Override
