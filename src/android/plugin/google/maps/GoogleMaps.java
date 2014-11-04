@@ -123,6 +123,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
     root = (ViewGroup) webView.getParent();
+    Log.d("GoogleMaps", "activity=" + activity.getClass().getPackage());
 
     // Is this app in debug mode?
     try {
