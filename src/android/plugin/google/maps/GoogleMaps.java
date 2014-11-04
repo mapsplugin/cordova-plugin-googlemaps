@@ -430,7 +430,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     // Initialize Google Maps SDK
     // ------------------------------
     try {
-      MapsInitializer.initialize(activity);
+      MapsInitializer.initialize(activity.getApplicationContext());
     } catch (Exception e) {
       e.printStackTrace();
       callbackContext.error(e.getMessage());
@@ -521,7 +521,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       options.camera(builder.build());
     }
     
-    mapView = new MapView(activity, options);
+    mapView = new MapView(activity.getApplicationContext(), options);
     mapView.onCreate(new Bundle());
     mapView.onResume();
     map = mapView.getMap();
