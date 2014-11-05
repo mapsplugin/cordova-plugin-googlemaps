@@ -12,14 +12,17 @@ import org.json.JSONObject;
 import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.location.Location;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -134,14 +137,28 @@ public class PluginUtil {
     return mBundle;
   }
   
-  public static Bitmap resizeBitmap(Bitmap bitmap, int width, int height) {
+  public static Bitmap resizeBitmap(Bitmap bitmap, int newWidth, int newHeight) {
     if (bitmap == null) {
       return null;
     }
- 
-    Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+    /**
+     * http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap#7468636
+     */
+    Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Config.ARGB_8888);
+
+    float ratioX = newWidth / (float) bitmap.getWidth();
+    float ratioY = newHeight / (float) bitmap.getHeight();
+    float middleX = newWidth / 2.0f;
+    float middleY = newHeight / 2.0f;
+
+    Matrix scaleMatrix = new Matrix();
+    scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+    Canvas canvas = new Canvas(scaledBitmap);
+    canvas.setMatrix(scaleMatrix);
+    canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
     
-    return resizeBitmap;
+    return scaledBitmap;
   }
 
   public static Bitmap scaleBitmapForDevice(Bitmap bitmap) {
@@ -150,10 +167,29 @@ public class PluginUtil {
     }
     
     float density = Resources.getSystem().getDisplayMetrics().density;
-    int width = (int)(bitmap.getWidth() * density);
-    int height = (int)(bitmap.getHeight() * density);
+    int newWidth = (int)(bitmap.getWidth() * density);
+    int newHeight = (int)(bitmap.getHeight() * density);
+    /*
     Bitmap resizeBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-    return resizeBitmap;
+    */
+    /**
+     * http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap#7468636
+     */
+    Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Config.ARGB_8888);
+
+    float ratioX = newWidth / (float) bitmap.getWidth();
+    float ratioY = newHeight / (float) bitmap.getHeight();
+    float middleX = newWidth / 2.0f;
+    float middleY = newHeight / 2.0f;
+
+    Matrix scaleMatrix = new Matrix();
+    scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+    Canvas canvas = new Canvas(scaledBitmap);
+    canvas.setMatrix(scaleMatrix);
+    canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+    
+    return scaledBitmap;
   }
   
   public static Bitmap getBitmapFromBase64encodedImage(String base64EncodedImage) {
