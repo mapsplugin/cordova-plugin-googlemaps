@@ -162,7 +162,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 }
               }
             });
-          } catch (Exception e) {}
+          } catch (Exception e) {
+                e.printStackTrace();
+          }
         }
       });
     //}
