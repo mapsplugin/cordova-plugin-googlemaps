@@ -190,14 +190,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         if (VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
           Log.d(TAG, "Google Maps Plugin reloads the browser to change the background color as transparent.");
           webView.setBackgroundColor(0);
-          if (isCrossWalk == false) {
             try {
               Method method = webView.getClass().getMethod("reload", null);
               method.invoke(null, null);
             } catch (Exception e) {
               e.printStackTrace();
             }
-          }
         }
       }
     });
@@ -681,14 +679,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void closeWindow() {
-    if (isCrossWalk == false) {
       try {
         Method method = webView.getClass().getMethod("hideCustomView");
         method.invoke(null);
       } catch (Exception e) {
         e.printStackTrace();
       }
-    }
   }
   @SuppressWarnings("unused")
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
