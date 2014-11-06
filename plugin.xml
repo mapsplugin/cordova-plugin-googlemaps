@@ -44,7 +44,7 @@
             </feature>
         </config-file>
 
-        <dependency id="com.google.playservices" />
+        <dependency id="https://github.com/wf9a5m75/google-play-services" />
         <dependency id="android.support.v4" />
     
         <!-- plugin src files -->
