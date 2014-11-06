@@ -192,8 +192,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           Log.d(TAG, "Google Maps Plugin reloads the browser to change the background color as transparent.");
           webView.setBackgroundColor(0);
             try {
-              Method method = webView.getClass().getMethod("reload", null);
-              method.invoke(null, null);
+              Method method = webView.getClass().getMethod("reload");
+              method.invoke(webView);
             } catch (Exception e) {
               e.printStackTrace();
             }
