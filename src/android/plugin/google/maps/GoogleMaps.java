@@ -117,7 +117,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private MyPluginLayout mPluginLayout = null;
   private LocationClient locationClient = null;
   private boolean isDebug = false;
-  private boolean isCrossWalk = false;
   
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -172,16 +171,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       @SuppressLint("NewApi")
       public void run() {
       
-        if (isCrossWalk == false) {
           try {
-            Method method = webView.getClass().getMethod("getSettings", null);
-            WebSettings settings = (WebSettings)method.invoke(null, null);
+            Method method = webView.getClass().getMethod("getSettings");
+            WebSettings settings = (WebSettings)method.invoke(null);
             settings.setRenderPriority(RenderPriority.HIGH);
             settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
           } catch (Exception e) {
             e.printStackTrace();
           }
-        }
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
@@ -349,9 +346,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         
         String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
         switch (checkGooglePlayServices) {
-        case ConnectionResult.DATE_INVALID:
-          errorMsg = "It seems your device date is set incorrectly. Please update the correct date and time.";
-          break;
+        //case ConnectionResult.DATE_INVALID:
+        //  errorMsg = "It seems your device date is set incorrectly. Please update the correct date and time.";
+        //  break;
         case ConnectionResult.DEVELOPER_ERROR:
           errorMsg = "The application is misconfigured. This error is not recoverable and will be treated as fatal. The developer should look at the logs after this to determine more actionable information.";
           break;
@@ -686,8 +683,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void closeWindow() {
     if (isCrossWalk == false) {
       try {
-        Method method = webView.getClass().getMethod("hideCustomView", null);
-        method.invoke(null, null);
+        Method method = webView.getClass().getMethod("hideCustomView");
+        method.invoke(null);
       } catch (Exception e) {
         e.printStackTrace();
       }
