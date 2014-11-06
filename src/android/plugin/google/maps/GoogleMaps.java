@@ -170,7 +170,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-      
+      /*
           try {
             Method method = webView.getClass().getMethod("getSettings");
             WebSettings settings = (WebSettings)method.invoke(null);
@@ -179,6 +179,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           } catch (Exception e) {
             e.printStackTrace();
           }
+       */
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
