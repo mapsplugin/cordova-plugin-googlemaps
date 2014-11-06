@@ -994,7 +994,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
 
-    Log.d("openCV", "provider = " + provider);
     Location location = locationManager.getLastKnownLocation(provider);
     if (location != null) {
       JSONObject result = PluginUtil.location2Json(location);

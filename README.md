@@ -1,37 +1,37 @@
 phonegap-googlemaps-plugin
 ==========================
-This plugin helps you to control [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/) from your JavaScript code.
-This plugin works with [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/).
+This plugin helps you leverage [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/) with your JavaScript.
+Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
 
 
 ![ScreenShot](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/phonegap-googlemaps-plugin_small.png)
 
 
 ###Example
-You can try the example of this plugin. [phonegap-googlemaps-plugin-v1.2.0.apk](http://goo.gl/6JW0Wo)
+You can see an example here. [phonegap-googlemaps-plugin-v1.2.2.apk](http://goo.gl/EJ67sm)
 ```bash
-$> adb install phonegap-googlemaps-plugin-v1.2.0.apk
+$> adb install phonegap-googlemaps-plugin-v1.2.2.apk
 ```
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0_v2.gif)
 
-### Join to the official community
-New version will be announced through the official community. Stay tune!
+### Join the official community
+New versions will be announced through the official community. Stay tuned!
 
 <a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
 
-###What's up at v1.2.0!?
+###What's up?
 
-As of v1.2.0, you can put your HTMLs on the map, such as button, because the map places under the browser.
+v1.2.3
+- Bug fixes
+- `travelMode` property is added to `external.launchNavigation()`
 
-![](https://googledrive.com/host/0B1ECfqTCcLE8R0h6T3dIdWFBOHM/mechanism.png)
-
-
+Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
 ###Documentation
 
 * Introduction
-  * <a href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-different-between-JavaScritp-API-(web)-and-the-mobile-SDKs-(native)">How different between JavaScritp API (web) and the mobile SDKs (native)</a>
+  * <a href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-different-are-the-JavaScript-APIs-%28web%29-and-the-mobile-SDKs-%28native%29">How different are the JavaScript APIs (web) and the mobile SDKs (native)</a>
   * [Why use this plugin?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Why-use-this-plugin%3F)
   * [Java Objective C or JavaScript. Which one do you like?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Java-Objective-C-or-JavaScript.-Which-one-do-you-like%3F)
 
@@ -42,9 +42,10 @@ As of v1.2.0, you can put your HTMLs on the map, such as button, because the map
     * [Tutorial for Windows](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Windows)
     * [Tutorial for Mac/Linux](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Mac)
     * [PhoneGap Usage](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Phonegap-Usage)
+    * [Tutorial for Monaca (Cloud building service)](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-Monaca)
   * Upgrade
     * [How to upgrade the Google Maps SDK for iOS to the latest version?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-to-upgrade-the-Google-Maps-SDK-for-iOS-to-the-latest-version%3F)
-* [Terms of Services](./Terms-of-Services)
+* [Terms of Services](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Terms-of-Services)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
   * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif) 
   * Create a map
@@ -125,9 +126,12 @@ As of v1.2.0, you can put your HTMLs on the map, such as button, because the map
   * Launch the navigation application
 
 
-### Please encourage this project.
-I put in plenty of time for this project.
-If you donate some amount, I will notify you when I test new feature, or reply your question as much as possible.
-Thank you for your encouragement to this project. 
+-----
 
-[![Donation with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Phonegap%2dGoogleMaps%2dPlugin&item_number=phonegap&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
+##Do you want to use marker cluster?
+
+Marker clustering is the technique for grouping some markers based on bounds. This reduces the marker on the map, and reduce the memory usage.
+
+<img src="https://googledrive.com/host/0B1ECfqTCcLE8SHVUX25xcmNIUTQ/marker_cluster.png" width="250">
+
+[![Bountysource](https://www.bountysource.com/badge/team?team_id=942&style=raised)](https://www.bountysource.com/teams/phonegap-googlemaps-plugin?utm_source=PhoneGap%20GoogleMaps%20Plugin&utm_medium=shield&utm_campaign=raised) / $500
