@@ -171,12 +171,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-        String settingClassName = webView.getSettings().getClass().toString();
-        if (settingClassName.indexOf("XWalkSetting") > 0) {
-          Log.d("GoogleMaps", "--->CrossWalk mode");
-          isCrossWalk = true;
-        }
-        
+      
         if (isCrossWalk == false) {
           try {
             Method method = webView.getClass().getMethod("getSettings", null);
