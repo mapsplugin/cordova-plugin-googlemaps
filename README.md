@@ -141,6 +141,7 @@ Currently, the beta version for Android is available.
 [![Bountysource](https://www.bountysource.com/badge/team?team_id=942&style=raised)](https://www.bountysource.com/teams/phonegap-googlemaps-plugin?utm_source=PhoneGap%20GoogleMaps%20Plugin&utm_medium=shield&utm_campaign=raised) / $500
 
 You can find the development updates at Bountysource.
+
 https://www.bountysource.com/teams/phonegap-googlemaps-plugin/updates
 
 
