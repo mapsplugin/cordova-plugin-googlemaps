@@ -22,9 +22,8 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
-v1.2.3
+v1.2.4
 - Bug fixes
-- `travelMode` property is added to `external.launchNavigation()`
 
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
