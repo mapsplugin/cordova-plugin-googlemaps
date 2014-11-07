@@ -8,9 +8,9 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 
 ###Example
-You can see an example here. [phonegap-googlemaps-plugin-v1.2.2.apk](http://goo.gl/EJ67sm)
+You can see an example here. [phonegap-googlemaps-plugin-v1.2.4.apk](http://goo.gl/u5JveA)
 ```bash
-$> adb install phonegap-googlemaps-plugin-v1.2.2.apk
+$> adb install phonegap-googlemaps-plugin-v1.2.4.apk
 ```
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0_v2.gif)
