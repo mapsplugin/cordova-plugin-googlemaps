@@ -127,18 +127,21 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 
 -----
 
-##Do you want to use marker cluster?
+###Do you want to use marker cluster?
 
 Marker clustering is the technique for grouping some markers based on bounds. This reduces the marker on the map, and reduce the memory usage.
+
+The marker clustering is not available for everyone yet, it has still been developming.
+However if you want to use it right now, please donate $25 US dollers, and let me know your Github account.
+I will invite you to the different repository.
+Currently, the beta version for Android is available.
 
 <img src="https://googledrive.com/host/0B1ECfqTCcLE8SHVUX25xcmNIUTQ/marker_cluster.png" width="250">
 
 [![Bountysource](https://www.bountysource.com/badge/team?team_id=942&style=raised)](https://www.bountysource.com/teams/phonegap-googlemaps-plugin?utm_source=PhoneGap%20GoogleMaps%20Plugin&utm_medium=shield&utm_campaign=raised) / $500
 
------
 
-
-##Support for this project
+###Support for this project
 
 This project has been developmenting by one person "Masashi", including bug fixing, new feature development, do presentations, writing documents, and so on.
 Yes, I like them.
@@ -152,13 +155,11 @@ Best regards,
 
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=phonegap%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
 
------
 
-##Are you an English speaker?
+###Are you an English speaker?
 As you may know, I'm Japanese. So my English vocabulary is still poor.
 If you feel the written English is not proper, feel free to edit it.
 
------
 
-##Do you find an issue? Please let me know.
+###Do you find an issue? Please let me know.
 If you find an issue using this plugin, don't leave, and let me know on [the issue list](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues) or on [the official community](https://plus.google.com/u/0/communities/117427728522929652853).
