@@ -213,6 +213,9 @@
     NSString *className = [target objectAtIndex:0];
     CDVPlugin<MyPlgunProtocol> *pluginClass = nil;
     NSString *methodName;
+    if ([PluginUtil isInDebugMode]) {
+      NSLog(@"(debug)%@", classAndMethod);
+    }
     
     if ([classAndMethod isEqualToString:@"Map.setOptions"]) {
       NSDictionary *options = [command.arguments objectAtIndex:1];
