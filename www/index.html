@@ -14,6 +14,7 @@
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       
       plugin.google.maps.experimental.MarkerCluster.createCluster(map, function(cluster) {
+        data.photos.length = 1;
         async.map(data.photos, function(info, next) {
           next(null, {
             'position': new plugin.google.maps.LatLng(info.lat, info.lng),

@@ -34,6 +34,9 @@
     <feature name="Console">
         <param name="ios-package" value="CDVLogger" />
     </feature>
+    <feature name="MarkerCluster">
+        <param name="ios-package" value="MarkerCluster" />
+    </feature>
     <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.

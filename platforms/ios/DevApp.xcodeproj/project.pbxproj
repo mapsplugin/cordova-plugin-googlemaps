@@ -64,6 +64,10 @@
 		8FEC2B9CD827442298AA1B17 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D03A823343FFBED6DB34 /* ImageIO.framework */; };
 		92824D78C3A44B5ABB7C7A36 /* R9HTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A0B320D7E0048619974FE4C /* R9HTTPRequest.m */; };
 		9FB4C9ACEF484DE4A8D5143F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B83D77D8DF42C0BB1A9DEF /* AVFoundation.framework */; };
+		A060DC111A0F53BF00DF5610 /* PluginMarkerCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = A060DC101A0F53BF00DF5610 /* PluginMarkerCluster.m */; };
+		A097BD411A0F63C000E554DA /* MarkerCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = A097BD401A0F63C000E554DA /* MarkerCluster.m */; };
+		A097BD441A0F6E3300E554DA /* MarkerJsonData.m in Sources */ = {isa = PBXBuildFile; fileRef = A097BD431A0F6E3300E554DA /* MarkerJsonData.m */; };
+		A097BD471A0F735100E554DA /* MarkerClusterUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A097BD461A0F735100E554DA /* MarkerClusterUtil.m */; };
 		A0A6C8B519DE8B61006FA408 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 2642A164D871458CAA0E7CD2 /* CDVLogger.m */; };
 		A0B15AF119D406AE00CECFE9 /* plugin.xml in Resources */ = {isa = PBXBuildFile; fileRef = A0B15AF019D406AD00CECFE9 /* plugin.xml */; };
 		A0C8C25419D11E8B00E46F7E /* MyPluginScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */; };
@@ -188,6 +192,14 @@
 		8D1107310486CEB800E47090 /* DevApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "DevApp-Info.plist"; path = "../DevApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		94B42436A54042BB8390247A /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpRequest.h; path = plugin.http.request/HttpRequest/HttpRequest.h; sourceTree = "<group>"; };
 		9D0482B04E60450894AB403B /* libz.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		A060DC0F1A0F53BF00DF5610 /* PluginMarkerCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PluginMarkerCluster.h; path = ../../../../../markercluster/src/ios/PluginMarkerCluster.h; sourceTree = "<group>"; };
+		A060DC101A0F53BF00DF5610 /* PluginMarkerCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PluginMarkerCluster.m; path = ../../../../../markercluster/src/ios/PluginMarkerCluster.m; sourceTree = "<group>"; };
+		A097BD3F1A0F63C000E554DA /* MarkerCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerCluster.h; path = ../../../../../markercluster/src/ios/experimental/MarkerCluster.h; sourceTree = "<group>"; };
+		A097BD401A0F63C000E554DA /* MarkerCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MarkerCluster.m; path = ../../../../../markercluster/src/ios/experimental/MarkerCluster.m; sourceTree = "<group>"; };
+		A097BD421A0F6E3300E554DA /* MarkerJsonData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerJsonData.h; path = ../../../../../markercluster/src/ios/experimental/MarkerJsonData.h; sourceTree = "<group>"; };
+		A097BD431A0F6E3300E554DA /* MarkerJsonData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MarkerJsonData.m; path = ../../../../../markercluster/src/ios/experimental/MarkerJsonData.m; sourceTree = "<group>"; };
+		A097BD451A0F735100E554DA /* MarkerClusterUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerClusterUtil.h; path = ../../../../../markercluster/src/ios/experimental/MarkerClusterUtil.h; sourceTree = "<group>"; };
+		A097BD461A0F735100E554DA /* MarkerClusterUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MarkerClusterUtil.m; path = ../../../../../markercluster/src/ios/experimental/MarkerClusterUtil.m; sourceTree = "<group>"; };
 		A0B15AF019D406AD00CECFE9 /* plugin.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = plugin.xml; path = ../../plugin.xml; sourceTree = "<group>"; };
 		A0C8C25219D11E8B00E46F7E /* MyPluginScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyPluginScrollView.h; path = ../../../../src/ios/GoogleMaps/MyPluginScrollView.h; sourceTree = "<group>"; };
 		A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyPluginScrollView.m; path = ../../../../src/ios/GoogleMaps/MyPluginScrollView.m; sourceTree = "<group>"; };
@@ -395,6 +407,14 @@
 				5210F5E958CC4FCFA68923E4 /* R9HTTPRequest.h */,
 				A0C8C25519D120FC00E46F7E /* MyPluginLayerDebugView.h */,
 				A0C8C25619D120FC00E46F7E /* MyPluginLayerDebugView.m */,
+				A060DC0F1A0F53BF00DF5610 /* PluginMarkerCluster.h */,
+				A060DC101A0F53BF00DF5610 /* PluginMarkerCluster.m */,
+				A097BD421A0F6E3300E554DA /* MarkerJsonData.h */,
+				A097BD431A0F6E3300E554DA /* MarkerJsonData.m */,
+				A097BD451A0F735100E554DA /* MarkerClusterUtil.h */,
+				A097BD461A0F735100E554DA /* MarkerClusterUtil.m */,
+				A097BD3F1A0F63C000E554DA /* MarkerCluster.h */,
+				A097BD401A0F63C000E554DA /* MarkerCluster.m */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -607,12 +627,15 @@
 				6904C37619D0F1A3008FFD15 /* Polyline.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				6904C37119D0F1A3008FFD15 /* MyReachability.m in Sources */,
+				A097BD441A0F6E3300E554DA /* MarkerJsonData.m in Sources */,
+				A060DC111A0F53BF00DF5610 /* PluginMarkerCluster.m in Sources */,
 				6904C36819D0F1A3008FFD15 /* External.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				6904C37519D0F1A3008FFD15 /* Polygon.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				6904C36919D0F1A3008FFD15 /* Geocoder.m in Sources */,
 				6904C36F19D0F1A3008FFD15 /* Marker.m in Sources */,
+				A097BD471A0F735100E554DA /* MarkerClusterUtil.m in Sources */,
 				BBFF786B8852482E8949A98C /* HttpRequest.m in Sources */,
 				A0C8C25719D120FC00E46F7E /* MyPluginLayerDebugView.m in Sources */,
 				92824D78C3A44B5ABB7C7A36 /* R9HTTPRequest.m in Sources */,
@@ -625,6 +648,7 @@
 				6904C37219D0F1A3008FFD15 /* NSData+Base64.m in Sources */,
 				6904C36A19D0F1A3008FFD15 /* GoogleMaps.m in Sources */,
 				6904C36E19D0F1A3008FFD15 /* Map.m in Sources */,
+				A097BD411A0F63C000E554DA /* MarkerCluster.m in Sources */,
 				6904C37719D0F1A3008FFD15 /* TBXML.m in Sources */,
 				C92E8F2094FE418B921242FD /* BSD-LICENSE in Sources */,
 			);
