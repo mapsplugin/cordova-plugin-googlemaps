@@ -682,7 +682,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void closeWindow() {
       try {
         Method method = webView.getClass().getMethod("hideCustomView");
-        method.invoke(null);
+        method.invoke(webView);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -784,7 +784,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     //Dummy view for the back-button event
     FrameLayout dummyLayout = new FrameLayout(activity);
     
-    /*
     this.webView.showCustomView(dummyLayout, new WebChromeClient.CustomViewCallback() {
 
       @Override
@@ -803,7 +802,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         GoogleMaps.this.onMapEvent("map_close");
       }
     });
-    */
     
     this.sendNoResult(callbackContext);
   }
