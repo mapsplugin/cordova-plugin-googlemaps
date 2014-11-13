@@ -1965,8 +1965,8 @@ externalService.launchNavigation = function(params) {
   if (typeof params.to === "object" && "toUrlValue" in params.to ) {
     params.to = params.to.toUrlValue();
   }
-  params.from = params.from.replace(/\s+/g, "%20");
-  params.to = params.to.replace(/\s+/g, "%20");
+  //params.from = params.from.replace(/\s+/g, "%20");
+  //params.to = params.to.replace(/\s+/g, "%20");
   cordova.exec(null, null, "External", 'launchNavigation', [params]);
 };
 /*****************************************************************************
