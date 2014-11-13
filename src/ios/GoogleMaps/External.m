@@ -21,6 +21,10 @@
   NSString *to = [json objectForKey:@"to"];
   NSString *directionsRequest = nil;
   
+  from = [from stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+  to = [to stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+  
+  
   NSURL *googleMapsURLScheme = [NSURL URLWithString:@"comgooglemaps-x-callback://"];
   if ([[UIApplication sharedApplication] canOpenURL:googleMapsURLScheme]) {
   
