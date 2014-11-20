@@ -111,8 +111,10 @@ var BaseClass = function() {
   self.addEventListenerOnce = self.one;
   
   self.errorHandler = function(msg) {
-    console.error(msg);
-    self.trigger('error', msg);
+    if (msg) {
+      console.error(msg);
+      self.trigger('error', msg);
+    }
     return false;
   };
   
