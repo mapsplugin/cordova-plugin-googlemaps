@@ -7,68 +7,46 @@
     <title>Google Maps Plugin for Cordova</title>
     <script src="js/jquery.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="test.json"></script>
+    <script type="text/javascript" src="test_data/data_big.json"></script>
     <script type="text/javascript" src="js/async.js"></script>
     <script type="text/javascript">
     $(document).on('deviceready', function() {
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
+      map.on("map_ready", function() {
       
-      plugin.google.maps.experimental.MarkerCluster.createCluster(map, function(cluster) {
-        data.photos.length = 1;
-        async.map(data.photos, function(info, next) {
-          next(null, {
-            'position': new plugin.google.maps.LatLng(info.lat, info.lng),
-            'photoData': info,
-            'icon': info.photo_file_url.replace("medium", "mini_square"),
-            'markerClick': onMarkerClicked
+        async.mapSeries(test_data.data.neighborhood, function(data, next) {
+          console.log(data.lat + "," + data.lng);
+          map.addMarker({
+            "position": new plugin.google.maps.LatLng(
+              parseFloat(data.lat, 10),
+              parseFloat(data.lng, 10)
+            ),
+            "uid": data.uid,
+            "firstname": data.firstname,
+            "picture": data.picture,
+            "isFavorite": data.isFavorite,
+            "isMe": data.isMe,
+            "picture_profile": data.picture_profile,
+            "icon": {
+              "url": data.icon,
+              "size": {
+                "width": 40,
+                "height": 50
+              }
+            },
+            "markerClick": function(marker) {
+                            alert(marker.get("firstname"));
+                        }
+          }, function(marker) {
+            next(null, marker);
           });
-        }, function(err, markers) {
-          cluster.addMarkers(markers);
+        }, function(error) {
+          alert("done");
         });
+        
       });
+      
     });
-    
-    function onMarkerClicked(marker) {
-      var map = marker.getMap();
-      var info = marker.get('photoData');
-      $("div#photoDiv").remove();
-      $("div#backGroundDiv").remove();
-      var photoDiv = $("<div id='photoDiv'>").css({
-        "position": "fixed",
-        "left": "10%",
-        "top": "10%",
-        "right": "10%",
-        "bottom": "10%",
-        "z-index": 1001,
-        "background-image": "url('" + info.photo_file_url + "')",
-        "background-size": "cover",
-        "background-position": "center"
-      });
-      photoDiv.appendTo("body");
-      
-      var backGround = $("<div id='backGroundDiv'>").css({
-        opacity: 0.7,
-        backgroundColor: "black",
-        "position": "fixed",
-        "left": 0,
-        "top": 0,
-        "right": 0,
-        "bottom": 0,
-        "z-index": 1000
-      });
-      backGround.appendTo("body");
-      
-      var doClose = function() {
-        $(backGround).remove();
-        $(photoDiv).remove();
-        map.setClickable(true);
-      };
-      
-      $("body").one("touchstart", doClose);
-      $(document).one("backbutton", doClose);
-      
-      map.setClickable(false);
-    }
     </script>
     <style type="text/css">
       button {
