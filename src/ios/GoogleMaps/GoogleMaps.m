@@ -732,6 +732,8 @@ NSLog(@"---status=authorized");
  * Remove the map
  */
 - (void)remove:(CDVInvokedUrlCommand *)command {
+  [self.pluginLayer clearHTMLElement];
+  [self.pluginScrollView.debugView clearHTMLElement];
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
   [self.mapCtrl.map removeFromSuperview];
