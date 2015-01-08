@@ -523,7 +523,7 @@ App.prototype.clear = function(callback) {
 /**
  * Remove the map completely.
  */
-App.prototype.remove = function() {
+App.prototype.remove = function(callback) {
   var div = this.get('div');
   //console.log("div = " + div);
   if (div) {
@@ -543,7 +543,11 @@ App.prototype.remove = function() {
   this.clear();
   this.empty();
   this.off();
-  cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
+  cordova.exec(function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, self.errorHandler,  PLUGIN_NAME, 'remove', []);
 };
 
 App.prototype.refreshLayout = function() {
