@@ -7,68 +7,35 @@
     <title>Google Maps Plugin for Cordova</title>
     <script src="js/jquery.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="test.json"></script>
-    <script type="text/javascript" src="js/async.js"></script>
     <script type="text/javascript">
     $(document).on('deviceready', function() {
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       
-      plugin.google.maps.experimental.MarkerCluster.createCluster(map, function(cluster) {
-        data.photos.length = 1;
-        async.map(data.photos, function(info, next) {
-          next(null, {
-            'position': new plugin.google.maps.LatLng(info.lat, info.lng),
-            'photoData': info,
-            'icon': info.photo_file_url.replace("medium", "mini_square"),
-            'markerClick': onMarkerClicked
+      $("button").click(function() {
+        var onSuccess = function(location) {
+          var msg = ["Current your location:\n",
+            "latitude:" + location.latLng.lat,
+            "longitude:" + location.latLng.lng,
+            "speed:" + location.speed,
+            "time:" + location.time,
+            "bearing:" + location.bearing].join("\n");
+        
+          map.addMarker({
+            'position': location.latLng,
+            'title': msg
+          }, function(marker) {
+            marker.showInfoWindow();
           });
-        }, function(err, markers) {
-          cluster.addMarkers(markers);
-        });
+        };
+      
+        var onError = function(msg) {
+          alert("error: " + msg);
+        };
+        map.getMyLocation(onSuccess, onError);
       });
     });
     
-    function onMarkerClicked(marker) {
-      var map = marker.getMap();
-      var info = marker.get('photoData');
-      $("div#photoDiv").remove();
-      $("div#backGroundDiv").remove();
-      var photoDiv = $("<div id='photoDiv'>").css({
-        "position": "fixed",
-        "left": "10%",
-        "top": "10%",
-        "right": "10%",
-        "bottom": "10%",
-        "z-index": 1001,
-        "background-image": "url('" + info.photo_file_url + "')",
-        "background-size": "cover",
-        "background-position": "center"
-      });
-      photoDiv.appendTo("body");
-      
-      var backGround = $("<div id='backGroundDiv'>").css({
-        opacity: 0.7,
-        backgroundColor: "black",
-        "position": "fixed",
-        "left": 0,
-        "top": 0,
-        "right": 0,
-        "bottom": 0,
-        "z-index": 1000
-      });
-      backGround.appendTo("body");
-      
-      var doClose = function() {
-        $(backGround).remove();
-        $(photoDiv).remove();
-        map.setClickable(true);
-      };
-      
-      $("body").one("touchstart", doClose);
-      $(document).one("backbutton", doClose);
-      
-      map.setClickable(false);
-    }
+    
     </script>
     <style type="text/css">
       button {
@@ -88,6 +55,8 @@
     </style>
   </head>
   <body>
-    <div id="map_canvas" ></div>
+    <div id="map_canvas" >
+      <button>getMyLocation()</button>
+    </div>
   </body>
 </html>
