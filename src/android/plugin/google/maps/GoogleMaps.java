@@ -1,6 +1,7 @@
 package plugin.google.maps;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +56,7 @@ import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -888,6 +890,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
     List<String> providers = locationManager.getAllProviders();
+    ArrayList<String> availableProviders = new ArrayList<String>();
     if (providers.size() == 0) {
       JSONObject result = new JSONObject();
       result.put("status", false);
@@ -895,6 +898,23 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
       callbackContext.error(result);
       return;
+    } else {
+      if (isDebug) {
+        Log.d("CordovaLog", "---debug at getMyLocation(available providers)--");
+      }
+      Iterator<String> iterator = providers.iterator();
+      String provider;
+      boolean isAvailable = false;
+      while(iterator.hasNext()) {
+        provider = iterator.next();
+        isAvailable = locationManager.isProviderEnabled(provider);
+        if (isAvailable) {
+          availableProviders.add(provider);
+        }
+        if (isDebug) {
+          Log.d("CordovaLog", "   " + provider + " = " + (isAvailable ? "" : "not ") + "available");
+        }
+      }
     }
     
     // enableHighAccuracy = true -> PRIORITY_HIGH_ACCURACY
@@ -907,25 +927,25 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     final boolean enableHighAccuracy = isHigh;
     
-    String provider = null;
+    String useProvider = null;
     if (enableHighAccuracy == true) {
-      if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-        provider = LocationManager.GPS_PROVIDER;
-      } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-        provider = LocationManager.NETWORK_PROVIDER;
-      } else if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-        provider = LocationManager.PASSIVE_PROVIDER;
+      // GPS is not available
+      if (availableProviders.indexOf(LocationManager.GPS_PROVIDER) == -1) {
+        useProvider = null;
+      } else {
+        useProvider = LocationManager.GPS_PROVIDER;
       }
     } else {
-      if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-        provider = LocationManager.PASSIVE_PROVIDER;
-      } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-        provider = LocationManager.NETWORK_PROVIDER;
-      } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-        provider = LocationManager.GPS_PROVIDER;
+      if (availableProviders.indexOf(LocationManager.GPS_PROVIDER) > -1) {
+        useProvider = LocationManager.GPS_PROVIDER;
+      } else if (availableProviders.indexOf(LocationManager.NETWORK_PROVIDER) > -1) {
+        useProvider = LocationManager.NETWORK_PROVIDER;
+      } else if (availableProviders.indexOf(LocationManager.PASSIVE_PROVIDER) > -1) {
+        useProvider = LocationManager.PASSIVE_PROVIDER;
+        Toast.makeText(activity, "Recommend: Enabling location is better result.", Toast.LENGTH_LONG).show();
       }
     }
-    if (provider == null) {
+    if (useProvider == null) {
       //Ask the user to turn on the location services.
       AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
       builder.setTitle("Improve location accuracy");
@@ -966,6 +986,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       builder.create().show();
       return;
     }
+    
     
     if (googleApiClient == null) {
       googleApiClient = new GoogleApiClient.Builder(this.activity)
@@ -1016,7 +1037,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (enableHighAccuracy) {
       priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
     }
-    priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
     LocationRequest locationRequest = LocationRequest.create()
         .setExpirationTime(5000)
         .setNumUpdates(1)
@@ -1028,7 +1048,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
           @Override
           public void onLocationChanged(Location location) {
-            Log.e("Marker", "===> onLocationChanged");
+            Log.e("CordovaLog", "===> onLocationChanged");
             /*
             if (callbackContext.isFinished()) {
               return;
@@ -1049,7 +1069,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     result.setResultCallback(new ResultCallback<Status>() {
       
       public void onResult(Status status) {
-        Log.e("Marker", "===> onResult (success = " + status.isSuccess() + ")");
         if (!status.isSuccess()) {
           String errorMsg = status.getStatusMessage();
           PluginResult result = new PluginResult(PluginResult.Status.ERROR, errorMsg);
@@ -1068,7 +1087,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             }
             return;
           } else {
-            Log.e("Marker", "====> waiting onLocationChanged");
+            Log.e("CordovaLog", "====> waiting onLocationChanged");
+            Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
           }
         }
       }
