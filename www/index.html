@@ -20,6 +20,10 @@
             "time:" + location.time,
             "bearing:" + location.bearing].join("\n");
         
+          map.animateCamera({
+            target: location.latLng,
+            zoom: 18
+          });
           map.addMarker({
             'position': location.latLng,
             'title': msg
