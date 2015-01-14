@@ -292,7 +292,13 @@ App.prototype.getMap = function(div, params) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+
+      // prevent multiple readding the class
+      if (!div.classList.contains('_gmaps_cdv_')) {
+        div.classList.add('_gmaps_cdv_');
+      }
+
+
       div = div.parentNode;
     }
   }
@@ -533,8 +539,9 @@ App.prototype.remove = function(callback) {
         div.style.backgroundColor ='';
       }
       if (div.className) {
-        div.className = div.className.replace("_gmaps_cdv_", "");
-        div.className = div.className.replace("  ", " ");
+        //div.className = div.className.replace("_gmaps_cdv_", "");
+        //div.className = div.className.replace("  ", " ");
+        div.classList.remove('_gmaps_cdv_');
       }
       div = div.parentNode;
     }
@@ -638,8 +645,9 @@ App.prototype.setDiv = function(div) {
             div.style.backgroundColor ='';
           }
           if (div.className) {
-            div.className = div.className.replace("_gmaps_cdv_", "");
-            div.className = div.className.replace("  ", " ");
+            //div.className = div.className.replace("_gmaps_cdv_", "");
+            //div.className = div.className.replace("  ", " ");
+            div.classList.remove('_gmaps_cdv_');
           }
           div = div.parentNode;
         }
@@ -683,7 +691,12 @@ App.prototype.setDiv = function(div) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+
+      // prevent multiple readding the class
+      if (!div.classList.contains('_gmaps_cdv_')) {
+        div.classList.add('_gmaps_cdv_');
+      }
+
       div = div.parentNode;
     }
     setTimeout(function() {
