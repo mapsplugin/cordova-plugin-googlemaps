@@ -295,7 +295,7 @@ App.prototype.getMap = function(div, params) {
 
       // prevent multiple readding the class
       if (!div.classList.contains('_gmaps_cdv_')) {
-        div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+        div.classList.add('_gmaps_cdv_');
       }
 
 
@@ -691,10 +691,10 @@ App.prototype.setDiv = function(div) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      
+
       // prevent multiple readding the class
       if (!div.classList.contains('_gmaps_cdv_')) {
-        div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+        div.classList.add('_gmaps_cdv_');
       }
 
       div = div.parentNode;
