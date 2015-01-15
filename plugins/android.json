@@ -59,13 +59,13 @@
         "plugin.http.request": {
             "PACKAGE_NAME": "com.example.myapp"
         },
-        "com.google.playservices": {
-            "PACKAGE_NAME": "com.example.myapp"
-        },
         "org.apache.cordova.console": {
             "PACKAGE_NAME": "com.example.myapp"
         },
         "plugin.google.maps.markercluster": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "com.google.playservices": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },
