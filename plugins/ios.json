@@ -114,9 +114,6 @@
         }
     },
     "installed_plugins": {
-        "com.googlemaps.ios": {
-            "PACKAGE_NAME": "com.example.myapp"
-        },
         "plugin.google.maps": {
             "PACKAGE_NAME": "com.example.myapp"
         },
@@ -127,6 +124,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "plugin.google.maps.markercluster": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "com.googlemaps.ios": {
             "PACKAGE_NAME": "com.example.myapp"
         },
         "com.google.playservices": {
