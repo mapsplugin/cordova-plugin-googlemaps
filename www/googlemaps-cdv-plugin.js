@@ -292,7 +292,14 @@ App.prototype.getMap = function(div, params) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+
+      // prevent multiple readding the class
+      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+        div.classList.add('_gmaps_cdv_');
+      } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
+        div.className = div.className + ' _gmaps_cdv_';
+      }
+
       div = div.parentNode;
     }
   }
@@ -523,16 +530,18 @@ App.prototype.clear = function(callback) {
 /**
  * Remove the map completely.
  */
-App.prototype.remove = function() {
+App.prototype.remove = function(callback) {
   var div = this.get('div');
   if (div) {
     while(div) {
       if (div.style) {
         div.style.backgroundColor ='';
       }
-      if (div.className) {
-        div.className = div.className.replace("_gmaps_cdv_", "");
-        div.className = div.className.replace("  ", " ");
+      if (div.classList) {
+        div.classList.remove('_gmaps_cdv_');
+      } else if (div.className) {
+        div.className = div.className.replace(/_gmaps_cdv_/g, "");
+        div.className = div.className.replace(/\s+/g, " ");
       }
       div = div.parentNode;
     }
@@ -541,7 +550,11 @@ App.prototype.remove = function() {
   this.clear();
   this.empty();
   this.off();
-  cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
+  cordova.exec(function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, self.errorHandler,  PLUGIN_NAME, 'remove', []);
 };
 
 App.prototype.refreshLayout = function() {
@@ -631,9 +644,11 @@ App.prototype.setDiv = function(div) {
           if (div.style) {
             div.style.backgroundColor ='';
           }
-          if (div.className) {
-            div.className = div.className.replace("_gmaps_cdv_", "");
-            div.className = div.className.replace("  ", " ");
+          if (div.classList) {
+            div.classList.remove('_gmaps_cdv_');
+          } else if (div.className) {
+            div.className = div.className.replace(/_gmaps_cdv_/g, "");
+            div.className = div.className.replace(/\s+/g, " ");
           }
           div = div.parentNode;
         }
@@ -677,7 +692,14 @@ App.prototype.setDiv = function(div) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+
+      // prevent multiple readding the class
+      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+        div.classList.add('_gmaps_cdv_');
+      } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
+        div.className = div.className + ' _gmaps_cdv_';
+      }
+
       div = div.parentNode;
     }
     setTimeout(function() {
@@ -2001,7 +2023,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
  *****************************************************************************/
 var _mapInstance = new App();
 
-var watchDogTimer = null;
+window._watchDogTimer = null;
 _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValue) {
   if (newValue !== true) {
     return;
@@ -2009,18 +2031,24 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
   var prevSize = null;
   var children;
   var prevChildrenCnt = 0;
-  var div, divSize, childCnt = 0;
-  if (watchDogTimer) {
-    clearInterval(watchDogTimer);
+  var divSize, childCnt = 0;
+  if (window._watchDogTimer) {
+    clearInterval(window._watchDogTimer);
   }
-  watchDogTimer = setInterval(function() {
-    div = module.exports.Map.get("div");
+  function init()
+  {
+    window._watchDogTimer = window.setInterval(function() { myFunc(); }, 100);
+  }
+  function myFunc()
+  {
+    var div = module.exports.Map.get("div");
     if (div) {
       children= getAllChildren(div);
       childCnt = children.length;
       if (childCnt != prevChildrenCnt) {
         onMapResize();
         prevChildrenCnt = childCnt;
+        watchDogTimer = setTimeout(myFunc, 100);
         return;
       }
       prevChildrenCnt = childCnt;
@@ -2035,17 +2063,24 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
       }
       prevSize = divSize;
     }
-  }, 100);
+    div = null;
+    divSize = null;
+    childCnt = null;
+    children = null;
+    clearInterval(window._watchDogTimer);
+    init();
+  }
+  init();
 });
 
 _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValue) {
   if (newValue !== false) {
     return;
   }
-  if (watchDogTimer) {
-    clearInterval(watchDogTimer);
+  if (window._watchDogTimer) {
+    clearInterval(window._watchDogTimer);
   }
-  watchDogTimer = null;
+  window._watchDogTimer = null;
 });
 /*****************************************************************************
  * Name space
