@@ -6,7 +6,7 @@
 -->
 <plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
     id="com.google.playservices"
-    version="19.0.0">
+    version="22.0.0">
   <engines>
     <engine name="cordova" version=">=3.0.0" />
   </engines>
@@ -14,12 +14,10 @@
   <name>Google Play Services for Android</name>
 
   <platform name="android">
-    <source-file src="google-play-services.jar" target-dir="libs" />
-
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
     </config-file>
 
-    <source-file src="version.xml" target-dir="res/values" />
+    <framework src="libs/google-play-services_lib" custom="true" />
   </platform>
 </plugin>

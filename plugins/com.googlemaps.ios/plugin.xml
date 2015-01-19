@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="com.googlemaps.ios" version="1.8.1" xmlns="http://apache.org/cordova/ns/plugins/1.0">
+<plugin id="com.googlemaps.ios" version="1.9.1" xmlns="http://apache.org/cordova/ns/plugins/1.0">
     <name>Google Map iOS SDK for Cordova</name>
     
     <engines>
@@ -10,7 +10,7 @@
     <platform name="ios">
     
         <info>
-        Google Maps SDK for iOS : v1.8.1
+        Google Maps SDK for iOS : v1.9.1
         </info>
       
         <!-- system frameworks -->
