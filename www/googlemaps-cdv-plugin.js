@@ -292,7 +292,14 @@ App.prototype.getMap = function(div, params) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+
+      // prevent multiple readding the class
+      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+        div.classList.add('_gmaps_cdv_');
+      } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
+        div.className = div.className + ' _gmaps_cdv_';
+      }
+
       div = div.parentNode;
     }
   }
@@ -523,18 +530,18 @@ App.prototype.clear = function(callback) {
 /**
  * Remove the map completely.
  */
-App.prototype.remove = function() {
+App.prototype.remove = function(callback) {
   var div = this.get('div');
-  //console.log("div = " + div);
   if (div) {
     while(div) {
       if (div.style) {
-  //console.log("backgroundColor = " + div.style.backgroundColor);
         div.style.backgroundColor ='';
       }
-      if (div.className) {
-        div.className = div.className.replace("_gmaps_cdv_", "");
-        div.className = div.className.replace("  ", " ");
+      if (div.classList) {
+        div.classList.remove('_gmaps_cdv_');
+      } else if (div.className) {
+        div.className = div.className.replace(/_gmaps_cdv_/g, "");
+        div.className = div.className.replace(/\s+/g, " ");
       }
       div = div.parentNode;
     }
@@ -543,7 +550,11 @@ App.prototype.remove = function() {
   this.clear();
   this.empty();
   this.off();
-  cordova.exec(null, null, PLUGIN_NAME, 'remove', []);
+  cordova.exec(function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, self.errorHandler,  PLUGIN_NAME, 'remove', []);
 };
 
 App.prototype.refreshLayout = function() {
@@ -633,9 +644,11 @@ App.prototype.setDiv = function(div) {
           if (div.style) {
             div.style.backgroundColor ='';
           }
-          if (div.className) {
-            div.className = div.className.replace("_gmaps_cdv_", "");
-            div.className = div.className.replace("  ", " ");
+          if (div.classList) {
+            div.classList.remove('_gmaps_cdv_');
+          } else if (div.className) {
+            div.className = div.className.replace(/_gmaps_cdv_/g, "");
+            div.className = div.className.replace(/\s+/g, " ");
           }
           div = div.parentNode;
         }
@@ -679,7 +692,14 @@ App.prototype.setDiv = function(div) {
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
       className = div.className;
-      div.className = (className ? className + " " : "") + "_gmaps_cdv_";
+
+      // prevent multiple readding the class
+      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+        div.classList.add('_gmaps_cdv_');
+      } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
+        div.className = div.className + ' _gmaps_cdv_';
+      }
+
       div = div.parentNode;
     }
     setTimeout(function() {
@@ -1967,8 +1987,8 @@ externalService.launchNavigation = function(params) {
   if (typeof params.to === "object" && "toUrlValue" in params.to ) {
     params.to = params.to.toUrlValue();
   }
-  //params.from = params.from.replace(/\s+/g, "%20");
-  //params.to = params.to.replace(/\s+/g, "%20");
+  params.from = params.from.replace(/\s+/g, "%20");
+  params.to = params.to.replace(/\s+/g, "%20");
   cordova.exec(null, null, "External", 'launchNavigation', [params]);
 };
 /*****************************************************************************
