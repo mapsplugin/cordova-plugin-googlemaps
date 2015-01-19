@@ -17,8 +17,6 @@
 
 #import <GoogleMaps/GMSPath.h>
 
-#define OVERLOADABLE __attribute__((overloadable))
-
 @class GMSPath;
 
 /** Average Earth radius in meters. */
@@ -91,16 +89,19 @@ BOOL GMSGeometryContainsLocation(CLLocationCoordinate2D point, GMSPath *path,
  * sphere of radius R: tolerance = toleranceR * (RadiusEarth / R),
  * with RadiusEarth==6371009.
  */
-FOUNDATION_EXPORT OVERLOADABLE
-BOOL GMSGeometryIsLocationOnPath(CLLocationCoordinate2D point, GMSPath *path,
-                                 BOOL geodesic, CLLocationDistance tolerance);
+FOUNDATION_EXPORT
+BOOL GMSGeometryIsLocationOnPathTolerance(CLLocationCoordinate2D point,
+                                          GMSPath *path,
+                                          BOOL geodesic,
+                                          CLLocationDistance tolerance);
 
 /**
  * Same as GMSGeometryIsLocationOnPath(point, path, geodesic, tolerance),
  * with a default tolerance of 0.1 meters.
  */
-FOUNDATION_EXPORT OVERLOADABLE
-BOOL GMSGeometryIsLocationOnPath(CLLocationCoordinate2D point, GMSPath *path,
+FOUNDATION_EXPORT
+BOOL GMSGeometryIsLocationOnPath(CLLocationCoordinate2D point,
+                                 GMSPath *path,
                                  BOOL geodesic);
 
 /**
@@ -109,7 +110,7 @@ BOOL GMSGeometryIsLocationOnPath(CLLocationCoordinate2D point, GMSPath *path,
  * This is the shortest distance between the two coordinates on the sphere.
  * Both coordinates must be valid.
  */
-FOUNDATION_EXPORT OVERLOADABLE
+FOUNDATION_EXPORT
 CLLocationDistance GMSGeometryDistance(CLLocationCoordinate2D from,
                                        CLLocationCoordinate2D to);
 
@@ -118,7 +119,7 @@ CLLocationDistance GMSGeometryDistance(CLLocationCoordinate2D from,
  * This is the sum of GMSGeometryDistance() over the path segments.
  * All the coordinates of the path must be valid.
  */
-FOUNDATION_EXPORT OVERLOADABLE
+FOUNDATION_EXPORT
 CLLocationDistance GMSGeometryLength(GMSPath *path);
 
 /**
@@ -132,7 +133,7 @@ CLLocationDistance GMSGeometryLength(GMSPath *path);
  * unique great circle segment on the sphere.
  * The polygon must be simple (not self-overlapping) and may be concave.
  */
-FOUNDATION_EXPORT OVERLOADABLE
+FOUNDATION_EXPORT
 double GMSGeometryArea(GMSPath *path);
 
 /**
@@ -141,7 +142,7 @@ double GMSGeometryArea(GMSPath *path);
  * if the points of path are in counter-clockwise order, and negative otherwise.
  * The same restrictions as on GMSGeometryArea() apply.
  */
-FOUNDATION_EXPORT OVERLOADABLE
+FOUNDATION_EXPORT
 double GMSGeometrySignedArea(GMSPath *path);
 
 /**
@@ -165,7 +166,7 @@ CLLocationDirection GMSGeometryHeading(CLLocationCoordinate2D from,
  * The resulting longitude is in the range [-180, 180).
  * Both coordinates must be valid.
  */
-FOUNDATION_EXPORT OVERLOADABLE
+FOUNDATION_EXPORT
 CLLocationCoordinate2D GMSGeometryOffset(CLLocationCoordinate2D from,
                                          CLLocationDistance distance,
                                          CLLocationDirection heading);
@@ -202,7 +203,7 @@ CLLocationCoordinate2D GMSGeometryInterpolate(CLLocationCoordinate2D from,
  * polyline.spans = GMSStyleSpans(path, styles, lengths, kGMSLengthRhumb);
  * </pre>
  */
-FOUNDATION_EXPORT OVERLOADABLE
+FOUNDATION_EXPORT
 NSArray *GMSStyleSpans(GMSPath *path, NSArray *styles, NSArray *lengths, GMSLengthKind lengthKind);
 
 /**
@@ -211,8 +212,11 @@ NSArray *GMSStyleSpans(GMSPath *path, NSArray *styles, NSArray *lengths, GMSLeng
  *
  * |lengthOffset| the length (e.g. in meters) that should be skipped initially from |lengths|.
  */
-FOUNDATION_EXPORT OVERLOADABLE
-NSArray *GMSStyleSpans(GMSPath *path, NSArray *styles, NSArray *lengths, GMSLengthKind lengthKind,
-                       double lengthOffset);
+FOUNDATION_EXPORT
+NSArray *GMSStyleSpansOffset(GMSPath *path,
+                             NSArray *styles,
+                             NSArray *lengths,
+                             GMSLengthKind lengthKind,
+                             double lengthOffset);
 
 /**@}*/

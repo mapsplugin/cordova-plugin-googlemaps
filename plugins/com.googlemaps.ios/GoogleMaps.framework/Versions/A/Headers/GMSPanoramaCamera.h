@@ -28,27 +28,27 @@
  * Convenience constructor specifying heading and pitch as part of |orientation|, plus |zoom| and
  * default field of view (90 degrees).
  */
-+ (id)cameraWithOrientation:(GMSOrientation)orientation zoom:(float)zoom;
++ (instancetype)cameraWithOrientation:(GMSOrientation)orientation zoom:(float)zoom;
 
 /**
  * Convenience constructor specifying |heading|, |pitch|, |zoom| with default field of view (90
  * degrees).
  */
-+ (id)cameraWithHeading:(CLLocationDirection)heading pitch:(double)pitch zoom:(float)zoom;
++ (instancetype)cameraWithHeading:(CLLocationDirection)heading pitch:(double)pitch zoom:(float)zoom;
 
 /**
  * Convenience constructor for GMSPanoramaCamera, specifying all camera properties with heading and
  * pitch as part of |orientation|.
  */
-+ (id)cameraWithOrientation:(GMSOrientation)orientation zoom:(float)zoom FOV:(double)FOV;
++ (instancetype)cameraWithOrientation:(GMSOrientation)orientation zoom:(float)zoom FOV:(double)FOV;
 
 /**
  * Convenience constructor for GMSPanoramaCamera, specifying all camera properties.
  */
-+ (id)cameraWithHeading:(CLLocationDirection)heading
-                  pitch:(double)pitch
-                   zoom:(float)zoom
-                    FOV:(double)FOV;
++ (instancetype)cameraWithHeading:(CLLocationDirection)heading
+                            pitch:(double)pitch
+                             zoom:(float)zoom
+                              FOV:(double)FOV;
 
 /**
  * The field of view (FOV) encompassed by the larger dimension (width or height) of the view in
