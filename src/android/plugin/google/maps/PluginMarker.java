@@ -13,7 +13,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -475,6 +474,7 @@ public class PluginMarker extends MyPlugin {
         return;
       }
       
+      Boolean isResized = false;
       if (iconProperty.containsKey("size") == true) {
         Object size = iconProperty.get("size");
         
@@ -484,6 +484,7 @@ public class PluginMarker extends MyPlugin {
           int width = sizeInfo.getInt("width", 0);
           int height = sizeInfo.getInt("height", 0);
           if (width > 0 && height > 0) {
+            isResized = true;
             width = (int)Math.round(width * PluginMarker.this.density);
             height = (int)Math.round(height * PluginMarker.this.density);
             image = PluginUtil.resizeBitmap(image, width, height);
@@ -491,7 +492,9 @@ public class PluginMarker extends MyPlugin {
         }
       }
       
-      image = PluginUtil.scaleBitmapForDevice(image);
+      if (isResized == false) {
+        image = PluginUtil.scaleBitmapForDevice(image);
+      }
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       marker.setIcon(bitmapDescriptor);
       
@@ -531,10 +534,9 @@ public class PluginMarker extends MyPlugin {
             callback.onMarkerIconLoaded(marker);
             return;
           }
-          
           int width = image.getWidth();
           int height = image.getHeight();
-
+          
           if (iconProperty.containsKey("size") == true) {
               
             Bundle sizeInfo = (Bundle) iconProperty.get("size");
