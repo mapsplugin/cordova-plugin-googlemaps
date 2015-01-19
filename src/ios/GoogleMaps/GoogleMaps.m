@@ -59,7 +59,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.2";
+  NSString *PLUGIN_VERSION = @"1.2.4";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
@@ -284,8 +284,8 @@
     [self.mapCtrl.view removeFromSuperview];
     [self.pluginScrollView dettachView];
     [self.footer removeFromSuperview];
-    [self.pluginLayer clearHTMLElement];
-    [self.pluginScrollView.debugView clearHTMLElement];
+    //[self.pluginLayer clearHTMLElement];
+    //[self.pluginScrollView.debugView clearHTMLElement];
     self.mapCtrl.isFullScreen = NO;
     self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
   }
@@ -732,6 +732,8 @@ NSLog(@"---status=authorized");
  * Remove the map
  */
 - (void)remove:(CDVInvokedUrlCommand *)command {
+  [self.pluginLayer clearHTMLElement];
+  [self.pluginScrollView.debugView clearHTMLElement];
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
   [self.mapCtrl.map removeFromSuperview];
