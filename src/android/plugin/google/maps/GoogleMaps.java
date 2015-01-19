@@ -352,12 +352,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         
         String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
         switch (checkGooglePlayServices) {
-<<<<<<< HEAD
-        //case ConnectionResult.DATE_INVALID:
-        //  errorMsg = "It seems your device date is set incorrectly. Please update the correct date and time.";
-        //  break;
-=======
->>>>>>> issue_345
         case ConnectionResult.DEVELOPER_ERROR:
           errorMsg = "The application is misconfigured. This error is not recoverable and will be treated as fatal. The developer should look at the logs after this to determine more actionable information.";
           break;
