@@ -545,7 +545,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void onMapReady(GoogleMap googleMap) {
         
         map = googleMap;
-
         try {
           //controls
           if (params.has("controls")) {
@@ -576,7 +575,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           GoogleMaps.this.loadPlugin("Map");
           //Custom info window
           map.setInfoWindowAdapter(GoogleMaps.this);
-  
           // ------------------------------
           // Embed the map if a container is specified.
           // ------------------------------
@@ -587,6 +585,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           }
           callbackContext.success();
         } catch (Exception e) {
+          Log.d("GoogleMaps", "------->error");
           callbackContext.error(e.getMessage());
         }
       }
@@ -1835,6 +1834,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   protected void sendNoResult(CallbackContext callbackContext) {
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+    pluginResult.setKeepCallback(true);
     callbackContext.sendPluginResult(pluginResult);
   }
 
