@@ -526,27 +526,22 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl.indexOf("http") == 0) {
-      AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
+      int width = -1;
+      int height = -1;
+      if (iconProperty.containsKey("size") == true) {
+          
+        Bundle sizeInfo = (Bundle) iconProperty.get("size");
+        width = sizeInfo.getInt("width", width);
+        height = sizeInfo.getInt("height", height);
+      }
+      
+      AsyncLoadImage task = new AsyncLoadImage(width, height, new AsyncLoadImageInterface() {
 
         @Override
         public void onPostExecute(Bitmap image) {
           if (image == null) {
             callback.onMarkerIconLoaded(marker);
             return;
-          }
-          int width = image.getWidth();
-          int height = image.getHeight();
-          
-          if (iconProperty.containsKey("size") == true) {
-              
-            Bundle sizeInfo = (Bundle) iconProperty.get("size");
-            width = sizeInfo.getInt("width", width);
-            height = sizeInfo.getInt("height", height);
-            if (width > 0 && height > 0) {
-              width = (int)Math.round(width * PluginMarker.this.density);
-              height = (int)Math.round(height * PluginMarker.this.density);
-              image = PluginUtil.resizeBitmap(image, width, height);
-            }
           }
             
           BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
@@ -574,6 +569,7 @@ public class PluginMarker extends MyPlugin {
             }
           }
 
+          image.recycle();
           callback.onMarkerIconLoaded(marker);
         }
         
