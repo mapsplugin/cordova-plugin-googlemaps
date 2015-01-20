@@ -49,7 +49,4 @@ src/android/plugin/google/maps/PluginMarkerCluster.java
 platforms/android/res/xml/drawable/m1.png
 platforms/android/lint.xml
 example/
-www/
-!www/googlemaps-cdv-plugin.js
-
 
