@@ -12,7 +12,6 @@
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
-  self.iconCache = [NSMutableDictionary dictionary];
 }
 
 /**
