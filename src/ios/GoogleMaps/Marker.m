@@ -396,6 +396,22 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
+{
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                               if ( !error )
+                               {
+                                   UIImage *image = [[UIImage alloc] initWithData:data];
+                                   completionBlock(YES,image);
+                               } else{
+                                   completionBlock(NO,nil);
+                               }
+                           }];
+}
+
 /**
  * @private
  * Load the icon; then set to the marker
@@ -494,37 +510,46 @@
         marker.icon = image;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
       } else {
-        dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
-        dispatch_sync(gueue, ^{
+        //dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_addMarker", NULL);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            
           NSURL *url = [NSURL URLWithString:iconPath];
-          NSData *data = [NSData dataWithContentsOfURL:url options:NSDataReadingMapped error:nil];
+          //NSData *data = [NSData dataWithContentsOfURL:url options:NSDataReadingMapped error:nil];
           
-          [self.iconCache setObject:data forKey:iconPath];
-          
-          UIImage* image = [UIImage imageWithData:data];
-          if (width && height) {
-            image = [image resize:width height:height];
-          }
-          marker.icon = image;
-          
-          
-          // The `anchor` property for the icon
-          if ([iconProperty valueForKey:@"anchor"]) {
-            NSArray *points = [iconProperty valueForKey:@"anchor"];
-            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-            marker.groundAnchor = CGPointMake(anchorX, anchorY);
-          }
-          
-          
-          // The `infoWindowAnchor` property
-          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-            NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-            marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-          }
-          
+            // download the image asynchronously
+            [self downloadImageWithURL:url completionBlock:^(BOOL succeeded, UIImage *image) {
+                if (succeeded) {
+                    
+                    [self.iconCache setObject:image forKey:iconPath];
+                    
+                    
+                    if (width && height) {
+                        image = [image resize:width height:height];
+                    }
+                    marker.icon = image;
+                    
+                    
+                    // The `anchor` property for the icon
+                    if ([iconProperty valueForKey:@"anchor"]) {
+                        NSArray *points = [iconProperty valueForKey:@"anchor"];
+                        CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                        CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                        marker.groundAnchor = CGPointMake(anchorX, anchorY);
+                    }
+                    
+                    
+                    // The `infoWindowAnchor` property
+                    if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+                        NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+                        CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                        CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                        marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+                    }
+                    
+                }
+            }];
+        
           [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
         });
         
