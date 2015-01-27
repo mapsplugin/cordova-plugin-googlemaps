@@ -272,7 +272,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
       }
     };
-    cordova.getActivity().runOnUiThread(runnable);
+    Thread thread = new Thread(runnable);
+    thread.run();
+    //cordova.getActivity().runOnUiThread(runnable);
     
     return true;
   }

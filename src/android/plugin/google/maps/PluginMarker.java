@@ -21,7 +21,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class PluginMarker extends MyPlugin {
-  private HashMap<String, Bitmap> cache = null;
   
   /**
    * Create a marker
@@ -31,9 +30,6 @@ public class PluginMarker extends MyPlugin {
    */
   @SuppressWarnings("unused")
   private void createMarker(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (cache == null) {
-      cache = new HashMap<String, Bitmap>();
-    }
     
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
@@ -573,7 +569,7 @@ public class PluginMarker extends MyPlugin {
           callback.onMarkerIconLoaded(marker);
         }
         
-      }, cache);
+      });
       task.execute(iconUrl);
     }
   }
