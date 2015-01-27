@@ -2,7 +2,6 @@ package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -16,7 +15,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private HashMap<String, Bitmap> mCache = null;

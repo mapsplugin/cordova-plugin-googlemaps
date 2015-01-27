@@ -26,6 +26,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+@SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout  {
   private CordovaWebView webView;
   private ViewGroup root;
@@ -120,7 +121,6 @@ public class MyPluginLayout extends FrameLayout  {
     }
   }
   
-  @SuppressWarnings("deprecation")
   public void updateViewPosition() {
     if (myView == null) {
       return;

@@ -24,7 +24,6 @@ import com.google.android.gms.maps.model.TileOverlay;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   protected HashMap<String, Object> objects;
-  private final String TAG = "GoogleMapsPlugin";
 
   public GoogleMaps mapCtrl = null;
   public GoogleMap map = null;
@@ -95,7 +94,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     this.setValue(methodName, boolean.class, id, value, callbackContext);
   }
   
-  private void setValue(String methodName, Class methodClass, String id, Object value, final CallbackContext callbackContext) throws JSONException {
+  private void setValue(String methodName, Class<?> methodClass, String id, Object value, final CallbackContext callbackContext) throws JSONException {
     Object object = this.objects.get(id);
     try {
       Method method = object.getClass().getDeclaredMethod(methodName, methodClass);
