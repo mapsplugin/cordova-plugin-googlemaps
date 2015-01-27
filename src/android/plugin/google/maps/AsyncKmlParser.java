@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Random;
 
 import org.apache.cordova.CallbackContext;
@@ -297,6 +298,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                   } catch (Exception e) {}
                 }
                 break;
+              default:
+                break;
               }
             }
           }
@@ -358,12 +361,16 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                   } catch (Exception e) {}
                 }
                 break;
+              default:
+                break;
               }
             }
           } else {
             Log.e("client", "--" + style + " is null");
           }
           this.implementToMap("Polygon", optionsJSON, kmlId);
+          break;
+        default:
           break;
           
         }
@@ -466,7 +473,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       @Override
       public void onResult(PluginResult pluginResult) {
         mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
-            "_onKmlEvent('" + className.toLowerCase() + "_add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
+            "_onKmlEvent('" + className.toLowerCase(Locale.US) + "_add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
       }
       
     });
@@ -508,7 +515,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         case XmlPullParser.START_DOCUMENT:
           break;
         case XmlPullParser.START_TAG:
-          tagName = parser.getName().toLowerCase();
+          tagName = parser.getName().toLowerCase(Locale.US);
           try {
             kmlTag = KML_TAG.valueOf(tagName);
           } catch(Exception e) {}
@@ -612,7 +619,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         case XmlPullParser.END_TAG:
           if (currentNode != null) {
             
-            tagName = parser.getName().toLowerCase();
+            tagName = parser.getName().toLowerCase(Locale.US);
             kmlTag = null;
             try {
               kmlTag = KML_TAG.valueOf(tagName);

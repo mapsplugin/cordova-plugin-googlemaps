@@ -77,6 +77,8 @@ public class External extends CordovaPlugin {
         case bicycling:
           dirFlag="b";
           break;
+        default:
+          break;
           
         }
         builder.appendQueryParameter("dirflg", dirFlag);
