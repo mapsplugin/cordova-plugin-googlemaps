@@ -332,7 +332,7 @@ App.prototype.setWatchDogTimer = function(time) {
   self.set('watchDogTimer', time);
 
   if(time < 50) {
-    console.log('Warning: watchdog values under 50ms will drain battery a lot. Just use for short operation times.');
+    //console.log('Warning: watchdog values under 50ms will drain battery a lot. Just use for short operation times.');
   }
 
 };
