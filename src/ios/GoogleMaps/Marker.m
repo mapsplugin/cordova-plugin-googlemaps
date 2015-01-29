@@ -396,6 +396,22 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
+{
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                               if ( !error )
+                               {
+                                   UIImage *image = [[UIImage alloc] initWithData:data];
+                                   completionBlock(YES,image);
+                               } else{
+                                   completionBlock(NO,nil);
+                               }
+                           }];
+}
+
 /**
  * @private
  * Load the icon; then set to the marker
@@ -485,7 +501,6 @@
       /***
        * Load the icon from over the internet
        */
-      __block BOOL isMapped = (marker.map != nil);
       marker.map = nil;
     
       dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
@@ -495,9 +510,7 @@
         // download the image asynchronously
         [self downloadImageWithURL:url completionBlock:^(BOOL succeeded, UIImage *image) {
             if (!succeeded) {
-              if (isMapped) {
-                marker.map = self.mapCtrl.map;
-              }
+              marker.map = self.mapCtrl.map;
             
               [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
               return;
@@ -527,9 +540,7 @@
                     marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
                 }
 
-                if (isMapped) {
-                  marker.map = self.mapCtrl.map;
-                }
+                marker.map = self.mapCtrl.map;
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 
             });
