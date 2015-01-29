@@ -320,6 +320,30 @@ App.prototype.getLicenseInfo = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
 };
 
+
+/**
+ * @desc Set watchDogTimer for map positioning changes
+ */
+App.prototype.getWatchDogTimer = function() {
+  var self = this;
+  time = self.get('watchDogTimer') || 100;
+  return time;
+};
+
+/**
+ * @desc Set watchDogTimer for map positioning changes
+ */
+App.prototype.setWatchDogTimer = function(time) {
+  var self = this;
+  time = time || 100;
+  self.set('watchDogTimer', time);
+
+  if(time < 50) {
+    //console.log('Warning: watchdog values under 50ms will drain battery a lot. Just use for short operation times.');
+  }
+
+};
+
 /**
  * @desc Open the map dialog
  */
@@ -2037,7 +2061,7 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
   }
   function init()
   {
-    window._watchDogTimer = window.setInterval(function() { myFunc(); }, 100);
+    window._watchDogTimer = window.setInterval(function() { myFunc(); }, _mapInstance.getWatchDogTimer());
   }
   function myFunc()
   {
@@ -2171,3 +2195,4 @@ document.addEventListener("deviceready", function() {
   document.removeEventListener("deviceready", arguments.callee);
   plugin.google.maps.Map.isAvailable();
 });
+
