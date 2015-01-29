@@ -448,11 +448,40 @@
           anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
           marker.groundAnchor = CGPointMake(anchorX, anchorY);
         }
-        
+      
       } else {
         /**
          * Load the icon from local path
          */
+        
+        range = [iconPath rangeOfString:@"cdv:/"];
+        if (range.location != NSNotFound) {
+        
+          // Convert cdv:// path to the device real path
+          // (http://docs.monaca.mobi/3.5/en/reference/phonegap_34/en/file/plugins/)
+          NSString *filePath = nil;
+          Class CDVFilesystemURLCls = NSClassFromString(@"CDVFilesystemURL");
+          if (CDVFilesystemURLCls != nil) {
+            SEL selector = NSSelectorFromString(@"fileSystemURLWithString");
+            if ([CDVFilesystemURLCls resolveClassMethod:selector]) {
+              id cDVFilesystemURL = [CDVFilesystemURLCls performSelector: selector withObject:iconPath];
+              if (cDVFilesystemURL != nil) {
+               
+                SEL selector2 = NSSelectorFromString(@"absoluteString");
+                if (selector2 != nil) {
+                  filePath = [cDVFilesystemURL performSelector: selector2];
+                }
+              }
+            }
+          }
+          if (filePath != nil) {
+            iconPath = filePath;
+          } else {
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            return;
+          }
+        }
+        
         image = [UIImage imageNamed:iconPath];
         
         if (width && height) {
