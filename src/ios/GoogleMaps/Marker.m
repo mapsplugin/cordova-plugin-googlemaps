@@ -392,6 +392,7 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+
 /**
  * @private
  * Load the icon; then set to the marker
