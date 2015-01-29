@@ -371,10 +371,6 @@
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-  [pluginResult setKeepCallbackAsBool:YES];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  
   // Create icon
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
