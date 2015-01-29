@@ -1,10 +1,11 @@
 package plugin.google.maps;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaResourceApi;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +13,9 @@ import org.json.JSONObject;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -447,12 +450,26 @@ public class PluginMarker extends MyPlugin {
       return;
     }
     
+    if (iconUrl.indexOf("cdv://") > -1) {
+      CordovaResourceApi resourceApi = this.webView.getResourceApi();
+      Uri fileUri = resourceApi.remapUri(Uri.parse(iconUrl));
+      iconUrl = "file://" + fileUri.getPath();
+    }
+    
     if (iconUrl.indexOf("http") == -1) {
       Bitmap image = null;
       
       if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
         String[] tmp = iconUrl.split(",");
         image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+      } else if (iconUrl.indexOf("file://") > -1 || iconUrl.indexOf("/") == 0) {
+        iconUrl = iconUrl.replace("file://", "");
+        File tmp = new File(iconUrl);
+        if (tmp.exists()) {
+          image = BitmapFactory.decodeFile(iconUrl);
+        } else {
+          Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
+        }
       } else {
         AssetManager assetManager = this.cordova.getActivity().getAssets();
         InputStream inputStream;
