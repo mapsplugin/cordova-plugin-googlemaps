@@ -1,0 +1,31 @@
+<div id="map_canvas"></div>
+<button id="clearBtn">Clear</button>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(event, map) {
+map.getVisibleRegion(function(latLngBounds) {
+  var sw = latLngBounds.southwest;
+  var ne = latLngBounds.northeast;
+  var diffY = (ne.lat - sw.lat);
+  var diffX = (ne.lng - sw.lng);
+  
+  for (var i = 0; i < 10; i++) {
+    var latLng = new plugin.google.maps.LatLng(sw.lat + diffY * Math.random() , sw.lng  + diffX * Math.random());
+    
+    map.addMarker({
+      'position': latLng
+    }, function(marker) {
+      map.on("test", function() {
+        alert("test");
+      });
+    });
+  }
+});
+  
+$("#clearBtn").click(function() {
+  map.clear();
+  map.off();
+  map.trigger("test");
+});
+});
+</script>

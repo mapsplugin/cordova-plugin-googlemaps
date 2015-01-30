@@ -12,7 +12,6 @@
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
-  self.iconCache = [NSMutableDictionary dictionary];
 }
 
 /**
@@ -449,11 +448,52 @@
           anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
           marker.groundAnchor = CGPointMake(anchorX, anchorY);
         }
-        
+      
       } else {
         /**
          * Load the icon from local path
          */
+        
+        range = [iconPath rangeOfString:@"cdv:/"];
+        if (range.location != NSNotFound) {
+        
+          // Convert cdv:// path to the device real path
+          // (http://docs.monaca.mobi/3.5/en/reference/phonegap_34/en/file/plugins/)
+          NSString *filePath = nil;
+          Class CDVFilesystemURLCls = NSClassFromString(@"CDVFilesystemURL");
+          if (CDVFilesystemURLCls != nil) {
+            SEL selector = NSSelectorFromString(@"fileSystemURLWithString");
+            if ([CDVFilesystemURLCls resolveClassMethod:selector]) {
+              id cDVFilesystemURL = [CDVFilesystemURLCls performSelector: selector withObject:iconPath];
+              if (cDVFilesystemURL != nil) {
+               
+                SEL selector2 = NSSelectorFromString(@"absoluteString");
+                if (selector2 != nil) {
+                  filePath = [cDVFilesystemURL performSelector: selector2];
+                }
+              }
+            }
+          }
+          
+          if (filePath != nil) {
+            iconPath = filePath;
+          } else {
+            NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            return;
+          }
+        }
+      
+        range = [iconPath rangeOfString:@"file://"];
+        if (range.location != NSNotFound) {
+          iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+          NSFileManager *fileManager = [NSFileManager defaultManager];
+          if (![fileManager fileExistsAtPath:iconPath]) {
+            NSLog(@"(debug)There is no file at '%@'.", iconPath);
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            return;
+          }
+        }
         image = [UIImage imageNamed:iconPath];
         
         if (width && height) {

@@ -1,0 +1,24 @@
+<div id="map_canvas"></div>
+
+<script type="text/javascript">
+
+function onPageLoaded(map) {
+  const latLng = new plugin.google.maps.LatLng(0, 0);
+  
+  map.addMarker({
+    'position': latLng,
+    'title': "You can change the text-align specifying by the 'text-align' property.\n" + 
+             "This text is where you will see the result of the selected text-align property.",
+    
+    'snippet': 'The text-align property also effects to the snippet.',
+    'styles' : {
+      'text-align': 'center',
+      'font-style': 'italic',
+      'font-weight': 'bold',
+      'color': 'red'
+    }
+  }, function(marker) {
+    marker.showInfoWindow();
+  });
+}
+</script>

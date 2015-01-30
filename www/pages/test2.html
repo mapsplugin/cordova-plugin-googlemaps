@@ -1,0 +1,117 @@
+<html>
+<head>
+<title>Bing Maps AJAX Geodesic Line</title>
+<script type='text/javascript' src='http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.3'></script>
+<script type='text/javascript'>
+var map = null; // global VEMap object
+
+function AddGeodesicLine(start, finish, color, width)
+{
+  // draw a geodesic (Great Circle) line between start and finish
+  // assumes existence of initialized global VEMap object named 'map'
+  // start, finish : VELatLong
+  // color : VEColor
+  // width : numeric
+  // see http://williams.best.vwh.net/avform.htm for the math
+
+  if (start.Longitude > finish.Longitude) {
+    var tmp = start; start = finish; finish = tmp; // normalize
+  }
+
+  var lat1 = start.Latitude * (Math.PI / 180.0); // convert to radians
+  var lon1 = start.Longitude * (Math.PI / 180.0);
+  var lat2 = finish.Latitude * (Math.PI / 180.0);
+  var lon2 = finish.Longitude * (Math.PI / 180.0);
+
+  var d = 2 * Math.asin(Math.sqrt(Math.pow((Math.sin((lat1 - lat2) / 2)), 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.pow((Math.sin((lon1 - lon2) / 2)), 2)));
+  var wayPoints = new Array();
+  var f = 0.00000000; // fraction of the curve
+  var finc = 0.01000000; // fraction increment
+
+  while (parseFloat(f.toFixed(8)) <= 1.00000000) {
+    var A = Math.sin((1.0 - f) * d) / Math.sin(d);
+    var B = Math.sin(f * d) / Math.sin(d);
+
+    var x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2);
+    var y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2);
+    var z = A * Math.sin(lat1) + B * Math.sin(lat2);
+
+    var lat = Math.atan2(z, Math.sqrt((x*x) + (y*y)));
+    var lon = Math.atan2(y, x);
+
+    var wp = new VELatLong(lat / ( Math.PI / 180.0), lon / ( Math.PI / 180.0));
+    wayPoints.push(wp);
+
+    f += finc;
+  } // while
+
+  // break into waypoints with negative longitudes and those with positive longitudes
+  var negLons = new Array(); // lat-lons where the lon part is negative
+  var posLons = new Array();
+  var connect = new Array();
+
+  for (var i = 0; i < wayPoints.length; ++i) {
+    if (wayPoints[i].Longitude <= 0.0)
+      negLons.push(wayPoints[i]);
+    else
+      posLons.push(wayPoints[i]);
+  }
+
+  // we may have to connect over 0.0 longitude
+  for (var i = 0; i < wayPoints.length - 1; ++i) {
+    if (wayPoints[i].Longitude <= 0.0 && wayPoints[i+1].Longitude >= 0.0 ||
+      wayPoints[i].Longitude >= 0.0 && wayPoints[i+1].Longitude <= 0.0) {
+      if (Math.abs(wayPoints[i].Longitude) + Math.abs(wayPoints[i+1].Longitude) < 100.0) {
+        connect.push(wayPoints[i]);
+        connect.push(wayPoints[i+1]);
+      }
+    }
+  } 
+
+  if (negLons.length >= 2) {
+    var leftLine = new VEShape(VEShapeType.Polyline, negLons);
+    leftLine.SetLineColor(color); leftLine.SetLineWidth(width);
+    leftLine.HideIcon(); map.AddShape(leftLine);
+  }
+
+  if (posLons.length >= 2) {
+    var rightLine = new VEShape(VEShapeType.Polyline, posLons);
+    rightLine.SetLineColor(color); rightLine.SetLineWidth(width);
+    rightLine.HideIcon(); map.AddShape(rightLine);
+  } 
+
+  if (connect.length >= 2) {
+    var connectLine = new VEShape(VEShapeType.Polyline, connect);
+    connectLine.SetLineColor(color); connectLine.SetLineWidth(width);
+    connectLine.HideIcon(); map.AddShape(connectLine);
+  }
+
+} // AddGeodesicLine()
+
+// ÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑ-
+
+function MakeMap()
+{
+  map = new VEMap('myMap');
+  map.LoadMap(new VELatLong(10.0, 20.0), 3, VEMapStyle.Aerial);
+
+  var us = new VELatLong(40.00, -105.00);
+  var gb = new VELatLong(54.00, -2.00);
+  var jp = new VELatLong(36.00, 138.00);
+
+  var orange = new VEColor(255,120,0,1.0);
+
+  AddGeodesicLine(us, gb, orange, 3);
+  AddGeodesicLine(us, jp, orange, 3);
+  AddGeodesicLine(gb, jp, orange, 3);
+
+}
+
+</script>
+
+</head>
+<body onload='MakeMap();'>
+<div id='myMap' style='position:relative; width:1600px; height:1000px;'></div>
+</body>
+</html>

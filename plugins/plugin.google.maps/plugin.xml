@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="plugin.google.maps" version="1.0.11" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>phonegap-googlemaps-plugin</name>
+    <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
+        <clobbers target="window.plugins.phonegap-googlemaps-plugin" />
+    </js-module>
+
+    
+    <description>You can implement Google Maps native SDK into your app easily!</description>
+    <repo>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/</repo>
+    <issue>https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues</issue>
+
+    <license>Apache 2.0</license>
+    
+    <keywords>google,maps</keywords>
+    
+    <engines>
+      <engine name="cordova" version=">=3.0.0" />
+    </engines>
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="GoogleMaps">
+                <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+            </feature>
+            <feature name="External">
+                <param name="android-package" value="plugin.google.maps.External" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
+            </feature>
+        </config-file>
+    </platform>
+    
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="GoogleMaps">
+                <param name="ios-package" value="GoogleMaps" />
+            </feature>
+            <feature name="External">
+                <param name="ios-package" value="External" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="ios-package" value="Geocoder" />
+            </feature>
+        </config-file>
+    </platform>
+</plugin>

@@ -2,7 +2,6 @@ package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -16,10 +15,8 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
-  private HashMap<String, Bitmap> mCache = null;
   private AsyncLoadImageInterface targetPlugin;
   private int mWidth = -1;
   private int mHeight = -1;
@@ -33,26 +30,10 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     mWidth = width;
     mHeight = height;
   }
-
-  public AsyncLoadImage(AsyncLoadImageInterface plugin, HashMap<String, Bitmap> cache) {
-    mCache = cache;
-    targetPlugin = plugin;
-  }
-  public AsyncLoadImage(int width, int height, AsyncLoadImageInterface plugin, HashMap<String, Bitmap> cache) {
-    mCache = cache;
-    targetPlugin = plugin;
-    mWidth = width;
-    mHeight = height;
-  }
   
   @SuppressLint("NewApi")
   protected Bitmap doInBackground(String... urls) {
     try {
-      if (mCache != null && mCache.containsKey(urls[0])) {
-        Bitmap myBitmap = mCache.get(urls[0]);
-        return myBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        //return Bitmap.createBitmap(mCache.get(urls[0]));
-      }
       URL url= new URL(urls[0]);
       HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
       http.setRequestMethod("GET");
@@ -141,9 +122,6 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       canvas = null;
       imageBytes = null;
 
-      if (mCache != null) {
-        mCache.put(urls[0], myBitmap.copy(Bitmap.Config.ARGB_8888, true));
-      }
       return myBitmap;
     } catch (Exception e) {
       e.printStackTrace();
