@@ -474,14 +474,26 @@
               }
             }
           }
+          
           if (filePath != nil) {
             iconPath = filePath;
           } else {
+            NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
             [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
             return;
           }
         }
-        
+      
+        range = [iconPath rangeOfString:@"file://"];
+        if (range.location != NSNotFound) {
+          iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+          NSFileManager *fileManager = [NSFileManager defaultManager];
+          if (![fileManager fileExistsAtPath:iconPath]) {
+            NSLog(@"(debug)There is no file at '%@'.", iconPath);
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            return;
+          }
+        }
         image = [UIImage imageNamed:iconPath];
         
         if (width && height) {
