@@ -43,6 +43,8 @@ plugins/
 #platforms/
 hooks/
 
+out/
+
 
 #other project files
 src/android/plugin/google/maps/experimental
