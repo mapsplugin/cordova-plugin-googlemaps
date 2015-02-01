@@ -473,7 +473,7 @@ public class PluginMarker extends MyPlugin {
           if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-          } else if (iconUrl.indexOf("file://") > -1 || iconUrl.indexOf("/") == 0) {
+          } else if (iconUrl.indexOf("file://") > -1) {
             iconUrl = iconUrl.replace("file://", "");
             File tmp = new File(iconUrl);
             if (tmp.exists()) {
