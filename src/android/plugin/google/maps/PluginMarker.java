@@ -14,7 +14,9 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -450,91 +452,113 @@ public class PluginMarker extends MyPlugin {
       return;
     }
     
-    if (iconUrl.indexOf("cdv://") > -1) {
-      CordovaResourceApi resourceApi = this.webView.getResourceApi();
-      Uri fileUri = resourceApi.remapUri(Uri.parse(iconUrl));
-      iconUrl = "file://" + fileUri.getPath();
-    }
     
     if (iconUrl.indexOf("http") == -1) {
-      Bitmap image = null;
       
-      if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
-        String[] tmp = iconUrl.split(",");
-        image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-      } else if (iconUrl.indexOf("file://") > -1 || iconUrl.indexOf("/") == 0) {
-        iconUrl = iconUrl.replace("file://", "");
-        File tmp = new File(iconUrl);
-        if (tmp.exists()) {
-          image = BitmapFactory.decodeFile(iconUrl);
-        } else {
-          Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
-        }
-      } else {
-        AssetManager assetManager = this.cordova.getActivity().getAssets();
-        InputStream inputStream;
-        try {
-          inputStream = assetManager.open(iconUrl);
-          image = BitmapFactory.decodeStream(inputStream);
-        } catch (IOException e) {
-          e.printStackTrace();
-          callback.onMarkerIconLoaded(marker);
-          return;
-        }
-      }
-      if (image == null) {
-        callback.onMarkerIconLoaded(marker);
-        return;
-      }
-      
-      Boolean isResized = false;
-      if (iconProperty.containsKey("size") == true) {
-        Object size = iconProperty.get("size");
-        
-        if (Bundle.class.isInstance(size)) {
+      AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+          String iconUrl = iconProperty.getString("url");
           
-          Bundle sizeInfo = (Bundle)size;
-          int width = sizeInfo.getInt("width", 0);
-          int height = sizeInfo.getInt("height", 0);
-          if (width > 0 && height > 0) {
-            isResized = true;
-            width = (int)Math.round(width * PluginMarker.this.density);
-            height = (int)Math.round(height * PluginMarker.this.density);
-            image = PluginUtil.resizeBitmap(image, width, height);
+          Bitmap image = null;
+          if (iconUrl.indexOf("cdvfile://") > -1) {
+            CordovaResourceApi resourceApi = webView.getResourceApi();
+            Uri fileURL = resourceApi.remapUri(Uri.parse(iconUrl));
+            File file = resourceApi.mapUriToFile(fileURL);
+            iconUrl = file.getAbsolutePath();
+            Log.d("GoogleMaps", "iconUrl = " + iconUrl);
           }
-        }
-      }
-      
-      if (isResized == false) {
-        image = PluginUtil.scaleBitmapForDevice(image);
-      }
-      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-      marker.setIcon(bitmapDescriptor);
-      
-      // Save the information for the anchor property
-      Bundle imageSize = new Bundle();
-      imageSize.putInt("width", image.getWidth());
-      imageSize.putInt("height", image.getHeight());
-      this.objects.put("imageSize", imageSize);
-      
+          
+          if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
+            String[] tmp = iconUrl.split(",");
+            image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+          } else if (iconUrl.indexOf("file://") > -1 || iconUrl.indexOf("/") == 0) {
+            iconUrl = iconUrl.replace("file://", "");
+            File tmp = new File(iconUrl);
+            if (tmp.exists()) {
+              image = BitmapFactory.decodeFile(iconUrl);
+            } else {
+              Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
+            }
+          } else {
+            AssetManager assetManager = PluginMarker.this.cordova.getActivity().getAssets();
+            InputStream inputStream;
+            try {
+              inputStream = assetManager.open(iconUrl);
+              image = BitmapFactory.decodeStream(inputStream);
+            } catch (IOException e) {
+              e.printStackTrace();
+              return null;
+            }
+          }
+          if (image == null) {
+            return null;
+          }
+          
+          Boolean isResized = false;
+          if (iconProperty.containsKey("size") == true) {
+            Object size = iconProperty.get("size");
+            
+            if (Bundle.class.isInstance(size)) {
+              
+              Bundle sizeInfo = (Bundle)size;
+              int width = sizeInfo.getInt("width", 0);
+              int height = sizeInfo.getInt("height", 0);
+              if (width > 0 && height > 0) {
+                isResized = true;
+                width = (int)Math.round(width * PluginMarker.this.density);
+                height = (int)Math.round(height * PluginMarker.this.density);
+                image = PluginUtil.resizeBitmap(image, width, height);
+              }
+            }
 
-      // The `anchor` of the `icon` property
-      if (iconProperty.containsKey("anchor") == true) {
-        double[] anchor = iconProperty.getDoubleArray("anchor");
-        if (anchor.length == 2) {
-          _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            if (isResized == false) {
+              image = PluginUtil.scaleBitmapForDevice(image);
+            }
+          }
+          return image;
         }
-      }
-      
+        
+        @Override
+        protected void onPostExecute(Bitmap image) {
+          if (image == null) {
+            callback.onMarkerIconLoaded(marker);
+            return;
+          }
+          BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+          marker.setIcon(bitmapDescriptor);
+          
+          // Save the information for the anchor property
+          Bundle imageSize = new Bundle();
+          imageSize.putInt("width", image.getWidth());
+          imageSize.putInt("height", image.getHeight());
+          PluginMarker.this.objects.put("imageSize", imageSize);
+          
 
-      // The `anchor` property for the infoWindow
-      if (iconProperty.containsKey("infoWindowAnchor") == true) {
-        double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-        if (anchor.length == 2) {
-          _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+          // The `anchor` of the `icon` property
+          if (iconProperty.containsKey("anchor") == true) {
+            double[] anchor = iconProperty.getDoubleArray("anchor");
+            if (anchor.length == 2) {
+              _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            }
+          }
+          
+
+          // The `anchor` property for the infoWindow
+          if (iconProperty.containsKey("infoWindowAnchor") == true) {
+            double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+            if (anchor.length == 2) {
+              _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            }
+          }
+
+          callback.onMarkerIconLoaded(marker);
         }
-      }
-      callback.onMarkerIconLoaded(marker);
+      };
+      task.execute();
+          
+          
       return;
     }
     
