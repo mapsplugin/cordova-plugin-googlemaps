@@ -29,6 +29,7 @@ proguard/
 *.ipr
 *.iws
 .idea/
+build/
 
 # platform assets
 platforms/
@@ -40,6 +41,8 @@ ant-gen/
 plugins/
 platforms/
 hooks/
+
+out/
 
 
 #other project files
