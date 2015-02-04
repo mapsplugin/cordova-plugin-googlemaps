@@ -218,7 +218,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     Runnable runnable = new Runnable() {
       public void run() {
-        if (("getMap".equals(action) == false && "isAvailable".equals(action) == false) &&
+        if (("getMap".equals(action) == false && "isAvailable".equals(action) == false && "getLicenseInfo".equals(action) == false) &&
             GoogleMaps.this.map == null) {
           Log.w(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
