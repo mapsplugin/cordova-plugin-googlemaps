@@ -178,7 +178,7 @@
   
   int bearing = (int)[[json valueForKey:@"bearing"] integerValue];
   double angle = [[json valueForKey:@"tilt"] doubleValue];
-  int zoom = (int)[[json valueForKey:@"zoom"] integerValue];
+  double zoom = [[json valueForKey:@"zoom"] doubleValue];
   
   
   NSDictionary *latLng = nil;
