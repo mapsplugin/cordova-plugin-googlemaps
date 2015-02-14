@@ -10,34 +10,40 @@
     <script type="text/javascript" src="test.json"></script>
     <script type="text/javascript" src="js/async.js"></script>
     <script type="text/javascript">
-    $(document).on('deviceready', function() {
-      var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
-      map.on("map_ready", function() {
-        var options = {
-          '10': 'images/m1.png',
-          '20': 'images/m2.png',
-          '50': 'images/m3.png',
-          '100': 'images/m4.png',
-          '200': 'images/m5.png'
-        };
-        
-        plugin.google.maps.experimental.MarkerCluster.createCluster(map, options, function(cluster) {
-          async.map(data.photos, function(info, next) {
-            next(null, {
-              'position': new plugin.google.maps.LatLng(info.lat, info.lng),
-              'photoData': info,
-              'icon': info.photo_file_url.replace("medium", "mini_square"),
-              'markerClick': onMarkerClicked
-            });
-          }, function(err, markers) {
-            cluster.addMarkers(markers);
-          });
-        });
-        
-      });
-      
-    });
+$(document).on('deviceready', function() {
+  var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
+  map.on("map_ready", function() {
+  
+    var icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAACVUlEQVRIS8WWjVXCMBRGwwTqBMIEuAG4ARuIE6gTKBOgEyAT4AbABjKBMIE/C+h3m6S2pWlJ8BzfOTkpad6770teEzom3bZy/VbrpYTopDjJZ6w2c77X6p9j46SCUXvuYDxHq04BZ2rPHXa3y/DRqlPAmdqZW+hrkMZEq44F52q3oGTdrjEpqmPBudoxKVBVKqsU1THgPbW+klNUt4GHCn6idqEGuMveerUeXFGtNTCvah9qaz+n2gMmKMGBnLrfjPFcMirZ7231XUF19RUJkIhPZqXnT8AM9Osy62v0VPihUqIfjWwx1RkJvbxIpjArhabfbEJ6zQYwysiiT3CW8kJ6Q4BgqMALEnqVNAqQZGSkM/R7nMOBLhZ/B/ZQeg9V/1EsrpLy5dIqP8aAXV6WlQIlZrWq/wzeBK0DM3Y0vA0aAh8FPwTaBC7B2W8+qUOMT4l9dYUUrJK2k4tCOHl7O7zK+Xx69nbWU/iebgKz1+9E+OYPToR1fqOe+SquujeBWdzlYGBPohhjW9b2lGbRa72bwLdyml5d2auvaPyeTOzIw4MxzCkal8h8no3cqT3WJd0ExuFmOjXmlhRIXbnfKZQ7hfJ4HDTM8wVIMi6xJ01y3mV8E5glGlDRGIEKS75DrAtFn/0DA3x/b0ddZbPgGt23JnBW0agpKPzUGCvhoT4iv1HG9Zodtc6HGBTYnoXAXc3UR5SbBwK1d8y+8RUAzxNwU2orOwQeyolF/lLT7mUqQ8BqCj4Bt+j1lR0Cs3Sopt8GFLYNF/2JU7K2k6stePL7fwP/AER2xy+mY1/QAAAAAElFTkSuQmCC";
+    var canvas = document.createElement('canvas');
+    canvas.width = 120;
+    canvas.height = 40;
+    var context = canvas.getContext('2d');
     
+    var img = new Image();
+    img.src = "./images/google_logo.gif";
+    img.onload = function() {
+      context.drawImage(img, 0, 0);
+      
+      context.font = '15pt Calibri';
+      context.fillStyle = 'blue';
+      context.fillText('Google', 40, 15);
+      context.fillText('Tokyo!', 60, 35);
+      
+      console.log(canvas.toDataURL());
+      
+      map.addMarker({
+        'position': new plugin.google.maps.LatLng(0, 0),
+        'title': canvas.toDataURL(),
+        'icon': icon
+      }, function(marker) {
+        marker.showInfoWindow();
+      });
+    };
+    
+  });
+});
+
     function onMarkerClicked(marker) {
       marker.showInfoWindow();
     }
