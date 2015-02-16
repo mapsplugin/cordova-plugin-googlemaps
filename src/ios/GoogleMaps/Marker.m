@@ -417,7 +417,7 @@
 
   if (iconPath) {
     NSRange range = [iconPath rangeOfString:@"http"];
-    if (range.location == NSNotFound) {
+    if (range.location != 0) {
       Boolean isTextMode = true;
           
       UIImage *image;
