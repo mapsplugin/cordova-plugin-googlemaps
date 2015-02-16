@@ -35,18 +35,7 @@
   self.pluginLayer.webView = self.webView;
   [self.pluginLayer addSubview:self.pluginScrollView];
   [self.pluginLayer addSubview:self.webView];
-  
-  NSArray *subViews = self.root.subviews;
-  for (int i = 0; i < [subViews count]; i++) {
-    [[subViews objectAtIndex:i] removeFromSuperview];
-  }
   [self.root addSubview:self.pluginLayer];
-  for (int i = 0; i < [subViews count]; i++) {
-    [self.root addSubview: [subViews objectAtIndex:i]];
-  }
-  
-  
-  
   
   NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
   if (APIKey == nil) {
@@ -95,27 +84,23 @@
     return;
   }
   
+  NSURL *URL = [NSURL URLWithString:@"http://plugins.cordova.io/api/plugin.google.maps"];
+  R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:URL];
   
-  dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.version_check", NULL);
-  dispatch_async(gueue, ^{
-    NSURL *URL = [NSURL URLWithString:@"http://plugins.cordova.io/api/plugin.google.maps"];
-    R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:URL];
-    
-    [request setHTTPMethod:@"GET"];
-    [request setTimeoutInterval:5];
-    [request setFailedHandler:^(NSError *error){}];
-    [request setCompletionHandler:^(NSHTTPURLResponse *responseHeader, NSString *responseString){
-      NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
-      NSError *error;
-      NSMutableDictionary *info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
-      NSDictionary *distTags = [info objectForKey:@"dist-tags"];
-      NSString *latestVersion = [distTags objectForKey:@"latest"];
-      if ([PLUGIN_VERSION isEqualToString:latestVersion] == NO) {
-        NSLog(@"phonegap-googlemaps-plugin version %@ is available.", latestVersion);
-      }
-    }];
-    [request startRequest];
-  });
+  [request setHTTPMethod:@"GET"];
+  [request setTimeoutInterval:5];
+  [request setFailedHandler:^(NSError *error){}];
+  [request setCompletionHandler:^(NSHTTPURLResponse *responseHeader, NSString *responseString){
+    NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error;
+    NSMutableDictionary *info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
+    NSDictionary *distTags = [info objectForKey:@"dist-tags"];
+    NSString *latestVersion = [distTags objectForKey:@"latest"];
+    if ([PLUGIN_VERSION isEqualToString:latestVersion] == NO) {
+      NSLog(@"phonegap-googlemaps-plugin version %@ is available.", latestVersion);
+    }
+  }];
+  [request startRequest];
 }
 
 -(void)viewDidLayoutSubviews {
