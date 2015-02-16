@@ -43,6 +43,10 @@
                         {
                             "xml": "<feature name=\"MarkerCluster\"><param name=\"android-package\" value=\"plugin.google.maps.experimental.MarkerCluster\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -66,6 +70,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "com.googlemaps.ios": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "org.apache.cordova.splashscreen": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },
