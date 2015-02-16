@@ -452,8 +452,8 @@ public class PluginMarker extends MyPlugin {
       return;
     }
     
-    
-    if (iconUrl.indexOf("http") == -1) {
+
+    if (iconUrl.indexOf("http") != 0) {
       
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
@@ -462,18 +462,18 @@ public class PluginMarker extends MyPlugin {
           String iconUrl = iconProperty.getString("url");
           
           Bitmap image = null;
-          if (iconUrl.indexOf("cdvfile://") > -1) {
+          if (iconUrl.indexOf("cdvfile://") == 0) {
             CordovaResourceApi resourceApi = webView.getResourceApi();
             Uri fileURL = resourceApi.remapUri(Uri.parse(iconUrl));
             File file = resourceApi.mapUriToFile(fileURL);
             iconUrl = file.getAbsolutePath();
-            Log.d("GoogleMaps", "iconUrl = " + iconUrl);
           }
           
-          if (iconUrl.indexOf("data:image/") > -1 && iconUrl.indexOf(";base64,") > -1) {
+          if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
+            Log.d("CordovaLog", "image = " + iconUrl);
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-          } else if (iconUrl.indexOf("file://") > -1 || iconUrl.indexOf("/") == 0) {
+          } else if (iconUrl.indexOf("file://") == 0) {
             iconUrl = iconUrl.replace("file://", "");
             File tmp = new File(iconUrl);
             if (tmp.exists()) {
