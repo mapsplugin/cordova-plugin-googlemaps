@@ -13,6 +13,9 @@
     $(document).on('deviceready', function() {
       var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
       map.on("map_ready", function() {
+        alert("MapReady!");
+        navigator.splashscreen.hide();
+      /*
         var options = {
           '10': 'images/m1.png',
           '20': 'images/m2.png',
@@ -33,9 +36,9 @@
             cluster.addMarkers(markers);
           });
         });
+      */
         
       });
-      
     });
     
     function onMarkerClicked(marker) {

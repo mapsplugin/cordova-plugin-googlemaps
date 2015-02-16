@@ -16,6 +16,12 @@
     <feature name="MarkerCluster">
         <param name="android-package" value="plugin.google.maps.experimental.MarkerCluster" />
     </feature>
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="1500" />
     <name>DevApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
