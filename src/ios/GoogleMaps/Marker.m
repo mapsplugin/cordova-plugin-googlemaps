@@ -372,8 +372,17 @@
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
   // Create icon
+  NSDictionary *iconProperty;
+  id icon = [command.arguments objectAtIndex:2];
+  if ([icon isKindOfClass:[NSString class]]) {
+    NSMutableDictionary *iconDic = [[NSMutableDictionary alloc] init];
+    [iconDic setObject:icon forKey:@"url"];
+    iconProperty = iconDic;
+  } else if ([icon isKindOfClass:[NSDictionary class]]) {
+    iconProperty = [command.arguments objectAtIndex:2];
+  }
+  
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  NSDictionary *iconProperty = [command.arguments objectAtIndex:2];
   [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
 }
 /**

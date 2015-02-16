@@ -452,7 +452,7 @@ public class PluginMarker extends MyPlugin {
       return;
     }
     
-
+    
     if (iconUrl.indexOf("http") != 0) {
       
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
@@ -467,11 +467,11 @@ public class PluginMarker extends MyPlugin {
             Uri fileURL = resourceApi.remapUri(Uri.parse(iconUrl));
             File file = resourceApi.mapUriToFile(fileURL);
             iconUrl = file.getAbsolutePath();
+            Log.d("GoogleMaps", "iconUrl = " + iconUrl);
           }
           
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
-            Log.d("CordovaLog", "image = " + iconUrl);
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
           } else if (iconUrl.indexOf("file://") == 0) {
             iconUrl = iconUrl.replace("file://", "");
@@ -512,10 +512,10 @@ public class PluginMarker extends MyPlugin {
                 image = PluginUtil.resizeBitmap(image, width, height);
               }
             }
+          }
 
-            if (isResized == false) {
-              image = PluginUtil.scaleBitmapForDevice(image);
-            }
+          if (isResized == false) {
+            image = PluginUtil.scaleBitmapForDevice(image);
           }
           return image;
         }
