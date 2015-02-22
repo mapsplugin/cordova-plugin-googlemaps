@@ -11,7 +11,9 @@
     <script type="text/javascript" src="js/async.js"></script>
     <script type="text/javascript">
     $(document).on('deviceready', function() {
-      var map = plugin.google.maps.Map.getMap($("#map_canvas")[0]);
+      var map = plugin.google.maps.Map.getMap($("#map_canvas")[0], {
+        'backgroundColor': 'red'
+      });
       map.on("map_ready", function() {
         alert("MapReady!");
         navigator.splashscreen.hide();

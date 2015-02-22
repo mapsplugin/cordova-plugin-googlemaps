@@ -33,6 +33,7 @@
         <preference name="AutoHideSplashScreen" value="false" />
         <preference name="FadeSplashScreen" value="true" />
         <preference name="FadeSplashScreenDuration" value="1.50" />
+        <preference name="StatusBarBackgroundColor" value="#FF0000" />
     </platform>
     <platform name="android">
         <preference name="SplashScreen" value="screen" />

@@ -79,12 +79,7 @@
                             "count": 1
                         }
                     ],
-                    "CoreGraphics.framework": [
-                        {
-                            "xml": "false",
-                            "count": 1
-                        }
-                    ]
+                    "CoreGraphics.framework": []
                 }
             },
             "config.xml": {
@@ -117,6 +112,18 @@
                         {
                             "xml": "<feature name=\"SplashScreen\"><param name=\"ios-package\" value=\"CDVSplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"StatusBar\"><param name=\"ios-package\" value=\"CDVStatusBar\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference name=\"StatusBarOverlaysWebView\" value=\"true\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference name=\"StatusBarStyle\" value=\"lightcontent\" />",
+                            "count": 1
                         }
                     ]
                 }
@@ -143,6 +150,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "org.apache.cordova.splashscreen": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "org.apache.cordova.statusbar": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },

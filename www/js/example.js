@@ -21,6 +21,10 @@ window.onerror = function(message, file, line) {
  */
 $(document).on("deviceready", function() {
   var map = plugin.google.maps.Map.getMap();
+  map.on(plugin.google.maps.event.MAP_READY, function() {
+    alert("MAP_READY");
+    navigator.splashscreen.hide();
+  });
   
   $("li[action]").click(function() {
     $("#menulist").panel("close");
