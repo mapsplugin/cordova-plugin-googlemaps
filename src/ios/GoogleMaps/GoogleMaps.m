@@ -30,20 +30,22 @@
   self.webView.scrollView.delegate = self;
   [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
   
-  self.root = self.webView.superview;
-  [self.webView removeFromSuperview];
+  //[self.webView removeFromSuperview];
   self.pluginLayer.webView = self.webView;
   [self.pluginLayer addSubview:self.pluginScrollView];
-  [self.pluginLayer addSubview:self.webView];
+  //[self.pluginLayer addSubview:self.webView];
   
-  NSArray *subViews = self.root.subviews;
+  
+  NSArray *subViews = self.viewController.view.subviews;
+  UIView *view;
   for (int i = 0; i < [subViews count]; i++) {
-    [[subViews objectAtIndex:i] removeFromSuperview];
+    view = [subViews objectAtIndex:i];
+    //NSLog(@"remove i=%d class=%@", i, view.class);
+    [view removeFromSuperview];
+    [self.pluginLayer addSubview: view];
   }
-  [self.root addSubview:self.pluginLayer];
-  for (int i = 0; i < [subViews count]; i++) {
-    [self.root addSubview: [subViews objectAtIndex:i]];
-  }
+
+  [self.viewController.view addSubview:self.pluginLayer];
   
   
   
