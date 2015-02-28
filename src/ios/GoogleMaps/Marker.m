@@ -540,55 +540,59 @@
        * Load the icon from over the internet
        */
       marker.map = nil;
-    
-      dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
-      dispatch_async(queue, ^{
-
-        NSURL *url = [NSURL URLWithString:iconPath];
-        // download the image asynchronously
-        [self downloadImageWithURL:url completionBlock:^(BOOL succeeded, UIImage *image) {
-            if (!succeeded) {
-              marker.map = self.mapCtrl.map;
-            
-              [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-              return;
-            }
-
-            if (width && height) {
-                image = [image resize:width height:height];
-            }
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                marker.icon = image;
-
-                // The `anchor` property for the icon
-                if ([iconProperty valueForKey:@"anchor"]) {
-                    NSArray *points = [iconProperty valueForKey:@"anchor"];
-                    CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                    marker.groundAnchor = CGPointMake(anchorX, anchorY);
-                }
-
-
-                // The `infoWindowAnchor` property
-                if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-                    NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-                    CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                    marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-                }
-
-                marker.map = self.mapCtrl.map;
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-
-            });
-        }];
-
-      });
+      
+      // download the image asynchronously
+      NSURL *url = [NSURL URLWithString:iconPath];
+      R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:url];
+      [request setHTTPMethod:@"GET"];
+      [request setTimeoutInterval:5];
+      [request setFailedHandler:^(NSError *error){}];
+      request.completionHandlerWithData = ^(NSHTTPURLResponse *responseHeader,  NSData *responseData){
+        UIImage *image = [[UIImage alloc] initWithData:responseData];
+        
+        if (width && height) {
+          image = [image resize:width height:height];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+          marker.icon = image;
+          
+          // The `anchor` property for the icon
+          if ([iconProperty valueForKey:@"anchor"]) {
+            NSArray *points = [iconProperty valueForKey:@"anchor"];
+            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+            marker.groundAnchor = CGPointMake(anchorX, anchorY);
+          }
+          
+          
+          // The `infoWindowAnchor` property
+          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+            NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+            marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+          }
+          
+          marker.map = self.mapCtrl.map;
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+          
+        });
+        
+        
+      };
+      
+      [request setFailedHandler:^(NSError *error){
+        marker.map = self.mapCtrl.map;
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+      }];
+      
+      [request startRequest];
     }
   }
   
 }
+/*
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
@@ -604,4 +608,5 @@
                                }
                            }];
 }
+ */
 @end
