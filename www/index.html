@@ -9,14 +9,6 @@
     document.addEventListener('deviceready', function() {
       var div = document.getElementById("map_canvas");
       var map = plugin.google.maps.Map.getMap(div);
-      
-      map.addKmlOverlay({
-        'url': "www/kml/test.kml"
-      }, function(kmlOverlay) {
-        map.animateCamera({
-          target:kmlOverlay
-        });
-      });
     });
     </script>
     <style type="text/css">
