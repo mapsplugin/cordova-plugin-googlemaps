@@ -113,9 +113,9 @@
   __block NSMutableDictionary *kmlData;
   dispatch_async(gueue, ^{
     //NSLog(@"%@", [[TBXML elementName:tbxml.rootXMLElement] lowercaseString]);
-    NSLog(@"-----------------> parseXML");
+    //NSLog(@"-----------------> parseXML");
     kmlData = [self parseXML:tbxml.rootXMLElement];
-    NSLog(@"%@", kmlData);
+    //NSLog(@"%@", kmlData);
 
   });
   
@@ -126,25 +126,30 @@
   __block NSMutableDictionary *styles = [NSMutableDictionary dictionary];
   __block NSMutableArray *placeMarks = [NSMutableArray array];
   dispatch_async(gueue, ^{
-    NSLog(@"-----------------> _filterPlaceMarks");
+    //NSLog(@"-----------------> _filterPlaceMarks");
     [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
-    NSLog(@"-----------------> _filterPlaceMarks was successful");
+    //NSLog(@"-----------------> _filterPlaceMarks was successful");
   });
   
   //------------------------------------
   // Implement placemarks onto the map
   //------------------------------------
   dispatch_async(gueue, ^{
-    NSLog(@"-----------------> placeMarks = %d", [placeMarks count]);
+    //NSLog(@"-----------------> placeMarks = %d", [placeMarks count]);
     if ([placeMarks count] > 0) {
+      // Pick up style tags only
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0ul), ^{
+        [self _filterStyleTag:kmlData styles:&styles];
+        //NSLog(@"-----------------> _filterStyleTag was successful.");
+      });
+      
+      // Pick up styleMap tags only
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0ul), ^{
+        [self _filterStyleMapTag:kmlData styles:&styles];
+        //NSLog(@"-----------------> _filterStyleMapTag was successful.");
+      });
+      
       //Implement placemarks
-      
-      [self _filterStyleTag:kmlData styles:&styles];
-      NSLog(@"-----------------> _filterStyleTag was successful.");
-      
-      [self _filterStyleMapTag:kmlData styles:&styles];
-      NSLog(@"-----------------> _filterStyleMapTag was successful.");
-      
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0ul), ^{
         NSMutableArray *defaultViewport = [NSMutableArray array];
         for (tag in placeMarks) {
