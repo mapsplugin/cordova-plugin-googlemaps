@@ -113,7 +113,9 @@
   __block NSMutableDictionary *kmlData;
   dispatch_async(gueue, ^{
     //NSLog(@"%@", [[TBXML elementName:tbxml.rootXMLElement] lowercaseString]);
+    NSLog(@"-----------------> parseXML");
     kmlData = [self parseXML:tbxml.rootXMLElement];
+    NSLog(@"%@", kmlData);
 
   });
   
@@ -124,16 +126,24 @@
   __block NSMutableDictionary *styles = [NSMutableDictionary dictionary];
   __block NSMutableArray *placeMarks = [NSMutableArray array];
   dispatch_async(gueue, ^{
+    NSLog(@"-----------------> _filterPlaceMarks");
     [self _filterPlaceMarks:kmlData placemarks:&placeMarks];
+    NSLog(@"-----------------> _filterPlaceMarks was successful");
   });
   
   //------------------------------------
   // Implement placemarks onto the map
   //------------------------------------
   dispatch_async(gueue, ^{
+    NSLog(@"-----------------> placeMarks = %d", [placeMarks count]);
     if ([placeMarks count] > 0) {
       //Implement placemarks
-      [self _filterStyles:kmlData styles:&styles];
+      
+      [self _filterStyleTag:kmlData styles:&styles];
+      NSLog(@"-----------------> _filterStyleTag was successful.");
+      
+      [self _filterStyleMapTag:kmlData styles:&styles];
+      NSLog(@"-----------------> _filterStyleMapTag was successful.");
       
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0ul), ^{
         NSMutableArray *defaultViewport = [NSMutableArray array];
@@ -242,7 +252,7 @@
 
 }
 
--(void)_filterStyles:(NSDictionary *)rootNode styles:(NSMutableDictionary **)styles
+-(void)_filterStyleTag:(NSDictionary *)rootNode styles:(NSMutableDictionary **)styles
 {
   NSDictionary *tag;
   NSString *tagName;
@@ -259,16 +269,33 @@
       }
       [*styles setObject:tag[@"children"] forKey:styleId];
       continue;
-    } else if ([tagName isEqualToString:@"stylemap"]) {
+    } else {
+      [self _filterStyleTag:tag styles:styles];
+    }
+  }
+  
+}
+
+
+-(void)_filterStyleMapTag:(NSDictionary *)rootNode styles:(NSMutableDictionary **)styles
+{
+  NSDictionary *tag;
+  NSString *tagName;
+  NSString *styleId;
+  
+  NSArray *children = [rootNode objectForKey:@"children"];
+  for (tag in children) {
+    tagName = tag[@"_tag"];
+    
+    if ([tagName isEqualToString:@"stylemap"]) {
       styleId = nil;
       [self _getNormalStyleUrlForStyleMap:tag output:&styleId];
       if (styleId != nil) {
         [*styles setObject:[*styles objectForKey:styleId] forKey:tag[@"_id"]];
       }
       continue;
-
     } else {
-      [self _filterStyles:tag styles:styles];
+      [self _filterStyleMapTag:tag styles:styles];
     }
   }
 

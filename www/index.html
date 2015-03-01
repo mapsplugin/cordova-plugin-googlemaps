@@ -9,12 +9,14 @@
     document.addEventListener('deviceready', function() {
       var div = document.getElementById("map_canvas");
       var map = plugin.google.maps.Map.getMap(div);
-                              
-      map.addMarker({
-                    'position': new plugin.google.maps.LatLng(0, 0),
-                    'title': 'Google Tokyo!',
-                    'icon': 'https://googledrive.com/host/0B1ECfqTCcLE8dS1VNG9Ub045bDQ/img1219817275.png'
-                    });
+      
+      map.addKmlOverlay({
+        'url': "www/kml/test.kml"
+      }, function(kmlOverlay) {
+        map.animateCamera({
+          target:kmlOverlay
+        });
+      });
     });
     </script>
     <style type="text/css">
