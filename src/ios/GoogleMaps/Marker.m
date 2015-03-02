@@ -427,6 +427,9 @@
   if (iconPath) {
     NSRange range = [iconPath rangeOfString:@"http"];
     if (range.location != 0) {
+      /**
+       * Load icon from file or Base64 encoded strings
+       */
       Boolean isTextMode = true;
           
       UIImage *image;

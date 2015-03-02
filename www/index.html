@@ -8,19 +8,47 @@
     <script type="text/javascript">
     document.addEventListener('deviceready', function() {
       var div = document.getElementById("map_canvas");
-      var map = plugin.google.maps.Map.getMap(div);
+      var map = plugin.google.maps.Map.getMap(div, {
+        'camera': {
+          'latLng': new plugin.google.maps.LatLng(35, 137),
+          'tilt': 30,
+          'zoom': 15,
+          'bearing': 50
+        }
+      });
+      map.on(plugin.google.maps.event.MAP_READY, function() {
+
+        map.addMarker({
+          position: new plugin.google.maps.LatLng(35, 137),
+          animation: plugin.google.maps.Animation.BOUNCE
+        }, function(marker) {
+          
+          var button = document.getElementById("button");
+          button.addEventListener("click", function() {
+            marker.setAnimation(plugin.google.maps.Animation.DROP);
+          });
+          
+        });
+      });
     });
     </script>
     <style type="text/css">
-      html, body, #map_canvas {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map_canvas {
+      margin: 5%;
+      width: 90%;
+      height: 70%;
+      padding: 0;
+    }
     </style>
   </head>
   <body>
-    <div id="map_canvas" ></div>
+    <h3>phonegap-googlemaps-plugin</h3>
+    <div id="map_canvas" ><button id="button">Test<button></div>
   </body>
 </html>

@@ -837,6 +837,7 @@ App.prototype.setPadding = function(p1, p2, p3, p4) {
 //-------------
 App.prototype.addMarker = function(markerOptions, callback) {
   var self = this;
+  markerOptions.animation = markerOptions.animation || undefined;
   markerOptions.position = markerOptions.position || {};
   markerOptions.position.lat = markerOptions.position.lat || 0.0;
   markerOptions.position.lng = markerOptions.position.lng || 0.0;
@@ -1177,6 +1178,20 @@ Marker.prototype.getMap = function() {
 };
 Marker.prototype.getHashCode = function() {
   return this.hashCode;
+};
+
+Marker.prototype.setAnimation = function(animation, callback) {
+  animation = animation || null;
+  if (!animation) {
+    return;
+  }
+  this.set("animation", animation);
+  
+  cordova.exec(function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnimation', this.getId(), animation]);
 };
 
 Marker.prototype.remove = function(callback) {
@@ -2127,6 +2142,10 @@ module.exports = {
     MARKER_DRAG: 'drag',
     MARKER_DRAG_START: 'drag_start',
     MARKER_DRAG_END: 'drag_end'
+  },
+  Animation: {
+    BOUNCE: 'BOUNCE',
+    DROP: 'DROP'
   },
   
   BaseClass: BaseClass,

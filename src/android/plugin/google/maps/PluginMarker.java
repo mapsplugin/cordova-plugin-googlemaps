@@ -13,12 +13,18 @@ import org.json.JSONObject;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -26,6 +32,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class PluginMarker extends MyPlugin {
+  
+  private enum Animation {
+    DROP,
+    BOUNCE
+  }
   
   /**
    * Create a marker
@@ -90,6 +101,12 @@ public class PluginMarker extends MyPlugin {
     final JSONObject result = new JSONObject();
     result.put("hashCode", marker.hashCode());
     result.put("id", id);
+
+    // Animation
+    String markerAnimation = null;
+    if (opts.has("animation")) {
+      markerAnimation = opts.getString("animation");
+    }
     
     // Load icon
     if (opts.has("icon")) {
@@ -128,10 +145,14 @@ public class PluginMarker extends MyPlugin {
         bundle = new Bundle();
         bundle.putString("url", (String)value);
       }
+
+      if (opts.has("animation")) {
+        bundle.putString("animation", opts.getString("animation"));
+      }
       this.setIcon_(marker, bundle, new PluginMarkerInterface() {
 
         @Override
-        public void onMarkerIconLoaded(Marker marker) {
+        public void onPostExecute(Marker marker) {
           if (opts.has("visible")) {
             try {
               marker.setVisible(opts.getBoolean("visible"));
@@ -145,11 +166,155 @@ public class PluginMarker extends MyPlugin {
       });
     } else {
       // Return the result if does not specify the icon property.
-      callbackContext.success(result);
+      if (markerAnimation != null) {
+        this.setMarkerAnimation_(marker, markerAnimation, new PluginMarkerInterface() {
+
+          @Override
+          public void onPostExecute(Marker marker) {
+            callbackContext.success(result);
+          }
+          
+        });
+      } else {
+        callbackContext.success(result);
+      }
     }
     
   }
   
+  private void setDropAnimation_(final Marker marker, final PluginMarkerInterface callback) {
+    final Handler handler = new Handler();
+    final long startTime = SystemClock.uptimeMillis();
+    final long duration = 500;
+
+    Projection proj = this.map.getProjection();
+    LatLng topLeft = proj.fromScreenLocation(new Point(0, 0));
+    Log.d("CordovaLog", "topLeft = " + topLeft);
+    
+    final LatLng markerLatLng = marker.getPosition();
+    Log.d("CordovaLog", "markerLatLng = " + markerLatLng);
+    
+    
+    final LatLng latLng = new LatLng(topLeft.latitude, markerLatLng.longitude);
+    Point point = proj.toScreenLocation(latLng);
+    Log.d("CordovaLog", "latLng = " + latLng);
+    Log.d("CordovaLog", "point = " + point);
+
+    //marker.setPosition(latLng);
+    /*
+    Point startPoint = proj.toScreenLocation(markerLatLng);
+    startPoint.offset(-point.x, -point.y);
+    final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+    final Interpolator interpolator = new LinearInterpolator();
+
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        long elapsed = SystemClock.uptimeMillis() - startTime;
+        float t = interpolator.getInterpolation((float) elapsed / duration);
+
+        double lng = t * startLatLng.longitude + (1 - t) * latLng.longitude;
+        double lat = t * startLatLng.latitude + (1 - t) * latLng.latitude ;
+        marker.setPosition(new LatLng(lat, lng));
+        Log.d("CordovaLog", "t = " + t + ",  (" + lat + "," + lng + ")");
+
+        if (t < 1.0) {
+          // Post again 16ms later.
+          handler.postDelayed(this, 16);
+        } else {
+          marker.setPosition(markerLatLng);
+          callback.onPostExecute(marker);
+        }
+      }
+    });
+    */
+  }
+  
+  /**
+   * Bounce animation
+   * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
+   */
+  private void setBounceAnimation_(final Marker marker, final PluginMarkerInterface callback) {
+    final Handler handler = new Handler();
+    final long startTime = SystemClock.uptimeMillis();
+    final long duration = 2000;
+    
+    Projection proj = this.map.getProjection();
+    final LatLng markerLatLng = marker.getPosition();
+    Point startPoint = proj.toScreenLocation(markerLatLng);
+    startPoint.offset(0, -200);
+    final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+    final Interpolator interpolator = new BounceInterpolator();
+
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        long elapsed = SystemClock.uptimeMillis() - startTime;
+        float t = interpolator.getInterpolation((float) elapsed / duration);
+        double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+        double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
+        marker.setPosition(new LatLng(lat, lng));
+
+        if (t < 1.0) {
+          // Post again 16ms later.
+          handler.postDelayed(this, 16);
+        } else {
+          marker.setPosition(markerLatLng);
+          callback.onPostExecute(marker);
+        }
+      }
+    });
+  }
+  
+  private void setMarkerAnimation_(Marker marker, String animationType, PluginMarkerInterface callback) {
+    Animation animation = null;
+    try {
+      animation = Animation.valueOf(animationType.toUpperCase());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    Log.d("CordovaLog", "animation = " + animation);
+    if (animation == null) {
+      callback.onPostExecute(marker);
+      return;
+    }
+    switch(animation) {
+    case DROP:
+      this.setDropAnimation_(marker, callback);
+      break;
+
+    case BOUNCE:
+      this.setBounceAnimation_(marker, callback);
+      break;
+    
+    default:
+      break;
+    }
+  }
+  
+  /**
+   * 
+   * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setAnimation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    String animation = args.getString(2);
+    Log.d("CordovaLog", "id=" + id + ", animation = " + animation);
+    final Marker marker = this.getMarker(id);
+    
+    this.setMarkerAnimation_(marker, animation, new PluginMarkerInterface() {
+
+      @Override
+      public void onPostExecute(Marker marker) {
+        callbackContext.success();
+      }
+      
+    });
+  }
 
   /**
    * Show the InfoWindow binded with the marker
@@ -435,7 +600,7 @@ public class PluginMarker extends MyPlugin {
       this.setIcon_(marker, bundle, new PluginMarkerInterface() {
 
         @Override
-        public void onMarkerIconLoaded(Marker marker) {
+        public void onPostExecute(Marker marker) {
           PluginMarker.this.sendNoResult(callbackContext);
         }
         
@@ -448,7 +613,7 @@ public class PluginMarker extends MyPlugin {
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginMarkerInterface callback) {
     String iconUrl = iconProperty.getString("url");
     if (iconUrl == null) {
-      callback.onMarkerIconLoaded(marker);
+      callback.onPostExecute(marker);
       return;
     }
     
@@ -523,7 +688,7 @@ public class PluginMarker extends MyPlugin {
         @Override
         protected void onPostExecute(Bitmap image) {
           if (image == null) {
-            callback.onMarkerIconLoaded(marker);
+            callback.onPostExecute(marker);
             return;
           }
           BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
@@ -553,7 +718,7 @@ public class PluginMarker extends MyPlugin {
             }
           }
 
-          callback.onMarkerIconLoaded(marker);
+          callback.onPostExecute(marker);
         }
       };
       task.execute();
@@ -577,7 +742,7 @@ public class PluginMarker extends MyPlugin {
         @Override
         public void onPostExecute(Bitmap image) {
           if (image == null) {
-            callback.onMarkerIconLoaded(marker);
+            callback.onPostExecute(marker);
             return;
           }
             
@@ -607,7 +772,7 @@ public class PluginMarker extends MyPlugin {
           }
 
           image.recycle();
-          callback.onMarkerIconLoaded(marker);
+          callback.onPostExecute(marker);
         }
         
       });
