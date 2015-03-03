@@ -20,12 +20,13 @@
 
         map.addMarker({
           position: new plugin.google.maps.LatLng(35, 137),
-          animation: plugin.google.maps.Animation.BOUNCE
+          icon: "http://www.google.com/intl/en_us/mapfiles/ms/icons/blue-dot.png",
+          animation: plugin.google.maps.Animation.DROP
         }, function(marker) {
           
           var button = document.getElementById("button");
           button.addEventListener("click", function() {
-            marker.setAnimation(plugin.google.maps.Animation.DROP);
+            marker.setAnimation(plugin.google.maps.Animation.BOUNCE);
           });
           
         });

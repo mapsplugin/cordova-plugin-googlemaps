@@ -102,11 +102,6 @@ public class PluginMarker extends MyPlugin {
     result.put("hashCode", marker.hashCode());
     result.put("id", id);
 
-    // Animation
-    String markerAnimation = null;
-    if (opts.has("animation")) {
-      markerAnimation = opts.getString("animation");
-    }
     
     // Load icon
     if (opts.has("icon")) {
@@ -160,13 +155,40 @@ public class PluginMarker extends MyPlugin {
           } else {
             marker.setVisible(true);
           }
+          
+
+          // Animation
+          String markerAnimation = null;
+          if (opts.has("animation")) {
+            try {
+              markerAnimation = opts.getString("animation");
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
+          }
+          if (markerAnimation != null) {
+            PluginMarker.this.setMarkerAnimation_(marker, markerAnimation, new PluginMarkerInterface() {
+
+              @Override
+              public void onPostExecute(Marker marker) {
+                callbackContext.success(result);
+              }
+              
+            });
+          } else {
+            callbackContext.success(result);
+          }
           callbackContext.success(result);
         }
         
       });
     } else {
-      // Return the result if does not specify the icon property.
+      String markerAnimation = null;
+      if (opts.has("animation")) {
+        markerAnimation = opts.getString("animation");
+      }
       if (markerAnimation != null) {
+        // Execute animation
         this.setMarkerAnimation_(marker, markerAnimation, new PluginMarkerInterface() {
 
           @Override
@@ -176,6 +198,7 @@ public class PluginMarker extends MyPlugin {
           
         });
       } else {
+        // Return the result if does not specify the icon property.
         callbackContext.success(result);
       }
     }
@@ -185,39 +208,24 @@ public class PluginMarker extends MyPlugin {
   private void setDropAnimation_(final Marker marker, final PluginMarkerInterface callback) {
     final Handler handler = new Handler();
     final long startTime = SystemClock.uptimeMillis();
-    final long duration = 500;
-
-    Projection proj = this.map.getProjection();
-    LatLng topLeft = proj.fromScreenLocation(new Point(0, 0));
-    Log.d("CordovaLog", "topLeft = " + topLeft);
+    final long duration = 100;
     
+    final Projection proj = this.map.getProjection();
     final LatLng markerLatLng = marker.getPosition();
-    Log.d("CordovaLog", "markerLatLng = " + markerLatLng);
+    final Point markerPoint = proj.toScreenLocation(markerLatLng);
+    final Point startPoint = new Point(markerPoint.x, 0);
     
-    
-    final LatLng latLng = new LatLng(topLeft.latitude, markerLatLng.longitude);
-    Point point = proj.toScreenLocation(latLng);
-    Log.d("CordovaLog", "latLng = " + latLng);
-    Log.d("CordovaLog", "point = " + point);
-
-    //marker.setPosition(latLng);
-    /*
-    Point startPoint = proj.toScreenLocation(markerLatLng);
-    startPoint.offset(-point.x, -point.y);
-    final LatLng startLatLng = proj.fromScreenLocation(startPoint);
     final Interpolator interpolator = new LinearInterpolator();
 
     handler.post(new Runnable() {
       @Override
       public void run() {
+        LatLng startLatLng = proj.fromScreenLocation(startPoint);
         long elapsed = SystemClock.uptimeMillis() - startTime;
         float t = interpolator.getInterpolation((float) elapsed / duration);
-
-        double lng = t * startLatLng.longitude + (1 - t) * latLng.longitude;
-        double lat = t * startLatLng.latitude + (1 - t) * latLng.latitude ;
+        double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+        double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
         marker.setPosition(new LatLng(lat, lng));
-        Log.d("CordovaLog", "t = " + t + ",  (" + lat + "," + lng + ")");
-
         if (t < 1.0) {
           // Post again 16ms later.
           handler.postDelayed(this, 16);
@@ -227,7 +235,6 @@ public class PluginMarker extends MyPlugin {
         }
       }
     });
-    */
   }
   
   /**
@@ -239,16 +246,17 @@ public class PluginMarker extends MyPlugin {
     final long startTime = SystemClock.uptimeMillis();
     final long duration = 2000;
     
-    Projection proj = this.map.getProjection();
+    final Projection proj = this.map.getProjection();
     final LatLng markerLatLng = marker.getPosition();
-    Point startPoint = proj.toScreenLocation(markerLatLng);
+    final Point startPoint = proj.toScreenLocation(markerLatLng);
     startPoint.offset(0, -200);
-    final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+    
     final Interpolator interpolator = new BounceInterpolator();
 
     handler.post(new Runnable() {
       @Override
       public void run() {
+        LatLng startLatLng = proj.fromScreenLocation(startPoint);
         long elapsed = SystemClock.uptimeMillis() - startTime;
         float t = interpolator.getInterpolation((float) elapsed / duration);
         double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;

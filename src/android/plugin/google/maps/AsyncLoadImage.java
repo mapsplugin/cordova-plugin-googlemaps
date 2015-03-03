@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -14,7 +13,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private AsyncLoadImageInterface targetPlugin;
@@ -94,6 +95,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       float density = Resources.getSystem().getDisplayMetrics().density;
       int newWidth = (int)(mWidth * density);
       int newHeight = (int)(mHeight * density);
+
       
       /**
        * http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap#7468636
@@ -106,7 +108,9 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       float middleY = newHeight / 2.0f;
       
       options.inJustDecodeBounds = false;
-      options.inSampleSize = (int) Math.max(ratioX, ratioY);
+      //options.inSampleSize = (int) Math.max(ratioX, ratioY);
+      options.outWidth = newWidth;
+      options.outHeight = newHeight;
 
       Matrix scaleMatrix = new Matrix();
       scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
@@ -117,12 +121,10 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       myBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
       canvas.drawBitmap(myBitmap, middleX - options.outWidth / 2, middleY - options.outHeight / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
       myBitmap.recycle();
-      myBitmap = scaledBitmap;
-      scaledBitmap = null;
       canvas = null;
       imageBytes = null;
-
-      return myBitmap;
+      
+      return scaledBitmap;
     } catch (Exception e) {
       e.printStackTrace();
       return null;
