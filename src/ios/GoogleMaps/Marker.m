@@ -402,6 +402,127 @@
 
 
 /**
+ * http://stackoverflow.com/questions/22678575/gmsmarker-opacity-animation-not-repeating
+ */
+-(void)fadeOutAnimation:(CDVInvokedUrlCommand *)command
+{
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  
+  CABasicAnimation *blink = [CABasicAnimation animationWithKeyPath:@"opacity"];
+  blink.fromValue = [NSNumber numberWithFloat:1.0];
+  blink.toValue = [NSNumber numberWithFloat:0.0];
+  blink.duration = 1.5;
+  [blink setDelegate:self];
+  [marker.layer addAnimation:blink forKey:@"blinkmarker"];
+}
+
+/**
+ * set animation
+ * http://stackoverflow.com/a/19316475/697856
+ * http://qiita.com/edo_m18/items/4309d01b67ee42c35b3c
+ * http://www.cocoanetics.com/2012/06/lets-bounce/
+ */
+-(void)setAnimation:(CDVInvokedUrlCommand *)command
+{
+NSLog(@"-----setAnimation");
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+
+
+	
+	NSMutableArray *values = [NSMutableArray array];
+  for (int i = 0; i <= 200; i++) {
+		[values addObject:[NSValue valueWithCGPoint:CGPointMake(0, i)]];
+  }
+ 
+	CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"groundAnchor"];
+	animation.repeatCount = 1;
+	animation.duration = 1.5f;
+	//animation.fillMode = kCAFillModeForwards;
+	animation.values = values;
+	//animation.removedOnCompletion = YES; // final stage is equal to starting stage
+	animation.autoreverses = NO;
+
+  [animation setDelegate:self];
+  [marker.layer addAnimation:animation forKey:@"jumping"];
+/*
+  float duration = 5.0f;
+  float hDist = 0;
+  float vDist = 2;
+  
+  NSMutableArray *latitudes = [NSMutableArray arrayWithCapacity:21];
+  NSMutableArray *longitudes = [NSMutableArray arrayWithCapacity:21];
+  for (int i = 0; i <= 20; i++) {
+      CGFloat radians = (float)i * ((2.0f * M_PI) / 20.0f);
+
+      // Calculate the x,y coordinate using the angle
+      CGFloat x = hDist * cosf(radians);
+      CGFloat y = vDist * sinf(radians);
+
+      // Calculate the real lat and lon using the
+      // current lat and lon as center points.
+      y = marker.position.latitude + y;
+      x = marker.position.longitude + x;
+
+      [longitudes addObject:[NSNumber numberWithFloat:x]];
+      [latitudes addObject:[NSNumber numberWithFloat:y]];
+  }
+
+  CAKeyframeAnimation *horizontalAnimation = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
+  horizontalAnimation.values = longitudes;
+  horizontalAnimation.duration = duration;
+
+  CAKeyframeAnimation *verticleAnimation = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
+  verticleAnimation.values = latitudes;
+  verticleAnimation.duration = duration;
+
+  CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
+  group.animations = @[horizontalAnimation, verticleAnimation];
+  group.duration = duration;
+  group.repeatCount = HUGE_VALF;
+  [marker.layer addAnimation:group forKey:@"position"];
+*/
+
+  
+  /*
+  marker.appearAnimation = kGMSMarkerAnimationPop;
+  marker.map = nil;
+  marker.map = self.mapCtrl.map;
+  */
+  
+  
+  /*
+  GMSMarkerLayer* layer = marker.layer;
+  
+  //[CATransaction begin]; {
+    //[CATransaction setAnimationDuration: 500];
+    
+    CAKeyframeAnimation *animation = [CAKeyframeAnimation jumpAnimation];
+    animation.duration = 1.5;
+    
+    //[CATransaction setCompletionBlock:^{
+    //  NSLog(@"----done");
+      //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    //}];
+    
+    [layer addAnimation:animation forKey:@"opacity"];
+    
+  //}[CATransaction commit];
+  */
+  
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
+     NSLog(@"----done");
+
+
+}
+
+
+/**
  * @private
  * Load the icon; then set to the marker
  */
@@ -595,21 +716,4 @@
   }
   
 }
-/*
-- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
-{
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                               if ( !error )
-                               {
-                                   UIImage *image = [[UIImage alloc] initWithData:data];
-                                   completionBlock(YES,image);
-                               } else{
-                                   completionBlock(NO,nil);
-                               }
-                           }];
-}
- */
 @end

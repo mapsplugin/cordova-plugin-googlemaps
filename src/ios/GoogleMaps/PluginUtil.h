@@ -40,6 +40,10 @@
 - (void)webViewDidFinishLoad:(UIWebView*)theWebView;
 @end
 
+@interface CAKeyframeAnimation (Jumping)
++ (CAKeyframeAnimation *)jumpAnimation;
+@end
+
 
 @interface PluginUtil : NSObject
 + (BOOL)isIOS7_OR_OVER;

@@ -31,4 +31,5 @@
 - (void)remove:(CDVInvokedUrlCommand*)command;
 - (void)setPosition:(CDVInvokedUrlCommand*)command;
 - (void)setRotation:(CDVInvokedUrlCommand*)command;
+- (void)setAnimation:(CDVInvokedUrlCommand*)command;
 @end
