@@ -266,7 +266,7 @@
   NSString *base64Encoded = nil;
   #ifdef __IPHONE_7_0
     if ([PluginUtil isIOS7_OR_OVER] == true) {
-      base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64EncodedString]];
+      base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData cdv_base64EncodedString]];
     } else {
       base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
     }
