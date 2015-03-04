@@ -419,108 +419,49 @@
 
 /**
  * set animation
- * http://stackoverflow.com/a/19316475/697856
- * http://qiita.com/edo_m18/items/4309d01b67ee42c35b3c
- * http://www.cocoanetics.com/2012/06/lets-bounce/
+ * (Don't work) http://stackoverflow.com/a/19316475/697856
+ * (Don't work) http://www.cocoanetics.com/2012/06/lets-bounce/
+ * (memo) http://qiita.com/edo_m18/items/4309d01b67ee42c35b3c
+ * (memo) http://stackoverflow.com/questions/12164049/animationdidstop-for-group-animation
  */
 -(void)setAnimation:(CDVInvokedUrlCommand *)command
 {
-NSLog(@"-----setAnimation");
+  /**
+   * Marker drop animation
+   */
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
-
-
-	
-	NSMutableArray *values = [NSMutableArray array];
-  for (int i = 0; i <= 200; i++) {
-		[values addObject:[NSValue valueWithCGPoint:CGPointMake(0, i)]];
-  }
- 
-	CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"groundAnchor"];
-	animation.repeatCount = 1;
-	animation.duration = 1.5f;
-	//animation.fillMode = kCAFillModeForwards;
-	animation.values = values;
-	//animation.removedOnCompletion = YES; // final stage is equal to starting stage
-	animation.autoreverses = NO;
-
-  [animation setDelegate:self];
-  [marker.layer addAnimation:animation forKey:@"jumping"];
-/*
-  float duration = 5.0f;
-  float hDist = 0;
-  float vDist = 2;
   
-  NSMutableArray *latitudes = [NSMutableArray arrayWithCapacity:21];
-  NSMutableArray *longitudes = [NSMutableArray arrayWithCapacity:21];
-  for (int i = 0; i <= 20; i++) {
-      CGFloat radians = (float)i * ((2.0f * M_PI) / 20.0f);
-
-      // Calculate the x,y coordinate using the angle
-      CGFloat x = hDist * cosf(radians);
-      CGFloat y = vDist * sinf(radians);
-
-      // Calculate the real lat and lon using the
-      // current lat and lon as center points.
-      y = marker.position.latitude + y;
-      x = marker.position.longitude + x;
-
-      [longitudes addObject:[NSNumber numberWithFloat:x]];
-      [latitudes addObject:[NSNumber numberWithFloat:y]];
-  }
-
-  CAKeyframeAnimation *horizontalAnimation = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
-  horizontalAnimation.values = longitudes;
-  horizontalAnimation.duration = duration;
-
-  CAKeyframeAnimation *verticleAnimation = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
-  verticleAnimation.values = latitudes;
-  verticleAnimation.duration = duration;
-
+  GMSProjection *projection = self.mapCtrl.map.projection;
+  CGPoint point = [projection pointForCoordinate:marker.position];
+  point.y = 0;
+  CLLocationCoordinate2D startLatLng = [projection coordinateForPoint:point];
+  
+  double duration = .25;
+  
+  CABasicAnimation *longitudeAnim = [CABasicAnimation animationWithKeyPath:@"longitude"];
+  longitudeAnim.fromValue = [NSNumber numberWithDouble:startLatLng.longitude];
+  longitudeAnim.toValue = [NSNumber numberWithDouble:marker.position.longitude];
+  longitudeAnim.duration = duration;
+  [longitudeAnim setDelegate:self];
+  
+  
+  CABasicAnimation *latitudeAnim = [CABasicAnimation animationWithKeyPath:@"latitude"];
+  latitudeAnim.fromValue = [NSNumber numberWithDouble:startLatLng.latitude];
+  latitudeAnim.toValue = [NSNumber numberWithDouble:marker.position.latitude];
+  latitudeAnim.duration = duration;
+  [longitudeAnim setDelegate:self];
+  
   CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
-  group.animations = @[horizontalAnimation, verticleAnimation];
+  group.animations = @[longitudeAnim, latitudeAnim];
   group.duration = duration;
-  group.repeatCount = HUGE_VALF;
-  [marker.layer addAnimation:group forKey:@"position"];
-*/
+  [group setCompletionBlock:^(void){
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 
-  
-  /*
-  marker.appearAnimation = kGMSMarkerAnimationPop;
-  marker.map = nil;
-  marker.map = self.mapCtrl.map;
-  */
-  
-  
-  /*
-  GMSMarkerLayer* layer = marker.layer;
-  
-  //[CATransaction begin]; {
-    //[CATransaction setAnimationDuration: 500];
-    
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation jumpAnimation];
-    animation.duration = 1.5;
-    
-    //[CATransaction setCompletionBlock:^{
-    //  NSLog(@"----done");
-      //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    //}];
-    
-    [layer addAnimation:animation forKey:@"opacity"];
-    
-  //}[CATransaction commit];
-  */
-  
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
 }
-- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
-     NSLog(@"----done");
-
-
-}
-
 
 /**
  * @private

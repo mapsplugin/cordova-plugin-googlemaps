@@ -108,51 +108,26 @@
 @end
 
 
-@implementation CAKeyframeAnimation
-+ (CAKeyframeAnimation *)jumpAnimation
-{
-	// these three values are subject to experimentation
-	CGFloat initialMomentum = 300.0f; // positive is upwards, per sec
-	CGFloat gravityConstant = 250.0f; // downwards pull per sec
-	CGFloat dampeningFactorPerBounce = 0.6;  // percent of rebound
- 
-	// internal values for the calculation
-	CGFloat momentum = initialMomentum; // momentum starts with initial value
-	CGFloat positionOffset = 0; // we begin at the original position
-	CGFloat slicesPerSecond = 60.0f; // how many values per second to calculate
-	CGFloat lowerMomentumCutoff = 5.0f; // below this upward momentum animation ends
- 
-	CGFloat duration = 0;
-	NSMutableArray *values = [NSMutableArray array];
- 
-	do 
-	{
-		duration += 1.0f/slicesPerSecond;
-		positionOffset+=momentum/slicesPerSecond;
- 
-		if (positionOffset<0)
-		{
-			positionOffset=0;
-			momentum=-momentum*dampeningFactorPerBounce;
-		}
- 
-		// gravity pulls the momentum down
-		momentum -= gravityConstant/slicesPerSecond;
- 
-		CATransform3D transform = CATransform3DMakeTranslation(0, -positionOffset, 0);
-		[values addObject:[NSValue valueWithCATransform3D:transform]];
-	} while (!(positionOffset==0 && momentum < lowerMomentumCutoff));
- 
-	CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
-	animation.repeatCount = 1;
-	animation.duration = duration;
-	animation.fillMode = kCAFillModeForwards;
-	animation.values = values;
-	animation.removedOnCompletion = YES; // final stage is equal to starting stage
-	animation.autoreverses = NO;
- 
-	return animation;
+static char CAAnimationGroupBlockKey;
+@implementation CAAnimationGroup (Blocks)
+
+- (void)setCompletionBlock:(TIFAnimationGroupCompletionBlock)handler {
+    objc_setAssociatedObject(self, &CAAnimationGroupBlockKey, handler, OBJC_ASSOCIATION_COPY_NONATOMIC);
+
+    self.delegate = self;
 }
+
+- (void)animationDidStop:(CAAnimation *)animation finished:(BOOL)finished
+{
+    if (finished)
+    {
+        TIFAnimationGroupCompletionBlock handler = (TIFAnimationGroupCompletionBlock)objc_getAssociatedObject(self, &CAAnimationGroupBlockKey);
+        if (handler) {
+            handler();
+        }
+    }
+}
+
 @end
 
 

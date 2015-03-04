@@ -12,6 +12,9 @@
 #import <Foundation/Foundation.h>
 #import <Cordova/CDV.h>
 #import "MainViewController.h"
+#import <QuartzCore/QuartzCore.h>
+#import <objc/runtime.h>
+
 
 @interface UIView (GoogleMapsPlugin)
 - (void)setFrameWithDictionary:(NSDictionary *) params;
@@ -40,10 +43,14 @@
 - (void)webViewDidFinishLoad:(UIWebView*)theWebView;
 @end
 
-@interface CAKeyframeAnimation (Jumping)
-+ (CAKeyframeAnimation *)jumpAnimation;
+//
+// animationDidStop for group animation
+// http://stackoverflow.com/a/28051909/697856
+//
+typedef void (^TIFAnimationGroupCompletionBlock)();
+@interface CAAnimationGroup (Blocks)
+- (void)setCompletionBlock:(TIFAnimationGroupCompletionBlock)handler;
 @end
-
 
 @interface PluginUtil : NSObject
 + (BOOL)isIOS7_OR_OVER;
