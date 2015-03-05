@@ -228,6 +228,11 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
 App.prototype._onMapEvent = function(eventName) {
   var args = [eventName];
   for (var i = 1; i < arguments.length; i++) {
+    if (typeof(arguments[i]) === "string") {
+      if (["true", "false"].indexOf(arguments[i].toLowerCase()) > -1) {
+        arguments[i] = parseBoolean(arguments[i]);
+      }
+    }
     args.push(arguments[i]);
   }
   args.push(this);
