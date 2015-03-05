@@ -432,6 +432,54 @@
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
+  int duration = 1;
+  
+  CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
+  CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
+  
+  GMSProjection *projection = self.mapCtrl.map.projection;
+  CGPoint point = [projection pointForCoordinate:marker.position];
+  double distance = point.y ;
+  
+  NSMutableArray *latitudePath = [NSMutableArray array];
+  NSMutableArray *longitudeath = [NSMutableArray array];
+  CLLocationCoordinate2D startLatLng;
+  
+  point.y = 0;
+  for (double i = 0.75f; i > 0; i-= 0.25f) {
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+    
+    point.y = distance;
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+    
+    point.y = distance - distance * (i - 0.25f);
+  }
+  longitudeAnim.values = longitudeath;
+  latitudeAnim.values = latitudePath;
+  
+  CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
+  group.animations = @[longitudeAnim, latitudeAnim];
+  group.duration = duration;
+  [group setCompletionBlock:^(void){
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+  
+  [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
+
+}
+-(void)setAnimationNoDrop:(CDVInvokedUrlCommand *)command
+{
+  /**
+   * Marker drop animation
+   */
+  NSString *markerKey = [command.arguments objectAtIndex:1];
+  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  
   GMSProjection *projection = self.mapCtrl.map.projection;
   CGPoint point = [projection pointForCoordinate:marker.position];
   point.y = 0;
