@@ -38,6 +38,7 @@
     [params addObject:[NSString stringWithFormat:@"x-success=%@://?resume=true", bundleIdentifier, nil]];
     
     NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    appName = [appName stringByReplacingOccurrencesOfString:@" " withString:@""];
     [params addObject:[NSString stringWithFormat:@"x-source=%@", appName, nil]];
     
     directionsRequest =

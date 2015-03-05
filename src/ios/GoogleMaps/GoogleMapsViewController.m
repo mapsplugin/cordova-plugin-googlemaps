@@ -308,7 +308,10 @@ NSDictionary *initOptions;
   [json setObject:[NSNumber numberWithFloat:position.zoom] forKey:@"zoom"];
   
   
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onCameraEvent('%@', %@);", eventName, [json JSONString]];
+  NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
+  NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onCameraEvent('%@', %@);", eventName, sourceArrayString];
+
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 

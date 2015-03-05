@@ -26,7 +26,6 @@
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
-@property (nonatomic) UIView *root;
 @property (nonatomic) MyPluginLayer *pluginLayer;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
