@@ -7,7 +7,6 @@
 //
 
 #import "Marker.h"
-
 @implementation Marker
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -69,6 +68,7 @@
   [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
   [self.mapCtrl.overlayManager setObject:properties forKey: markerPropertyId];
   
+  
   // Create icon
   NSMutableDictionary *iconProperty = nil;
   NSObject *icon = [json valueForKey:@"icon"];
@@ -80,6 +80,18 @@
     iconProperty = [json valueForKey:@"icon"];
   }
   
+  NSLog(@"---- animation");
+  // Animation
+  NSString *animation = nil;
+  if ([json valueForKey:@"animation"]) {
+    animation = [json valueForKey:@"animation"];
+  NSLog(@"---- animation property = %@", animation);
+    if (iconProperty) {
+      [iconProperty setObject:animation forKey:@"animation"];
+    }
+  }
+  
+  NSLog(@"---- result");
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
   [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
@@ -89,15 +101,26 @@
     if ([json valueForKey:@"infoWindowAnchor"]) {
       [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
     }
+    
+    // Send an temporally signal at once
+  NSLog(@"---- Send  CDVCommandStatus_NO_RESULT");
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   
+    // Load icon in asynchronise
+    
+  NSLog(@"---- before setIcon_");
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
     [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+    
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    if (animation) {
+      [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
+    } else {
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
   }
 }
 
@@ -401,37 +424,43 @@
 }
 
 
-/**
- * http://stackoverflow.com/questions/22678575/gmsmarker-opacity-animation-not-repeating
- */
--(void)fadeOutAnimation:(CDVInvokedUrlCommand *)command
+-(void)setAnimation:(CDVInvokedUrlCommand *)command
 {
   NSString *markerKey = [command.arguments objectAtIndex:1];
   GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
   
-  CABasicAnimation *blink = [CABasicAnimation animationWithKeyPath:@"opacity"];
-  blink.fromValue = [NSNumber numberWithFloat:1.0];
-  blink.toValue = [NSNumber numberWithFloat:0.0];
-  blink.duration = 1.5;
-  [blink setDelegate:self];
-  [marker.layer addAnimation:blink forKey:@"blinkmarker"];
+  NSString *animation = [command.arguments objectAtIndex:2];
+  
+  CDVPluginResult* successResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self setMarkerAnimation_:animation marker:marker pluginResult:successResult callbackId:command.callbackId];
+}
+
+-(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId {
+  
+  animation = [animation uppercaseString];
+  SWITCH(animation) {
+    CASE (@"DROP") {
+      [self setDropAnimation_:marker pluginResult:pluginResult callbackId:callbackId];
+      break;
+    }
+    CASE (@"BOUNCE") {
+      [self setBounceAnimation_:marker pluginResult:pluginResult callbackId:callbackId];
+      break;
+    }
+    DEFAULT {
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+      break;
+    }
+  }
 }
 
 /**
  * set animation
- * (Don't work) http://stackoverflow.com/a/19316475/697856
- * (Don't work) http://www.cocoanetics.com/2012/06/lets-bounce/
+ * (memo) http://stackoverflow.com/a/19316475/697856
  * (memo) http://qiita.com/edo_m18/items/4309d01b67ee42c35b3c
  * (memo) http://stackoverflow.com/questions/12164049/animationdidstop-for-group-animation
  */
--(void)setAnimation:(CDVInvokedUrlCommand *)command
-{
-  /**
-   * Marker drop animation
-   */
-  NSString *markerKey = [command.arguments objectAtIndex:1];
-  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
-  
+-(void)setDropAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId {
   int duration = 1;
   
   CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
@@ -465,50 +494,55 @@
   group.animations = @[longitudeAnim, latitudeAnim];
   group.duration = duration;
   [group setCompletionBlock:^(void){
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
   }];
   
   [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
 
 }
--(void)setAnimationNoDrop:(CDVInvokedUrlCommand *)command
+-(void)setBounceAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId
 {
   /**
    * Marker drop animation
    */
-  NSString *markerKey = [command.arguments objectAtIndex:1];
-  GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+  int duration = 1;
+  
+  CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
+  CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
   
   GMSProjection *projection = self.mapCtrl.map.projection;
   CGPoint point = [projection pointForCoordinate:marker.position];
-  point.y = 0;
-  CLLocationCoordinate2D startLatLng = [projection coordinateForPoint:point];
+  double distance = point.y;
   
-  double duration = .25;
+  NSMutableArray *latitudePath = [NSMutableArray array];
+  NSMutableArray *longitudeath = [NSMutableArray array];
+  CLLocationCoordinate2D startLatLng;
   
-  CABasicAnimation *longitudeAnim = [CABasicAnimation animationWithKeyPath:@"longitude"];
-  longitudeAnim.fromValue = [NSNumber numberWithDouble:startLatLng.longitude];
-  longitudeAnim.toValue = [NSNumber numberWithDouble:marker.position.longitude];
-  longitudeAnim.duration = duration;
-  [longitudeAnim setDelegate:self];
+  point.y = distance * 0.5f;
   
-  
-  CABasicAnimation *latitudeAnim = [CABasicAnimation animationWithKeyPath:@"latitude"];
-  latitudeAnim.fromValue = [NSNumber numberWithDouble:startLatLng.latitude];
-  latitudeAnim.toValue = [NSNumber numberWithDouble:marker.position.latitude];
-  latitudeAnim.duration = duration;
-  [longitudeAnim setDelegate:self];
+  for (double i = 0.5f; i > 0; i-= 0.15f) {
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+    
+    point.y = distance;
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+    
+    point.y = distance - distance * (i - 0.15f);
+  }
+  longitudeAnim.values = longitudeath;
+  latitudeAnim.values = latitudePath;
   
   CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
   group.animations = @[longitudeAnim, latitudeAnim];
   group.duration = duration;
   [group setCompletionBlock:^(void){
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
   }];
-
-  [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
+  
+  [marker.layer addAnimation:group forKey:@"bounceMarkerAnim"];
 }
 
 /**
@@ -518,21 +552,29 @@
 -(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
                 pluginResult:(CDVPluginResult *)pluginResult
                 callbackId:(NSString*)callbackId {
+  NSLog(@"---- setIcon_");
   NSString *iconPath = nil;
   CGFloat width = 0;
   CGFloat height = 0;
   CGFloat anchorX = 0;
   CGFloat anchorY = 0;
   
-  // The `url` property
+  // `url` property
   iconPath = [iconProperty valueForKey:@"url"];
   
-  // The `size` property
+  // `size` property
   if ([iconProperty valueForKey:@"size"]) {
     NSDictionary *size = [iconProperty valueForKey:@"size"];
     width = [[size objectForKey:@"width"] floatValue];
     height = [[size objectForKey:@"height"] floatValue];
   }
+  
+  // `animation` property
+  NSString *animationValue = nil;
+  if ([iconProperty valueForKey:@"animation"]) {
+    animationValue = [iconProperty valueForKey:@"animation"];
+  }
+  __block NSString *animation = animationValue;
 
   if (iconPath) {
     NSRange range = [iconPath rangeOfString:@"http"];
@@ -647,8 +689,16 @@
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
         marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
       }
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+      
+      if (animation) {
+        // Do animation, then send the result
+        [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+      } else {
+        // Send the result
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+      }
     } else {
+      NSLog(@"---- Load the icon from over the internet");
       /***
        * Load the icon from over the internet
        */
@@ -688,7 +738,16 @@
           }
           
           marker.map = self.mapCtrl.map;
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+          
+          if (animation) {
+            // Do animation, then send the result
+            NSLog(@"---- do animation animation = %@", animation);
+            [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+          } else {
+            // Send the result
+            NSLog(@"---- no marker animation");
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+          }
           
         });
         
@@ -697,7 +756,15 @@
       
       [request setFailedHandler:^(NSError *error){
         marker.map = self.mapCtrl.map;
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        
+        NSLog(@"---- marker icon loading error");
+        if (animation) {
+          // Do animation, then send the result
+          [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+        } else {
+          // Send the result
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        }
       }];
       
       [request startRequest];

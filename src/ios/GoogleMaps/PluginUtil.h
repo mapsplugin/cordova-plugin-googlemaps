@@ -15,6 +15,11 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
+// Switch statement in Objective-C
+//http://qiita.com/GeneralD/items/5a05f176ac2321e7a51b
+#define CASE(str) if ([__s__ isEqualToString:(str)])
+#define SWITCH(s) for (NSString *__s__ = (s); __s__; __s__ = nil)
+#define DEFAULT
 
 @interface UIView (GoogleMapsPlugin)
 - (void)setFrameWithDictionary:(NSDictionary *) params;
