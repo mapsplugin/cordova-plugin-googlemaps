@@ -40,7 +40,7 @@ config.xml
 ant-build/
 ant-gen/
 plugins/
-#platforms/
+platforms/
 hooks/
 
 out/
