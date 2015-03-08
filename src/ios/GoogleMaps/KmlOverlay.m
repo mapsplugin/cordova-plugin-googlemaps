@@ -576,6 +576,7 @@
 
 
 -(NSMutableArray *)_parseKMLColor:(NSString *)ARGB {
+  ARGB = [ARGB stringByReplacingOccurrencesOfString:@"#" withString:@""];
   NSMutableArray *rgbaArray = [NSMutableArray array];
   NSString *hexStr;
   NSString *RGBA = [NSString stringWithFormat:@"%@%@",
