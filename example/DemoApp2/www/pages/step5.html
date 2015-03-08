@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="description">
+    <strong>Step5: Draw a circle</strong>
+    <p>Drawing a circle is really easy. Just call map.addCircle();</p>
+    
+    <pre class="prettyprint lang-js">
+map.addCircle({
+  'center': result.latLng,
+  'radius': 100, //100m
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, onCircleAdded);
+function onCircleAdded(circle) {
+  
+}
+</pre>
+<button id="nextBtn">Execute &amp; next</button>
+  </div>
+  
+</div>
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#nextBtn").one("touchStart click", function() {
+    
+    $(".container").addClass("animated rotateOutDownRight");
+    $(".container").one('webkitAnimationEnd animationend', function() {
+      $(".container").remove();
+      
+      var onCircleAdded = function(circle) {
+        setTimeout(function() {
+          loadPage("step6", result);
+        }, 2000);
+      };
+      
+      map.addCircle({
+        'center': result.latLng,
+        'radius': 100,
+        'strokeColor' : '#AA00FF',
+        'strokeWidth': 5,
+        'fillColor' : '#880000'
+      }, onCircleAdded);
+    });
+    
+  });
+  
+});
+</script>

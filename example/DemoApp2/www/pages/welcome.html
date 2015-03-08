@@ -1,0 +1,51 @@
+<style type="text/css">
+  .container {
+    background-color: #FFFFFF;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  div#image {
+    position: relative;
+    width: 100%;
+    height: 50%;
+    background-image: url("images/welcome_img.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: auto 46%;
+  }
+  div#title {
+    position: relative;
+    width: 100%;
+    height: 10%;
+    word-wrap: keep-all;
+  }
+  p {
+    word-wrap: keep-all;
+  }
+  
+</style>
+<div class="container">
+  <div id="image"></div>
+  <div id="title"><strong>Welcome to PhoneGap-GoogleMaps-Plugin version 1.2.5</strong></div>
+  <p>This demo application is created using <a href="http://cordova.apache.org/" target="_blank">Apache Cordova</a> and <a href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin" target="_blank">PhoneGap-GoogleMaps-Plugin</a>.</p>
+  <button>Let's start demo!</button>
+</div>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function() {
+  
+  $("button").one("click", function() {
+    $('#image').addClass('animated flip');
+    $('#image').one('webkitAnimationEnd animationend', function function_name (argument) {
+      loadPage("step1");
+    });
+  });
+  
+});
+</script>

@@ -1,0 +1,34 @@
+<div class="container">
+  <div class="description">
+    <strong>Step1: Display a map</strong>
+    <p>Let's display a map in the app. The code is very simple like this:</p>
+    <pre class="prettyprint lang-js">
+document.addElement("deviceready", function() {
+  // Intiailize the map instance.
+  var map = plugin.google.maps.Map.getMap(mapDiv);
+  
+  // Wait until the map is ready.
+  map.on(plugin.google.maps.event.MAP_READY, function() {
+    // Google Map is displayed.
+  });
+});</pre>
+<button id="nextBtn">Execute &amp; next</button>
+  </div>
+  
+</div>
+<script type="text/javascript">
+$(document).one("pageLoad", function() {
+  
+  $("#nextBtn").one("touchStart click", function() {
+    map.setDiv($("#map_canvas")[0]);
+  
+    $(".container").addClass("animated bounceOut");
+    $(".container").one('webkitAnimationEnd animationend', function() {
+      $(".container").remove();
+      setTimeout(function() {
+        loadPage("step2");
+      }, 5000);
+    });
+  });
+});
+</script>

@@ -1,0 +1,46 @@
+<div class="container">
+  <div class="description">
+    <strong>Step3: Zoom in to your location</strong>
+    <p>You can zoom-in to the specified location with animation easily!</p>
+    
+    <pre class="prettyprint lang-js">
+function onLocationSuccess(result) {
+  map.animationCamera({
+    //tilt: 10,
+    //bearing: 230,
+    target: result.latLng,
+    zoom: 17
+  }, onAnimationFinished);
+}
+function onAnimationFinished() {
+  alert("Animation finished!");
+}
+</pre>
+<button id="nextBtn">Execute &amp; next</button>
+  </div>
+  
+</div>
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#nextBtn").one("touchStart click", function() {
+    var onFinished = function(params) {
+      setTimeout(function() {
+        loadPage("step4", result);
+      }, 5000);
+    };
+    
+    $(".container").addClass("animated fadeOutDownBig");
+    $(".container").one('webkitAnimationEnd animationend', function() {
+      $(".container").remove();
+      map.animateCamera({
+        tilt: 10,
+        bearing: 230,
+        target: result.latLng,
+        zoom: 17
+      }, onFinished);
+    });
+  });
+});
+</script>
