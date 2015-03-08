@@ -2178,7 +2178,9 @@ cordova.addConstructor(function() {
   window.plugin.google = window.plugin.google || {};
   window.plugin.google.maps = window.plugin.google.maps || module.exports;
 });
-window.addEventListener("orientationchange", onMapResize);
+window.addEventListener("orientationchange", function() {
+  setTimeout(onMapResize, 1000);
+});
 
 
 function getAllChildren(root) {
