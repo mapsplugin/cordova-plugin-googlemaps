@@ -1,5 +1,7 @@
 package plugin.google.maps;
 
+import java.io.InputStream;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
@@ -8,24 +10,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 
 public class PluginGroundOverlay extends MyPlugin {
-  private BitmapDescriptor dummyImg;
-  
-  @SuppressLint("UseSparseArrays")
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    super.initialize(cordova, webView);
-    Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-    this.dummyImg = BitmapDescriptorFactory.fromBitmap(bitmap);
-  }
 
   /**
    * Create ground overlay
@@ -35,80 +32,125 @@ public class PluginGroundOverlay extends MyPlugin {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void createGroundOverlay(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-
+  private void createGroundOverlay(JSONArray args, CallbackContext callbackContext) throws JSONException {
     JSONObject opts = args.getJSONObject(1);
-
+    _createGroundOverlay(opts, callbackContext);
+  }
+  
+  private void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
     GroundOverlayOptions options = new GroundOverlayOptions();
-    
+
+    Log.d("Marker", "---->anchor");
     if (opts.has("anchor")) {
       JSONArray anchor = opts.getJSONArray("anchor");
       options.anchor((float)anchor.getDouble(0), (float)anchor.getDouble(1));
     }
+    Log.d("Marker", "---->bearing");
     if (opts.has("bearing")) {
       options.bearing((float)opts.getDouble("bearing"));
     }
+    Log.d("Marker", "---->opacity");
     if (opts.has("opacity")) {
       options.transparency(1 - (float)opts.getDouble("opacity"));
     }
+    Log.d("Marker", "---->zIndex");
     if (opts.has("zIndex")) {
       options.zIndex((float)opts.getDouble("zIndex"));
     }
+    Log.d("Marker", "---->visible");
     if (opts.has("visible")) {
       options.visible(opts.getBoolean("visible"));
     }
-    
+
+    Log.d("Marker", "---->bounds");
     if (opts.has("bounds") == true) {
       JSONArray points = opts.getJSONArray("bounds");
       LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
       options.positionFromBounds(bounds);
     }
 
-    // Load a dummy image
-    options.image(this.dummyImg);
-    
-    GroundOverlay groundOverlay = this.map.addGroundOverlay(options);
-    
+    Log.d("Marker", "---->url");
     // Load image
     String url = opts.getString("url");
-    _setImage(groundOverlay, url, callbackContext);
+    _setImage(url, options, new PluginAsyncInterface() {
+
+      @Override
+      public void onPostExecute(Object object) {
+        GroundOverlay groundOverlay = (GroundOverlay)object;
+
+        String id = "groundOverlay_" + groundOverlay.getId();
+        PluginGroundOverlay.this.objects.put(id, groundOverlay);
+
+        JSONObject result = new JSONObject();
+        try {
+          result.put("hashCode", groundOverlay.hashCode());
+          result.put("id", id);
+          
+          PluginGroundOverlay.this.objects.put("gOverlay_property_" + groundOverlay.getId(), opts);
+        } catch (Exception e) {}
+        callbackContext.success(result);
+      }
+
+      @Override
+      public void onError(String errorMsg) {
+        callbackContext.error(errorMsg);
+      }
+      
+    });
   }
-  private void _setImage(final GroundOverlay groundOverlay, final String url, final CallbackContext callbackContext) {
+  private void _setImage(final String url, final GroundOverlayOptions options, final PluginAsyncInterface callback) {
+    Log.d("Marker", "---->_setImage");
     if (url != null && url.length() > 0) {
       if (url.indexOf("http") == 0) {
+        Log.d("Marker", "---->http");
+        
         AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
 
           @Override
           public void onPostExecute(Bitmap image) {
             if (image == null) {
-              callbackContext.error("Can not load image from " + url);
+              callback.onError("Can not load image from " + url);
               return;
             }
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-            groundOverlay.setImage(bitmapDescriptor);
-            _success(groundOverlay, callbackContext);
+            if (bitmapDescriptor != null) {
+              options.image(bitmapDescriptor);
+              GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
+              callback.onPostExecute(groundOverlay);
+            } else {
+              callback.onError("Can not load image from " + url);
+            }
           }
         
         });
         task.execute(url);
       } else {
-        groundOverlay.setImage(BitmapDescriptorFactory.fromAsset(url));
-        _success(groundOverlay, callbackContext);
+        Log.d("Marker", "---->local url = " + url);
+        
+        AssetManager assetManager = PluginGroundOverlay.this.cordova.getActivity().getAssets();
+        InputStream inputStream;
+        Bitmap image = null;
+        try {
+          inputStream = assetManager.open(url);
+          image = BitmapFactory.decodeStream(inputStream);
+          
+          BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+          if (bitmapDescriptor != null) {
+            options.image(bitmapDescriptor);
+            GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
+            callback.onPostExecute(groundOverlay);
+          } else {
+            callback.onError("Can not load image from " + url);
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+          callback.onError("Can not load image from " + url);
+        }
+        return;
       }
+    } else {
+      callback.onError("The url property is empty");
     }
-  }
-  
-  private void _success(GroundOverlay groundOverlay, CallbackContext callbackContext) {
-
-    String id = "groundOverlay_" + groundOverlay.getId();
-    this.objects.put(id, groundOverlay);
-
-    JSONObject result = new JSONObject();
-    try {
-      result.put("hashCode", groundOverlay.hashCode());
-      result.put("id", id);
-    } catch (Exception e) {}
-    callbackContext.success(result);
   }
 
   /**
@@ -124,6 +166,9 @@ public class PluginGroundOverlay extends MyPlugin {
       this.sendNoResult(callbackContext);
       return;
     }
+
+    String propertyId = "gOverlay_property_" + id;
+    this.objects.remove(propertyId);
     groundOverlay.remove();
     this.sendNoResult(callbackContext);
   }
@@ -160,8 +205,11 @@ public class PluginGroundOverlay extends MyPlugin {
     GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
     String url = args.getString(2);
     
-    // Load image
-    _setImage(groundOverlay, url, callbackContext);
+    String propertyId = "gOverlay_property_" + id;
+    JSONObject opts = (JSONObject) this.objects.get(propertyId);
+    opts.put("url", url);
+    
+    _createGroundOverlay(opts, callbackContext);
   }
   
 

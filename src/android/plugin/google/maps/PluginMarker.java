@@ -144,10 +144,11 @@ public class PluginMarker extends MyPlugin {
       if (opts.has("animation")) {
         bundle.putString("animation", opts.getString("animation"));
       }
-      this.setIcon_(marker, bundle, new PluginMarkerInterface() {
+      this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
-        public void onPostExecute(Marker marker) {
+        public void onPostExecute(Object object) {
+          Marker marker = (Marker)object;
           if (opts.has("visible")) {
             try {
               marker.setVisible(opts.getBoolean("visible"));
@@ -167,18 +168,28 @@ public class PluginMarker extends MyPlugin {
             }
           }
           if (markerAnimation != null) {
-            PluginMarker.this.setMarkerAnimation_(marker, markerAnimation, new PluginMarkerInterface() {
+            PluginMarker.this.setMarkerAnimation_(marker, markerAnimation, new PluginAsyncInterface() {
 
               @Override
-              public void onPostExecute(Marker marker) {
+              public void onPostExecute(Object object) {
+                Marker marker = (Marker)object;
                 callbackContext.success(result);
               }
-              
+
+              @Override
+              public void onError(String errorMsg) {
+                callbackContext.error(errorMsg);
+              }
             });
           } else {
             callbackContext.success(result);
           }
           callbackContext.success(result);
+        }
+
+        @Override
+        public void onError(String errorMsg) {
+          callbackContext.error(errorMsg);
         }
         
       });
@@ -189,11 +200,16 @@ public class PluginMarker extends MyPlugin {
       }
       if (markerAnimation != null) {
         // Execute animation
-        this.setMarkerAnimation_(marker, markerAnimation, new PluginMarkerInterface() {
+        this.setMarkerAnimation_(marker, markerAnimation, new PluginAsyncInterface() {
 
           @Override
-          public void onPostExecute(Marker marker) {
+          public void onPostExecute(Object object) {
             callbackContext.success(result);
+          }
+          
+          @Override
+          public void onError(String errorMsg) {
+            callbackContext.error(errorMsg);
           }
           
         });
@@ -205,7 +221,7 @@ public class PluginMarker extends MyPlugin {
     
   }
   
-  private void setDropAnimation_(final Marker marker, final PluginMarkerInterface callback) {
+  private void setDropAnimation_(final Marker marker, final PluginAsyncInterface callback) {
     final Handler handler = new Handler();
     final long startTime = SystemClock.uptimeMillis();
     final long duration = 100;
@@ -241,7 +257,7 @@ public class PluginMarker extends MyPlugin {
    * Bounce animation
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
    */
-  private void setBounceAnimation_(final Marker marker, final PluginMarkerInterface callback) {
+  private void setBounceAnimation_(final Marker marker, final PluginAsyncInterface callback) {
     final Handler handler = new Handler();
     final long startTime = SystemClock.uptimeMillis();
     final long duration = 2000;
@@ -274,7 +290,7 @@ public class PluginMarker extends MyPlugin {
     });
   }
   
-  private void setMarkerAnimation_(Marker marker, String animationType, PluginMarkerInterface callback) {
+  private void setMarkerAnimation_(Marker marker, String animationType, PluginAsyncInterface callback) {
     Animation animation = null;
     try {
       animation = Animation.valueOf(animationType.toUpperCase());
@@ -314,11 +330,15 @@ public class PluginMarker extends MyPlugin {
     Log.d("CordovaLog", "id=" + id + ", animation = " + animation);
     final Marker marker = this.getMarker(id);
     
-    this.setMarkerAnimation_(marker, animation, new PluginMarkerInterface() {
+    this.setMarkerAnimation_(marker, animation, new PluginAsyncInterface() {
 
       @Override
-      public void onPostExecute(Marker marker) {
+      public void onPostExecute(Object object) {
         callbackContext.success();
+      }
+      @Override
+      public void onError(String errorMsg) {
+        callbackContext.error(errorMsg);
       }
       
     });
@@ -605,20 +625,24 @@ public class PluginMarker extends MyPlugin {
       bundle.putString("url", (String)value);
     }
     if (bundle != null) {
-      this.setIcon_(marker, bundle, new PluginMarkerInterface() {
+      this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
-        public void onPostExecute(Marker marker) {
+        public void onPostExecute(Object object) {
           PluginMarker.this.sendNoResult(callbackContext);
         }
-        
+
+        @Override
+        public void onError(String errorMsg) {
+          callbackContext.error(errorMsg);
+        }
       });
     } else {
       this.sendNoResult(callbackContext);
     }
   }
   
-  private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginMarkerInterface callback) {
+  private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
     String iconUrl = iconProperty.getString("url");
     if (iconUrl == null) {
       callback.onPostExecute(marker);
@@ -662,10 +686,12 @@ public class PluginMarker extends MyPlugin {
               image = BitmapFactory.decodeStream(inputStream);
             } catch (IOException e) {
               e.printStackTrace();
+              callback.onPostExecute(marker);
               return null;
             }
           }
           if (image == null) {
+            callback.onPostExecute(marker);
             return null;
           }
           
