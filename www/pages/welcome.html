@@ -1,192 +1,51 @@
 <style type="text/css">
-
-
-#map_canvas {
-  position: fixed;
-  width: auto;
-  height: auto;
-}
-#introduction {
-  position: fixed;
-  background-color: #966D73;
-  padding :10px;
-  color: white;
-  line-height: 1.5em;
-  background-size: 25%;
-  background-position: right bottom;
-  background-repeat: no-repeat;
-}
-@media only screen and (orientation:portrait) {
-  /* For portrait layouts only */
-  #map_canvas {
-    top: 50px;
+  .container {
+    background-color: #FFFFFF;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: absolute;
     left: 0;
-    right: 0;
-    bottom: 33%;
+    top: 0;
+  }
+  div#image {
+    position: relative;
+    width: 100%;
+    height: 50%;
+    background-image: url("images/welcome_img.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: auto 46%;
+  }
+  div#title {
+    position: relative;
+    width: 100%;
+    height: 10%;
+    word-wrap: keep-all;
+  }
+  p {
+    word-wrap: keep-all;
   }
   
-  #introduction {
-    top: 68%;
-    left: 0;
-    right: 0;
-    bottom: 10px;
-  }
-}
-
-@media only screen and (orientation:landscape) {
-  /* For landscape layouts only */
- #map_canvas {
-    top: 50px;
-    left: 50%;
-    right: 0;
-    bottom: 5%;
-  }
-  
-  #introduction {
-    top: 70px;
-    right: 50%;
-    left: 0;
-    bottom: auto;
-  }
-}
-.title {
-  font-size: 1.3em;
-  font-weight: bold;
-}
-#demoBtn {
-  position: absolute !important;
-  left: 20% !important;
-  width: 60% !important;
-  bottom: 5% !important;
-}
-
-#infoWnd_frame {
-  position: absolute;
-  width: 200px;
-  height: 144px;
-  background-image: url("images/myinfo.png");
-  background-size: contain;
-}
-#infoWnd_body {
-  position: absolute;
-  width: 144px;
-  height: 66px;
-  left: 24px;
-  top: 28px;
-}
 </style>
-<div id="map_canvas">
-  <button id="demoBtn">Touch me!</button>
-</div>
-
-<div id="introduction" >
-  <div class="title">PhoneGap-GoogleMaps-Plugin</div>
-  <p>This plugin brings Google Maps native view into your PhoneGap App! As of v1.2.0, you can put any HTMLs on the map.</p>
-  <p>Thus, you can create your app more flexisible!</p>
+<div class="container">
+  <div id="image"></div>
+  <div id="title"><strong>Welcome to PhoneGap-GoogleMaps-Plugin version 1.2.5</strong></div>
+  <p>This demo application is created using <a href="http://cordova.apache.org/" target="_blank">Apache Cordova</a> and <a href="https://github.com/wf9a5m75/phonegap-googlemaps-plugin" target="_blank">PhoneGap-GoogleMaps-Plugin</a>.</p>
+  <button>Let's start demo!</button>
 </div>
 
 <script type="text/javascript">
-var timer = null;
-var myInfo = null;
-$(document).one("pageLeave", function() {
-  if (timer) {
-    clearInterval(timer);
-  }
-});
-$(document).one("pageLoad", function(event, map) {
+$(document).one("pageLoad", function() {
   
-  $("#demoBtn").click(function() {
-    $("#infoWnd_frame").trigger("remove");
-    
-    map.clear();
-    
-    map.moveCamera({
-      'zoom': 0,
-      'tilt': 0
-    });
-    
-    map.getMyLocation({
-      enableHighAccuracy: true
-    }, function(location) {
-      map.addMarker({
-        'position': location.latLng,
-        "mytitle": ["Hello Google Map", "for PhoneGap &", "Apache Cordova!"].join("\n")
-      }, function(marker) {
-        marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
-        
-        map.animateCamera({
-          'target': location.latLng,
-          'zoom': 17,
-          'tilt': 80
-        }, function() {
-          setTimeout(function() {
-            marker.trigger(plugin.google.maps.event.MARKER_CLICK);
-          }, 1500);
-        });
-      }, function(error) {
-        alert(error.message);
-      });
-      
+  $("button").one("click", function() {
+    $('#image').addClass('animated flip');
+    $('#image').one('webkitAnimationEnd animationend', function function_name (argument) {
+      loadPage("step1");
     });
   });
+  
 });
-function onMarkerClicked() {
-  var marker = this;
-  var map = marker.getMap();
-  if (!myInfo) {
-    myInfo = createMyInfo(marker);
-  }
-  
-}
-
-function createMyInfo(marker) {
-  
-  var frame = $("<div id='infoWnd_frame'>");
-  var map = marker.getMap();
-  var beforePoint = [];
-  var updatePosition = function() {
-    map.fromLatLngToPoint(marker.get("position"), function(point) {
-      if (beforePoint[0] != point[0] || beforePoint[1] != point[1]) {
-        frame.css({
-          "left": point[0] - 108,
-          "top": point[1] - 180
-        });
-        // Update the children position.
-        map.refreshLayout();
-      }
-      beforePoint = point;
-    });
-  };
-  timer = setInterval(updatePosition, 200);
-  
-  var removeInfoWnd = function() {
-    clearInterval(timer);
-    frame.remove();
-    frmae = null;
-    timer = null;
-    map.off();
-  };
-  frame.on("click", removeInfoWnd);
-  map.on(plugin.google.maps.event.MAP_CLICK, removeInfoWnd);
-  frame.one("remove", removeInfoWnd);
-  
-  $("<div id='infoWnd_body'>").text(marker.get("mytitle")).appendTo(frame);
-  
-  map.fromLatLngToPoint(marker.get("position"), function(point) {
-    
-    frame.css({
-      "left": point[0] - 108,
-      "top": point[1] - 180
-    });
-    
-    // Update the children position.
-    map.refreshLayout();
-    
-    $("#map_canvas").append(frame);
-    
-    beforePoint = point;
-  });
-}
 </script>
-
-</code>

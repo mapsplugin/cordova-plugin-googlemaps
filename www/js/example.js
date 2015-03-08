@@ -15,75 +15,37 @@ window.onerror = function(message, file, line) {
   }
   alert(error.join("\n"));
 };
-
-/**
- * Start from here
- */
+$(document).ready(function(){
+  var pageWidth = window.innerWidth || 
+                  document.documentElement.clientWidth ||
+                  document.body.clientWidth;
+  $("body").css({
+    "fontSize": (pageWidth * 0.02) + "px"
+  });
+});
+var map = null;
 $(document).on("deviceready", function() {
-  var map = plugin.google.maps.Map.getMap();
-  
-  $("li[action]").click(function() {
-    $("#menulist").panel("close");
-    
-    // Map.clear() method removes all mark-ups, such as marker.
-    map.clear();
-    
-    // Map.off() method removes all event listeners.
-    map.off();
-    
-    var action = $(this).attr("action");
-    loadPage(map, action);
-  });
-  
-  /**
-   * The side menu overlays above the map, but it's not the children of the map div.
-   * In this case, you must call map.setClickable(false) to be able to click the side menu.
-   */
-  function onSideMenuClose() {
-    map.setClickable(true);
-  }
-  
-  function onSideMenuOpen() {
-    map.setClickable(false);
-  }
-  
-  $("#menulist").panel({
-    "close": onSideMenuClose,
-    "open": onSideMenuOpen
-  });
-  
-  loadPage(map, "test");
+  map = plugin.google.maps.Map.getMap();
+  map.on(plugin.google.maps.event.MAP_READY, onMapReady);
 });
 
-/**
- * Change the embed page view.
- * @param {Object} map
- * @param {String} pageName
- */
-function loadPage(map, pageName) {
-  $(document).trigger("pageLeave", map);
-  $.get("./pages/" + pageName + ".html", function(html) {
-    $("#container").html(html);
-    $.mobile.activePage.trigger("create");
+function onMapReady() {
+  loadPage("welcome");
+}
+
+function loadPage(tmplName, params) {
+  $(document).trigger("pageLeave");
+  
+  $.get("./pages/" + tmplName + ".html", function(html) {
+    $("#map_canvas").html(html);
     
-    // PrettyPrint
-    // @refer https://code.google.com/p/google-code-prettify/
-    if (typeof prettyPrint === "function") {
-      prettyPrint();
-    }
-    
-    map.clear();
     map.off();
     
-    // Embed a map into the div tag.
-    var div = $("#map_canvas")[0];
-    if (div) {
-      map.setDiv(div);
-    }
+    prettyPrint();
     
     // Execute the code
     setTimeout(function() {
-      $(document).trigger("pageLoad", map);
+      $(document).trigger("pageLoad", [params]);
     }, 1000);
   });
 }
