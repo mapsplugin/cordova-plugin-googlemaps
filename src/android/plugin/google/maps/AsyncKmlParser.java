@@ -486,6 +486,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   
   private JSONArray kmlColor2PluginColor(String colorStr) {
     JSONArray rgba = new JSONArray();
+    colorStr = colorStr.replace("#", "");
     for (int i = 2; i < 8; i+=2) {
       rgba.put(Integer.parseInt(colorStr.substring(i, i + 2), 16));
     }
