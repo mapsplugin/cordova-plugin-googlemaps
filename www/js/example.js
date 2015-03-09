@@ -29,8 +29,14 @@ $(document).on("deviceready", function() {
   map.on(plugin.google.maps.event.MAP_READY, onMapReady);
 });
 
+$("body").on("touchstart", function() {
+  console.log("touchstart on body");
+});
+$("body").on("touchend", function() {
+  console.log("touchend on body");
+});
 function onMapReady() {
-  loadPage("welcome");
+  loadPage("test");
 }
 
 function loadPage(tmplName, params) {
@@ -41,6 +47,21 @@ function loadPage(tmplName, params) {
     
     map.off();
     
+map.on("touchstart", function(point, latLng) {
+  console.log("touchstart, " + point + " / " + latLng);
+});
+map.on("touchend", function(point, latLng) {
+  console.log("touchend, " + point + " / " + latLng);
+});
+map.on("touchleave", function(point, latLng) {
+  console.log("touchleave, " + point + " / " + latLng);
+});
+map.on("touchmove", function(point, latLng) {
+  console.log("touchmove, " + point + " / " + latLng);
+});
+map.on("touchcancel", function(point, latLng) {
+  console.log("touchcancel, " + point + " / " + latLng);
+});
     prettyPrint();
     
     // Execute the code
