@@ -14,6 +14,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Build.VERSION;
@@ -26,6 +27,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.model.LatLng;
+
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout  {
   private CordovaWebView webView;
@@ -34,10 +39,9 @@ public class MyPluginLayout extends FrameLayout  {
   private Context context;
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
-  private FrameLayout scrollFrameLayout = null;
+  private TouchableWrapper scrollFrameLayout = null;
   private View backgroundView = null;
-  private TouchableWrapper touchableWrapper;
-  private ViewGroup myView = null;
+  private MapView myView = null;
   private boolean isScrolling = false;
   private ViewGroup.LayoutParams orgLayoutParams = null;
   private boolean isDebug = false;
@@ -67,14 +71,14 @@ public class MyPluginLayout extends FrameLayout  {
     backgroundView.setHorizontalScrollBarEnabled(false);
     backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 9999));
     
-    scrollFrameLayout = new FrameLayout(this.context);
+    scrollFrameLayout = new TouchableWrapper(this.context);
     scrollFrameLayout.addView(backgroundView);
     scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
     
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
     
-    this.touchableWrapper = new TouchableWrapper(this.context);
+    //this.touchableWrapper = new TouchableWrapper(this.context);
     
   }
   
@@ -180,7 +184,6 @@ public class MyPluginLayout extends FrameLayout  {
     frontLayer.removeView(webView);
     
     scrollFrameLayout.removeView(myView);
-    myView.removeView(this.touchableWrapper);
     
     this.removeView(this.scrollView);
     this.scrollView.removeView(scrollFrameLayout);
@@ -193,19 +196,19 @@ public class MyPluginLayout extends FrameLayout  {
     mActivity.getWindow().getDecorView().requestFocus();
   }
   
-  public void attachMyView(ViewGroup pluginView) {
+  public void attachMyView(MapView mapView) {
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
     
     scrollView.scrollTo(webView.getScrollX(), webView.getScrollY());
-    if (myView == pluginView) {
+    if (myView == mapView) {
       return;
     } else {
       this.detachMyView();
     }
     //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (webView.getContentHeight() * webView.getScale() + webView.getHeight())));
     
-    myView = pluginView;
+    myView = mapView;
     ViewGroup.LayoutParams lParams = myView.getLayoutParams();
     orgLayoutParams = null;
     if (lParams != null) {
@@ -215,8 +218,7 @@ public class MyPluginLayout extends FrameLayout  {
     scrollView.addView(scrollFrameLayout);
     this.addView(scrollView);
     
-    pluginView.addView(this.touchableWrapper);
-    scrollFrameLayout.addView(pluginView);
+    scrollFrameLayout.addView(mapView);
     
     frontLayer.addView(webView);
     this.addView(frontLayer);
@@ -247,7 +249,7 @@ public class MyPluginLayout extends FrameLayout  {
     this.frontLayer.invalidate();
   }
   
-
+  
   private class FrontLayerLayout extends FrameLayout {
     
     public FrontLayerLayout(Context context) {
@@ -255,6 +257,10 @@ public class MyPluginLayout extends FrameLayout  {
       this.setWillNotDraw(false);
     }
     
+    /**
+     * True if the touch event should be received by MapView.
+     * False, the event is received by WebView.
+     */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
@@ -338,6 +344,44 @@ public class MyPluginLayout extends FrameLayout  {
       super(context);
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+      if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
+        webView.requestFocus(View.FOCUS_DOWN);
+        return false;
+      }
+      String eventName = null;
+      switch(event.getAction()) {
+      case MotionEvent.ACTION_DOWN:
+        eventName = "touchstart";
+        break;
+      case MotionEvent.ACTION_MOVE:
+        eventName = "touchmove";
+        break;
+      case MotionEvent.ACTION_UP:
+        eventName = "touchend";
+        break;
+      case MotionEvent.ACTION_CANCEL:
+        eventName = "touchcancel";
+        break;
+      case MotionEvent.ACTION_OUTSIDE:
+        eventName = "touchleave";
+        break;
+      default:
+        break;
+      }
+      int x = (int)event.getX() - myView.getLeft();
+      int y = (int)event.getY() - myView.getTop();
+      Projection projection = myView.getMap().getProjection();
+      Point point = new Point(x, y);
+      LatLng latLng = projection.fromScreenLocation(point);
+      webView.loadUrl(
+          String.format("javascript:plugin.google.maps.Map._onTouchEvent('%s', [%d, %d], new window.plugin.google.maps.LatLng(%f, %f));", 
+              eventName, x, y, latLng.latitude, latLng.longitude));
+      
+      return false;
+    }
+    
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
       int action = event.getAction();

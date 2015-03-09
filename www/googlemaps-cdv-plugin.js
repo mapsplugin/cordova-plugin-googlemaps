@@ -225,6 +225,12 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
 /**
  * Callback from Native
  */
+App.prototype._onTouchEvent = function(eventName, point, latLng) {
+  this.trigger(eventName, point, latLng);
+};
+/**
+ * Callback from Native
+ */
 App.prototype._onMapEvent = function(eventName) {
   var args = [eventName];
   for (var i = 1; i < arguments.length; i++) {
@@ -250,7 +256,7 @@ App.prototype._onMyLocationChange = function(params) {
  */
 App.prototype._onCameraEvent = function(eventName, params) {
   var cameraPosition = new CameraPosition(params);
-  this.trigger(eventName, cameraPosition, this);
+  this.trigger(eventName, cameraPosition);
 };
 
 
