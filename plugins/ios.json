@@ -79,12 +79,7 @@
                             "count": 1
                         }
                     ],
-                    "CoreGraphics.framework": [
-                        {
-                            "xml": "false",
-                            "count": 1
-                        }
-                    ]
+                    "CoreGraphics.framework": []
                 }
             },
             "config.xml": {
