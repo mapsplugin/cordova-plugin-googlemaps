@@ -1,0 +1,91 @@
+<div class="container">
+  <div class="description">
+    <strong>Step10: Geocoding</strong>
+    <p>Address: <input type="text" id="address" value="Tokyo, Japan"><input type="button" id="searchBtn" value="Search"></p>
+    
+    <pre class="prettyprint lang-js">
+$("#searchBtn").one("click touchstart", function() {
+  var request = {
+    'address': $("#address").val()
+  };
+  plugin.google.maps.Geocoder.geocode(request, geocoderCallback);
+});
+
+function geocoderCallback(results) {
+  if (results.length) {
+    var result = results[0];
+    var position = result.position; 
+
+    map.animateCamera({
+      'target': position,
+      'zoom': 17
+    }, function() {
+      map.addMarker({
+        'position': position,
+        'title':  JSON.stringify(result.position),
+        'animation': plugin.google.maps.Animation.DROP
+      }, function(marker) {
+
+        marker.showInfoWindow();
+        
+      });
+
+    });
+  } else {
+    alert("Not found");
+  }
+}
+</pre>
+  </div>
+  
+</div>
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt) {
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#searchBtn").one("click touchstart", function() {
+    
+    $(".container").addClass("animated fadeOut");
+    $(".container").one('webkitAnimationEnd animationend', function() {
+      
+      var request = {
+        'address': $("#address").val()
+      };
+      
+      $(".container").remove();
+
+      plugin.google.maps.Geocoder.geocode(request, geocoderCallback);
+    });
+    
+  });
+  
+  function geocoderCallback(results) {
+    if (results.length) {
+      var result = results[0];
+      var position = result.position; 
+  
+  
+      map.animateCamera({
+        'target': position,
+        'zoom': 17
+      }, function() {
+        map.addMarker({
+          'position': position,
+          'title':  JSON.stringify(result.position),
+          'animation': plugin.google.maps.Animation.DROP
+        }, function(marker) {
+  
+          marker.showInfoWindow();
+          
+          setTimeout(function() {
+            loadPage("step11", marker);
+          }, 10000);
+        });
+  
+      });
+    } else {
+      alert("Not found");
+    }
+  }
+});
+</script>

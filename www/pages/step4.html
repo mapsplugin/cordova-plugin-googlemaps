@@ -1,0 +1,74 @@
+<div class="container">
+  <div class="description">
+    <strong>Step4: Drop a marker</strong>
+    <p>PhoneGap-Plugin-GoogleMaps provides the drop marker animation originally!</p>
+    
+    <pre class="prettyprint lang-js">
+map.addMarker({
+  'position': result.latLng,
+  'title': "You can change the text-align specifying by the 'text-align' property.\n" + 
+           "This text is where you will see the result of the selected text-align property.",
+
+  'snippet': 'Tap here, then next',
+  'styles' : {
+    'text-align': 'center',
+    'font-style': 'italic',
+    'font-weight': 'bold',
+    'color': 'red'
+  },
+  animation: plugin.google.maps.Animation.DROP
+}, onMarkerAdded);
+
+function onMarkerAdded(marker) {
+  marker.showInfoWindow();
+  marker.addEventListener(plugin.google.maps.event.INFO_CLICK, onInfoWndClicked);
+}
+function onInfoWndClicked(marker) {
+  marker.hideInfoWindow();
+}
+</pre>
+<button id="nextBtn">Execute &amp; next</button>
+  </div>
+  
+</div>
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#nextBtn").one("touchStart click", function() {
+    var onInfoWndClicked = function(marker) {
+      marker.hideInfoWindow();
+      setTimeout(function() {
+        loadPage("step5", result);
+      }, 2000);
+    };
+    
+    var onMarkerAdded = function(marker) {
+      marker.showInfoWindow();
+      
+      marker.addEventListener(plugin.google.maps.event.INFO_CLICK, onInfoWndClicked);
+    };
+    
+    $(".container").addClass("animated flipOutX");
+    $(".container").one('webkitAnimationEnd animationend', function() {
+      $(".container").remove();
+map.addMarker({
+  'position': result.latLng,
+  'title': "You can change the text-align specifying by the 'text-align' property.\n" + 
+           "This text is where you will see the result of the selected text-align property.",
+
+  'snippet': 'Tap here, then next',
+  'styles' : {
+    'text-align': 'center',
+    'font-style': 'italic',
+    'font-weight': 'bold',
+    'color': 'red'
+  },
+  animation: plugin.google.maps.Animation.DROP
+}, onMarkerAdded);
+
+    });
+    
+  });
+});
+</script>
