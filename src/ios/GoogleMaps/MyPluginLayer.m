@@ -93,8 +93,10 @@
       }
     }
     
-    NSLog(@"hitClass = %@", hitView);
-    return self;
+    self.touchableView.mapCtrl = self.mapCtrl;
+    
+    //NSLog(@"hitClass = %@", hitView);
+    return self.touchableView;
     //return hitView;
   }
   
@@ -140,58 +142,6 @@
   rectangle.size.width = self.webView.scrollView.contentSize.width;
   rectangle.size.height = self.webView.scrollView.contentSize.height;
   CGContextFillRect(context, rectangle);
-}
-
-/**
-http://abi.exdream.com/post/2010/03/18/iPhone-How-to-pass-touch-events-from-UIScrollView-to-the-parent-UIViewController.aspx
-*/
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-  UITouch *touch = [touches anyObject];
-  CGPoint point = [touch locationInView:self];
-
-  
-  NSLog(@"touchBegan : %f, %f", point.x, point.y);
-  
-  for (UIView *child in self.mapCtrl.view.subviews) {
-  NSLog(@"child = %@", child);
-    [child touchesEnded:touches withEvent:event];
-    }
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-  UITouch *touch = [touches anyObject];
-  CGPoint point = [touch locationInView:self];
-  
-    
-  NSLog(@"touchesMoved : %f, %f", point.x, point.y);
-  
-  for (UIView *child in self.mapCtrl.view.subviews)
-    [child touchesEnded:touches withEvent:event];
-
-  //[hitView touchesBegan:touches withEvent:event];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-  UITouch *touch = [touches anyObject];
-  CGPoint point = [touch locationInView:self];
-    
-  NSLog(@"touchesEnded : %f, %f", point.x, point.y);
-  
-  for (UIView *child in self.mapCtrl.view.subviews)
-    [child touchesEnded:touches withEvent:event];
-}
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-  UITouch *touch = [touches anyObject];
-  CGPoint point = [touch locationInView:self];
-    
-  NSLog(@"touchesCancelled : %f, %f", point.x, point.y);
-  
-  for (UIView *child in self.mapCtrl.view.subviews)
-    [child touchesEnded:touches withEvent:event];
 }
 
 @end
