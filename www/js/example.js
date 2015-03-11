@@ -30,7 +30,7 @@ $(document).on("deviceready", function() {
 });
 
 function onMapReady() {
-  loadPage("welcome");
+  loadPage("test");
 }
 
 function loadPage(tmplName, params) {
