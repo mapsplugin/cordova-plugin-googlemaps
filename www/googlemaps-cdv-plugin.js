@@ -863,6 +863,9 @@ App.prototype.addMarker = function(markerOptions, callback) {
       markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
     }
   }
+  if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
+    markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
+  }
  
   cordova.exec(function(result) {
     markerOptions.hashCode = result.hashCode;
@@ -1243,6 +1246,9 @@ Marker.prototype.setFlat = function(flat) {
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setFlat', this.getId(), flat]);
 };
 Marker.prototype.setIcon = function(url) {
+  if (url && isHTMLColorString(url)) {
+    url = HTMLColor2RGBA(url);
+  }
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setIcon', this.getId(), url]);
 };
 Marker.prototype.setTitle = function(title) {
@@ -1873,7 +1879,31 @@ LatLngBounds.prototype.contains = function(latLng) {
 //---------------------------
 var colorDiv = document.createElement("div");
 document.head.appendChild(colorDiv);
- 
+
+function isHTMLColorString(inputValue) {
+  if (!inputValue) {
+    return false;
+  }
+  if (inputValue.match(/^#[0-9A-F]{4}$/i) ||
+      inputValue.match(/^#[0-9A-F]{8}$/i) ||
+      inputValue.match(/^rgba\([\d,.\s]+\)$/) ||
+      inputValue.match(/^hsla\([\d%,.\s]+\)$/)) {
+    return true;
+  }
+  
+  if (window.getComputedStyle) {
+    compStyle = window.getComputedStyle(colorDiv, null);
+    try {
+      var value = compStyle.getPropertyCSSValue ("color");
+      var valueType = value.primitiveType;
+      if (valueType === CSSPrimitiveValue.CSS_RGBCOLOR) {
+        return true;
+      }
+    } catch (e) {}
+  }
+  return false;
+}
+
 function HTMLColor2RGBA(colorStr, defaultOpacity) {
   defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
   if (colorStr === "transparent" || !colorStr) {
