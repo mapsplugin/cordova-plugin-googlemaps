@@ -1,0 +1,68 @@
+<div class="container">
+  <div class="description">
+    <strong>Step6: Draw a polyline</strong>
+    <p>Draw a polyline, then let's move on to Japan</p>
+    
+    <pre class="prettyprint lang-js">
+var GORYOKAKU = new plugin.google.maps.LatLng(41.797184,140.756831);
+map.addPolyline({
+  points: [
+    result.latLng,
+    GORYOKAKU
+  ],
+  'color' : '#AA00FF',
+  'width': 10,
+  'geodesic': true
+}, onPolylineAdded);
+function onPolylineAdded(polyline) {
+  map.animateCamera({
+    target: GORYOKAKU,
+    zoom: 17,
+    tilt: 50
+  }, onCameraUpdated);
+}
+function onCameraUpdated() {
+}
+</pre>
+<button id="nextBtn">Execute &amp; next</button>
+  </div>
+  
+</div>
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  map.setDiv($("#map_canvas")[0]);
+  
+  $("#nextBtn").one("touchStart click", function() {
+    
+    $(".container").addClass("animated zoomOutUp");
+    $(".container").one('webkitAnimationEnd animationend', function() {
+      $(".container").remove();
+      
+      var GORYOKAKU = new plugin.google.maps.LatLng(41.797184,140.756831);
+      map.addPolyline({
+        points: [
+          result.latLng,
+          GORYOKAKU
+        ],
+        'color' : '#AA00FF',
+        'width': 10,
+        'geodesic': true
+      }, onPolylineAdded);
+      function onPolylineAdded(polyline) {
+        map.animateCamera({
+          target: GORYOKAKU,
+          zoom: 17,
+          tilt: 50
+        }, onCameraUpdated);
+      }
+      function onCameraUpdated() {
+        setTimeout(function() {
+          loadPage("step7");
+        }, 2000);
+      }
+    });
+    
+  });
+  
+});
+</script>

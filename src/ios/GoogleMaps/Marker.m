@@ -78,6 +78,11 @@
     
   } else if ([icon isKindOfClass:[NSDictionary class]]) {
     iconProperty = [json valueForKey:@"icon"];
+
+  } else if ([icon isKindOfClass:[NSArray class]]) {
+    NSArray *rgbColor = [json valueForKey:@"icon"];
+    iconProperty = [NSMutableDictionary dictionary];
+    [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
   }
   
   NSLog(@"---- animation");
@@ -403,6 +408,10 @@
     iconProperty = iconDic;
   } else if ([icon isKindOfClass:[NSDictionary class]]) {
     iconProperty = [command.arguments objectAtIndex:2];
+  } else if ([icon isKindOfClass:[NSArray class]]) {
+    NSArray *rgbColor = icon;
+    NSMutableDictionary *iconDic = [[NSMutableDictionary alloc] init];
+    [iconDic setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
   }
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -769,6 +778,18 @@
       
       [request startRequest];
     }
+  } else if ([iconProperty valueForKey:@"iconColor"]) {
+    UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
+    marker.icon = [GMSMarker markerImageWithColor:iconColor];
+    
+    if (animation) {
+      // Do animation, then send the result
+      [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+    } else {
+      // Send the result
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    }
+
   }
   
 }

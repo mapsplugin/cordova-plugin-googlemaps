@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -136,6 +137,12 @@ public class PluginMarker extends MyPlugin {
             bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
           }
         }
+      } else if (JSONArray.class.isInstance(value)) {
+        float[] hsv = new float[3];
+        JSONArray arrayRGBA = (JSONArray)value;
+        Color.RGBToHSV(arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2), hsv);
+        bundle = new Bundle();
+        bundle.putFloat("iconHue", hsv[0]);
       } else {
         bundle = new Bundle();
         bundle.putString("url", (String)value);
@@ -619,7 +626,12 @@ public class PluginMarker extends MyPlugin {
           bundle.putDoubleArray("anchor", anchorPoints);
         }
       }
-      
+    } else if (JSONArray.class.isInstance(value)) {
+      float[] hsv = new float[3];
+      JSONArray arrayRGBA = (JSONArray)value;
+      Color.RGBToHSV(arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2), hsv);
+      bundle = new Bundle();
+      bundle.putFloat("iconHue", hsv[0]);
     } else if (String.class.isInstance(value)) {
       bundle = new Bundle();
       bundle.putString("url", (String)value);
@@ -643,6 +655,13 @@ public class PluginMarker extends MyPlugin {
   }
   
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
+    if (iconProperty.containsKey("iconHue")) {
+      float hue = iconProperty.getFloat("iconHue");
+      marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
+      callback.onPostExecute(marker);
+      return;
+    }
+    
     String iconUrl = iconProperty.getString("url");
     if (iconUrl == null) {
       callback.onPostExecute(marker);

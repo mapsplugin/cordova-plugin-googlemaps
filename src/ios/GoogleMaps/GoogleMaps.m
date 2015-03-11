@@ -761,7 +761,7 @@ NSLog(@"---status=authorized");
   self.footer = nil;
   self.closeButton = nil;
   self.locationManager = nil;
-  self.locationCommandQueue = nil;
+  //self.locationCommandQueue = nil;  // issue 437
   
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
