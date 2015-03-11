@@ -264,19 +264,7 @@
 
   NSData *imageData = UIImagePNGRepresentation(image);
   NSString *base64Encoded = nil;
-  #ifdef __IPHONE_7_0
-    if ([PluginUtil isIOS7_OR_OVER] == true) {
-      #ifdef __CORDOVA_3_8_0
-        base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData cdv_base64EncodedString]];
-      #else
-        base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64EncodedString]];
-      #endif
-    } else {
-      base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
-    }
-  #else
-    base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64Encoding]];
-  #endif
+  base64Encoded = [NSString stringWithFormat:@"data:image/png;base64,%@", [imageData base64EncodedStringWithSeparateLines:NO]];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
