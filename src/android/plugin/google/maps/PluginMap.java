@@ -443,7 +443,7 @@ public class PluginMap extends MyPlugin {
         image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
         byte[] byteArray = outputStream.toByteArray();
         String imageEncoded = "data:image/png;base64," + 
-                Base64.encodeToString(byteArray, Base64.DEFAULT);
+                Base64.encodeToString(byteArray, Base64.NO_WRAP);
         
         callbackContext.success(imageEncoded);
       }

@@ -264,6 +264,34 @@ App.prototype.getMap = function(div, params) {
     params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
   } else {
+    
+    var currentDiv = self.get("div");
+    if (currentDiv !== div && currentDiv) {
+      var children = getAllChildren(currentDiv);
+      for (var i = 0; i < children.length; i++) {
+        element = children[i];
+        elemId = element.getAttribute("__pluginDomId");
+        element.removeAttribute("__pluginDomId");
+      }
+      currentDiv.removeEventListener("DOMNodeRemoved", _remove_child);
+      
+      while(currentDiv) {
+        if (currentDiv.style) {
+          currentDiv.style.backgroundColor ='';
+        }
+        if (currentDiv.classList) {
+          currentDiv.classList.remove('_gmaps_cdv_');
+        } else if (div.className) {
+          currentDiv.className = currentDiv.className.replace(/_gmaps_cdv_/g, "");
+          currentDiv.className = currentDiv.className.replace(/\s+/g, " ");
+        }
+        currentDiv = currentDiv.parentNode;
+      }
+      self.set("div", null);
+      self.set("keepWatching", false);
+    }
+    
+    
     var children = getAllChildren(div);
     params = params || {};
     params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
@@ -576,6 +604,7 @@ App.prototype.remove = function(callback) {
     }
   }
   this.set('div', undefined);
+  self.set("keepWatching", false);
   this.clear();
   this.empty();
   this.off();
@@ -655,37 +684,35 @@ App.prototype.setDiv = function(div) {
       args = [],
       element;
   
-  if (isDom(div) === false) {
-    div = self.get("div");
-    if (div) {
-      var children = getAllChildren(div);
+  var currentDiv = self.get("div");
+  if (isDom(div) === false || currentDiv !== div) {
+    if (currentDiv) {
+      var children = getAllChildren(currentDiv);
       for (var i = 0; i < children.length; i++) {
         element = children[i];
         elemId = element.getAttribute("__pluginDomId");
         element.removeAttribute("__pluginDomId");
       }
-      div.removeEventListener("DOMNodeRemoved", _remove_child);
+      currentDiv.removeEventListener("DOMNodeRemoved", _remove_child);
       
-      
-      var div = this.get('div');
-      if (div) {
-        while(div) {
-          if (div.style) {
-            div.style.backgroundColor ='';
-          }
-          if (div.classList) {
-            div.classList.remove('_gmaps_cdv_');
-          } else if (div.className) {
-            div.className = div.className.replace(/_gmaps_cdv_/g, "");
-            div.className = div.className.replace(/\s+/g, " ");
-          }
-          div = div.parentNode;
+      while(currentDiv) {
+        if (currentDiv.style) {
+          currentDiv.style.backgroundColor ='';
         }
+        if (currentDiv.classList) {
+          currentDiv.classList.remove('_gmaps_cdv_');
+        } else if (div.className) {
+          currentDiv.className = currentDiv.className.replace(/_gmaps_cdv_/g, "");
+          currentDiv.className = currentDiv.className.replace(/\s+/g, " ");
+        }
+        currentDiv = currentDiv.parentNode;
       }
     }
     self.set("div", null);
     self.set("keepWatching", false);
-  } else {
+  }
+  
+  if (isDom(div)) {
     var children = getAllChildren(div);;
     self.set("div", div);
     args.push(getDivRect(div));
@@ -720,9 +747,10 @@ App.prototype.setDiv = function(div) {
     var className;
     while(div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
+      div.style.backgroundImage = '';
       className = div.className;
 
-      // prevent multiple readding the class
+      // prevent multiple reading the class
       if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
         div.classList.add('_gmaps_cdv_');
       } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
