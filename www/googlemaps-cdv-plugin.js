@@ -1909,7 +1909,7 @@ var colorDiv = document.createElement("div");
 document.head.appendChild(colorDiv);
 
 function isHTMLColorString(inputValue) {
-  if (!inputValue) {
+  if (!inputValue || typeof inputValue !== "string") {
     return false;
   }
   if (inputValue.match(/^#[0-9A-F]{4}$/i) ||
