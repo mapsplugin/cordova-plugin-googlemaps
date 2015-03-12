@@ -3,18 +3,11 @@ html, body, #map_canvas {
   height: 100%;
   margin: 0;
   padding: 0;
-  position: absolute;
   left: 0;
   top: 0;
 }
 pre.prettyprint {
   display: block;
-  overflow: scroll;
-  position: absolute;
-  left: 2%;
-  right: 2%;
-  bottom: 15%;
-  top: 20%;
   background-color: rgba(200, 200, 200, 0.75);
 }
 button {
@@ -23,21 +16,22 @@ button {
   background-color: #4285F4;
   border-radius: 3px;
   left: 10%;
-  /*right: 10%;*/
-  height: 10%;
   color: white;
   bottom: 10%;
   width: 80%;
+  height: 10%;
+  z-index: 2;
+  font-size: 150%;
 }
 .container {
-  position: fixed;
-  left: 5%;
-  top: 5%;
-  bottom: 5%;
-  right: 5%;
+  margin: 5%;
   background-color: rgba(255, 255, 255, .7);
   border:1px solid black;
-  overflow: hidden;
   padding: 1% 1% 15% 1%;
-  display: scroll;
+  font-size: 150%;
+  display: inline-block;
+}
+
+button#nextBtn {
+  display: none;
 }

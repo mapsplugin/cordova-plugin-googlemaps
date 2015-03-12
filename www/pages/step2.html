@@ -14,26 +14,39 @@ function onLocationError( error_obj ) {
     alert("Because of the plugin could not get your location, set California as your location");
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
-  
 </div>
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function() {
-  map.setDiv($("#map_canvas")[0]);
   
-  $("#nextBtn").one("touchStart click", function() {
-    var next = function(params) {
-      $(".container").addClass("animated lightSpeedOut");
-      $(".container").one('webkitAnimationEnd animationend', function() {
-        $(".container").remove();
-        setTimeout(function() {
-          loadPage("step3", params);
-        }, 5000);
-      });
-    };
+  $("#execBtn").one("touchStart click", function() {
+    map.setDiv($("#map_canvas")[0]);
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+      
+      setTimeout(function() {
+        $("#nextBtn").show();
+        
+        // Because of the nextBtn is `display:none`,
+        // the map plugin can not get the rectangle of it, at the first time.
+        // 
+        // Then the next button comes up.
+        // 
+        // In this case, you need to call `map.refreshLayout()`
+        map.refreshLayout();
+      }, 3000);
+    });
+  });
+  
+  $("#execBtn").one("touchStart click", function() {
     var option = {
-      enableHighAccuracy: true
+      enableHighAccuracy: true  // force GPS
     };
     map.getMyLocation(option, function(result) {
       alert(JSON.stringify( result, null, 4 ));
@@ -47,7 +60,11 @@ $(document).one("pageLoad", function() {
         }
       });
     });
-    
+  });
+  
+  $("#nextBtn").one("touchStart click", function() {
+    $(this).remove();
+    loadPage("step3");
   });
 });
 </script>
