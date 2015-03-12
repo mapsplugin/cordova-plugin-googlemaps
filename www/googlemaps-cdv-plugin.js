@@ -701,7 +701,7 @@ App.prototype.setDiv = function(div) {
         }
         if (currentDiv.classList) {
           currentDiv.classList.remove('_gmaps_cdv_');
-        } else if (div.className) {
+        } else if (currentDiv.className) {
           currentDiv.className = currentDiv.className.replace(/_gmaps_cdv_/g, "");
           currentDiv.className = currentDiv.className.replace(/\s+/g, " ");
         }
