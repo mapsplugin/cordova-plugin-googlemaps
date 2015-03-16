@@ -83,7 +83,18 @@
   NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
   
   NSError *error;
-  NSRange range = [urlStr rangeOfString:@"./"];
+  NSRange range = [urlStr rangeOfString:@"://"];
+  if (range.location == NSNotFound) {
+    range = [urlStr rangeOfString:@"www/"];
+    if (range.location == NSNotFound) {
+      range = [urlStr rangeOfString:@"/"];
+      if (range.location != 0) {
+        urlStr = [NSString stringWithFormat:@"./%@", urlStr];
+      }
+    }
+  }
+  
+  range = [urlStr rangeOfString:@"./"];
   if (range.location != NSNotFound) {
     NSString *currentPath = [self.webView.request.URL absoluteString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];

@@ -151,58 +151,62 @@
 }
 
 - (id)initWithXMLFile:(NSString*)aXMLFile error:(NSError **)error {
-    NSString * filename = [aXMLFile stringByDeletingPathExtension];
-    NSString * extension = [aXMLFile pathExtension];
-    
-    self = [self initWithXMLFile:filename fileExtension:extension error:error];
-	if (self != nil) {
-        
-	}
+  NSString * filename = [aXMLFile stringByDeletingPathExtension];
+  NSString * extension = [aXMLFile pathExtension];
+
+  self = [self initWithXMLFile:filename fileExtension:extension error:error];
+	
 	return self;
 }
 
 - (id)initWithXMLFile:(NSString*)aXMLFile fileExtension:(NSString*)aFileExtension {
-    NSError *error = nil;
-    return [self initWithXMLFile:aXMLFile fileExtension:aFileExtension error:&error];
+  NSError *error = nil;
+  return [self initWithXMLFile:aXMLFile fileExtension:aFileExtension error:&error];
 }
 
 - (id)initWithXMLFile:(NSString*)aXMLFile fileExtension:(NSString*)aFileExtension error:(NSError **)error {
 	self = [self init];
 	if (self != nil) {
         
-        NSData * data;
-        
-        // Get the bundle that this class resides in. This allows to load resources from the app bundle when running unit tests.
-        NSString * bundlePath = [[NSBundle bundleForClass:[self class]] pathForResource:aXMLFile ofType:aFileExtension];
+    NSData * data;
+    
+    // Get the bundle that this class resides in. This allows to load resources from the app bundle when running unit tests.
+    NSString * bundlePath = nil;
+    NSRange range = [aXMLFile rangeOfString:@"/"];
+    if (range.location == 0) {
+      bundlePath = [NSString stringWithFormat:@"%@.%@", aXMLFile, aFileExtension];
+    } else {
+      bundlePath =[[NSBundle bundleForClass:[self class]] pathForResource:aXMLFile ofType:aFileExtension];
+    }
+    
+    if (!bundlePath) {
+      if (error) {
+          NSDictionary * userInfo = [NSDictionary dictionaryWithObjectsAndKeys:[aXMLFile stringByAppendingPathExtension:aFileExtension], NSFilePathErrorKey, nil];
+          *error = [TBXML errorWithCode:D_TBXML_FILE_NOT_FOUND_IN_BUNDLE userInfo:userInfo];
+      }
+    } else {
+      SEL dataWithUncompressedContentsOfFile = NSSelectorFromString(@"dataWithUncompressedContentsOfFile:");
+      
+      // Get uncompressed file contents if TBXML+Compression has been included
+      if ([[NSData class] respondsToSelector:dataWithUncompressedContentsOfFile]) {
+          
+          #pragma clang diagnostic push
+          #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+          data = [[NSData class] performSelector:dataWithUncompressedContentsOfFile withObject:bundlePath];
+          #pragma clang diagnostic pop   
 
-        if (!bundlePath) {
-            if (error) {
-                NSDictionary * userInfo = [NSDictionary dictionaryWithObjectsAndKeys:[aXMLFile stringByAppendingPathExtension:aFileExtension], NSFilePathErrorKey, nil];
-                *error = [TBXML errorWithCode:D_TBXML_FILE_NOT_FOUND_IN_BUNDLE userInfo:userInfo];
-            }
-        } else {
-            SEL dataWithUncompressedContentsOfFile = NSSelectorFromString(@"dataWithUncompressedContentsOfFile:");
-            
-            // Get uncompressed file contents if TBXML+Compression has been included
-            if ([[NSData class] respondsToSelector:dataWithUncompressedContentsOfFile]) {
-                
-                #pragma clang diagnostic push
-                #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                data = [[NSData class] performSelector:dataWithUncompressedContentsOfFile withObject:bundlePath];
-                #pragma clang diagnostic pop   
-
-            } else {
-                data = [NSData dataWithContentsOfFile:bundlePath];
-            }
-            
-            // decode data
-            [self decodeData:data withError:error];
-            
-            // Check for root element
-            if (error && !*error && !self.rootXMLElement) {
-                *error = [TBXML errorWithCode:D_TBXML_DECODE_FAILURE];
-            }
-        }
+      } else {
+          data = [NSData dataWithContentsOfFile:bundlePath];
+      }
+      
+      // decode data
+      [self decodeData:data withError:error];
+      
+      // Check for root element
+      if (error && !*error && !self.rootXMLElement) {
+          *error = [TBXML errorWithCode:D_TBXML_DECODE_FAILURE];
+      }
+    }
 	}
 	return self;
 }

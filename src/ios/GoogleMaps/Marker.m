@@ -587,8 +587,18 @@
 
   if (iconPath) {
     NSError *error;
+    NSRange range = [iconPath rangeOfString:@"://"];
+    if (range.location == NSNotFound) {
+      range = [iconPath rangeOfString:@"www/"];
+      if (range.location == NSNotFound) {
+        range = [iconPath rangeOfString:@"/"];
+        if (range.location != 0) {
+          iconPath = [NSString stringWithFormat:@"./%@", iconPath];
+        }
+      }
+    }
     
-    NSRange range = [iconPath rangeOfString:@"./"];
+    range = [iconPath rangeOfString:@"./"];
     if (range.location != NSNotFound) {
       NSString *currentPath = [self.webView.request.URL absoluteString];
       NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];

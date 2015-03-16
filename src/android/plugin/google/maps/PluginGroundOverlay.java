@@ -110,6 +110,11 @@ public class PluginGroundOverlay extends MyPlugin {
     }
 
     String filePath = url;
+    if (filePath.indexOf("://") == -1 && 
+        filePath.startsWith("/") == false && 
+        filePath.startsWith("www/") == false) {
+      filePath = "./" + filePath;
+    }
     if (filePath.indexOf("./") == 0) {
       String currentPage = this.webView.getUrl();
       currentPage = currentPage.replaceAll("[^\\/]*$", "");

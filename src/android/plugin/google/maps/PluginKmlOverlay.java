@@ -31,6 +31,11 @@ public class PluginKmlOverlay extends MyPlugin {
     Bundle params = PluginUtil.Json2Bundle(opts);
     
     String urlStr = opts.getString("url");
+    if (urlStr.indexOf("://") == -1 && 
+        urlStr.startsWith("/") == false && 
+        urlStr.startsWith("www/") == false) {
+      urlStr = "./" + urlStr;
+    }
     if (urlStr.indexOf("./") == 0) {
       String currentPage = this.webView.getUrl();
       currentPage = currentPage.replaceAll("[^\\/]*$", "");
