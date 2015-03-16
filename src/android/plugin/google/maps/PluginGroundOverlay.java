@@ -1,5 +1,8 @@
 package plugin.google.maps;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.cordova.CallbackContext;
@@ -98,42 +101,36 @@ public class PluginGroundOverlay extends MyPlugin {
       
     });
   }
+  @SuppressWarnings("resource")
   private void _setImage(final String url, final GroundOverlayOptions options, final PluginAsyncInterface callback) {
-    Log.d("Marker", "---->_setImage");
-    if (url != null && url.length() > 0) {
-      if (url.indexOf("http") == 0) {
-        Log.d("Marker", "---->http");
-        
-        AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
+    Log.d("GroundOverlay", "---->_setImage");
+    if (url == null || url.length() == 0) {
+      callback.onError("The url property is empty");
+      return;
+    }
 
-          @Override
-          public void onPostExecute(Bitmap image) {
-            if (image == null) {
-              callback.onError("Can not load image from " + url);
-              return;
-            }
-            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-            if (bitmapDescriptor != null) {
-              options.image(bitmapDescriptor);
-              GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
-              callback.onPostExecute(groundOverlay);
-            } else {
-              callback.onError("Can not load image from " + url);
-            }
+    String filePath = url;
+    if (filePath.indexOf("./") == 0) {
+      String currentPage = this.webView.getUrl();
+      currentPage = currentPage.replaceAll("[^\\/]*$", "");
+      filePath = filePath.replace("./", currentPage);
+    }
+    
+    
+    //=================================
+    // Load the image from the Internet
+    //=================================
+    if (filePath.indexOf("http") == 0) {
+      Log.d("GroundOverlay", "---->http");
+      
+      AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
+
+        @Override
+        public void onPostExecute(Bitmap image) {
+          if (image == null) {
+            callback.onError("Can not load image from " + url);
+            return;
           }
-        
-        });
-        task.execute(url);
-      } else {
-        Log.d("Marker", "---->local url = " + url);
-        
-        AssetManager assetManager = PluginGroundOverlay.this.cordova.getActivity().getAssets();
-        InputStream inputStream;
-        Bitmap image = null;
-        try {
-          inputStream = assetManager.open(url);
-          image = BitmapFactory.decodeStream(inputStream);
-          
           BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
           if (bitmapDescriptor != null) {
             options.image(bitmapDescriptor);
@@ -142,14 +139,62 @@ public class PluginGroundOverlay extends MyPlugin {
           } else {
             callback.onError("Can not load image from " + url);
           }
-        } catch (Exception e) {
-          e.printStackTrace();
-          callback.onError("Can not load image from " + url);
         }
+      
+      });
+      task.execute(filePath);
+      return;
+    }
+    
+    InputStream inputStream;
+    if (filePath.indexOf("/") == 0 ||
+        (filePath.indexOf("file://") == 0 && filePath.indexOf("file:///android_asset/") == -1) ||
+        filePath.indexOf("cdvfile://") == 0) {
+      if (filePath.indexOf("cdvfile://") == 0) {
+        filePath = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), filePath);
+      }
+      if (filePath.indexOf("file://") == 0) {
+        filePath = filePath.replace("file://", "");
+      }
+      
+      try {
+        inputStream = new FileInputStream(filePath);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+        callback.onError("Can not load image from " + url);
         return;
       }
     } else {
-      callback.onError("The url property is empty");
+      if (filePath.indexOf("file:///android_asset/") == 0) {
+        filePath = filePath.replace("file:///android_asset/", "");
+      }
+      AssetManager assetManager = PluginGroundOverlay.this.cordova.getActivity().getAssets();
+      try {
+        inputStream = assetManager.open(filePath);
+      } catch (IOException e) {
+        e.printStackTrace();
+        callback.onError("Can not load image from " + url);
+        return;
+      }
+    }
+    
+    
+    try {
+      Bitmap image = null;
+      image = BitmapFactory.decodeStream(inputStream);
+      
+      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+      if (bitmapDescriptor != null) {
+        options.image(bitmapDescriptor);
+        GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
+        callback.onPostExecute(groundOverlay);
+      } else {
+        callback.onError("Can not load image from " + url);
+      }
+      image.recycle();
+      inputStream.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 

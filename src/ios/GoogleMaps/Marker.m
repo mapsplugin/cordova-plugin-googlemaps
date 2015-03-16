@@ -586,7 +586,20 @@
   __block NSString *animation = animationValue;
 
   if (iconPath) {
-    NSRange range = [iconPath rangeOfString:@"http"];
+    NSError *error;
+    
+    NSRange range = [iconPath rangeOfString:@"./"];
+    if (range.location != NSNotFound) {
+      NSString *currentPath = [self.webView.request.URL absoluteString];
+      NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
+      currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
+      iconPath = [iconPath stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
+    }
+    
+    NSLog(@"iconPath = %@", iconPath);
+    
+    
+    range = [iconPath rangeOfString:@"http"];
     if (range.location != 0) {
       /**
        * Load icon from file or Base64 encoded strings
@@ -649,6 +662,7 @@
             return;
           }
         }
+        
         image = [UIImage imageNamed:iconPath];
         
         if (width && height) {

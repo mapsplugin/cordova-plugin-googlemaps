@@ -663,6 +663,12 @@ public class PluginMarker extends MyPlugin {
     }
     
     String iconUrl = iconProperty.getString("url");
+    if (iconUrl.indexOf("./") == 0) {
+      String currentPage = this.webView.getUrl();
+      currentPage = currentPage.replaceAll("[^\\/]*$", "");
+      iconUrl = iconUrl.replace("./", currentPage);
+    }
+    
     if (iconUrl == null) {
       callback.onPostExecute(marker);
       return;
@@ -686,7 +692,8 @@ public class PluginMarker extends MyPlugin {
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-          } else if (iconUrl.indexOf("file://") == 0) {
+          } else if (iconUrl.indexOf("file://") == 0 &&
+              iconUrl.indexOf("file:///android_asset/") == -1) {
             iconUrl = iconUrl.replace("file://", "");
             File tmp = new File(iconUrl);
             if (tmp.exists()) {
@@ -695,6 +702,12 @@ public class PluginMarker extends MyPlugin {
               Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
             }
           } else {
+            if (iconUrl.indexOf("file:///android_asset/") == 0) {
+              iconUrl = iconUrl.replace("file:///android_asset/", "");
+            }
+            if (iconUrl.indexOf("./") == 0) {
+              iconUrl = iconUrl.replace("./", "www/");
+            }
             AssetManager assetManager = PluginMarker.this.cordova.getActivity().getAssets();
             InputStream inputStream;
             try {

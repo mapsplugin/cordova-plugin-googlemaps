@@ -21,5 +21,6 @@
 - (void)setOpacity:(CDVInvokedUrlCommand*)command;
 - (void)setBearing:(CDVInvokedUrlCommand*)command;
 - (void)setZIndex:(CDVInvokedUrlCommand *)command;
+- (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr completionHandler:(MYCompletionHandler)completionHandler;
 
 @end

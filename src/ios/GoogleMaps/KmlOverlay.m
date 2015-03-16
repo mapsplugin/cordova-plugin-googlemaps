@@ -24,7 +24,16 @@
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
   
   NSString *urlStr = [json objectForKey:@"url"];
-  NSRange range = [urlStr rangeOfString:@"cdvfile://"];
+  NSRange range = [urlStr rangeOfString:@"./"];
+  
+  if (range.location != NSNotFound) {
+    NSString *currentPath = [self.webView.request.URL absoluteString];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
+    currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
+  }
+  
+  range = [urlStr rangeOfString:@"cdvfile://"];
   if (range.location != NSNotFound) {
     urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
     if (urlStr == nil) {
@@ -44,6 +53,9 @@
       error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
     }
   }
+  
+  NSLog(@"urlStr = %@", urlStr);
+
   
   range = [urlStr rangeOfString:@"http://"];
   if (range.location == NSNotFound) {

@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -139,7 +140,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         }
         
         inputStream = http.getInputStream();
+      } else if (urlStr.indexOf("file://") == 0 && urlStr.indexOf("file:///android_asset/") == -1 ||
+          urlStr.indexOf("/") == 0) {
+        urlStr = urlStr.replace("file://", "");
+        inputStream = new FileInputStream(urlStr);
       } else {
+        if (urlStr.indexOf("file:///android_asset/") == 0) {
+          urlStr = urlStr.replace("file:///android_asset/", "");
+        }
         inputStream = mActivity.getResources().getAssets().open(urlStr);
       }
       
