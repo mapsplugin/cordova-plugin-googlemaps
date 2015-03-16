@@ -15,6 +15,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
+typedef void (^MYCompletionHandler)(NSError *error);
+
 // Switch statement in Objective-C
 //http://qiita.com/GeneralD/items/5a05f176ac2321e7a51b
 #define CASE(str) if ([__s__ isEqualToString:(str)])
@@ -61,6 +63,7 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 + (BOOL)isIOS7_OR_OVER;
 + (BOOL)isIOS8_OR_OVER;
 + (BOOL)isInDebugMode;
++ (NSString *)getAbsolutePathFromCDVFilePath:(UIWebView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
 @end
 
 

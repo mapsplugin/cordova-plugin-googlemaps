@@ -30,7 +30,7 @@ $(document).on("deviceready", function() {
 });
 
 function onMapReady() {
-  loadPage("test");
+  loadPage("welcome");
 }
 
 function loadPage(tmplName, params) {
@@ -38,6 +38,9 @@ function loadPage(tmplName, params) {
   
   $.get("./pages/" + tmplName + ".html", function(html) {
     $("#map_canvas").html(html);
+    
+    // Call `map.refreshLayout()` if you change the HTML in the map div.
+    map.refreshLayout();
     
     map.off();
     

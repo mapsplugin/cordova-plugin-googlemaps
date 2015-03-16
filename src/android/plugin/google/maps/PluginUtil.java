@@ -1,10 +1,12 @@
 package plugin.google.maps;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.cordova.CordovaResourceApi;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
@@ -29,6 +32,17 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginUtil {
+  
+  public static String getAbsolutePathFromCDVFilePath(CordovaResourceApi resourceApi, String cdvFilePath) {
+    if (cdvFilePath.indexOf("cdvfile://") != 0) {
+      return null;
+    }
+    
+    //CordovaResourceApi resourceApi = webView.getResourceApi();
+    Uri fileURL = resourceApi.remapUri(Uri.parse(cdvFilePath));
+    File file = resourceApi.mapUriToFile(fileURL);
+    return file.getAbsolutePath();
+  }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   public static JSONObject location2Json(Location location) throws JSONException {
