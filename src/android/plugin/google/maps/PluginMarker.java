@@ -680,10 +680,7 @@ public class PluginMarker extends MyPlugin {
           Bitmap image = null;
           if (iconUrl.indexOf("cdvfile://") == 0) {
             CordovaResourceApi resourceApi = webView.getResourceApi();
-            Uri fileURL = resourceApi.remapUri(Uri.parse(iconUrl));
-            File file = resourceApi.mapUriToFile(fileURL);
-            iconUrl = file.getAbsolutePath();
-            Log.d("GoogleMaps", "iconUrl = " + iconUrl);
+            iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
           }
           
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {

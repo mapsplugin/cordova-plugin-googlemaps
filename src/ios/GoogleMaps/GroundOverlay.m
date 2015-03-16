@@ -76,7 +76,37 @@
   NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
   
 
-  NSRange range = [urlStr rangeOfString:@"http"];
+  NSRange range = [urlStr rangeOfString:@"cdvfile://"];
+  if (range.location != NSNotFound) {
+    urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
+    if (urlStr == nil) {
+      NSMutableDictionary* details = [NSMutableDictionary dictionary];
+      [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStr] forKey:NSLocalizedDescriptionKey];
+      error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+    }
+  }
+  
+  range = [urlStr rangeOfString:@"file://"];
+  if (range.location != NSNotFound) {
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:urlStr]) {
+      NSMutableDictionary* details = [NSMutableDictionary dictionary];
+      [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStr] forKey:NSLocalizedDescriptionKey];
+      error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+    }
+  }
+  
+  // If there is an error, return
+  CDVPluginResult* pluginResult;
+  if (error) {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  }
+
+  
+  range = [urlStr rangeOfString:@"http://"];
   if (range.location == NSNotFound) {
     layer.icon = [UIImage imageNamed:urlStr];
     [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];

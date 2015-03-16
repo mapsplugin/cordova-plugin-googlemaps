@@ -61,6 +61,7 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 + (BOOL)isIOS7_OR_OVER;
 + (BOOL)isIOS8_OR_OVER;
 + (BOOL)isInDebugMode;
++ (NSString *)getAbsolutePathFromCDVFilePath:(UIWebView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
 @end
 
 

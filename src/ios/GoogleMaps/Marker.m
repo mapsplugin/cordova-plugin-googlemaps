@@ -630,35 +630,9 @@
         range = [iconPath rangeOfString:@"cdvfile://"];
         if (range.location != NSNotFound) {
         
-          // Convert cdv:// path to the device real path
-          // (http://docs.monaca.mobi/3.5/en/reference/phonegap_34/en/file/plugins/)
-          NSString *filePath = nil;
-          Class CDVFilesystemURLCls = NSClassFromString(@"CDVFilesystemURL");
-          Class CDVFileCls = NSClassFromString(@"CDVFile");
-          if (CDVFilesystemURLCls != nil && CDVFileCls != nil) {
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+          iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
           
-            SEL fileSystemURLWithString = NSSelectorFromString(@"fileSystemURLWithString:");
-            if ([CDVFilesystemURLCls respondsToSelector:fileSystemURLWithString]) {
-              id cdvFilesystemURL = [CDVFilesystemURLCls performSelector:fileSystemURLWithString withObject:iconPath];
-              if (cdvFilesystemURL != nil) {
-              
-                CDVPlugin *filePlugin = (CDVPlugin *)[[CDVFileCls alloc] initWithWebView:self.webView];
-                [filePlugin pluginInitialize];
-                
-                SEL filesystemPathForURL = NSSelectorFromString(@"filesystemPathForURL:");
-                filePath = [filePlugin performSelector: filesystemPathForURL withObject:cdvFilesystemURL];
-              }
-            }
-            #pragma clang diagnostic pop
-          } else {
-            NSLog(@"(debug)File and FileTransfer plugins are required to convert cdvfile:// to localpath.");
-          }
-          
-          if (filePath != nil) {
-            iconPath = filePath;
-          } else {
+          if (iconPath == nil) {
             NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
             [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
             return;
