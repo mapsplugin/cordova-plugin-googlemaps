@@ -1,19 +1,33 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
-    <meta charset="utf-8" />
-    <title>Google Maps Plugin for Cordova</title>
-    <link rel="stylesheet" type="text/css" href="css/animate.css" />
-    <link href="css/prettify.css" type="text/css" rel="stylesheet" />
-    <link href="css/app.css" type="text/css" rel="stylesheet" />
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/prettify.js"></script>
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/jquery.fittext.js"></script>
-    <script type="text/javascript" src="js/example.js"></script>
-  </head>
-  <body>
-    <div id="map_canvas" ></div>
-  </body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <title>Hello World</title>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript">
+var map;
+document.addEventListener("deviceready", 
+function() {
+    var div = document.getElementById("map_canvas");
+    map = plugin.google.maps.Map.getMap(div);
+    map.addEventListener(plugin.google.maps.event.MAP_READY, onMapReady);
+}, false);
+
+function onMapReady() {
+    console.log('map ready');
+    map.setDebuggable(true);
+}
+        </script>
+    </head>
+    <body>
+        <div id="map_canvas" 
+            style="position:absolute;top:0;left:0;height:100%;width:100%">
+            <form style="position:absolute;bottom:0;left:0;width:100%">
+                <input style="width:100%" />
+            </form>
+        </div>
+    </body>
 </html>

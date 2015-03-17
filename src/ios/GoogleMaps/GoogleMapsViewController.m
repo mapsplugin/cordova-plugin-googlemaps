@@ -35,6 +35,60 @@ NSDictionary *initOptions;
   }
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    // super
+    [super viewWillAppear:animated];
+    
+    // Start observing
+    if (!self.keyboardObserving) {
+        NSNotificationCenter *center;
+        center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self
+            selector:@selector(keyboardWillShow:)
+            name:UIKeyboardWillShowNotification
+            object:nil];
+        [center addObserver:self
+            selector:@selector(keybaordWillHide:)
+            name:UIKeyboardWillHideNotification
+            object:nil];
+        
+        self.keyboardObserving = YES;
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    // super
+    [super viewWillDisappear:animated];
+    
+    // Stop observing
+    if (self.keyboardObserving) {
+        NSNotificationCenter *center;
+        center = [NSNotificationCenter defaultCenter];
+        [center removeObserver:self
+            name:UIKeyboardWillShowNotification
+            object:nil];
+        [center removeObserver:self
+            name:UIKeyboardWillHideNotification
+            object:nil];
+        
+        self.keyboardObserving = NO;
+    }
+}
+- (void)keyboardWillShow:(NSNotification*)notification
+{
+NSLog(@"--->keyboard will show");
+  self.isKeyboardShown = YES;
+  self._saveContentOffset = self.webView.scrollView.contentOffset;
+}
+
+- (void)keybaordWillHide:(NSNotification*)notification
+{
+NSLog(@"--->keyboard will hide");
+  self.isKeyboardShown = NO;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
