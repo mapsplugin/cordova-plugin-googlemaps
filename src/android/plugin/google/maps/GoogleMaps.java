@@ -88,12 +88,15 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.gms.maps.model.IndoorBuilding;
+import com.google.android.gms.maps.model.IndoorLevel;
+import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, InfoWindowAdapter {
+      OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
@@ -904,6 +907,27 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  private void getFocusedBuilding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+	IndoorBuilding focusedBuilding = map.getFocusedBuilding();
+	JSONObject result = new JSONObject();
+	if (focusedBuilding != null) {
+		JSONArray levels = new JSONArray();
+		for(IndoorLevel level : focusedBuilding.getLevels()){
+			JSONObject levelInfo = new JSONObject();
+			levelInfo.put("name",level.getName());
+			levelInfo.put("shortName",level.getShortName());
+			levels.put(levelInfo);
+		}
+		result.put("activeLevelIndex",focusedBuilding.getActiveLevelIndex());
+		result.put("defaultLevelIndex",focusedBuilding.getDefaultLevelIndex());
+		result.put("levels",levels);
+		result.put("underground",focusedBuilding.isUnderground());
+		callbackContext.success(result);
+	} else {
+		callbackContext.success(-1);
+	}
+  }
+  
   @SuppressWarnings("unused")
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
@@ -1455,6 +1479,34 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     webView.loadUrl("javascript:plugin.google.maps.Map._onCameraEvent('camera_change', " + jsonStr + ")");
   }
 
+  @Override
+  public void onIndoorBuildingFocused() {
+	webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')");
+  }
+  
+  @Override
+  public void onIndoorLevelActivated(IndoorBuilding building) {
+	JSONObject params = new JSONObject();
+    String jsonStr = "";
+	try {
+		JSONArray levels = new JSONArray();
+		for(IndoorLevel level : building.getLevels()){
+			JSONObject levelInfo = new JSONObject();
+			levelInfo.put("name",level.getName());
+			levelInfo.put("shortName",level.getShortName());
+			levels.put(levelInfo);
+		}
+		params.put("activeLevelIndex",building.getActiveLevelIndex());
+		params.put("defaultLevelIndex",building.getDefaultLevelIndex());
+		params.put("levels",levels);
+		params.put("underground",building.isUnderground());
+		jsonStr = params.toString();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+	webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', " + jsonStr + ")");
+  }
+  
   @Override
   public void onPause(boolean multitasking) {
     if (mapView != null) {
