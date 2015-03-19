@@ -476,9 +476,10 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
 };
 
-App.prototype.setMyLocationEnabled = function(enabled) {
+App.prototype.setMyLocationEnabled = function(enabled, button) {
   enabled = parseBoolean(enabled);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
+  button = parseBoolean(button);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled, button]);
 };
 App.prototype.setIndoorEnabled = function(enabled) {
   enabled = parseBoolean(enabled);
@@ -516,6 +517,10 @@ App.prototype.getMyLocation = function(params, success_callback, error_callback)
     }
   };
   cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', [params]);
+};
+App.prototype.getFocusedBuilding = function(callback) {
+  var self = this;
+  cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'getFocusedBuilding', []);
 };
 App.prototype.setVisible = function(isVisible) {
   var self = this;
@@ -2281,6 +2286,8 @@ module.exports = {
     MAP_LONG_CLICK: 'long_click',
     MY_LOCATION_CHANGE: 'my_location_change', // for Android
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
+	INDOOR_BUILDING_FOCUSED: 'indoor_building_focused',
+	INDOOR_LEVEL_ACTIVATED: 'indoor_level_activated',
     CAMERA_CHANGE: 'camera_change',
     CAMERA_IDLE: 'camera_idle', //for iOS
     MAP_READY: 'map_ready',
