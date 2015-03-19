@@ -2034,8 +2034,8 @@ function getDivRect(div) {
     'width': rect.width,
     'height': rect.height
   };
-  divRect.width = divRect.width < pageRect.width ? divRect.width : pageRect.width;
-  divRect.height = divRect.height < pageRect.height ? divRect.height : pageRect.height;
+  //divRect.width = divRect.width < pageRect.width ? divRect.width : pageRect.width;
+  //divRect.height = divRect.height < pageRect.height ? divRect.height : pageRect.height;
   
   return divRect;
 }

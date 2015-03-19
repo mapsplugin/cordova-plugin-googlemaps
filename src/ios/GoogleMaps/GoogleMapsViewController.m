@@ -200,7 +200,7 @@ NSDictionary *initOptions;
   dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps.Map._onMapEvent", NULL);
   dispatch_sync(gueue, ^{
   
-    NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %hhd);", gesture];
+    NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %@);", gesture ? @"true": @"false"];
     [self.webView stringByEvaluatingJavaScriptFromString:jsString];
   });
 }
