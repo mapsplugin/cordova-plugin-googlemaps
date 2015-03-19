@@ -127,19 +127,9 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
-  if (self.mapCtrl.isKeyboardShown) {
-    //NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map.refreshLayout();"];
-    //[self.webView stringByEvaluatingJavaScriptFromString:jsString];
-    self.pluginScrollView.contentOffset = self.mapCtrl._saveContentOffset;
-    
-  NSLog(@"%f, %f", self.mapCtrl._saveContentOffset.x, self.mapCtrl._saveContentOffset.y);
-    return;
-  }
   CGPoint offset = self.pluginScrollView.contentOffset;
   offset.x = self.webView.scrollView.contentOffset.x;
   offset.y = self.webView.scrollView.contentOffset.y;
-  NSLog(@"---scroll");
-  NSLog(@"%f, %f", offset.x, offset.y);
   
   [self.pluginScrollView setContentOffset:offset];
   [self.pluginLayer setNeedsDisplay];
@@ -432,14 +422,6 @@
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   NSInteger argCnt = [command.arguments count];
   NSMutableDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-/*
-  float left = [[embedRect objectForKey:@"left"] floatValue];
-  float top = [[embedRect objectForKey:@"top"] floatValue];
-  top -= self.webView.scrollView.contentOffset.y;
-  left -= self.webView.scrollView.contentOffset.x;
-  [embedRect setObject:[NSNumber numberWithFloat:left] forKey:@"left"];
-  [embedRect setObject:[NSNumber numberWithFloat:top] forKey:@"top"];
-*/
   self.mapCtrl.embedRect = embedRect;
   self.pluginLayer.embedRect = self.mapCtrl.embedRect;
   self.pluginScrollView.debugView.embedRect = self.mapCtrl.embedRect;
@@ -456,13 +438,6 @@
     [self.pluginLayer putHTMLElement:elemId size:elemSize];
     [self.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
   }
-  
-  if (self.mapCtrl.isKeyboardShown) {
-    self.webView.scrollView.contentOffset = self.mapCtrl._saveContentOffset;
-  }
-  
-  NSLog(@"---resizeMap");
-  NSLog(@"%@", self.mapCtrl.embedRect);
   [self.mapCtrl updateMapViewLayout];
 }
 

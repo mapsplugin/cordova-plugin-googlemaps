@@ -21,15 +21,10 @@
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
-@property (nonatomic) BOOL keyboardObserving; //keyboard observing
-@property (nonatomic) BOOL isKeyboardShown;
-@property (nonatomic) CGPoint _saveContentOffset;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;
-- (void)viewWillAppear:(BOOL)animated;
-- (void)viewWillDisappear:(BOOL)animated;
 
 - (GMSCircle *)getCircleByKey: (NSString *)key;
 - (GMSMarker *)getMarkerByKey: (NSString *)key;
