@@ -6,6 +6,7 @@
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <title>Hello World</title>
+        <script src="js/jquery.min.js"></script>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript">
 var map;
@@ -19,14 +20,31 @@ function() {
 function onMapReady() {
     console.log('map ready');
     map.setDebuggable(true);
+    
+    $("input[type='radio']").change(function() {
+      $("#map_canvas").removeClass("map1 map2").addClass($(this).val());
+    });
 }
         </script>
+        <style type="text/css">
+        #map_canvas {
+          border: 2px solid blue;
+        }
+        .map1 {
+          position:absolute;top:0;left:0;height:90%;width:90%
+        }
+
+        .map2 {
+          position:absolute;top:20%;left:20%;height:60%;width:60%
+        }
+        </style>
     </head>
-    <body>
-        <div id="map_canvas" 
-            style="position:absolute;top:0;left:0;height:100%;width:100%">
-            <form style="position:absolute;bottom:0;left:0;width:100%">
-                <input style="width:100%" />
+    <body id='body'>
+        <div id="map_canvas" class="map1">
+            <form id='form' style="position:absolute;bottom:0;left:0;width:100%">
+                <input id='radio1' type="radio" value="map1" name="class">Map1
+                <input id='radio2' type="radio" value="map2" name="class">Map2<br>
+                <input id='text' style="width:100%" />
             </form>
         </div>
     </body>
