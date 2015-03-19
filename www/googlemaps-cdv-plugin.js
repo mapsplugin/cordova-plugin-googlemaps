@@ -476,10 +476,9 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
 };
 
-App.prototype.setMyLocationEnabled = function(enabled, button) {
+App.prototype.setMyLocationEnabled = function(enabled) {
   enabled = parseBoolean(enabled);
-  button = parseBoolean(button);
-  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled, button]);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
 };
 App.prototype.setIndoorEnabled = function(enabled) {
   enabled = parseBoolean(enabled);
