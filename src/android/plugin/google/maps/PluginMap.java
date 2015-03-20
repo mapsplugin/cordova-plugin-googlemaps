@@ -298,6 +298,7 @@ public class PluginMap extends MyPlugin {
     Boolean isEnabled = false;
     isEnabled = args.getBoolean(1);
     map.setMyLocationEnabled(isEnabled);
+    map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
     this.sendNoResult(callbackContext);
   }
 

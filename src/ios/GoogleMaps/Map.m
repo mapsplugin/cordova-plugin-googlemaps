@@ -458,4 +458,35 @@
   
   [self.mapCtrl.map setPadding:padding];
 }
+
+- (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command {
+  GMSIndoorBuilding *building = self.mapCtrl.map.indoorDisplay.activeBuilding;
+  if (building != nil) {
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }
+  GMSIndoorLevel *activeLevel = self.mapCtrl.map.indoorDisplay.activeLevel;
+  
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+  
+  NSUInteger activeLevelIndex = [building.levels indexOfObject:activeLevel];
+  [result setObject:[NSNumber numberWithInteger:activeLevelIndex] forKey:@"activeLevelIndex"];
+  [result setObject:[NSNumber numberWithInteger:building.defaultLevelIndex] forKey:@"defaultLevelIndex"];
+  
+  GMSIndoorLevel *level;
+  NSMutableDictionary *levelInfo;
+  NSMutableArray *levels = [NSMutableArray array];
+  for (level in building.levels) {
+    levelInfo = [NSMutableDictionary dictionary];
+    
+    [levelInfo setObject:[NSString stringWithString:level.name] forKey:@"name"];
+    [levelInfo setObject:[NSString stringWithString:level.shortName] forKey:@"shortName"];
+    [levels addObject:levelInfo];
+  }
+  [result setObject:levels forKey:@"levels"];
+  
+  
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

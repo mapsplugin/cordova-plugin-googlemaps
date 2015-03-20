@@ -517,6 +517,10 @@ App.prototype.getMyLocation = function(params, success_callback, error_callback)
   };
   cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', [params]);
 };
+App.prototype.getFocusedBuilding = function(callback) {
+  var self = this;
+  cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'getFocusedBuilding', []);
+};
 App.prototype.setVisible = function(isVisible) {
   var self = this;
   isVisible = parseBoolean(isVisible);
@@ -2034,8 +2038,6 @@ function getDivRect(div) {
     'width': rect.width,
     'height': rect.height
   };
-  //divRect.width = divRect.width < pageRect.width ? divRect.width : pageRect.width;
-  //divRect.height = divRect.height < pageRect.height ? divRect.height : pageRect.height;
   
   return divRect;
 }
@@ -2283,6 +2285,8 @@ module.exports = {
     MAP_LONG_CLICK: 'long_click',
     MY_LOCATION_CHANGE: 'my_location_change', // for Android
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
+	INDOOR_BUILDING_FOCUSED: 'indoor_building_focused',
+	INDOOR_LEVEL_ACTIVATED: 'indoor_level_activated',
     CAMERA_CHANGE: 'camera_change',
     CAMERA_IDLE: 'camera_idle', //for iOS
     MAP_READY: 'map_ready',

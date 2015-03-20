@@ -12,7 +12,7 @@
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
 
-@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate>
+@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic, strong) UIWebView* webView;
@@ -37,4 +37,7 @@
 
 - (void)removeObjectForKey: (NSString *)key;
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
+
+- (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
+- (void) didChangeActiveLevel: (GMSIndoorLevel *)level;
 @end

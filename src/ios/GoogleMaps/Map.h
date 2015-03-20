@@ -30,4 +30,5 @@
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setPadding:(CDVInvokedUrlCommand*)command;
 - (void)panBy:(CDVInvokedUrlCommand*)command;
+- (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
 @end

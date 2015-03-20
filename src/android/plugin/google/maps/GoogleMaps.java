@@ -68,6 +68,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
@@ -84,6 +85,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -96,7 +98,7 @@ import com.google.android.gms.maps.model.VisibleRegion;
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, InfoWindowAdapter {
+      OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
@@ -566,6 +568,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           map.setOnMarkerClickListener(GoogleMaps.this);
           map.setOnMarkerDragListener(GoogleMaps.this);
           map.setOnMyLocationButtonClickListener(GoogleMaps.this);
+          map.setOnIndoorStateChangeListener(GoogleMaps.this);
           
           // Load PluginMap class
           GoogleMaps.this.loadPlugin("Map");
@@ -912,6 +915,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
+  @SuppressWarnings("unused")
+  private void getFocusedBuilding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    IndoorBuilding focusedBuilding = map.getFocusedBuilding();
+    if (focusedBuilding != null) {
+      JSONObject result = PluginUtil.convertIndoorBuildingToJson(focusedBuilding);
+      callbackContext.success(result);
+    } else {
+      callbackContext.success(-1);
+    }
+  }
+  
   @SuppressWarnings("unused")
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
@@ -1534,6 +1548,21 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     webView.loadUrl("javascript:plugin.google.maps.Map._onCameraEvent('camera_change', " + jsonStr + ")");
   }
 
+  @Override
+  public void onIndoorBuildingFocused() {
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')");
+  }
+  
+  @Override
+  public void onIndoorLevelActivated(IndoorBuilding building) {
+    String jsonStr = "null";
+    JSONObject result = PluginUtil.convertIndoorBuildingToJson(building);
+    if (result != null) {
+      jsonStr = result.toString();
+    }
+    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', " + jsonStr + ")");
+  }
+  
   @Override
   public void onPause(boolean multitasking) {
     if (mapView != null) {
