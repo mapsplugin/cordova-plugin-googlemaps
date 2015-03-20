@@ -297,8 +297,10 @@ public class PluginMap extends MyPlugin {
   private void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean isEnabled = false;
     isEnabled = args.getBoolean(1);
+	Boolean button = false;
+	button = args.getBoolean(2);
     map.setMyLocationEnabled(isEnabled);
-    map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
+	map.getUiSettings().setMyLocationButtonEnabled(button);
     this.sendNoResult(callbackContext);
   }
 

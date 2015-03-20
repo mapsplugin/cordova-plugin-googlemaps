@@ -68,7 +68,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
@@ -85,7 +84,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -93,6 +91,9 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.gms.maps.model.IndoorBuilding;
+import com.google.android.gms.maps.model.IndoorLevel;
+import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
@@ -568,7 +569,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           map.setOnMarkerClickListener(GoogleMaps.this);
           map.setOnMarkerDragListener(GoogleMaps.this);
           map.setOnMyLocationButtonClickListener(GoogleMaps.this);
-          map.setOnIndoorStateChangeListener(GoogleMaps.this);
           
           // Load PluginMap class
           GoogleMaps.this.loadPlugin("Map");
@@ -915,15 +915,25 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     callbackContext.success();
   }
 
-  @SuppressWarnings("unused")
   private void getFocusedBuilding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    IndoorBuilding focusedBuilding = map.getFocusedBuilding();
-    if (focusedBuilding != null) {
-      JSONObject result = PluginUtil.convertIndoorBuildingToJson(focusedBuilding);
-      callbackContext.success(result);
-    } else {
-      callbackContext.success(-1);
-    }
+	IndoorBuilding focusedBuilding = map.getFocusedBuilding();
+	JSONObject result = new JSONObject();
+	if (focusedBuilding != null) {
+		JSONArray levels = new JSONArray();
+		for(IndoorLevel level : focusedBuilding.getLevels()){
+			JSONObject levelInfo = new JSONObject();
+			levelInfo.put("name",level.getName());
+			levelInfo.put("shortName",level.getShortName());
+			levels.put(levelInfo);
+		}
+		result.put("activeLevelIndex",focusedBuilding.getActiveLevelIndex());
+		result.put("defaultLevelIndex",focusedBuilding.getDefaultLevelIndex());
+		result.put("levels",levels);
+		result.put("underground",focusedBuilding.isUnderground());
+		callbackContext.success(result);
+	} else {
+		callbackContext.success(-1);
+	}
   }
   
   @SuppressWarnings("unused")
@@ -1550,17 +1560,30 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public void onIndoorBuildingFocused() {
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')");
+	webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')");
   }
   
   @Override
   public void onIndoorLevelActivated(IndoorBuilding building) {
-    String jsonStr = "null";
-    JSONObject result = PluginUtil.convertIndoorBuildingToJson(building);
-    if (result != null) {
-      jsonStr = result.toString();
+	JSONObject params = new JSONObject();
+    String jsonStr = "";
+	try {
+		JSONArray levels = new JSONArray();
+		for(IndoorLevel level : building.getLevels()){
+			JSONObject levelInfo = new JSONObject();
+			levelInfo.put("name",level.getName());
+			levelInfo.put("shortName",level.getShortName());
+			levels.put(levelInfo);
+		}
+		params.put("activeLevelIndex",building.getActiveLevelIndex());
+		params.put("defaultLevelIndex",building.getDefaultLevelIndex());
+		params.put("levels",levels);
+		params.put("underground",building.isUnderground());
+		jsonStr = params.toString();
+    } catch (JSONException e) {
+      e.printStackTrace();
     }
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', " + jsonStr + ")");
+	webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', " + jsonStr + ")");
   }
   
   @Override

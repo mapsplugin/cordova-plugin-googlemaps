@@ -27,8 +27,6 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Base64;
 
-import com.google.android.gms.maps.model.IndoorBuilding;
-import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
@@ -271,32 +269,5 @@ public class PluginUtil {
       latLngBuilder.include(iterator.next());
     }
     return latLngBuilder.build();
-  }
-  
-  
-  public static JSONObject convertIndoorBuildingToJson(IndoorBuilding indoorBuilding) {
-    if (indoorBuilding == null) {
-      return null;
-    }
-    JSONObject result = new JSONObject();
-    try {
-      JSONArray levels = new JSONArray();
-      for(IndoorLevel level : indoorBuilding.getLevels()){
-        JSONObject levelInfo = new JSONObject();
-          levelInfo.put("name",level.getName());
-        
-          // TODO Auto-generated catch block
-        levelInfo.put("shortName",level.getShortName());
-        levels.put(levelInfo);
-      }
-      result.put("activeLevelIndex",indoorBuilding.getActiveLevelIndex());
-      result.put("defaultLevelIndex",indoorBuilding.getDefaultLevelIndex());
-      result.put("levels",levels);
-      result.put("underground",indoorBuilding.isUnderground());
-    } catch (JSONException e) {
-      e.printStackTrace();
-      return null;
-    }  
-    return result;
   }
 }
