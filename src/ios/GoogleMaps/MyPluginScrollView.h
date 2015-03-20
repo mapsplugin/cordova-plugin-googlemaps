@@ -7,12 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MyTouchableView.h"
 #import "MyPluginLayerDebugView.h"
 
 @interface MyPluginScrollView : UIScrollView
 @property (nonatomic) MyPluginLayerDebugView *debugView;
-@property (nonatomic) MyTouchableView *touchableView;
 - (void)attachView:(UIView *)view;
 - (void)dettachView;
 @end
