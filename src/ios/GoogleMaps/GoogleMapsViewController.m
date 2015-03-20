@@ -83,6 +83,9 @@ NSDictionary *initOptions;
     //self.map.autoresizingMask = UIViewAutoresizingNone;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
+    //indoor display
+    self.map.indoorDisplay.delegate = self;
+  
   
     BOOL isEnabled = NO;
     //controls
@@ -646,6 +649,43 @@ NSDictionary *initOptions;
 }
 
 
+- (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building {
+  //Notify to the JS
+  NSString* jsString = @"javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')";
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
+
+- (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
+  
+  GMSIndoorBuilding *building = self.map.indoorDisplay.activeBuilding;
+  
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+  
+  NSUInteger activeLevelIndex = [building.levels indexOfObject:activeLevel];
+  [result setObject:[NSNumber numberWithInteger:activeLevelIndex] forKey:@"activeLevelIndex"];
+  [result setObject:[NSNumber numberWithInteger:building.defaultLevelIndex] forKey:@"defaultLevelIndex"];
+  
+  GMSIndoorLevel *level;
+  NSMutableDictionary *levelInfo;
+  NSMutableArray *levels = [NSMutableArray array];
+  for (level in building.levels) {
+    levelInfo = [NSMutableDictionary dictionary];
+    
+    [levelInfo setObject:[NSString stringWithString:level.name] forKey:@"name"];
+    [levelInfo setObject:[NSString stringWithString:level.shortName] forKey:@"shortName"];
+    [levels addObject:levelInfo];
+  }
+  [result setObject:levels forKey:@"levels"];
+  
+  NSError *error;
+  NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:&error];
+  
+  NSString *JSONstring = [[NSString alloc] initWithData:data
+                                           encoding:NSUTF8StringEncoding];
+  NSString *jsString = [NSString stringWithFormat:@"javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', %@)", JSONstring];
+  
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+}
 
 
 
