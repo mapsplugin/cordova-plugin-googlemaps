@@ -92,7 +92,12 @@
         return nil;
       }
     }
-    return hitView;
+    
+    self.touchableView.mapCtrl = self.mapCtrl;
+    
+    //NSLog(@"hitClass = %@", hitView);
+    return self.touchableView;
+    //return hitView;
   }
   
   return [super hitTest:point withEvent:event];
@@ -138,6 +143,5 @@
   rectangle.size.height = self.webView.scrollView.contentSize.height;
   CGContextFillRect(context, rectangle);
 }
-
 
 @end

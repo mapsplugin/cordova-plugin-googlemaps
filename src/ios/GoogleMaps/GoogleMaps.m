@@ -30,6 +30,8 @@
   self.webView.scrollView.delegate = self;
   [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
   
+  self.pluginLayer.touchableView = self.pluginScrollView.touchableView;
+  
   //[self.webView removeFromSuperview];
   self.pluginLayer.webView = self.webView;
   [self.pluginLayer addSubview:self.pluginScrollView];

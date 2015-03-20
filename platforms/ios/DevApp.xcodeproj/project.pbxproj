@@ -69,6 +69,7 @@
 		A046F7401A74DFDA004678D8 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D85846C38A094BD7AE0421C1 /* OpenGLES.framework */; };
 		A046F7411A74DFDA004678D8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3943BDD383F0494ABF86A8D1 /* QuartzCore.framework */; };
 		A046F7421A74DFDA004678D8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CE5F4C8A9E143DD88320223 /* SystemConfiguration.framework */; };
+		A07514851AAEDE5500068A7D /* MyTouchableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A07514841AAEDE5500068A7D /* MyTouchableView.m */; };
 		A0A6C8B519DE8B61006FA408 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 2642A164D871458CAA0E7CD2 /* CDVLogger.m */; };
 		A0B15AF119D406AE00CECFE9 /* plugin.xml in Resources */ = {isa = PBXBuildFile; fileRef = A0B15AF019D406AD00CECFE9 /* plugin.xml */; };
 		A0C8C25419D11E8B00E46F7E /* MyPluginScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */; };
@@ -188,6 +189,8 @@
 		8D1107310486CEB800E47090 /* DevApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "DevApp-Info.plist"; path = "../DevApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		94B42436A54042BB8390247A /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpRequest.h; path = plugin.http.request/HttpRequest/HttpRequest.h; sourceTree = "<group>"; };
 		9D0482B04E60450894AB403B /* libz.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		A07514841AAEDE5500068A7D /* MyTouchableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyTouchableView.m; path = ../../../../src/ios/GoogleMaps/MyTouchableView.m; sourceTree = "<group>"; };
+		A07514871AAEDF8F00068A7D /* MyTouchableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyTouchableView.h; path = ../../../../src/ios/GoogleMaps/MyTouchableView.h; sourceTree = "<group>"; };
 		A0B15AF019D406AD00CECFE9 /* plugin.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = plugin.xml; path = ../../plugin.xml; sourceTree = "<group>"; };
 		A0C8C25219D11E8B00E46F7E /* MyPluginScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyPluginScrollView.h; path = ../../../../src/ios/GoogleMaps/MyPluginScrollView.h; sourceTree = "<group>"; };
 		A0C8C25319D11E8B00E46F7E /* MyPluginScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyPluginScrollView.m; path = ../../../../src/ios/GoogleMaps/MyPluginScrollView.m; sourceTree = "<group>"; };
@@ -349,6 +352,7 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				A07514871AAEDF8F00068A7D /* MyTouchableView.h */,
 				6904C34219D0F1A3008FFD15 /* Circle.h */,
 				6904C34319D0F1A3008FFD15 /* Circle.m */,
 				6904C34419D0F1A3008FFD15 /* External.h */,
@@ -395,6 +399,7 @@
 				5210F5E958CC4FCFA68923E4 /* R9HTTPRequest.h */,
 				A0C8C25519D120FC00E46F7E /* MyPluginLayerDebugView.h */,
 				A0C8C25619D120FC00E46F7E /* MyPluginLayerDebugView.m */,
+				A07514841AAEDE5500068A7D /* MyTouchableView.m */,
 			);
 			name = Plugins;
 			path = DevApp/Plugins;
@@ -624,6 +629,7 @@
 				6904C37019D0F1A3008FFD15 /* MyPluginLayer.m in Sources */,
 				6904C37219D0F1A3008FFD15 /* NSData+Base64.m in Sources */,
 				6904C36A19D0F1A3008FFD15 /* GoogleMaps.m in Sources */,
+				A07514851AAEDE5500068A7D /* MyTouchableView.m in Sources */,
 				6904C36E19D0F1A3008FFD15 /* Map.m in Sources */,
 				6904C37719D0F1A3008FFD15 /* TBXML.m in Sources */,
 				C92E8F2094FE418B921242FD /* BSD-LICENSE in Sources */,

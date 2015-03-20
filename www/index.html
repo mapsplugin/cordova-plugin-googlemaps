@@ -1,51 +1,43 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <title>Hello World</title>
-        <script src="js/jquery.min.js"></script>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript">
-var map;
-document.addEventListener("deviceready", 
-function() {
-    var div = document.getElementById("map_canvas");
-    map = plugin.google.maps.Map.getMap(div);
-    map.addEventListener(plugin.google.maps.event.MAP_READY, onMapReady);
-}, false);
-
-function onMapReady() {
-    console.log('map ready');
-    map.setDebuggable(true);
-    
-    $("input[type='radio']").change(function() {
-      $("#map_canvas").removeClass("map1 map2").addClass($(this).val());
-    });
-}
-        </script>
-        <style type="text/css">
-        #map_canvas {
-          border: 2px solid blue;
-        }
-        .map1 {
-          position:absolute;top:0;left:0;height:90%;width:90%
-        }
-
-        .map2 {
-          position:absolute;top:20%;left:20%;height:60%;width:60%
-        }
-        </style>
-    </head>
-    <body id='body'>
-        <div id="map_canvas" class="map1">
-            <form id='form' style="position:absolute;bottom:0;left:0;width:100%">
-                <input id='radio1' type="radio" value="map1" name="class">Map1
-                <input id='radio2' type="radio" value="map2" name="class">Map2<br>
-                <input id='text' style="width:100%" />
-            </form>
-        </div>
-    </body>
+  <head>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+    <meta charset="utf-8" />
+    <title>Google Maps Plugin for Cordova</title>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript">
+      var map;
+      function onDeviceReady() {
+        map = plugin.google.maps.Map.getMap($("map_canvas")[0], {
+          
+  'camera': {
+    'latLng': new plugin.google.maps.LatLng(37.422858, -122.085065),
+    'tilt': 30,
+    'zoom': 15,
+    'bearing': 50
+  }
+          });
+        map.on("map_ready", onMapReady);
+        map.on("indoor_level_activated", onIndoorLevelActived);
+      }
+      function onMapReady() {
+      }
+      function onIndoorLevelActived(building) {
+        console.log(building);
+      }
+      $(document).one("deviceready", onDeviceReady);
+    </script>
+    <style type="text/css">
+      html,body, #map_canvas {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map_canvas" ></div>
+  </body>
 </html>
