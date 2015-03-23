@@ -118,10 +118,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   private final int ACTIVITY_LOCATION_DIALOG = 0x7f999900; // Invite the location dialog using Google Play Services
   private final int ACTIVITY_LOCATION_PAGE = 0x7f999901;   // Open the location settings page
-  private int ACTIVITY_RESULT_CODES[] = {
-    ACTIVITY_LOCATION_DIALOG,
-    ACTIVITY_LOCATION_PAGE
-  };
   
   private JSONObject mapDivLayoutJSON = null;
   private MapView mapView = null;
@@ -645,19 +641,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
   }
 
-  @SuppressWarnings("unused")
-  private Boolean myTest(JSONArray args, CallbackContext callbackContext) {
-    PolygonOptions options = new PolygonOptions();
-    options.add(new LatLng(-45, -90));
-    options.add(new LatLng(-45, -180));
-    options.add(new LatLng(0, -180));
-    options.add(new LatLng(0, -90));
-    map.addPolygon(options);
-    
-    
-    callbackContext.success();
-    return true;
-  }
   @SuppressWarnings("unused")
   private Boolean getLicenseInfo(JSONArray args, CallbackContext callbackContext) {
     String msg = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity);
