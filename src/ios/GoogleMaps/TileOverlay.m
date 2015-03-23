@@ -25,7 +25,10 @@
     NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)x]];
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<y>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)y]];
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<zoom>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)zoom]];
-    NSLog(@"%@", urlStr);
+    
+    if (self.mapCtrl.debuggable) {
+      NSLog(@"%@", urlStr);
+    }
     return [NSURL URLWithString:urlStr];
   };
   GMSTileLayer *layer = [GMSURLTileLayer tileLayerWithURLConstructor:constructor];

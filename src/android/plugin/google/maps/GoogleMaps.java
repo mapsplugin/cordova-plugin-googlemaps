@@ -127,7 +127,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int LICENSE_LINK_ID = 0x7f99991; //random
   private final String PLUGIN_VERSION = "1.2.5";
   private MyPluginLayout mPluginLayout = null;
-  private boolean isDebug = false;
+  public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
   
   @SuppressLint("NewApi") @Override
@@ -137,16 +137,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     density = Resources.getSystem().getDisplayMetrics().density;
     root = (ViewGroup) webView.getParent();
 
-    // Is this app in debug mode?
+    // Is this release build version?
+    boolean isRelease = false;
     try {
       PackageManager manager = activity.getPackageManager();
       ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
-      isDebug = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
+      isRelease = !((appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE);
     } catch (Exception e) {}
     
     Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
 
-    if (isDebug) {
+    if (!isRelease) {
       cordova.getThreadPool().execute(new Runnable() {
         @Override
         public void run() {
@@ -1954,6 +1955,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (mapView != null && this.windowLayer == null) {
       this.mPluginLayout.setDebug(debuggable);
     }
+    this.isDebug = debuggable;
     this.sendNoResult(callbackContext);
   }
   
