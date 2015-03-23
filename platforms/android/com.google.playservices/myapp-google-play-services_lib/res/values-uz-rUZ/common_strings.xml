@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Kirish"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google orqali kirish"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Telefonda ochish"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Ushbu ilova talab qiladigan bir yoki bir nechta Google Play xizmatlari hozirda mavjud emas. Yordam olish uchun dastur ishlab chiquvchisiga murojaat qiling."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Kirish amalga oshmadi"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Ko‘rsatilgan hisobga kirishda xatolik yuz berdi. Boshqa hisob tanlang."</string>
 </resources>

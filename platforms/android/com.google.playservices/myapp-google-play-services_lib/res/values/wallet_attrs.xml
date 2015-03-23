@@ -71,4 +71,14 @@
             <enum name="monochrome" value="2"/>
         </attr>
     </declare-styleable>
+
+    <!-- Attributes that can be specified to define a custom theme -->
+    <declare-styleable name="CustomWalletTheme" >
+        <!-- Defines the set of transition to be used between activities -->
+        <attr name="windowTransitionStyle" format="enum">
+            <enum name="slide" value="1" />
+            <enum name="none" value="2" />
+        </attr>
+    </declare-styleable>
+
 </resources>

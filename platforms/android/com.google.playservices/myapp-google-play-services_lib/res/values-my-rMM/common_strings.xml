@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"လင်မှတ်ထိုး ဝင်"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google ဖြင့် လက်မှတ်ထို ဝင်"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"ဖုန်းထဲ ဖွင့်ရန်"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"ဒီappသည် လက်ရှိအချိန်မှာ မရှိသေးသည့် Google ပလေး ဝန်ဆောင်မှုများကို လိုအပ်သည်။ ကျေးဇူးပြုပြီး အကူအညီရယူရန် ပြုစုသူကို ဆက်သွယ်ပါ။"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"လက်မှတ်ထိုးဝင်ရောက်ခြင်း မအောင်မြင်ပါ"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"သတ်မှတ်ထားသောအကောင့်သို့ လက်မှတ်ထိုးဝင်ရောက်ရာတွင် မှားယွင်းနေပါသည်။ ကျေးဇူးပြု၍ အခြားအကောင့်တစ်ခုကို ရွေးချယ်ပါ။"</string>
 </resources>

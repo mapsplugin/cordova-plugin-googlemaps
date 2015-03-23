@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"登录"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"使用Google帐户登录"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"在手机上打开"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"运行此应用所需的一项或多项 Google Play 服务目前无法使用。请与开发者联系以寻求帮助。"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"登录失败"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"登录该帐户时出错。请选择其他帐户。"</string>
 </resources>

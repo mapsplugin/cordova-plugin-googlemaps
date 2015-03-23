@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Zaloguj się"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Zaloguj się przez Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Otwórz na telefonie"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Ta aplikacja wymaga co najmniej jednej usługi Google Play, która jest obecnie niedostępna. Skontaktuj się z programistą, by uzyskać pomoc."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Błąd logowania"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Błąd podczas logowania na określone konto. Wybierz inne."</string>
 </resources>

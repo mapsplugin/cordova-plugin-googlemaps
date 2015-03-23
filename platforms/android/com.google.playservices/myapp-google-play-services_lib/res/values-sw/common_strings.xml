@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Ingia"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Ingia ukitumia Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Fungua kwenye simu"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Programu hii inahitaji huduma moja au zaidi za Google Play ambazo hazipatikani kwa sasa. Tafadhali wasiliana na msanidi programu kwa usaidizi."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Imeshindwa kuingia katika akaunti"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Hitilafu wakati wa kuingia katika akaunti iliyobainishwa. Tafadhali chagua akaunti tofauti."</string>
 </resources>

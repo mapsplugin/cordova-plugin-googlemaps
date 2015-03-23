@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"登入"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"登入 Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"在手機中開啟"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"此應用程式需要一個或多個目前尚未支援的 Google Play 服務。請聯絡開發商尋求協助。"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"登入失敗"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"登入特定帳戶時發生錯誤。請選擇其他帳戶。"</string>
 </resources>

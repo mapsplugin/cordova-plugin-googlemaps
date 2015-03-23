@@ -15,9 +15,9 @@
     <string name="common_google_play_services_enable_text" msgid="7627896071867667758">"Deze app werkt niet, tenzij u Google Play-services inschakelt."</string>
     <string name="common_google_play_services_enable_button" msgid="4181637455539816337">"Google Play-services inschak."</string>
     <string name="common_google_play_services_update_title" msgid="6006316683626838685">"Google Play-services updaten"</string>
-    <string name="common_android_wear_update_title" msgid="1366439133145190222">"Android Wear bijwerken"</string>
+    <string name="common_android_wear_update_title" msgid="1366439133145190222">"Android Wear updaten"</string>
     <string name="common_google_play_services_update_text" msgid="448354684997260580">"Deze app kan niet worden uitgevoerd, tenzij u Google Play-services updatet."</string>
-    <string name="common_android_wear_update_text" msgid="3046420540094071256">"Deze app wordt niet uitgevoerd, tenzij u de Android Wear-app bijwerkt."</string>
+    <string name="common_android_wear_update_text" msgid="3046420540094071256">"Deze app wordt niet uitgevoerd, tenzij u de Android Wear-app updatet."</string>
     <string name="common_google_play_services_network_error_title" msgid="3827284619958211114">"Netwerkfout"</string>
     <string name="common_google_play_services_network_error_text" msgid="9038847255613537209">"Er is een gegevensverbinding nodig om verbinding te kunnen maken met Google Play-services."</string>
     <string name="common_google_play_services_invalid_account_title" msgid="1066672360770936753">"Ongeldig account"</string>
@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Inloggen"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Inloggen met Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Openen op telefoon"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Voor deze app zijn een of meer Google Play-services vereist die momenteel niet beschikbaar zijn. Neem contact op met de ontwikkelaar voor ondersteuning."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Inloggen mislukt"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Fout bij inloggen op het opgegeven account. Kies een ander account."</string>
 </resources>

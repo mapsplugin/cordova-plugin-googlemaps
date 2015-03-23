@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Մուտք գործել"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Մուտք գործեք Google-ով"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Բացել հեռախոսում"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Այս հավելվածի համար անհրաժեշտ է մեկ կամ մի քանի Google Play ծառայություններ, որոնք ներկայումս մատչելի չեն: Օգնություն ստանալու համար կապվեք մշակողի հետ:"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Մուտքը ձախողվեց"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Նշված հաշիվ մուտք գործելիս առաջացել է սխալ: Ընտրեք մեկ այլ հաշիվ:"</string>
 </resources>

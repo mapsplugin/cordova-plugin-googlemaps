@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Войти"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Войти в аккаунт Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Открыть на телефоне"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Сервисы Google Play, необходимые для работы приложения, сейчас недоступны. Обратитесь за помощью к разработчику."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Ошибка входа"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"При входе в указанный аккаунт произошла ошибка. Выберите другой аккаунт."</string>
 </resources>

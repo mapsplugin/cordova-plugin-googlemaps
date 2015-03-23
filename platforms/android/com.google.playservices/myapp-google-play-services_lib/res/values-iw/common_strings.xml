@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"היכנס"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"‏היכנס באמצעות Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"פתח בטלפון"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"‏האפליקציה הזו זקוקה לשירות אחד או יותר של Google Play שאינם זמינים כעת. צור קשר עם המפתח לקבלת סיוע."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"הכניסה נכשלה"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"אירעה שגיאה בעת הכניסה אל החשבון המצוין. בחר חשבון אחר."</string>
 </resources>

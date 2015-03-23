@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"ចូល"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"ចូល​ដោយ​ប្រើ​ Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"បើក​តាម​ទូរស័ព្ទ"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"កម្មវិធីនេះតម្រូវឲ្យមានសេវាកម្ម Google Play មួយ ឬច្រើនដែលមិនមានផ្តល់ជូនទេនាពេលបច្ចុប្បន្ន។ សូមទំនាក់ទំនងអ្នកអភិវឌ្ឍន៍ដើម្បីទទួលជំនួយ។"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"បានបរាជ័យក្នុងការចូល"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"កំហុសក្នុងការចូលគណនីជាក់លាក់។ សូមជ្រើសរើសគណនីផ្សេងទៀត។"</string>
 </resources>

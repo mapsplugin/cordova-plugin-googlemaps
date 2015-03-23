@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Увійти"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Увійти в обл.запис Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Відкрити на телефоні"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Цей додаток використовує один або декілька сервісів Google Play, які зараз недоступні. Зверніться по допомогу до розробника."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Помилка під час входу"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Не вдалося ввійти в указаний обліковий запис. Виберіть інший."</string>
 </resources>

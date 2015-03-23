@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"সাইন ইন করুন"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google এর মাধ্যমে সাইন ইন করুন"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"ফোনে খুলুন"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"এই অ্যাপ্লিকেশানটির এক বা একাধিক Google Play পরিষেবার প্রয়োজন যা বর্তমানে অনুপলব্ধ৷ সহায়তার জন্য অনুগ্রহ করে বিকাশকারীর সাথে যোগাযোগ করুন৷"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"সাইন ইন করতে ব্যর্থ হয়েছে"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"নির্দিষ্ট অ্যাকাউন্টে সাইন ইন করার সময় ত্রুটি৷ দয়া করে একটি আলাদা অ্যাকাউন্ট চয়ন করুন৷"</string>
 </resources>

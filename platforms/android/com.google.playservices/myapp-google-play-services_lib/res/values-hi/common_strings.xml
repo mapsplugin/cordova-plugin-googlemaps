@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"प्रवेश करें"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google से प्रवेश करें"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"फ़ोन पर खोलें"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"इस ऐप को ऐसी एक या अधिक Google Play सेवाओं की आवश्‍यकता है जो वर्तमान में उपलब्‍ध नहीं हैं. कृपया सहायता के लिए डेवलपर से संपर्क करें."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"प्रवेश करना विफल रहा"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"निर्दिष्‍ट खाते में प्रवेश करने में त्रुटि. कृपया कोई भिन्‍न खाता चुनें."</string>
 </resources>

@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"ಸೈನ್ ಇನ್ ಮಾಡು"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google ಜೊತೆ ಸೈನ್ ಇನ್ ಮಾಡಿ"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"ಫೋನ್‌ನಲ್ಲಿ ತೆರೆಯಿರಿ"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲದಿರುವಂತಹ ಒಂದು ಅಥವಾ ಹೆಚ್ಚು Google Play ಸೇವೆಗಳ ಅಗತ್ಯವಿದೆ. ಸಹಾಯಕ್ಕಾಗಿ ಡೆವಲಪರ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"ಸೈನ್ ಇನ್ ವಿಫಲವಾಗಿದೆ"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"ಸೂಚಿಸಿದ ಖಾತೆಗೆ ಸೈನ್ ಇನ್ ಮಾಡುವಲ್ಲಿ ದೋಷ ಇದೆ. ದಯವಿಟ್ಟು ಮತ್ತೊಂದು ಖಾತೆಯನ್ನು ಆರಿಸಿ."</string>
 </resources>

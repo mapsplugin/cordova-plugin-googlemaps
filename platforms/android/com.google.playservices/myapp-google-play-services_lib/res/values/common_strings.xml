@@ -49,7 +49,7 @@
     <!-- Title of confirmation dialog informing user that they need to update
         Google Play services (from Play Store) [CHAR LIMIT=40] -->
     <string name="common_google_play_services_update_title" msgid="6006316683626838685">Update Google Play services</string>
-    
+
     <!-- Title of confirmation dialog informing user that they need to update
         the Android Wear app (from Play Store) [CHAR LIMIT=40] -->
     <string name="common_android_wear_update_title" msgid="6006316683626838685">Update Android Wear</string>
@@ -95,5 +95,15 @@
 
     <!-- Label for an action to open a notifications content on the phone [CHAR LIMIT=25] -->
     <string name="common_open_on_phone">Open on phone</string>
+
+    <!-- Message in confirmation dialog informing the user that one of the APIs they attepmt to access is not available. [CHAR LIMIT=NONE] -->
+    <string name="commono_google_play_services_api_unavailable_text">This app requires one or more Google Play services that are not currently
+available. Please contact the developer for assistance.</string>
+
+    <!-- Title of confirmation dialog informing the user that the account could not be signed in. [CHAR LIMIT=40] -->
+    <string name="common_google_play_services_sign_in_failed_title">Sign in failed</string>
+
+    <!-- Message in confirmation dialog informing the user that the account could not be signed in. [CHAR LIMIT=NONE] -->
+    <string name="common_google_play_services_sign_in_failed_text">Error signing in the specified account. Please choose a different account.</string>
 
 </resources>

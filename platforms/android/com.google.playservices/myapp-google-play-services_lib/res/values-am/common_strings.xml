@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"ግባ"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"በGoogle ይግቡ"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"ስልክ ላይ ክፈት"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"ይህ መተግበሪያ አሁን ላይ የማይገኙ አንድ ወይም ከዛ በላይ የGoogle Play አገልግሎቶችን ይፈልጋል። እገዛ ለማግኘት እባክዎ ገንቢውን ያነጋግሩ።"</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"በመለያ መግባት አልተሳካም"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"ወደተገለጸው መለያ መግባት ላይ ስህተት። እባክዎ የተለየ መለያ ይምረጡ።"</string>
 </resources>

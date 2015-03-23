@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"ເຂົ້າສູ່ລະບົບ"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"ເຂົ້າສູ່ລະບົບດ້ວຍ Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"​ເປີດ​ໃນ​ໂທ​ລະ​ສັບ"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"​ແອັບ​ນີ້​ຕ້ອງ​ການ​ໃຫ້​ມີ​ໜຶ່ງ​ ຫຼື​ຫຼາຍ​ບໍ​ລິ​ການ​ຂອງ Google Play ທີ່​ບໍ່​ມີ​ໃຫ້​ຢູ່​ໃນ​ປະ​ຈຸ​ບັນ. ກະ​ລຸ​ນາ​ຕິດ​ຕໍ່​ຜູ້​ພັດ​ທະ​ນາ ເພື່ອ​ການ​ຊ່ວຍ​ເຫຼືອ​ເພີ່ມ​ເຕີມ."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"ເຂົ້າສູ່ລະບົບບໍ່​ສຳ​ເລັດ"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"ການ​ເຂົ້າ​ສູ່ລະ​ບົບ​ບັນ​ຊີ​ລະ​ບຸ​ໄວ້​ຜິດ​ພາດ. ກະ​ລຸ​ນາ​ເລືອກ​ບັນ​ຊີ​ອື່ນ."</string>
 </resources>

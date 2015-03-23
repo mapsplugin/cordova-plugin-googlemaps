@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Přihlásit se"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Přihlásit se účtem Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Otevřít v telefonu"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Tato aplikace vyžaduje jednu nebo více služeb Google Play, které aktuálně nejsou k dispozici. S žádostí o pomoc se obraťte na vývojáře."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Přihlášení se nezdařilo"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Při přihlašování k uvedenému účtu došlo k chybě. Zvolte prosím jiný účet."</string>
 </resources>

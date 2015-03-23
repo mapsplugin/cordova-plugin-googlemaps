@@ -27,6 +27,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender.SendIntentException;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -41,6 +42,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -65,6 +67,9 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -102,6 +107,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
+  private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   
   private enum EVENTS {
     onScrollChanged
@@ -109,6 +115,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
+
+  private final int ACTIVITY_LOCATION_DIALOG = 0x7f999900; // Invite the location dialog using Google Play Services
+  private final int ACTIVITY_LOCATION_PAGE = 0x7f999901;   // Open the location settings page
+  private int ACTIVITY_RESULT_CODES[] = {
+    ACTIVITY_LOCATION_DIALOG,
+    ACTIVITY_LOCATION_PAGE
+  };
   
   private JSONObject mapDivLayoutJSON = null;
   private MapView mapView = null;
@@ -693,12 +706,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   private void closeWindow() {
-      try {
-        Method method = webView.getClass().getMethod("hideCustomView");
-        method.invoke(webView);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    try {
+      Method method = webView.getClass().getMethod("hideCustomView");
+      method.invoke(webView);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
   @SuppressWarnings("unused")
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
@@ -929,35 +942,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @SuppressWarnings("unused")
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
-    LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
-    List<String> providers = locationManager.getAllProviders();
-    ArrayList<String> availableProviders = new ArrayList<String>();
-    if (providers.size() == 0) {
-      JSONObject result = new JSONObject();
-      result.put("status", false);
-      result.put("error_code", "not_available");
-      result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
-      callbackContext.error(result);
-      return;
-    } else {
-      if (isDebug) {
-        Log.d("CordovaLog", "---debug at getMyLocation(available providers)--");
-      }
-      Iterator<String> iterator = providers.iterator();
-      String provider;
-      boolean isAvailable = false;
-      while(iterator.hasNext()) {
-        provider = iterator.next();
-        isAvailable = locationManager.isProviderEnabled(provider);
-        if (isAvailable) {
-          availableProviders.add(provider);
-        }
-        if (isDebug) {
-          Log.d("CordovaLog", "   " + provider + " = " + (isAvailable ? "" : "not ") + "available");
-        }
-      }
-    }
-    
     // enableHighAccuracy = true -> PRIORITY_HIGH_ACCURACY
     // enableHighAccuracy = false -> PRIORITY_BALANCED_POWER_ACCURACY
     
@@ -968,67 +952,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     final boolean enableHighAccuracy = isHigh;
     
-    String useProvider = null;
-    if (enableHighAccuracy == true) {
-      // GPS is not available
-      if (availableProviders.indexOf(LocationManager.GPS_PROVIDER) == -1) {
-        useProvider = null;
-      } else {
-        useProvider = LocationManager.GPS_PROVIDER;
-      }
-    } else {
-      if (availableProviders.indexOf(LocationManager.GPS_PROVIDER) > -1) {
-        useProvider = LocationManager.GPS_PROVIDER;
-      } else if (availableProviders.indexOf(LocationManager.NETWORK_PROVIDER) > -1) {
-        useProvider = LocationManager.NETWORK_PROVIDER;
-      } else if (availableProviders.indexOf(LocationManager.PASSIVE_PROVIDER) > -1) {
-        useProvider = LocationManager.PASSIVE_PROVIDER;
-        Toast.makeText(activity, "Recommend: Enabling location is better result.", Toast.LENGTH_LONG).show();
-      }
-    }
-    if (useProvider == null) {
-      //Ask the user to turn on the location services.
-      AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
-      builder.setTitle("Improve location accuracy");
-      builder.setMessage("To enhance your Maps experience:\n\n" +
-          " - Enable Google apps location access\n\n" +
-          " - Turn on GPS and mobile network location");
-      builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-              //Launch settings, allowing user to make a change
-              Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-              activity.startActivity(intent);
-
-              JSONObject result = new JSONObject();
-              try {
-                result.put("status", false);
-                result.put("error_code", "open_settings");
-                result.put("error_message", "User opened the settings of location service. So try again.");
-              } catch (JSONException e) {}
-              callbackContext.error(result);
-          }
-      });
-      builder.setNegativeButton("Skip", new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-              //No location service, no Activity
-              dialog.dismiss();
-
-              JSONObject result = new JSONObject();
-              try {
-                result.put("status", false);
-                result.put("error_code", "service_denied");
-                result.put("error_message", "This app has rejected to use Location Services.");
-              } catch (JSONException e) {}
-              callbackContext.error(result);
-          }
-      });
-      builder.create().show();
-      return;
-    }
-    
-    
     if (googleApiClient == null) {
       googleApiClient = new GoogleApiClient.Builder(this.activity)
         .addApi(LocationServices.API)
@@ -1037,11 +960,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           @Override
           public void onConnected(Bundle connectionHint) {
             Log.e("Marker", "===> onConnected");
-            PluginResult tmpResult = new PluginResult(PluginResult.Status.NO_RESULT);
-            tmpResult.setKeepCallback(true);
-            callbackContext.sendPluginResult(tmpResult);
+            GoogleMaps.this.sendNoResult(callbackContext);
             
-            _requestLocationUpdate(enableHighAccuracy, callbackContext);
+            _checkLocationSettings(enableHighAccuracy, callbackContext);
           }
   
           @Override
@@ -1067,22 +988,140 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         .build();
       googleApiClient.connect();
     } else if (googleApiClient.isConnected()) {
-      _requestLocationUpdate(enableHighAccuracy, callbackContext);
+      _checkLocationSettings(enableHighAccuracy, callbackContext);
     }
     
   }
+
+  private void _checkLocationSettings(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
+
+    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+    
+    LocationRequest locationRequest;
+    locationRequest = LocationRequest.create()
+        .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+    builder.addLocationRequest(locationRequest);
+    
+    if (enableHighAccuracy) {
+      locationRequest = LocationRequest.create()
+          .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+      builder.addLocationRequest(locationRequest);
+    }
+    
+    PendingResult<LocationSettingsResult> locationSettingsResult =
+        LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+    
+    locationSettingsResult.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+
+      @Override
+      public void onResult(LocationSettingsResult result) {
+        final Status status = result.getStatus();
+        switch (status.getStatusCode()) {
+          case LocationSettingsStatusCodes.SUCCESS:
+            _requestLocationUpdate(false, enableHighAccuracy, callbackContext);
+            break;
+            
+          case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+            // Location settings are not satisfied. But could be fixed by showing the user
+            // a dialog.
+            try {
+              //Keep the callback id
+              Bundle bundle = new Bundle();
+              bundle.putInt("type", ACTIVITY_LOCATION_DIALOG);
+              bundle.putString("callbackId", callbackContext.getCallbackId());
+              bundle.putBoolean("enableHighAccuracy", enableHighAccuracy);
+              int hashCode = bundle.hashCode();
+              
+              bufferForLocationDialog.put("bundle_" + hashCode, bundle);
+              GoogleMaps.this.sendNoResult(callbackContext);
+
+              // Show the dialog by calling startResolutionForResult(),
+              // and check the result in onActivityResult().
+              cordova.setActivityResultCallback(GoogleMaps.this);
+              status.startResolutionForResult(cordova.getActivity(), hashCode);
+            } catch (SendIntentException e) {
+              // Show the dialog that is original version of this plugin.
+              _showLocationSettingsPage(enableHighAccuracy, callbackContext);
+            }
+            break;
+            
+          case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+            // Location settings are not satisfied. However, we have no way to fix the
+            // settings so we won't show the dialog.
+          
+            JSONObject jsResult = new JSONObject();
+            try {
+              jsResult.put("status", false);
+              jsResult.put("error_code", "service_not_available");
+              jsResult.put("error_message", "This app has been rejected to use Location Services.");
+            } catch (JSONException e) {}
+            callbackContext.error(jsResult);
+            break;
+        }
+      }
+      
+    });
+  }
   
-  private void _requestLocationUpdate(boolean enableHighAccuracy, final CallbackContext callbackContext) {
+  private void _showLocationSettingsPage(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
+    //Ask the user to turn on the location services.
+    AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
+    builder.setTitle("Improve location accuracy");
+    builder.setMessage("To enhance your Maps experience:\n\n" +
+        " - Enable Google apps location access\n\n" +
+        " - Turn on GPS and mobile network location");
+    builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          //Keep the callback id
+          Bundle bundle = new Bundle();
+          bundle.putInt("type", ACTIVITY_LOCATION_PAGE);
+          bundle.putString("callbackId", callbackContext.getCallbackId());
+          bundle.putBoolean("enableHighAccuracy", enableHighAccuracy);
+          int hashCode = bundle.hashCode();
+          
+          bufferForLocationDialog.put("bundle_" + hashCode, bundle);
+          GoogleMaps.this.sendNoResult(callbackContext);
+          
+          //Launch settings, allowing user to make a change
+          cordova.setActivityResultCallback(GoogleMaps.this);
+          Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+          activity.startActivityForResult(intent, hashCode);
+        }
+    });
+    builder.setNegativeButton("Skip", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          //No location service, no Activity
+          dialog.dismiss();
+
+          JSONObject result = new JSONObject();
+          try {
+            result.put("status", false);
+            result.put("error_code", "service_denied");
+            result.put("error_message", "This app has been rejected to use Location Services.");
+          } catch (JSONException e) {}
+          callbackContext.error(result);
+        }
+    });
+    builder.create().show();
+    return;
+  }
+  
+  private void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     if (enableHighAccuracy) {
       priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
     }
-    LocationRequest locationRequest = LocationRequest.create()
+
+    LocationRequest locationRequest= LocationRequest.create()
         .setExpirationTime(5000)
-        .setNumUpdates(1)
+        .setNumUpdates(2)
         .setSmallestDisplacement(0)
-        .setPriority(priority).setInterval(5000);
+        .setPriority(priority)
+        .setInterval(5000);
+    
     
     final PendingResult<Status> result =  LocationServices.FusedLocationApi.requestLocationUpdates(
         googleApiClient, locationRequest, new LocationListener() {
@@ -1128,8 +1167,30 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             }
             return;
           } else {
-            Log.e("CordovaLog", "====> waiting onLocationChanged");
-            Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
+            if (isRetry == false) {
+              Log.e("CordovaLog", "====> waiting onLocationChanged");
+              Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
+              
+              GoogleMaps.this.sendNoResult(callbackContext);
+              
+              // Retry
+              Handler handler = new Handler();
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
+                }
+              }, 3000);
+            } else {
+              // Send back the error result
+              JSONObject result = new JSONObject();
+              try {
+                result.put("status", false);
+                result.put("error_code", "cannot_detect");
+                result.put("error_message", "Can not detect your location. Try again.");
+              } catch (JSONException e) {}
+              callbackContext.error(result);
+            }
           }
         }
       }
@@ -1439,7 +1500,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   /**
-   * Intersects using thw Winding Number Algorithm
+   * Intersects using the Winding Number Algorithm
    * @ref http://www.nttpc.co.jp/company/r_and_d/technology/number_algorithm.html
    * @param path
    * @param point
@@ -1561,6 +1622,95 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       jsonStr = result.toString();
     }
     webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', " + jsonStr + ")");
+  }
+  
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    Bundle bundle = data.getExtras();
+    
+    if (!bufferForLocationDialog.containsKey("bundle_" + requestCode)) {
+      Log.e("CordovaLog", "no key");
+      return;
+    }
+    Bundle query = bufferForLocationDialog.get("bundle_" + requestCode);
+    Log.d("CordovaLog", "====> onActivityResult (" + resultCode + ")");
+    
+    switch (query.getInt("type")) {
+      case ACTIVITY_LOCATION_DIALOG:
+        // User was asked to enable the location setting.
+        switch (resultCode) {
+          case Activity.RESULT_OK:
+            // All required changes were successfully made
+            _inviteLocationUpdateAfterActivityResult(query);
+            break;
+          case Activity.RESULT_CANCELED:
+              // The user was asked to change settings, but chose not to
+            _userRefusedToUseLocationAfterActivityResult(query);
+            break;
+          default:
+            break;
+        }
+        break;
+      case ACTIVITY_LOCATION_PAGE:
+        _onActivityResultLocationPage(query);
+        break;
+    }
+  }
+  private void _onActivityResultLocationPage(Bundle bundle) {
+    String callbackId = bundle.getString("callbackId");
+    CallbackContext callbackContext = new CallbackContext(callbackId, this.webView);
+    
+    LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+    List<String> providers = locationManager.getAllProviders();
+    int availableProviders = 0;
+    if (isDebug) {
+      Log.d("CordovaLog", "---debug at getMyLocation(available providers)--");
+    }
+    Iterator<String> iterator = providers.iterator();
+    String provider;
+    boolean isAvailable = false;
+    while(iterator.hasNext()) {
+      provider = iterator.next();
+      isAvailable = locationManager.isProviderEnabled(provider);
+      if (isAvailable) {
+        availableProviders++;
+      }
+      if (isDebug) {
+        Log.d("CordovaLog", "   " + provider + " = " + (isAvailable ? "" : "not ") + "available");
+      }
+    }
+    if (availableProviders == 0) {
+      JSONObject result = new JSONObject();
+      try {
+        result.put("status", false);
+        result.put("error_code", "not_available");
+        result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
+      } catch (JSONException e) {}
+      callbackContext.error(result);
+      return;
+    }
+
+    _inviteLocationUpdateAfterActivityResult(bundle);
+  }
+  
+  private void _inviteLocationUpdateAfterActivityResult(Bundle bundle) {
+    boolean enableHighAccuracy = bundle.getBoolean("enableHighAccuracy");
+    String callbackId = bundle.getString("callbackId");
+    CallbackContext callbackContext = new CallbackContext(callbackId, this.webView);
+    this._requestLocationUpdate(false, enableHighAccuracy, callbackContext);
+  }
+  
+  private void _userRefusedToUseLocationAfterActivityResult(Bundle bundle) {
+    String callbackId = bundle.getString("callbackId");
+    CallbackContext callbackContext = new CallbackContext(callbackId, this.webView);
+    JSONObject result = new JSONObject();
+    try {
+      result.put("status", false);
+      result.put("error_code", "service_denied");
+      result.put("error_message", "This app has been rejected to use Location Services.");
+    } catch (JSONException e) {}
+    callbackContext.error(result);
   }
   
   @Override

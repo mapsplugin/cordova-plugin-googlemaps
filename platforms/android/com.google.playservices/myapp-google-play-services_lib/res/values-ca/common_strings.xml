@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Inicia sessió"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Inicia sessió amb Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Obre al telèfon"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Aquesta aplicació requereix un o diversos serveis de Google Play que actualment no estan disponibles. Contacta amb el desenvolupador per obtenir assistència."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"S\'ha produït un error en iniciar sessió."</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"S\'ha produït un error en iniciar la sessió al compte especificat. Selecciona un altre compte."</string>
 </resources>

@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"تسجيل الدخول"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"‏تسجيل الدخول باستخدام Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"فتح على الهاتف"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"‏يتطلب هذا التطبيق خدمة أو أكثر من خدمات Google Play غير المتاحة حاليًا. الرجاء الاتصال بمطوّر البرامج للحصول على المساعدة."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"أخفق تسجيل الدخول"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"حدث خطأ أثناء تسجيل الدخول إلى الحساب المحدد. الرجاء اختيار حساب مختلف."</string>
 </resources>

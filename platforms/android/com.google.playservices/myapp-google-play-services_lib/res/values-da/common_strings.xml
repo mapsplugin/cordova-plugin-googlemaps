@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Log ind"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Log ind med Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Åbn på telefonen"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Denne app kræver en eller flere Google Play-tjenester, der ikke er tilgængelige i øjeblikket. Kontakt udvikleren for at få hjælp."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Login mislykkedes"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Der opstod en fejl under login på angivne konto. Vælg en anden konto."</string>
 </resources>

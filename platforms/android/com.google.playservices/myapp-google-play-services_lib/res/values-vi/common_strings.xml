@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Đăng nhập"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Đăng nhập bằng Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Mở trên điện thoại"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Ứng dụng này yêu cầu một hoặc nhiều dịch vụ của Google Play hiện không sẵn có. Vui lòng liên hệ với nhà phát triển để được hỗ trợ."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Đăng nhập không thành công"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Lỗi khi đăng nhập vào tài khoản được chỉ định. Vui lòng chọn một tài khoản khác."</string>
 </resources>

@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"உள்நுழைக"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google மூலம் உள்நுழை"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"ஃபோனில் திற"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"இந்தப் பயன்பாட்டிற்கு தற்போது இல்லாத ஒன்று அல்லது அதற்கு மேற்பட்ட Google Play சேவைகள் தேவை. உதவிக்காக டெவெலப்பரைத் தொடர்பு கொள்ளவும்."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"உள்நுழைவு தோல்வி"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"குறிப்பிட்ட கணக்கில் உள்நுழைவதில் பிழை. வேறு கணக்கைத் தேர்ந்தெடுக்கவும்."</string>
 </resources>

@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Anmelden"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Über Google anmelden"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Auf Telefon öffnen"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Diese App erfordert einen oder mehrere Google Play-Dienste, die derzeit nicht verfügbar sind. Bitte wenden Sie sich an den Entwickler, um Unterstützung zu erhalten."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Anmeldung fehlgeschlagen"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Fehler beim Anmelden im angegebenen Konto. Bitte wählen Sie ein anderes Konto aus."</string>
 </resources>

@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"로그인"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Google 계정으로 로그인"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"휴대전화에서 열기"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"이 앱에 필요한 하나 이상의 Google Play 서비스를 현재 사용할 수 없습니다. 개발자에게 문의하여 도움을 받으시기 바랍니다."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"로그인 실패"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"지정한 계정에 로그인하는 중에 오류가 발생했습니다. 다른 계정을 선택해 주세요."</string>
 </resources>

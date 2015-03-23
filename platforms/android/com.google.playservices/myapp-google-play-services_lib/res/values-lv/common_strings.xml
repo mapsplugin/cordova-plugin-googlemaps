@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Pierakst."</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Pierakstīties Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Atvērt tālrunī"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Šai lietotnei ir nepieciešams viens vai vairāki Google Play pakalpojumi, kas pašlaik nav pieejami. Lai saņemtu palīdzību, lūdzu, sazinieties ar izstrādātāju."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Neizdevās pierakstīties"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Pierakstoties norādītajā kontā, radās kļūda. Lūdzu, izvēlieties citu kontu."</string>
 </resources>

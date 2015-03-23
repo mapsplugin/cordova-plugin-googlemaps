@@ -29,4 +29,7 @@
     <string name="common_signin_button_text" msgid="9071884888741449141">"Logga in"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Logga in med Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Öppna på mobilen"</string>
+    <string name="commono_google_play_services_api_unavailable_text" msgid="5000919058582214855">"Appen kräver en eller flera Google Play-tjänster som inte är tillgängliga för närvarande. Kontakta utvecklaren om du behöver hjälp."</string>
+    <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Det gick inte att logga in"</string>
+    <string name="common_google_play_services_sign_in_failed_text" msgid="5194079840165204725">"Ett fel uppstod när du försökte logga in på kontot. Välj ett annat konto."</string>
 </resources>
