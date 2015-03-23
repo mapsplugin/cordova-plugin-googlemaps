@@ -85,18 +85,15 @@
     [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
   }
   
-  NSLog(@"---- animation");
   // Animation
   NSString *animation = nil;
   if ([json valueForKey:@"animation"]) {
     animation = [json valueForKey:@"animation"];
-  NSLog(@"---- animation property = %@", animation);
     if (iconProperty) {
       [iconProperty setObject:animation forKey:@"animation"];
     }
   }
   
-  NSLog(@"---- result");
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
   [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
@@ -107,15 +104,14 @@
       [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
     }
     
+    /*
     // Send an temporally signal at once
-  NSLog(@"---- Send  CDVCommandStatus_NO_RESULT");
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    */
   
     // Load icon in asynchronise
-    
-  NSLog(@"---- before setIcon_");
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
     [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
     
@@ -606,8 +602,9 @@
       iconPath = [iconPath stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
     }
     
-    NSLog(@"iconPath = %@", iconPath);
-    
+    if (self.mapCtrl.debuggable) {
+      NSLog(@"iconPath = %@", iconPath);
+    }
     
     range = [iconPath rangeOfString:@"http"];
     if (range.location != 0) {
@@ -656,7 +653,9 @@
           iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
           
           if (iconPath == nil) {
-            NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
+            if (self.mapCtrl.debuggable) {
+              NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
+            }
             [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
             return;
           }
@@ -667,7 +666,9 @@
           iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
           NSFileManager *fileManager = [NSFileManager defaultManager];
           if (![fileManager fileExistsAtPath:iconPath]) {
-            NSLog(@"(debug)There is no file at '%@'.", iconPath);
+            if (self.mapCtrl.debuggable) {
+              NSLog(@"(debug)There is no file at '%@'.", iconPath);
+            }
             [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
             return;
           }
@@ -705,7 +706,9 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
       }
     } else {
-      NSLog(@"---- Load the icon from over the internet");
+      if (self.mapCtrl.debuggable) {
+        NSLog(@"---- Load the icon from over the internet");
+      }
       /***
        * Load the icon from over the internet
        */
@@ -748,11 +751,15 @@
           
           if (animation) {
             // Do animation, then send the result
-            NSLog(@"---- do animation animation = %@", animation);
+            if (self.mapCtrl.debuggable) {
+              NSLog(@"---- do animation animation = %@", animation);
+            }
             [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
           } else {
             // Send the result
-            NSLog(@"---- no marker animation");
+            if (self.mapCtrl.debuggable) {
+              NSLog(@"---- no marker animation");
+            }
             [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
           }
           
@@ -764,7 +771,9 @@
       [request setFailedHandler:^(NSError *error){
         marker.map = self.mapCtrl.map;
         
-        NSLog(@"---- marker icon loading error");
+        if (self.mapCtrl.debuggable) {
+          NSLog(@"---- marker icon loading error");
+        }
         if (animation) {
           // Do animation, then send the result
           [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];

@@ -63,8 +63,9 @@
       error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
     }
   }
-  
-  NSLog(@"urlStr = %@", urlStr);
+  if (self.mapCtrl.debuggable) {
+    NSLog(@"urlStr = %@", urlStr);
+  }
 
   
   range = [urlStr rangeOfString:@"http://"];

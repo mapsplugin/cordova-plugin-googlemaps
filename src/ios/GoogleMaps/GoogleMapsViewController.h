@@ -21,6 +21,7 @@
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
+@property (nonatomic) BOOL debuggable;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;

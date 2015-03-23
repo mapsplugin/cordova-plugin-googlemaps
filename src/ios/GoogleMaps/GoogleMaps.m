@@ -232,7 +232,7 @@
     NSString *className = [target objectAtIndex:0];
     CDVPlugin<MyPlgunProtocol> *pluginClass = nil;
     NSString *methodName;
-    if ([PluginUtil isInDebugMode]) {
+    if (self.mapCtrl.debuggable) {
       NSLog(@"(debug)%@", classAndMethod);
     }
     
@@ -552,14 +552,11 @@
  */
 -(void)getMyLocation:(CDVInvokedUrlCommand *)command
 {
-NSLog(@"---getMyLocaiton");
   // Obtain the authorizationStatus
   CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
   
-NSLog(@"---status=%d", status);
   if (status == kCLAuthorizationStatusDenied ||
       status == kCLAuthorizationStatusRestricted) {
-NSLog(@"---status=denied");
     //----------------------------------------------------
     // kCLAuthorizationStatusDenied
     // kCLAuthorizationStatusRestricted
@@ -581,7 +578,6 @@ NSLog(@"---status=denied");
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   } else {
-NSLog(@"---status=authorized");
 
     if (self.locationManager == nil) {
       self.locationManager = [[CLLocationManager alloc] init];
@@ -716,6 +712,7 @@ NSLog(@"---status=authorized");
   Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
   self.pluginLayer.debuggable = isDebuggable;
   self.pluginScrollView.debugView.debuggable = isDebuggable;
+  self.mapCtrl.debuggable = isDebuggable;
   [self.pluginScrollView.debugView setNeedsDisplay];
     
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
