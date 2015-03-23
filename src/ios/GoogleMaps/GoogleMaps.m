@@ -72,7 +72,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.4";
+  NSString *PLUGIN_VERSION = @"1.2.5";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
@@ -583,8 +583,8 @@ NSLog(@"---status=authorized");
 
     if (self.locationManager == nil) {
       self.locationManager = [[CLLocationManager alloc] init];
-      self.locationManager.delegate = self;
     }
+    self.locationManager.delegate = self;
     
     
     //----------------------------------------------------
@@ -619,9 +619,9 @@ NSLog(@"---status=authorized");
     [self.locationManager startUpdatingLocation];
     [self.locationCommandQueue addObject:command];
     
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    //[pluginResult setKeepCallbackAsBool:YES];
+    //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
 }
 
@@ -688,7 +688,7 @@ NSLog(@"---status=authorized");
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

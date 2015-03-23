@@ -24,14 +24,22 @@ button {
   font-size: 150%;
 }
 .container {
-  margin: 5%;
+  position: fixed;
+  left: 5%;
+  top: 5%; 
+  right: 5%;
   background-color: rgba(255, 255, 255, .7);
   border:1px solid black;
-  padding: 1% 1% 15% 1%;
+  padding: 1%;
   font-size: 150%;
   display: inline-block;
+  overflow: scroll;
 }
 
 button#nextBtn {
   display: none;
+}
+strong {
+  font-size: 150%;
+  font-weight: bold;
 }

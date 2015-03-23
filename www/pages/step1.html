@@ -21,7 +21,7 @@ document.addElement("deviceready", function() {
 <script type="text/javascript">
 $(document).one("pageLoad", function() {
   
-  $("#execBtn").one("touchStart click", function() {
+  $("#execBtn").one("click", function() {
     map.setDiv($("#map_canvas")[0]);
     $(this).remove();
   
@@ -44,7 +44,7 @@ $(document).one("pageLoad", function() {
     
   });
   
-  $("#nextBtn").one("touchStart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step2");
   });

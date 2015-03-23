@@ -11,7 +11,8 @@ function onLocationSuccess( result ) {
     alert(JSON.stringify( result, null, 4 ));
 }
 function onLocationError( error_obj ) {
-    alert("Because of the plugin could not get your location, set California as your location");
+    alert("Can not detect your location. \n" +
+          "In order to demo, use dummy location." );
 }
 </pre>
   </div>
@@ -22,29 +23,36 @@ function onLocationError( error_obj ) {
 <script type="text/javascript">
 $(document).one("pageLoad", function() {
   
-  $("#execBtn").one("touchStart click", function() {
-    map.setDiv($("#map_canvas")[0]);
+  var next = function(result) {
+    $("#nextBtn").show();
+    
+    // Because of the nextBtn is `display:none`,
+    // the map plugin can not get the rectangle of it, at the first time.
+    // 
+    // Then the next button comes up.
+    // 
+    // In this case, you need to call `map.refreshLayout()`
+    map.refreshLayout();
+    
+    $("#nextBtn").one("click", function() {
+      $(this).remove();
+      loadPage("step3", result);
+    });
+  };
+  
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
-      
-      setTimeout(function() {
-        $("#nextBtn").show();
-        
-        // Because of the nextBtn is `display:none`,
-        // the map plugin can not get the rectangle of it, at the first time.
-        // 
-        // Then the next button comes up.
-        // 
-        // In this case, you need to call `map.refreshLayout()`
-        map.refreshLayout();
-      }, 3000);
     });
-  });
-  
-  $("#execBtn").one("touchStart click", function() {
+    
+    
+    
+    
+    
+    
     var option = {
       enableHighAccuracy: true  // force GPS
     };
@@ -52,7 +60,8 @@ $(document).one("pageLoad", function() {
       alert(JSON.stringify( result, null, 4 ));
       next(result);
     }, function(error_obj) {
-      alert("Because of the plugin could not get your location, set California as your location");
+      alert("Can not detect your location. \n" +
+          "In order to demo, use dummy location." );
       next({
         latLng: {
           lat: 37.422488,
@@ -62,9 +71,5 @@ $(document).one("pageLoad", function() {
     });
   });
   
-  $("#nextBtn").one("touchStart click", function() {
-    $(this).remove();
-    loadPage("step3");
-  });
 });
 </script>

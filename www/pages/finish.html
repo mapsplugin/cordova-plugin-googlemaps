@@ -12,7 +12,7 @@
 $(document).one("pageLoad", function(evt, result) {
   map.setDiv($("#map_canvas")[0]);
   
-  $("#closeBtn").one("touchStart click", function() {
+  $("#closeBtn").one("click", function() {
     
     $(".container").addClass("animated bounceOutUp");
     $(".container").one('webkitAnimationEnd animationend', function() {
