@@ -35,17 +35,18 @@ function onInfoWndClicked(marker) {
 
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
-  
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
-  
-  $("#execBtn").one("touchstart click", function() {
+    
+    
+    
+    
+    
     var onInfoWndClicked = function(marker) {
       marker.hideInfoWindow();
       
@@ -71,7 +72,7 @@ $(document).one("pageLoad", function(evt, result) {
       map.refreshLayout();
       
       
-      $("#nextBtn").one("touchstart click", function() {
+      $("#nextBtn").one("click", function() {
         $(this).remove();
         marker.hideInfoWindow();
         loadPage("step5", result);

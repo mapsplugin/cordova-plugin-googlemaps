@@ -4,7 +4,7 @@
     <p>Address: <input type="text" id="address" value="Tokyo, Japan"><input type="button" id="searchBtn" value="Search"></p>
     
     <pre class="prettyprint lang-js">
-$("#searchBtn").one("click touchstart", function() {
+$("#searchBtn").one("click", function() {
   var request = {
     'address': $("#address").val()
   };
@@ -43,7 +43,7 @@ function geocoderCallback(results) {
 
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
-  $("#searchBtn").on("click touchstart", function() {
+  $("#searchBtn").on("click", function() {
     $(".container").hide();
     map.refreshLayout();
     
@@ -58,7 +58,7 @@ $(document).one("pageLoad", function(evt) {
     $(".container").remove();
     map.refreshLayout();
     
-    $("#nextBtn").one("touchstart click", function() {
+    $("#nextBtn").one("click", function() {
       if (marker) {
         marker.hideInfoWindow();
       }

@@ -25,17 +25,16 @@ function onAnimationFinished() {
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
   
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
-  
-  
-  $("#execBtn").one("touchstart click", function() {
+    
+    
+    
     var onAnimationFinished = function(params) {
       alert("Animation finished!");
       
@@ -58,7 +57,7 @@ $(document).one("pageLoad", function(evt, result) {
   });
   
   
-  $("#nextBtn").one("touchstart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step4", result);
   });

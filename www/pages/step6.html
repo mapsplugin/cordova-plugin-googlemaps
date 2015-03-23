@@ -34,15 +34,17 @@ function onCameraUpdated() {
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
   
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
-  $("#execBtn").one("touchstart click", function() {
+  
+  
+  
+  
     var GORYOKAKU = new plugin.google.maps.LatLng(41.797184,140.756831);
     map.addPolyline({
       points: [
@@ -66,7 +68,7 @@ $(document).one("pageLoad", function(evt, result) {
     }
   });
   
-  $("#nextBtn").one("touchstart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step7");
   });

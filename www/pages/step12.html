@@ -20,16 +20,18 @@ function onTileLayerAdded(TileLayer) {
 
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
-  $("#execBtn").one("touchstart click", function() {
+  
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
   
-  $("#execBtn").one("touchstart click", function() {
+  
+  
+  
     map.addTileOverlay({
       tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
     }, onTileLayerAdded);

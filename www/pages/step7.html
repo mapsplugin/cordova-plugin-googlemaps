@@ -34,15 +34,17 @@ function onOverlayClicked(polygon, latLng) {
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
   
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
-  $("#execBtn").one("touchstart click", function() {
+  
+  
+  
+  
       
     var encodedPolygon = "uyb~FupbzYqAoK|H{@~FaFjCxInFdGkBlEn@|FeEPmA|EaGsDiIUr@_L";
     map.addPolygon({
@@ -71,7 +73,7 @@ $(document).one("pageLoad", function(evt) {
     
   });
   
-  $("#nextBtn").one("touchstart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step8");
   });

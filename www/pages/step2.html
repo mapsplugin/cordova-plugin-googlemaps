@@ -23,35 +23,36 @@ function onLocationError( error_obj ) {
 <script type="text/javascript">
 $(document).one("pageLoad", function() {
   
-  $("#execBtn").one("touchstart click", function() {
-    $(this).remove();
-  
-    $(".container").fadeOut(function() {
-      $(".container").remove();
-      $("#execBtn").remove();
-      
-      setTimeout(function() {
-        $("#nextBtn").show();
-        
-        // Because of the nextBtn is `display:none`,
-        // the map plugin can not get the rectangle of it, at the first time.
-        // 
-        // Then the next button comes up.
-        // 
-        // In this case, you need to call `map.refreshLayout()`
-        map.refreshLayout();
-      }, 3000);
-    });
-  });
-  
   var next = function(result) {
-    $("#nextBtn").one("touchstart click", function() {
+    $("#nextBtn").show();
+    
+    // Because of the nextBtn is `display:none`,
+    // the map plugin can not get the rectangle of it, at the first time.
+    // 
+    // Then the next button comes up.
+    // 
+    // In this case, you need to call `map.refreshLayout()`
+    map.refreshLayout();
+    
+    $("#nextBtn").one("click", function() {
       $(this).remove();
       loadPage("step3", result);
     });
   };
   
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+    });
+    
+    
+    
+    
+    
+    
     var option = {
       enableHighAccuracy: true  // force GPS
     };

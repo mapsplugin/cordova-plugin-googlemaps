@@ -30,15 +30,17 @@ function onGroundOverlayAdded(groundOverlay) {
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
   
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
-  $("#execBtn").one("touchstart click", function() {
+  
+  
+  
+  
       
     var bounds = [
       new plugin.google.maps.LatLng(45.744757, 147.12085),
@@ -63,7 +65,7 @@ $(document).one("pageLoad", function(evt) {
     
   });
   
-  $("#nextBtn").one("touchstart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step9");
   });

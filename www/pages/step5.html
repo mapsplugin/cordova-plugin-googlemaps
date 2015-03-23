@@ -26,17 +26,17 @@ function onCircleAdded(circle) {
 
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
-  
-  $("#execBtn").one("touchstart click", function() {
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
   
-  $("#execBtn").one("touchstart click", function() {
+  
+  
+  
     var onCircleAdded = function(circle) {
       setTimeout(function() {
         circle.setFillColor("lightgreen");
@@ -54,7 +54,7 @@ $(document).one("pageLoad", function(evt, result) {
     }, onCircleAdded);
   });
   
-  $("#nextBtn").one("touchstart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step6", result);
   });

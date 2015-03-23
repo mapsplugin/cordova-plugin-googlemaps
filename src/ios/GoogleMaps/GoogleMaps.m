@@ -585,8 +585,8 @@ NSLog(@"---status=authorized");
 
     if (self.locationManager == nil) {
       self.locationManager = [[CLLocationManager alloc] init];
-      self.locationManager.delegate = self;
     }
+    self.locationManager.delegate = self;
     
     
     //----------------------------------------------------
@@ -621,9 +621,9 @@ NSLog(@"---status=authorized");
     [self.locationManager startUpdatingLocation];
     [self.locationCommandQueue addObject:command];
     
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    //[pluginResult setKeepCallbackAsBool:YES];
+    //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
 }
 
@@ -690,7 +690,7 @@ NSLog(@"---status=authorized");
   [self.mapCtrl.overlayManager removeAllObjects];
   [self.mapCtrl.map clear];
   
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

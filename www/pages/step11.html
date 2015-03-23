@@ -50,17 +50,18 @@ $(document).one("pageLoad", function(evt, marker) {
   marker.setDraggable(true);
   marker.on(plugin.google.maps.event.MARKER_DRAG_END, onMarkerDragged);
     
-  $("#execBtn").one("touchstart click", function() {
+  
+  $("#execBtn").one("click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
       $(".container").remove();
       $("#execBtn").remove();
     });
-  });
   
-  $("#execBtn").one("touchstart click", function() {
-    $(".container").remove();
+  
+  
+  
     marker.showInfoWindow();
     alert(["Drag the marker\n",
           "--------------\n",
@@ -100,7 +101,7 @@ $(document).one("pageLoad", function(evt, marker) {
     $("#nextBtn").show();
     map.refreshLayout();
   }
-  $("#nextBtn").one("touchstart click", function() {
+  $("#nextBtn").one("click", function() {
     $(this).remove();
     loadPage("step12");
   });
