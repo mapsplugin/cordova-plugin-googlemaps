@@ -39,6 +39,10 @@
                         {
                             "xml": "<feature name=\"HttpRequest\"><param name=\"android-package\" value=\"plugin.http.request.HttpRequest\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"YoikScreenOrientation\"><param name=\"android-package\" value=\"net.yoik.cordova.plugins.screenorientation.YoikScreenOrientation\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -59,6 +63,9 @@
             "PACKAGE_NAME": "com.example.myapp"
         },
         "com.google.playservices": {
+            "PACKAGE_NAME": "com.example.myapp"
+        },
+        "net.yoik.cordova.plugins.screenorientation": {
             "PACKAGE_NAME": "com.example.myapp"
         }
     },

@@ -15,38 +15,45 @@ function onKmlAdded(kmlOverlay) {
   }, onCameraUpdated);
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
   
 </div>
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
-  map.setDiv($("#map_canvas")[0]);
   
-  $("#nextBtn").one("touchStart click", function() {
-    
-    $(".container").addClass("animated zoomOutUp");
-    $(".container").one('webkitAnimationEnd animationend', function() {
+  $("#execBtn").one("touchstart click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
       $(".container").remove();
-      
-      map.addKmlOverlay({
-        'url': "www/kml/shizuoka.kml"
-      }, onKmlAdded);
-      
-      function onKmlAdded(kmlOverlay) {
-        map.animateCamera({
-          target: new plugin.google.maps.LatLng(34.795338,138.179594),
-          zoom: 9
-        }, onCameraUpdated);
-      }
-
-      function onCameraUpdated() {
-        setTimeout(function() {
-          loadPage("step10");
-        }, 6000);
-      }
+      $("#execBtn").remove();
     });
+  });
+  
+  $("#execBtn").one("touchstart click", function() {
+    map.addKmlOverlay({
+      'url': "www/kml/shizuoka.kml"
+    }, onKmlAdded);
     
+    function onKmlAdded(kmlOverlay) {
+      map.animateCamera({
+        target: new plugin.google.maps.LatLng(34.795338,138.179594),
+        zoom: 9
+      }, onCameraUpdated);
+    }
+
+    function onCameraUpdated() {
+      $("#nextBtn").show();
+      map.refreshLayout();
+    }
+  });
+    
+  $("#nextBtn").one("touchstart click", function() {
+    $(this).remove();
+    loadPage("step10");
   });
   
 });

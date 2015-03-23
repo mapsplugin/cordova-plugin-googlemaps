@@ -6,8 +6,8 @@
     <pre class="prettyprint lang-js">
 map.addMarker({
   'position': result.latLng,
-  'title': "You can change the text-align specifying by the 'text-align' property.\n" + 
-           "This text is where you will see the result of the selected text-align property.",
+  'title': "Hello Google Maps!\n" + 
+           "PhoneGap-GoogleMaps-Plugin is easy!",
 
   'snippet': 'Tap here, then next',
   'styles' : {
@@ -27,17 +27,30 @@ function onInfoWndClicked(marker) {
   marker.hideInfoWindow();
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
-  
 </div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
-  map.setDiv($("#map_canvas")[0]);
   
-  $("#nextBtn").one("touchStart click", function() {
+  $("#execBtn").one("touchstart click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+    });
+  });
+  
+  $("#execBtn").one("touchstart click", function() {
     var onInfoWndClicked = function(marker) {
       marker.hideInfoWindow();
+      
+      $("#nextBtn").off().remove();
+      
       setTimeout(function() {
         loadPage("step5", result);
       }, 2000);
@@ -47,28 +60,42 @@ $(document).one("pageLoad", function(evt, result) {
       marker.showInfoWindow();
       
       marker.addEventListener(plugin.google.maps.event.INFO_CLICK, onInfoWndClicked);
+      
+      // Because of the nextBtn is `display:none`,
+      // the map plugin can not get the rectangle of it, at the first time.
+      // 
+      // Then the next button comes up.
+      // 
+      // In this case, you need to call `map.refreshLayout()`
+      $("#nextBtn").show();
+      map.refreshLayout();
+      
+      
+      $("#nextBtn").one("touchstart click", function() {
+        $(this).remove();
+        marker.hideInfoWindow();
+        loadPage("step5", result);
+      });
     };
     
-    $(".container").addClass("animated flipOutX");
-    $(".container").one('webkitAnimationEnd animationend', function() {
-      $(".container").remove();
-map.addMarker({
-  'position': result.latLng,
-  'title': "You can change the text-align specifying by the 'text-align' property.\n" + 
-           "This text is where you will see the result of the selected text-align property.",
+    setTimeout(function() {
+      map.addMarker({
+        'position': result.latLng,
+        'title': "Hello Google Maps!\n" + 
+                 "PhoneGap-GoogleMaps-Plugin is easy!",
+        'snippet': 'Tap here, then next',
+        'styles' : {
+          'text-align': 'center',
+          'font-style': 'italic',
+          'font-weight': 'bold',
+          'color': 'red'
+        },
+        animation: plugin.google.maps.Animation.DROP
+      }, onMarkerAdded);
 
-  'snippet': 'Tap here, then next',
-  'styles' : {
-    'text-align': 'center',
-    'font-style': 'italic',
-    'font-weight': 'bold',
-    'color': 'red'
-  },
-  animation: plugin.google.maps.Animation.DROP
-}, onMarkerAdded);
-
-    });
-    
+    }, 2000);
   });
+  
+  
 });
 </script>

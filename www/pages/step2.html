@@ -11,7 +11,8 @@ function onLocationSuccess( result ) {
     alert(JSON.stringify( result, null, 4 ));
 }
 function onLocationError( error_obj ) {
-    alert("Because of the plugin could not get your location, set California as your location");
+    alert("Can not detect your location. \n" +
+          "In order to demo, use dummy location." );
 }
 </pre>
   </div>
@@ -22,8 +23,7 @@ function onLocationError( error_obj ) {
 <script type="text/javascript">
 $(document).one("pageLoad", function() {
   
-  $("#execBtn").one("touchStart click", function() {
-    map.setDiv($("#map_canvas")[0]);
+  $("#execBtn").one("touchstart click", function() {
     $(this).remove();
   
     $(".container").fadeOut(function() {
@@ -44,7 +44,14 @@ $(document).one("pageLoad", function() {
     });
   });
   
-  $("#execBtn").one("touchStart click", function() {
+  var next = function(result) {
+    $("#nextBtn").one("touchstart click", function() {
+      $(this).remove();
+      loadPage("step3", result);
+    });
+  };
+  
+  $("#execBtn").one("touchstart click", function() {
     var option = {
       enableHighAccuracy: true  // force GPS
     };
@@ -52,7 +59,8 @@ $(document).one("pageLoad", function() {
       alert(JSON.stringify( result, null, 4 ));
       next(result);
     }, function(error_obj) {
-      alert("Because of the plugin could not get your location, set California as your location");
+      alert("Can not detect your location. \n" +
+          "In order to demo, use dummy location." );
       next({
         latLng: {
           lat: 37.422488,
@@ -62,9 +70,5 @@ $(document).one("pageLoad", function() {
     });
   });
   
-  $("#nextBtn").one("touchStart click", function() {
-    $(this).remove();
-    loadPage("step3");
-  });
 });
 </script>

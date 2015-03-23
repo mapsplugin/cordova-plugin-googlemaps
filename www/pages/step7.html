@@ -24,46 +24,56 @@ function onOverlayClicked(polygon, latLng) {
   polygon.setStrokeWidth(10);
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
   
 </div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
-$(document).one("pageLoad", function(evt, result) {
-  map.setDiv($("#map_canvas")[0]);
+$(document).one("pageLoad", function(evt) {
   
-  $("#nextBtn").one("touchStart click", function() {
-    
-    $(".container").addClass("animated zoomOutUp");
-    $(".container").one('webkitAnimationEnd animationend', function() {
+  $("#execBtn").one("touchstart click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
       $(".container").remove();
-      
-      var encodedPolygon = "uyb~FupbzYqAoK|H{@~FaFjCxInFdGkBlEn@|FeEPmA|EaGsDiIUr@_L";
-      map.addPolygon({
-        'points': plugin.google.maps.geometry.encoding.decodePath(encodedPolygon, 5),
-        'strokeColor' : '#AA00FF',
-        'strokeWidth': 5,
-        'fillColor' : '#880000'
-      }, onPolygonAdded);
-      function onPolygonAdded(polygon) {
-        map.animateCamera({
-          target: polygon.getPoints()
-        });
-        
-        polygon.one(plugin.google.maps.event.OVERLAY_CLICK, onOverlayClicked);
-      }
-      
-      function onOverlayClicked(polygon, latLng) {
-        polygon.setFillColor("blue");
-        polygon.setStrokeColor("green");
-        polygon.setStrokeWidth(10);
-        
-        setTimeout(function() {
-          loadPage("step8");
-        }, 2000);
-      }
+      $("#execBtn").remove();
     });
+  });
+  $("#execBtn").one("touchstart click", function() {
+      
+    var encodedPolygon = "uyb~FupbzYqAoK|H{@~FaFjCxInFdGkBlEn@|FeEPmA|EaGsDiIUr@_L";
+    map.addPolygon({
+      'points': plugin.google.maps.geometry.encoding.decodePath(encodedPolygon, 5),
+      'strokeColor' : '#AA00FF',
+      'strokeWidth': 5,
+      'fillColor' : '#880000'
+    }, onPolygonAdded);
+    function onPolygonAdded(polygon) {
+      map.animateCamera({
+        target: polygon.getPoints()
+      }, function() {
+      
+        $("#nextBtn").show();
+        map.refreshLayout();
+        
+      });
+      polygon.one(plugin.google.maps.event.OVERLAY_CLICK, onOverlayClicked);
+    }
     
+    function onOverlayClicked(polygon, latLng) {
+      polygon.setFillColor("blue");
+      polygon.setStrokeColor("green");
+      polygon.setStrokeWidth(10);
+    }
+    
+  });
+  
+  $("#nextBtn").one("touchstart click", function() {
+    $(this).remove();
+    loadPage("step8");
   });
   
 });

@@ -39,7 +39,8 @@ config.xml
 .DS_Store
 ant-build/
 ant-gen/
-plugins/
+plugins/*
+!plugins/net.yoik.cordova.plugins.screenorientation/*
 #platforms/
 hooks/
 

@@ -49,13 +49,14 @@
 jQuery("#title").fitText(1.75);
 jQuery("p").fitText(2.5);
 $(document).one("pageLoad", function() {
-  
+
   $("button").one("click", function() {
-    $('#image').addClass('animated flip');
-    $('#image').one('webkitAnimationEnd animationend', function function_name (argument) {
+    $('#image').fadeOut(function() {
+      screen.unlockOrientation();
       loadPage("step1");
     });
   });
   
+  screen.lockOrientation('portrait');
 });
 </script>

@@ -13,6 +13,9 @@
     <feature name="HttpRequest">
         <param name="android-package" value="plugin.http.request.HttpRequest" />
     </feature>
+    <feature name="YoikScreenOrientation">
+        <param name="android-package" value="net.yoik.cordova.plugins.screenorientation.YoikScreenOrientation" />
+    </feature>
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="1500" />
     <name>DevApp</name>
