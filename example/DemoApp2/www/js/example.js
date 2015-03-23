@@ -36,8 +36,13 @@ function onMapReady() {
 function loadPage(tmplName, params) {
   $(document).trigger("pageLeave");
   
+  $("#nextBtn, #execBtn, #searchBtn").off();
+  
   $.get("./pages/" + tmplName + ".html", function(html) {
     $("#map_canvas").html(html);
+    
+    // Call `map.refreshLayout()` if you change the HTML in the map div.
+    map.refreshLayout();
     
     map.off();
     

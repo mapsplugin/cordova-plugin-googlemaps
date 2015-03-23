@@ -12,39 +12,51 @@ map.addCircle({
   'fillColor' : '#880000'
 }, onCircleAdded);
 function onCircleAdded(circle) {
-  
+  setTimeout(function() {
+    circle.setFillColor("lightgreen");
+  }, 3000);
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
   
 </div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
-  map.setDiv($("#map_canvas")[0]);
+  $("#execBtn").one("click", function() {
+    $(this).remove();
   
-  $("#nextBtn").one("touchStart click", function() {
-    
-    $(".container").addClass("animated rotateOutDownRight");
-    $(".container").one('webkitAnimationEnd animationend', function() {
+    $(".container").fadeOut(function() {
       $(".container").remove();
-      
-      var onCircleAdded = function(circle) {
-        setTimeout(function() {
-          loadPage("step6", result);
-        }, 2000);
-      };
-      
-      map.addCircle({
-        'center': result.latLng,
-        'radius': 100,
-        'strokeColor' : '#AA00FF',
-        'strokeWidth': 5,
-        'fillColor' : '#880000'
-      }, onCircleAdded);
+      $("#execBtn").remove();
     });
+  
+  
+  
+  
+    var onCircleAdded = function(circle) {
+      setTimeout(function() {
+        circle.setFillColor("lightgreen");
+        $("#nextBtn").show();
+        map.refreshLayout();
+      }, 3000);
+    };
     
+    map.addCircle({
+      'center': result.latLng,
+      'radius': 100,
+      'strokeColor' : '#AA00FF',
+      'strokeWidth': 5,
+      'fillColor' : '#880000'
+    }, onCircleAdded);
   });
   
+  $("#nextBtn").one("click", function() {
+    $(this).remove();
+    loadPage("step6", result);
+  });
 });
 </script>

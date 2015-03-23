@@ -13,29 +13,34 @@ function onTileLayerAdded(TileLayer) {
   
 }
 </pre>
-<button id="nextBtn">Execute &amp; Finish!</button>
   </div>
   
 </div>
+<button id="execBtn">Execute</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
-  map.setDiv($("#map_canvas")[0]);
   
-    
-  $("#nextBtn").one("touchStart click", function() {
-    $(".container").addClass("animated rollOut");
-    $(".container").one('webkitAnimationEnd animationend', function() {
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
       $(".container").remove();
-      map.addTileOverlay({
-        tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
-      }, onTileLayerAdded);
-      
-      function onTileLayerAdded(TileLayer) {
-        setTimeout(function() {
-          loadPage("finish");
-        }, 10000);
-      }
+      $("#execBtn").remove();
     });
+  
+  
+  
+  
+    map.addTileOverlay({
+      tileUrlFormat: "http://tile.stamen.com/watercolor/<zoom>/<x>/<y>.jpg"
+    }, onTileLayerAdded);
+    
+    function onTileLayerAdded(TileLayer) {
+      alert(["Complete!",
+             "Did you get what you can do with this plugin?",
+             "In more details, search PhoneGap-GoogleMaps-Plugin."].join("\n"));
+    }
   });
 });
 </script>
