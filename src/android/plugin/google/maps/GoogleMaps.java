@@ -127,7 +127,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private final String PLUGIN_VERSION = "1.2.4";
+  private final String PLUGIN_VERSION = "1.2.5";
   private MyPluginLayout mPluginLayout = null;
   private boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
@@ -942,7 +942,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   
           @Override
           public void onConnected(Bundle connectionHint) {
-            Log.e("Marker", "===> onConnected");
+            Log.e("CordovaLog", "===> onConnected");
             GoogleMaps.this.sendNoResult(callbackContext);
             
             _checkLocationSettings(enableHighAccuracy, callbackContext);
@@ -950,7 +950,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   
           @Override
           public void onConnectionSuspended(int cause) {
-            Log.e("Marker", "===> onConnectionSuspended");
+            Log.e("CordovaLog", "===> onConnectionSuspended");
            }
           
         })
@@ -958,7 +958,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   
           @Override
           public void onConnectionFailed(ConnectionResult result) {
-            Log.e("Marker", "===> onConnectionFailed");
+            Log.e("CordovaLog", "===> onConnectionFailed");
             
             PluginResult tmpResult = new PluginResult(PluginResult.Status.ERROR, result.toString());
             tmpResult.setKeepCallback(false);
@@ -1111,7 +1111,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
           @Override
           public void onLocationChanged(Location location) {
-            Log.e("CordovaLog", "===> onLocationChanged");
             /*
             if (callbackContext.isFinished()) {
               return;
@@ -1151,7 +1150,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             return;
           } else {
             if (isRetry == false) {
-              Log.e("CordovaLog", "====> waiting onLocationChanged");
               Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
               
               GoogleMaps.this.sendNoResult(callbackContext);
