@@ -3,6 +3,7 @@ package plugin.google.maps;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaResourceApi;
@@ -299,7 +300,7 @@ public class PluginMarker extends MyPlugin {
   private void setMarkerAnimation_(Marker marker, String animationType, PluginAsyncInterface callback) {
     Animation animation = null;
     try {
-      animation = Animation.valueOf(animationType.toUpperCase());
+      animation = Animation.valueOf(animationType.toUpperCase(Locale.US));
     } catch (Exception e) {
       e.printStackTrace();
     }
