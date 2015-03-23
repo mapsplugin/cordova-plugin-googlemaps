@@ -15,7 +15,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -304,7 +303,6 @@ public class PluginMarker extends MyPlugin {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    Log.d("CordovaLog", "animation = " + animation);
     if (animation == null) {
       callback.onPostExecute(marker);
       return;
@@ -334,7 +332,6 @@ public class PluginMarker extends MyPlugin {
   private void setAnimation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(1);
     String animation = args.getString(2);
-    Log.d("CordovaLog", "id=" + id + ", animation = " + animation);
     final Marker marker = this.getMarker(id);
     
     this.setMarkerAnimation_(marker, animation, new PluginAsyncInterface() {
@@ -704,7 +701,9 @@ public class PluginMarker extends MyPlugin {
             if (tmp.exists()) {
               image = BitmapFactory.decodeFile(iconUrl);
             } else {
-              Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
+              if (PluginMarker.this.mapCtrl.isDebug) {
+                Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
+              }
             }
           } else {
             if (iconUrl.indexOf("file:///android_asset/") == 0) {

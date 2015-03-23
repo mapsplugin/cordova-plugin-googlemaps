@@ -6,24 +6,19 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 
 public class PluginGroundOverlay extends MyPlugin {
 
@@ -43,36 +38,29 @@ public class PluginGroundOverlay extends MyPlugin {
   private void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
     GroundOverlayOptions options = new GroundOverlayOptions();
 
-    Log.d("Marker", "---->anchor");
     if (opts.has("anchor")) {
       JSONArray anchor = opts.getJSONArray("anchor");
       options.anchor((float)anchor.getDouble(0), (float)anchor.getDouble(1));
     }
-    Log.d("Marker", "---->bearing");
     if (opts.has("bearing")) {
       options.bearing((float)opts.getDouble("bearing"));
     }
-    Log.d("Marker", "---->opacity");
     if (opts.has("opacity")) {
       options.transparency(1 - (float)opts.getDouble("opacity"));
     }
-    Log.d("Marker", "---->zIndex");
     if (opts.has("zIndex")) {
       options.zIndex((float)opts.getDouble("zIndex"));
     }
-    Log.d("Marker", "---->visible");
     if (opts.has("visible")) {
       options.visible(opts.getBoolean("visible"));
     }
 
-    Log.d("Marker", "---->bounds");
     if (opts.has("bounds") == true) {
       JSONArray points = opts.getJSONArray("bounds");
       LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
       options.positionFromBounds(bounds);
     }
 
-    Log.d("Marker", "---->url");
     // Load image
     String url = opts.getString("url");
     _setImage(url, options, new PluginAsyncInterface() {
@@ -103,7 +91,6 @@ public class PluginGroundOverlay extends MyPlugin {
   }
   @SuppressWarnings("resource")
   private void _setImage(final String url, final GroundOverlayOptions options, final PluginAsyncInterface callback) {
-    Log.d("GroundOverlay", "---->_setImage");
     if (url == null || url.length() == 0) {
       callback.onError("The url property is empty");
       return;
@@ -126,7 +113,6 @@ public class PluginGroundOverlay extends MyPlugin {
     // Load the image from the Internet
     //=================================
     if (filePath.indexOf("http") == 0) {
-      Log.d("GroundOverlay", "---->http");
       
       AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
 
