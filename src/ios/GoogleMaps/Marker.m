@@ -624,6 +624,15 @@
         NSArray *tmp = [iconPath componentsSeparatedByString:@","];
         
         NSData *decodedData;
+        #ifdef __IPHONE_7_0
+          if ([PluginUtil isIOS7_OR_OVER]) {
+            decodedData = [[NSData alloc] initWithBase64Encoding:(NSString *)tmp[1]];
+          } else {
+            decodedData = [NSData dataFromBase64String:tmp[1]];
+          }
+        #else
+          decodedData = [NSData dataFromBase64String:tmp[1]];
+        #endif
         if ([PluginUtil isIOS7_OR_OVER]) {
           decodedData = [[NSData alloc] initWithBase64EncodedString:tmp[1] options:0];
         } else {
