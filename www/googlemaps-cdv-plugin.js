@@ -592,6 +592,7 @@ App.prototype.clear = function(callback) {
  * Remove the map completely.
  */
 App.prototype.remove = function(callback) {
+  var self = this;
   var div = this.get('div');
   if (div) {
     while(div) {
