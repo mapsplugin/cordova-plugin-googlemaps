@@ -305,6 +305,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                     optionsJSON.put("width", (int) (Integer.parseInt(style.getString("width"))));
                   } catch (Exception e) {}
                 }
+                try {
+                  optionsJSON.put("zIndex", 4);
+                } catch (Exception e) {}
                 break;
               default:
                 break;
@@ -376,6 +379,9 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           } else {
             Log.e("client", "--" + style + " is null");
           }
+          try {
+            optionsJSON.put("zIndex", 2);
+          } catch (Exception e) {}
           this.implementToMap("Polygon", optionsJSON, kmlId);
           break;
         default:

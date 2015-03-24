@@ -931,7 +931,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
   circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
   circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
-  circleOptions.zIndex = circleOptions.zIndex || 2;
+  circleOptions.zIndex = circleOptions.zIndex || 3;
   circleOptions.radius = circleOptions.radius || 1;
  
   cordova.exec(function(result) {
@@ -954,7 +954,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
   polylineOptions.width = polylineOptions.width || 10;
   polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
-  polylineOptions.zIndex = polylineOptions.zIndex || 2;
+  polylineOptions.zIndex = polylineOptions.zIndex || 4;
   polylineOptions.geodesic = polylineOptions.geodesic || false;
   
   cordova.exec(function(result) {
