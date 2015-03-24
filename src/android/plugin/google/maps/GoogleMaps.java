@@ -1401,10 +1401,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       PluginGroundOverlay groundOverlayClass = (PluginGroundOverlay) groundOverlayPlugin.plugin;
     
       for (HashMap.Entry<String, Object> entry : groundOverlayClass.objects.entrySet()) {
-        GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
-        if (this.isGroundOverlayContains(groundOverlay, point)) {
-          hitPoly = true;
-          this.onGroundOverlayClick(groundOverlay, point);
+        key = entry.getKey();
+        if (key.contains("groundOverlay_")) {
+          GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
+          if (this.isGroundOverlayContains(groundOverlay, point)) {
+            hitPoly = true;
+            this.onGroundOverlayClick(groundOverlay, point);
+          }
         }
       }
       if (hitPoly) {
