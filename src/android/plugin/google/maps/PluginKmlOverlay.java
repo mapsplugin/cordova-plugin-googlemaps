@@ -45,7 +45,9 @@ public class PluginKmlOverlay extends MyPlugin {
       urlStr = PluginUtil.getAbsolutePathFromCDVFilePath(this.webView.getResourceApi(), urlStr);
     }
     
-    AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.mapCtrl, callbackContext, params);
+    String kmlId = opts.getString("kmlId");
+    
+    AsyncKmlParser kmlParser = new AsyncKmlParser(this.cordova.getActivity(), this.mapCtrl, kmlId, callbackContext, params);
     kmlParser.execute(urlStr);
   }
 

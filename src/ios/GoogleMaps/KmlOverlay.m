@@ -147,8 +147,6 @@
   
   NSString *idPrefix = [NSString stringWithFormat:@"%@-", self.kmlId];
   
-  CDVPluginResult* pluginResult;
-  
   dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps.Map.createKmlOverlay", NULL);
   
   //--------------------------------
@@ -223,8 +221,12 @@
           }
           NSMutableDictionary *cameraOptions = [NSMutableDictionary dictionary];
           [cameraOptions setObject:defaultViewport forKey:@"target"];
-          [self _execOtherClassMethod:@"Map" methodName:changeMethod options:cameraOptions callbackId:@"kmlOverlay.viewChange"];
+          [self _execOtherClassMethod:@"Map" methodName:changeMethod options:cameraOptions callbackId:@"kmlOverlay.viewChange" waitUntilDone:YES];
+          
         }
+          
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:self.kmlId];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       });
 
     } else {
@@ -246,9 +248,6 @@
     
   });
 
-
-  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:self.kmlId];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 
@@ -572,7 +571,7 @@
  * @Private
  * Execute the method of other plugin class internally.
  */
--(void)_execOtherClassMethod:(NSString *)className methodName:(NSString *)methodName options:(NSDictionary *)options callbackId:(NSString *)callbackId
+-(void)_execOtherClassMethod:(NSString *)className methodName:(NSString *)methodName options:(NSDictionary *)options callbackId:(NSString *)callbackId waitUntilDone:(BOOL)waitUntilDone
 {
   NSArray* args = [NSArray arrayWithObjects:@"exec", options, nil];
   NSArray* jsonArr = [NSArray arrayWithObjects:callbackId, className, methodName, args, nil];
@@ -589,9 +588,11 @@
   }
   SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", methodName]);
   if ([pluginClass respondsToSelector:selector]){
-    [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:NO];
+    [pluginClass performSelectorOnMainThread:selector withObject:command2 waitUntilDone:waitUntilDone];
   }
 }
+
+
 -(void)evalJsHelper:(NSString*)jsString
 {
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
@@ -606,14 +607,16 @@
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     //Add callback
-    NSString* jsString = [NSString stringWithFormat:@"cordova.callbacks['%@']={'success': function(result) {plugin.google.maps.Map._onKmlEventForIOS('%@',result, %@);}, 'fail': null};", callbackId, self.kmlId, jsonString];
+    NSString* jsString = [NSString stringWithFormat:@"cordova.callbacks['%@']={'success': function(result) {plugin.google.maps.Map._onKmlEvent('add', '%@', '%@', result, %@);}, 'fail': null};",
+                                callbackId, className, self.kmlId, jsonString];
     [self performSelectorOnMainThread:@selector(evalJsHelper:) withObject:jsString waitUntilDone:YES];
   }
   
   [self _execOtherClassMethod:className
         methodName:[NSString stringWithFormat:@"create%@", className]
         options:options
-        callbackId:callbackId];
+        callbackId:callbackId
+        waitUntilDone:NO];
 
   
 }

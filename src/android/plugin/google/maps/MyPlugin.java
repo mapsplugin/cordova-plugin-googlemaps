@@ -111,6 +111,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   
   protected void sendNoResult(CallbackContext callbackContext) {
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+    pluginResult.setKeepCallback(true);
     callbackContext.sendPluginResult(pluginResult);
   }
 }

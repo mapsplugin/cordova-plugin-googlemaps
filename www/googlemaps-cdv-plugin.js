@@ -139,13 +139,6 @@ App.prototype._onMarkerEvent = function(eventName, hashCode) {
   }
 };
 
-App.prototype._onKmlEventForIOS = function(kmlLayerId, result, options) {
-  var id = result.id,
-      objectType = id.replace(/_.*$/, "").toLowerCase(),
-      eventName = objectType + "_add";
-  this._onKmlEvent(eventName, kmlLayerId, result, options);
-};
-
 App.prototype._onOverlayEvent = function(eventName, hashCode) {
   var overlay = OVERLAYS[hashCode] || null;
   if (overlay) {
@@ -160,14 +153,13 @@ App.prototype._onOverlayEvent = function(eventName, hashCode) {
 /*
  * Callback from Native
  */
-App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
+App.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, options) {
   var kmlLayer = KML_LAYERS[kmlLayerId] || null;
   if (kmlLayer) {
     var self = this;
     var args = [eventName];
-    if (eventName.substr(-4, 4) === "_add") {
-      var objectType = eventName.replace(/_.*$/, ""),
-          overlay = null;
+    if (eventName === "add") {
+      var overlay = null;
       
       switch(objectType) {
         case "marker":
@@ -208,7 +200,12 @@ App.prototype._onKmlEvent = function(eventName, kmlLayerId, result, options) {
       if (overlay) {
         OVERLAYS[result.id] = overlay;
         overlay.hashCode = result.hashCode;
+        kmlLayer._overlays.push(overlay);
         kmlLayer.on("_REMOVE", function() {
+          var idx = kmlLayer._overlays.indexOf(overlay);
+          if (idx > -1) {
+            kmlLayer._overlays.splice(idx, 1);
+          }
           overlay.remove();
           overlay.off();
         });
@@ -1055,25 +1052,26 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
 //-------------
 // KML Layer
 //-------------
-  App.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
-    var self = this;
-    kmlOverlayOptions = kmlOverlayOptions || {};
-    kmlOverlayOptions.url = kmlOverlayOptions.url || null;
-    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
-    kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
- 
-    var pluginExec = function() {
-      cordova.exec(function(kmlId) {
-        var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
-        OVERLAYS[kmlId] = kmlOverlay;
-        KML_LAYERS[kmlId] = kmlOverlay;
-        if (typeof callback === "function") {
-        callback.call(self,  kmlOverlay, self);
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.createKmlOverlay', kmlOverlayOptions]);
-  };
+App.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
+  var self = this;
+  kmlOverlayOptions = kmlOverlayOptions || {};
+  kmlOverlayOptions.url = kmlOverlayOptions.url || null;
+  kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
+  kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
+
+  var kmlId = "kml" + (Math.random() * 9999999);
+  kmlOverlayOptions.kmlId = kmlId;
   
-  pluginExec();
+  var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
+  OVERLAYS[kmlId] = kmlOverlay;
+  KML_LAYERS[kmlId] = kmlOverlay;
+  
+  cordova.exec(function(kmlId) {
+    if (typeof callback === "function") {
+      callback.call(self,  kmlOverlay, self);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.createKmlOverlay', kmlOverlayOptions]);
+
 };
 //-------------
 // Geocoding
@@ -1783,7 +1781,7 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
   BaseClass.apply(this);
   
   var self = this;
-  self._objects = {};
+  self._overlays = [];
   //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
   //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
   kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
@@ -1810,6 +1808,9 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
 
 KmlOverlay.prototype = new BaseClass();
 
+KmlOverlay.prototype.getOverlays = function() {
+  return this._overlays;
+};
 KmlOverlay.prototype.getMap = function() {
   return this.map;
 };

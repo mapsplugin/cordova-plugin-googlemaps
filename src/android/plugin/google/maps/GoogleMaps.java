@@ -1991,11 +1991,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
   protected void sendNoResult(CallbackContext callbackContext) {
-    /*
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
     pluginResult.setKeepCallback(true);
     callbackContext.sendPluginResult(pluginResult);
-    */
   }
 
 }

@@ -66,18 +66,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private boolean animation = true;
   private Bundle mOption = null;
   
-  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
-    Random random = new Random();
-    kmlId = "kml" + random.nextInt();
-    init(activity, mapCtrl, callbackContext, option);
-  }
-
   public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext, Bundle option) {
     this.kmlId = kmlId;
-    init(activity, mapCtrl, callbackContext, option);
-  }
-  
-  private void init(Activity activity, GoogleMaps mapCtrl, CallbackContext callbackContext, Bundle option) {
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
     mActivity = activity;
@@ -132,7 +122,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           // get the cookie if need, for login
           String cookies = http.getHeaderField("Set-Cookie");
        
-          // open the new connnection again
+          // open the new connection again
           http = (HttpURLConnection) new URL(newUrl).openConnection();
           http.setRequestProperty("Cookie", cookies);
           http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
@@ -175,7 +165,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     JSONObject optionsJSON, latLngJSON;
     JSONArray defaultViewport = new JSONArray();
     
-    this.mCallback.success(kmlId);
     
     String tmp, tagName;
     Bundle node, style, childNode;
@@ -442,9 +431,10 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   
   protected void onPostExecute(Bundle parseResult) {
     end = System.currentTimeMillis();
-    Log.d("GoogleMaps", "duration=" + ((end -start) / 1000));
+    //Log.d("GoogleMaps", "duration=" + ((end -start) / 1000));
     
     this.mProgress.dismiss();
+    this.mCallback.success(kmlId);
   }
   
   
@@ -487,7 +477,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       @Override
       public void onResult(PluginResult pluginResult) {
         mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
-            "_onKmlEvent('" + className.toLowerCase(Locale.US) + "_add', '" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
+            "_onKmlEvent('add', '" + className.toLowerCase(Locale.US) + "','" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
       }
       
     });
