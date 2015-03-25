@@ -405,8 +405,10 @@
       
       if ([tagName isEqualToString:@"linestring"]) {
         targetClass = @"Polyline";
+        [*options setObject:[NSNumber numberWithInt:4] forKey:@"zIndex"];
       } else {
         targetClass = @"Polygon";
+        [*options setObject:[NSNumber numberWithInt:2] forKey:@"zIndex"];
       }
       [*options setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
       [*options setObject:[NSNumber numberWithBool:true] forKey:@"geodesic"];
