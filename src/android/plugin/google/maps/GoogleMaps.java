@@ -789,10 +789,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     webView.setVisibility(View.GONE);
     root.addView(windowLayer);
     
-    //Dummy view for the back-button event
-    FrameLayout dummyLayout = new FrameLayout(activity);
-    
-    this.webView.showCustomView(dummyLayout, new WebChromeClient.CustomViewCallback() {
+    /**
+     * TODO: webView.showCustomView() has been deprecated in Cordova 4.0
+     * I need to catch the backbutton event
+     */
+    WebChromeClient.CustomViewCallback customCallback = new WebChromeClient.CustomViewCallback() {
 
       @Override
       public void onCustomViewHidden() {
@@ -809,9 +810,20 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         
         GoogleMaps.this.onMapEvent("map_close");
       }
-    });
+    };
+
+    //Dummy view for the back-button event
+    try {
+      Method method = webView.getClass().getDeclaredMethod("showCustomView", View.class, WebChromeClient.CustomViewCallback.class);
+      if (method != null) {
+        FrameLayout dummyLayout = new FrameLayout(activity);
+        method.invoke(webView, dummyLayout, customCallback);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -1143,7 +1155,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               result.put("status", true);
               callbackContext.success(result);
             } catch (JSONException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             return;
@@ -1401,10 +1412,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       PluginGroundOverlay groundOverlayClass = (PluginGroundOverlay) groundOverlayPlugin.plugin;
     
       for (HashMap.Entry<String, Object> entry : groundOverlayClass.objects.entrySet()) {
-        GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
-        if (this.isGroundOverlayContains(groundOverlay, point)) {
-          hitPoly = true;
-          this.onGroundOverlayClick(groundOverlay, point);
+        key = entry.getKey();
+        if (key.contains("groundOverlay_")) {
+          GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
+          if (this.isGroundOverlayContains(groundOverlay, point)) {
+            hitPoly = true;
+            this.onGroundOverlayClick(groundOverlay, point);
+          }
         }
       }
       if (hitPoly) {
