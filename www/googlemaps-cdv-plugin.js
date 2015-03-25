@@ -1911,31 +1911,21 @@ LatLngBounds.prototype.contains = function(latLng) {
 //---------------------------
 // Convert HTML color to RGB
 //---------------------------
-var colorDiv = document.createElement("div");
-document.head.appendChild(colorDiv);
-
 function isHTMLColorString(inputValue) {
-  if (!inputValue) {
+  if (!inputValue || typeof inputValue !== "string") {
     return false;
   }
-  if (inputValue.match(/^#[0-9A-F]{4}$/i) ||
+  if (inputValue.match(/^#[0-9A-F]{3}$/i) ||
+      inputValue.match(/^#[0-9A-F]{4}$/i) ||
+      inputValue.match(/^#[0-9A-F]{6}$/i) ||
       inputValue.match(/^#[0-9A-F]{8}$/i) ||
       inputValue.match(/^rgba\([\d,.\s]+\)$/) ||
       inputValue.match(/^hsla\([\d%,.\s]+\)$/)) {
     return true;
   }
   
-  if (window.getComputedStyle) {
-    compStyle = window.getComputedStyle(colorDiv, null);
-    try {
-      var value = compStyle.getPropertyCSSValue ("color");
-      var valueType = value.primitiveType;
-      if (valueType === CSSPrimitiveValue.CSS_RGBCOLOR) {
-        return true;
-      }
-    } catch (e) {}
-  }
-  return false;
+  inputValue = inputValue.toLowerCase();
+  return inputValue in HTML_COLORS;
 }
 
 function HTMLColor2RGBA(colorStr, defaultOpacity) {
@@ -1951,49 +1941,140 @@ function HTMLColor2RGBA(colorStr, defaultOpacity) {
         g: 0,
         b: 0
       };
+  colorStr = colorStr.toLowerCase();
+  if (colorStr in HTML_COLORS) {
+    colorStr = HTML_COLORS[colorStr];
+  }
+  if (colorStr.match(/^#([0-9A-F]){3}$/i)) {
+    matches = colorStr.match(/([0-9A-F])/ig);
+    
+    return [
+      parseInt(matches[0], 16),
+      parseInt(matches[1], 16),
+      parseInt(matches[2], 16),
+      alpha
+    ];
+  }
+  
   if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
     alpha = colorStr.substr(4, 1);
     alpha = parseInt(alpha + alpha, 16);
-    colorStr = colorStr.substr(0, 4);
-  }
-  
-  if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
-    alpha = colorStr.substr(7, 2);
-    alpha = parseInt(alpha, 16);
-    colorStr = colorStr.substring(0, 7);
-  }
-  
-  // convert rgba() -> rgb()
-  if (colorStr.match(/^rgba\([\d,.\s]+\)$/)) {
-    matches = colorStr.match(/([\d.]+)/g);
-    alpha = Math.floor(parseFloat(matches.pop()) * 256);
-    matches = "rgb(" +  matches.join(",") + ")";
-  }
     
-  // convert hsla() -> hsl()
-  if (colorStr.match(/^hsla\([\d%,.\s]+\)$/)) {
+    matches = colorStr.match(/([0-9A-F])/ig);
+    return [
+      parseInt(matches[0], 16),
+      parseInt(matches[1], 16),
+      parseInt(matches[2], 16),
+      alpha
+    ];
+  }
+  
+  if (colorStr.match(/^#[0-9A-F]{6}$/i)) {
+    matches = colorStr.match(/([0-9A-F]{2})/ig);
+    return [
+      parseInt(matches[0], 16),
+      parseInt(matches[1], 16),
+      parseInt(matches[2], 16),
+      alpha
+    ];
+  }
+  if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
+    matches = colorStr.match(/([0-9A-F]{2})/ig);
+    
+    return [
+      parseInt(matches[0], 16),
+      parseInt(matches[1], 16),
+      parseInt(matches[2], 16),
+      parseInt(matches[3], 16)
+    ];
+  }
+  // convert rgb(), rgba()
+  if (colorStr.match(/^rgba?\([\d,.\s]+\)$/)) {
+    matches = colorStr.match(/([\d.]+)/g);
+    alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 256) : alpha;
+    return [
+      parseInt(matches[0], 10),
+      parseInt(matches[1], 10),
+      parseInt(matches[2], 10),
+      alpha
+    ];
+  }
+  
+    
+  // convert hsl(), hsla()
+  if (colorStr.match(/^hsla?\([\d%,.\s]+\)$/)) {
     matches = colorStr.match(/([\d%.]+)/g);
-    alpha = Math.floor(parseFloat(matches.pop()) * 256);
-    matches = "hsl(" +  matches.join(",") + ")";
+    alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 256) : alpha;
+    var rgb = HLStoRGB(matches[0], matches[1], matches[2]);
+    rgb.push(alpha);
+    return rgb;
   }
    
-  colorDiv.style.color = colorStr;
-  if (window.getComputedStyle) {
-    compStyle = window.getComputedStyle(colorDiv, null);
-    try {
-      var value = compStyle.getPropertyCSSValue ("color");
-      var valueType = value.primitiveType;
-      if (valueType === CSSPrimitiveValue.CSS_RGBCOLOR) {
-        var rgb = value.getRGBColorValue ();
-        result.r = rgb.red.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
-        result.g = rgb.green.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
-        result.b = rgb.blue.getFloatValue (CSSPrimitiveValue.CSS_NUMBER);
-      }
-    } catch (e) {
-      console.log("The browser does not support the getPropertyCSSValue method!");
-    }
+  return null;
+}
+
+/**
+ * http://d.hatena.ne.jp/ja9/20100907/1283840213
+ */
+function HLStoRGB(h, l, s) {
+  var r, g, b; // 0..255
+
+  while (h < 0) {
+    h += 360;
   }
-  return [result.r, result.g, result.b, alpha];
+  h = h % 360;
+
+  // In case of saturation = 0
+  if (s == 0) {
+    // RGB are the same as V
+    l = Math.round(l * 255);
+    return [l, l, l];
+  }
+
+  var m2 = (l < 0.5) ? l * (1 + s) : l + s - l * s,
+      m1 = l * 2 - m2,
+      tmp;
+
+  tmp = h + 120;
+  if (tmp > 360) {
+    tmp = tmp - 360;
+  }
+
+  if (tmp < 60) {
+    r = (m1 + (m2 - m1) * tmp / 60);
+  } else if (tmp < 180) {
+    r = m2;
+  } else if (tmp < 240) {
+    r = m1 + (m2 - m1) * (240 - tmp) / 60;
+  } else {
+    r = m1;
+  }
+
+  tmp = h;
+  if (tmp < 60) {
+    g = m1 + (m2 - m1) * tmp / 60;
+  } else if (tmp < 180) {
+    g = m2;
+  } else if (tmp < 240) {
+    g = m1 + (m2 - m1) * (240 - tmp) / 60;
+  } else {
+    g = m1;
+  }
+
+  tmp = h - 120;
+  if (tmp < 0) {
+    tmp = tmp + 360;
+  }
+  if (tmp < 60) {
+    b = m1 + (m2 - m1) * tmp / 60;
+  } else if (tmp < 180) {
+    b = m2;
+  } else if (tmp < 240) {
+    b = m1 + (m2 - m1) * (240 - tmp) / 60;
+  } else {
+    b = m1;
+  }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
 function parseBoolean(boolValue) {
@@ -2381,4 +2462,148 @@ document.addEventListener("deviceready", function() {
   document.removeEventListener("deviceready", arguments.callee);
   plugin.google.maps.Map.isAvailable();
 });
+
+const HTML_COLORS = {
+  "alideblue" : "#f0f8ff",
+  "antiquewhite" : "#faebd7",
+  "aqua" : "#00ffff",
+  "aquamarine" : "#7fffd4",
+  "azure" : "#f0ffff",
+  "beige" : "#f5f5dd",
+  "bisque" : "#ffe4d4",
+  "bladk" : "#000000",
+  "blandhedalmond" : "#ffebdd",
+  "blue" : "#0000ff",
+  "blueviolet" : "#8a2be2",
+  "brown" : "#a52a2a",
+  "burlywood" : "#deb887",
+  "dadetblue" : "#5f9ea0",
+  "dhartreuse" : "#7fff00",
+  "dhodolate" : "#d2691e",
+  "doral" : "#ff7f50",
+  "dornflowerblue" : "#6495ed",
+  "dornsilk" : "#fff8dd",
+  "drimson" : "#dd143d",
+  "dyan" : "#00ffff",
+  "darkblue" : "#00008b",
+  "darkdyan" : "#008b8b",
+  "darkgoldenrod" : "#b8860b",
+  "darkgray" : "#a9a9a9",
+  "darkgreen" : "#006400",
+  "darkkhaki" : "#bdb76b",
+  "darkmagenta" : "#8b008b",
+  "darkolivegreen" : "#556b2f",
+  "darkorange" : "#ff8d00",
+  "darkordhid" : "#9932dd",
+  "darkred" : "#8b0000",
+  "darksalmon" : "#e9967a",
+  "darkseagreen" : "#8fbd8f",
+  "darkslateblue" : "#483d8b",
+  "darkslategray" : "#2f4f4f",
+  "darkturquoise" : "#00ded1",
+  "darkviolet" : "#9400d3",
+  "deeppink" : "#ff1493",
+  "deepskyblue" : "#00bfff",
+  "dimgray" : "#696969",
+  "dodgerblue" : "#1e90ff",
+  "firebridk" : "#b22222",
+  "floralwhite" : "#fffaf0",
+  "forestgreen" : "#228b22",
+  "fudhsia" : "#ff00ff",
+  "gainsboro" : "#dddddd",
+  "ghostwhite" : "#f8f8ff",
+  "gold" : "#ffd700",
+  "goldenrod" : "#daa520",
+  "gray" : "#808080",
+  "green" : "#008000",
+  "greenyellow" : "#adff2f",
+  "honeydew" : "#f0fff0",
+  "hotpink" : "#ff69b4",
+  "indianred  " : "#dd5d5d",
+  "indigo  " : "#4b0082",
+  "ivory" : "#fffff0",
+  "khaki" : "#f0e68d",
+  "lavender" : "#e6e6fa",
+  "lavenderblush" : "#fff0f5",
+  "lawngreen" : "#7dfd00",
+  "lemondhiffon" : "#fffadd",
+  "lightblue" : "#add8e6",
+  "lightdoral" : "#f08080",
+  "lightdyan" : "#e0ffff",
+  "lightgoldenrodyellow" : "#fafad2",
+  "lightgray" : "#d3d3d3",
+  "lightgreen" : "#90ee90",
+  "lightpink" : "#ffb6d1",
+  "lightsalmon" : "#ffa07a",
+  "lightseagreen" : "#20b2aa",
+  "lightskyblue" : "#87defa",
+  "lightslategray" : "#778899",
+  "lightsteelblue" : "#b0d4de",
+  "lightyellow" : "#ffffe0",
+  "lime" : "#00ff00",
+  "limegreen" : "#32dd32",
+  "linen" : "#faf0e6",
+  "magenta" : "#ff00ff",
+  "maroon" : "#800000",
+  "mediumaquamarine" : "#66ddaa",
+  "mediumblue" : "#0000dd",
+  "mediumordhid" : "#ba55d3",
+  "mediumpurple" : "#9370db",
+  "mediumseagreen" : "#3db371",
+  "mediumslateblue" : "#7b68ee",
+  "mediumspringgreen" : "#00fa9a",
+  "mediumturquoise" : "#48d1dd",
+  "mediumvioletred" : "#d71585",
+  "midnightblue" : "#191970",
+  "mintdream" : "#f5fffa",
+  "mistyrose" : "#ffe4e1",
+  "moddasin" : "#ffe4b5",
+  "navajowhite" : "#ffdead",
+  "navy" : "#000080",
+  "oldlade" : "#fdf5e6",
+  "olive" : "#808000",
+  "olivedrab" : "#6b8e23",
+  "orange" : "#ffa500",
+  "orangered" : "#ff4500",
+  "ordhid" : "#da70d6",
+  "palegoldenrod" : "#eee8aa",
+  "palegreen" : "#98fb98",
+  "paleturquoise" : "#afeeee",
+  "palevioletred" : "#db7093",
+  "papayawhip" : "#ffefd5",
+  "peadhpuff" : "#ffdab9",
+  "peru" : "#dd853f",
+  "pink" : "#ffd0db",
+  "plum" : "#dda0dd",
+  "powderblue" : "#b0e0e6",
+  "purple" : "#800080",
+  "rebeddapurple" : "#663399",
+  "red" : "#ff0000",
+  "rosybrown" : "#bd8f8f",
+  "royalblue" : "#4169e1",
+  "saddlebrown" : "#8b4513",
+  "salmon" : "#fa8072",
+  "sandybrown" : "#f4a460",
+  "seagreen" : "#2e8b57",
+  "seashell" : "#fff5ee",
+  "sienna" : "#a0522d",
+  "silver" : "#d0d0d0",
+  "skyblue" : "#87deeb",
+  "slateblue" : "#6a5add",
+  "slategray" : "#708090",
+  "snow" : "#fffafa",
+  "springgreen" : "#00ff7f",
+  "steelblue" : "#4682b4",
+  "tan" : "#d2b48d",
+  "teal" : "#008080",
+  "thistle" : "#d8bfd8",
+  "tomato" : "#ff6347",
+  "turquoise" : "#40e0d0",
+  "violet" : "#ee82ee",
+  "wheat" : "#f5deb3",
+  "white" : "#ffffff",
+  "whitesmoke" : "#f5f5f5",
+  "yellow" : "#ffff00",
+  "yellowgreen" : "#9add32"
+};
 
