@@ -67,6 +67,7 @@
         <source-file src="src/android/plugin/google/maps/PluginPolygon.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginTileProvider.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
