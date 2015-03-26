@@ -8,12 +8,12 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 
 ###Example
-You can see an example here. [phonegap-googlemaps-plugin-v1.2.2.apk](http://goo.gl/EJ67sm)
+You can see an example here. [phonegap-googlemaps-plugin-v1.2.5.apk](https://googledrive.com/host/0B1ECfqTCcLE8TXlUQUJXMmJpNGs/phonegap-googlemaps-plugin-v1.2.5.apk)
 ```bash
-$> adb install phonegap-googlemaps-plugin-v1.2.2.apk
+$> adb install phonegap-googlemaps-plugin-v1.2.5.apk
 ```
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.0_v2.gif)
+![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.5.gif)
 
 ### Join the official community
 New versions will be announced through the official community. Stay tuned!
@@ -22,8 +22,16 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
-v1.2.4
-- Bug fixes
+v1.2.5
+- Add : The `opacity` and `tileSize` properties has been added to `map.addTileOverlay()`
+- Add : Add marker animations: `DROP` and `BOUNCE`
+- Add : Add INDOOR_BUILDING_FOCUSED & INDOOR_LEVEL_ACTIVATED events for indoor map events.
+- Add plugin.google.maps.geometry.encoding.decodePath() & plugin.google.maps.geometry.encoding.encodePath()
+- Update : v1.2.5 uses Google Play Services version 23.
+- Added settings for watchdogtimer / complete rewrite of remote marker downloads
+- The `icon` property of the `map.addMarker()` accepts `file://` & `cdvfile://` protocol, and also the absolute file path.
+- Loading KML files from `file://` & `cdvfile://` protocol.
+- And many bugs are fixed.
 
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
@@ -46,7 +54,7 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
     * [How to upgrade the Google Maps SDK for iOS to the latest version?](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/How-to-upgrade-the-Google-Maps-SDK-for-iOS-to-the-latest-version%3F)
 * [Terms of Services](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Terms-of-Services)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif) 
+  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif)
   * Create a map
   * Create a map with initialize options
   * Change the map type
@@ -56,7 +64,7 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
   * Get my location
   * Map Class Reference
 * [Marker](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Marker)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8LUxUWmhsQmgxVVU/marker5.gif) 
+  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8LUxUWmhsQmgxVVU/marker5.gif)
   * Add a Marker
   * Show InfoWindow
   * Add a marker with multiple line
@@ -114,14 +122,14 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
 * [Geocoder](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocoder)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/geocoding.gif" height="250"> 
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/geocoding.gif" height="250">
   * Geocoding
   * Reverse geocoding
   * Geocoder Class Reference
 * [BaseClass](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/BaseClass)
   * BaseClass Reference
 * [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/direction.gif" height="250"> 
+  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/direction.gif" height="250">
   * Launch the navigation application
 
 
