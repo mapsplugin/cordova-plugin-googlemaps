@@ -18,5 +18,6 @@
 -(void)clearTileCache:(CDVInvokedUrlCommand *)command;
 -(void)setZIndex:(CDVInvokedUrlCommand *)command;
 -(void)setFadeIn:(CDVInvokedUrlCommand *)command;
+-(void)setOpacity:(CDVInvokedUrlCommand *)command;
 
 @end

@@ -152,7 +152,7 @@ public class PluginUtil {
     }
     return mBundle;
   }
-  
+
   public static Bitmap resizeBitmap(Bitmap bitmap, int newWidth, int newHeight) {
     if (bitmap == null) {
       return null;

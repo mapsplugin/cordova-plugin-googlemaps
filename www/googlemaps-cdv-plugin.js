@@ -1004,8 +1004,8 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   }
   tilelayerOptions.visible = tilelayerOptions.visible === undefined ? true : tilelayerOptions.visible;
   tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
-  tilelayerOptions.width = tilelayerOptions.width || 256;
-  tilelayerOptions.height = tilelayerOptions.height || 256;
+  tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
+  tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
   
   cordova.exec(function(result) {
     var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
@@ -1650,6 +1650,9 @@ TileOverlay.prototype.clearTileCache = function() {
 TileOverlay.prototype.getId = function() {
   return this.id;
 };
+TileOverlay.prototype.getTileSize = function() {
+  return this.get("tileSize");
+};
 TileOverlay.prototype.getZIndex = function() {
   return this.get("zIndex");
 };
@@ -1669,6 +1672,13 @@ TileOverlay.prototype.setVisible = function(visible) {
   visible = parseBoolean(visible);
   this.set('visible', visible);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setVisible', this.getId(), visible]);
+};
+TileOverlay.prototype.getOpacity = function() {
+  return this.get('opacity');
+};
+TileOverlay.prototype.setOpacity = function(opacity) {
+  this.set('opacity', opacity);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
 };
 TileOverlay.prototype.getVisible = function() {
   return this.get('visible');

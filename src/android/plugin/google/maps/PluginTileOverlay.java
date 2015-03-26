@@ -1,8 +1,5 @@
 package plugin.google.maps;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,7 +7,6 @@ import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.UrlTileProvider;
 
 public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
@@ -26,25 +22,14 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     final CallbackContext callbackContext) throws JSONException {
 
     JSONObject opts = args.getJSONObject(1);
-    int tileWidth = opts.getInt("width");
-    int tileHeight = opts.getInt("height");
+    int tileSize = opts.getInt("tileSize");
     final String tileUrlFormat = opts.getString("tileUrlFormat");
-    UrlTileProvider tileProvider = new UrlTileProvider(tileWidth, tileHeight) {
-
-      @Override
-      public URL getTileUrl(int x, int y, int zoom) {
-        String urlStr = tileUrlFormat.replaceAll("<x>", x + "")
-                                     .replaceAll("<y>", y + "")
-                                     .replaceAll("<zoom>", zoom + "");
-        URL url = null;
-        try {
-          url = new URL(urlStr);
-        } catch (MalformedURLException e) {
-          e.printStackTrace();
-        }
-        return url;
-      }
-    };
+    
+    double opacity = 1.0;
+    if (opts.has("opacity")) {
+      opacity = opts.getDouble("opacity");
+    }
+    PluginTileProvider tileProvider = new PluginTileProvider(tileUrlFormat, opacity, tileSize);
 
     TileOverlayOptions options = new TileOverlayOptions();
     options.tileProvider(tileProvider);
@@ -56,7 +41,8 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     }
     TileOverlay tileOverlay = this.map.addTileOverlay(options);
     String id = "tile_" + tileOverlay.getId();
-    this.objects.put(id, tileOverlay);
+
+    this.objects.put("tileProvider_" + id, tileProvider);
     
 
     JSONObject result = new JSONObject();
@@ -104,6 +90,10 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     }
     tileOverlay.remove();
     tileOverlay.clearTileCache();
+    
+    id = id.replace("tile_", "tileProvider_");
+    this.objects.put(id, null);
+    this.objects.remove(id);
     this.sendNoResult(callbackContext);
   }
   /**
@@ -129,5 +119,19 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     boolean visible = args.getBoolean(2);
     String id = args.getString(1);
     this.setBoolean("setFadeIn", id, visible, callbackContext);
+  }
+  /**
+   * Set opacity for the tile layer
+   * @param args
+   * @param callbackContext
+   * @throws JSONException 
+   */
+  protected void setOpacity(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    double opacity = args.getDouble(2);
+    String id = args.getString(1);
+    id = id.replace("tile_", "tileProvider_");
+    
+    PluginTileProvider tileProvider = (PluginTileProvider)this.objects.get(id);
+    tileProvider.setOpacity(opacity);
   }
 }
