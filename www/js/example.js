@@ -16,7 +16,7 @@ window.onerror = function(message, file, line) {
   alert(error.join("\n"));
 };
 $(document).ready(function(){
-  var pageWidth = window.innerWidth || 
+  var pageWidth = window.innerWidth ||
                   document.documentElement.clientWidth ||
                   document.body.clientWidth;
   $("body").css({
@@ -35,19 +35,19 @@ function onMapReady() {
 
 function loadPage(tmplName, params) {
   $(document).trigger("pageLeave");
-  
+
   $("#nextBtn, #execBtn, #searchBtn").off();
-  
+
   $.get("./pages/" + tmplName + ".html", function(html) {
     $("#map_canvas").html(html);
-    
+
     // Call `map.refreshLayout()` if you change the HTML in the map div.
     map.refreshLayout();
-    
+
     map.off();
-    
+
     prettyPrint();
-    
+
     // Execute the code
     setTimeout(function() {
       $(document).trigger("pageLoad", [params]);

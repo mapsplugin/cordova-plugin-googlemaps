@@ -16,31 +16,50 @@ function onAnimationFinished() {
   alert("Animation finished!");
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
-  
 </div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
-  map.setDiv($("#map_canvas")[0]);
   
-  $("#nextBtn").one("touchStart click", function() {
-    var onFinished = function(params) {
-      setTimeout(function() {
-        loadPage("step4", result);
-      }, 5000);
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+    });
+    
+    
+    
+    var onAnimationFinished = function(params) {
+      alert("Animation finished!");
+      
+      // Because of the nextBtn is `display:none`,
+      // the map plugin can not get the rectangle of it, at the first time.
+      // 
+      // Then the next button comes up.
+      // 
+      // In this case, you need to call `map.refreshLayout()`
+      $("#nextBtn").show();
+      map.refreshLayout();
     };
     
-    $(".container").addClass("animated fadeOutDownBig");
-    $(".container").one('webkitAnimationEnd animationend', function() {
-      $(".container").remove();
-      map.animateCamera({
-        tilt: 10,
-        bearing: 230,
-        target: result.latLng,
-        zoom: 17
-      }, onFinished);
-    });
+    map.animateCamera({
+      tilt: 10,
+      bearing: 230,
+      target: result.latLng,
+      zoom: 17
+    }, onAnimationFinished);
+  });
+  
+  
+  $("#nextBtn").one("click", function() {
+    $(this).remove();
+    loadPage("step4", result);
   });
 });
 </script>
