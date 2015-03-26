@@ -74,12 +74,12 @@ public class PluginTileProvider implements TileProvider {
         Bitmap tileImage = this.resizeForTile(image);
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
-        image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        tileImage.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
         byte[] byteArray = outputStream.toByteArray();
         Tile tile = new Tile(tileSize, tileSize, byteArray);
         
         outputStream.close();
-        tileImage.recycle();
+        //tileImage.recycle();
         image.recycle();
         inputStream.close();
         return tile;

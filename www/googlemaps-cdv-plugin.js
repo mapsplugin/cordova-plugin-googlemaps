@@ -1004,8 +1004,7 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   }
   tilelayerOptions.visible = tilelayerOptions.visible === undefined ? true : tilelayerOptions.visible;
   tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
-  tilelayerOptions.width = tilelayerOptions.width || 256;
-  tilelayerOptions.height = tilelayerOptions.height || 256;
+  tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
   tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
   
   cordova.exec(function(result) {
