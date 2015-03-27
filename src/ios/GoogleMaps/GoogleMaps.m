@@ -507,9 +507,19 @@
   CGRect pluginRect = self.mapCtrl.view.frame;
   pluginRect.origin.x = 0;
   pluginRect.origin.y = 0;
-  int direction = self.mapCtrl.interfaceOrientation;
+  int direction;
+  
+  #if !defined(__IPHONE_8_0)
+    // iOS 7
+    direction = self.mapCtrl.interfaceOrientation;
+  #else
+    // iOS8 or above
+    direction = [UIDevice currentDevice].orientation;
+  #endif
+  
+  
   if (direction == UIInterfaceOrientationLandscapeLeft ||
-    direction == UIInterfaceOrientationLandscapeRight) {
+      direction == UIInterfaceOrientationLandscapeRight) {
     pluginRect.size.width = screenSize.size.height;
     pluginRect.size.height = screenSize.size.width - footerHeight - footerAdjustment;
   } else {
