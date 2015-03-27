@@ -1924,8 +1924,8 @@ function isHTMLColorString(inputValue) {
       inputValue.match(/^#[0-9A-F]{4}$/i) ||
       inputValue.match(/^#[0-9A-F]{6}$/i) ||
       inputValue.match(/^#[0-9A-F]{8}$/i) ||
-      inputValue.match(/^rgba\([\d,.\s]+\)$/) ||
-      inputValue.match(/^hsla\([\d%,.\s]+\)$/)) {
+      inputValue.match(/^rgba?\([\d,.\s]+\)$/) ||
+      inputValue.match(/^hsla?\([\d%,.\s]+\)$/)) {
     return true;
   }
   
