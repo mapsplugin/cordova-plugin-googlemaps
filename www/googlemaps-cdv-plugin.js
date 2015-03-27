@@ -1031,21 +1031,16 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   
-  var pluginExec = function() {
-    cordova.exec(function(result) {
-      var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
-      OVERLAYS[result.id] = groundOverlay;
-      if (typeof groundOverlayOptions.onClick === "function") {
-        groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
-      }
-      if (typeof callback === "function") {
-        callback.call(self,  groundOverlay, self);
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
-  };
-  
-  pluginExec();
-  
+  cordova.exec(function(result) {
+    var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
+    OVERLAYS[result.id] = groundOverlay;
+    if (typeof groundOverlayOptions.onClick === "function") {
+      groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+    }
+    if (typeof callback === "function") {
+      callback.call(self,  groundOverlay, self);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
   
 };
 
