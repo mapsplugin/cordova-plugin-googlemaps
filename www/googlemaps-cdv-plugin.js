@@ -1696,7 +1696,7 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   
   var self = this;
   groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
-  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
+  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
   groundOverlayOptions.opacity = groundOverlayOptions.opacity || 1;
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0, 0];
