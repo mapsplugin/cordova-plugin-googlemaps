@@ -129,9 +129,6 @@
         },
         "com.google.playservices": {
             "PACKAGE_NAME": "com.example.myapp"
-        },
-        "net.yoik.cordova.plugins.screenorientation": {
-            "PACKAGE_NAME": "com.example.myapp"
         }
     },
     "dependent_plugins": {}
