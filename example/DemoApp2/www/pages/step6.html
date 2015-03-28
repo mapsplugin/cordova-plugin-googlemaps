@@ -24,45 +24,53 @@ function onPolylineAdded(polyline) {
 function onCameraUpdated() {
 }
 </pre>
-<button id="nextBtn">Execute &amp; next</button>
   </div>
   
 </div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt, result) {
-  map.setDiv($("#map_canvas")[0]);
   
-  $("#nextBtn").one("touchStart click", function() {
-    
-    $(".container").addClass("animated zoomOutUp");
-    $(".container").one('webkitAnimationEnd animationend', function() {
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
       $(".container").remove();
-      
-      var GORYOKAKU = new plugin.google.maps.LatLng(41.797184,140.756831);
-      map.addPolyline({
-        points: [
-          result.latLng,
-          GORYOKAKU
-        ],
-        'color' : '#AA00FF',
-        'width': 10,
-        'geodesic': true
-      }, onPolylineAdded);
-      function onPolylineAdded(polyline) {
-        map.animateCamera({
-          target: GORYOKAKU,
-          zoom: 17,
-          tilt: 50
-        }, onCameraUpdated);
-      }
-      function onCameraUpdated() {
-        setTimeout(function() {
-          loadPage("step7");
-        }, 2000);
-      }
+      $("#execBtn").remove();
     });
-    
+  
+  
+  
+  
+    var GORYOKAKU = new plugin.google.maps.LatLng(41.797184,140.756831);
+    map.addPolyline({
+      points: [
+        result.latLng,
+        GORYOKAKU
+      ],
+      'color' : '#AA00FF',
+      'width': 10,
+      'geodesic': true
+    }, onPolylineAdded);
+    function onPolylineAdded(polyline) {
+      map.animateCamera({
+        target: GORYOKAKU,
+        zoom: 17,
+        tilt: 50
+      }, onCameraUpdated);
+    }
+    function onCameraUpdated() {
+      $("#nextBtn").show();
+      map.refreshLayout();
+    }
   });
   
+  $("#nextBtn").one("click", function() {
+    $(this).remove();
+    loadPage("step7");
+  });
 });
 </script>

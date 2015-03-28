@@ -703,7 +703,7 @@ App.prototype.setDiv = function(div) {
         }
         if (currentDiv.classList) {
           currentDiv.classList.remove('_gmaps_cdv_');
-        } else if (div.className) {
+        } else if (currentDiv.className) {
           currentDiv.className = currentDiv.className.replace(/_gmaps_cdv_/g, "");
           currentDiv.className = currentDiv.className.replace(/\s+/g, " ");
         }
@@ -1031,21 +1031,16 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   
-  var pluginExec = function() {
-    cordova.exec(function(result) {
-      var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
-      OVERLAYS[result.id] = groundOverlay;
-      if (typeof groundOverlayOptions.onClick === "function") {
-        groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
-      }
-      if (typeof callback === "function") {
-        callback.call(self,  groundOverlay, self);
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
-  };
-  
-  pluginExec();
-  
+  cordova.exec(function(result) {
+    var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
+    OVERLAYS[result.id] = groundOverlay;
+    if (typeof groundOverlayOptions.onClick === "function") {
+      groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+    }
+    if (typeof callback === "function") {
+      callback.call(self,  groundOverlay, self);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
   
 };
 
@@ -1696,7 +1691,7 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   
   var self = this;
   groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
-  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
+  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
   groundOverlayOptions.opacity = groundOverlayOptions.opacity || 1;
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0, 0];
@@ -1929,8 +1924,8 @@ function isHTMLColorString(inputValue) {
       inputValue.match(/^#[0-9A-F]{4}$/i) ||
       inputValue.match(/^#[0-9A-F]{6}$/i) ||
       inputValue.match(/^#[0-9A-F]{8}$/i) ||
-      inputValue.match(/^rgba\([\d,.\s]+\)$/) ||
-      inputValue.match(/^hsla\([\d%,.\s]+\)$/)) {
+      inputValue.match(/^rgba?\([\d,.\s]+\)$/) ||
+      inputValue.match(/^hsla?\([\d%,.\s]+\)$/)) {
     return true;
   }
   

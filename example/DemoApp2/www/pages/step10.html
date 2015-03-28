@@ -4,7 +4,7 @@
     <p>Address: <input type="text" id="address" value="Tokyo, Japan"><input type="button" id="searchBtn" value="Search"></p>
     
     <pre class="prettyprint lang-js">
-$("#searchBtn").one("click touchstart", function() {
+$("#searchBtn").one("click", function() {
   var request = {
     'address': $("#address").val()
   };
@@ -39,53 +39,59 @@ function geocoderCallback(results) {
   </div>
   
 </div>
+<button id="nextBtn">Next</button>
+
 <script type="text/javascript">
 $(document).one("pageLoad", function(evt) {
-  map.setDiv($("#map_canvas")[0]);
-  
-  $("#searchBtn").one("click touchstart", function() {
+  $("#searchBtn").on("click", function() {
+    $(".container").hide();
+    map.refreshLayout();
     
-    $(".container").addClass("animated fadeOut");
-    $(".container").one('webkitAnimationEnd animationend', function() {
-      
-      var request = {
-        'address': $("#address").val()
-      };
-      
-      $(".container").remove();
-
-      plugin.google.maps.Geocoder.geocode(request, geocoderCallback);
-    });
-    
+    var request = {
+      'address': $("#address").val()
+    };
+    plugin.google.maps.Geocoder.geocode(request, geocoderCallback);
   });
   
+  function next(marker) {
+    $("#nextBtn").show();
+    $(".container").remove();
+    map.refreshLayout();
+    
+    $("#nextBtn").one("click", function() {
+      if (marker) {
+        marker.hideInfoWindow();
+      }
+      $(this).remove();
+      loadPage("step11", marker);
+    });
+  }
   function geocoderCallback(results) {
     if (results.length) {
       var result = results[0];
       var position = result.position; 
   
-  
       map.animateCamera({
         'target': position,
         'zoom': 17
       }, function() {
-        map.addMarker({
-          'position': position,
-          'title':  JSON.stringify(result.position),
-          'animation': plugin.google.maps.Animation.DROP
-        }, function(marker) {
-  
-          marker.showInfoWindow();
-          
-          setTimeout(function() {
-            loadPage("step11", marker);
-          }, 10000);
-        });
-  
+        setTimeout(function() {
+          map.addMarker({
+            'position': position,
+            'title':  JSON.stringify(result.position),
+            'animation': plugin.google.maps.Animation.DROP
+          }, function(marker) {
+    
+            marker.showInfoWindow();
+            next(marker);
+          });
+        }, 1500);
       });
     } else {
       alert("Not found");
+      $(".container").show();
     }
   }
+  
 });
 </script>
