@@ -2015,7 +2015,7 @@ function HTMLColor2RGBA(colorStr, defaultOpacity) {
     return rgb;
   }
    
-  return null;
+  return  [0, 0, 0, defaultOpacity];
 }
 
 /**
