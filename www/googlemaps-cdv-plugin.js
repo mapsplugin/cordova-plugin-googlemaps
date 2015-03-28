@@ -953,6 +953,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
   polylineOptions.zIndex = polylineOptions.zIndex || 4;
   polylineOptions.geodesic = polylineOptions.geodesic || false;
+  console.log("color = " + polylineOptions.color.join(", "));
   
   cordova.exec(function(result) {
     var polyline = new Polyline(self, result.id, polylineOptions);
@@ -1933,20 +1934,19 @@ function isHTMLColorString(inputValue) {
   return inputValue in HTML_COLORS;
 }
 
-function HTMLColor2RGBA(colorStr, defaultOpacity) {
+function HTMLColor2RGBA(colorValue, defaultOpacity) {
   defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
-  if (colorStr === "transparent" || !colorStr) {
+  if (colorValue === "transparent" || !colorValue) {
     return [0, 0, 0, 0];
   }
   var alpha = Math.floor(255 * defaultOpacity),
       matches,
-      compStyle,
       result = {
         r: 0,
         g: 0,
         b: 0
       };
-  colorStr = colorStr.toLowerCase();
+  var colorStr = colorValue.toLowerCase();
   if (colorStr in HTML_COLORS) {
     colorStr = HTML_COLORS[colorStr];
   }
@@ -2014,8 +2014,9 @@ function HTMLColor2RGBA(colorStr, defaultOpacity) {
     rgb.push(alpha);
     return rgb;
   }
-   
-  return  [0, 0, 0, defaultOpacity];
+  
+  console.log("Warning: '" + colorValue + "' is not available. The overlay is drew by black.");
+  return  [0, 0, 0, alpha];
 }
 
 /**
