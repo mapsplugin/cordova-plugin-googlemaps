@@ -1031,21 +1031,16 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   
-  var pluginExec = function() {
-    cordova.exec(function(result) {
-      var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
-      OVERLAYS[result.id] = groundOverlay;
-      if (typeof groundOverlayOptions.onClick === "function") {
-        groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
-      }
-      if (typeof callback === "function") {
-        callback.call(self,  groundOverlay, self);
-      }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
-  };
-  
-  pluginExec();
-  
+  cordova.exec(function(result) {
+    var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
+    OVERLAYS[result.id] = groundOverlay;
+    if (typeof groundOverlayOptions.onClick === "function") {
+      groundOverlay.on(plugin.google.maps.event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+    }
+    if (typeof callback === "function") {
+      callback.call(self,  groundOverlay, self);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
   
 };
 
@@ -1696,7 +1691,7 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   
   var self = this;
   groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
-  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
+  groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
   groundOverlayOptions.opacity = groundOverlayOptions.opacity || 1;
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0, 0];
@@ -1929,8 +1924,8 @@ function isHTMLColorString(inputValue) {
       inputValue.match(/^#[0-9A-F]{4}$/i) ||
       inputValue.match(/^#[0-9A-F]{6}$/i) ||
       inputValue.match(/^#[0-9A-F]{8}$/i) ||
-      inputValue.match(/^rgba\([\d,.\s]+\)$/) ||
-      inputValue.match(/^hsla\([\d%,.\s]+\)$/)) {
+      inputValue.match(/^rgba?\([\d,.\s]+\)$/) ||
+      inputValue.match(/^hsla?\([\d%,.\s]+\)$/)) {
     return true;
   }
   
@@ -2020,7 +2015,7 @@ function HTMLColor2RGBA(colorStr, defaultOpacity) {
     return rgb;
   }
    
-  return null;
+  return  [0, 0, 0, defaultOpacity];
 }
 
 /**
@@ -2191,8 +2186,8 @@ externalService.launchNavigation = function(params) {
   if (typeof params.to === "object" && "toUrlValue" in params.to ) {
     params.to = params.to.toUrlValue();
   }
-  params.from = params.from.replace(/\s+/g, "%20");
-  params.to = params.to.replace(/\s+/g, "%20");
+  //params.from = params.from.replace(/\s+/g, "%20");
+  //params.to = params.to.replace(/\s+/g, "%20");
   cordova.exec(null, null, "External", 'launchNavigation', [params]);
 };
 /*****************************************************************************
@@ -2499,6 +2494,7 @@ const HTML_COLORS = {
   "darkdyan" : "#008b8b",
   "darkgoldenrod" : "#b8860b",
   "darkgray" : "#a9a9a9",
+  "darkgrey" : "#a9a9a9",
   "darkgreen" : "#006400",
   "darkkhaki" : "#bdb76b",
   "darkmagenta" : "#8b008b",
@@ -2510,11 +2506,13 @@ const HTML_COLORS = {
   "darkseagreen" : "#8fbd8f",
   "darkslateblue" : "#483d8b",
   "darkslategray" : "#2f4f4f",
+  "darkslategrey" : "#2f4f4f",
   "darkturquoise" : "#00ded1",
   "darkviolet" : "#9400d3",
   "deeppink" : "#ff1493",
   "deepskyblue" : "#00bfff",
   "dimgray" : "#696969",
+  "dimgrey" : "#696969",
   "dodgerblue" : "#1e90ff",
   "firebridk" : "#b22222",
   "floralwhite" : "#fffaf0",
@@ -2525,6 +2523,7 @@ const HTML_COLORS = {
   "gold" : "#ffd700",
   "goldenrod" : "#daa520",
   "gray" : "#808080",
+  "grey" : "#808080",
   "green" : "#008000",
   "greenyellow" : "#adff2f",
   "honeydew" : "#f0fff0",
@@ -2542,12 +2541,14 @@ const HTML_COLORS = {
   "lightdyan" : "#e0ffff",
   "lightgoldenrodyellow" : "#fafad2",
   "lightgray" : "#d3d3d3",
+  "lightgrey" : "#d3d3d3",
   "lightgreen" : "#90ee90",
   "lightpink" : "#ffb6d1",
   "lightsalmon" : "#ffa07a",
   "lightseagreen" : "#20b2aa",
   "lightskyblue" : "#87defa",
   "lightslategray" : "#778899",
+  "lightslategrey" : "#778899",
   "lightsteelblue" : "#b0d4de",
   "lightyellow" : "#ffffe0",
   "lime" : "#00ff00",
@@ -2601,6 +2602,7 @@ const HTML_COLORS = {
   "skyblue" : "#87deeb",
   "slateblue" : "#6a5add",
   "slategray" : "#708090",
+  "slategrey" : "#708090",
   "snow" : "#fffafa",
   "springgreen" : "#00ff7f",
   "steelblue" : "#4682b4",
