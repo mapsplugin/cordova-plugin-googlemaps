@@ -55,3 +55,5 @@ www/pages/*
 www/js/*
 !www/googlemaps-cdv-plugin.js
 platforms/android/lint.xml
+test_crosswalk_proj/
+platforms/
