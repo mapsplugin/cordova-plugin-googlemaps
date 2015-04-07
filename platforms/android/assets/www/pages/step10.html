@@ -1,0 +1,97 @@
+<div class="container">
+  <div class="description">
+    <strong>Step10: Geocoding</strong>
+    <p>Address: <input type="text" id="address" value="Tokyo, Japan"><input type="button" id="searchBtn" value="Search"></p>
+    
+    <pre class="prettyprint lang-js">
+$("#searchBtn").one("click", function() {
+  var request = {
+    'address': $("#address").val()
+  };
+  plugin.google.maps.Geocoder.geocode(request, geocoderCallback);
+});
+
+function geocoderCallback(results) {
+  if (results.length) {
+    var result = results[0];
+    var position = result.position; 
+
+    map.animateCamera({
+      'target': position,
+      'zoom': 17
+    }, function() {
+      map.addMarker({
+        'position': position,
+        'title':  JSON.stringify(result.position),
+        'animation': plugin.google.maps.Animation.DROP
+      }, function(marker) {
+
+        marker.showInfoWindow();
+        
+      });
+
+    });
+  } else {
+    alert("Not found");
+  }
+}
+</pre>
+  </div>
+  
+</div>
+<button id="nextBtn">Next</button>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt) {
+  $("#searchBtn").on("click", function() {
+    $(".container").hide();
+    map.refreshLayout();
+    
+    var request = {
+      'address': $("#address").val()
+    };
+    plugin.google.maps.Geocoder.geocode(request, geocoderCallback);
+  });
+  
+  function next(marker) {
+    $("#nextBtn").show();
+    $(".container").remove();
+    map.refreshLayout();
+    
+    $("#nextBtn").one("click", function() {
+      if (marker) {
+        marker.hideInfoWindow();
+      }
+      $(this).remove();
+      loadPage("step11", marker);
+    });
+  }
+  function geocoderCallback(results) {
+    if (results.length) {
+      var result = results[0];
+      var position = result.position; 
+  
+      map.animateCamera({
+        'target': position,
+        'zoom': 17
+      }, function() {
+        setTimeout(function() {
+          map.addMarker({
+            'position': position,
+            'title':  JSON.stringify(result.position),
+            'animation': plugin.google.maps.Animation.DROP
+          }, function(marker) {
+    
+            marker.showInfoWindow();
+            next(marker);
+          });
+        }, 1500);
+      });
+    } else {
+      alert("Not found");
+      $(".container").show();
+    }
+  }
+  
+});
+</script>
