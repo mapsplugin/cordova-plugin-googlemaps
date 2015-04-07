@@ -21,6 +21,7 @@ package com.example.googlemap;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
+import org.xwalk.core.XWalkPreferences;
 
 public class test_crosswalk extends CordovaActivity
 {
@@ -32,8 +33,11 @@ public class test_crosswalk extends CordovaActivity
 
     @Override
     protected void onXWalkReady() {
-        super.init();
-        // Set by <content src="index.html" /> in config.xml
-        loadUrl(launchUrl);
+      XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, false);
+      super.init();
+      this.appView.setZOrderOnTop(true);
+
+      // Set by <content src="index.html" /> in config.xml
+      loadUrl(launchUrl);
     }
 }

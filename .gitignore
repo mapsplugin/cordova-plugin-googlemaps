@@ -31,27 +31,8 @@ proguard/
 .idea/
 build/
 
-# platform assets
-platforms/android/assets/www/*
-platforms/ios/www/*
 
-config.xml
 .DS_Store
 ant-build/
 ant-gen/
-plugins/
-platforms/
-hooks/
 
-out/
-
-
-#other project files
-src/android/plugin/google/maps/experimental
-src/android/plugin/google/maps/PluginMarkerCluster.java
-platforms/android/res/xml/drawable/m1.png
-www/*
-www/pages/*
-www/js/*
-!www/googlemaps-cdv-plugin.js
-platforms/android/lint.xml
