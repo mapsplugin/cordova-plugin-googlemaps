@@ -183,6 +183,13 @@ public class GoogleMaps extends CordovaPlugin implements OnMarkerClickListener,
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        root.setBackgroundColor(Color.WHITE);
+        
+        if (webView.getParent().getClass().toString().indexOf("XWalkView") > -1) {
+          return;
+        }
+        
         try {
           Method method = webView.getClass().getMethod("getSettings");
           WebSettings settings = (WebSettings)method.invoke(null);
@@ -195,8 +202,6 @@ public class GoogleMaps extends CordovaPlugin implements OnMarkerClickListener,
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
-        webView.setBackgroundColor(Color.TRANSPARENT);
-        root.setBackgroundColor(Color.RED);
         if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
           activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
