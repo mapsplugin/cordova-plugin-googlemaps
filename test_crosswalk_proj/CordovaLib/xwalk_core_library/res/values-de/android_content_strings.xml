@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Teilen"</string>
+<string name="actionbar_web_search">"Websuche"</string>
+<string name="media_player_error_title">"Videowiedergabe nicht möglich"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Leider ist dieses Video nicht für Streaming auf diesem Gerät gültig."</string>
+<string name="media_player_error_text_unknown">"Dieses Video kann leider nicht abgespielt werden."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"Video wird geladen"</string>
+<string name="profiler_started_toast">"Profiler gestartet"</string>
+<string name="profiler_stopped_toast">"Profiler ist fertig. Die Ergebnisse befinden sich in der Datei %1$s."</string>
+<string name="profiler_no_storage_toast">"Profiler kann nicht gestartet werden, da der externe Speicher nicht bereit ist."</string>
+<string name="profiler_error_toast">"Profiler konnte nicht gestartet werden."</string>
+</resources>

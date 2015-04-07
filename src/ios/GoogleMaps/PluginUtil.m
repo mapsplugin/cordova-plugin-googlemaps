@@ -21,7 +21,8 @@
       r.size.width == width &&
       r.size.height == height) {
     return;
-  }  r.origin.x = left;
+  }
+  r.origin.x = left;
   r.origin.y = top;
   r.size.width = width;
   r.size.height = height;

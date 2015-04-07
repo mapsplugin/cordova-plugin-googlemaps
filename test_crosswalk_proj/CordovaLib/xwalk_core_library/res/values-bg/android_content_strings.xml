@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Споделяне"</string>
+<string name="actionbar_web_search">"Търсене в мрежата"</string>
+<string name="media_player_error_title">"Видеоклипът не може да се пусне"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"За съжаление този видеоклип не е валиден за поточно предаване към устройството."</string>
+<string name="media_player_error_text_unknown">"За съжаление този видеоклип не може да се пусне."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"Клип: Зарежда се"</string>
+<string name="profiler_started_toast">"Профайлерът стартира"</string>
+<string name="profiler_stopped_toast">"Профайлерът приключи. Резултатите са в/ъв „%1$s“."</string>
+<string name="profiler_no_storage_toast">"Не можем да стартираме профайлера, защото външното хранилище не е готово"</string>
+<string name="profiler_error_toast">"Стартирането на профайлера не бе успешно"</string>
+</resources>

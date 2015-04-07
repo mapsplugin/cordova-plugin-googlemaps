@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="market_progress_message">"Please wait until Crosswalk installed"</string>
+<string name="download_progress_message">"Downloading Crosswalk"</string>
+<string name="download_failed_title">"Crosswalk Download Failed"</string>
+<string name="download_failed_message">"Please retry or cancel"</string>
+<string name="download_failed_device_not_found">"Storage device not found"</string>
+<string name="download_failed_insufficient_space">"Insufficient storage space"</string>
+<string name="download_failed_time_out">"Timed out"</string>
+<string name="startup_not_found_title">"Crosswalk Not Found"</string>
+<string name="startup_not_found_message">"Please get Crosswalk Runtime Library"</string>
+<string name="startup_older_version_title">"Crosswalk Version Too Old"</string>
+<string name="startup_older_version_message">"Please update Crosswalk or continue"</string>
+<string name="startup_newer_version_title">"Crosswalk Version Too New"</string>
+<string name="startup_newer_version_message">"The application is using outdated Crosswalk SDK"</string>
+<string name="runtime_older_version_title">"Crosswalk Version Too Old"</string>
+<string name="runtime_older_version_message">"Next operation may not be supported"</string>
+<string name="runtime_newer_version_title">"Crosswalk Version Too New"</string>
+<string name="runtime_newer_version_message">"Next operation may not be supported"</string>
+<string name="market_open_failed_title">"Market Open Failed"</string>
+<string name="market_open_failed_message">"Please set up your app market"</string>
+<string name="xwalk_cancel">"Cancel"</string>
+<string name="xwalk_continue">"Continue"</string>
+<string name="xwalk_terminate">"Terminate"</string>
+<string name="xwalk_retry">"Retry"</string>
+<string name="get_crosswalk">"Get Crosswalk"</string>
+</resources>

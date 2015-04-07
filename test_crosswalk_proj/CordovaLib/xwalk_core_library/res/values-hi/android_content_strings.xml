@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"साझा करें"</string>
+<string name="actionbar_web_search">"वेब खोज"</string>
+<string name="media_player_error_title">"वीडियो नहीं चलाया जा सकता"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"क्षमा करें, यह वीडियो इस डिवाइस पर स्‍ट्रीम करने के लिए मान्य नहीं है."</string>
+<string name="media_player_error_text_unknown">"क्षमा करें, यह वीडियो नहीं चलाया जा सकता."</string>
+<string name="media_player_error_button">"ठीक"</string>
+<string name="media_player_loading_video">"वीडियो लोड हो रहा है"</string>
+<string name="profiler_started_toast">"प्रोफ़ाइलर प्रारंभ किया गया"</string>
+<string name="profiler_stopped_toast">"प्रोफ़ाइलर पूर्ण. परिणाम %1$s में हैं."</string>
+<string name="profiler_no_storage_toast">"प्रोफ़ाइलर प्रारंभ नहीं हो सकता क्‍योंकि बाहरी मेमोरी तैयार नहीं है"</string>
+<string name="profiler_error_toast">"प्रोफ़ाइलर प्रारंभ करने में विफल"</string>
+</resources>

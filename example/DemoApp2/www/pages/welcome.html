@@ -52,12 +52,13 @@ $(document).one("pageLoad", function() {
 
   $("button").one("click", function() {
     $('#image').fadeOut(function() {
-      screen.unlockOrientation();
+      // https://github.com/yoik/cordova-yoik-screenorientation
+      // screen.unlockOrientation();
       loadPage("step1");
     });
   });
   
   // https://github.com/yoik/cordova-yoik-screenorientation
-  ///screen.lockOrientation('portrait');
+  // screen.lockOrientation('portrait');
 });
 </script>

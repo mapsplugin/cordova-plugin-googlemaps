@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"اشتراک‌گذاری"</string>
+<string name="actionbar_web_search">"جستجوی وب"</string>
+<string name="media_player_error_title">"ویدیو پخش نمی‌شود"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"با عرض پوزش، این ویدیو برای پخش هم‌زمان در این دستگاه معتبر نیست."</string>
+<string name="media_player_error_text_unknown">"با عرض پوزش، این ویدیو پخش نمی‌شود."</string>
+<string name="media_player_error_button">"تأیید"</string>
+<string name="media_player_loading_video">"بارگیری ویدیو"</string>
+<string name="profiler_started_toast">"نمایه‌ساز اجرا شد"</string>
+<string name="profiler_stopped_toast">"نمایه‌ساز پایان یافت. نتایج در %1$s ذخیره شده‌اند."</string>
+<string name="profiler_no_storage_toast">"نمایه‌ساز اجرا نمی‌شود زیرا حافظه خارجی آماده نیست"</string>
+<string name="profiler_error_toast">"نمایه‌ساز اجرا نشد"</string>
+</resources>

@@ -31,25 +31,8 @@ proguard/
 .idea/
 build/
 
-# platform assets
-platforms/android/assets/www/*
-platforms/ios/www/*
 
-config.xml
 .DS_Store
 ant-build/
 ant-gen/
-plugins/*
-!plugins/net.yoik.cordova.plugins.screenorientation/*
-#platforms/
-hooks/
 
-out/
-
-
-#other project files
-src/android/plugin/google/maps/experimental
-src/android/plugin/google/maps/PluginMarkerCluster.java
-platforms/android/res/xml/drawable/m1.png
-www/test.json
-platforms/android/lint.xml

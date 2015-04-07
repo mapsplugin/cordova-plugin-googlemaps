@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Condividi"</string>
+<string name="actionbar_web_search">"Ricerca Google"</string>
+<string name="media_player_error_title">"Impossibile riprodurre il video"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Spiacenti, questo video non può essere visualizzato in streaming su questo dispositivo."</string>
+<string name="media_player_error_text_unknown">"Spiacenti, impossibile riprodurre il video."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"Caricamento video"</string>
+<string name="profiler_started_toast">"Profiler avviato"</string>
+<string name="profiler_stopped_toast">"Profiler ha finito. I risultati sono in %1$s."</string>
+<string name="profiler_no_storage_toast">"Impossibile avviare profiler perché la memoria esterna non è pronta"</string>
+<string name="profiler_error_toast">"Impossibile avviare profiler"</string>
+</resources>

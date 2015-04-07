@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.2.5" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.2.6" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="plugin.google.maps" />
@@ -62,12 +62,13 @@
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarker.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/PluginMarkerInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginPolygon.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginTileProvider.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/MyDialog.java" target-dir="src/plugin/google/maps" />
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data

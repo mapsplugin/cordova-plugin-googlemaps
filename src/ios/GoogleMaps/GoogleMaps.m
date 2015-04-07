@@ -126,11 +126,9 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-
   CGPoint offset = self.pluginScrollView.contentOffset;
   offset.x = self.webView.scrollView.contentOffset.x;
   offset.y = self.webView.scrollView.contentOffset.y;
-  
   [self.pluginScrollView setContentOffset:offset];
   [self.pluginLayer setNeedsDisplay];
   [self.pluginScrollView.debugView setNeedsDisplay];
@@ -421,8 +419,7 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   NSInteger argCnt = [command.arguments count];
-  NSMutableDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-  self.mapCtrl.embedRect = embedRect;
+  self.mapCtrl.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
   self.pluginLayer.embedRect = self.mapCtrl.embedRect;
   self.pluginScrollView.debugView.embedRect = self.mapCtrl.embedRect;
   [self.pluginLayer clearHTMLElement];
@@ -438,6 +435,7 @@
     [self.pluginLayer putHTMLElement:elemId size:elemSize];
     [self.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
   }
+  
   [self.mapCtrl updateMapViewLayout];
 }
 

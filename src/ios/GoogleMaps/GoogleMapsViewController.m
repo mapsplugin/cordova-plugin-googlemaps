@@ -35,7 +35,6 @@ NSDictionary *initOptions;
   }
 }
 
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
