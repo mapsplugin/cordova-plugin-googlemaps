@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Kopīgot"</string>
+<string name="actionbar_web_search">"Meklēšana tīmeklī"</string>
+<string name="media_player_error_title">"Nevar atskaņot videoklipu."</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Diemžēl šo videoklipu nevar straumēt šajā ierīcē."</string>
+<string name="media_player_error_text_unknown">"Diemžēl šo videoklipu nevar atskaņot."</string>
+<string name="media_player_error_button">"Labi"</string>
+<string name="media_player_loading_video">"Video ielāde"</string>
+<string name="profiler_started_toast">"Profilētājs startēts."</string>
+<string name="profiler_stopped_toast">"Profilētāja izpilde ir pabeigta. Rezultāti ir pieejami šeit: %1$s."</string>
+<string name="profiler_no_storage_toast">"Nevar startēt profilētāju, jo ārējā krātuve nav gatava."</string>
+<string name="profiler_error_toast">"Neizdevās startēt profilētāju."</string>
+</resources>

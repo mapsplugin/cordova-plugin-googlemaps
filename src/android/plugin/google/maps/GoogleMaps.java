@@ -49,6 +49,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebSettings.RenderPriority;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
@@ -98,7 +100,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 @SuppressWarnings("deprecation")
-public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
+public class GoogleMaps extends CordovaPlugin implements OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
       OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
@@ -118,15 +120,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final int ACTIVITY_LOCATION_PAGE = 0x7f999901;   // Open the location settings page
   
   private JSONObject mapDivLayoutJSON = null;
-  private MapView mapView = null;
+  public MapView mapView = null;
   public GoogleMap map = null;
   private Activity activity;
   private LinearLayout windowLayer = null;
   private ViewGroup root;
-  private final int CLOSE_LINK_ID = 0x7f999990;  //random
-  private final int LICENSE_LINK_ID = 0x7f99991; //random
   private final String PLUGIN_VERSION = "1.2.5";
-  private MyPluginLayout mPluginLayout = null;
+  public MyPluginLayout mPluginLayout = null;
   public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
   
@@ -183,21 +183,25 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-      /*
-          try {
-            Method method = webView.getClass().getMethod("getSettings");
-            WebSettings settings = (WebSettings)method.invoke(null);
-            settings.setRenderPriority(RenderPriority.HIGH);
-            settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-       */
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        root.setBackgroundColor(Color.WHITE);
+        
+        if (webView.getParent().getClass().toString().indexOf("XWalkView") > -1) {
+          return;
+        }
+        
+        try {
+          Method method = webView.getClass().getMethod("getSettings");
+          WebSettings settings = (WebSettings)method.invoke(null);
+          settings.setRenderPriority(RenderPriority.HIGH);
+          settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
-        
-        root.setBackgroundColor(Color.WHITE);
         if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
           activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
@@ -687,14 +691,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return null;
   }
 
-  private void closeWindow() {
-    try {
-      Method method = webView.getClass().getMethod("hideCustomView");
-      method.invoke(webView);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
+  /*
   @SuppressWarnings("unused")
   private void showDialog(final JSONArray args, final CallbackContext callbackContext) {
     if (windowLayer != null) {
@@ -788,16 +785,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     webView.setVisibility(View.GONE);
     root.addView(windowLayer);
+    webView.setZOrderOnTop(false);
     
-    /**
-     * TODO: webView.showCustomView() has been deprecated in Cordova 4.0
-     * I need to catch the backbutton event
-     */
     WebChromeClient.CustomViewCallback customCallback = new WebChromeClient.CustomViewCallback() {
 
       @Override
       public void onCustomViewHidden() {
         mapFrame.removeView(mapView);
+        webView.setZOrderOnTop(true);
         if (mPluginLayout != null &&
             mapDivLayoutJSON != null) {
           mPluginLayout.attachMyView(mapView);
@@ -811,6 +806,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         GoogleMaps.this.onMapEvent("map_close");
       }
     };
+    
 
     //Dummy view for the back-button event
     try {
@@ -825,6 +821,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     callbackContext.success();
   }
+  */
+  
 
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {
@@ -886,11 +884,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
   }
   
-  @SuppressWarnings("unused")
-  private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
-    this.closeWindow();
-    this.sendNoResult(callbackContext);
-  }
 
   @SuppressWarnings("unused")
   private void isAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -1187,11 +1180,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     });
   }
-  
-  private void showLicenseText() {
-    AsyncLicenseInfo showLicense = new AsyncLicenseInfo(activity);
-    showLicense.execute();
-  }
 
   /********************************************************
    * Callbacks
@@ -1284,7 +1272,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param eventName
    * @param point
    */
-  private void onMapEvent(final String eventName) {
+  public void onMapEvent(final String eventName) {
     webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('" + eventName + "')");
   }
   
@@ -1730,19 +1718,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     super.onDestroy();
   }
   
-
-  @Override
-  public void onClick(View view) {
-    int viewId = view.getId();
-    if (viewId == CLOSE_LINK_ID) {
-      closeWindow();
-      return;
-    }
-    if (viewId == LICENSE_LINK_ID) {
-      showLicenseText();
-      return;
-    }
-  }
   
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override

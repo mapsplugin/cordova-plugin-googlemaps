@@ -1,0 +1,18 @@
+{
+    "version": "1.3.2",
+    "name": "net.yoik.cordova.plugins.screenorientation",
+    "cordova_name": "Screen Orientation",
+    "description": "Adds Screen Orientation API lock and unlock functions to the global screen object in android, iOS and BB10.",
+    "license": "MIT",
+    "platforms": [
+        "ios",
+        "android",
+        "blackberry10"
+    ],
+    "engines": [
+        {
+            "name": "cordova",
+            "version": ">=3.0.0"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Поделиться"</string>
+<string name="actionbar_web_search">"Веб-поиск"</string>
+<string name="media_player_error_title">"Не удается воспроизвести видео"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Невозможно воспроизвести видео на этом устройстве"</string>
+<string name="media_player_error_text_unknown">"Невозможно воспроизвести видео."</string>
+<string name="media_player_error_button">"ОК"</string>
+<string name="media_player_loading_video">"Загрузка видео…"</string>
+<string name="profiler_started_toast">"Профайлер запущен"</string>
+<string name="profiler_stopped_toast">"Работа профайлера завершена. Результаты сохранены в файле %1$s."</string>
+<string name="profiler_no_storage_toast">"Не удалось запустить профайлер, поскольку внешнее хранилище недоступно"</string>
+<string name="profiler_error_toast">"Не удалось запустить профайлер"</string>
+</resources>

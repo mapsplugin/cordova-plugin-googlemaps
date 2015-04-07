@@ -1,0 +1,62 @@
+<div class="container">
+  <div class="description">
+    <strong>Step5: Draw a circle</strong>
+    <p>Drawing a circle is really easy. Just call map.addCircle();</p>
+    
+    <pre class="prettyprint lang-js">
+map.addCircle({
+  'center': result.latLng,
+  'radius': 100, //100m
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, onCircleAdded);
+function onCircleAdded(circle) {
+  setTimeout(function() {
+    circle.setFillColor("lightgreen");
+  }, 3000);
+}
+</pre>
+  </div>
+  
+</div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+    });
+  
+  
+  
+  
+    var onCircleAdded = function(circle) {
+      setTimeout(function() {
+        circle.setFillColor("lightgreen");
+        $("#nextBtn").show();
+        map.refreshLayout();
+      }, 3000);
+    };
+    
+    map.addCircle({
+      'center': result.latLng,
+      'radius': 100,
+      'strokeColor' : '#AA00FF',
+      'strokeWidth': 5,
+      'fillColor' : '#880000'
+    }, onCircleAdded);
+  });
+  
+  $("#nextBtn").one("click", function() {
+    $(this).remove();
+    loadPage("step6", result);
+  });
+});
+</script>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Κοινή χρήση"</string>
+<string name="actionbar_web_search">"Αναζήτηση στον Ιστό"</string>
+<string name="media_player_error_title">"Αδύνατη αναπαραγωγή βίντεο"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Δυστυχώς, αυτό το βίντεο δεν είναι έγκυρο για ροή σε αυτήν τη συσκευή."</string>
+<string name="media_player_error_text_unknown">"Δυστυχώς, δεν είναι δυνατή η αναπαραγωγή αυτού του βίντεο."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"Φόρτωση βίντεο"</string>
+<string name="profiler_started_toast">"Η λειτουργία του προγράμματος προφίλ έχει ξεκινήσει"</string>
+<string name="profiler_stopped_toast">"Η λειτουργία του προγράμματος προφίλ ολοκληρώθηκε. Τα αποτελέσματα βρίσκονται στο αρχείο %1$s."</string>
+<string name="profiler_no_storage_toast">"Δεν είναι δυνατή η έναρξη του προγράμματος προφίλ επειδή ο εξωτερικός χώρος αποθήκευσης δεν είναι έτοιμος"</string>
+<string name="profiler_error_toast">"Αποτυχία έναρξης προγράμματος προφίλ"</string>
+</resources>

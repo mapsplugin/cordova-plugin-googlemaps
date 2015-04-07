@@ -1,16 +1,28 @@
 package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Method;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.util.Base64;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.widget.AbsoluteLayout;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,7 +35,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 
-public class PluginMap extends MyPlugin {
+public class PluginMap extends MyPlugin implements View.OnClickListener {
+  private MyDialog mapDialog;
+
+  private final int CLOSE_LINK_ID = 0x7f999990;  //random
+  private final int LICENSE_LINK_ID = 0x7f99991; //random
+  private boolean mapWasAttached = false;
+  
   /**
    * @param args
    * @param callbackContext
@@ -117,6 +135,142 @@ public class PluginMap extends MyPlugin {
     }
     
     this.sendNoResult(callbackContext);
+  }
+  
+
+  @SuppressWarnings("unused")
+  private void showDialog(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    Activity activity = cordova.getActivity();
+    mapCtrl.mPluginLayout.detachMyView();
+    
+    // window layout
+    LinearLayout windowLayer = new LinearLayout(activity);
+    windowLayer.setPadding(0, 0, 0, 0);
+    LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+    windowLayer.setLayoutParams(layoutParams);
+    
+    
+    // dialog window layer
+    FrameLayout dialogLayer = new FrameLayout(activity);
+    dialogLayer.setLayoutParams(layoutParams);
+    //dialogLayer.setPadding(15, 15, 15, 0);
+    dialogLayer.setBackgroundColor(Color.LTGRAY);
+    windowLayer.addView(dialogLayer);
+    
+    // map frame
+    final FrameLayout mapFrame = new FrameLayout(activity);
+    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
+    dialogLayer.addView(mapFrame);
+    
+    ViewGroup.LayoutParams lParams = (ViewGroup.LayoutParams) mapCtrl.mapView.getLayoutParams();
+    if (lParams == null) {
+      lParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    }
+    lParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+    lParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+    if (lParams instanceof AbsoluteLayout.LayoutParams) {
+      AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+      params.x = 0;
+      params.y = 0;
+      mapCtrl.mapView.setLayoutParams(params);
+    } else if (lParams instanceof LinearLayout.LayoutParams) {
+      LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+      params.topMargin = 0;
+      params.leftMargin = 0;
+      mapCtrl.mapView.setLayoutParams(params);
+    } else if (lParams instanceof FrameLayout.LayoutParams) {
+      FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+      params.topMargin = 0;
+      params.leftMargin = 0;
+      mapCtrl.mapView.setLayoutParams(params);
+    } 
+    mapFrame.addView(this.mapCtrl.mapView);
+    
+    // button frame
+    LinearLayout buttonFrame = new LinearLayout(activity);
+    buttonFrame.setOrientation(LinearLayout.HORIZONTAL);
+    buttonFrame.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
+    LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    buttonFrame.setLayoutParams(buttonFrameParams);
+    dialogLayer.addView(buttonFrame);
+    
+    //close button
+    LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.WRAP_CONTENT, 1.0f);
+    TextView closeLink = new TextView(activity);
+    closeLink.setText("Close");
+    closeLink.setLayoutParams(buttonParams);
+    closeLink.setTextColor(Color.BLUE);
+    closeLink.setTextSize(20);
+    closeLink.setGravity(Gravity.LEFT);
+    closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
+    closeLink.setOnClickListener(PluginMap.this);
+    closeLink.setId(CLOSE_LINK_ID);
+    buttonFrame.addView(closeLink);
+    
+    //license button
+    TextView licenseLink = new TextView(activity);
+    licenseLink.setText("Legal Notices");
+    licenseLink.setTextColor(Color.BLUE);
+    licenseLink.setLayoutParams(buttonParams);
+    licenseLink.setTextSize(20);
+    licenseLink.setGravity(Gravity.RIGHT);
+    licenseLink.setPadding((int)(10 * density), (int)(20 * density), (int)(10 * density), (int)(10 * density));
+    licenseLink.setOnClickListener(PluginMap.this);
+    licenseLink.setId(LICENSE_LINK_ID);
+    buttonFrame.addView(licenseLink);
+    
+    WebChromeClient.CustomViewCallback customCallback = new WebChromeClient.CustomViewCallback() {
+
+      @Override
+      public void onCustomViewHidden() {
+        mapFrame.removeView(mapCtrl.mapView);
+        webView.setZOrderOnTop(true);
+        webView.setVisibility(View.VISIBLE);
+        
+        mapCtrl.mPluginLayout.attachMyView(mapCtrl.mapView);
+        mapCtrl.onMapEvent("map_close");
+        webView.loadUrl("javascript:plugin.google.maps.Map.refreshLayout();");
+        System.gc();
+      }
+    };
+    mapDialog = new MyDialog(cordova.getActivity(), customCallback);
+    mapDialog.setContentView(windowLayer);
+    mapDialog.show();
+    
+  }
+
+  @SuppressWarnings("unused")
+  private void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
+    this.closeWindow();
+    this.sendNoResult(callbackContext);
+  }
+  
+  private void closeWindow() {
+    if (mapDialog != null) {
+      mapDialog.onBackPressed();
+    }
+  }
+
+  private void showLicenseText() {
+    AsyncLicenseInfo showLicense = new AsyncLicenseInfo(cordova.getActivity());
+    showLicense.execute();
+  }
+  
+  @Override
+  public void onClick(View view) {
+    int viewId = view.getId();
+    if (viewId == CLOSE_LINK_ID) {
+      closeWindow();
+      return;
+    }
+    if (viewId == LICENSE_LINK_ID) {
+      showLicenseText();
+      return;
+    }
   }
   
   /**

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"አጋራ"</string>
+<string name="actionbar_web_search">"የድር ፍለጋ"</string>
+<string name="media_player_error_title">"ቪዲዮ ማጫወት አልተቻለም"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"ይቅርታ፣ ይህ ቪዲዮ ወደዚህ መሣሪያ በዥረት ለመልቀቅ ልክ የሆነ አይደለም።"</string>
+<string name="media_player_error_text_unknown">"ይቅርታ፣ ይህ ቪዲዮ ሊጫወት አልቻለም።"</string>
+<string name="media_player_error_button">"ይሁን"</string>
+<string name="media_player_loading_video">"ቪዲዮን በመጫን ላይ"</string>
+<string name="profiler_started_toast">"መገለጫ ሰሪ ተጀምሯል"</string>
+<string name="profiler_stopped_toast">"መግለጫ ሰሪ ተጠናቅቋል። ውጤቶች በ%1$s ውስጥ ናቸው።"</string>
+<string name="profiler_no_storage_toast">"ውጫዊ ማከማቻ ዝግጁ ስላልሆነ መገለጫ ሰሪውን ማስጀመር አልተቻለም"</string>
+<string name="profiler_error_toast">"መገለጫ ሰሪውን ማስጀመር አልተሳካም"</string>
+</resources>

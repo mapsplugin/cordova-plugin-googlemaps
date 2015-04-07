@@ -1,0 +1,82 @@
+<div class="container">
+  <div class="description">
+    <strong>Step7: Draw a polygon</strong>
+    <p>Draw a polygon. Click it!</p>
+    <pre class="prettyprint lang-js">
+var encodedPolygon = "uyb~FupbzYqAoK|H{@~FaFjCxInFdGkBlEn@|FeEPmA|EaGsDiIUr@_L";
+map.addPolygon({
+  'points': plugin.google.maps.geometry.encoding.decodePath(encodedPolygon, 5),
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, onPolygonAdded);
+function onPolygonAdded(polygon) {
+  map.animateCamera({
+    target: polygon.getPoints()
+  });
+  
+  polygon.one(plugin.google.maps.event.OVERLAY_CLICK, onOverlayClicked);
+}
+
+function onOverlayClicked(polygon, latLng) {
+  polygon.setFillColor("blue");
+  polygon.setStrokeColor("green");
+  polygon.setStrokeWidth(10);
+}
+</pre>
+  </div>
+  
+</div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt) {
+  
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+    });
+  
+  
+  
+  
+      
+    var encodedPolygon = "uyb~FupbzYqAoK|H{@~FaFjCxInFdGkBlEn@|FeEPmA|EaGsDiIUr@_L";
+    map.addPolygon({
+      'points': plugin.google.maps.geometry.encoding.decodePath(encodedPolygon, 5),
+      'strokeColor' : '#AA00FF',
+      'strokeWidth': 5,
+      'fillColor' : '#880000'
+    }, onPolygonAdded);
+    function onPolygonAdded(polygon) {
+      map.animateCamera({
+        target: polygon.getPoints()
+      }, function() {
+      
+        $("#nextBtn").show();
+        map.refreshLayout();
+        
+      });
+      polygon.one(plugin.google.maps.event.OVERLAY_CLICK, onOverlayClicked);
+    }
+    
+    function onOverlayClicked(polygon, latLng) {
+      polygon.setFillColor("blue");
+      polygon.setStrokeColor("green");
+      polygon.setStrokeWidth(10);
+    }
+    
+  });
+  
+  $("#nextBtn").one("click", function() {
+    $(this).remove();
+    loadPage("step8");
+  });
+  
+});
+</script>

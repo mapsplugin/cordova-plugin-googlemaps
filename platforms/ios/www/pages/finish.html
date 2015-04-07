@@ -1,0 +1,18 @@
+
+<button id="execBtn">location.reload()</button>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  map.setDiv($("#map_canvas")[0]);
+  
+  
+  map.addMarker({
+    position: new plugin.google.maps.LatLng(0, 0),
+    icon: "http://www.google.com/intl/en_us/mapfiles/ms/icons/blue-dot.png"
+  });
+  
+  $("#execBtn").one("click", function() {
+    location.reload();
+  });
+});
+</script>

@@ -1,0 +1,102 @@
+<div class="container">
+  <div class="description">
+    <strong>Step4: Drop a marker</strong>
+    <p>PhoneGap-Plugin-GoogleMaps provides the drop marker animation originally!</p>
+    
+    <pre class="prettyprint lang-js">
+map.addMarker({
+  'position': result.latLng,
+  'title': "Hello Google Maps!\n" + 
+           "PhoneGap-GoogleMaps-Plugin is easy!",
+
+  'snippet': 'Tap here, then next',
+  'styles' : {
+    'text-align': 'center',
+    'font-style': 'italic',
+    'font-weight': 'bold',
+    'color': 'red'
+  },
+  animation: plugin.google.maps.Animation.DROP
+}, onMarkerAdded);
+
+function onMarkerAdded(marker) {
+  marker.showInfoWindow();
+  marker.addEventListener(plugin.google.maps.event.INFO_CLICK, onInfoWndClicked);
+}
+function onInfoWndClicked(marker) {
+  marker.hideInfoWindow();
+}
+</pre>
+  </div>
+</div>
+
+<button id="execBtn">Execute</button>
+<button id="nextBtn">Next</button>
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(evt, result) {
+  $("#execBtn").one("click", function() {
+    $(this).remove();
+  
+    $(".container").fadeOut(function() {
+      $(".container").remove();
+      $("#execBtn").remove();
+    });
+    
+    
+    
+    
+    
+    var onInfoWndClicked = function(marker) {
+      marker.hideInfoWindow();
+      
+      $("#nextBtn").off().remove();
+      
+      setTimeout(function() {
+        loadPage("step5", result);
+      }, 2000);
+    };
+    
+    var onMarkerAdded = function(marker) {
+      marker.showInfoWindow();
+      
+      marker.addEventListener(plugin.google.maps.event.INFO_CLICK, onInfoWndClicked);
+      
+      // Because of the nextBtn is `display:none`,
+      // the map plugin can not get the rectangle of it, at the first time.
+      // 
+      // Then the next button comes up.
+      // 
+      // In this case, you need to call `map.refreshLayout()`
+      $("#nextBtn").show();
+      map.refreshLayout();
+      
+      
+      $("#nextBtn").one("click", function() {
+        $(this).remove();
+        marker.hideInfoWindow();
+        loadPage("step5", result);
+      });
+    };
+    
+    setTimeout(function() {
+      map.addMarker({
+        'position': result.latLng,
+        'title': "Hello Google Maps!\n" + 
+                 "PhoneGap-GoogleMaps-Plugin is easy!",
+        'snippet': 'Tap here, then next',
+        'styles' : {
+          'text-align': 'center',
+          'font-style': 'italic',
+          'font-weight': 'bold',
+          'color': 'red'
+        },
+        animation: plugin.google.maps.Animation.DROP
+      }, onMarkerAdded);
+
+    }, 2000);
+  });
+  
+  
+});
+</script>
