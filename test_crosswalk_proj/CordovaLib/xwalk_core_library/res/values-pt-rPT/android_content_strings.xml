@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Partilhar"</string>
+<string name="actionbar_web_search">"Pesquisa Web"</string>
+<string name="media_player_error_title">"Impossível reproduzir vídeo"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Este vídeo não é válido para transmissão em fluxo contínuo neste dispositivo."</string>
+<string name="media_player_error_text_unknown">"Não é possível reproduzir este vídeo."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"A carregar vídeo"</string>
+<string name="profiler_started_toast">"O gerador de perfis foi iniciado"</string>
+<string name="profiler_stopped_toast">"O gerador de perfis terminou. Os resultados estão em %1$s."</string>
+<string name="profiler_no_storage_toast">"Não é possível iniciar o gerador de perfis, porque o armazenamento externo não está pronto"</string>
+<string name="profiler_error_toast">"Falha ao iniciar o gerador de perfis"</string>
+</resources>

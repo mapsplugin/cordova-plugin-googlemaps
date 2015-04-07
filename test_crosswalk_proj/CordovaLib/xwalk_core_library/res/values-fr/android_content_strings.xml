@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Partager"</string>
+<string name="actionbar_web_search">"Recherche sur le Web"</string>
+<string name="media_player_error_title">"Impossible de lire la vidéo."</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Désolé, impossible de lire cette vidéo en streaming sur cet appareil."</string>
+<string name="media_player_error_text_unknown">"Désolé, impossible de lire cette vidéo."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"Chargement vidéo…"</string>
+<string name="profiler_started_toast">"Le générateur de profils a été lancé."</string>
+<string name="profiler_stopped_toast">"Le générateur de profils a terminé sa tâche. Les résultats ont été exportés dans le fichier %1$s."</string>
+<string name="profiler_no_storage_toast">"Impossible de démarrer le générateur de profils, car la mémoire de stockage externe n\'est pas disponible."</string>
+<string name="profiler_error_toast">"Échec du démarrage du générateur de profils."</string>
+</resources>

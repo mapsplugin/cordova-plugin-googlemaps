@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Skupna raba"</string>
+<string name="actionbar_web_search">"Spletno iskanje"</string>
+<string name="media_player_error_title">"Videa ni mogoče predvajati"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Ta video ni veljaven za pretakanje v to napravo."</string>
+<string name="media_player_error_text_unknown">"Tega videa ni mogoče predvajati."</string>
+<string name="media_player_error_button">"V redu"</string>
+<string name="media_player_loading_video">"Nalaganje videa"</string>
+<string name="profiler_started_toast">"Orodje za spremljanje delovanja aplikacije ali sistema se je zagnalo"</string>
+<string name="profiler_stopped_toast">"Orodje za spremljanje delovanja aplikacije ali sistema je končalo postopek. Rezultati so v datoteki %1$s."</string>
+<string name="profiler_no_storage_toast">"Orodja za spremljanje delovanja aplikacije ali sistema ni mogoče zagnati, ker zunanja naprava za shranjevanje ni pripravljena"</string>
+<string name="profiler_error_toast">"Orodja za spremljanje delovanja aplikacije ali sistema ni bilo mogoče zagnati"</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Sdílet"</string>
+<string name="actionbar_web_search">"Vyhledávání na webu"</string>
+<string name="media_player_error_title">"Video nelze přehrát"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Video do zařízení nelze streamovat."</string>
+<string name="media_player_error_text_unknown">"Toto video nelze přehrát."</string>
+<string name="media_player_error_button">"OK"</string>
+<string name="media_player_loading_video">"Načítání videa"</string>
+<string name="profiler_started_toast">"Nástroj profiler byl spuštěn"</string>
+<string name="profiler_stopped_toast">"Nástroj profiler byl ukončen. Výsledky naleznete v souboru %1$s."</string>
+<string name="profiler_no_storage_toast">"Nástroj profiler nelze spustit, protože externí zařízení není připraveno"</string>
+<string name="profiler_error_toast">"Spuštění nástroje profiler se nezdařilo"</string>
+</resources>

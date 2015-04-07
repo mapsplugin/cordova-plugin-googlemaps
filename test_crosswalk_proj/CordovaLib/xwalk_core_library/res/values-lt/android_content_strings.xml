@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<string name="actionbar_share">"Bendrinti"</string>
+<string name="actionbar_web_search">"Žiniatinklio paieška"</string>
+<string name="media_player_error_title">"Nepavyksta paleisti vaizdo įrašo"</string>
+<string name="media_player_error_text_invalid_progressive_playback">"Apgailestaujame, šis vaizdo įrašas yra netinkamas perduoti srautu į šį įrenginį."</string>
+<string name="media_player_error_text_unknown">"Apgailestaujame, šio vaizdo įrašo negalima paleisti."</string>
+<string name="media_player_error_button">"Gerai"</string>
+<string name="media_player_loading_video">"Įkel. v. įrašas"</string>
+<string name="profiler_started_toast">"Profiliavimo priemonė paleista"</string>
+<string name="profiler_stopped_toast">"Profiliavimo priemonės veiksmai baigti. Rezultatai išsaugoti „%1$s“."</string>
+<string name="profiler_no_storage_toast">"Nepavyksta paleisti profiliavimo priemonės, nes išorinė atmintis neparuošta"</string>
+<string name="profiler_error_toast">"Paleidžiant profiliavimo priemonę įvyko klaida"</string>
+</resources>
