@@ -193,6 +193,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             e.printStackTrace();
           }
        */
+        String parentClassName = webView.getParent().getClass().toString();
+        if (parentClassName.indexOf("XWalkView") > -1) {
+          //Crosswalk Project
+          cordova.getActivity().getParent().setTheme(android.R.style.Theme_Translucent_NoTitleBar);
+        }
+        
         if (Build.VERSION.SDK_INT >= 11){
           webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
