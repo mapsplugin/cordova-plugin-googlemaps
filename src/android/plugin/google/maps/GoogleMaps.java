@@ -1743,7 +1743,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
   }
-  
+
+  public static boolean isNumeric(String str)
+  {
+    for (char c : str.toCharArray()) {
+      if (!Character.isDigit(c)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
@@ -1775,6 +1785,30 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     windowLayer.setOrientation(LinearLayout.VERTICAL);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+
+    if (styles != null) {
+      try {
+        String widthString = styles.getString("width");
+        Integer width = 0;
+
+        if (widthString.endsWith("%")) {
+          double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
+
+          width = (int)((double)mapView.getWidth() * (widthDouble / 100));
+        } else if (isNumeric(widthString)) {
+          width = (int)Double.parseDouble(widthString);
+
+          if (width <= 1) {	// for percentage values (e.g. 0.5 = 50%).
+            width = mapView.getWidth() * width;
+          }
+        }
+
+        if (width > 0) {
+          layoutParams.width = width;
+        }
+      } catch (Exception e) {}
+    }
+
     windowLayer.setLayoutParams(layoutParams);
 
     //----------------------------------------
