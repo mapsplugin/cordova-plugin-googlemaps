@@ -1796,10 +1796,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
           width = (int)((double)mapView.getWidth() * (widthDouble / 100));
         } else if (isNumeric(widthString)) {
-          width = (int)Double.parseDouble(widthString);
+          double widthDouble = Double.parseDouble(widthString);
 
-          if (width <= 1) {	// for percentage values (e.g. 0.5 = 50%).
-            width = mapView.getWidth() * width;
+          if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
+            width = (int)((double)mapView.getWidth() * (widthDouble));
+          } else {
+            width = (int)widthDouble;
           }
         }
 

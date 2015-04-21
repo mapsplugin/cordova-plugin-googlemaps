@@ -385,7 +385,7 @@ NSDictionary *initOptions;
 		} else if ([widthString isNumeric:widthString]) {
 			double widthDouble = [widthString doubleValue];
 			
-			if (widthDouble <= 1) {
+			if (widthDouble <= 1.0) {
 				width = (int)((double)mapView.frame.size.width * (widthDouble));
 			} else {
 				width = (int)widthDouble;
