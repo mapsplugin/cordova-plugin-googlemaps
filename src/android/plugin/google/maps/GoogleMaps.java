@@ -1786,10 +1786,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
 
+    int maxWidth = 0;
+
     if (styles != null) {
       try {
+        int width = 0;
         String widthString = styles.getString("width");
-        Integer width = 0;
 
         if (widthString.endsWith("%")) {
           double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
@@ -1807,6 +1809,27 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
         if (width > 0) {
           layoutParams.width = width;
+        }
+      } catch (Exception e) {}
+
+      try {
+        String widthString = styles.getString("maxWidth");
+
+        if (widthString.endsWith("%")) {
+          double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
+
+          maxWidth = (int)((double)mapView.getWidth() * (widthDouble / 100));
+
+          // make sure to take padding into account.
+          maxWidth -= (windowLayer.getPaddingLeft() + windowLayer.getPaddingRight());
+        } else if (isNumeric(widthString)) {
+          double widthDouble = Double.parseDouble(widthString);
+
+          if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
+            maxWidth = (int)((double)mapView.getWidth() * (widthDouble));
+          } else {
+            maxWidth = (int)widthDouble;
+          }
         }
       } catch (Exception e) {}
     }
@@ -1848,6 +1871,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         image = PluginUtil.scaleBitmapForDevice(image);
         ImageView imageView = new ImageView(this.cordova.getActivity());
         imageView.setImageBitmap(image);
+
+        if (maxWidth > 0) {
+          imageView.setMaxWidth(maxWidth);
+        }
+
         windowLayer.addView(imageView);
       } else {
         TextView textView = new TextView(this.cordova.getActivity());
@@ -1884,7 +1912,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           } catch (JSONException e) {}
         }
         textView.setTypeface(Typeface.DEFAULT, fontStyle);
-        
+
+        if (maxWidth > 0) {
+          textView.setMaxWidth(maxWidth);
+        }
+
         windowLayer.addView(textView);
       }
     }
@@ -1899,8 +1931,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         textView2.setTextAlignment(textAlignment);
       }
 
+      if (maxWidth > 0) {
+        textView2.setMaxWidth(maxWidth);
+      }
+
       windowLayer.addView(textView2);
     }
+
     return windowLayer;
   }
 
