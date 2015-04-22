@@ -384,7 +384,7 @@ NSDictionary *initOptions;
 			width = (int)((double)mapView.frame.size.width * (widthDouble / 100));
 		} else if ([widthString isNumeric:widthString]) {
 			double widthDouble = [widthString doubleValue];
-			
+
 			if (widthDouble <= 1.0) {
 				width = (int)((double)mapView.frame.size.width * (widthDouble));
 			} else {
@@ -392,7 +392,30 @@ NSDictionary *initOptions;
 			}
 		}
 	}
-	
+
+	int maxWidth = 0;
+
+	if (styles && [styles objectForKey:@"maxWidth"]) {
+		NSString *widthString = [styles valueForKey:@"maxWidth"];
+		
+		if ([widthString hasSuffix:@"%"]) {
+			double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
+			
+			maxWidth = (int)((double)mapView.frame.size.width * (widthDouble / 100));
+			
+			// make sure to take padding into account.
+			maxWidth -= sizeEdgeWidth;
+		} else if ([widthString isNumeric:widthString]) {
+			double widthDouble = [widthString doubleValue];
+			
+			if (widthDouble <= 1.0) {
+				maxWidth = (int)((double)mapView.frame.size.width * (widthDouble));
+			} else {
+				maxWidth = (int)widthDouble;
+			}
+		}
+	}
+
   //-------------------------------------
   // Calculate the size for the contents
   //-------------------------------------
@@ -470,6 +493,10 @@ NSDictionary *initOptions;
 	
 	if (width > 0) {
 		rectSize.width = width;
+	}
+	if (maxWidth > 0 &&
+		maxWidth < rectSize.width) {
+		rectSize.width = maxWidth;
 	}
   
   //-------------------------------------
