@@ -12,7 +12,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.ScrollEvent;
+//import org.apache.cordova.ScrollEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,9 +107,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   
-  private enum EVENTS {
+  /*private enum EVENTS {
     onScrollChanged
-  }
+  }*/
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
@@ -194,7 +194,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           }
        */
         if (Build.VERSION.SDK_INT >= 11){
-          webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+          webView.getView().setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         
         root.setBackgroundColor(Color.WHITE);
@@ -203,7 +203,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
         if (VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
           Log.d(TAG, "Google Maps Plugin reloads the browser to change the background color as transparent.");
-          webView.setBackgroundColor(0);
+          webView.getView().setBackgroundColor(0);
             try {
               Method method = webView.getClass().getMethod("reload");
               method.invoke(webView);
@@ -647,7 +647,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     return true;
   }
 
-  @Override
+  /*@Override
   public Object onMessage(String id, Object data) {
     EVENTS event = null;
     try {
@@ -685,7 +685,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     
     return null;
-  }
+  }*/
 
   private void closeWindow() {
     try {
@@ -786,7 +786,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     licenseLink.setId(LICENSE_LINK_ID);
     buttonFrame.addView(licenseLink);
     
-    webView.setVisibility(View.GONE);
+    webView.getView().setVisibility(View.GONE);
     root.addView(windowLayer);
     
     /**
@@ -804,7 +804,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           mPluginLayout.updateViewPosition();
         }
         root.removeView(windowLayer);
-        webView.setVisibility(View.VISIBLE);
+        webView.getView().setVisibility(View.VISIBLE);
         windowLayer = null;
         
         
@@ -876,9 +876,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       // Update the plugin drawing view rect
       mPluginLayout.setDrawingRect(
           divLeft,
-          divTop - webView.getScrollY(), 
+          divTop - webView.getView().getScrollY(), 
           divLeft + divW,
-          divTop + divH - webView.getScrollY());
+          divTop + divH - webView.getView().getScrollY());
       mPluginLayout.updateViewPosition();
       mapView.requestLayout();
     } catch (JSONException e) {
