@@ -102,9 +102,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   
-  private enum EVENTS {
+  /*private enum EVENTS {
     onScrollChanged
-  }
+  }*/
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
