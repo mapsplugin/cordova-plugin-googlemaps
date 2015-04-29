@@ -50,7 +50,7 @@ public class MyPluginLayout extends FrameLayout  {
     super(webView.getContext());
     mActivity = activity;
     this.webView = webView;
-    this.root = (ViewGroup) webView.getParent();
+    this.root = (ViewGroup) webView.getView().getParent();
     this.context = webView.getContext();
     webView.getView().setBackgroundColor(Color.TRANSPARENT);
     if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -258,7 +258,7 @@ public class MyPluginLayout extends FrameLayout  {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
-        webView.requestFocus(View.FOCUS_DOWN);
+        webView.getView().requestFocus(View.FOCUS_DOWN);
         return false;
       }
       int x = (int)event.getX();

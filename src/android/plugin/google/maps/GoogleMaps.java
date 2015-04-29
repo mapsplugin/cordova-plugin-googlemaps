@@ -135,7 +135,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
-    root = (ViewGroup) webView.getParent();
+    root = (ViewGroup) webView.getView().getParent();
 
     // Is this release build version?
     boolean isRelease = false;
