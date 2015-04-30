@@ -59,7 +59,7 @@ var BaseClass = function() {
   
   self.off = function(eventName, callback) {
     var i;
-    if (typeof eventName === "string")
+    if (typeof eventName === "string"){
     	if(eventName in _listeners) {
       
       if (typeof callback === "function") {
