@@ -60,23 +60,23 @@ var BaseClass = function() {
   self.off = function(eventName, callback) {
     var i;
     if (typeof eventName === "string"){
-    	if(eventName in _listeners) {
+      if(eventName in _listeners) {
       
-      if (typeof callback === "function") {
-        for (i = 0; i < _listeners[eventName].length; i++) {
-          if (_listeners[eventName][i].callback === callback) {
-            document.removeEventListener(eventName, _listeners[eventName][i].listener);
-            _listeners[eventName].splice(i, 1);
-            break;
+        if (typeof callback === "function") {
+          for (i = 0; i < _listeners[eventName].length; i++) {
+            if (_listeners[eventName][i].callback === callback) {
+              document.removeEventListener(eventName, _listeners[eventName][i].listener);
+              _listeners[eventName].splice(i, 1);
+              break;
+            }
           }
+        } else {
+          for (i = 0; i < _listeners[eventName].length; i++) {
+            document.removeEventListener(eventName, _listeners[eventName][i].listener);
+          }
+          delete _listeners[eventName];
         }
-      } else {
-        for (i = 0; i < _listeners[eventName].length; i++) {
-          document.removeEventListener(eventName, _listeners[eventName][i].listener);
-        }
-        delete _listeners[eventName];
       }
-    	}
     } else {
       //Remove all event listeners
       var eventNames = Object.keys(_listeners);
