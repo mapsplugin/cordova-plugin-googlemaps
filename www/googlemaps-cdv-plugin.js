@@ -59,8 +59,8 @@ var BaseClass = function() {
   
   self.off = function(eventName, callback) {
     var i;
-    if (typeof eventName === "string" &&
-        eventName in _listeners) {
+    if (typeof eventName === "string"){
+    	if(eventName in _listeners) {
       
       if (typeof callback === "function") {
         for (i = 0; i < _listeners[eventName].length; i++) {
@@ -76,6 +76,7 @@ var BaseClass = function() {
         }
         delete _listeners[eventName];
       }
+    	}
     } else {
       //Remove all event listeners
       var eventNames = Object.keys(_listeners);
