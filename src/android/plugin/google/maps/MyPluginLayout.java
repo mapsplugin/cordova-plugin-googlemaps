@@ -50,11 +50,11 @@ public class MyPluginLayout extends FrameLayout  {
     super(webView.getContext());
     mActivity = activity;
     this.webView = webView;
-    this.root = (ViewGroup) webView.getParent();
+    this.root = (ViewGroup) webView.getView().getParent();
     this.context = webView.getContext();
-    webView.setBackgroundColor(Color.TRANSPARENT);
+    webView.getView().setBackgroundColor(Color.TRANSPARENT);
     if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+      webView.getView().setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
     frontLayer = new FrontLayerLayout(this.context);
     
@@ -129,7 +129,7 @@ public class MyPluginLayout extends FrameLayout  {
       return;
     }
     ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
-    int scrollY = webView.getScrollY();
+    int scrollY = webView.getView().getScrollY();
 
     if (lParams instanceof AbsoluteLayout.LayoutParams) {
       AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
@@ -177,7 +177,7 @@ public class MyPluginLayout extends FrameLayout  {
     }
     root.removeView(this);
     this.removeView(frontLayer);
-    frontLayer.removeView(webView);
+    frontLayer.removeView(webView.getView());
     
     scrollFrameLayout.removeView(myView);
     myView.removeView(this.touchableWrapper);
@@ -188,7 +188,7 @@ public class MyPluginLayout extends FrameLayout  {
       myView.setLayoutParams(orgLayoutParams);
     }
     
-    root.addView(webView);
+    root.addView(webView.getView());
     myView = null;
     mActivity.getWindow().getDecorView().requestFocus();
   }
@@ -197,7 +197,7 @@ public class MyPluginLayout extends FrameLayout  {
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
     
-    scrollView.scrollTo(webView.getScrollX(), webView.getScrollY());
+    scrollView.scrollTo(webView.getView().getScrollX(), webView.getView().getScrollY());
     if (myView == pluginView) {
       return;
     } else {
@@ -211,14 +211,14 @@ public class MyPluginLayout extends FrameLayout  {
     if (lParams != null) {
       orgLayoutParams = new ViewGroup.LayoutParams(lParams);
     }
-    root.removeView(webView);
+    root.removeView(webView.getView());
     scrollView.addView(scrollFrameLayout);
     this.addView(scrollView);
     
     pluginView.addView(this.touchableWrapper);
     scrollFrameLayout.addView(pluginView);
     
-    frontLayer.addView(webView);
+    frontLayer.addView(webView.getView());
     this.addView(frontLayer);
     root.addView(this);
     mActivity.getWindow().getDecorView().requestFocus();
@@ -258,12 +258,12 @@ public class MyPluginLayout extends FrameLayout  {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
-        webView.requestFocus(View.FOCUS_DOWN);
+        webView.getView().requestFocus(View.FOCUS_DOWN);
         return false;
       }
       int x = (int)event.getX();
       int y = (int)event.getY();
-      int scrollY = webView.getScrollY();
+      int scrollY = webView.getView().getScrollY();
       boolean contains = drawRect.contains(x, y);
       int action = event.getAction();
       isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
@@ -289,7 +289,7 @@ public class MyPluginLayout extends FrameLayout  {
         }
       }
       if (!contains) {
-        webView.requestFocus(View.FOCUS_DOWN);
+        webView.getView().requestFocus(View.FOCUS_DOWN);
       }
       return contains;
     }
@@ -300,7 +300,7 @@ public class MyPluginLayout extends FrameLayout  {
       }
       int width = canvas.getWidth();
       int height = canvas.getHeight();
-      int scrollY = webView.getScrollY();
+      int scrollY = webView.getView().getScrollY();
       
       Paint paint = new Paint();
       paint.setColor(Color.argb(100, 0, 255, 0));
