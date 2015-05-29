@@ -759,34 +759,43 @@ public class PluginMarker extends MyPlugin {
             callback.onPostExecute(marker);
             return;
           }
-          BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-          marker.setIcon(bitmapDescriptor);
           
-          // Save the information for the anchor property
-          Bundle imageSize = new Bundle();
-          imageSize.putInt("width", image.getWidth());
-          imageSize.putInt("height", image.getHeight());
-          PluginMarker.this.objects.put("imageSize", imageSize);
-          
+          try {
+              //TODO: check image is valid?
+              BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+              marker.setIcon(bitmapDescriptor);
+              
+              // Save the information for the anchor property
+              Bundle imageSize = new Bundle();
+              imageSize.putInt("width", image.getWidth());
+              imageSize.putInt("height", image.getHeight());
+              PluginMarker.this.objects.put("imageSize", imageSize);
+              
+    
+              // The `anchor` of the `icon` property
+              if (iconProperty.containsKey("anchor") == true) {
+                double[] anchor = iconProperty.getDoubleArray("anchor");
+                if (anchor.length == 2) {
+                  _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+                }
+              }
+              
+    
+              // The `anchor` property for the infoWindow
+              if (iconProperty.containsKey("infoWindowAnchor") == true) {
+                double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+                if (anchor.length == 2) {
+                  _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+                }
+              }
+    
+              callback.onPostExecute(marker);
+            
+              } catch (java.lang.IllegalArgumentException e) {
+                        Log.e("GoogleMapsPlugin","PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
+                        //e.printStackTrace();
 
-          // The `anchor` of the `icon` property
-          if (iconProperty.containsKey("anchor") == true) {
-            double[] anchor = iconProperty.getDoubleArray("anchor");
-            if (anchor.length == 2) {
-              _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-            }
-          }
-          
-
-          // The `anchor` property for the infoWindow
-          if (iconProperty.containsKey("infoWindowAnchor") == true) {
-            double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-            if (anchor.length == 2) {
-              _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-            }
-          }
-
-          callback.onPostExecute(marker);
+             }
         }
       };
       task.execute();
