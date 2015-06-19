@@ -26,6 +26,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+@SuppressWarnings("deprecation")
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
   private GoogleMaps mMapCtrl;
