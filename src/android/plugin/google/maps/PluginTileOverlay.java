@@ -43,7 +43,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     String id = "tile_" + tileOverlay.getId();
 
     this.objects.put(id, tileOverlay);
-    this.objects.put("tileProvider_" + id.replace("tile_", "tileProvider_"), tileProvider);
+    this.objects.put(id.replace("tile_", "tileProvider_"), tileProvider);
 
     JSONObject result = new JSONObject();
     result.put("hashCode", tileOverlay.hashCode());
