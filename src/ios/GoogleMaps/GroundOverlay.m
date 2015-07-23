@@ -132,6 +132,10 @@
   NSURL *isUrl = [NSURL URLWithString:urlStr];
   if (!isUrl || !isUrl.scheme || isUrl.host) {
     layer.icon = [UIImage imageNamed:urlStr];
+  
+  //range = [urlStr rangeOfString:@"http://"];
+  //if (range.location == NSNotFound) {
+  //  layer.icon = [UIImage imageWithContentsOfFile:urlStr];
     [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
     completionHandler(nil);
   } else {
