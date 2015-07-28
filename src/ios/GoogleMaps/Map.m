@@ -379,9 +379,16 @@
       isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
       if (isEnabled == true) {
         self.mapCtrl.map.settings.myLocationButton = YES;
-        self.mapCtrl.map.myLocationEnabled = YES;
       } else {
         self.mapCtrl.map.settings.myLocationButton = NO;
+      }
+    }
+    //myLocationEnabled
+    if ([controls valueForKey:@"myLocationEnabled"] != nil) {
+      isEnabled = [[controls valueForKey:@"myLocationEnabled"] boolValue];
+      if (isEnabled == true) {
+        self.mapCtrl.map.myLocationEnabled = YES;
+      } else {
         self.mapCtrl.map.myLocationEnabled = NO;
       }
     }
