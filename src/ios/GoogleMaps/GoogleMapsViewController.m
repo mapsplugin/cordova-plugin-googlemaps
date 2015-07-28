@@ -100,6 +100,10 @@ NSDictionary *initOptions;
       if ([controls valueForKey:@"myLocationButton"] != nil) {
         isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
         self.map.settings.myLocationButton = isEnabled;
+      }
+      //myLocationEnabled
+      if ([controls valueForKey:@"myLocationEnabled"] != nil) {
+        isEnabled = [[controls valueForKey:@"myLocationEnabled"] boolValue];
         self.map.myLocationEnabled = isEnabled;
       }
       //indoorPicker
