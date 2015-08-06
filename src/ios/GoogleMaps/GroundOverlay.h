@@ -9,6 +9,7 @@
 #import "GoogleMaps.h"
 #import "MyPlgunProtocol.h"
 #import "PluginUtil.h"
+#import "NSData+Base64.h"
 
 @interface GroundOverlay : CDVPlugin<MyPlgunProtocol>
 
