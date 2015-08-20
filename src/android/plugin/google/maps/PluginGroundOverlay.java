@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -97,6 +98,26 @@ public class PluginGroundOverlay extends MyPlugin {
     }
 
     String filePath = url;
+
+    //=================================
+    // Load the image from the data uri 
+    //=================================
+    if (filePath.indexOf("data") == 0) {
+      filePath = filePath.replace("data:image/png;base64,","");
+      Bitmap image = null;
+      byte[] decodedString = Base64.decode(filePath.getBytes(), Base64.DEFAULT);
+      image = BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+      if (bitmapDescriptor != null) {
+        options.image(bitmapDescriptor);
+        GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
+        callback.onPostExecute(groundOverlay);
+      } else {
+        callback.onError("Can not load image from " + url);
+      }
+      return;
+    }
+
     if (filePath.indexOf("://") == -1 && 
         filePath.startsWith("/") == false && 
         filePath.startsWith("www/") == false) {
