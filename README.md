@@ -22,6 +22,9 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.2.7
+- Support for cordova-android 4.x (Cordova 5.x) -> many thanks to @wolf-s
+
 v1.2.5
 - Add : The `opacity` and `tileSize` properties has been added to `map.addTileOverlay()`
 - Add : Add marker animations: `DROP` and `BOUNCE`
