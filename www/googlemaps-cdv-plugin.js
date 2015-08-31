@@ -886,6 +886,7 @@ App.prototype.addMarker = function(markerOptions, callback) {
   markerOptions.rotation = markerOptions.rotation || 0;
   markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
   markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false: markerOptions.disableAutoPan;
+  markerOptions.params = markerOptions.params || {};
   if ("styles" in markerOptions) {
     markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
     
@@ -1243,6 +1244,9 @@ Marker.prototype.remove = function(callback) {
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
   this.set('disableAutoPan', disableAutoPan);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setDisableAutoPan', this.getId(), disableAutoPan]);
+};
+Marker.prototype.getParams = function () {
+    return this.get('params');
 };
 Marker.prototype.setOpacity = function(opacity) {
   this.set('opacity', opacity);
