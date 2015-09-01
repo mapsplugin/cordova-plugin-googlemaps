@@ -34,7 +34,8 @@ v.1.2.8
 - Compatibility with https://github.com/crosswalk-project/cordova-plugin-crosswalk-webview (have a look at the wiki and the issues)
 - Fixed https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/551
 - Fixed crash on android when marker is not available https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/529
-
+- Fixed .off() listener bug https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/517
+- 
 **Added**
 
 - pass "params" to marker and retrieve with marker.getParams() https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/54
