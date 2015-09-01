@@ -22,6 +22,23 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.2.8
+
+**Fixes**
+
+- Support for cordova-android 4.x (Cordova 5.x) -> many thanks to @wolf-s
+- Fixed bug with base64 icons, icons from file
+- Fixed https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/591
+- Fixed play-service dependency https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/567
+- Fixed plugin init on new cordova-android version
+- Compatibility with https://github.com/crosswalk-project/cordova-plugin-crosswalk-webview (have a look at the wiki and the issues)
+- Fixed https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/551
+- Fixed crash on android when marker is not available https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/529
+
+**Added**
+
+- pass "params" to marker and retrieve with marker.getParams() https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/54
+
 v.1.2.7
 - Support for cordova-android 4.x (Cordova 5.x) -> many thanks to @wolf-s
 
