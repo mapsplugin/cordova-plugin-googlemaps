@@ -610,21 +610,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
     try {
-      Class pluginCls = Class.forName("plugin.google.maps.Plugin" + serviceName);
+      String className = "plugin.google.maps.Plugin" + serviceName;
+      Class pluginCls = Class.forName(className);
       
       CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
       PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
       this.plugins.put(serviceName, pluginEntry);
       
-      try {
-        Class cordovaPref = Class.forName("org.apache.cordova.CordovaPreferences");
-        if (cordovaPref != null) {
-          Method privateInit = CordovaPlugin.class.getMethod("privateInitialize", CordovaInterface.class, CordovaWebView.class, cordovaPref);
-          if (privateInit != null) {
-            privateInit.invoke(plugin, this.cordova, webView, null);
-          }
-        }
-      } catch (Exception e2) {}
+      plugin.privateInitialize(className, this.cordova, webView, null);
       
       plugin.initialize(this.cordova, webView);
       ((MyPluginInterface)plugin).setMapCtrl(this);
