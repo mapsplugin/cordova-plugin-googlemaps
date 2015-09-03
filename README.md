@@ -26,7 +26,7 @@ v.1.2.9
 
 **Add:**
 
-Implement maxWidth for Marker InfoWindow https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/503
+- Implement maxWidth for Marker InfoWindow https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/503
 
 v.1.2.8
 
