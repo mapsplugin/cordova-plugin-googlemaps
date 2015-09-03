@@ -377,12 +377,16 @@ NSDictionary *initOptions;
 
 	if (styles && [styles objectForKey:@"width"]) {
 		NSString *widthString = [styles valueForKey:@"width"];
+        
+        // check if string is numeric
+        NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+        BOOL isNumeric = [nf numberFromString:widthString] != nil;
 
 		if ([widthString hasSuffix:@"%"]) {
 			double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
 			
 			width = (int)((double)mapView.frame.size.width * (widthDouble / 100));
-		} else if ([widthString isNumeric:widthString]) {
+		} else if (isNumeric) {
 			double widthDouble = [widthString doubleValue];
 
 			if (widthDouble <= 1.0) {
@@ -398,6 +402,9 @@ NSDictionary *initOptions;
 	if (styles && [styles objectForKey:@"maxWidth"]) {
 		NSString *widthString = [styles valueForKey:@"maxWidth"];
 		
+        NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+        BOOL isNumeric = [nf numberFromString:widthString] != nil;
+        
 		if ([widthString hasSuffix:@"%"]) {
 			double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
 			
@@ -405,7 +412,7 @@ NSDictionary *initOptions;
 			
 			// make sure to take padding into account.
 			maxWidth -= sizeEdgeWidth;
-		} else if ([widthString isNumeric:widthString]) {
+		} else if (isNumeric) {
 			double widthDouble = [widthString doubleValue];
 			
 			if (widthDouble <= 1.0) {
