@@ -22,6 +22,10 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.2.9
+Add:
+Implement maxWidth for Marker InfoWindow https://github.com/wf9a5m75/phonegap-googlemaps-plugin/pull/503
+
 v.1.2.8
 
 **Fixes**
