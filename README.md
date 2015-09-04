@@ -165,11 +165,3 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 ##Crosswalk
 If you want to use crosswalk, just follow this easy documentation. 
 [Install Plugin with Crosswalk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
-
-##Do you want to use marker cluster?
-
-Marker clustering is the technique for grouping some markers based on bounds. This reduces the marker on the map, and reduce the memory usage.
-
-<img src="https://googledrive.com/host/0B1ECfqTCcLE8SHVUX25xcmNIUTQ/marker_cluster.png" width="250">
-
-[![Bountysource](https://www.bountysource.com/badge/team?team_id=942&style=raised)](https://www.bountysource.com/teams/phonegap-googlemaps-plugin?utm_source=PhoneGap%20GoogleMaps%20Plugin&utm_medium=shield&utm_campaign=raised) / $500
