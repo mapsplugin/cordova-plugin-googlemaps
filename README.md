@@ -33,8 +33,8 @@ In order to install the new version, you have to:
 1) Delete plugin 
 > cordova plugin rm plugin.google.maps
 
-2) Delete iOS SDK 
-> cordova plugin rm plugin.google.maps
+2) Delete Google Maps iOS SDK 
+> cordova plugin rm com.googlemaps.ios
 
 3) Re-Install plugin from master (follow wiki for Mac/Linux/Windows)
 > cordova plugin add https://github.com/wf9a5m75/phonegap-googlemaps-plugin --variable API_KEY_FOR_ANDROID="YOUR_KEY" --variable API_KEY_FOR_IOS="YOUR_KEY"
