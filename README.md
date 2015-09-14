@@ -22,6 +22,18 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.3.0
+
+- Updated Google Maps iOS SDK to 1.10.2
+
+** WARNING **
+
+Required XCode Version is 6.3+ (due to ABI changes)
+The minimum target iOS version for Google Maps SDK for iOS is now 7.0. Version 6.0 is no longer supported.
+This release requires the following additional dependencies in your project: Accelerate.framework, CoreBluetooth.framework, CoreGraphics.framework, Security.framework
+
+This will be set automatically when you install with CLI.
+
 v.1.2.9
 
 **Add:**
