@@ -22,6 +22,10 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.3.0
+
+- Updated Google Maps iOS SDK to 1.10.2
+
 v.1.2.9
 
 **Add:**
