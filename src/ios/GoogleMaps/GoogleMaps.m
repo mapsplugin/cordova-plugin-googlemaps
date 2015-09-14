@@ -16,7 +16,7 @@
   self.mapCtrl.isFullScreen = YES;
   self.locationCommandQueue = [[NSMutableArray alloc] init];
   
-  [self versionCheck];
+  //[self versionCheck];
   
   
   self.pluginLayer = [[MyPluginLayer alloc] initWithFrame:self.webView.frame];
@@ -72,7 +72,7 @@
  */
 -(void)versionCheck
 {
-  NSString *PLUGIN_VERSION = @"1.2.5";
+  NSString *PLUGIN_VERSION = @"1.3.0";
   NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
   
   if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {

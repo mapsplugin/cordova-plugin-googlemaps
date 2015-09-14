@@ -557,7 +557,10 @@
 -(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
    pluginResult:(CDVPluginResult *)pluginResult
      callbackId:(NSString*)callbackId {
-    NSLog(@"---- setIcon_");
+    
+    if (self.mapCtrl.debuggable) {
+        NSLog(@"---- setIcon_");
+    }
     NSString *iconPath = nil;
     CGFloat width = 0;
     CGFloat height = 0;
