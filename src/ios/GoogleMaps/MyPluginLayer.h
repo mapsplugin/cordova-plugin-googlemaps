@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <GoogleMapsM4B/GoogleMaps.h>
+#import <GoogleMaps/GoogleMaps.h>
 #import "GoogleMapsViewController.h"
 
 @interface MyPluginLayer : UIView
