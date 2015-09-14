@@ -186,6 +186,6 @@
           </array>
         </config-file>
         
-        <dependency id="com.googlemaps.ios" url="https://github.com/wf9a5m75/googlemaps-ios-sdk-for-phonegap" commit="master" />
+        <dependency id="com.googlemaps.ios" url="https://github.com/nightstomp/googlemaps-ios-sdk-for-phonegap" commit="master" />
     </platform>
 </plugin>
