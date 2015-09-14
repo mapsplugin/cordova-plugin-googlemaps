@@ -26,13 +26,30 @@ v.1.3.0
 
 - Updated Google Maps iOS SDK to 1.10.2
 
-** WARNING **
+**INFORMATION**
+
+In order to install the new version, you have to:
+
+1) Delete plugin 
+> cordova plugin rm plugin.google.maps
+
+2) Delete Google Maps iOS SDK 
+> cordova plugin rm com.googlemaps.ios
+
+3) Re-Install plugin from master (follow wiki for Mac/Linux/Windows)
+> cordova plugin add https://github.com/wf9a5m75/phonegap-googlemaps-plugin --variable API_KEY_FOR_ANDROID="YOUR_KEY" --variable API_KEY_FOR_IOS="YOUR_KEY"
+
+If you have some weird compiling errors, you're probably missing some linked frameworks. Set the Target Membership
+https://www.youtube.com/watch?v=gr0QrEShPbQ
+or just delete your iOS platform and re-install.
 
 Required XCode Version is 6.3+ (due to ABI changes)
 The minimum target iOS version for Google Maps SDK for iOS is now 7.0. Version 6.0 is no longer supported.
 This release requires the following additional dependencies in your project: Accelerate.framework, CoreBluetooth.framework, CoreGraphics.framework, Security.framework
 
 This will be set automatically when you install with CLI.
+
+BITCODE isn't supported currently. Google Maps hasn't update now. Just disable Bitcode in XCode 7 when you get compile errors.
 
 v.1.2.9
 
