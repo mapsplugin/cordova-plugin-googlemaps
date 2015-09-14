@@ -7,7 +7,7 @@
 //
 
 #import <Cordova/CDV.h>
-#import <GoogleMaps/GoogleMaps.h>
+#import <GoogleMapsM4B/GoogleMaps.h>
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
