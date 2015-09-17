@@ -663,7 +663,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     FrameLayout dialogLayer = new FrameLayout(activity);
     dialogLayer.setLayoutParams(layoutParams);
     //dialogLayer.setPadding(15, 15, 15, 0);
-    dialogLayer.setBackgroundColor(Color.LTGRAY);
+    dialogLayer.setBackgroundColor(Color.parseColor("#971B2B"));
     windowLayer.addView(dialogLayer);
     
     // map frame
@@ -714,9 +714,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         LayoutParams.WRAP_CONTENT,
         LayoutParams.WRAP_CONTENT, 1.0f);
     TextView closeLink = new TextView(activity);
-    closeLink.setText("Close");
+    closeLink.setText("Volver");
     closeLink.setLayoutParams(buttonParams);
-    closeLink.setTextColor(Color.BLUE);
+    closeLink.setTextColor(Color.WHITE);
     closeLink.setTextSize(20);
     closeLink.setGravity(Gravity.LEFT);
     closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
@@ -726,8 +726,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     
     //license button
     TextView licenseLink = new TextView(activity);
-    licenseLink.setText("Legal Notices");
-    licenseLink.setTextColor(Color.BLUE);
+    licenseLink.setText("Ruta");
+    licenseLink.setTextColor(Color.WHITE);
     licenseLink.setLayoutParams(buttonParams);
     licenseLink.setTextSize(20);
     licenseLink.setGravity(Gravity.RIGHT);
