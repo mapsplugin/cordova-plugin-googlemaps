@@ -1139,8 +1139,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
   
   private void showLicenseText() {
-    AsyncLicenseInfo showLicense = new AsyncLicenseInfo(activity);
-    showLicense.execute();
+    //PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+
+    //JSONObject position = pluginMarker.getPosition();
+    //Uri gmmIntentUri = Uri.parse("google.navigation:q=41.647422,-0.888723");
+    Uri gmmIntentUri = Uri.parse("google.navigation:q="+ position.lat +","+ position.lng);
+    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+    mapIntent.setPackage("com.google.android.apps.maps");
+    activity.startActivity(mapIntent);
+   // AsyncLicenseInfo showLicense = new AsyncLicenseInfo(activity);
+   // showLicense.execute();
   }
 
   /********************************************************
