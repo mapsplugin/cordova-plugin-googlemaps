@@ -6,6 +6,11 @@
 //
 //
 
+#define UIColorFromRGB(rgbValue) [UIColor \
+colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
+green:((float)((rgbValue & 0xFF00) >> 8))/255.0 \
+blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+
 #import "GoogleMaps.h"
 
 @implementation GoogleMaps
@@ -330,65 +335,91 @@
  * Show the licenses
  */
 - (void)onLicenseBtn_clicked:(UIButton*)button{
+    CLLocation* location = self.mapCtrl.map.myLocation;
+    if(self.mapCtrl.map.selectedMarker){
+        
+    }else{
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"INAEM"
+                                                        message:@"Seleccione una oficina del mapa para obtener la ruta."
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
 
-  if (self.licenseLayer == nil) {
-    //Create the dialog
-    CGRect dialogRect = self.mapCtrl.view.frame;
-    dialogRect.origin.x = dialogRect.size.width / 10;
-    dialogRect.origin.y = dialogRect.size.height / 10;
-    dialogRect.size.width -= dialogRect.origin.x * 2;
-    dialogRect.size.height -= dialogRect.origin.y * 2;
-    if ([PluginUtil isIOS7_OR_OVER] == false) {
-      dialogRect.size.height -= 20;
+        return;
+    }
+    BOOL canOpenURL = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"comgooglemaps://"]];
+    if(canOpenURL){
+        
+        NSString *googleMapUrlString = [NSString stringWithFormat:@"comgooglemaps://?saddr=%f,%f&daddr=%f,%f", location.coordinate.latitude, location.coordinate.longitude, self.mapCtrl.map.selectedMarker.position.latitude, self.mapCtrl.map.selectedMarker.position.longitude];
+        
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:googleMapUrlString]];
+    }else{
+        NSString *googleMapUrlString = [NSString stringWithFormat:@"http://maps.google.com/?saddr=%f,%f&daddr=%f,%f", location.coordinate.latitude, location.coordinate.longitude, self.mapCtrl.map.selectedMarker.position.latitude, self.mapCtrl.map.selectedMarker.position.longitude];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:googleMapUrlString]];
     }
     
-    self.licenseLayer = [[UIView alloc] initWithFrame:self.mapCtrl.view.frame];
-    self.licenseLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [self.licenseLayer setBackgroundColor:[UIColor colorWithHue:0 saturation:0 brightness:0 alpha:0.25f]];
-    
-    UIView *licenseDialog = [[UIView alloc] initWithFrame:dialogRect];
-    [licenseDialog setBackgroundColor:[UIColor whiteColor]];
-    [licenseDialog.layer setBorderColor:[UIColor blackColor].CGColor];
-    [licenseDialog.layer setBorderWidth:1.0];
-    [licenseDialog.layer setCornerRadius:10];
-    licenseDialog.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleHeight;
-    [self.licenseLayer addSubview:licenseDialog];
-
-    UIScrollView *scrollView = [[UIScrollView alloc] init];
-    [scrollView setFrameWithInt:5 top:5 width:dialogRect.size.width - 10 height:dialogRect.size.height - 30];
-    [scrollView.layer setBorderColor:[UIColor blackColor].CGColor];
-    scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [licenseDialog addSubview:scrollView];
+   
     
     
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:[scrollView bounds]];
-    [webView setBackgroundColor:[UIColor whiteColor]];
-    webView.scalesPageToFit = NO;
-    webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    int fontSize = 13;
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
-      fontSize = 18;
-    }
-    NSMutableString *licenceTxt = [NSMutableString
-                                      stringWithFormat:@"<html><body style='font-size:%dpx;white-space:pre-line'>%@</body></html>",
-                                      fontSize,
-                                      [GMSServices openSourceLicenseInfo]];
-    
-    [webView loadHTMLString:licenceTxt baseURL:nil];
-    scrollView.contentSize = [webView bounds].size;
-    [scrollView addSubview:webView];
-    
-    //close button
-    UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [closeButton setFrameWithInt:0 top:dialogRect.size.height - 30 width:dialogRect.size.width height:30];
-    closeButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewContentModeTopLeft;
-    [closeButton setTitle:@"Close" forState:UIControlStateNormal];
-    [closeButton addTarget:self action:@selector(onLicenseCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
-    [licenseDialog addSubview:closeButton];
-  }
-  
-  [self.mapCtrl.view addSubview:self.licenseLayer];
+//  if (self.licenseLayer == nil) {
+//    //Create the dialog
+//    CGRect dialogRect = self.mapCtrl.view.frame;
+//    dialogRect.origin.x = dialogRect.size.width / 10;
+//    dialogRect.origin.y = dialogRect.size.height / 10;
+//    dialogRect.size.width -= dialogRect.origin.x * 2;
+//    dialogRect.size.height -= dialogRect.origin.y * 2;
+//    if ([PluginUtil isIOS7_OR_OVER] == false) {
+//      dialogRect.size.height -= 20;
+//    }
+//    
+//    self.licenseLayer = [[UIView alloc] initWithFrame:self.mapCtrl.view.frame];
+//    self.licenseLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//    [self.licenseLayer setBackgroundColor:[UIColor colorWithHue:0 saturation:0 brightness:0 alpha:0.25f]];
+//    
+//    UIView *licenseDialog = [[UIView alloc] initWithFrame:dialogRect];
+//    [licenseDialog setBackgroundColor:[UIColor whiteColor]];
+//    [licenseDialog.layer setBorderColor:[UIColor blackColor].CGColor];
+//    [licenseDialog.layer setBorderWidth:1.0];
+//    [licenseDialog.layer setCornerRadius:10];
+//    licenseDialog.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleHeight;
+//    [self.licenseLayer addSubview:licenseDialog];
+//
+//    UIScrollView *scrollView = [[UIScrollView alloc] init];
+//    [scrollView setFrameWithInt:5 top:5 width:dialogRect.size.width - 10 height:dialogRect.size.height - 30];
+//    [scrollView.layer setBorderColor:[UIColor blackColor].CGColor];
+//    scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//    [licenseDialog addSubview:scrollView];
+//    
+//    
+//    UIWebView *webView = [[UIWebView alloc] initWithFrame:[scrollView bounds]];
+//    [webView setBackgroundColor:[UIColor whiteColor]];
+//    webView.scalesPageToFit = NO;
+//    webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//    
+//    int fontSize = 13;
+//    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+//      fontSize = 18;
+//    }
+//    NSMutableString *licenceTxt = [NSMutableString
+//                                      stringWithFormat:@"<html><body style='font-size:%dpx;white-space:pre-line'>%@</body></html>",
+//                                      fontSize,
+//                                      [GMSServices openSourceLicenseInfo]];
+//    
+//    [webView loadHTMLString:licenceTxt baseURL:nil];
+//    scrollView.contentSize = [webView bounds].size;
+//    [scrollView addSubview:webView];
+//    
+//    //close button
+//    UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+//    [closeButton setFrameWithInt:0 top:dialogRect.size.height - 30 width:dialogRect.size.width height:30];
+//    closeButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewContentModeTopLeft;
+//    [closeButton setTitle:@"Close" forState:UIControlStateNormal];
+//    [closeButton addTarget:self action:@selector(onLicenseCloseBtn_clicked:) forControlEvents:UIControlEventTouchDown];
+//    [licenseDialog addSubview:closeButton];
+//  }
+//  
+//  [self.mapCtrl.view addSubview:self.licenseLayer];
 }
 
 /**
@@ -451,7 +482,9 @@
   if (self.footer == nil) {
     // Create the footer background
     self.footer = [[UIView alloc]init];
-    self.footer.backgroundColor = [UIColor lightGrayColor];
+      
+    UIColor *aColor = UIColorFromRGB(0x971B2B);
+    self.footer.backgroundColor = aColor;
     
     self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
                               UIViewAutoresizingFlexibleWidth;
@@ -466,7 +499,9 @@
     [self.closeButton setFrame:frame];
     self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
                                           UIViewAutoresizingFlexibleHeight;
-    [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
+    [self.closeButton setTitle:@"Volver" forState:UIControlStateNormal];
+    [self.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
     [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
     [self.footer addSubview:self.closeButton];
   
@@ -475,7 +510,9 @@
     self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
                                           UIViewAutoresizingFlexibleLeftMargin |
                                           UIViewAutoresizingFlexibleHeight;
-    [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
+    [self.licenseButton setTitle:@"Ruta" forState:UIControlStateNormal];
+    [self.licenseButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.licenseButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
     [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
     [self.footer addSubview:self.licenseButton];
   }
@@ -499,7 +536,7 @@
   int footerHeight = 40;
   int footerAdjustment = 0;
   if ([PluginUtil isIOS7_OR_OVER] == false) {
-    footerAdjustment = 20;
+    footerAdjustment = 0;
   }
 
   // Calculate the full screen size
@@ -515,6 +552,7 @@
   #else
     // iOS8 or above
     direction = [UIDevice currentDevice].orientation;
+    footerHeight = 60;
   #endif
   
   
@@ -530,8 +568,16 @@
   
   //self.mapCtrl.view.frame = pluginRect;
   [self.footer setFrameWithInt:0 top:pluginRect.size.height width:pluginRect.size.width height:footerHeight];
-  [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
-  [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
+#if !defined(__IPHONE_8_0)
+    // iOS 7
+    [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
+    [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
+#else
+    // iOS8 or above
+    [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:-10 width:100 height:footerHeight];
+    [self.closeButton setFrameWithInt:10 top:-10 width:50 height:footerHeight];
+#endif
+
   
   // Show the map
   [self.webView addSubview:self.mapCtrl.view];
