@@ -1143,7 +1143,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     //JSONObject position = pluginMarker.getPosition();
     //Uri gmmIntentUri = Uri.parse("google.navigation:q=41.647422,-0.888723");
-    Uri gmmIntentUri = Uri.parse("google.navigation:q="+ position.lat +","+ position.lng);
+    Uri gmmIntentUri = Uri.parse("google.navigation:q=41.647422,-0.888723");
     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
     mapIntent.setPackage("com.google.android.apps.maps");
     activity.startActivity(mapIntent);
