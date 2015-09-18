@@ -17,7 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import plugin.http.request.HttpRequest;
+import com.synconset.CordovaHttpGet;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -150,13 +150,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         public void run() {
   
           try {
-            
-            JSONArray params = new JSONArray();
-            params.put("get");
-            params.put("http://plugins.cordova.io/api/plugin.google.maps");
-            HttpRequest httpReq = new HttpRequest();
-            httpReq.initialize(cordova, null);
-            httpReq.execute("execute", params, new CallbackContext("version_check", webView) {
+            CordovaHttpGet httpReq = new CordovaHttpGet("http://plugins.cordova.io/api/plugin.google.maps",
+			  null, null, new CallbackContext("version_check", webView) {
               @Override
               public void sendPluginResult(PluginResult pluginResult) {
                 if (pluginResult.getStatus() == PluginResult.Status.OK.ordinal()) {
@@ -172,6 +167,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 }
               }
             });
+            
+            httpReq.run();
+            
           } catch (Exception e) {}
         }
       });
