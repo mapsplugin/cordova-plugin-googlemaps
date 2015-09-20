@@ -22,8 +22,10 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
-v.1.3.0
-
+v.1.3.1
+- Fixed #630 (no google-volley dependencies anymore, increase start-up speed)
+- Better URL Support on iOS for KML and GroundOverlay (support for any valid NSURL resource)
+- Changed all http class to https
 - Updated Google Maps iOS SDK to 1.10.2
 
 **INFORMATION**
