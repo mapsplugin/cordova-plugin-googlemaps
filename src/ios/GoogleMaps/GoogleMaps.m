@@ -97,7 +97,7 @@
     return;
   }
   
-  
+  /*
   dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.version_check", NULL);
   dispatch_async(gueue, ^{
     NSURL *URL = [NSURL URLWithString:@"http://plugins.cordova.io/api/plugin.google.maps"];
@@ -118,6 +118,7 @@
     }];
     [request startRequest];
   });
+  */
 }
 
 -(void)viewDidLayoutSubviews {

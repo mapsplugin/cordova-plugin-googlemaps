@@ -11,7 +11,6 @@
 #import "GoogleMapsViewController.h"
 #import "Map.h"
 #import "PluginUtil.h"
-#import "R9HTTPRequest.h"
 #import "MyPluginLayer.h"
 #import "MyReachability.h"
 #import "MyPluginScrollView.h"
