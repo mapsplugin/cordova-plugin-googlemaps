@@ -68,8 +68,8 @@
   }
 
   
-  range = [urlStr rangeOfString:@"http://"];
-  if (range.location == NSNotFound) {
+   NSURL *isUrl = [NSURL URLWithString:urlStr];
+   if (!isUrl || !isUrl.scheme || !isUrl.host) {
     tbxml = [tbxml initWithXMLFile:urlStr error:&error];
   } else {
     NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];

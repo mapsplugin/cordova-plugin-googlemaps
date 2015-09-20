@@ -129,9 +129,8 @@
     return;
   }
 
-  
-  range = [urlStr rangeOfString:@"http://"];
-  if (range.location == NSNotFound) {
+  NSURL *isUrl = [NSURL URLWithString:urlStr];
+  if (!isUrl || !isUrl.scheme || isUrl.host) {
     layer.icon = [UIImage imageNamed:urlStr];
     [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
     completionHandler(nil);

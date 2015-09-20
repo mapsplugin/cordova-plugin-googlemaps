@@ -45,7 +45,7 @@
       [NSString stringWithFormat: @"comgooglemaps-x-callback://?%@", [params componentsJoinedByString: @"&"], nil];
   } else {
     directionsRequest =
-      [NSString stringWithFormat: @"http://maps.apple.com/?saddr=%@&daddr=%@",
+      [NSString stringWithFormat: @"https://maps.apple.com/?saddr=%@&daddr=%@",
         from, to, nil];
   }
   NSURL *directionsURL = [NSURL URLWithString:directionsRequest];

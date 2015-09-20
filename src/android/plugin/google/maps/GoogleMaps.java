@@ -17,7 +17,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import plugin.http.request.HttpRequest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -151,6 +150,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   
           try {
             
+            /*
+              
             JSONArray params = new JSONArray();
             params.put("get");
             params.put("http://plugins.cordova.io/api/plugin.google.maps");
@@ -172,6 +173,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
                 }
               }
             });
+            */
           } catch (Exception e) {}
         }
       });
