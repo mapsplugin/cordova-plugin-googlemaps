@@ -22,6 +22,9 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.3.2
+- Updated Google Maps SDK to 1.10.3 - should avoid plist problems on Xcode 7 now
+
 v.1.3.1
 - Fixed #630 (no google-volley dependencies anymore, increase start-up speed)
 - Better URL Support on iOS for KML and GroundOverlay (support for any valid NSURL resource)
