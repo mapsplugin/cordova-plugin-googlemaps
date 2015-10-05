@@ -2474,7 +2474,7 @@ document.addEventListener("deviceready", function() {
   plugin.google.maps.Map.isAvailable();
 });
 
-const HTML_COLORS = {
+var HTML_COLORS = {
   "alideblue" : "#f0f8ff",
   "antiquewhite" : "#faebd7",
   "aqua" : "#00ffff",
