@@ -34,7 +34,7 @@ map.addMarker({
 // and
 marker.setZIndex()
 ```
- - https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659
+ - [659](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659)
 
 **Fixed**
 - Status-Bar Shift-Down
