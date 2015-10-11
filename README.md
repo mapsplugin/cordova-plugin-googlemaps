@@ -38,11 +38,11 @@ marker.setZIndex()
 
 **Fixed**
 - Status-Bar Shift-Down
- - https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/657
+ - [657](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/657#issuecomment-146036169)
 - Temp Dom-not-updated fix
- - https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/658
+ - [658](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/658)
 - Stabilized iOS loading
- - https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/623
+ - [623](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/623)
 
 
 v.1.3.2
