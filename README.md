@@ -22,6 +22,30 @@ New versions will be announced through the official community. Stay tuned!
 
 ###What's up?
 
+v.1.3.3
+
+**Added**
+
+- added zIndex (iOS only, not available for Android)
+ - [659](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659)
+
+```js
+map.addMarker({
+    zIndex: int
+})
+// and
+marker.setZIndex()
+```
+
+**Fixed**
+- Status-Bar Shift-Down
+ - [657](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/657#issuecomment-146036169)
+- Temp Dom-not-updated fix
+ - [658](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/658)
+- Stabilized iOS loading
+ - [623](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/623)
+
+
 v.1.3.2
 - Updated Google Maps SDK to 1.10.3 - should avoid plist problems on Xcode 7 now
 

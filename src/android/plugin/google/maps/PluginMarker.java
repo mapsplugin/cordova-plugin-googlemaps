@@ -80,6 +80,9 @@ public class PluginMarker extends MyPlugin {
     if (opts.has("opacity")) {
       markerOptions.alpha((float) opts.getDouble("opacity"));
     }
+    if (opts.has("zIndex")) {
+      // do nothing, API v2 has no zIndex :(
+    }
     Marker marker = map.addMarker(markerOptions);
 
     
@@ -388,6 +391,18 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(1);
     this.setFloat("setAlpha", id, alpha, callbackContext);
   }
+    
+    /**
+     * Set zIndex for the marker (dummy code, not available on Android V2)
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    @SuppressWarnings("unused")
+    private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        // nothing to do :(
+        // it's a shame google...
+    }
   
   /**
    * set position
