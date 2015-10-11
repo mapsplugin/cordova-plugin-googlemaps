@@ -1253,6 +1253,10 @@ Marker.prototype.setOpacity = function(opacity) {
   this.set('opacity', opacity);
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setOpacity', this.getId(), opacity]);
 };
+Marker.prototype.setZIndex = function(zIndex) {
+  this.set('zIndex', opacity);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setZIndex', this.getId(), zIndex]);
+};
 Marker.prototype.getOpacity = function() {
   return this.get('opacity');
 };

@@ -52,8 +52,8 @@ public class MyPluginLayout extends FrameLayout  {
     this.root = (ViewGroup) view.getParent();
     this.context = view.getContext();
     view.setBackgroundColor(Color.TRANSPARENT);
-    if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+    if (VERSION.SDK_INT >= 21) {
+      view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
     }
     frontLayer = new FrontLayerLayout(this.context);
     

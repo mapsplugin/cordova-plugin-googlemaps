@@ -48,6 +48,9 @@
     if ([json valueForKey:@"opacity"]) {
         [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
     }
+    if ([json valueForKey:@"zIndex"]) {
+        [marker setZIndex:[[json valueForKey:@"zIndex"] intValue]];
+    }
     
     NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
     [self.mapCtrl.overlayManager setObject:marker forKey: id];
@@ -298,6 +301,21 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+/**
+ * Set zIndex
+ * @params MarkerKey
+ */
+-(void)setZIndex:(CDVInvokedUrlCommand *)command
+{
+    NSString *markerKey = [command.arguments objectAtIndex:1];
+    GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+    marker.zIndex = [[command.arguments objectAtIndex:2] intValue];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 /**
  * Set draggable
  * @params MarkerKey
