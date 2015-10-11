@@ -27,6 +27,8 @@ v.1.3.3
 **Added**
 
 - added zIndex (iOS only, not available for Android)
+ - [659](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659)
+
 ```js
 map.addMarker({
     zIndex: int
@@ -34,7 +36,6 @@ map.addMarker({
 // and
 marker.setZIndex()
 ```
- - [659](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659)
 
 **Fixed**
 - Status-Bar Shift-Down
