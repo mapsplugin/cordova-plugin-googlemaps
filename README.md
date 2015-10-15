@@ -139,6 +139,13 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 If you want to use crosswalk, just follow this easy documentation. 
 [Install Plugin with Crosswalk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
 
+
+### Join the official community
+New versions will be announced through the official community. Stay tuned!
+
+<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
+
+
 ###Example
 You can see an example here. [phonegap-googlemaps-plugin-v1.2.5.apk](https://googledrive.com/host/0B1ECfqTCcLE8TXlUQUJXMmJpNGs/phonegap-googlemaps-plugin-v1.2.5.apk)
 ```bash
@@ -147,7 +154,3 @@ $> adb install phonegap-googlemaps-plugin-v1.2.5.apk
 
 ![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.5.gif)
 
-### Join the official community
-New versions will be announced through the official community. Stay tuned!
-
-<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
