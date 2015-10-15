@@ -5,7 +5,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 ###Chat
 Join our online chat at<br> 
-[![Gitter](https://badges.gitter.im/gitter/gitter.svg)](https://gitter.im/nightstomp/cordova-plugin-googlemaps)
+[![Gitter](https://badges.gitter.im/cordova-plugin-googlemaps.svg)](https://gitter.im/nightstomp/cordova-plugin-googlemaps)
 
 ###Update status
 
