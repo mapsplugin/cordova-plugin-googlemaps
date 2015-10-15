@@ -12,14 +12,14 @@ Join our online chat at<br>
 ###Update status
 
 **Plugin is finally available on npm**<br>
-Before you install, make sure you've read the [Instruction](https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps/wiki/Installation)
+Before you install, make sure you've read the [instructions](https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps/wiki/Installation)
 
-*npm (stable)*
+*npm (current stable 1.3.4)*
 ```bash
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
 
-*Github (current master)*
+*Github (current master, potentially unstable)*
 ```bash
 $> cordova plugin add https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
