@@ -157,7 +157,7 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 -----
 
 ##Crosswalk
-If you want to use crosswalk, just follow this easy documentation. 
+If you want to use crosswalk (highly recommended), just follow this easy documentation. 
 [Install Plugin with Crosswalk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
 
 
