@@ -1,6 +1,5 @@
 //
 //  GAnimatedClusterRenderer.m
-//  Erdgastankstellen
 //
 //  Created by Christian on 26.05.15.
 //
