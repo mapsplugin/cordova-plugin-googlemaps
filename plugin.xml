@@ -68,6 +68,14 @@
         <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps" />
         
+        <source-file src="src/android/plugin/google/maps/ClusterItemEGM.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/CustomRendererEGM.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/CustomRendererEGM.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/GoogleMapsClusterController.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/GoogleMapsController.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/GoogleMapsControllerImpl.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/GoogleMapsDefaultController.java" target-dir="src/plugin/google/maps" />
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
