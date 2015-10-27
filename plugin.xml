@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="plugin.google.maps" version="1.3.4" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="2.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="plugin.google.maps" />
@@ -125,10 +125,16 @@
         <source-file src="src/ios/GoogleMaps/GoogleMaps.m" />
         <header-file src="src/ios/GoogleMaps/GoogleMapsViewController.h" />
         <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
+        <header-file src="src/ios/GoogleMaps/GoogleMapsClusterViewController.h" />
+        <source-file src="src/ios/GoogleMaps/GoogleMapsClusterViewController.m" />
         <header-file src="src/ios/GoogleMaps/GroundOverlay.h" />
         <source-file src="src/ios/GoogleMaps/GroundOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/GAnimatedClusterRenderer.h" />
+        <source-file src="src/ios/GoogleMaps/GAnimatedClusterRenderer.m" />
         <header-file src="src/ios/GoogleMaps/KmlOverlay.h" />
         <source-file src="src/ios/GoogleMaps/KmlOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/LF_Marker.h" />
+        <source-file src="src/ios/GoogleMaps/LF_Marker.m" />
         <header-file src="src/ios/GoogleMaps/Map.h" />
         <source-file src="src/ios/GoogleMaps/Map.m" />
         <header-file src="src/ios/GoogleMaps/Marker.h" />
