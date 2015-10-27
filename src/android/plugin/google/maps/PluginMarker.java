@@ -47,186 +47,326 @@ public class PluginMarker extends MyPlugin {
    */
   @SuppressWarnings("unused")
   private void createMarker(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    
-    // Create an instance of Marker class
-    final MarkerOptions markerOptions = new MarkerOptions();
-    final JSONObject opts = args.getJSONObject(1);
-    if (opts.has("position")) {
-        JSONObject position = opts.getJSONObject("position");
-        markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
-    }
-    if (opts.has("title")) {
-        markerOptions.title(opts.getString("title"));
-    }
-    if (opts.has("snippet")) {
-        markerOptions.snippet(opts.getString("snippet"));
-    }
-    if (opts.has("visible")) {
-      if (opts.has("icon") && "".equals(opts.getString("icon")) == false) {
-        markerOptions.visible(false);
-      } else {
-        markerOptions.visible(opts.getBoolean("visible"));
+
+
+    //determine if clustering is enabled or not
+    if (mapCtrl.mapCtrl instanceof GoogleMapsClusterController) {
+
+      // Create an instance of Marker class
+      final MarkerOptions markerOptions = new MarkerOptions();
+      final JSONObject opts = args.getJSONObject(1);
+      if (opts.has("position")) {
+          JSONObject position = opts.getJSONObject("position");
+          markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
       }
-    }
-    if (opts.has("draggable")) {
-      markerOptions.draggable(opts.getBoolean("draggable"));
-    }
-    if (opts.has("rotation")) {
-      markerOptions.rotation((float)opts.getDouble("rotation"));
-    }
-    if (opts.has("flat")) {
-      markerOptions.flat(opts.getBoolean("flat"));
-    }
-    if (opts.has("opacity")) {
-      markerOptions.alpha((float) opts.getDouble("opacity"));
-    }
-    if (opts.has("zIndex")) {
-      // do nothing, API v2 has no zIndex :(
-    }
-    Marker marker = map.addMarker(markerOptions);
-
-    
-    // Store the marker
-    String id = "marker_" + marker.getId();
-    this.objects.put(id, marker);
-
-    JSONObject properties = new JSONObject();
-    if (opts.has("styles")) {
-      properties.put("styles", opts.getJSONObject("styles"));
-    }
-    if (opts.has("disableAutoPan")) {
-      properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
-    } else {
-      properties.put("disableAutoPan", false);
-    }
-    this.objects.put("marker_property_" + marker.getId(), properties);
-
-    // Prepare the result
-    final JSONObject result = new JSONObject();
-    result.put("hashCode", marker.hashCode());
-    result.put("id", id);
-
-    
-    // Load icon
-    if (opts.has("icon")) {
-      Bundle bundle = null;
-      Object value = opts.get("icon");
-      if (JSONObject.class.isInstance(value)) {
-        JSONObject iconProperty = (JSONObject)value;
-        bundle = PluginUtil.Json2Bundle(iconProperty);
-        
-        // The `anchor` of the `icon` property
-        if (iconProperty.has("anchor")) {
-          value = iconProperty.get("anchor");
-          if (JSONArray.class.isInstance(value)) {
-            JSONArray points = (JSONArray)value;
-            double[] anchorPoints = new double[points.length()];
-            for (int i = 0; i < points.length(); i++) {
-              anchorPoints[i] = points.getDouble(i);
-            }
-            bundle.putDoubleArray("anchor", anchorPoints);
-          }
-        }
-
-        // The `infoWindowAnchor` property for infowindow
-        if (opts.has("infoWindowAnchor")) {
-          value = opts.get("infoWindowAnchor");
-          if (JSONArray.class.isInstance(value)) {
-            JSONArray points = (JSONArray)value;
-            double[] anchorPoints = new double[points.length()];
-            for (int i = 0; i < points.length(); i++) {
-              anchorPoints[i] = points.getDouble(i);
-            }
-            bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
-          }
-        }
-      } else if (JSONArray.class.isInstance(value)) {
-        float[] hsv = new float[3];
-        JSONArray arrayRGBA = (JSONArray)value;
-        Color.RGBToHSV(arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2), hsv);
-        bundle = new Bundle();
-        bundle.putFloat("iconHue", hsv[0]);
-      } else {
-        bundle = new Bundle();
-        bundle.putString("url", (String)value);
+      if (opts.has("title")) {
+          markerOptions.title(opts.getString("title"));
       }
-
-      if (opts.has("animation")) {
-        bundle.putString("animation", opts.getString("animation"));
+      if (opts.has("snippet")) {
+          markerOptions.snippet(opts.getString("snippet"));
       }
-      this.setIcon_(marker, bundle, new PluginAsyncInterface() {
-
-        @Override
-        public void onPostExecute(Object object) {
-          Marker marker = (Marker)object;
-          if (opts.has("visible")) {
-            try {
-              marker.setVisible(opts.getBoolean("visible"));
-            } catch (JSONException e) {}
+      if (opts.has("visible")) {
+          if (opts.has("icon") && "".equals(opts.getString("icon")) == false) {
+              markerOptions.visible(false);
           } else {
-            marker.setVisible(true);
+              markerOptions.visible(opts.getBoolean("visible"));
           }
-          
+      }
+      if (opts.has("draggable")) {
+          markerOptions.draggable(opts.getBoolean("draggable"));
+      }
+      if (opts.has("rotation")) {
+          markerOptions.rotation((float)opts.getDouble("rotation"));
+      }
+      if (opts.has("flat")) {
+          markerOptions.flat(opts.getBoolean("flat"));
+      }
+      if (opts.has("opacity")) {
+          markerOptions.alpha((float) opts.getDouble("opacity"));
+      }
 
-          // Animation
+
+
+      // Store the marker
+      //    String id = "marker_" + marker.getId();
+      //    this.objects.put(id, marker);
+
+      JSONObject properties = new JSONObject();
+      if (opts.has("styles")) {
+          properties.put("styles", opts.getJSONObject("styles"));
+      }
+      if (opts.has("disableAutoPan")) {
+          properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
+      } else {
+          properties.put("disableAutoPan", false);
+      }
+      if (opts.has("markerId")) {
+          properties.put("markerId", opts.getInt("markerId"));
+      }
+      //    this.objects.put("marker_property_" + marker.getId(), properties);
+
+      //    Marker marker = mapCtrl.mapCtrl.addItem(markerOptions);
+
+
+      // Prepare the result
+      //    final JSONObject result = new JSONObject();
+      //    result.put("hashCode", marker.hashCode());
+      //    result.put("id", id);
+      //
+      //    // Load icon
+      if (opts.has("icon")) {
+          Bundle bundle = null;
+          Object value = opts.get("icon");
+          if (JSONObject.class.isInstance(value)) {
+              JSONObject iconProperty = (JSONObject)value;
+              bundle = PluginUtil.Json2Bundle(iconProperty);
+
+              // The `anchor` of the `icon` property
+              if (iconProperty.has("anchor")) {
+                  value = iconProperty.get("anchor");
+                  if (JSONArray.class.isInstance(value)) {
+                      JSONArray points = (JSONArray)value;
+                      double[] anchorPoints = new double[points.length()];
+                      for (int i = 0; i < points.length(); i++) {
+                          anchorPoints[i] = points.getDouble(i);
+                      }
+                      bundle.putDoubleArray("anchor", anchorPoints);
+                  }
+              }
+
+              // The `infoWindowAnchor` property for infowindow
+              if (opts.has("infoWindowAnchor")) {
+                  value = opts.get("infoWindowAnchor");
+                  if (JSONArray.class.isInstance(value)) {
+                      JSONArray points = (JSONArray)value;
+                      double[] anchorPoints = new double[points.length()];
+                      for (int i = 0; i < points.length(); i++) {
+                          anchorPoints[i] = points.getDouble(i);
+                      }
+                      bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
+                  }
+              }
+              try {
+                  properties.put("icon", this.getIconFromAssets(bundle));
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          } else {
+              Log.d(TAG, "Load form assets");
+              bundle = new Bundle();
+              bundle.putString("url", (String)value);
+              try {
+                  properties.put("icon", this.getIconFromAssets(bundle));
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+          //      this.setIcon_(marker, bundle, new PluginMarkerInterface() {
+          //
+          //        @Override
+          //        public void onMarkerIconLoaded(Marker marker) {
+          //          if (opts.has("visible")) {
+          //            try {
+          //              marker.setVisible(opts.getBoolean("visible"));
+          //            } catch (JSONException e) {}
+          //          } else {
+          //            marker.setVisible(true);
+          //          }
+          //          callbackContext.success(result);
+          //        }
+          //
+          //      });
+      } else {
+          //      // Return the result if does not specify the icon property.
+          //      callbackContext.success(result);
+      }
+      
+      mapCtrl.mapCtrl.addItem(markerOptions, properties);
+
+    } else {
+
+        // Create an instance of Marker class
+        final MarkerOptions markerOptions = new MarkerOptions();
+        final JSONObject opts = args.getJSONObject(1);
+        if (opts.has("position")) {
+            JSONObject position = opts.getJSONObject("position");
+            markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
+        }
+        if (opts.has("title")) {
+            markerOptions.title(opts.getString("title"));
+        }
+        if (opts.has("snippet")) {
+            markerOptions.snippet(opts.getString("snippet"));
+        }
+        if (opts.has("visible")) {
+          if (opts.has("icon") && "".equals(opts.getString("icon")) == false) {
+            markerOptions.visible(false);
+          } else {
+            markerOptions.visible(opts.getBoolean("visible"));
+          }
+        }
+        if (opts.has("draggable")) {
+          markerOptions.draggable(opts.getBoolean("draggable"));
+        }
+        if (opts.has("rotation")) {
+          markerOptions.rotation((float)opts.getDouble("rotation"));
+        }
+        if (opts.has("flat")) {
+          markerOptions.flat(opts.getBoolean("flat"));
+        }
+        if (opts.has("opacity")) {
+          markerOptions.alpha((float) opts.getDouble("opacity"));
+        }
+        if (opts.has("zIndex")) {
+          // do nothing, API v2 has no zIndex :(
+        }
+        Marker marker = map.addMarker(markerOptions);
+
+
+        // Store the marker
+        String id = "marker_" + marker.getId();
+        this.objects.put(id, marker);
+
+        JSONObject properties = new JSONObject();
+        if (opts.has("styles")) {
+          properties.put("styles", opts.getJSONObject("styles"));
+        }
+        if (opts.has("disableAutoPan")) {
+          properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
+        } else {
+          properties.put("disableAutoPan", false);
+        }
+        this.objects.put("marker_property_" + marker.getId(), properties);
+
+        // Prepare the result
+        final JSONObject result = new JSONObject();
+        result.put("hashCode", marker.hashCode());
+        result.put("id", id);
+
+
+        // Load icon
+        if (opts.has("icon")) {
+          Bundle bundle = null;
+          Object value = opts.get("icon");
+          if (JSONObject.class.isInstance(value)) {
+            JSONObject iconProperty = (JSONObject)value;
+            bundle = PluginUtil.Json2Bundle(iconProperty);
+            
+            // The `anchor` of the `icon` property
+            if (iconProperty.has("anchor")) {
+              value = iconProperty.get("anchor");
+              if (JSONArray.class.isInstance(value)) {
+                JSONArray points = (JSONArray)value;
+                double[] anchorPoints = new double[points.length()];
+                for (int i = 0; i < points.length(); i++) {
+                  anchorPoints[i] = points.getDouble(i);
+                }
+                bundle.putDoubleArray("anchor", anchorPoints);
+              }
+            }
+
+            // The `infoWindowAnchor` property for infowindow
+            if (opts.has("infoWindowAnchor")) {
+              value = opts.get("infoWindowAnchor");
+              if (JSONArray.class.isInstance(value)) {
+                JSONArray points = (JSONArray)value;
+                double[] anchorPoints = new double[points.length()];
+                for (int i = 0; i < points.length(); i++) {
+                  anchorPoints[i] = points.getDouble(i);
+                }
+                bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
+              }
+            }
+          } else if (JSONArray.class.isInstance(value)) {
+            float[] hsv = new float[3];
+            JSONArray arrayRGBA = (JSONArray)value;
+            Color.RGBToHSV(arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2), hsv);
+            bundle = new Bundle();
+            bundle.putFloat("iconHue", hsv[0]);
+          } else {
+            bundle = new Bundle();
+            bundle.putString("url", (String)value);
+          }
+
+          if (opts.has("animation")) {
+            bundle.putString("animation", opts.getString("animation"));
+          }
+          this.setIcon_(marker, bundle, new PluginAsyncInterface() {
+
+            @Override
+            public void onPostExecute(Object object) {
+              Marker marker = (Marker)object;
+              if (opts.has("visible")) {
+                try {
+                  marker.setVisible(opts.getBoolean("visible"));
+                } catch (JSONException e) {}
+              } else {
+                marker.setVisible(true);
+              }
+              
+
+              // Animation
+              String markerAnimation = null;
+              if (opts.has("animation")) {
+                try {
+                  markerAnimation = opts.getString("animation");
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
+              }
+              if (markerAnimation != null) {
+                PluginMarker.this.setMarkerAnimation_(marker, markerAnimation, new PluginAsyncInterface() {
+
+                  @Override
+                  public void onPostExecute(Object object) {
+                    Marker marker = (Marker)object;
+                    callbackContext.success(result);
+                  }
+
+                  @Override
+                  public void onError(String errorMsg) {
+                    callbackContext.error(errorMsg);
+                  }
+                });
+              } else {
+                callbackContext.success(result);
+              }
+              callbackContext.success(result);
+            }
+
+            @Override
+            public void onError(String errorMsg) {
+              callbackContext.error(errorMsg);
+            }
+            
+          });
+        } else {
           String markerAnimation = null;
           if (opts.has("animation")) {
-            try {
-              markerAnimation = opts.getString("animation");
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }
+            markerAnimation = opts.getString("animation");
           }
           if (markerAnimation != null) {
-            PluginMarker.this.setMarkerAnimation_(marker, markerAnimation, new PluginAsyncInterface() {
+            // Execute animation
+            this.setMarkerAnimation_(marker, markerAnimation, new PluginAsyncInterface() {
 
               @Override
               public void onPostExecute(Object object) {
-                Marker marker = (Marker)object;
                 callbackContext.success(result);
               }
-
+              
               @Override
               public void onError(String errorMsg) {
                 callbackContext.error(errorMsg);
               }
+              
             });
+
           } else {
+            // Return the result if does not specify the icon property.
             callbackContext.success(result);
           }
-          callbackContext.success(result);
         }
 
-        @Override
-        public void onError(String errorMsg) {
-          callbackContext.error(errorMsg);
-        }
-        
-      });
-    } else {
-      String markerAnimation = null;
-      if (opts.has("animation")) {
-        markerAnimation = opts.getString("animation");
-      }
-      if (markerAnimation != null) {
-        // Execute animation
-        this.setMarkerAnimation_(marker, markerAnimation, new PluginAsyncInterface() {
-
-          @Override
-          public void onPostExecute(Object object) {
-            callbackContext.success(result);
-          }
-          
-          @Override
-          public void onError(String errorMsg) {
-            callbackContext.error(errorMsg);
-          }
-          
-        });
-      } else {
-        // Return the result if does not specify the icon property.
-        callbackContext.success(result);
-      }
     }
     
   }

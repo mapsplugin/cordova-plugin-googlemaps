@@ -17,6 +17,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -124,7 +126,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private MyPluginLayout mPluginLayout = null;
   public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
-  
+
+  // Clustering
+  public GoogleMapsController mapCtrl = null;
+
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -318,7 +323,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     this.sendNoResult(callbackContext);
   }
-  
+
+  private void syncMarkers(JSONArray args, final CallbackContext callbackContext) {
+
+      final JSONArray result;
+      try {
+          result = this.mapCtrl.getClusterManager().getMarkerCollection().getMarkersJSON();
+          if (result.length() == 0) {
+              callbackContext.error("There are no markers to synchronize");
+          }
+          else {
+              Log.d(TAG, "RESULT: " + result);
+              callbackContext.success(result);
+          }
+      } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error("Could not load Markers");
+      }
+      
+  }
+
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   private void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (map != null) {
@@ -541,7 +565,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
       options.camera(builder.build());
     }
-    
+
+
     mapView = new MapView(activity, options);
     mapView.onCreate(null);
     mapView.onResume();
@@ -551,48 +576,81 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         
         map = googleMap;
         try {
-          //controls
-          if (params.has("controls")) {
-            JSONObject controls = params.getJSONObject("controls");
-  
-            if (controls.has("myLocationButton")) {
-              Boolean isEnabled = controls.getBoolean("myLocationButton");
-              map.setMyLocationEnabled(isEnabled);
-              map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
+
+            //controls
+            if (params.has("controls")) {
+                JSONObject controls = params.getJSONObject("controls");
+
+                if (controls.has("myLocationButton")) {
+                  Boolean isEnabled = controls.getBoolean("myLocationButton");
+                  map.setMyLocationEnabled(isEnabled);
+                  map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
+                }
+                if (controls.has("indoorPicker")) {
+                  Boolean isEnabled = controls.getBoolean("indoorPicker");
+                  map.setIndoorEnabled(isEnabled);
+                }
             }
-            if (controls.has("indoorPicker")) {
-              Boolean isEnabled = controls.getBoolean("indoorPicker");
-              map.setIndoorEnabled(isEnabled);
+
+            //controller
+            if (params.has("controller")) {
+                JSONObject controller = params.getJSONObject("controller");
+
+                if (controller.has("clustering")) {
+                    Boolean isClusteringEnabled = controller.getBoolean("clustering");
+                    MapView m = new MapView(activity, options);
+                    if (isClusteringEnabled)
+                        this.mapCtrl = new GoogleMapsClusterController(m, controls, mPluginLayout.getContext());
+                    else
+                        this.mapCtrl = new GoogleMapsDefaultController(m, controls);
+
+                    this.mapCtrl.setActivity(activity);
+                    this.mapCtrl.getMap().setOnInfoWindowClickListener(this);
+                    this.mapCtrl.getMap().setInfoWindowAdapter(this);
+                    //set the onlongclick event to the original --- Yasin
+                    this.mapCtrl.getMap().setOnMapLongClickListener(this);
+                }
+                else {
+                    Log.w(TAG, "Can not create MapController because there are no controller-information's.");
+                    callbackContext.error("Can not create mapController. Add controller and clustering option to MapOptions.");
+                }
             }
-          }
-          
-          // Set event listener
-          map.setOnCameraChangeListener(GoogleMaps.this);
-          map.setOnInfoWindowClickListener(GoogleMaps.this);
-          map.setOnMapClickListener(GoogleMaps.this);
-          map.setOnMapLoadedCallback(GoogleMaps.this);
-          map.setOnMapLongClickListener(GoogleMaps.this);
-          map.setOnMarkerClickListener(GoogleMaps.this);
-          map.setOnMarkerDragListener(GoogleMaps.this);
-          map.setOnMyLocationButtonClickListener(GoogleMaps.this);
-          map.setOnIndoorStateChangeListener(GoogleMaps.this);
-          
-          // Load PluginMap class
-          GoogleMaps.this.loadPlugin("Map");
-          //Custom info window
-          map.setInfoWindowAdapter(GoogleMaps.this);
-          // ------------------------------
-          // Embed the map if a container is specified.
-          // ------------------------------
-          if (args.length() == 3) {
-            GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
-            mPluginLayout.attachMyView(mapView);
-            GoogleMaps.this.resizeMap(args, callbackContext);
-          }
-          callbackContext.success();
+            else {
+                Log.w(TAG, "Can not create MapController because there are no controller-information's.");
+                callbackContext.error("Can not create mapController. Add controller option to MapOptions.");
+            }
+
+
+            // Set event listener
+            map.setOnCameraChangeListener(GoogleMaps.this);
+            map.setOnInfoWindowClickListener(GoogleMaps.this);
+            map.setOnMapClickListener(GoogleMaps.this);
+            map.setOnMapLoadedCallback(GoogleMaps.this);
+            map.setOnMapLongClickListener(GoogleMaps.this);
+            map.setOnMarkerClickListener(GoogleMaps.this);
+            map.setOnMarkerDragListener(GoogleMaps.this);
+            map.setOnMyLocationButtonClickListener(GoogleMaps.this);
+            map.setOnIndoorStateChangeListener(GoogleMaps.this);
+
+            // Load PluginMap class
+            GoogleMaps.this.loadPlugin("Map");
+
+            //Custom info window
+            map.setInfoWindowAdapter(GoogleMaps.this);
+
+            // ------------------------------
+            // Embed the map if a container is specified.
+            // ------------------------------
+            if (args.length() == 3) {
+                GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
+                mPluginLayout.attachMyView(mapView);
+                GoogleMaps.this.resizeMap(args, callbackContext);
+            }
+            callbackContext.success();
+
         } catch (Exception e) {
-          Log.d("GoogleMaps", "------->error");
-          callbackContext.error(e.getMessage());
+            Log.d("GoogleMaps", "------->error");
+            callbackContext.error(e.getMessage());
         }
       }
     });
