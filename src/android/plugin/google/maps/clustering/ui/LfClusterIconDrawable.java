@@ -3,7 +3,6 @@ package plugin.google.maps.clustering.ui;
 import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
-import de.lf.erdgas.R;
 
 /**
  * Created by christian on 02.06.15.

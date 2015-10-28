@@ -27,8 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import de.lf.erdgas.R;
-
 /**
  * IconGenerator generates icons that contain text (or custom content) within an info
  * window-like shape.

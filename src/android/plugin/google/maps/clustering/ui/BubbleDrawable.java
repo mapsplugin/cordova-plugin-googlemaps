@@ -20,7 +20,6 @@ import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 
-import de.lf.erdgas.R;
 
 /**
  * Draws a bubble with a shadow, filled with any color.
