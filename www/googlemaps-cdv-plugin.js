@@ -130,6 +130,85 @@ var App = function() {
 };
 App.prototype = new BaseClass();
 
+//-------------
+// Cluster
+//-------------
+
+App.prototype.updateCluster = function(callback) {
+  var self = this;
+  cordova.exec(function(result) {
+    if (callback) {
+      callback();
+    };
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['GoogleMapsClusterViewController.updateCluster']);
+};
+
+/*
+ * Callback from Native
+ */
+App.prototype._onMarkerEvent = function(eventName, hashCode) {
+  var self = this;
+  var marker = MARKERS[hashCode] || null;
+  if (marker) {
+    //console.log("found marker in js");
+    marker.trigger(eventName, marker);
+  } else {
+    //console.log("search for marker in plugin");
+    cordova.exec(function(result) {
+
+      MARKERS = {};
+
+      _.each(result, function(res) {
+
+        if (MARKERS[res.hashCode] === undefined) {
+
+          var markerOptions = res.markerOptions;
+          
+          // console.log(res);
+
+          markerOptions.hashCode = res.hashCode;
+
+          var marker = new Marker(self, res.id, markerOptions);
+          
+          if (typeof markerOptions.markerClick === "function") {
+            marker.on(plugin.google.maps.event.MARKER_CLICK, markerOptions.markerClick);
+          }
+          if (typeof markerOptions.infoClick === "function") {
+            marker.on(plugin.google.maps.event.INFO_CLICK, markerOptions.infoClick);
+          }
+          if (typeof callback === "function") {
+            callback.call(self, marker, self);
+          }
+          
+          marker.markerId = res.markerId;
+
+          MARKERS[res.id] = marker;
+          OVERLAYS[res.id] = marker;
+          
+          marker.addEventListener(plugin.google.maps.event.INFO_CLICK, function() {
+            
+            marker.hideInfoWindow();
+            
+            //$.ui.loadContent("#detailView/" + marker.markerId,false,false,"fade");
+                 
+          });
+
+        };
+      
+      });
+
+      marker = MARKERS[hashCode] || null;
+
+      if (marker) {
+  
+        marker.trigger(eventName, marker);
+  
+      };
+    
+    }, self.errorHandler, PLUGIN_NAME, 'syncMarkers', [hashCode]);
+  }
+};
+
 /*
  * Callback from Native
  */
