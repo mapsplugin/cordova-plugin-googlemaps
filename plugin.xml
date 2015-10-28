@@ -75,6 +75,44 @@
         <source-file src="src/android/plugin/google/maps/GoogleMapsControllerImpl.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMapsDefaultController.java" target-dir="src/plugin/google/maps" />
 
+        <source-file src="src/android/plugin/google/maps/clustering/MarkerManager.java" target-dir="src/plugin/google/maps/clustering" />
+        <source-file src="src/android/plugin/google/maps/clustering/MathUtil.java" target-dir="src/plugin/google/maps/clustering" />
+        <source-file src="src/android/plugin/google/maps/clustering/PolyUtil.java" target-dir="src/plugin/google/maps/clustering" />
+        <source-file src="src/android/plugin/google/maps/clustering/SphericalUtil.java" target-dir="src/plugin/google/maps/clustering" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/Cluster.java" target-dir="src/plugin/google/maps/clustering/clustering" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/ClusterItem.java" target-dir="src/plugin/google/maps/clustering/clustering" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/ClusterManager.java" target-dir="src/plugin/google/maps/clustering/clustering" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/algo/Algorithm.java" target-dir="src/plugin/google/maps/clustering/clustering/algo" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/algo/GridBasedAlgorithm.java" target-dir="src/plugin/google/maps/clustering/clustering/algo" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/algo/NonHierarchicalDistanceBasedAlgorithm.java" target-dir="src/plugin/google/maps/clustering/clustering/algo" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/algo/PreCachingAlgorithmDecorator.java" target-dir="src/plugin/google/maps/clustering/clustering/algo" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/algo/StaticCluster.java" target-dir="src/plugin/google/maps/clustering/clustering/algo" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/view/ClusterRenderer.java" target-dir="src/plugin/google/maps/clustering/clustering/view" />
+        <source-file src="src/android/plugin/google/maps/clustering/clustering/view/DefaultClusterRenderer.java" target-dir="src/plugin/google/maps/clustering/clustering/view" />
+
+
+        <source-file src="src/android/plugin/google/maps/clustering/geometry/Bounds.java" target-dir="src/plugin/google/maps/clustering/geometry" />
+        <source-file src="src/android/plugin/google/maps/clustering/geometry/Point.java" target-dir="src/plugin/google/maps/clustering/geometry" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/heatmaps/Gradient.java" target-dir="src/plugin/google/maps/clustering/heatmaps" />
+        <source-file src="src/android/plugin/google/maps/clustering/heatmaps/HeatmapTileProvider.java" target-dir="src/plugin/google/maps/clustering/heatmaps" />
+        <source-file src="src/android/plugin/google/maps/clustering/heatmaps/WeightedLatLng.java" target-dir="src/plugin/google/maps/clustering/heatmaps" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/projection/Point.java" target-dir="src/plugin/google/maps/clustering/projection" />
+        <source-file src="src/android/plugin/google/maps/clustering/projection/SphericalMercatorProjection.java" target-dir="src/plugin/google/maps/clustering/projection" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/quadtree/PointQuadTree.java" target-dir="src/plugin/google/maps/clustering/quadtree" />
+
+        <source-file src="src/android/plugin/google/maps/clustering/ui/BubbleDrawable.java" target-dir="src/plugin/google/maps/clustering/ui" />
+        <source-file src="src/android/plugin/google/maps/clustering/ui/BubbleIconFactory.java" target-dir="src/plugin/google/maps/clustering/ui" />
+        <source-file src="src/android/plugin/google/maps/clustering/ui/IconGenerator.java" target-dir="src/plugin/google/maps/clustering/ui" />
+        <source-file src="src/android/plugin/google/maps/clustering/ui/LfClusterIconDrawable.java" target-dir="src/plugin/google/maps/clustering/ui" />
+        <source-file src="src/android/plugin/google/maps/clustering/ui/RotationLayout.java" target-dir="src/plugin/google/maps/clustering/ui" />
+        <source-file src="src/android/plugin/google/maps/clustering/ui/SquareTextView.java" target-dir="src/plugin/google/maps/clustering/ui" />
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
