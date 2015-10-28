@@ -70,7 +70,6 @@
         
         <source-file src="src/android/plugin/google/maps/ClusterItemEGM.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/CustomRendererEGM.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/CustomRendererEGM.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMapsClusterController.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMapsController.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMapsControllerImpl.java" target-dir="src/plugin/google/maps" />
