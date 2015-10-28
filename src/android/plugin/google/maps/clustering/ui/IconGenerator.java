@@ -56,12 +56,12 @@ public class IconGenerator {
      */
     public IconGenerator(Context context) {
         mContext = context;
-        mBackground = new LfClusterIconDrawable(mContext.getResources());
+        mBackground = new LfClusterIconDrawable(context, mContext.getResources());
 
         mContainer = (ViewGroup) LayoutInflater.from(mContext).inflate(mContext.getResources().getIdentifier("cluster_icon", "layout", mContext.getPackageName())
 , null);
         mRotationLayout = (RotationLayout) mContainer.getChildAt(0);
-        mContentView = mTextView = (TextView) mRotationLayout.findViewById(ctx.getResources().getIdentifier("text", "id", ctx.getPackageName()));
+        mContentView = mTextView = (TextView) mRotationLayout.findViewById(mContext.getResources().getIdentifier("text", "id", mContext.getPackageName()));
         setStyle(STYLE_DEFAULT);
     }
 

@@ -15,7 +15,8 @@ public class LfClusterIconDrawable extends Drawable {
 
     private Context ctx;
 
-	public LfClusterIconDrawable(Resources res) {
+	public LfClusterIconDrawable(Context context, Resources res) {
+        this.ctx = context;
         mMask = res.getDrawable(ctx.getResources().getIdentifier("cluster_icon", "drawable", ctx.getPackageName()));
 	}
 
