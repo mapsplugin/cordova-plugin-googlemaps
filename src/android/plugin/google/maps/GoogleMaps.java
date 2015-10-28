@@ -100,7 +100,7 @@ OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
 OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
 OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
     private final String TAG = "GoogleMapsPlugin";
-    private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
+    public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
     private float density;
     private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
 
@@ -124,16 +124,23 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
     private final int LICENSE_LINK_ID = 0x7f99991; //random
     private final String PLUGIN_VERSION = "1.3.3";
     private MyPluginLayout mPluginLayout = null;
-    public boolean isDebug = false;
+    public boolean isDebug = true;
     private GoogleApiClient googleApiClient = null;
 
     // Clustering
     public GoogleMapsController mapCtrl = null;
 
+    private static GoogleMaps instance;
+
+    public static GoogleMaps getInstance() {
+        return instance;
+    }
+
     @SuppressLint("NewApi") @Override
     public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
         super.initialize(cordova, webView);
         activity = cordova.getActivity();
+        instance = this;
         density = Resources.getSystem().getDisplayMetrics().density;
         final View view = webView.getView();
         root = (ViewGroup) view.getParent();
@@ -556,31 +563,8 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             options.camera(builder.build());
         }
 
+
         JSONObject controls = null;
-
-        //controls
-        if (params.has("controls")) {
-            controls = params.getJSONObject("controls");
-
-            if (controls.has("myLocationButton")) {
-                Boolean isEnabled = controls.getBoolean("myLocationButton");
-                mapCtrl.getMap().setMyLocationEnabled(isEnabled);
-                mapCtrl.getMap().getUiSettings().setMyLocationButtonEnabled(isEnabled);
-            }
-            if (controls.has("indoorPicker")) {
-                Boolean isEnabled = controls.getBoolean("indoorPicker");
-                mapCtrl.getMap().setIndoorEnabled(isEnabled);
-            }
-            if (controls.has("compass")) {
-                options.compassEnabled(controls.getBoolean("compass"));
-            }
-            if (controls.has("zoom")) {
-                options.zoomControlsEnabled(controls.getBoolean("zoom"));
-            }
-
-        }
-
-
 
         //controller
         if (params.has("controller")) {
@@ -599,6 +583,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                 this.mapCtrl.getMap().setInfoWindowAdapter(this);
                 //set the onlongclick event to the original --- Yasin
                 this.mapCtrl.getMap().setOnMapLongClickListener(this);
+
             }
             else {
                 Log.w(TAG, "Can not create MapController because there are no controller-information's.");
@@ -610,8 +595,39 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             callbackContext.error("Can not create mapController. Add controller option to MapOptions.");
         }
 
+
+
+
+        //controls
+        if (params.has("controls")) {
+            controls = params.getJSONObject("controls");
+
+            if (controls.has("myLocationButton")) {
+                Boolean isEnabled = controls.getBoolean("myLocationButton");
+                mapCtrl.getMap().setMyLocationEnabled(isEnabled);
+                mapCtrl.getMap().getUiSettings().setMyLocationButtonEnabled(isEnabled);
+            }
+            if (controls.has("toolbar")) {
+                Boolean isEnabled = controls.getBoolean("toolbar");
+                mapCtrl.getMap().getUiSettings().setMapToolbarEnabled(isEnabled);
+            }
+            if (controls.has("indoorPicker")) {
+                Boolean isEnabled = controls.getBoolean("indoorPicker");
+                mapCtrl.getMap().setIndoorEnabled(isEnabled);
+            }
+            if (controls.has("compass")) {
+                options.compassEnabled(controls.getBoolean("compass"));
+            }
+            if (controls.has("zoom")) {
+                options.zoomControlsEnabled(controls.getBoolean("zoom"));
+            }
+
+
+        }
+
         // Load PluginMap class
         this.loadPlugin("Map");
+
 
         callbackContext.success();
         // ------------------------------
@@ -624,7 +640,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
         }
 
 
-        /*
+         /*
          m.onCreate(null);
          m.onResume();
          m.getMapAsync(new OnMapReadyCallback() {
@@ -667,7 +683,8 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
          }
          }
          });
-         */
+          */
+
 
     }
 
@@ -1239,6 +1256,9 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
         String markerId = "marker_" + marker.getId();
         webView.loadUrl("javascript:plugin.google.maps.Map." +
                         "_onMarkerEvent('" + eventName + "','" + markerId + "')");
+
+        Log.w("EVENT", "javascript:plugin.google.maps.Map." + "_onMarkerEvent('" + eventName + "','" + markerId + "')");
+
     }
     private void onOverlayEvent(String eventName, String overlayId, LatLng point) {
         webView.loadUrl("javascript:plugin.google.maps.Map." +

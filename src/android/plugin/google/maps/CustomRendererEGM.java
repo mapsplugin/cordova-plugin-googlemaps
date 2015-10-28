@@ -44,13 +44,15 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 	private final float mDensity;
 	private BitmapDescriptor iconBackground;
 	private HashMap<String, BitmapDescriptor> clusterCache;
-
+    private Context ctx;
 	private static final int MIN_CLUSTER_SIZE = 4;
 
 	private final int clusterdiameter = 40;
 
 	public CustomRendererEGM(Context context, GoogleMap map, ClusterManager<ClusterItemEGM> clusterManager) {
 		super(context, map, clusterManager);
+
+        this.ctx = context;
 
 		mDensity = context.getResources().getDisplayMetrics().density;
 
@@ -60,7 +62,9 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 
 		clusterIconGenerator = new IconGenerator(context);
 		clusterIconGenerator.setContentView(makeSquareTextView(context));
-		clusterIconGenerator.setTextAppearance(R.style.ClusterIcon_TextAppearance);
+
+		clusterIconGenerator.setTextAppearance(ctx.getResources().getIdentifier("ClusterIcon_TextAppearance", "style", ctx.getPackageName()));
+
 //		clusterIconGenerator.setBackground(makeClusterBackground());
 
 		int dynamicDiameter = (int)mDensity * clusterdiameter;
@@ -155,7 +159,8 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 		SquareTextView squareTextView = new SquareTextView(context);
 		ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		squareTextView.setLayoutParams(layoutParams);
-		squareTextView.setId(R.id.text);
+
+		squareTextView.setId(ctx.getResources().getIdentifier("text", "id", ctx.getPackageName()));
 		int twelveDpi = (int) (12 * mDensity);
 		squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
 		return squareTextView;
