@@ -115,8 +115,8 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
     private final int ACTIVITY_LOCATION_PAGE = 0x7f999901;   // Open the location settings page
 
     private JSONObject mapDivLayoutJSON = null;
-    private MapView mapView = null;
-    public GoogleMap map = null;
+    //private MapView mapView = null;
+    //public GoogleMap map = null;
     private Activity activity;
     private LinearLayout windowLayer = null;
     private ViewGroup root;
@@ -564,12 +564,12 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
             if (controls.has("myLocationButton")) {
                 Boolean isEnabled = controls.getBoolean("myLocationButton");
-                map.setMyLocationEnabled(isEnabled);
-                map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
+                mapCtrl.getMap().setMyLocationEnabled(isEnabled);
+                mapCtrl.getMap().getUiSettings().setMyLocationButtonEnabled(isEnabled);
             }
             if (controls.has("indoorPicker")) {
                 Boolean isEnabled = controls.getBoolean("indoorPicker");
-                map.setIndoorEnabled(isEnabled);
+                mapCtrl.getMap().setIndoorEnabled(isEnabled);
             }
             if (controls.has("compass")) {
                 options.compassEnabled(controls.getBoolean("compass"));
@@ -579,6 +579,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             }
 
         }
+
 
 
         //controller
@@ -609,50 +610,64 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             callbackContext.error("Can not create mapController. Add controller option to MapOptions.");
         }
 
+        // Load PluginMap class
+        this.loadPlugin("Map");
 
-        mapView = new MapView(activity, options);
-        mapView.onCreate(null);
-        mapView.onResume();
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
+        callbackContext.success();
+        // ------------------------------
+        // Embed the map if a container is specified.
+        // ------------------------------
+        if (args.length() == 3) {
+            this.mapDivLayoutJSON = args.getJSONObject(1);
+            mPluginLayout.attachMyView(mapCtrl.getMapView());
+            this.resizeMap(args, callbackContext);
+        }
 
-                map = googleMap;
-                try {
 
-                    // Set event listener
-                    map.setOnCameraChangeListener(GoogleMaps.this);
-                    map.setOnInfoWindowClickListener(GoogleMaps.this);
-                    map.setOnMapClickListener(GoogleMaps.this);
-                    map.setOnMapLoadedCallback(GoogleMaps.this);
-                    map.setOnMapLongClickListener(GoogleMaps.this);
-                    map.setOnMarkerClickListener(GoogleMaps.this);
-                    map.setOnMarkerDragListener(GoogleMaps.this);
-                    map.setOnMyLocationButtonClickListener(GoogleMaps.this);
-                    map.setOnIndoorStateChangeListener(GoogleMaps.this);
+        /*
+         m.onCreate(null);
+         m.onResume();
+         m.getMapAsync(new OnMapReadyCallback() {
+         @Override
+         public void onMapReady(GoogleMap googleMap) {
 
-                    // Load PluginMap class
-                    GoogleMaps.this.loadPlugin("Map");
+         //map = googleMap;
+         try {
 
-                    //Custom info window
-                    map.setInfoWindowAdapter(GoogleMaps.this);
+         // Set event listener
+         mapCtrl.getMap().setOnCameraChangeListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnInfoWindowClickListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnMapClickListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnMapLoadedCallback(GoogleMaps.this);
+         mapCtrl.getMap().setOnMapLongClickListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnMarkerClickListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnMarkerDragListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnMyLocationButtonClickListener(GoogleMaps.this);
+         mapCtrl.getMap().setOnIndoorStateChangeListener(GoogleMaps.this);
 
-                    // ------------------------------
-                    // Embed the map if a container is specified.
-                    // ------------------------------
-                    if (args.length() == 3) {
-                        GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
-                        mPluginLayout.attachMyView(mapCtrl.getMapView());
-                        GoogleMaps.this.resizeMap(args, callbackContext);
-                    }
-                    callbackContext.success();
+         // Load PluginMap class
+         GoogleMaps.this.loadPlugin("Map");
 
-                } catch (Exception e) {
-                    Log.d("GoogleMaps", "------->error");
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
+         //Custom info window
+         mapCtrl.getMap().setInfoWindowAdapter(GoogleMaps.this);
+
+         // ------------------------------
+         // Embed the map if a container is specified.
+         // ------------------------------
+         if (args.length() == 3) {
+         GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
+         mPluginLayout.attachMyView(mapCtrl.getMapView());
+         GoogleMaps.this.resizeMap(args, callbackContext);
+         }
+         callbackContext.success();
+
+         } catch (Exception e) {
+         Log.d("GoogleMaps", "------->error");
+         callbackContext.error(e.getMessage());
+         }
+         }
+         });
+         */
 
     }
 
@@ -669,14 +684,21 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             return;
         }
         try {
-            String className = "plugin.google.maps.Plugin" + serviceName;
-            Class pluginCls = Class.forName(className);
+            Class pluginCls = Class.forName("plugin.google.maps.Plugin" + serviceName);
 
             CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
             PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
             this.plugins.put(serviceName, pluginEntry);
 
-            plugin.privateInitialize(className, this.cordova, webView, null);
+            try {
+                Class cordovaPref = Class.forName("org.apache.cordova.CordovaPreferences");
+                if (cordovaPref != null) {
+                    Method privateInit = CordovaPlugin.class.getMethod("privateInitialize", CordovaInterface.class, CordovaWebView.class, cordovaPref);
+                    if (privateInit != null) {
+                        privateInit.invoke(plugin, this.cordova, webView, null);
+                    }
+                }
+            } catch (Exception e2) {}
 
             plugin.initialize(this.cordova, webView);
             ((MyPluginInterface)plugin).setMapCtrl(this);
@@ -686,7 +708,6 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             if (mapCtrl == null) {
                 Log.e(TAG, "mapCtrl is null!");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -809,10 +830,10 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
             @Override
             public void onCustomViewHidden() {
-                mapFrame.removeView(mapView);
+                mapFrame.removeView(mapCtrl.getMapView());
                 if (mPluginLayout != null &&
                     mapDivLayoutJSON != null) {
-                    mPluginLayout.attachMyView(mapView);
+                    mPluginLayout.attachMyView(mapCtrl.getMapView());
                     mPluginLayout.updateViewPosition();
                 }
                 root.removeView(windowLayer);
@@ -936,7 +957,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
     @SuppressWarnings("unused")
     private void getFocusedBuilding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        IndoorBuilding focusedBuilding = map.getFocusedBuilding();
+        IndoorBuilding focusedBuilding = mapCtrl.getMap().getFocusedBuilding();
         if (focusedBuilding != null) {
             JSONObject result = PluginUtil.convertIndoorBuildingToJson(focusedBuilding);
             callbackContext.success(result);
@@ -1774,7 +1795,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
         if ((title == null) && (snippet == null)) {
             return null;
         }
-        
+
         JSONObject properties = null;
         JSONObject styles = null;
         String propertyId = "marker_property_" + marker.getId();
@@ -1808,12 +1829,12 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                 if (widthString.endsWith("%")) {
                     double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
                     
-                    width = (int)((double)mapView.getWidth() * (widthDouble / 100));
+                    width = (int)((double)mapCtrl.getMapView().getWidth() * (widthDouble / 100));
                 } else if (isNumeric(widthString)) {
                     double widthDouble = Double.parseDouble(widthString);
                     
                     if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
-                        width = (int)((double)mapView.getWidth() * (widthDouble));
+                        width = (int)((double)mapCtrl.getMapView().getWidth() * (widthDouble));
                     } else {
                         width = (int)widthDouble;
                     }
@@ -1830,7 +1851,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                 if (widthString.endsWith("%")) {
                     double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
                     
-                    maxWidth = (int)((double)mapView.getWidth() * (widthDouble / 100));
+                    maxWidth = (int)((double)mapCtrl.getMapView().getWidth() * (widthDouble / 100));
                     
                     // make sure to take padding into account.
                     maxWidth -= (windowLayer.getPaddingLeft() + windowLayer.getPaddingRight());
@@ -1838,7 +1859,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                     double widthDouble = Double.parseDouble(widthString);
                     
                     if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
-                        maxWidth = (int)((double)mapView.getWidth() * (widthDouble));
+                        maxWidth = (int)((double)mapCtrl.getMapView().getWidth() * (widthDouble));
                     } else {
                         maxWidth = (int)widthDouble;
                     }
@@ -2081,7 +2102,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
         if (mapCtrl.getMapView() != null) {
             mapCtrl.getMapView().onDestroy();
         }
-        map = null;
+        //map = null;
         mapCtrl = null;
         windowLayer = null;
         mapDivLayoutJSON = null;
