@@ -31,7 +31,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   
   public void setMapCtrl(GoogleMaps mapCtrl) {
     this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
+    this.map = mapCtrl.mapCtrl.getMap();
   }
   
   @SuppressLint("UseSparseArrays")
