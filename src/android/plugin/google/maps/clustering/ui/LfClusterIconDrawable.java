@@ -1,5 +1,6 @@
 package plugin.google.maps.clustering.ui;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
@@ -12,8 +13,10 @@ public class LfClusterIconDrawable extends Drawable {
 	private final Drawable mMask;
 	private int mColor = Color.WHITE;
 
+    private Context ctx;
+
 	public LfClusterIconDrawable(Resources res) {
-		mMask = res.getDrawable(R.drawable.cluster_icon);
+        mMask = res.getDrawable(ctx.getResources().getIdentifier("cluster_icon", "drawable", ctx.getPackageName()));
 	}
 
 	public void setColor(int color) {

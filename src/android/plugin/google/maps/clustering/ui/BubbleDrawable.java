@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
+/*
+
 package plugin.google.maps.clustering.ui;
 
 import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
-
+*/
 
 /**
  * Draws a bubble with a shadow, filled with any color.
- */
+
 class BubbleDrawable extends Drawable {
 
     private final Drawable mShadow;
@@ -78,3 +80,4 @@ class BubbleDrawable extends Drawable {
         return mMask.getPadding(padding);
     }
 }
+ */

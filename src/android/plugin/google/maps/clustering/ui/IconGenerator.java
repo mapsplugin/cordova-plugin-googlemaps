@@ -44,6 +44,7 @@ public class IconGenerator {
     private TextView mTextView;
     private View mContentView;
 
+    private static Context ctx;
     private int mRotation;
 
     private float mAnchorU = 0.5f;
@@ -56,9 +57,11 @@ public class IconGenerator {
     public IconGenerator(Context context) {
         mContext = context;
         mBackground = new LfClusterIconDrawable(mContext.getResources());
-        mContainer = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.cluster_icon, null);
+
+        mContainer = (ViewGroup) LayoutInflater.from(mContext).inflate(mContext.getResources().getIdentifier("cluster_icon", "layout", mContext.getPackageName())
+, null);
         mRotationLayout = (RotationLayout) mContainer.getChildAt(0);
-        mContentView = mTextView = (TextView) mRotationLayout.findViewById(R.id.text);
+        mContentView = mTextView = (TextView) mRotationLayout.findViewById(ctx.getResources().getIdentifier("text", "id", ctx.getPackageName()));
         setStyle(STYLE_DEFAULT);
     }
 
@@ -125,7 +128,7 @@ public class IconGenerator {
         mRotationLayout.removeAllViews();
         mRotationLayout.addView(contentView);
         mContentView = contentView;
-        final View view = mRotationLayout.findViewById(R.id.text);
+        final View view = mRotationLayout.findViewById(mContext.getResources().getIdentifier("text", "id", mContext.getPackageName()));
         mTextView = view instanceof TextView ? (TextView) view : null;
     }
 
@@ -206,7 +209,7 @@ public class IconGenerator {
      */
     public void setStyle(int style) {
         setColor(getStyleColor(style));
-        setTextAppearance(mContext, getTextStyle(style));
+        setTextAppearance(mContext, getTextStyle(mContext, style));
     }
 
     /**
@@ -280,18 +283,18 @@ public class IconGenerator {
         }
     }
 
-    private static int getTextStyle(int style) {
+    private static int getTextStyle(Context context, int style) {
         switch (style) {
             default:
             case STYLE_DEFAULT:
             case STYLE_WHITE:
-                return R.style.Bubble_TextAppearance_Dark;
+                return context.getResources().getIdentifier("Bubble_TextAppearance_Dark", "style", context.getPackageName());
             case STYLE_RED:
             case STYLE_BLUE:
             case STYLE_GREEN:
             case STYLE_PURPLE:
             case STYLE_ORANGE:
-                return R.style.Bubble_TextAppearance_Light;
+                return context.getResources().getIdentifier("Bubble_TextAppearance_Light", "style", context.getPackageName());
         }
     }
 }
