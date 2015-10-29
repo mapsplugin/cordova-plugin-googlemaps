@@ -567,6 +567,8 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
         JSONObject controls = null;
         MapView m = new MapView(activity, options);
 
+        Boolean useDefaultController = false;
+
         //controller
         if (params.has("controller"))
         {
@@ -575,24 +577,38 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             if (controller.has("clustering")) {
                 Boolean isClusteringEnabled = controller.getBoolean("clustering");
 
-                if (isClusteringEnabled)
+                if (isClusteringEnabled) {
+
                     this.mapCtrl = new GoogleMapsClusterController(m, controls, mPluginLayout.getContext());
-                else
-                    this.mapCtrl = new GoogleMapsDefaultController(m, controls);
+                    this.mapCtrl.setActivity(activity);
+                    this.mapCtrl.getMap().setOnInfoWindowClickListener(this);
+                    this.mapCtrl.getMap().setInfoWindowAdapter(this);
+                    //set the onlongclick event to the original --- Yasin
+                    this.mapCtrl.getMap().setOnMapLongClickListener(this);
 
-                this.mapCtrl.setActivity(activity);
-                this.mapCtrl.getMap().setOnInfoWindowClickListener(this);
-                this.mapCtrl.getMap().setInfoWindowAdapter(this);
-                //set the onlongclick event to the original --- Yasin
-                this.mapCtrl.getMap().setOnMapLongClickListener(this);
+                } else {
 
-            }
-            else {
-                Log.w(TAG, "Can not create MapController because there are no controller-information's.");
-                callbackContext.error("Can not create mapController. Add controller and clustering option to MapOptions.");
+                    useDefaultController = true;
+
+                }
+
+
+
+            } else {
+
+                useDefaultController = true;
+                
+                //Log.w(TAG, "Can not create MapController because there are no controller-information's.");
+                //callbackContext.error("Can not create mapController. Add controller and clustering option to MapOptions.");
             }
 
         } else {
+
+            useDefaultController = true;
+        }
+
+
+        if(useDefaultController) {
 
             this.mapCtrl = new GoogleMapsDefaultController(m, controls);
             this.mapCtrl.setActivity(activity);
@@ -609,11 +625,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             this.mapCtrl.getMap().setOnMarkerDragListener(this);
             this.mapCtrl.getMap().setOnMyLocationButtonClickListener(this);
             this.mapCtrl.getMap().setOnIndoorStateChangeListener(this);
-
-            //Log.w(TAG, "Can not create MapController because there are no controller-information's.");
-            //callbackContext.error("Can not create mapController. Add controller option to MapOptions.");
         }
-
 
 
 
