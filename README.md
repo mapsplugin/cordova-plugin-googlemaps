@@ -9,7 +9,8 @@ Join our online chat at<br>
 
 
 ###Donation
-Please consider to make a small donation. We spent many hours to make this a great plugin, we even pay other developers to contribute new functions. In order to keep up the motivation, we ask for your help, too.
+Please consider to make a small donation. We spent many hours to make this a great plugin, we even pay other developers to contribute new functions. In order to keep up the motivation, we ask for your help, too. Thanks!
+
 [![img](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLCBVUA7TQ8SU)
 
 
