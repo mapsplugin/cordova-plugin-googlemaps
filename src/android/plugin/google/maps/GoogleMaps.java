@@ -565,14 +565,16 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
 
         JSONObject controls = null;
+        MapView m = new MapView(activity, options);
 
         //controller
-        if (params.has("controller")) {
+        if (params.has("controller"))
+        {
             JSONObject controller = params.getJSONObject("controller");
 
             if (controller.has("clustering")) {
                 Boolean isClusteringEnabled = controller.getBoolean("clustering");
-                MapView m = new MapView(activity, options);
+
                 if (isClusteringEnabled)
                     this.mapCtrl = new GoogleMapsClusterController(m, controls, mPluginLayout.getContext());
                 else
@@ -589,10 +591,27 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                 Log.w(TAG, "Can not create MapController because there are no controller-information's.");
                 callbackContext.error("Can not create mapController. Add controller and clustering option to MapOptions.");
             }
-        }
-        else {
-            Log.w(TAG, "Can not create MapController because there are no controller-information's.");
-            callbackContext.error("Can not create mapController. Add controller option to MapOptions.");
+
+        } else {
+
+            this.mapCtrl = new GoogleMapsDefaultController(m, controls);
+            this.mapCtrl.setActivity(activity);
+
+            this.mapCtrl.getMap().setOnInfoWindowClickListener(this);
+            this.mapCtrl.getMap().setInfoWindowAdapter(this);
+
+            this.mapCtrl.getMap().setOnCameraChangeListener(this);
+            this.mapCtrl.getMap().setOnInfoWindowClickListener(this);
+            this.mapCtrl.getMap().setOnMapClickListener(this);
+            this.mapCtrl.getMap().setOnMapLoadedCallback(this);
+            this.mapCtrl.getMap().setOnMapLongClickListener(this);
+            this.mapCtrl.getMap().setOnMarkerClickListener(this);
+            this.mapCtrl.getMap().setOnMarkerDragListener(this);
+            this.mapCtrl.getMap().setOnMyLocationButtonClickListener(this);
+            this.mapCtrl.getMap().setOnIndoorStateChangeListener(this);
+
+            //Log.w(TAG, "Can not create MapController because there are no controller-information's.");
+            //callbackContext.error("Can not create mapController. Add controller option to MapOptions.");
         }
 
 
