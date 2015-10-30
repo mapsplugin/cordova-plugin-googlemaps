@@ -111,7 +111,12 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 					if(imagesCache.containsKey(url)) {
 						marker.setIcon(imagesCache.get(url));
 					} else {
+						// Add the size if coming
+						try {
+							bundle.putBundle("size", PluginUtil.Json2Bundle(props.getJSONObject("icon").getJSONObject("size")));
+						}catch( Exception e ){}
 
+						marker.setVisible(false);
 						PluginMarker.setIconResource(bundle, new PluginAsyncInterface() {
 
 							@Override
@@ -119,6 +124,8 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 								try {
 									imagesCache.put(url, (BitmapDescriptor) object);
 									marker.setIcon(imagesCache.get(url));
+
+									marker.setVisible(true);
 								} catch (Throwable t) {
 									t.printStackTrace();
 								}
