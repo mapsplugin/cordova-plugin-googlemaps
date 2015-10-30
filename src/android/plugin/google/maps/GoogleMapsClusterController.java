@@ -14,27 +14,45 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.apache.cordova.PluginEntry;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import plugin.google.maps.clustering.clustering.Cluster;
 import plugin.google.maps.clustering.clustering.ClusterManager;
 
 /**
  * Created by christian on 05.05.15.
  */
-public class GoogleMapsClusterController extends GoogleMapsControllerImpl {
+public class GoogleMapsClusterController extends GoogleMapsControllerImpl implements ClusterManager.OnClusterClickListener<ClusterItemEGM>,ClusterManager.OnClusterItemClickListener<ClusterItemEGM> {
 
 	private final String TAG = "GoogleMapsPlugin";
 
 	private ClusterManager clusterManager;
+
+	@Override
+	public boolean onClusterClick(Cluster<ClusterItemEGM> cluster) {
+		// Send ClusterClick
+		this.sendClusterEvent("cluster_click", cluster);
+
+		Log.d(TAG, "Location = " + cluster.getPosition());
+		this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.getPosition(), map.getCameraPosition().zoom + 1));
+
+		return true;
+	}
+
+	@Override
+	public boolean onClusterItemClick(ClusterItemEGM item) {
+		// Send ClusterItemClick
+		this.sendClusterItemEvent("click", item);
+
+		return false;
+	}
 
 	private enum TEXT_STYLE_ALIGNMENTS {
 		left, center, right
@@ -46,8 +64,17 @@ public class GoogleMapsClusterController extends GoogleMapsControllerImpl {
 		this.mapView.onResume();
 		this.setMap(mapView.getMap(), controls);
 		this.map.setPadding(-50, -50, -50, -50);
+
+		// Create ClusterManager
 		this.clusterManager = new ClusterManager(context, this.map);
+
+		// onResume/onPause replacement
+		this.map.setOnMarkerClickListener(this.clusterManager);
+
 		this.clusterManager.setRenderer(new CustomRendererEGM(context, this.map, clusterManager));
+
+		clusterManager.setOnClusterClickListener(this);
+		clusterManager.setOnClusterItemClickListener(this);
 	}
 
 	public Marker addItem(MarkerOptions options) {
@@ -73,6 +100,38 @@ public class GoogleMapsClusterController extends GoogleMapsControllerImpl {
 	public ClusterManager getClusterManager() {
 		return this.clusterManager;
 	}
+
+	private void sendClusterEvent(String eventName, Cluster<ClusterItemEGM> cluster) {
+		try {
+			// Prepare the information from cluster
+			JSONObject obj = new JSONObject();
+
+			obj.put("latitude", cluster.getPosition().latitude);
+			obj.put("longitude", cluster.getPosition().longitude);
+			obj.put("size", cluster.getSize());
+
+			String event = "javascript:plugin.google.maps.Map._onClusterEvent('" + eventName + "','" + obj.toString() + "')";
+
+			GoogleMaps.getInstance().webView.loadUrl(event);
+		} catch (Exception e) {}
+    }
+
+	private boolean sendClusterItemEvent(String eventName, ClusterItemEGM item) {
+		try {
+			int id = item.getOptions().hashCode();
+
+			String event = "javascript:plugin.google.maps.Map._onMarkerEvent('" + eventName + "','" + id + "')";
+
+			GoogleMaps.getInstance().webView.loadUrl(event);
+
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+
+			return false;
+		}
+	}
+	// End of Cluster Events
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
@@ -101,12 +160,6 @@ public class GoogleMapsClusterController extends GoogleMapsControllerImpl {
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-
-		if (marker.getTitle() == null) {
-			Log.d(TAG, "Location = " + marker.getPosition());
-			this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), map.getCameraPosition().zoom + 1));
-			return true;
-		}
 		return false;
 
 	}
