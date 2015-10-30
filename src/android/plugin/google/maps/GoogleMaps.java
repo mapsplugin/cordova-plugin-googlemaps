@@ -1793,7 +1793,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
     @Override
     public void onPause(boolean multitasking) {
-        if (mapCtrl.getMapView() != null) {
+        if (mapCtrl != null && mapCtrl.getMapView() != null) {
             mapCtrl.getMapView().onPause();
         }
         super.onPause(multitasking);
@@ -1801,7 +1801,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
     @Override
     public void onResume(boolean multitasking) {
-        if (mapCtrl.getMapView() != null) {
+        if (mapCtrl != null && mapCtrl.getMapView() != null) {
             mapCtrl.getMapView().onResume();
         }
         super.onResume(multitasking);
@@ -1809,7 +1809,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
 
     @Override
     public void onDestroy() {
-        if (mapCtrl.getMapView() != null) {
+        if (mapCtrl != null && mapCtrl.getMapView() != null) {
             mapCtrl.getMapView().onDestroy();
         }
         super.onDestroy();
@@ -1885,7 +1885,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                 } else if (isNumeric(widthString)) {
                     double widthDouble = Double.parseDouble(widthString);
                     
-                    if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
+                    if (widthDouble <= 1.0) {   // for percentage values (e.g. 0.5 = 50%).
                         width = (int)((double)mapCtrl.getMapView().getWidth() * (widthDouble));
                     } else {
                         width = (int)widthDouble;
@@ -1910,7 +1910,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                 } else if (isNumeric(widthString)) {
                     double widthDouble = Double.parseDouble(widthString);
                     
-                    if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
+                    if (widthDouble <= 1.0) {   // for percentage values (e.g. 0.5 = 50%).
                         maxWidth = (int)((double)mapCtrl.getMapView().getWidth() * (widthDouble));
                     } else {
                         maxWidth = (int)widthDouble;
@@ -2088,7 +2088,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
     @SuppressWarnings("unused")
     private void pluginLayer_setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
         boolean clickable = args.getBoolean(0);
-        if (mapCtrl.getMapView() != null && this.windowLayer == null) {
+        if (mapCtrl != null && mapCtrl.getMapView() != null && this.windowLayer == null) {
             this.mPluginLayout.setClickable(clickable);
             if (clickable == true) {
                 mapCtrl.cluster();
@@ -2127,7 +2127,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
     @SuppressWarnings("unused")
     private void pluginLayer_setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
         boolean debuggable = args.getBoolean(0);
-        if (mapCtrl.getMapView() != null && this.windowLayer == null) {
+        if (mapCtrl != null && mapCtrl.getMapView() != null && this.windowLayer == null) {
             this.mPluginLayout.setDebug(debuggable);
         }
         this.isDebug = debuggable;
@@ -2147,11 +2147,11 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
             this.mPluginLayout = null;
         }
         plugins.clear();
-        if (mapCtrl.getMap() != null) {
+        if (mapCtrl != null && mapCtrl.getMap() != null) {
             mapCtrl.getMap().setMyLocationEnabled(false);
             mapCtrl.getMap().clear();
         }
-        if (mapCtrl.getMapView() != null) {
+        if (mapCtrl != null && mapCtrl.getMapView() != null) {
             mapCtrl.getMapView().onDestroy();
         }
         //map = null;
