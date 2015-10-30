@@ -48,9 +48,9 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 	private HashMap<String, BitmapDescriptor> imagesCache = new HashMap<String, BitmapDescriptor>();
 
     private Context ctx;
-	private static final int MIN_CLUSTER_SIZE = 4;
+	private static final int MIN_CLUSTER_SIZE = 2;
 
-	private final int clusterdiameter = 40;
+	private final int clusterdiameter = 20;
 
 	public CustomRendererEGM(Context context, GoogleMap map, ClusterManager<ClusterItemEGM> clusterManager) {
 		super(context, map, clusterManager);
@@ -73,7 +73,7 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 		int dynamicDiameter = (int)mDensity * clusterdiameter;
 
 		clusterIconGenerator.setContentPadding(dynamicDiameter,dynamicDiameter,dynamicDiameter,dynamicDiameter);
-		clusterIconGenerator.setColor(Color.argb(255, 33, 165, 0));
+		clusterIconGenerator.setColor(Color.argb(255, 243, 146, 0));
 		iconBackground = BitmapDescriptorFactory.fromBitmap(clusterIconGenerator.makeIcon() );
 	}
 
@@ -186,7 +186,7 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 
 		mColoredCircleBackground = new ShapeDrawable(new OvalShape());
 		ShapeDrawable outline = new ShapeDrawable(new OvalShape());
-		outline.getPaint().setColor(Color.argb(51, 33, 165, 0));
+		outline.getPaint().setColor(Color.argb(30, 255, 255, 255));
 		outline.setPadding(clusterRadius, clusterRadius, clusterRadius, clusterRadius);
 		LayerDrawable background = new LayerDrawable(new Drawable[]{outline, mColoredCircleBackground});
 		int strokeWidth = (int) (mDensity * 10);
@@ -198,8 +198,9 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 		SquareTextView squareTextView = new SquareTextView(context);
 		ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		squareTextView.setLayoutParams(layoutParams);
-
 		squareTextView.setId(ctx.getResources().getIdentifier("text", "id", ctx.getPackageName()));
+  		squareTextView.setTextColor(Color.WHITE);
+
 		int twelveDpi = (int) (12 * mDensity);
 		squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
 		return squareTextView;
