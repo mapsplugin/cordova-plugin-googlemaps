@@ -114,7 +114,6 @@
         <source-file src="src/android/plugin/google/maps/clustering/ui/SquareTextView.java" target-dir="src/plugin/google/maps/clustering/ui" />
 
         <source-file src="src/android/plugin/google/maps/layout/cluster_icon.xml" target-dir="res/layout" />
-        <source-file src="src/android/plugin/google/maps/icons/cluster_icon.png" target-dir="res/drawable-hdpi" />
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
