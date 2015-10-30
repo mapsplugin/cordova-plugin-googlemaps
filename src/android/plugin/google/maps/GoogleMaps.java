@@ -331,6 +331,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
         this.sendNoResult(callbackContext);
     }
 
+    @SuppressWarnings("unused")
     private void syncMarkers(JSONArray args, final CallbackContext callbackContext) {
 
         final JSONArray result;

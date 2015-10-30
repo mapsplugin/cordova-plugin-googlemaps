@@ -82,15 +82,21 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
     public void setRenderer(ClusterRenderer<T> view) {
         mRenderer.setOnClusterClickListener(null);
         mRenderer.setOnClusterItemClickListener(null);
+        //--
         mClusterMarkers.clear();
         mMarkers.clear();
         mRenderer.onRemove();
+
+        // Set Renderer
         mRenderer = view;
         mRenderer.onAdd();
+
+        // Create Listeners
         mRenderer.setOnClusterClickListener(mOnClusterClickListener);
         mRenderer.setOnClusterInfoWindowClickListener(mOnClusterInfoWindowClickListener);
         mRenderer.setOnClusterItemClickListener(mOnClusterItemClickListener);
         mRenderer.setOnClusterItemInfoWindowClickListener(mOnClusterItemInfoWindowClickListener);
+
         cluster();
     }
 
@@ -201,13 +207,11 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-//        Log.d("GoogleMapsPlugin", "obj" + this.objects.size());
         return getMarkerManager().onMarkerClick(marker);
     }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Log.d("GoogleMapsPlugin", "onInfoWindowClick - ClusterManager.java: 192");
         getMarkerManager().onInfoWindowClick(marker);
     }
 

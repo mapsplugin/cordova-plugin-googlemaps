@@ -241,6 +241,8 @@ public class MarkerManager implements GoogleMap.OnInfoWindowClickListener, Googl
 
             result.put("rotation", options.getRotation());
 
+            result.put("id", options.hashCode());
+
             return result;
         }
 
@@ -253,13 +255,26 @@ public class MarkerManager implements GoogleMap.OnInfoWindowClickListener, Googl
             for (Marker marker : mMarkers) {
                 JSONObject obj = new JSONObject();
                 obj.put("hashCode", marker.hashCode());
-                obj.put("id", "marker_" + marker.getId());
-                obj.put("markerId", mMarkerProperties.get(marker.getId()).getInt("markerId"));
+
+                try {
+                    obj.put("id", marker.getId());
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    obj.put("markerId", mMarkerProperties.get(marker.getId()).getInt("markerId"));
+                } catch(Exception e) {}
+
                 obj.put("markerOptions", this.markerOptionsToJSONObject(mMarkerOptions.get(marker.getId())));
                 result.put(obj);
             }
 
             return result;
+        }
+
+        public MarkerOptions getMarkerOptions(Marker marker) {
+            return mMarkerOptions.get(marker.getId());
         }
 
         public JSONObject getMarkerProperties (String propertyId) {
