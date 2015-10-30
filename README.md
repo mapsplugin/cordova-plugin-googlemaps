@@ -15,7 +15,9 @@ Please consider to make a small donation. We spent many hours to make this a gre
 
 [![img](https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_cc_147x47.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLCBVUA7TQ8SU)
 
-Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the android part.
+Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the Android part.
+
+Currently funded: 0 $
 
 ###Quick install
 
