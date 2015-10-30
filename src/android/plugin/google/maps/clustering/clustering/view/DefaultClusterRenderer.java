@@ -7,12 +7,15 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -30,7 +33,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import plugin.google.maps.ClusterItemEGM;
 import plugin.google.maps.MyPlugin;
+import plugin.google.maps.PluginAsyncInterface;
+import plugin.google.maps.PluginMarker;
+import plugin.google.maps.PluginUtil;
 import plugin.google.maps.clustering.MarkerManager;
 import plugin.google.maps.clustering.clustering.Cluster;
 import plugin.google.maps.clustering.clustering.ClusterItem;
@@ -40,6 +52,7 @@ import plugin.google.maps.clustering.projection.SphericalMercatorProjection;
 import plugin.google.maps.clustering.ui.SquareTextView;
 import plugin.google.maps.clustering.ui.IconGenerator;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -625,6 +638,9 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
             mClusterToMarker.remove(cluster);
             mMarkerCache.remove(m);
             mMarkerToCluster.remove(m);
+
+            m.setIcon(BitmapDescriptorFactory.defaultMarker());
+
             mClusterManager.getMarkerManager().remove(m);
         }
 
@@ -703,7 +719,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     /**
      * Called before the marker for a ClusterItem is added to the map.
      */
-    protected void onBeforeClusterItemRendered(T item, MarkerOptions markerOptions) {
+    protected void onBeforeClusterItemRendered(T item, final MarkerOptions markerOptions) {
     }
 
     /**
@@ -731,7 +747,8 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     /**
      * Called after the marker for a ClusterItem has been added to the map.
      */
-    protected void onClusterItemRendered(T clusterItem, Marker marker) {
+    protected void onClusterItemRendered(T clusterItem, final Marker marker) {
+
     }
     
     /**
