@@ -44,6 +44,9 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 	private final float mDensity;
 	private BitmapDescriptor iconBackground;
 	private HashMap<String, BitmapDescriptor> clusterCache;
+
+	private HashMap<String, BitmapDescriptor> imagesCache = new HashMap<String, BitmapDescriptor>();
+
     private Context ctx;
 	private static final int MIN_CLUSTER_SIZE = 4;
 
@@ -75,8 +78,7 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 	}
 
 	@Override
-	protected void onBeforeClusterItemRendered(ClusterItemEGM item, MarkerOptions markerOptions) {
-
+	protected void onBeforeClusterItemRendered(ClusterItemEGM item, final MarkerOptions markerOptions) {
 		markerOptions.title(item.getOptions().getTitle());
 		markerOptions.snippet(item.getOptions().getSnippet());
 //		markerOptions.visible(item.getOptions().isVisible());
@@ -87,22 +89,52 @@ public class CustomRendererEGM extends DefaultClusterRenderer<ClusterItemEGM> /*
 		markerOptions.anchor(0.5f, 1f);
 
 		if (item.getProperties() != null) {
-			JSONObject props = item.getProperties();
-			if (props.has("icon")) {
-				try {
-					Object icon = props.get("icon");
-					markerOptions.icon(BitmapDescriptorFactory.fromBitmap((Bitmap) icon));
+			JSONObject properties = item.getProperties();
 
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
+
 		}
 	}
 
 	@Override
-	protected void onClusterItemRendered(ClusterItemEGM clusterItem, Marker marker) {
+	protected void onClusterItemRendered(ClusterItemEGM clusterItem, final Marker marker) {
 		super.onClusterItemRendered(clusterItem, marker);
+
+		if (clusterItem.getProperties() != null) {
+			JSONObject props = clusterItem.getProperties();
+
+			if (props.has("icon")) {
+				try {
+					final String url = props.optJSONObject("icon").getString("url");
+					final Bundle bundle = new Bundle();
+					bundle.putString("url", url);
+
+					if(imagesCache.containsKey(url)) {
+						marker.setIcon(imagesCache.get(url));
+					} else {
+
+						PluginMarker.setIconResource(bundle, new PluginAsyncInterface() {
+
+							@Override
+							public void onPostExecute(Object object) {
+								try {
+									imagesCache.put(url, (BitmapDescriptor) object);
+									marker.setIcon(imagesCache.get(url));
+								} catch (Throwable t) {
+									t.printStackTrace();
+								}
+							}
+
+							@Override
+							public void onError(String errorMsg) {
+							}
+
+						});
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
 		String id = "marker_" + marker.getId();
 		if (mClusterManager.getMarkerCollection().getMarkerProperties("marker_property_" + marker.getId()) == null) {

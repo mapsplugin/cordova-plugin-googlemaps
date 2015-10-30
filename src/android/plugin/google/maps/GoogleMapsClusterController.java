@@ -51,6 +51,14 @@ public class GoogleMapsClusterController extends GoogleMapsControllerImpl implem
 		// Send ClusterItemClick
 		this.sendClusterItemEvent("click", item);
 
+		JSONObject props = item.getProperties();
+
+		if (props.has("disableAutoPan")) {
+			try {
+				return props.getBoolean("disableAutoPan");
+			} catch (JSONException e) {}
+		}
+
 		return false;
 	}
 

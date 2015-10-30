@@ -33,6 +33,7 @@ public class MarkerManager implements GoogleMap.OnInfoWindowClickListener, Googl
     private final Map<String, Collection> mNamedCollections = new HashMap<String, Collection>();
     private final Map<Marker, Collection> mAllMarkers = new HashMap<Marker, Collection>();
 
+    private final Map<Integer, Marker> markersCache = new HashMap<Integer, Marker>();
 
     public MarkerManager(GoogleMap map) {
         this.mMap = map;
@@ -167,8 +168,10 @@ public class MarkerManager implements GoogleMap.OnInfoWindowClickListener, Googl
 
         public Marker addMarker(MarkerOptions opts) {
             Marker marker = mMap.addMarker(opts);
+
             mMarkers.add(marker);
             mAllMarkers.put(marker, Collection.this);
+
             return marker;
         }
 
@@ -180,7 +183,9 @@ public class MarkerManager implements GoogleMap.OnInfoWindowClickListener, Googl
                 mMarkerProperties.remove(marker.getId());
                 mMarkerOptions.remove(marker.getId());
 
-                marker.remove();
+                marker.setVisible(false);
+
+                //marker.remove();
                 return true;
             }
             return false;
