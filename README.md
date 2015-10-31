@@ -17,7 +17,7 @@ Please consider to make a small donation. We spent many hours to make this a gre
 
 Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the Android part.
 
-Currently funded: 0 $
+Currently funded: 10 $
 
 ###Quick install
 
