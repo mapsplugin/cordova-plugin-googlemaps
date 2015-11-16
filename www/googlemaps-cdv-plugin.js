@@ -371,9 +371,29 @@ App.prototype.getLicenseInfo = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
 };
 
+App.prototype.getZoom = function(){
+  var self = this;
+  self.getCameraPosition(function(camera){
+    return camera.zoom;
+  });
+};
+
+App.prototype.getTilt = function(){
+  var self = this;
+  self.getCameraPosition(function(camera){
+    return camera.tilt;
+  });
+};
+
+App.prototype.getBearing = function(){
+  var self = this;
+  self.getCameraPosition(function(camera){
+    return camera.bearing;
+  });
+};
 
 /**
- * @desc Set watchDogTimer for map positioning changes
+ * @desc get watchDogTimer value for map positioning changes
  */
 App.prototype.getWatchDogTimer = function() {
   var self = this;
@@ -464,14 +484,27 @@ App.prototype.setTilt = function(tilt) {
  * @params {Function} [callback] This callback is involved when the animation is completed.
  */
 App.prototype.animateCamera = function(cameraPosition, callback) {
-  if (cameraPosition.target &&
-      cameraPosition.target.type === "LatLngBounds") {
-      cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
-    }
+  var self = this;
+  if (cameraPosition.target && cameraPosition.target.type === "LatLngBounds") 
+  {
+    cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
+  }
 
-    var self = this;
-    cordova.exec(function() {
-      if (typeof callback === "function") {
+  if(!cameraPosition.hasOwnProperty('zoom')) {
+    cameraPosition.zoom = self.getZoom();
+  }
+
+  if(!cameraPosition.hasOwnProperty('tilt')) {
+    cameraPosition.tilt = self.getTilt();
+  }
+  
+  if(!cameraPosition.hasOwnProperty('bearing')) {
+    cameraPosition.bearing = self.getBearing();
+  }
+
+  var self = this;
+  cordova.exec(function() {
+    if (typeof callback === "function") {
       callback.call(self);
     }
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', cameraPosition]);
