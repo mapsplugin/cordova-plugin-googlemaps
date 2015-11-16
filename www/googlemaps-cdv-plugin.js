@@ -471,23 +471,33 @@ App.prototype.animateCamera = function(cameraPosition, callback) {
   }
 
   if(!cameraPosition.hasOwnProperty('zoom')) {
-    cameraPosition.zoom = self.getZoom();
+    self.getZoom(function(zoom){
+      cameraPosition.zoom = zoom;
+    });
   }
 
   if(!cameraPosition.hasOwnProperty('tilt')) {
-    cameraPosition.tilt = self.getTilt();
+    self.getTilt(function(tilt){
+      cameraPosition.tilt = tilt;
+    });
   }
   
   if(!cameraPosition.hasOwnProperty('bearing')) {
-    cameraPosition.bearing = self.getBearing();
+    self.getBearing(function(bearing){
+      cameraPosition.bearing = bearing;
+    });
   }
 
   var self = this;
-  cordova.exec(function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', cameraPosition]);
+  setTimeout(function(){
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback.call(self);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', cameraPosition]);
+  }.bind(self), 10);
+
+
 };
 /**
  * @desc   Move the map camera without animation
@@ -502,22 +512,31 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
   var self = this;
 
   if(!cameraPosition.hasOwnProperty('zoom')) {
-    cameraPosition.zoom = self.getZoom();
+    self.getZoom(function(zoom){
+      cameraPosition.zoom = zoom;
+    });
   }
 
   if(!cameraPosition.hasOwnProperty('tilt')) {
-    cameraPosition.tilt = self.getTilt();
+    self.getTilt(function(tilt){
+      cameraPosition.tilt = tilt;
+    });
   }
   
   if(!cameraPosition.hasOwnProperty('bearing')) {
-    cameraPosition.bearing = self.getBearing();
+    self.getBearing(function(bearing){
+      cameraPosition.bearing = bearing;
+    });
   }
 
-  cordova.exec(function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
+  setTimeout(function(){
+    cordova.exec(function() {
+      if (typeof callback === "function") {
+        callback.call(self);
+      }
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
+  }.bind(self), 10);
+
 };
 
 App.prototype.setMyLocationEnabled = function(enabled) {
@@ -612,25 +631,31 @@ App.prototype.getCameraPosition = function(callback) {
 };
 
 
-App.prototype.getZoom = function(){
+App.prototype.getZoom = function(callback) {
   var self = this;
-  App.prototype.getCameraPosition(function(camera){
-    return camera.zoom;
-  });
+  cordova.exec(function(camera) {
+    if (typeof callback === "function") {
+      callback.call(self, camera.zoom);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
 };
 
-App.prototype.getTilt = function(){
+App.prototype.getTilt = function(callback) {
   var self = this;
-  self.getCameraPosition(function(camera){
-    return camera.tilt;
-  });
+  cordova.exec(function(camera) {
+    if (typeof callback === "function") {
+      callback.call(self, camera.tilt);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
 };
 
-App.prototype.getBearing = function(){
+App.prototype.getBearing = function(callback) {
   var self = this;
-  self.getCameraPosition(function(camera){
-    return camera.bearing;
-  });
+  cordova.exec(function(camera) {
+    if (typeof callback === "function") {
+      callback.call(self, camera.bearing);
+    }
+  }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
 };
 
 /**
