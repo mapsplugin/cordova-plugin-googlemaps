@@ -520,6 +520,19 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
     cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
   }
   var self = this;
+
+  if(!cameraPosition.hasOwnProperty('zoom')) {
+    cameraPosition.zoom = self.getZoom();
+  }
+
+  if(!cameraPosition.hasOwnProperty('tilt')) {
+    cameraPosition.tilt = self.getTilt();
+  }
+  
+  if(!cameraPosition.hasOwnProperty('bearing')) {
+    cameraPosition.bearing = self.getBearing();
+  }
+  
   cordova.exec(function() {
     if (typeof callback === "function") {
       callback.call(self);
