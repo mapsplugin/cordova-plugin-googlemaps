@@ -371,26 +371,6 @@ App.prototype.getLicenseInfo = function(callback) {
   }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
 };
 
-App.prototype.getZoom = function(){
-  var self = this;
-  self.getCameraPosition(function(camera){
-    return camera.zoom;
-  });
-};
-
-App.prototype.getTilt = function(){
-  var self = this;
-  self.getCameraPosition(function(camera){
-    return camera.tilt;
-  });
-};
-
-App.prototype.getBearing = function(){
-  var self = this;
-  self.getCameraPosition(function(camera){
-    return camera.bearing;
-  });
-};
 
 /**
  * @desc get watchDogTimer value for map positioning changes
@@ -532,7 +512,7 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
   if(!cameraPosition.hasOwnProperty('bearing')) {
     cameraPosition.bearing = self.getBearing();
   }
-  
+
   cordova.exec(function() {
     if (typeof callback === "function") {
       callback.call(self);
@@ -629,6 +609,28 @@ App.prototype.getCameraPosition = function(callback) {
       callback.call(self, camera);
     }
   }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
+};
+
+
+App.prototype.getZoom = function(){
+  var self = this;
+  self.getCameraPosition(function(camera){
+    return camera.zoom;
+  });
+};
+
+App.prototype.getTilt = function(){
+  var self = this;
+  self.getCameraPosition(function(camera){
+    return camera.tilt;
+  });
+};
+
+App.prototype.getBearing = function(){
+  var self = this;
+  self.getCameraPosition(function(camera){
+    return camera.bearing;
+  });
 };
 
 /**
