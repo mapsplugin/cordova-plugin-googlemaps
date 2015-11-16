@@ -614,7 +614,7 @@ App.prototype.getCameraPosition = function(callback) {
 
 App.prototype.getZoom = function(){
   var self = this;
-  self.getCameraPosition(function(camera){
+  App.prototype.getCameraPosition(function(camera){
     return camera.zoom;
   });
 };
