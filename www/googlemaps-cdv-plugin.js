@@ -1054,7 +1054,6 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
   polylineOptions.zIndex = polylineOptions.zIndex || 4;
   polylineOptions.geodesic = polylineOptions.geodesic || false;
-  console.log("color = " + polylineOptions.color.join(", "));
 
   cordova.exec(function(result) {
     var polyline = new Polyline(self, result.id, polylineOptions);
