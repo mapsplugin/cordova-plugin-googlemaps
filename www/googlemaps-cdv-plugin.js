@@ -279,6 +279,7 @@ App.prototype.getMap = function(div, params) {
   if (!isDom(div)) {
     params = div;
     params = params || {};
+    params.backgroundColor = params.backgroundColor || '#ffffff';
     params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
   } else {
@@ -312,6 +313,7 @@ App.prototype.getMap = function(div, params) {
 
     var children = getAllChildren(div);
     params = params || {};
+    params.backgroundColor = params.backgroundColor || '#ffffff';
     params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
     args.push(params);
 
@@ -411,7 +413,9 @@ App.prototype.closeDialog = function() {
 
 App.prototype.setOptions = function(options) {
   options = options || {};
-  options.backgroundColor = HTMLColor2RGBA(options.backgroundColor);
+  if(options.hasOwnProperty('backgroundColor')) {
+    options.backgroundColor = HTMLColor2RGBA(options.backgroundColor);
+  }
   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', options]);
 };
 
