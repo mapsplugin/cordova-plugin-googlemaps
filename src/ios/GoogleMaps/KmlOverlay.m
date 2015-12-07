@@ -68,7 +68,6 @@
     }
 
 
-    NSURL *isUrl = [NSURL URLWithString:urlStr];
     if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
         NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
         bool valid = [NSURLConnection canHandleRequest:req];
@@ -85,10 +84,6 @@
     } else {
 
         tbxml = [tbxml initWithXMLFile:urlStr error:&error];
-
-
-
-
 
     }
 
