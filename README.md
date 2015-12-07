@@ -22,7 +22,7 @@ Before I release the clustering feature, I want to raise a funding of 1000$. I w
 **Plugin is finally available on npm**<br>
 Before you install, make sure you've read the [instructions](https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps/wiki/Installation)
 
-*npm (current stable 1.3.6)*
+*npm (current stable 1.3.7)*
 ```bash
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
