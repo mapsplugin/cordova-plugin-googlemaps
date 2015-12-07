@@ -56,7 +56,12 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     if (opts.has("zIndex")) {
       polygonOptions.zIndex(opts.getInt("zIndex"));
     }
-    
+    if (opts.has("addHole")) {
+      JSONArray points = opts.getJSONArray("addHole");
+      List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
+      polygonOptions.addHole(path);
+    }
+
     Polygon polygon = map.addPolygon(polygonOptions);
     String id = "polygon_"+ polygon.getId();
     this.objects.put(id, polygon);
