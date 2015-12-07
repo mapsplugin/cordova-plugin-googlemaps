@@ -52,7 +52,7 @@ public class MyPluginLayout extends FrameLayout  {
     this.root = (ViewGroup) view.getParent();
     this.context = view.getContext();
     view.setBackgroundColor(Color.TRANSPARENT);
-    if (VERSION.SDK_INT >= 21) {
+    if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())) {
       view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
     }
     frontLayer = new FrontLayerLayout(this.context);

@@ -204,7 +204,7 @@ OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter 
                  e.printStackTrace();
                  }
                  */
-                if (Build.VERSION.SDK_INT >= 21){
+                if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())){
                     view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                 }
 
