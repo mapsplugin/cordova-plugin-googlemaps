@@ -32,6 +32,17 @@ $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="
 $> cordova plugin add https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
 
+If you re-install the plugin, please always remove the plugin first, then remove the SDK
+
+```bash
+$> cordova plugin rm plugin.google.maps
+$> cordova plugin rm com.googlemaps.ios
+$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
+```
+
+The SDK-Plugin won't be uninstalled automatically and you will stuck on an old version.
+
+
 ###Last release information
 
 **v.1.3.6 - 07/12/2015**
