@@ -34,7 +34,15 @@ $> cordova plugin add https://github.com/phonegap-googlemaps-plugin/cordova-plug
 
 ###Last release information
 
-**v.1.3.4 - 15/10/2015**
+**v.1.3.6 - 07/12/2015**
+- Fixed some small bugs
+- Updated Google Maps SDK for iOS to 1.10.4
+ - Will fix some a lot of bugs on iOS 9
+ - with BITCODE support
+ - fixed some blank map problems
+
+
+**v.1.3.4 - 10/15/2015**
 
 - Updated Google Maps SDK for iOS to 1.10.4
  - Will fix some bugs on iOS 9
