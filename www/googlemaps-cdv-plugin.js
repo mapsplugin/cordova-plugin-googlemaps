@@ -1083,7 +1083,6 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
     polygonOptions.zIndex = polygonOptions.zIndex || 2;
     polygonOptions.geodesic = polygonOptions.geodesic || false;
-    polygonOptions.addHole = polygonOptions.addHole || [];
 
     cordova.exec(function(result) {
         var polygon = new Polygon(self, result.id, polygonOptions);
