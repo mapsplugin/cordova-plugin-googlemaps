@@ -59,7 +59,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         if (opts.has("addHole")) {
             JSONArray points = opts.getJSONArray("addHole");
             List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-            polygonOptions.addHole(path);
+            if(path.size() > 0) {
+                polygonOptions.addHole(path);
+            }
         }
 
         Polygon polygon = map.addPolygon(polygonOptions);

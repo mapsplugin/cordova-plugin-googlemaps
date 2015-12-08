@@ -982,7 +982,7 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.draggable = markerOptions.draggable || false;
     markerOptions.icon = markerOptions.icon || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
-    markerOptions.title = String(markerOptions.title) || undefined;
+    markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
     markerOptions.flat = markerOptions.flat || false;
     markerOptions.rotation = markerOptions.rotation || 0;
@@ -2072,6 +2072,9 @@ function isHTMLColorString(inputValue) {
 
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
+    if(colorValue instanceof Array) {
+        return colorValue;
+    }
     if (colorValue === "transparent" || !colorValue) {
         return [0, 0, 0, 0];
     }
