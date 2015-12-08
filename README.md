@@ -11,20 +11,18 @@ Join our online chat at<br>
 ###Donation
 Please consider to make a small donation. We spent many hours to make this a great plugin, we even pay other developers to contribute new functions. In order to keep up the motivation, we ask for your help, too. Thanks!
 
-[Donate on Bountysource](https://www.bountysource.com/teams/cordova-plugin-googlemaps)
-
 [![img](https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_cc_147x47.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLCBVUA7TQ8SU)
 
 Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the Android part.
 
-**Currently funded**: 20 $
+**Currently funded**: 50 $
 
 ###Quick install
 
 **Plugin is finally available on npm**<br>
 Before you install, make sure you've read the [instructions](https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps/wiki/Installation)
 
-*npm (current stable 1.3.4)*
+*npm (current stable 1.3.7)*
 ```bash
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
@@ -34,9 +32,28 @@ $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="
 $> cordova plugin add https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
 
+If you re-install the plugin, please always remove the plugin first, then remove the SDK
+
+```bash
+$> cordova plugin rm plugin.google.maps
+$> cordova plugin rm com.googlemaps.ios
+$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
+```
+
+The SDK-Plugin won't be uninstalled automatically and you will stuck on an old version.
+
+
 ###Last release information
 
-**v.1.3.4 - 15/10/2015**
+**v.1.3.6 - 07/12/2015**
+- Fixed some small bugs
+- Updated Google Maps SDK for iOS to 1.11.0
+ - Will fix some bugs on iOS 9
+ - with BITCODE support
+ - fixed blank map problems
+
+
+**v.1.3.4 - 10/15/2015**
 
 - Updated Google Maps SDK for iOS to 1.10.4
  - Will fix some bugs on iOS 9
