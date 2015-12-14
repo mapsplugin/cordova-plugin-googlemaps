@@ -190,7 +190,7 @@ public class PluginMap extends MyPlugin {
    */
   private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     
-    int durationMS = 4000;
+    int durationMS = 1000;
     CameraPosition.Builder builder = CameraPosition.builder();
     JSONObject cameraPos = args.getJSONObject(1);
     if (cameraPos.has("tilt")) {
