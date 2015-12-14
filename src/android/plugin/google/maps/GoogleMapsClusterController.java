@@ -41,7 +41,7 @@ public class GoogleMapsClusterController extends GoogleMapsControllerImpl implem
 		this.sendClusterEvent("cluster_click", cluster);
 
 		Log.d(TAG, "Location = " + cluster.getPosition());
-		this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.getPosition(), map.getCameraPosition().zoom + 1));
+		this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.getPosition(), map.getCameraPosition().zoom + 2));
 
 		return true;
 	}
