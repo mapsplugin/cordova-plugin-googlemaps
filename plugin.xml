@@ -129,7 +129,6 @@
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
             <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
             <!-- The following two permissions are not required to use
                  Google Maps Android API v2, but are recommended. -->
