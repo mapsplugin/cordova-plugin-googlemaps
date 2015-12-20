@@ -1826,6 +1826,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
         if (maxWidth > 0) {
           imageView.setMaxWidth(maxWidth);
+          imageView.setAdjustViewBounds(true);
         }
 
         windowLayer.addView(imageView);
