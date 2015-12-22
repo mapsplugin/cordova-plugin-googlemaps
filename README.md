@@ -15,7 +15,7 @@ Please consider to make a small donation. We spent many hours to make this a gre
 
 Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the Android part.
 
-**Currently funded**: 50 $
+**Currently funded**: 65 $
 
 ###Quick install
 
@@ -42,6 +42,8 @@ $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="
 
 The SDK-Plugin won't be uninstalled automatically and you will stuck on an old version.
 
+###WARNING
+This plugin is not compatible with Cordova-iOS 4.0.0. WKWebView is not supported. They have been huge changes in the API, and due to lack of time, there is no ETA when this plugin will be compatible. PRs are welcome!!
 
 ###Last release information
 
