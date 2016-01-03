@@ -62,35 +62,6 @@ I recommend to set settings for Crosswalk to 15+ and remove android-platform and
  - fixed blank map problems
 
 
-**v.1.3.4 - 10/15/2015**
-
-- Updated Google Maps SDK for iOS to 1.10.4
- - Will fix some bugs on iOS 9
-
-**v.1.3.3**
-
-**Added**
-
-- added zIndex (iOS only, not available for Android)
- - [659](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659)
-
-```js
-map.addMarker({
-    zIndex: int
-})
-// and
-marker.setZIndex()
-```
-
-**Fixed**
-- Status-Bar Shift-Down
- - [657](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/657#issuecomment-146036169)
-- Temp Dom-not-updated fix
- - [658](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/658)
-- Stabilized iOS loading
- - [623](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/623)
-
-
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
 
 ###Documentation
