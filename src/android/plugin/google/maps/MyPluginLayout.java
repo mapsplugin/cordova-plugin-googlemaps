@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,7 +52,6 @@ public class MyPluginLayout extends FrameLayout  {
     this.view = view;
     this.root = (ViewGroup) view.getParent();
     this.context = view.getContext();
-    view.setBackgroundColor(Color.TRANSPARENT);
     if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())) {
       view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
     }
@@ -193,6 +193,18 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void attachMyView(ViewGroup pluginView) {
+    view.setBackgroundColor(Color.TRANSPARENT);
+    if("org.xwalk.core.XWalkView".equals(view.getClass().getName())
+        || "org.crosswalk.engine.XWalkCordovaView".equals(view.getClass().getName())) {
+      try {
+        /* view.setZOrderOnTop(true)
+         * Called just in time as with root.setBackground(...) the color
+         * come in front and take the whoel screen */
+        view.getClass().getMethod("setZOrderOnTop", boolean.class)
+          .invoke(view, true);
+      }
+      catch(Exception e) {}
+    }
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
     

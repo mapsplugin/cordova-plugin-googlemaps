@@ -1356,10 +1356,6 @@ Marker.prototype.getParams = function() {
 };
 Marker.prototype.setOpacity = function(opacity) {
     if (!opacity) {
-        return false;
-    }
-    var m = opacity.match(/^\d{0,2}(?:\.\d{0,2}){0,1}$/);
-    if (!m) {
         console.log('opacity value must be int or double');
         return false;
     }
@@ -1811,6 +1807,10 @@ TileOverlay.prototype.getOpacity = function() {
     return this.get('opacity');
 };
 TileOverlay.prototype.setOpacity = function(opacity) {
+    if (!opacity) {
+        console.log('opacity value must be int or double');
+        return false;
+    }
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
 };
@@ -1903,6 +1903,10 @@ GroundOverlay.prototype.getBearing = function() {
 };
 
 GroundOverlay.prototype.setOpacity = function(opacity) {
+    if (!opacity) {
+        console.log('opacity value must be int or double');
+        return false;
+    }
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), opacity]);
 };

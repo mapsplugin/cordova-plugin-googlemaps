@@ -15,14 +15,14 @@ Please consider to make a small donation. We spent many hours to make this a gre
 
 Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the Android part.
 
-**Currently funded**: 65 $
+**Currently funded**: 70 $
 
 ###Quick install
 
 **Plugin is finally available on npm**<br>
 Before you install, make sure you've read the [instructions](https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps/wiki/Installation)
 
-*npm (current stable 1.3.7)*
+*npm (current stable 1.3.9)*
 ```bash
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
@@ -47,41 +47,22 @@ This plugin is not compatible with Cordova-iOS 4.0.0. WKWebView is not supported
 
 ###Last release information
 
+**v.1.3.9 - 04/01/2016**
+Happy new year!
+- Fixed a few bugs with Crosswalk, White-Screen Problems.
+- Added "maxAddressLines" for Geocoder (Android, iOS  had it already). Check "lines" inside of the extras array.
+- Updated Google Maps SDK for iOS to 1.11.1
+
+Please check the new [Tutorial for Crosswalk](https://github.com/phonegap-googlemaps-plugin/cordova-plugin-googlemaps/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
+
+I recommend to set settings for Crosswalk to 15+ and remove android-platform (`cordova platform rm android`) and re-install it. No patches required anymore to run with crosswalk. It also has some nice performance boosts, as setting translucent isn't required anymore. (in my test-cases)
+
 **v.1.3.6 - 07/12/2015**
 - Fixed some small bugs
 - Updated Google Maps SDK for iOS to 1.11.0
  - Will fix some bugs on iOS 9
  - with BITCODE support
  - fixed blank map problems
-
-
-**v.1.3.4 - 10/15/2015**
-
-- Updated Google Maps SDK for iOS to 1.10.4
- - Will fix some bugs on iOS 9
-
-**v.1.3.3**
-
-**Added**
-
-- added zIndex (iOS only, not available for Android)
- - [659](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/659)
-
-```js
-map.addMarker({
-    zIndex: int
-})
-// and
-marker.setZIndex()
-```
-
-**Fixed**
-- Status-Bar Shift-Down
- - [657](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/657#issuecomment-146036169)
-- Temp Dom-not-updated fix
- - [658](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/658)
-- Stabilized iOS loading
- - [623](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/issues/623)
 
 
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
