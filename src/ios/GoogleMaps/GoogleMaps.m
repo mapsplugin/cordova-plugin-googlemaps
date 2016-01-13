@@ -12,6 +12,9 @@
 
 - (void)pluginInitialize
 {
+#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
+#endif
     self.licenseLayer = nil;
     self.mapCtrl.isFullScreen = YES;
     self.locationCommandQueue = [[NSMutableArray alloc] init];
@@ -46,8 +49,7 @@
     }
     
     [self.viewController.view addSubview:self.pluginLayer];
-    
-    
+
     
     NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
     if (APIKey == nil) {
@@ -134,6 +136,11 @@
     [self.pluginScrollView.debugView setNeedsDisplay];
 }
 
+-(void)pageDidLoad {
+	self.webView.backgroundColor = [UIColor clearColor];
+	self.webView.opaque = NO;
+}
+
 /**
  * Intialize the map
  */
@@ -173,7 +180,11 @@
         
         
         // Create an instance of Map Class
+#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
+		Map *mapClass = [(CDVViewController*)self.viewController getCommandInstance:@"Map"];
+#else
         Map *mapClass = [[NSClassFromString(@"Map")alloc] initWithWebView:self.webView];
+#endif
         mapClass.commandDelegate = self.commandDelegate;
         [mapClass setGoogleMapsViewController:self.mapCtrl];
         [self.mapCtrl.plugins setObject:mapClass forKey:@"Map"];
@@ -242,7 +253,11 @@
             
             pluginClass = [self.mapCtrl.plugins objectForKey:className];
             if (!pluginClass) {
-                pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
+#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
+				pluginClass = [(CDVViewController*)self.viewController getCommandInstance:className];
+#else
+				pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
+#endif
                 if (pluginClass) {
                     pluginClass.commandDelegate = self.commandDelegate;
                     [pluginClass setGoogleMapsViewController:self.mapCtrl];
@@ -318,7 +333,11 @@
      */
     //Notify to the JS
     NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('map_close');"];
-    [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 /**

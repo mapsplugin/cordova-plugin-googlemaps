@@ -19,6 +19,19 @@ var BaseClass = function() {
         }
     };
 
+	self.deleteFromObject = function(object, type) {
+		if (object === null) return object;
+		for(var index in Object.keys(object)) {
+			var key = Object.keys(object)[index];
+			if (typeof object[key] === 'object') {
+			   object[key] = self.deleteFromObject(object[key], type);
+			} else if (typeof object[key] === type) {
+			   delete object[key];
+			}
+		}
+		return object;
+	};
+
     self.get = function(key) {
         return key in _vars ? _vars[key] : null;
     };
@@ -361,7 +374,7 @@ App.prototype.getMap = function(div, params) {
             self.refreshLayout();
             self.trigger(plugin.google.maps.event.MAP_READY, self);
         }, 100);
-    }, self.errorHandler, PLUGIN_NAME, 'getMap', args);
+    }, self.errorHandler, PLUGIN_NAME, 'getMap', self.deleteFromObject(args,'function'));
     return self;
 };
 
@@ -416,7 +429,7 @@ App.prototype.setOptions = function(options) {
     if (options.hasOwnProperty('backgroundColor')) {
         options.backgroundColor = HTMLColor2RGBA(options.backgroundColor);
     }
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', options]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', this.deleteFromObject(options,'function')]);
 };
 
 App.prototype.setCenter = function(latLng) {
@@ -497,7 +510,7 @@ App.prototype.animateCamera = function(cameraPosition, callback) {
             if (typeof callback === "function") {
                 callback.call(self);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', cameraPosition]);
+        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', self.deleteFromObject(cameraPosition,'function')]);
     }.bind(self), 10);
 
 
@@ -537,7 +550,7 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
             if (typeof callback === "function") {
                 callback.call(self);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', cameraPosition]);
+        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', self.deleteFromObject(cameraPosition,'function')]);
     }.bind(self), 10);
 
 };
@@ -581,7 +594,7 @@ App.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', [params]);
+    cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', [self.deleteFromObject(params,'function')]);
 };
 App.prototype.getFocusedBuilding = function(callback) {
     var self = this;
@@ -720,13 +733,13 @@ App.prototype.refreshLayout = function() {
 
 App.prototype.isAvailable = function(callback) {
     var self = this;
-    
+
     /*
     var tmpmap = plugin.google.maps.Map.getMap(document.createElement("div"), {});
     tmpmap.remove();
     tmpmap = null;
     */
-    
+
     cordova.exec(function() {
         if (typeof callback === "function") {
             callback.call(self, true);
@@ -870,7 +883,7 @@ App.prototype.setDiv = function(div) {
             self.set("keepWatching", true);
         }, 1000);
     }
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', args);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', self.deleteFromObject(args,'function'));
 };
 
 /**
@@ -1018,7 +1031,7 @@ App.prototype.addMarker = function(markerOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, marker, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', markerOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Marker.createMarker', self.deleteFromObject(markerOptions,'function')]);
 };
 
 
@@ -1046,7 +1059,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, circle, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', circleOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', self.deleteFromObject(circleOptions,'function')]);
 };
 //-------------
 // Polyline
@@ -1069,7 +1082,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, polyline, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', polylineOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.createPolyline', self.deleteFromObject(polylineOptions,'function')]);
 };
 //-------------
 // Polygon
@@ -1096,7 +1109,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, polygon, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', polygonOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.createPolygon', self.deleteFromObject(polygonOptions,'function')]);
 };
 
 //-------------
@@ -1125,7 +1138,7 @@ App.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, tileOverlay, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.createTileOverlay', tilelayerOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.createTileOverlay', self.deleteFromObject(tilelayerOptions,'function')]);
 };
 //-------------
 // Ground overlay
@@ -1147,7 +1160,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, groundOverlay, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', groundOverlayOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', self.deleteFromObject(groundOverlayOptions,'function')]);
 
 };
 
@@ -1172,7 +1185,7 @@ App.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, kmlOverlay, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.createKmlOverlay', kmlOverlayOptions]);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['KmlOverlay.createKmlOverlay', self.deleteFromObject(kmlOverlayOptions,'function')]);
 
 };
 //-------------
@@ -1332,7 +1345,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnimation', this.getId(), animation]);
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setAnimation', this.getId(), self.deleteFromObject(animation,'function')]);
 };
 
 Marker.prototype.remove = function(callback) {

@@ -97,7 +97,26 @@
 
     range = [urlStr rangeOfString:@"./"];
     if (range.location != NSNotFound) {
-        NSString *currentPath = [self.webView.request.URL absoluteString];
+		SEL requestSelector = NSSelectorFromString(@"request");
+		SEL urlSelector = NSSelectorFromString(@"URL");
+		NSString *currentPath = @"";
+		if ([self.webView respondsToSelector:requestSelector]) {
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
+			[invocation setSelector:requestSelector];
+			[invocation setTarget:self.webView];
+			[invocation invoke];
+			NSURLRequest *request;
+			[invocation getReturnValue:&request];
+			currentPath = [request.URL absoluteString];
+		} else if ([self.webView respondsToSelector:urlSelector]) {
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
+			[invocation setSelector:urlSelector];
+			[invocation setTarget:self.webView];
+			[invocation invoke];
+			NSURL *URL;
+			[invocation getReturnValue:&URL];
+			currentPath = [URL absoluteString];
+		}
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
         currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
         urlStr = [urlStr stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
