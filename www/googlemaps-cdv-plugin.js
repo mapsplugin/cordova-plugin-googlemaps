@@ -78,12 +78,15 @@ var BaseClass = function() {
                 }
             }
         } else {
-            //Remove all event listeners
+            //Remove all event listeners except 'keepWatching_changed'
             var eventNames = Object.keys(_listeners);
             for (i = 0; i < eventNames.length; i++) {
                 eventName = eventNames[i];
-                for (var j = 0; j < _listeners[eventName].length; j++) {
-                    document.removeEventListener(eventName, _listeners[eventName][j].listener);
+                if ( eventName !== 'keepWatching_changed' ) {
+                    for (var j = 0; j < _listeners[eventName].length; j++) {
+                        document.removeEventListener(eventName, _listeners[eventName][j].listener);
+                    }
+                    delete _listeners[eventName];
                 }
             }
             _listeners = {};
