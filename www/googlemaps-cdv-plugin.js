@@ -1358,7 +1358,7 @@ Marker.prototype.getParams = function() {
     return this.get('params');
 };
 Marker.prototype.setOpacity = function(opacity) {
-    if (!opacity) {
+    if (!opacity && opacity !== 0) {
         console.log('opacity value must be int or double');
         return false;
     }
@@ -1810,7 +1810,7 @@ TileOverlay.prototype.getOpacity = function() {
     return this.get('opacity');
 };
 TileOverlay.prototype.setOpacity = function(opacity) {
-    if (!opacity) {
+    if (!opacity && opacity !== 0) {
         console.log('opacity value must be int or double');
         return false;
     }
@@ -1906,7 +1906,7 @@ GroundOverlay.prototype.getBearing = function() {
 };
 
 GroundOverlay.prototype.setOpacity = function(opacity) {
-    if (!opacity) {
+    if (!opacity && opacity !== 0) {
         console.log('opacity value must be int or double');
         return false;
     }
