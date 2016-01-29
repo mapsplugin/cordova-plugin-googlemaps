@@ -357,20 +357,21 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
-    NSString *markerKey = [command.arguments objectAtIndex:1];
-    GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
-    Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
-    
-    if (isVisible) {
-        marker.map = self.mapCtrl.map;
-    } else {
-        marker.map = nil;
-    }
-    
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *markerKey = [command.arguments objectAtIndex:1];
+        GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
+        Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
+        if (isVisible) {
+            marker.map = self.mapCtrl.map;
+        } else {
+            marker.map = nil;
+        }
+        dispatch_async( dispatch_get_main_queue(), ^{
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        });
+    });
 }
-
 /**
  * Set position
  * @params key
