@@ -1709,12 +1709,17 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
+    return null;
+  }
+
+  @Override
+  public View getInfoWindow(Marker marker) {
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
     if ((title == null) && (snippet == null)) {
       return null;
     }
-    
+
     JSONObject properties = null;
     JSONObject styles = null;
     String propertyId = "marker_property_" + marker.getId();
@@ -1729,7 +1734,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         } catch (JSONException e) {}
       }
     }
-    
+
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
@@ -1737,6 +1742,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     windowLayer.setOrientation(LinearLayout.VERTICAL);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+
+    //----------------------------------------
+    // background-color
+    //----------------------------------------
+    int backgroundColor = Color.WHITE;
+
+    if (styles != null && styles.has("background-color")) {
+      try {
+        backgroundColor = PluginUtil.parsePluginColor(styles.getJSONArray("background-color"));
+      } catch (JSONException e) {}
+    }
+    windowLayer.setBackgroundColor(backgroundColor);
 
     int maxWidth = 0;
 
@@ -1793,11 +1810,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     //----------------------------------------
     int gravity = Gravity.LEFT;
     int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
-    
+
     if (styles != null) {
       try {
         String textAlignValue = styles.getString("text-align");
-        
+
         switch(TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
         case left:
           gravity = Gravity.LEFT;
@@ -1812,10 +1829,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
           break;
         }
-        
+
       } catch (Exception e) {}
     }
-    
+
     if (title != null) {
       if (title.indexOf("data:image/") > -1 && title.indexOf(";base64,") > -1) {
         String[] tmp = title.split(",");
@@ -1834,7 +1851,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         TextView textView = new TextView(this.cordova.getActivity());
         textView.setText(title);
         textView.setSingleLine(false);
-        
+
         int titleColor = Color.BLACK;
         if (styles != null && styles.has("color")) {
           try {
@@ -1846,7 +1863,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
           textView.setTextAlignment(textAlignment);
         }
-        
+
         //----------------------------------------
         // font-style = normal | italic
         // font-weight = normal | bold
@@ -1892,11 +1909,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
 
     return windowLayer;
-  }
-
-  @Override
-  public View getInfoWindow(Marker marker) {
-    return null;
   }
 
   /**

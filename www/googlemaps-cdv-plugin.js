@@ -1000,6 +1000,9 @@ App.prototype.addMarker = function(markerOptions, callback) {
         if ("color" in markerOptions.styles) {
             markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
         }
+        if ("background-color" in markerOptions.styles) {
+            markerOptions.styles['background-color'] = HTMLColor2RGBA(markerOptions.styles['background-color'] || "#FFFFFF");
+        }
     }
     if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
         markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
