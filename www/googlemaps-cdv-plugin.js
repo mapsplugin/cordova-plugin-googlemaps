@@ -2633,7 +2633,7 @@ var HTML_COLORS = {
     "azure": "#f0ffff",
     "beige": "#f5f5dd",
     "bisque": "#ffe4d4",
-    "bladk": "#000000",
+    "black": "#000000",
     "blandhedalmond": "#ffebdd",
     "blue": "#0000ff",
     "blueviolet": "#8a2be2",
