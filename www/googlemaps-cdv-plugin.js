@@ -1463,7 +1463,23 @@ Marker.prototype.setPosition = function(position) {
     this.set('position', position);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setPosition', this.getId(), position.lat, position.lng]);
 };
+Marker.prototype.animateTo = function(position, duration, interpolatorType, callback) {
+    var self = this;
 
+    if (!position) {
+        console.log('missing value for position');
+        return false;
+    }
+    duration = duration || 3000;
+    interpolatorType = interpolatorType || 'linear';
+
+    cordova.exec(function() {
+        self.set('position', position);
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.animateTo', this.getId(), position.lat, position.lng, duration, interpolatorType]);
+};
 
 /*****************************************************************************
  * Circle Class
