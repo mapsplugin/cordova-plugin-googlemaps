@@ -1439,6 +1439,28 @@ Marker.prototype.setRotation = function(rotation) {
 Marker.prototype.getRotation = function() {
     return this.get('rotation');
 };
+Marker.prototype.setBackgroundColor = function(color) {
+    if (!color) {
+        console.log('missing value for color');
+        return false;
+    }
+    var styles = this.get('styles');
+    styles['background-color'] = HTMLColor2RGBA(color);
+    this.set('styles', styles);
+
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setStyles', this.getId(), styles]);
+};
+Marker.prototype.setColor = function(color) {
+    if (!color) {
+        console.log('missing value for color');
+        return false;
+    }
+    var styles = this.get('styles');
+    styles['color'] = HTMLColor2RGBA(color);
+    this.set('styles', styles);
+
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setStyles', this.getId(), styles]);
+};
 Marker.prototype.showInfoWindow = function() {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.getId()]);
 };
