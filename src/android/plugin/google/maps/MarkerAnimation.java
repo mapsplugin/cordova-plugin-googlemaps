@@ -61,7 +61,7 @@ public class MarkerAnimation {
           // Post again 16ms later.
           handler.postDelayed(this, 16);
         } else {
-          callback.onPostExecute(callback);
+          callback.onPostExecute(marker);
         }
       }
     });
