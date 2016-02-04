@@ -54,7 +54,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     if (opts.has("zIndex")) {
       polylineOptions.zIndex(opts.getInt("zIndex"));
     }
-    
+    if (opts.has("clickable")) {
+      polylineOptions.clickable(opts.getBoolean("clickable"));
+    }
+
     Polyline polyline = map.addPolyline(polylineOptions);
     String id = "polyline_" + polyline.getId();
     this.objects.put(id, polyline);

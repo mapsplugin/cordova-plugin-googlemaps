@@ -22,6 +22,7 @@
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;
+@property (nonatomic) CLLocationCoordinate2D lastTapCoordinate;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;

@@ -56,7 +56,7 @@
             layer.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
 
-        layer.tappable = YES;
+        layer.tappable = [[json valueForKey:@"clickable"] boolValue];
 
         NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
         [self_.mapCtrl.overlayManager setObject:layer forKey: id];
@@ -81,10 +81,24 @@
 
 - (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr completionHandler:(MYCompletionHandler)completionHandler {
 
-    NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
+  NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
+  
+  NSError *error;
 
-    NSError *error;
-    NSRange range = [urlStr rangeOfString:@"://"];
+  // First check for base64
+  NSRange range = [urlStr rangeOfString:@"base64,"];
+  if(range.location != NSNotFound) {
+    int chop = range.location + range.length;
+    NSData *data = [[NSData alloc]initWithBase64EncodedString:[urlStr substringFromIndex:chop] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    layer.icon = [UIImage imageWithData:data];
+    [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
+    completionHandler(nil);
+    return;
+  }
+
+  range = [urlStr rangeOfString:@"://"];
+  if (range.location == NSNotFound) {
+    range = [urlStr rangeOfString:@"www/"];
     if (range.location == NSNotFound) {
         range = [urlStr rangeOfString:@"www/"];
         if (range.location == NSNotFound) {
@@ -94,6 +108,7 @@
             }
         }
     }
+  }
 
     range = [urlStr rangeOfString:@"./"];
     if (range.location != NSNotFound) {

@@ -1060,6 +1060,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
     polylineOptions.width = polylineOptions.width || 10;
     polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
+    polylineOptions.clickable = polylineOptions.clickable === undefined ? true : polylineOptions.clickable;
     polylineOptions.zIndex = polylineOptions.zIndex || 4;
     polylineOptions.geodesic = polylineOptions.geodesic || false;
 
@@ -1086,6 +1087,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
+    polygonOptions.clickable = polygonOptions.clickable === undefined ? true : polygonOptions.clickable;
     polygonOptions.zIndex = polygonOptions.zIndex || 2;
     polygonOptions.geodesic = polygonOptions.geodesic || false;
     polygonOptions.addHole = polygonOptions.addHole || [];
@@ -1138,6 +1140,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions = groundOverlayOptions || {};
     groundOverlayOptions.url = groundOverlayOptions.url || null;
     groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
+    groundOverlayOptions.clickable = groundOverlayOptions.clickable === undefined ? true : groundOverlayOptions.clickable;
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
 

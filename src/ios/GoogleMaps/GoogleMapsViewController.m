@@ -100,6 +100,10 @@ NSDictionary *initOptions;
       if ([controls valueForKey:@"myLocationButton"] != nil) {
         isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
         self.map.settings.myLocationButton = isEnabled;
+      }
+      //myLocationEnabled
+      if ([controls valueForKey:@"myLocationEnabled"] != nil) {
+        isEnabled = [[controls valueForKey:@"myLocationEnabled"] boolValue];
         self.map.myLocationEnabled = isEnabled;
       }
       //indoorPicker
@@ -160,6 +164,17 @@ NSDictionary *initOptions;
     }
   
     [self.view addSubview: self.map];
+
+    // Attach an additional click handler
+    for(UIGestureRecognizer *g in self.map.gestureRecognizers){
+        [g addTarget:self action:@selector(tapTouchTap:)];
+    }
+}
+
+- (void)tapTouchTap:(UITapGestureRecognizer*)touchGesture
+{
+    CGPoint point = [touchGesture locationInView:self.view];
+    self.lastTapCoordinate = [self.map.projection coordinateForPoint:point];
 }
 
 
@@ -280,7 +295,7 @@ NSDictionary *initOptions;
       [overlayClass isEqualToString:@"GMSPolyline"] ||
       [overlayClass isEqualToString:@"GMSCircle"] ||
       [overlayClass isEqualToString:@"GMSGroundOverlay"]) {
-    [self triggerOverlayEvent:@"overlay_click" id:overlay.title];
+    [self triggerOverlayEvent:@"overlay_click" id:overlay.title coordinate:self.lastTapCoordinate];
   }
 }
 
@@ -332,10 +347,9 @@ NSDictionary *initOptions;
 /**
  * Involve App._onOverlayEvent
  */
-- (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id
+- (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id coordinate:(CLLocationCoordinate2D) coordinate
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
-                                      eventName, id];
+  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@', new window.plugin.google.maps.LatLng(%f,%f));",eventName, id, coordinate.latitude, coordinate.longitude];
   [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
