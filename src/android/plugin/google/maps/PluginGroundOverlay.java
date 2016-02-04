@@ -55,6 +55,9 @@ public class PluginGroundOverlay extends MyPlugin {
     if (opts.has("visible")) {
       options.visible(opts.getBoolean("visible"));
     }
+    if (opts.has("clickable")) {
+      options.clickable(opts.getBoolean("clickable"));
+    }
 
     if (opts.has("bounds") == true) {
       JSONArray points = opts.getJSONArray("bounds");

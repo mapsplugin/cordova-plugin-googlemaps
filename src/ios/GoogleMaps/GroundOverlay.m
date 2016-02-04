@@ -56,7 +56,7 @@
             layer.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
 
-        layer.tappable = YES;
+        layer.tappable = [[json valueForKey:@"clickable"] boolValue];
 
         NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
         [self_.mapCtrl.overlayManager setObject:layer forKey: id];
