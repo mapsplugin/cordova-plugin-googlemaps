@@ -670,14 +670,22 @@ App.prototype.getBearing = function(callback) {
  */
 App.prototype.clear = function(callback) {
     var self = this;
-    var overlayIDs = Object.keys(OVERLAYS);
-    var overlayId;
-    for (var i = 0; i < overlayIDs.length; i++) {
-        overlayId = overlayIDs[i];
-        OVERLAYS[overlayId].off();
-        delete OVERLAYS[overlayId];
-    }
-    OVERLAYS = {};
+
+    var clearObj = function (obj) {
+        var ids = Object.keys(obj);
+        var id;
+        for (var i = 0; i < ids.length; i++) {
+            id = ids[i];
+            obj[id].off();
+            delete obj[id];
+        }
+        obj = {};
+    };
+
+    clearObj(OVERLAYS);
+    clearObj(MARKERS);
+    clearObj(KML_LAYERS);
+
     cordova.exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
