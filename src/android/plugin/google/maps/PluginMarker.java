@@ -671,12 +671,12 @@ public class PluginMarker extends MyPlugin {
         @Override
         public void onError(String errorMsg) {
           callbackContext.error(errorMsg);
-          Log.e("TAG2", "Exception: ", e);
         }
       });
       
       } catch (Exception e) {
         e.printStackTrace();
+        Log.e("TAG2", "Exception: ", e);
       }
       
     } else {
@@ -716,6 +716,9 @@ public class PluginMarker extends MyPlugin {
 
         @Override
         protected Bitmap doInBackground(Void... params) {
+          
+          try {
+          
           String iconUrl = iconProperty.getString("url");
           
           Bitmap image = null;
@@ -783,6 +786,11 @@ public class PluginMarker extends MyPlugin {
             image = PluginUtil.scaleBitmapForDevice(image);
           }
           return image;
+        
+          } catch (Exception e) { // FIXME
+              e.printStackTrace();
+              Log.e("TAG3", "Exception: ", e);
+          }
         }
         
         @Override
