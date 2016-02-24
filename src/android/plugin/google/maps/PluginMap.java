@@ -435,11 +435,6 @@ public class PluginMap extends MyPlugin {
       
       @Override
       public void onSnapshotReady(Bitmap image) {
-        float density = Resources.getSystem().getDisplayMetrics().density;
-        image = PluginUtil.resizeBitmap(image,
-                                        (int)(image.getWidth() / density),
-                                        (int)(image.getHeight() / density));
-        
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
         image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
         byte[] byteArray = outputStream.toByteArray();
