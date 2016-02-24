@@ -209,6 +209,7 @@ public class PluginMarker extends MyPlugin {
     
       } catch (Exception e) {
         e.printStackTrace();
+        Log.e("TAG1", "Exception: ", e);
       }
     } else {
       String markerAnimation = null;
@@ -670,6 +671,7 @@ public class PluginMarker extends MyPlugin {
         @Override
         public void onError(String errorMsg) {
           callbackContext.error(errorMsg);
+          Log.e("TAG2", "Exception: ", e);
         }
       });
       
