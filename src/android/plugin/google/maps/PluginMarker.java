@@ -790,6 +790,7 @@ public class PluginMarker extends MyPlugin {
           } catch (Exception e) { // FIXME
               e.printStackTrace();
               Log.e("TAG3", "Exception: ", e);
+              return null;
           }
         }
         
