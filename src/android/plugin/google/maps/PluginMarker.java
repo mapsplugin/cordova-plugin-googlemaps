@@ -154,6 +154,9 @@ public class PluginMarker extends MyPlugin {
       if (opts.has("animation")) {
         bundle.putString("animation", opts.getString("animation"));
       }
+      
+      try {
+      
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
@@ -203,6 +206,10 @@ public class PluginMarker extends MyPlugin {
         }
         
       });
+    
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     } else {
       String markerAnimation = null;
       if (opts.has("animation")) {
@@ -650,6 +657,9 @@ public class PluginMarker extends MyPlugin {
       bundle.putString("url", (String)value);
     }
     if (bundle != null) {
+      
+      try{
+      
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
@@ -662,6 +672,11 @@ public class PluginMarker extends MyPlugin {
           callbackContext.error(errorMsg);
         }
       });
+      
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      
     } else {
       this.sendNoResult(callbackContext);
     }
