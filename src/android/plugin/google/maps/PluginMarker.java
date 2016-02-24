@@ -155,8 +155,6 @@ public class PluginMarker extends MyPlugin {
         bundle.putString("animation", opts.getString("animation"));
       }
       
-      try {
-      
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
@@ -165,7 +163,10 @@ public class PluginMarker extends MyPlugin {
           if (opts.has("visible")) {
             try {
               marker.setVisible(opts.getBoolean("visible"));
-            } catch (JSONException e) {}
+            } catch (Exception e) {
+              e.printStackTrace();
+              Log.e("XXX", "Exception: ", e);
+            }
           } else {
             marker.setVisible(true);
           }
@@ -206,11 +207,6 @@ public class PluginMarker extends MyPlugin {
         }
         
       });
-    
-      } catch (Exception e) {
-        e.printStackTrace();
-        Log.e("TAG1", "Exception: ", e);
-      }
     } else {
       String markerAnimation = null;
       if (opts.has("animation")) {
@@ -659,8 +655,6 @@ public class PluginMarker extends MyPlugin {
     }
     if (bundle != null) {
       
-      try{
-      
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
@@ -673,12 +667,6 @@ public class PluginMarker extends MyPlugin {
           callbackContext.error(errorMsg);
         }
       });
-      
-      } catch (Exception e) {
-        e.printStackTrace();
-        Log.e("TAG2", "Exception: ", e);
-      }
-      
     } else {
       this.sendNoResult(callbackContext);
     }
