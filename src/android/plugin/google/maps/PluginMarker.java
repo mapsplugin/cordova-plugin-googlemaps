@@ -160,18 +160,16 @@ public class PluginMarker extends MyPlugin {
         @Override
         public void onPostExecute(Object object) {
           Marker marker = (Marker)object;
-          if (opts.has("visible")) {
-            try {
+          try {
+            if (opts.has("visible")) {
               marker.setVisible(opts.getBoolean("visible"));
-            } catch (Exception e) {
-              e.printStackTrace();
-              Log.e("XXX", "Exception: ", e);
+            } else {
+              marker.setVisible(true);
             }
-          } else {
-            marker.setVisible(true);
+          } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("XXX", "Exception: ", e);
           }
-          
-
           // Animation
           String markerAnimation = null;
           if (opts.has("animation")) {
@@ -777,7 +775,7 @@ public class PluginMarker extends MyPlugin {
         
           } catch (Exception e) { // FIXME
               e.printStackTrace();
-              Log.e("TAG3", "Exception: ", e);
+              Log.e("XXX3", "Exception: ", e);
               return null;
           }
         }
