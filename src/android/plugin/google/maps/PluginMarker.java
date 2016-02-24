@@ -716,6 +716,7 @@ public class PluginMarker extends MyPlugin {
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+            Log.w("GoogleMaps", "bitmap from base64 (" + (image != null ? "sucess" : "fail"));
           } else if (iconUrl.indexOf("file://") == 0 &&
               iconUrl.indexOf("file:///android_asset/") == -1) {
             iconUrl = iconUrl.replace("file://", "");
