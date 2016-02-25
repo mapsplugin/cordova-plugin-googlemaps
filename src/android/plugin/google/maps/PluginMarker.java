@@ -52,7 +52,7 @@ public class PluginMarker extends MyPlugin {
     final MarkerOptions markerOptions = new MarkerOptions();
     final JSONObject opts = args.getJSONObject(1);
 	
-	Log.i("GoogleMaps", "Creating marker (" + opts.toString() + ")");
+    Log.i("GoogleMaps", "Creating marker (" + opts.toString() + ")");
 	
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
@@ -682,6 +682,9 @@ public class PluginMarker extends MyPlugin {
     }
     
     String iconUrl = iconProperty.getString("url");
+    
+    Log.i("GoogleMaps", "Setting icon (" + iconUrl + ")");
+    
     if (iconUrl.indexOf("://") == -1 && 
         iconUrl.startsWith("/") == false && 
         iconUrl.startsWith("www/") == false) {
