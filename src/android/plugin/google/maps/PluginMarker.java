@@ -51,11 +51,6 @@ public class PluginMarker extends MyPlugin {
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
     final JSONObject opts = args.getJSONObject(1);
-	
-    if (PluginMarker.this.mapCtrl.isDebug) {
-    	Log.d("GoogleMaps", "Creating marker (" + opts.toString() + ")");
-    }
-	
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
         markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
@@ -159,22 +154,20 @@ public class PluginMarker extends MyPlugin {
       if (opts.has("animation")) {
         bundle.putString("animation", opts.getString("animation"));
       }
-      
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
         public void onPostExecute(Object object) {
           Marker marker = (Marker)object;
-          try {
-            if (opts.has("visible")) {
+          if (opts.has("visible")) {
+            try {
               marker.setVisible(opts.getBoolean("visible"));
-            } else {
-              marker.setVisible(true);
-            }
-          } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("GoogleMaps", "Exception setting visible", e);
+            } catch (JSONException e) {}
+          } else {
+            marker.setVisible(true);
           }
+          
+
           // Animation
           String markerAnimation = null;
           if (opts.has("animation")) {
@@ -657,7 +650,6 @@ public class PluginMarker extends MyPlugin {
       bundle.putString("url", (String)value);
     }
     if (bundle != null) {
-      
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
 
         @Override
@@ -684,11 +676,6 @@ public class PluginMarker extends MyPlugin {
     }
     
     String iconUrl = iconProperty.getString("url");
-    
-    if (PluginMarker.this.mapCtrl.isDebug) {
-    	Log.d("GoogleMaps", "Setting icon (" + iconUrl + ")");
-    }
-    
     if (iconUrl.indexOf("://") == -1 && 
         iconUrl.startsWith("/") == false && 
         iconUrl.startsWith("www/") == false &&
@@ -702,24 +689,17 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl == null) {
-    	Log.d("GoogleMaps", "icon is null (" + iconUrl + ")");
-      	callback.onPostExecute(marker);
-      	return;
+      callback.onPostExecute(marker);
+      return;
     }
     
+    
     if (iconUrl.indexOf("http") != 0) {
-      
-      if (PluginMarker.this.mapCtrl.isDebug) {
-      	Log.d("GoogleMaps", "icon is not http (" + iconUrl + ")");
-      }
       
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
         @Override
         protected Bitmap doInBackground(Void... params) {
-          
-          try {
-          
           String iconUrl = iconProperty.getString("url");
           
           Bitmap image = null;
@@ -787,12 +767,6 @@ public class PluginMarker extends MyPlugin {
             image = PluginUtil.scaleBitmapForDevice(image);
           }
           return image;
-        
-          } catch (Exception e) { // FIXME
-              e.printStackTrace();
-              Log.e("GoogleMaps", "Exception loading image (not from http)", e);
-              return null;
-          }
         }
         
         @Override
@@ -847,11 +821,6 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl.indexOf("http") == 0) {
-    	
-      if (PluginMarker.this.mapCtrl.isDebug) {
-      	Log.d("GoogleMaps", "icon is http (" + iconUrl + ")");
-      }
-      
       int width = -1;
       int height = -1;
       if (iconProperty.containsKey("size") == true) {
@@ -917,3 +886,4 @@ public class PluginMarker extends MyPlugin {
     marker.setInfoWindowAnchor((float)(anchorX / imageWidth), (float)(anchorY / imageHeight));
   }
 }
+
