@@ -52,7 +52,7 @@ public class PluginMarker extends MyPlugin {
     final MarkerOptions markerOptions = new MarkerOptions();
     final JSONObject opts = args.getJSONObject(1);
 	
-	Log.i("GoogleMaps", "Creating marker (" + opts.toString() + ")", e);
+	Log.i("GoogleMaps", "Creating marker (" + opts.toString() + ")");
 	
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
