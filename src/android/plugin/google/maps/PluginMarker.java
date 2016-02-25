@@ -678,7 +678,8 @@ public class PluginMarker extends MyPlugin {
     String iconUrl = iconProperty.getString("url");
     if (iconUrl.indexOf("://") == -1 && 
         iconUrl.startsWith("/") == false && 
-        iconUrl.startsWith("www/") == false) {
+        iconUrl.startsWith("www/") == false &&
+        iconUrl.startsWith("data:image") == false) {
       iconUrl = "./" + iconUrl;
     }
     if (iconUrl.indexOf("./") == 0) {
