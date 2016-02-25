@@ -51,6 +51,9 @@ public class PluginMarker extends MyPlugin {
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
     final JSONObject opts = args.getJSONObject(1);
+	
+	Log.i("GoogleMaps", "Creating marker (" + opts.toString() + "), e);
+	
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
         markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
@@ -168,7 +171,7 @@ public class PluginMarker extends MyPlugin {
             }
           } catch (Exception e) {
             e.printStackTrace();
-            Log.e("XXX", "Exception: ", e);
+            Log.e("GoogleMaps", "Exception setting visible", e);
           }
           // Animation
           String markerAnimation = null;
@@ -695,9 +698,6 @@ public class PluginMarker extends MyPlugin {
       return;
     }
     
-    Log.e("XXXX", "XXX bitmap base64 " + iconUrl);
-    Log.w("XXXX", "XXX bitmap base64 " + iconUrl);
-    
     if (iconUrl.indexOf("http") != 0) {
       
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
@@ -717,9 +717,7 @@ public class PluginMarker extends MyPlugin {
           
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
-            Log.e("GoogleMaps", "making bitmap from base64");
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-            Log.e("GoogleMaps", "maked bitmap from base64 (" + (image != null ? "sucess" : "fail"));
           } else if (iconUrl.indexOf("file://") == 0 &&
               iconUrl.indexOf("file:///android_asset/") == -1) {
             iconUrl = iconUrl.replace("file://", "");
@@ -779,7 +777,7 @@ public class PluginMarker extends MyPlugin {
         
           } catch (Exception e) { // FIXME
               e.printStackTrace();
-              Log.e("XXX3", "Exception: ", e);
+              Log.e("GoogleMaps", "Exception loading image (not from http)", e);
               return null;
           }
         }
