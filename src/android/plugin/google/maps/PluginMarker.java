@@ -52,7 +52,9 @@ public class PluginMarker extends MyPlugin {
     final MarkerOptions markerOptions = new MarkerOptions();
     final JSONObject opts = args.getJSONObject(1);
 	
-    Log.i("GoogleMaps", "Creating marker (" + opts.toString() + ")");
+    if (PluginMarker.this.mapCtrl.isDebug) {
+    	Log.d("GoogleMaps", "Creating marker (" + opts.toString() + ")");
+    }
 	
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
@@ -683,7 +685,9 @@ public class PluginMarker extends MyPlugin {
     
     String iconUrl = iconProperty.getString("url");
     
-    Log.i("GoogleMaps", "Setting icon (" + iconUrl + ")");
+    if (PluginMarker.this.mapCtrl.isDebug) {
+    	Log.d("GoogleMaps", "Setting icon (" + iconUrl + ")");
+    }
     
     if (iconUrl.indexOf("://") == -1 && 
         iconUrl.startsWith("/") == false && 
@@ -698,14 +702,16 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl == null) {
-    	Log.i("GoogleMaps", "icon is null (" + iconUrl + ")");
+    	Log.d("GoogleMaps", "icon is null (" + iconUrl + ")");
       	callback.onPostExecute(marker);
       	return;
     }
     
     if (iconUrl.indexOf("http") != 0) {
       
-      Log.i("GoogleMaps", "icon is not http (" + iconUrl + ")");
+      if (PluginMarker.this.mapCtrl.isDebug) {
+      	Log.d("GoogleMaps", "icon is not http (" + iconUrl + ")");
+      }
       
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
@@ -842,7 +848,9 @@ public class PluginMarker extends MyPlugin {
     
     if (iconUrl.indexOf("http") == 0) {
     	
-      Log.i("GoogleMaps", "icon is http (" + iconUrl + ")");
+      if (PluginMarker.this.mapCtrl.isDebug) {
+      	Log.d("GoogleMaps", "icon is http (" + iconUrl + ")");
+      }
       
       int width = -1;
       int height = -1;
