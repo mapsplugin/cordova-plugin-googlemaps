@@ -91,8 +91,8 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       
       // Resize
       float density = Resources.getSystem().getDisplayMetrics().density;
-      int newWidth = (int)(mWidth * 1); // density);
-      int newHeight = (int)(mHeight * 1); // density);
+      int newWidth = (int)(mWidth * density);
+      int newHeight = (int)(mHeight * density);
 
       
       /**
