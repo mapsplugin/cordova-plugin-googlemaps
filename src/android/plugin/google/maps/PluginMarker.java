@@ -695,6 +695,8 @@ public class PluginMarker extends MyPlugin {
       return;
     }
     
+    Log.e("XXXX", "XXX bitmap base64 " + iconUrl);
+    Log.w("XXXX", "XXX bitmap base64 " + iconUrl);
     
     if (iconUrl.indexOf("http") != 0) {
       
