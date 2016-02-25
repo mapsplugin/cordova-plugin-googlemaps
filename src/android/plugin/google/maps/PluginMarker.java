@@ -687,7 +687,8 @@ public class PluginMarker extends MyPlugin {
     
     if (iconUrl.indexOf("://") == -1 && 
         iconUrl.startsWith("/") == false && 
-        iconUrl.startsWith("www/") == false) {
+        iconUrl.startsWith("www/") == false &&
+        iconUrl.startsWith("data:image") == false) {
       iconUrl = "./" + iconUrl;
     }
     if (iconUrl.indexOf("./") == 0) {
@@ -697,11 +698,14 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl == null) {
-      callback.onPostExecute(marker);
-      return;
+    	Log.i("GoogleMaps", "icon is null (" + iconUrl + ")");
+      	callback.onPostExecute(marker);
+      	return;
     }
     
     if (iconUrl.indexOf("http") != 0) {
+      
+      Log.i("GoogleMaps", "icon is not http (" + iconUrl + ")");
       
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
@@ -837,7 +841,9 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl.indexOf("http") == 0) {
-      Log.e("GoogleMaps", "making bitmap from http");
+    	
+      Log.i("GoogleMaps", "icon is http (" + iconUrl + ")");
+      
       int width = -1;
       int height = -1;
       if (iconProperty.containsKey("size") == true) {
