@@ -834,6 +834,7 @@ public class PluginMarker extends MyPlugin {
     }
     
     if (iconUrl.indexOf("http") == 0) {
+      Log.e("GoogleMaps", "making bitmap from http");
       int width = -1;
       int height = -1;
       if (iconProperty.containsKey("size") == true) {
