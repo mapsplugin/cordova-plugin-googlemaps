@@ -400,10 +400,15 @@ App.prototype.setWatchDogTimer = function(time) {
 
 };
 
+function onBackButton() {
+  _mapInstance.closeDialog();
+}
+
 /**
  * @desc Open the map dialog
  */
 App.prototype.showDialog = function() {
+    this.set("isDialogOpen", true);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'showDialog', []);
 };
 
@@ -411,6 +416,7 @@ App.prototype.showDialog = function() {
  * @desc Close the map dialog
  */
 App.prototype.closeDialog = function() {
+    this.set("isDialogOpen", false);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'closeDialog', []);
 };
 
@@ -731,13 +737,13 @@ App.prototype.refreshLayout = function() {
 
 App.prototype.isAvailable = function(callback) {
     var self = this;
-    
+
     /*
     var tmpmap = plugin.google.maps.Map.getMap(document.createElement("div"), {});
     tmpmap.remove();
     tmpmap = null;
     */
-    
+
     cordova.exec(function() {
         if (typeof callback === "function") {
             callback.call(self, true);
@@ -2630,6 +2636,11 @@ function getAllChildren(root) {
 
 document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);
+    document.addEventListener("backbutton", function() {
+      if (_mapInstance.get("isDialogOpen")) {
+        _mapInstance.closeDialog();
+      }
+    }, false);
     plugin.google.maps.Map.isAvailable();
 });
 
