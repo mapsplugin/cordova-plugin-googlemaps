@@ -258,7 +258,7 @@
 
 - (void)toDataURL:(CDVInvokedUrlCommand *)command {
   UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
-  [self.mapCtrl.map.layer renderInContext:UIGraphicsGetCurrentContext()];
+  [self.mapCtrl.view drawViewHierarchyInRect:self.mapCtrl.map.layer.bounds afterScreenUpdates:NO];
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
