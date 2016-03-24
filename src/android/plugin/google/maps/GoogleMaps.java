@@ -101,6 +101,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
+  private FrameLayout mapFrame = null;
 
   private enum EVENTS {
     onScrollChanged
@@ -647,6 +648,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       mPluginLayout.updateViewPosition();
     }
     root.removeView(windowLayer);
+    mapFrame.destroyDrawingCache();
+    mapFrame = null;
     windowLayer.destroyDrawingCache();
     windowLayer = null;
 
