@@ -7,7 +7,9 @@
 //
 
 #import "GoogleMapsViewController.h"
+#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
 #import <Cordova/CDVJSON.h>
+#endif
 
 
 @implementation GoogleMapsViewController
@@ -176,8 +178,13 @@ NSDictionary *initOptions;
  *         camera to move such that it is centered on the user location.
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
-  [self.webView stringByEvaluatingJavaScriptFromString:@"plugin.google.maps.Map._onMapEvent('my_location_button_click');"];
-  return NO;
+	NSString *jsString = @"plugin.google.maps.Map._onMapEvent('my_location_button_click');";
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
+	return NO;
 }
 
 #pragma mark - GMSMapViewDelegate
@@ -204,7 +211,11 @@ NSDictionary *initOptions;
   dispatch_sync(gueue, ^{
   
     NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %@);", gesture ? @"true": @"false"];
-    [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	  if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		  [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	  } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		  [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	  }
   });
 }
 
@@ -291,7 +302,11 @@ NSDictionary *initOptions;
 {
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('%@', new window.plugin.google.maps.LatLng(%f,%f));",
                                       eventName, coordinate.latitude, coordinate.longitude];
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 /**
  * Involve App._onCameraEvent
@@ -315,7 +330,11 @@ NSDictionary *initOptions;
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onCameraEvent('%@', %@);", eventName, sourceArrayString];
 
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 
@@ -326,7 +345,11 @@ NSDictionary *initOptions;
 {
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker_%lu');",
                                       eventName, (unsigned long)marker.hash];
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 /**
@@ -336,7 +359,11 @@ NSDictionary *initOptions;
 {
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
                                       eventName, id];
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 //future support: custom info window
@@ -714,7 +741,11 @@ NSDictionary *initOptions;
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building {
   //Notify to the JS
   NSString* jsString = @"javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')";
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
@@ -746,7 +777,11 @@ NSDictionary *initOptions;
                                            encoding:NSUTF8StringEncoding];
   NSString *jsString = [NSString stringWithFormat:@"javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', %@)", JSONstring];
   
-  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 
