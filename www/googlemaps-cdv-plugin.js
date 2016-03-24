@@ -590,7 +590,7 @@ App.prototype.getMyLocation = function(params, success_callback, error_callback)
     success_callback = args[1];
     error_callback = args[2];
 
-    params.enableHighAccuracy = params.enableHighAccuracy || false;
+    params.enableHighAccuracy = params.enableHighAccuracy  === true;
     var self = this;
     var successHandler = function(location) {
         if (typeof success_callback === "function") {
@@ -768,13 +768,22 @@ App.prototype.isAvailable = function(callback) {
     }, PLUGIN_NAME, 'isAvailable', ['']);
 };
 
-App.prototype.toDataURL = function(callback) {
+App.prototype.toDataURL = function(params, callback) {
+    var args = [params || {}, callback];
+    if (typeof args[0] === "function") {
+        args.unshift({});
+    }
+
+    params = args[0];
+    callback = args[1];
+
+    params.uncompress = params.uncompress === true;
     var self = this;
     cordova.exec(function(image) {
         if (typeof callback === "function") {
             callback.call(self, image);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL']);
+    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL', self.deleteFromObject(params,'function')]);
 };
 
 var _append_child = function(event) {
@@ -1011,12 +1020,12 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.position.lat = markerOptions.position.lat || 0.0;
     markerOptions.position.lng = markerOptions.position.lng || 0.0;
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
-    markerOptions.draggable = markerOptions.draggable || false;
+    markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
-    markerOptions.flat = markerOptions.flat || false;
+    markerOptions.flat = markerOptions.flat  === true;
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
@@ -1088,7 +1097,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.width = polylineOptions.width || 10;
     polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
     polylineOptions.zIndex = polylineOptions.zIndex || 4;
-    polylineOptions.geodesic = polylineOptions.geodesic || false;
+    polylineOptions.geodesic = polylineOptions.geodesic  === true;
 
     cordova.exec(function(result) {
         var polyline = new Polyline(self, result.id, polylineOptions);
@@ -1114,7 +1123,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
     polygonOptions.zIndex = polygonOptions.zIndex || 2;
-    polygonOptions.geodesic = polygonOptions.geodesic || false;
+    polygonOptions.geodesic = polygonOptions.geodesic  === true;
     polygonOptions.addHole = polygonOptions.addHole || [];
 
     cordova.exec(function(result) {
@@ -1188,7 +1197,7 @@ App.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var self = this;
     kmlOverlayOptions = kmlOverlayOptions || {};
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
-    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
+    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport  === true;
     kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
 
     var kmlId = "kml" + (Math.random() * 9999999);
@@ -1963,7 +1972,7 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
     //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
     //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
     kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
-    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport || false;
+    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport  === true;
     Object.defineProperty(self, "id", {
         value: kmlOverlayId,
         writable: false

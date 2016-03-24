@@ -431,15 +431,25 @@ public class PluginMap extends MyPlugin {
    */
   @SuppressWarnings("unused")
   private void toDataURL(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+    JSONObject params = args.getJSONObject(1);
+    boolean uncompress = false;
+    if (params.has("uncompress")) {
+      uncompress = params.getBoolean("uncompress");
+    }
+    final boolean finalUncompress = uncompress;
+
+
     this.map.snapshot(new GoogleMap.SnapshotReadyCallback() {
       
       @Override
       public void onSnapshotReady(Bitmap image) {
-        float density = Resources.getSystem().getDisplayMetrics().density;
-        image = PluginUtil.resizeBitmap(image,
-                                        (int)(image.getWidth() / density),
-                                        (int)(image.getHeight() / density));
-        
+        if (!finalUncompress) {
+          float density = Resources.getSystem().getDisplayMetrics().density;
+          image = PluginUtil.resizeBitmap(image,
+              (int) (image.getWidth() / density),
+              (int) (image.getHeight() / density));
+        }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
         image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
         byte[] byteArray = outputStream.toByteArray();
