@@ -122,7 +122,7 @@
                 <param name="ios-package" value="Geocoder" />
             </feature>
             <feature name="GroundOverlay">
-                <param name="ios-package" value="GroundOvderlay" />
+                <param name="ios-package" value="GroundOverlay" />
             </feature>
             <feature name="KmlOverlay">
                 <param name="ios-package" value="KmlOverlay" />
