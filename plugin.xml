@@ -112,6 +112,33 @@
             <feature name="Geocoder">
                 <param name="ios-package" value="Geocoder" />
             </feature>
+            <feature name="Map">
+                <param name="ios-package" value="Map" />
+            </feature>
+            <feature name="Circle">
+                <param name="ios-package" value="Circle" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="ios-package" value="Geocoder" />
+            </feature>
+            <feature name="GroundOverlay">
+                <param name="ios-package" value="GroundOvderlay" />
+            </feature>
+            <feature name="KmlOverlay">
+                <param name="ios-package" value="KmlOverlay" />
+            </feature>
+            <feature name="Marker">
+                <param name="ios-package" value="Marker" />
+            </feature>
+            <feature name="Polygon">
+                <param name="ios-package" value="Polygon" />
+            </feature>
+            <feature name="Polyline">
+                <param name="ios-package" value="Polyline" />
+            </feature>
+            <feature name="TileOverlay">
+                <param name="ios-package" value="TileOverlay" />
+            </feature>
         </config-file>
 
         <header-file src="src/ios/GoogleMaps/Circle.h" />
