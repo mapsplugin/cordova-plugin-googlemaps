@@ -37,7 +37,26 @@
 
     range = [urlStr rangeOfString:@"./"];
     if (range.location != NSNotFound) {
-        NSString *currentPath = [self.webView.request.URL absoluteString];
+		SEL requestSelector = NSSelectorFromString(@"request");
+		SEL urlSelector = NSSelectorFromString(@"URL");
+		NSString *currentPath = @"";
+		if ([self.webView respondsToSelector:requestSelector]) {
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
+			[invocation setSelector:requestSelector];
+			[invocation setTarget:self.webView];
+			[invocation invoke];
+			NSURLRequest *request;
+			[invocation getReturnValue:&request];
+			currentPath = [request.URL absoluteString];
+		} else if ([self.webView respondsToSelector:urlSelector]) {
+			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
+			[invocation setSelector:urlSelector];
+			[invocation setTarget:self.webView];
+			[invocation invoke];
+			NSURL *URL;
+			[invocation getReturnValue:&URL];
+			currentPath = [URL absoluteString];
+		}
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
         currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
         urlStr = [urlStr stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
@@ -582,7 +601,11 @@
 
     CDVPlugin<MyPlgunProtocol> *pluginClass = [self.mapCtrl.plugins objectForKey:className];
     if (!pluginClass) {
+#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
+		pluginClass = [(CDVViewController*)self.viewController getCommandInstance:className];
+#else
         pluginClass = [[NSClassFromString(className)alloc] initWithWebView:self.webView];
+#endif
         if (pluginClass) {
             pluginClass.commandDelegate = self.commandDelegate;
             [pluginClass setGoogleMapsViewController:self.mapCtrl];
@@ -598,7 +621,11 @@
 
 -(void)evalJsHelper:(NSString*)jsString
 {
-    [self.webView stringByEvaluatingJavaScriptFromString:jsString];
+	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+	}
 }
 
 -(void)_implementToMap:(NSString *)className options:(NSDictionary *)options needJSCallback:(BOOL)needJSCallback
