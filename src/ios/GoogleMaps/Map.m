@@ -257,7 +257,18 @@
 
 
 - (void)toDataURL:(CDVInvokedUrlCommand *)command {
-  UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
+
+  NSDictionary *opts = [command.arguments objectAtIndex:1];
+  BOOL uncompress = NO;
+  if ([opts objectForKey:@"uncompress"]) {
+      uncompress = [[opts objectForKey:@"uncompress"] boolValue];
+  }
+  
+  if (uncompress) {
+    UIGraphicsBeginImageContextWithOptions(self.mapCtrl.view.frame.size, NO, 0.0f);
+  } else {
+    UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
+  }
   [self.mapCtrl.view drawViewHierarchyInRect:self.mapCtrl.map.layer.bounds afterScreenUpdates:NO];
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
