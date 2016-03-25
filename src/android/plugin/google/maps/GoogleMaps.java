@@ -1,22 +1,5 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import android.view.*;
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -43,7 +26,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
-import android.webkit.WebChromeClient;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
@@ -92,6 +78,22 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
 
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginEntry;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -125,6 +127,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private MyPluginLayout mPluginLayout = null;
   public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
+  private JSONArray _saveArgs = null;
+  private CallbackContext _saveCallbackContext = null;
 
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -228,7 +232,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     Runnable runnable = new Runnable() {
       public void run() {
-        if (("getMap".equals(action) == false && "isAvailable".equals(action) == false && "getLicenseInfo".equals(action) == false) &&
+        if ((!"getMap".equals(action) && !"isAvailable".equals(action) && !"getLicenseInfo".equals(action)) &&
             GoogleMaps.this.map == null) {
           Log.w(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
@@ -271,7 +275,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         } else {
           try {
             Method method = GoogleMaps.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
-            if (method.isAccessible() == false) {
+            if (!method.isAccessible()) {
               method.setAccessible(true);
             }
             method.invoke(GoogleMaps.this, args, callbackContext);
@@ -860,6 +864,31 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
   }
 
+  public void requestPermissions(CordovaPlugin plugin, int requestCode, String[] permissions) {
+
+    try {
+      Method requestPermission = CordovaInterface.class.getDeclaredMethod(
+          "requestPermissions", CordovaPlugin.class, int.class, String[].class);
+
+      // If there is no exception, then this is cordova-android 5.0.0+
+      requestPermission.invoke(plugin.cordova, plugin, requestCode, permissions);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void onRequestPermissionResult(int requestCode, String[] permissions,
+                                        int[] grantResults) throws JSONException {
+    PluginResult result;
+    for (int r : grantResults) {
+      if (r == PackageManager.PERMISSION_DENIED) {
+        result = new PluginResult(PluginResult.Status.ERROR, "Geolocation permission request was denied.");
+        _saveCallbackContext.sendPluginResult(result);
+        return;
+      }
+    }
+    GoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
+  }
   @SuppressWarnings("unused")
   private void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
@@ -871,6 +900,29 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (params.has("enableHighAccuracy")) {
       isHigh = params.getBoolean("enableHighAccuracy");
     }
+
+    // Request geolocation permission.
+    boolean locationPermission = false;
+    try {
+      Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
+
+      String permission = "android.permission.ACCESS_COARSE_LOCATION";
+      locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
+    } catch (Exception e) {
+      PluginResult result;
+      result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+      callbackContext.sendPluginResult(result);
+      return;
+    }
+
+    if (!locationPermission) {
+      _saveArgs = args;
+      _saveCallbackContext = callbackContext;
+      this.requestPermissions(GoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+      return;
+    }
+
+
     final boolean enableHighAccuracy = isHigh;
 
     if (googleApiClient == null) {

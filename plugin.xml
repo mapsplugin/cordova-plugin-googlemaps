@@ -15,7 +15,8 @@
     <keywords>google,maps,geo</keywords>
 
     <engines>
-      <engine name="cordova" version=">=3.5.0" />
+      <engine name="cordova-android" version=">=5.1.0" />
+      <engine name="cordova-ios" version=">=3.0.0" />
     </engines>
 
     <!-- android -->
