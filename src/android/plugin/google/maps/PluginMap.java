@@ -11,6 +11,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Base64;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -97,6 +98,7 @@ public class PluginMap extends MyPlugin {
 
     // move the camera position
     if (params.has("camera")) {
+      CameraUpdate cameraUpdate = null;
       JSONObject camera = params.getJSONObject("camera");
       Builder builder = CameraPosition.builder();
       if (camera.has("bearing")) {
@@ -106,14 +108,31 @@ public class PluginMap extends MyPlugin {
         JSONObject latLng = camera.getJSONObject("latLng");
         builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
       }
+
+      if (camera.has("target")) {
+        CameraPosition newPosition;
+        Object target = camera.get("target");
+        @SuppressWarnings("rawtypes")
+        Class targetClass = target.getClass();
+        if ("org.json.JSONArray".equals(targetClass.getName())) {
+          JSONArray points = camera.getJSONArray("target");
+          LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
+          cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, (int)this.density);
+          builder.target(bounds.getCenter());
+
+        } else {
+          JSONObject latLng = camera.getJSONObject("target");
+          builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+        }
+      }
       if (camera.has("tilt")) {
         builder.tilt((float) camera.getDouble("tilt"));
       }
       if (camera.has("zoom")) {
         builder.zoom((float) camera.getDouble("zoom"));
       }
-      CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
-      map.moveCamera(cameraUpdate);
+      CameraUpdate cameraUpdate2 = CameraUpdateFactory.newCameraPosition(builder.build());
+      map.moveCamera(cameraUpdate != null ? cameraUpdate : cameraUpdate2);
     }
     
     this.sendNoResult(callbackContext);

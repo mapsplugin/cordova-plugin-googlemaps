@@ -50,6 +50,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -129,6 +131,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private GoogleApiClient googleApiClient = null;
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
+  private CameraUpdate initCameraUpdate;
 
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -534,9 +537,24 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       if (camera.has("bearing")) {
         builder.bearing((float) camera.getDouble("bearing"));
       }
-      if (camera.has("latLng")) {
-        JSONObject latLng = camera.getJSONObject("latLng");
-        builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+      if (camera.has("target")) {
+        CameraPosition newPosition;
+        Object target = camera.get("target");
+        @SuppressWarnings("rawtypes")
+        Class targetClass = target.getClass();
+        if ("org.json.JSONArray".equals(targetClass.getName())) {
+          JSONArray points = camera.getJSONArray("target");
+          LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
+          initCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, (int)this.density);
+          builder.target(bounds.getCenter());
+
+        } else {
+          JSONObject latLng = camera.getJSONObject("target");
+          Log.d("GoogleMaps", "----> " + latLng.getDouble("lat"));
+          builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+          newPosition = builder.build();
+          initCameraUpdate = null; //CameraUpdateFactory.newCameraPosition(newPosition);
+        }
       }
       if (camera.has("tilt")) {
         builder.tilt((float) camera.getDouble("tilt"));
@@ -555,6 +573,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       public void onMapReady(GoogleMap googleMap) {
 
         map = googleMap;
+
         try {
           //controls
           if (params.has("controls")) {
@@ -593,6 +612,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
             mPluginLayout.attachMyView(mapView);
             GoogleMaps.this.resizeMap(args, callbackContext);
+          } else {
+            if (initCameraUpdate != null) {
+              Handler handler = new Handler();
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  map.moveCamera(initCameraUpdate);
+                }
+              }, 500);
+            }
           }
           callbackContext.success();
         } catch (Exception e) {
@@ -762,6 +791,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {
       callbackContext.success();
+      if (initCameraUpdate != null) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            map.moveCamera(initCameraUpdate);
+          }
+        }, 100);
+      }
       return;
     }
     mapDivLayoutJSON = args.getJSONObject(args.length() - 2);
@@ -771,6 +809,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     float divW, divH, divLeft, divTop;
     if (mPluginLayout == null) {
       this.sendNoResult(callbackContext);
+      if (initCameraUpdate != null) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            map.moveCamera(initCameraUpdate);
+          }
+        }, 100);
+      }
       return;
     }
     this.mPluginLayout.clearHTMLElement();
@@ -792,6 +839,15 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
     //mPluginLayout.inValidate();
     updateMapViewLayout();
+    if (initCameraUpdate != null) {
+      Handler handler = new Handler();
+      handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          map.moveCamera(initCameraUpdate);
+        }
+      }, 100);
+    }
     this.sendNoResult(callbackContext);
   }
 
