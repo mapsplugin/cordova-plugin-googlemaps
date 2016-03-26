@@ -55,6 +55,7 @@ NSDictionary *initOptions;
     //------------------
   
     //Intial camera position
+    /*
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
     [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
@@ -71,6 +72,63 @@ NSDictionary *initOptions;
                                   zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
                                   bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                   viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
+    */
+    
+  
+    NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
+    NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
+    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
+    float latitude;
+    float longitude;
+    GMSCameraPosition *camera;
+    GMSCameraPosition *initCamera;
+  
+    if ([cameraOpts objectForKey:@"target"]) {
+      NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
+      if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
+        int i = 0;
+        NSArray *latLngList = [cameraOpts objectForKey:@"target"];
+        GMSMutablePath *path = [GMSMutablePath path];
+        for (i = 0; i < [latLngList count]; i++) {
+          latLng = [latLngList objectAtIndex:i];
+    NSLog(@"---->latLng=%@", latLng);
+          latitude = [[latLng valueForKey:@"lat"] floatValue];
+          longitude = [[latLng valueForKey:@"lng"] floatValue];
+          [path addLatitude:latitude longitude:longitude];
+        }
+        float scale = 1;
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+          scale = [[UIScreen mainScreen] scale];
+        }
+        [[UIScreen mainScreen] scale];
+        
+        GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+        
+    NSLog(@"---->bounds=%f,%f - ,%f,%f", bounds.southWest.latitude,bounds.southWest.longitude, bounds.northEast.latitude, bounds.northEast.longitude);
+        
+        initCamera = [self.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
+        
+        
+      } else {
+        latLng = [cameraOpts objectForKey:@"target"];
+        latitude = [[latLng valueForKey:@"lat"] floatValue];
+        longitude = [[latLng valueForKey:@"lng"] floatValue];
+        
+        camera = [GMSCameraPosition cameraWithLatitude:latitude
+                                            longitude:longitude
+                                            zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
+                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
+                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
+      }
+    } else {
+      camera = [GMSCameraPosition
+                              cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
+                              longitude: [[latLng valueForKey:@"lng"] floatValue]
+                              zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
+                              bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
+                              viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
+    }
   
     CGRect pluginRect = self.view.frame;
     int marginBottom = 0;
