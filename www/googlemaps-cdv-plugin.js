@@ -1361,6 +1361,8 @@ Marker.prototype.getHashCode = function() {
 };
 
 Marker.prototype.setAnimation = function(animation, callback) {
+    var self = this;
+    
     animation = animation || null;
     if (!animation) {
         return;
