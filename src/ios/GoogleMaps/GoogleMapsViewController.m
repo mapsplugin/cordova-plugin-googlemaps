@@ -82,7 +82,7 @@ NSDictionary *initOptions;
     float latitude;
     float longitude;
     GMSCameraPosition *camera;
-    GMSCameraPosition *initCamera;
+    GMSCoordinateBounds *initBounds = nil;
   
     if ([cameraOpts objectForKey:@"target"]) {
       NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
@@ -92,7 +92,6 @@ NSDictionary *initOptions;
         GMSMutablePath *path = [GMSMutablePath path];
         for (i = 0; i < [latLngList count]; i++) {
           latLng = [latLngList objectAtIndex:i];
-    NSLog(@"---->latLng=%@", latLng);
           latitude = [[latLng valueForKey:@"lat"] floatValue];
           longitude = [[latLng valueForKey:@"lng"] floatValue];
           [path addLatitude:latitude longitude:longitude];
@@ -103,12 +102,15 @@ NSDictionary *initOptions;
         }
         [[UIScreen mainScreen] scale];
         
-        GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+        initBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
         
-    NSLog(@"---->bounds=%f,%f - ,%f,%f", bounds.southWest.latitude,bounds.southWest.longitude, bounds.northEast.latitude, bounds.northEast.longitude);
+        CLLocationCoordinate2D center = initBounds.center;
         
-        initCamera = [self.map cameraForBounds:bounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
-        
+        camera = [GMSCameraPosition cameraWithLatitude:center.latitude
+                                            longitude:center.longitude
+                                            zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
+                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
+                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
         
       } else {
         latLng = [cameraOpts objectForKey:@"target"];
@@ -220,6 +222,17 @@ NSDictionary *initOptions;
     }
   
     [self.view addSubview: self.map];
+  
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (initBounds != nil) {
+        float scale = 1;
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+          scale = [[UIScreen mainScreen] scale];
+        }
+        [[UIScreen mainScreen] scale];
+        [self.map moveCamera:[GMSCameraUpdate fitBounds:initBounds withPadding:10 * scale]];
+      }
+    });
 }
 
 

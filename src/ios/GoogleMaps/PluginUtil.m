@@ -141,7 +141,6 @@ static char CAAnimationGroupBlockKey;
 }
 #endif
 @end
-
 @implementation PluginUtil
 + (BOOL)isIOS7_OR_OVER
 {
@@ -214,6 +213,7 @@ static char CAAnimationGroupBlockKey;
   
   return filePath;
 }
+
 @end
 
 
