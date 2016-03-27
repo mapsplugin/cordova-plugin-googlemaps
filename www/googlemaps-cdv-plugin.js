@@ -297,6 +297,10 @@ App.prototype.getMap = function(div, params) {
         params = params || {};
         params.backgroundColor = params.backgroundColor || '#ffffff';
         params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
+        if (params.camera && params.camera.latLng) {
+          params.camera.target = params.camera.latLng;
+          delete params.camera.latLng;
+        }
         args.push(params);
     } else {
 
@@ -331,6 +335,10 @@ App.prototype.getMap = function(div, params) {
         params = params || {};
         params.backgroundColor = params.backgroundColor || '#ffffff';
         params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
+        if (params.camera && params.camera.latLng) {
+          params.camera.target = params.camera.latLng;
+          delete params.camera.latLng;
+        }
         args.push(params);
 
         self.set("div", div);
@@ -437,6 +445,10 @@ App.prototype.setOptions = function(options) {
     options = options || {};
     if (options.hasOwnProperty('backgroundColor')) {
         options.backgroundColor = HTMLColor2RGBA(options.backgroundColor);
+    }
+    if (options.camera && options.camera.latLng) {
+      options.camera.target = options.camera.latLng;
+      delete options.camera.latLng;
     }
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', this.deleteFromObject(options,'function')]);
 };
@@ -1362,7 +1374,7 @@ Marker.prototype.getHashCode = function() {
 
 Marker.prototype.setAnimation = function(animation, callback) {
     var self = this;
-    
+
     animation = animation || null;
     if (!animation) {
         return;
