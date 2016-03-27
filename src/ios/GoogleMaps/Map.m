@@ -433,7 +433,7 @@
         
         camera = [GMSCameraPosition cameraWithLatitude:center.latitude
                                             longitude:center.longitude
-                                            zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
+                                            zoom:self.mapCtrl.map.camera.zoom
                                             bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                             viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
         
