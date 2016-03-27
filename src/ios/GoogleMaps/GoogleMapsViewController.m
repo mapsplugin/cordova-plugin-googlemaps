@@ -82,7 +82,7 @@ NSDictionary *initOptions;
     float latitude;
     float longitude;
     GMSCameraPosition *camera;
-    GMSCoordinateBounds *initBounds = nil;
+    GMSCoordinateBounds *cameraBounds = nil;
   
     if ([cameraOpts objectForKey:@"target"]) {
       NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
@@ -102,9 +102,9 @@ NSDictionary *initOptions;
         }
         [[UIScreen mainScreen] scale];
         
-        initBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+        cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
         
-        CLLocationCoordinate2D center = initBounds.center;
+        CLLocationCoordinate2D center = cameraBounds.center;
         
         camera = [GMSCameraPosition cameraWithLatitude:center.latitude
                                             longitude:center.longitude
@@ -224,13 +224,22 @@ NSDictionary *initOptions;
     [self.view addSubview: self.map];
   
     dispatch_async(dispatch_get_main_queue(), ^{
-      if (initBounds != nil) {
+      if (cameraBounds != nil) {
         float scale = 1;
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
           scale = [[UIScreen mainScreen] scale];
         }
         [[UIScreen mainScreen] scale];
-        [self.map moveCamera:[GMSCameraUpdate fitBounds:initBounds withPadding:10 * scale]];
+        [self.map moveCamera:[GMSCameraUpdate fitBounds:cameraBounds withPadding:10 * scale]];
+        
+        GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
+                                            longitude:cameraBounds.center.longitude
+                                            zoom:self.map.camera.zoom
+                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
+                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
+      
+        [self.map setCamera:cameraPosition2];
+
       }
     });
 }
