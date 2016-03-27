@@ -108,7 +108,7 @@ NSDictionary *initOptions;
         
         camera = [GMSCameraPosition cameraWithLatitude:center.latitude
                                             longitude:center.longitude
-                                            zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
+                                            zoom:0
                                             bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                             viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
         
