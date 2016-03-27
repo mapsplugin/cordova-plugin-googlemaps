@@ -6,7 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +37,20 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 public class PluginUtil {
-  
+
+  public static abstract class MyCallbackContext extends CallbackContext {
+
+    public MyCallbackContext(String callbackId, CordovaWebView webView) {
+      super(callbackId, webView);
+    }
+    @Override
+    public void sendPluginResult(PluginResult pluginResult) {
+      this.onResult(pluginResult);
+    }
+
+    abstract public void onResult(PluginResult pluginResult);
+  }
+
   public static String getAbsolutePathFromCDVFilePath(CordovaResourceApi resourceApi, String cdvFilePath) {
     if (cdvFilePath.indexOf("cdvfile://") != 0) {
       return null;
