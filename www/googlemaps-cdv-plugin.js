@@ -198,7 +198,7 @@ App.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, 
         if (eventName === "add") {
             var overlay = null;
 
-            switch (objectType) {
+            switch ((objectType + "").toLowerCase) {
                 case "marker":
                     overlay = new Marker(self, result.id, options);
                     MARKERS[result.id] = overlay;
