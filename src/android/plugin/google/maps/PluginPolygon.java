@@ -39,9 +39,8 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
         if (opts.has("holes")) {
             JSONArray holes = opts.getJSONArray("holes");
-            int i, j;
+            int i;
             JSONArray latLngArray;
-            JSONObject pointJSON;
             for (i = 0; i < holes.length(); i++) {
                 latLngArray = holes.getJSONArray(i);
                 polygonOptions.addHole(PluginUtil.JSONArray2LatLngList(latLngArray));
