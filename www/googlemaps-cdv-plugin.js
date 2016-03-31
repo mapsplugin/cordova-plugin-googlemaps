@@ -1128,6 +1128,10 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
 App.prototype.addPolygon = function(polygonOptions, callback) {
     var self = this;
     polygonOptions.points = polygonOptions.points || [];
+    polygonOptions.holes = polygonOptions.holes || [];
+    if (polygonOptions.holes.length > 0 && !Array.isArray(polygonOptions.holes[0])) {
+      polygonOptions.holes = [polygonOptions.holes];
+    }
     polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
     if (polygonOptions.fillColor) {
         polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
