@@ -1,16 +1,16 @@
 package plugin.google.maps;
 
-import java.util.List;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
+import java.util.List;
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
@@ -35,6 +35,18 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
                 polygonOptions.add(path.get(i));
                 builder.include(path.get(i));
             }
+        }
+
+        if (opts.has("holes")) {
+            JSONArray holes = opts.getJSONArray("holes");
+            int i, j;
+            JSONArray latLngArray;
+            JSONObject pointJSON;
+            for (i = 0; i < holes.length(); i++) {
+                latLngArray = holes.getJSONArray(i);
+                polygonOptions.addHole(PluginUtil.JSONArray2LatLngList(latLngArray));
+            }
+
         }
         if (opts.has("strokeColor")) {
             color = PluginUtil.parsePluginColor(opts.getJSONArray("strokeColor"));
