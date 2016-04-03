@@ -225,7 +225,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (true) {
+    if (isDebug) {
       if (args != null && args.length() > 0) {
         Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
       } else {
