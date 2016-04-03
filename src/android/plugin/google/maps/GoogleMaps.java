@@ -102,7 +102,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
       OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
   private final String TAG = "GoogleMapsPlugin";
-  private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
+  public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   private FrameLayout mapFrame = null;
@@ -225,7 +225,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (isDebug) {
+    if (true) {
       if (args != null && args.length() > 0) {
         Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
       } else {
@@ -235,7 +235,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     Runnable runnable = new Runnable() {
       public void run() {
-        if ((!"getMap".equals(action) && !"isAvailable".equals(action) && !"getLicenseInfo".equals(action)) &&
+        if ((!"getMap".equals(action) &&
+            !"isAvailable".equals(action) &&
+            !"getLicenseInfo".equals(action) &&
+            !"pluginLayer_setDebuggable".equals(action)) &&
             GoogleMaps.this.map == null) {
           Log.w(TAG, "Can not execute '" + action + "' because the map is not created.");
           return;
@@ -263,6 +266,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             }
 
             // Load the class plugin
+            if (params[1].indexOf("create") == 0) {
+              params[0] = params[1].replace("create", "");
+            }
             GoogleMaps.this.loadPlugin(params[0]);
 
             PluginEntry entry = GoogleMaps.this.plugins.get(params[0]);
@@ -636,7 +642,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   // Create the instance of class
   //-----------------------------------
   @SuppressWarnings("rawtypes")
-  private void loadPlugin(String serviceName) {
+  public void loadPlugin(String serviceName) {
     if (plugins.containsKey(serviceName)) {
       return;
     }
@@ -2084,6 +2090,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    */
   @SuppressWarnings("unused")
   private void pluginLayer_setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    Log.d("GoogleMaps", "pluginLayer_setDebuggable ");
     boolean debuggable = args.getBoolean(0);
     if (mapView != null && this.windowLayer == null) {
       this.mPluginLayout.setDebug(debuggable);

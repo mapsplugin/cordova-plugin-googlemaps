@@ -1,8 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <plugin id="cordova-plugin-googlemaps" version="1.3.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
-    <js-module name="cordova-plugin-googlemaps" src="www/googlemaps-cdv-plugin.js">
-        <clobbers target="cordova-plugin-googlemaps" />
+    <js-module name="BaseClass" src="www/BaseClass.js">
+      <clobbers target="plugin.google.maps.BaseClass" />
+    </js-module>
+    <js-module name="Polygon" src="www/Polygon.js">
+      <runs />
+    </js-module>
+    <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
+      <clobbers target="plugin.google.maps" />
     </js-module>
 
 
@@ -40,6 +46,9 @@
             </feature>
             <feature name="Geocoder">
                 <param name="android-package" value="plugin.google.maps.MyGeocoder" />
+            </feature>
+            <feature name="Polygon">
+                <param name="android-package" value="plugin.google.maps.PluginPolygon" />
             </feature>
         </config-file>
 
