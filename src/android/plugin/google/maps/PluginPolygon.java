@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
@@ -66,13 +67,6 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         }
         if (opts.has("zIndex")) {
             polygonOptions.zIndex(opts.getInt("zIndex"));
-        }
-        if (opts.has("addHole")) {
-            JSONArray points = opts.getJSONArray("addHole");
-            List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-            if(path.size() > 0) {
-                polygonOptions.addHole(path);
-            }
         }
 
         Polygon polygon = map.addPolygon(polygonOptions);
@@ -174,6 +168,30 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         this.objects.remove(id);
 
         polygon.remove();
+        this.sendNoResult(callbackContext);
+    }
+
+    /**
+     * Set holes
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    @SuppressWarnings("unused")
+    private void setHoles(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(1);
+        Polygon polygon = this.getPolygon(id);
+
+        JSONArray holesJSONArray = args.getJSONArray(2);
+        List<List<LatLng>> holes = new LinkedList<List<LatLng>>();
+
+        for (int i = 0; i < holesJSONArray.length(); i++) {
+            JSONArray holeJSONArray = holesJSONArray.getJSONArray(i);
+            holes.add(PluginUtil.JSONArray2LatLngList(holeJSONArray));
+        }
+
+        polygon.setHoles(holes);
+
         this.sendNoResult(callbackContext);
     }
 

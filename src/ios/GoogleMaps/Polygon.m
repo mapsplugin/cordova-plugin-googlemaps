@@ -84,6 +84,40 @@
 
 
 /**
+ * Set holes
+ * @params key
+ */
+-(void)setHoles:(CDVInvokedUrlCommand *)command
+{
+  NSString *polygonKey = [command.arguments objectAtIndex:1];
+  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  
+  NSArray *holes = [command.arguments objectAtIndex:2];
+  NSArray *latLngArray;
+  NSDictionary *latLng;
+  int i, j;
+  NSMutableArray *holePaths = [NSMutableArray array];
+  
+  
+  for (i = 0; i < holes.count; i++) {
+    latLngArray = [holes objectAtIndex:i];
+    GMSMutablePath *holePath = [GMSMutablePath path];
+    for (j = 0; j < latLngArray.count; j++) {
+      latLng = [latLngArray objectAtIndex:j];
+      [holePath addLatitude:[[latLng objectForKey:@"lat"] floatValue] longitude:[[latLng objectForKey:@"lng"] floatValue]];
+    }
+    [holePaths addObject:holePath];
+  }
+  polygon.holes = holePaths;
+
+
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
+/**
  * Set points
  * @params key
  */
