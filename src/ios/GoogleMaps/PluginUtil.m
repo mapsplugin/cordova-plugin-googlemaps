@@ -132,15 +132,14 @@ static char CAAnimationGroupBlockKey;
 
 
 @implementation MainViewController (CDVViewController)
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
 - (void)webViewDidFinishLoad:(UIWebView*)theWebView
 {
   theWebView.backgroundColor = [UIColor clearColor];
   theWebView.opaque = NO;
   return [super webViewDidFinishLoad:theWebView];
 }
-#endif
 @end
+
 @implementation PluginUtil
 + (BOOL)isIOS7_OR_OVER
 {
@@ -175,7 +174,7 @@ static char CAAnimationGroupBlockKey;
 }
 
 
-+ (NSString *)getAbsolutePathFromCDVFilePath:(UIView*)webView cdvFilePath:(NSString *)cdvFilePath {
++ (NSString *)getAbsolutePathFromCDVFilePath:(UIWebView*)webView cdvFilePath:(NSString *)cdvFilePath {
 
   NSRange range = [cdvFilePath rangeOfString:@"cdvfile://"];
   if (range.location == NSNotFound) {
@@ -195,11 +194,8 @@ static char CAAnimationGroupBlockKey;
     if ([CDVFilesystemURLCls respondsToSelector:fileSystemURLWithString]) {
       id cdvFilesystemURL = [CDVFilesystemURLCls performSelector:fileSystemURLWithString withObject:cdvFilePath];
       if (cdvFilesystemURL != nil) {
-#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
-		CDVPlugin *filePlugin = [(CDVPlugin *)[CDVFileCls alloc] init];
-#else
+      
         CDVPlugin *filePlugin = (CDVPlugin *)[[CDVFileCls alloc] initWithWebView:webView];
-#endif
         [filePlugin pluginInitialize];
         
         SEL filesystemPathForURL = NSSelectorFromString(@"filesystemPathForURL:");
@@ -213,7 +209,6 @@ static char CAAnimationGroupBlockKey;
   
   return filePath;
 }
-
 @end
 
 

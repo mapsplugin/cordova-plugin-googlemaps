@@ -32,26 +32,7 @@
   // Create the polygon, and assign it to the map.
   GMSPolygon *polygon = [GMSPolygon polygonWithPath:path];
   polygon.title = @"polygon";
-  if ([json valueForKey:@"holes"]) {
-    NSArray *holes = [json objectForKey:@"holes"];
-    NSArray *latLngArray;
-    NSDictionary *latLng;
-    int j;
-    NSMutableArray *holePaths = [NSMutableArray array];
-    
-    
-    for (i = 0; i < holes.count; i++) {
-      latLngArray = [holes objectAtIndex:i];
-      GMSMutablePath *holePath = [GMSMutablePath path];
-      for (j = 0; j < latLngArray.count; j++) {
-        latLng = [latLngArray objectAtIndex:j];
-        [holePath addLatitude:[[latLng objectForKey:@"lat"] floatValue] longitude:[[latLng objectForKey:@"lng"] floatValue]];
-      }
-      [holePaths addObject:holePath];
-    }
-    polygon.holes = holePaths;
-  }
-  
+
   if ([[json valueForKey:@"visible"] boolValue]) {
     polygon.map = self.mapCtrl.map;
   }

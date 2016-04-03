@@ -1,28 +1,27 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="1.3.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="plugin.google.maps" version="1.3.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
-    <js-module name="cordova-plugin-googlemaps" src="www/googlemaps-cdv-plugin.js">
-        <clobbers target="cordova-plugin-googlemaps" />
+    <js-module name="phonegap-googlemaps-plugin" src="www/googlemaps-cdv-plugin.js">
+        <clobbers target="plugin.google.maps" />
     </js-module>
 
-
+    
     <description>Google Maps native SDK for Android and iOS</description>
     <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps</repo>
     <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
 
     <license>Apache 2.0</license>
-
+    
     <keywords>google,maps,geo</keywords>
-
+    
     <engines>
-      <engine name="cordova-android" version=">=5.1.0" />
-      <engine name="cordova-ios" version=">=3.0.0" />
+      <engine name="cordova" version=">=3.5.0" />
     </engines>
-
+        
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
-
+        
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for Android.
              Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
@@ -68,7 +67,7 @@
         <source-file src="src/android/plugin/google/maps/PluginTileProvider.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps" />
-
+        
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
@@ -77,7 +76,7 @@
             <meta-data android:name="com.google.android.gms.version"
                        android:value="@integer/google_play_services_version" />
         </config-file>
-
+        
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -90,11 +89,11 @@
             <uses-feature android:glEsVersion="0x00020000" android:required="true" />
         </config-file>
     </platform>
-
+    
     <!-- ios -->
     <platform name="ios">
         <preference name="API_KEY_FOR_IOS" />
-
+      
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for iOS.
              Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
@@ -112,33 +111,6 @@
             </feature>
             <feature name="Geocoder">
                 <param name="ios-package" value="Geocoder" />
-            </feature>
-            <feature name="Map">
-                <param name="ios-package" value="Map" />
-            </feature>
-            <feature name="Circle">
-                <param name="ios-package" value="Circle" />
-            </feature>
-            <feature name="Geocoder">
-                <param name="ios-package" value="Geocoder" />
-            </feature>
-            <feature name="GroundOverlay">
-                <param name="ios-package" value="GroundOverlay" />
-            </feature>
-            <feature name="KmlOverlay">
-                <param name="ios-package" value="KmlOverlay" />
-            </feature>
-            <feature name="Marker">
-                <param name="ios-package" value="Marker" />
-            </feature>
-            <feature name="Polygon">
-                <param name="ios-package" value="Polygon" />
-            </feature>
-            <feature name="Polyline">
-                <param name="ios-package" value="Polyline" />
-            </feature>
-            <feature name="TileOverlay">
-                <param name="ios-package" value="TileOverlay" />
             </feature>
         </config-file>
 
@@ -174,8 +146,6 @@
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.h" />
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.podspec" />
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
-        <header-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h" />
-        <source-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
         <header-file src="src/ios/GoogleMaps/MyReachability.h" />
@@ -194,7 +164,7 @@
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
             <string>Trace your location on the map</string>
         </config-file>
-
+        
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
           <array>
             <dict>
@@ -209,7 +179,7 @@
             </dict>
           </array>
         </config-file>
-
+        
         <dependency id="com.googlemaps.ios" url="https://bitbucket.org/nightstomp/cordova-plugin-googlemaps-sdk.git" commit="master" />
     </platform>
 </plugin>

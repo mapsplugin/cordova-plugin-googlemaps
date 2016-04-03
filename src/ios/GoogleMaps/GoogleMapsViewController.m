@@ -7,9 +7,7 @@
 //
 
 #import "GoogleMapsViewController.h"
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
 #import <Cordova/CDVJSON.h>
-#endif
 
 
 @implementation GoogleMapsViewController
@@ -55,7 +53,6 @@ NSDictionary *initOptions;
     //------------------
   
     //Intial camera position
-    /*
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
     [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
@@ -72,65 +69,6 @@ NSDictionary *initOptions;
                                   zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
                                   bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                   viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-    */
-    
-  
-    NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-    NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
-    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
-    float latitude;
-    float longitude;
-    GMSCameraPosition *camera;
-    GMSCoordinateBounds *cameraBounds = nil;
-  
-    if ([cameraOpts objectForKey:@"target"]) {
-      NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
-      if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
-        int i = 0;
-        NSArray *latLngList = [cameraOpts objectForKey:@"target"];
-        GMSMutablePath *path = [GMSMutablePath path];
-        for (i = 0; i < [latLngList count]; i++) {
-          latLng = [latLngList objectAtIndex:i];
-          latitude = [[latLng valueForKey:@"lat"] floatValue];
-          longitude = [[latLng valueForKey:@"lng"] floatValue];
-          [path addLatitude:latitude longitude:longitude];
-        }
-        float scale = 1;
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-          scale = [[UIScreen mainScreen] scale];
-        }
-        [[UIScreen mainScreen] scale];
-        
-        cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-        
-        CLLocationCoordinate2D center = cameraBounds.center;
-        
-        camera = [GMSCameraPosition cameraWithLatitude:center.latitude
-                                            longitude:center.longitude
-                                            zoom:0
-                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-        
-      } else {
-        latLng = [cameraOpts objectForKey:@"target"];
-        latitude = [[latLng valueForKey:@"lat"] floatValue];
-        longitude = [[latLng valueForKey:@"lng"] floatValue];
-        
-        camera = [GMSCameraPosition cameraWithLatitude:latitude
-                                            longitude:longitude
-                                            zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
-                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-      }
-    } else {
-      camera = [GMSCameraPosition
-                              cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
-                              longitude: [[latLng valueForKey:@"lng"] floatValue]
-                              zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
-                              bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                              viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-    }
   
     CGRect pluginRect = self.view.frame;
     int marginBottom = 0;
@@ -222,26 +160,6 @@ NSDictionary *initOptions;
     }
   
     [self.view addSubview: self.map];
-  
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (cameraBounds != nil) {
-        float scale = 1;
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-          scale = [[UIScreen mainScreen] scale];
-        }
-        [[UIScreen mainScreen] scale];
-        [self.map moveCamera:[GMSCameraUpdate fitBounds:cameraBounds withPadding:10 * scale]];
-        
-        GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
-                                            longitude:cameraBounds.center.longitude
-                                            zoom:self.map.camera.zoom
-                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-      
-        [self.map setCamera:cameraPosition2];
-
-      }
-    });
 }
 
 
@@ -258,13 +176,8 @@ NSDictionary *initOptions;
  *         camera to move such that it is centered on the user location.
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
-	NSString *jsString = @"plugin.google.maps.Map._onMapEvent('my_location_button_click');";
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
-	return NO;
+  [self.webView stringByEvaluatingJavaScriptFromString:@"plugin.google.maps.Map._onMapEvent('my_location_button_click');"];
+  return NO;
 }
 
 #pragma mark - GMSMapViewDelegate
@@ -291,11 +204,7 @@ NSDictionary *initOptions;
   dispatch_sync(gueue, ^{
   
     NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %@);", gesture ? @"true": @"false"];
-	  if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		  [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	  } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		  [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	  }
+    [self.webView stringByEvaluatingJavaScriptFromString:jsString];
   });
 }
 
@@ -382,11 +291,7 @@ NSDictionary *initOptions;
 {
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('%@', new window.plugin.google.maps.LatLng(%f,%f));",
                                       eventName, coordinate.latitude, coordinate.longitude];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 /**
  * Involve App._onCameraEvent
@@ -410,11 +315,7 @@ NSDictionary *initOptions;
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onCameraEvent('%@', %@);", eventName, sourceArrayString];
 
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 
@@ -425,11 +326,7 @@ NSDictionary *initOptions;
 {
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker_%lu');",
                                       eventName, (unsigned long)marker.hash];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 /**
@@ -439,11 +336,7 @@ NSDictionary *initOptions;
 {
   NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
                                       eventName, id];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 //future support: custom info window
@@ -821,11 +714,7 @@ NSDictionary *initOptions;
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building {
   //Notify to the JS
   NSString* jsString = @"javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')";
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
@@ -857,11 +746,7 @@ NSDictionary *initOptions;
                                            encoding:NSUTF8StringEncoding];
   NSString *jsString = [NSString stringWithFormat:@"javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', %@)", JSONstring];
   
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self.webView stringByEvaluatingJavaScriptFromString:jsString];
 }
 
 

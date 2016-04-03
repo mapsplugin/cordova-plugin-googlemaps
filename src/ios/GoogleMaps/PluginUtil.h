@@ -14,8 +14,6 @@
 #import "MainViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
-//#import "MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h"
-#import "GMSCoordinateBounds+Geometry.h"
 
 typedef void (^MYCompletionHandler)(NSError *error);
 
@@ -49,9 +47,7 @@ typedef void (^MYCompletionHandler)(NSError *error);
 // http://stackoverflow.com/questions/5272451/overriding-methods-using-categories-in-objective-c#5272612
 //
 @interface MainViewController (CDVViewController)
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
 - (void)webViewDidFinishLoad:(UIWebView*)theWebView;
-#endif
 @end
 
 //
@@ -67,7 +63,7 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 + (BOOL)isIOS7_OR_OVER;
 + (BOOL)isIOS8_OR_OVER;
 + (BOOL)isInDebugMode;
-+ (NSString *)getAbsolutePathFromCDVFilePath:(UIView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
++ (NSString *)getAbsolutePathFromCDVFilePath:(UIWebView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
 @end
 
 

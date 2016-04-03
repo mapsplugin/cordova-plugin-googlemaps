@@ -1,20 +1,5 @@
 package plugin.google.maps;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +8,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Random;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
@@ -435,7 +437,19 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     this.mCallback.success(kmlId);
   }
   
+  
+  private abstract class MyCallbackContext extends CallbackContext {
 
+    public MyCallbackContext(String callbackId, CordovaWebView webView) {
+      super(callbackId, webView);
+    }
+    @Override
+    public void sendPluginResult(PluginResult pluginResult) {
+      this.onResult(pluginResult);
+    }
+    
+    abstract public void onResult(PluginResult pluginResult);
+  }
   
   private void execOtherClassMethod(final JSONArray params, final CallbackContext callback) {
     
@@ -458,7 +472,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     JSONArray params = new JSONArray();
     params.put(className + ".create" + className);
     params.put(optionsJSON);
-    AsyncKmlParser.this.execOtherClassMethod(params, new PluginUtil.MyCallbackContext(kmlId +"_callback", mMapCtrl.webView) {
+    AsyncKmlParser.this.execOtherClassMethod(params, new MyCallbackContext(kmlId +"_callback", mMapCtrl.webView) {
 
       @Override
       public void onResult(PluginResult pluginResult) {

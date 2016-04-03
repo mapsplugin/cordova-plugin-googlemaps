@@ -8,6 +8,16 @@ Join our online chat at<br>
 [![Gitter](https://badges.gitter.im/cordova-plugin-googlemaps.svg)](https://gitter.im/nightstomp/cordova-plugin-googlemaps)
 
 
+###Donation
+Please consider to make a small donation. We spent many hours to make this a great plugin, we even pay other developers to contribute new functions. In order to keep up the motivation, we ask for your help, too. Thanks!
+
+**Currently donated**: 50 $
+
+[![img](https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_cc_147x47.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LLCBVUA7TQ8SU)
+
+Before I release the clustering feature, I want to raise a funding of 1000$. I will donate some of the funded money to @limeuwe for donating the code and to my developer for the Android part. If you want to donate for funding, please add a note about that fact inside of the comments on paypal, or it will be considered as a normal donation.
+
+**Currently funded**: 70 $
 
 ###Quick install
 
@@ -27,20 +37,19 @@ $> cordova plugin add https://github.com/phonegap-googlemaps-plugin/cordova-plug
 If you re-install the plugin, please always remove the plugin first, then remove the SDK
 
 ```bash
-$> cordova plugin rm plugin.google.maps #before 1.4.0
-$> cordova plugin rm cordova-plugin-googlemaps #since 1.4+
+$> cordova plugin rm plugin.google.maps
 $> cordova plugin rm com.googlemaps.ios
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
 
 The SDK-Plugin won't be uninstalled automatically and you will stuck on an old version.
 
-###Information
-Cordova-iOS 4.X and WKWebView are supported from version 1.4+. There is currently no npm package of 1.4 (work in progress) but if you need this feature, you can grab our master, which is currently considered stable. (We're still fixing bugs, so you might wait until we push 1.4.0 to npm)
+###WARNING
+This plugin is not compatible with Cordova-iOS 4.0.0. WKWebView is not supported. They have been huge changes in the API, and due to lack of time, there is no ETA when this plugin will be compatible. PRs are welcome!!
 
 ###Last release information
 
-**v.1.3.9 - 04/Jan/2016**
+**v.1.3.9 - 04/01/2016**
 Happy new year!
 - Fixed a few bugs with Crosswalk, White-Screen Problems.
 - Added "maxAddressLines" for Geocoder (Android, iOS  had it already). Check "lines" inside of the extras array.
@@ -50,7 +59,7 @@ Please check the new [Tutorial for Crosswalk](https://github.com/phonegap-google
 
 I recommend to set settings for Crosswalk to 15+ and remove android-platform (`cordova platform rm android`) and re-install it. No patches required anymore to run with crosswalk. It also has some nice performance boosts, as setting translucent isn't required anymore. (in my test-cases)
 
-**v.1.3.6 - 07/Dec/2015**
+**v.1.3.6 - 07/12/2015**
 - Fixed some small bugs
 - Updated Google Maps SDK for iOS to 1.11.0
  - Will fix some bugs on iOS 9
