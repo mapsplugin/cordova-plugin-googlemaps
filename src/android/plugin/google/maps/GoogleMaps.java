@@ -1802,6 +1802,203 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
+    return null;
+  }
+  
+
+  @Override
+  public View getInfoWindow(Marker marker) {
+    String title = marker.getTitle();
+    String snippet = marker.getSnippet();
+    if ((title == null) && (snippet == null)) {
+      return null;
+    }
+    
+    JSONObject properties = null;
+    JSONObject styles = null;
+    String propertyId = "marker_property_" + marker.getId();
+    PluginEntry pluginEntry = this.plugins.get("Marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    if (pluginMarker.objects.containsKey(propertyId)) {
+      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+
+      if (properties.has("styles")) {
+        try {
+          styles = (JSONObject) properties.getJSONObject("styles");
+        } catch (JSONException e) {}
+      }
+    }
+    
+
+    // Linear layout
+    LinearLayout windowLayer = new LinearLayout(activity);
+    windowLayer.setPadding(0, 0, 0, 0);
+    windowLayer.setAlpha(100);
+    windowLayer.setOrientation(LinearLayout.VERTICAL);
+    LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+
+    int maxWidth = 0;
+
+    if (styles != null) {
+      try {
+        int width = 0;
+        String widthString = styles.getString("width");
+
+        if (widthString.endsWith("%")) {
+          double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
+
+          width = (int)((double)mapView.getWidth() * (widthDouble / 100));
+        } else if (isNumeric(widthString)) {
+          double widthDouble = Double.parseDouble(widthString);
+
+          if (widthDouble <= 1.0) { // for percentage values (e.g. 0.5 = 50%).
+            width = (int)((double)mapView.getWidth() * (widthDouble));
+          } else {
+            width = (int)widthDouble;
+          }
+        }
+
+        if (width > 0) {
+          layoutParams.width = width;
+        }
+      } catch (Exception e) {}
+
+      try {
+        String widthString = styles.getString("maxWidth");
+
+        if (widthString.endsWith("%")) {
+          double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
+
+          maxWidth = (int)((double)mapView.getWidth() * (widthDouble / 100));
+
+          // make sure to take padding into account.
+          maxWidth -= (windowLayer.getPaddingLeft() + windowLayer.getPaddingRight());
+        } else if (isNumeric(widthString)) {
+          double widthDouble = Double.parseDouble(widthString);
+
+          if (widthDouble <= 1.0) { // for percentage values (e.g. 0.5 = 50%).
+            maxWidth = (int)((double)mapView.getWidth() * (widthDouble));
+          } else {
+            maxWidth = (int)widthDouble;
+          }
+        }
+      } catch (Exception e) {}
+    }
+
+    windowLayer.setLayoutParams(layoutParams);
+
+    //----------------------------------------
+    // text-align = left | center | right
+    //----------------------------------------
+    int gravity = Gravity.LEFT;
+    int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+    
+    if (styles != null) {
+      try {
+        String textAlignValue = styles.getString("text-align");
+        
+        switch(TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
+        case left:
+          gravity = Gravity.LEFT;
+          textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+          break;
+        case center:
+          gravity = Gravity.CENTER;
+          textAlignment = View.TEXT_ALIGNMENT_CENTER;
+          break;
+        case right:
+          gravity = Gravity.RIGHT;
+          textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
+          break;
+        }
+        
+      } catch (Exception e) {}
+    }
+    
+    if (title != null) {
+      if (title.indexOf("data:image/") > -1 && title.indexOf(";base64,") > -1) {
+        String[] tmp = title.split(",");
+        Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+        image = PluginUtil.scaleBitmapForDevice(image);
+        ImageView imageView = new ImageView(this.cordova.getActivity());
+        imageView.setImageBitmap(image);
+
+        if (maxWidth > 0) {
+          imageView.setMaxWidth(maxWidth);
+          imageView.setAdjustViewBounds(true);
+        }
+
+        windowLayer.addView(imageView);
+      } else {
+        TextView textView = new TextView(this.cordova.getActivity());
+        textView.setText(title);
+        textView.setSingleLine(false);
+        
+        int titleColor = Color.BLACK;
+        if (styles != null && styles.has("color")) {
+          try {
+            titleColor = PluginUtil.parsePluginColor(styles.getJSONArray("color"));
+          } catch (JSONException e) {}
+        }
+        textView.setTextColor(titleColor);
+        textView.setGravity(gravity);
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+          textView.setTextAlignment(textAlignment);
+        }
+        
+        //----------------------------------------
+        // font-style = normal | italic
+        // font-weight = normal | bold
+        //----------------------------------------
+        int fontStyle = Typeface.NORMAL;
+        if (styles != null) {
+          try {
+            if ("italic".equals(styles.getString("font-style"))) {
+              fontStyle = Typeface.ITALIC;
+            }
+          } catch (JSONException e) {}
+          try {
+            if ("bold".equals(styles.getString("font-weight"))) {
+              fontStyle = fontStyle | Typeface.BOLD;
+            }
+          } catch (JSONException e) {}
+        }
+        textView.setTypeface(Typeface.DEFAULT, fontStyle);
+
+        if (maxWidth > 0) {
+          textView.setMaxWidth(maxWidth);
+        }
+
+        windowLayer.addView(textView);
+      }
+    }
+    if (snippet != null) {
+      //snippet = snippet.replaceAll("\n", "");
+      TextView textView2 = new TextView(this.cordova.getActivity());
+      textView2.setText(snippet);
+      textView2.setTextColor(Color.GRAY);
+      textView2.setTextSize((textView2.getTextSize() / 6 * 5) / density);
+      textView2.setGravity(gravity);
+      if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        textView2.setTextAlignment(textAlignment);
+      }
+
+      if (maxWidth > 0) {
+        textView2.setMaxWidth(maxWidth);
+      }
+
+      windowLayer.addView(textView2);
+    }
+
+    return windowLayer;
+  }
+  
+  /*
+  //Commented section from orginal repository
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+  @Override
+  public View getInfoContents(Marker marker) {
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
     if ((title == null) && (snippet == null)) {
@@ -1991,6 +2188,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   public View getInfoWindow(Marker marker) {
     return null;
   }
+  */
 
   /**
    * Clear all markups
