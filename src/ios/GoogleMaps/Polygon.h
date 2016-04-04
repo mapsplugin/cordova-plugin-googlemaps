@@ -10,10 +10,11 @@
 #import "MyPlgunProtocol.h"
 @interface Polygon : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createPolygon:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 - (void)setFillColor:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeColor:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeWidth:(CDVInvokedUrlCommand*)command;
+- (void)setHoles:(CDVInvokedUrlCommand*)command;
 - (void)setPoints:(CDVInvokedUrlCommand*)command;
 - (void)setZIndex:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;

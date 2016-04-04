@@ -1034,7 +1034,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, polygon, self);
         }
-    }, self.errorHandler, "Polygon", 'createPolygon', [self.deleteFromObject(polygonOptions,'function')]);
+    }, self.errorHandler, "Polygon", 'create', [self.deleteFromObject(polygonOptions,'function')]);
 };
 
 //-------------
