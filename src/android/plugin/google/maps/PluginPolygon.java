@@ -22,30 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
-/*
-    @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        if ("createPolygon".equals(action)) {
-            this.createPolygon(args, callbackContext);
-            return true;
-        } else if (methods.containsKey(action)) {
-            Method method = methods.get(action);
-            try {
-                Log.d("Polygon", "method=" + method);
-                method.invoke(self, args, callbackContext);
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                callbackContext.error(e.getMessage());
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        //return super.execute(action, args, callbackContext);
-    }
-    */
 
     /**
      * Create polygon

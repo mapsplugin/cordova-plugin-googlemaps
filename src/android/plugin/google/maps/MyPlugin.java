@@ -49,9 +49,8 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    /*
+/*
     String[] params = args.getString(0).split("\\.");
-    Log.d("MyPlugin", "class=" + params[0] + ", method=" + params[1]);
     try {
       Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
       method.setAccessible(true);
@@ -62,7 +61,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       callbackContext.error(e.getMessage());
       return false;
     }
-    */
+*/
 
     if (action.startsWith("create")) {
       if (self == null) {
@@ -107,6 +106,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     } else {
       return false;
     }
+
   }
 
   protected void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {

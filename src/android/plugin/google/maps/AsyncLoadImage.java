@@ -14,26 +14,75 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.util.LruCache;
 
 public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private AsyncLoadImageInterface targetPlugin;
   private int mWidth = -1;
   private int mHeight = -1;
 
+  public static LruCache<String, Bitmap> mIconCache;
+
   public AsyncLoadImage(AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
+    privateInit();
   }
 
   public AsyncLoadImage(int width, int height, AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
     mWidth = width;
     mHeight = height;
+    privateInit();
   }
-  
+
+  private void privateInit() {
+    if (mIconCache != null) {
+      return;
+    }
+
+    // Get max available VM memory, exceeding this amount will throw an
+    // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+    // int in its constructor.
+    int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+    // Use 1/8th of the available memory for this memory cache.
+    int cacheSize = maxMemory / 8;
+
+    mIconCache = new LruCache<String, Bitmap>(cacheSize) {
+      @Override
+      protected int sizeOf(String key, Bitmap bitmap) {
+        // The cache size will be measured in kilobytes rather than
+        // number of items.
+        return bitmap.getByteCount() / 1024;
+      }
+    };
+  }
+  private void addBitmapToMemoryCache(String key, Bitmap image) {
+    if (getBitmapFromMemCache(key) == null) {
+      mIconCache.put(key, image.copy(image.getConfig(), true));
+    }
+  }
+
+  private Bitmap getBitmapFromMemCache(String key) {
+    Bitmap image = mIconCache.get(key);
+    if (image == null || image.isRecycled()) {
+      return null;
+    }
+
+    return image.copy(image.getConfig(), true);
+  }
+
+
   @SuppressLint("NewApi")
   protected Bitmap doInBackground(String... urls) {
     try {
       URL url= new URL(urls[0]);
+      String cacheKey = url.hashCode() + "/" + mWidth + "x" + mHeight;
+      Bitmap image = getBitmapFromMemCache(cacheKey);
+      if (image != null) {
+        return image;
+      }
       HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
       http.setRequestMethod("GET");
       http.setUseCaches(true);
@@ -121,6 +170,8 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       myBitmap.recycle();
       canvas = null;
       imageBytes = null;
+
+      addBitmapToMemoryCache(cacheKey, scaledBitmap);
       
       return scaledBitmap;
     } catch (Exception e) {

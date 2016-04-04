@@ -7,6 +7,9 @@
     <js-module name="Polygon" src="www/Polygon.js">
       <runs />
     </js-module>
+    <js-module name="Marker" src="www/Marker.js">
+      <runs />
+    </js-module>
     <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
       <clobbers target="plugin.google.maps" />
     </js-module>
@@ -49,6 +52,9 @@
             </feature>
             <feature name="Polygon">
                 <param name="android-package" value="plugin.google.maps.PluginPolygon" />
+            </feature>
+            <feature name="Marker">
+                <param name="android-package" value="plugin.google.maps.PluginMarker" />
             </feature>
         </config-file>
 
