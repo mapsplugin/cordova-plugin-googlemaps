@@ -50,8 +50,4 @@ out/
 src/android/plugin/google/maps/experimental
 src/android/plugin/google/maps/PluginMarkerCluster.java
 platforms/android/res/xml/drawable/m1.png
-www/*
-www/pages/*
-www/js/*
-!www/googlemaps-cdv-plugin.js
 platforms/android/lint.xml
