@@ -22,6 +22,7 @@ NSDictionary *initOptions;
     self.isFullScreen = NO;
     self.embedRect = nil;
     self.screenSize = [[UIScreen mainScreen] bounds];
+    self.overlayManager = [NSMutableDictionary dictionary];
 
     return self;
 }
@@ -45,10 +46,6 @@ NSDictionary *initOptions;
                                                             [NSNumber numberWithInt:128],
                                                             [NSNumber numberWithInt:128], nil] parsePluginColor];
   
-    //------------
-    // Initialize
-    //------------
-    self.overlayManager = [NSMutableDictionary dictionary];
   
     //------------------
     // Create a map view

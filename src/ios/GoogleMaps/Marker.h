@@ -12,8 +12,11 @@
 #import "NSData+Base64.h"
 
 @interface Marker : CDVPlugin<MyPlgunProtocol>
+
+@property (nonatomic, strong) NSCache* iconCache;
+
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createMarker:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 - (void)showInfoWindow:(CDVInvokedUrlCommand*)command;
 - (void)hideInfoWindow:(CDVInvokedUrlCommand*)command;
 - (void)isInfoWindowShown:(CDVInvokedUrlCommand*)command;
