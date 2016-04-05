@@ -26,9 +26,6 @@
     
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
     GMSMarker *marker = [GMSMarker markerWithPosition:position];
-    if ([[json valueForKey:@"visible"] boolValue] == true) {
-        marker.map = self.mapCtrl.map;
-    }
     if ([json valueForKey:@"title"]) {
         [marker setTitle: [json valueForKey:@"title"]];
     }
@@ -88,6 +85,12 @@
         [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
     }
     
+    // Visible property
+    if ([[json valueForKey:@"visible"] boolValue] == true) {
+        iconProperty[@"visible"] = @YES;
+    } else {
+        iconProperty[@"visible"] = @NO;
+    }
     // Animation
     NSString *animation = nil;
     if ([json valueForKey:@"animation"]) {
@@ -119,6 +122,9 @@
         [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
         
     } else {
+        if ([[json valueForKey:@"visible"] boolValue] == true) {
+            marker.map = self.mapCtrl.map;
+        }
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
         if (animation) {
             [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
@@ -744,6 +750,12 @@
                 marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
             }
             
+
+            // The `visible` property
+            if (iconProperty[@"visible"]) {
+                marker.map = self.mapCtrl.map;
+            }
+
             if (animation) {
                 // Do animation, then send the result
                 [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
@@ -758,9 +770,7 @@
             /***
              * Load the icon from over the internet
              */
-            __block BOOL isMapped = (marker.map != nil);
-            marker.map = nil;
-            
+
             /*
              // download the image asynchronously
              R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:url];
@@ -779,7 +789,8 @@
                     
                     if (!succeeded) {
                         
-                        if(isMapped) {
+                        // The `visible` property
+                        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
                             marker.map = self.mapCtrl.map;
                         }
                         
@@ -811,7 +822,8 @@
                             marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
                         }
                         
-                        if (isMapped) {
+                        // The `visible` property
+                        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
                             marker.map = self.mapCtrl.map;
                         }
                         
