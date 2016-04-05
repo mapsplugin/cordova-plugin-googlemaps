@@ -897,8 +897,18 @@
 
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
-    NSString *uniqueKey = url.absoluteString;
+
+    NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                      cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                                      timeoutInterval:5];
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
+    if (cachedResponse != nil) {
+      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
+      completionBlock(YES, image);
+      return;
+    }
   
+    NSString *uniqueKey = url.absoluteString;
     NSData *cache = [self.iconCache objectForKey:uniqueKey];
     if (cache != nil) {
         UIImage *image = [[UIImage alloc] initWithData:cache];
@@ -906,9 +916,6 @@
         return;
     }
   
-    NSURLRequest *req = [NSURLRequest requestWithURL:url
-                                      cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                      timeoutInterval:5];
     [NSURLConnection sendAsynchronousRequest:req
           queue:[NSOperationQueue mainQueue]
           completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
