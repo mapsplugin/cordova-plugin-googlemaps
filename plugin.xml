@@ -10,6 +10,12 @@
     <js-module name="Marker" src="www/Marker.js">
       <runs />
     </js-module>
+    <js-module name="Circle" src="www/Circle.js">
+      <runs />
+    </js-module>
+    <js-module name="Common" src="www/Common.js">
+      <runs />
+    </js-module>
     <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
       <clobbers target="plugin.google.maps" />
     </js-module>
@@ -55,6 +61,9 @@
             </feature>
             <feature name="Marker">
                 <param name="android-package" value="plugin.google.maps.PluginMarker" />
+            </feature>
+            <feature name="Circle">
+                <param name="android-package" value="plugin.google.maps.PluginCircle" />
             </feature>
         </config-file>
 

@@ -1,6 +1,7 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
+    common = require('./Common'),
     BaseClass = require('./BaseClass');
 
 var PLUGIN_NAME = "Polygon";
@@ -77,14 +78,14 @@ Polygon.prototype.getHoles = function() {
 };
 Polygon.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
-    exec(null, this.errorHandler, PLUGIN_NAME, 'setFillColor', [this.getId(), HTMLColor2RGBA(color, 0.75)]);
+    exec(null, this.errorHandler, PLUGIN_NAME, 'setFillColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Polygon.prototype.getFillColor = function() {
     return this.get('fillColor');
 };
 Polygon.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
-    exec(null, this.errorHandler, PLUGIN_NAME, 'setStrokeColor', [this.getId(), HTMLColor2RGBA(color, 0.75)]);
+    exec(null, this.errorHandler, PLUGIN_NAME, 'setStrokeColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Polygon.prototype.getStrokeColor = function() {
     return this.get('strokeColor');
@@ -97,7 +98,7 @@ Polygon.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
 };
 Polygon.prototype.setVisible = function(visible) {
-    visible = parseBoolean(visible);
+    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     exec(null, this.errorHandler, PLUGIN_NAME, 'setVisible', [this.getId(), visible]);
 };
@@ -105,7 +106,7 @@ Polygon.prototype.getVisible = function() {
     return this.get('visible');
 };
 Polygon.prototype.setGeodesic = function(geodesic) {
-    geodesic = parseBoolean(geodesic);
+    geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
     exec(null, this.errorHandler, PLUGIN_NAME, 'setGeodesic', [this.getId(), geodesic]);
 };

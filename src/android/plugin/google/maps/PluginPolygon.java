@@ -176,10 +176,10 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             this.sendNoResult(callbackContext);
             return;
         }
-        this.objects.remove(id);
+        self.objects.remove(id);
 
         id = "polygon_bounds_" + polygon.getId();
-        this.objects.remove(id);
+        self.objects.remove(id);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -236,7 +236,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         for (int i = 0; i < path.size(); i++) {
             builder.include(path.get(i));
         }
-        this.objects.put("polygon_bounds_" + polygon.getId(), builder.build());
+        self.objects.put("polygon_bounds_" + polygon.getId(), builder.build());
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override

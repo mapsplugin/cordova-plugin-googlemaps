@@ -1,6 +1,7 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
+    common = require('./Common'),
     BaseClass = require('./BaseClass');
 
 var PLUGIN_NAME = "Marker";
@@ -91,7 +92,7 @@ Marker.prototype.remove = function(callback) {
     this.off();
 };
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
-    disableAutoPan = parseBoolean(disableAutoPan);
+    disableAutoPan = common.parseBoolean(disableAutoPan);
     this.set('disableAutoPan', disableAutoPan);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setDisableAutoPan', [this.getId(), disableAutoPan]);
 };
@@ -125,7 +126,7 @@ Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setInfoWindowAnchor', [this.getId(), anchorX, anchorY]);
 };
 Marker.prototype.setDraggable = function(draggable) {
-    draggable = parseBoolean(draggable);
+    draggable = common.parseBoolean(draggable);
     this.set('draggable', draggable);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setDraggable', [this.getId(), draggable]);
 };
@@ -133,13 +134,13 @@ Marker.prototype.isDraggable = function() {
     return this.get('draggable');
 };
 Marker.prototype.setFlat = function(flat) {
-    flat = parseBoolean(flat);
+    flat = common.parseBoolean(flat);
     this.set('flat', flat);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setFlat', [this.getId(), flat]);
 };
 Marker.prototype.setIcon = function(url) {
-    if (url && isHTMLColorString(url)) {
-        url = HTMLColor2RGBA(url);
+    if (url && common.isHTMLColorString(url)) {
+        url = common.HTMLColor2RGBA(url);
     }
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setIcon', [this.getId(), url]);
 };
@@ -152,7 +153,7 @@ Marker.prototype.setTitle = function(title) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTitle', [this.getId(), title]);
 };
 Marker.prototype.setVisible = function(visible) {
-    visible = parseBoolean(visible);
+    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setVisible', [this.getId(), visible]);
 };
@@ -186,7 +187,7 @@ Marker.prototype.hideInfoWindow = function() {
 Marker.prototype.isInfoWindowShown = function(callback) {
     var self = this;
     cordova.exec(function(isVisible) {
-        isVisible = parseBoolean(isVisible);
+        isVisible = common.parseBoolean(isVisible);
         if (typeof callback === "function") {
             callback.call(self, isVisible);
         }

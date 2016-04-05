@@ -8,7 +8,9 @@ var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
     BaseClass = require('./BaseClass'),
+    common = require('./Common'),
     Marker = require('./Marker'),
+    Circle = require('./Circle'),
     Polygon = require('./Polygon');
 
 /**
@@ -122,7 +124,7 @@ App.prototype._onMapEvent = function(eventName) {
     for (var i = 1; i < arguments.length; i++) {
         if (typeof(arguments[i]) === "string") {
             if (["true", "false"].indexOf(arguments[i].toLowerCase()) > -1) {
-                arguments[i] = parseBoolean(arguments[i]);
+                arguments[i] = common.parseBoolean(arguments[i]);
             }
         }
         args.push(arguments[i]);
@@ -150,11 +152,11 @@ App.prototype.getMap = function(div, params) {
     var self = this,
         args = [];
 
-    if (!isDom(div)) {
+    if (!common.isDom(div)) {
         params = div;
         params = params || {};
         params.backgroundColor = params.backgroundColor || '#ffffff';
-        params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
+        params.backgroundColor = common.HTMLColor2RGBA(params.backgroundColor);
         if (params.camera && params.camera.latLng) {
           params.camera.target = params.camera.latLng;
           delete params.camera.latLng;
@@ -192,7 +194,7 @@ App.prototype.getMap = function(div, params) {
         var children = getAllChildren(div);
         params = params || {};
         params.backgroundColor = params.backgroundColor || '#ffffff';
-        params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
+        params.backgroundColor = common.HTMLColor2RGBA(params.backgroundColor);
         if (params.camera && params.camera.latLng) {
           params.camera.target = params.camera.latLng;
           delete params.camera.latLng;
@@ -200,7 +202,7 @@ App.prototype.getMap = function(div, params) {
         args.push(params);
 
         self.set("div", div);
-        args.push(getDivRect(div));
+        args.push(common.getDivRect(div));
         var elements = [];
         var elemId, clickable;
 
@@ -213,7 +215,7 @@ App.prototype.getMap = function(div, params) {
             }
             elements.push({
                 id: elemId,
-                size: getDivRect(element)
+                size: common.getDivRect(element)
             });
             i++;
         }
@@ -302,7 +304,7 @@ App.prototype.closeDialog = function() {
 App.prototype.setOptions = function(options) {
     options = options || {};
     if (options.hasOwnProperty('backgroundColor')) {
-        options.backgroundColor = HTMLColor2RGBA(options.backgroundColor);
+        options.backgroundColor = common.HTMLColor2RGBA(options.backgroundColor);
     }
     if (options.camera && options.camera.latLng) {
       options.camera.target = options.camera.latLng;
@@ -435,20 +437,20 @@ App.prototype.moveCamera = function(cameraPosition, callback) {
 };
 
 App.prototype.setMyLocationEnabled = function(enabled) {
-    enabled = parseBoolean(enabled);
+    enabled = common.parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
 };
 App.prototype.setIndoorEnabled = function(enabled) {
-    enabled = parseBoolean(enabled);
+    enabled = common.parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);
 };
 App.prototype.setTrafficEnabled = function(enabled) {
-    enabled = parseBoolean(enabled);
+    enabled = common.parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTrafficEnabled', enabled]);
 };
 App.prototype.setCompassEnabled = function(enabled) {
     var self = this;
-    enabled = parseBoolean(enabled);
+    enabled = common.parseBoolean(enabled);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
 };
 App.prototype.getMyLocation = function(params, success_callback, error_callback) {
@@ -481,24 +483,24 @@ App.prototype.getFocusedBuilding = function(callback) {
 };
 App.prototype.setVisible = function(isVisible) {
     var self = this;
-    isVisible = parseBoolean(isVisible);
+    isVisible = common.parseBoolean(isVisible);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setVisible', [isVisible]);
 };
 App.prototype.setClickable = function(isClickable) {
     var self = this;
-    isClickable = parseBoolean(isClickable);
+    isClickable = common.parseBoolean(isClickable);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setClickable', [isClickable]);
 };
 
 App.prototype.setBackgroundColor = function(color) {
     this.set('strokeColor', color);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [common.HTMLColor2RGBA(color)]);
 };
 
 
 App.prototype.setDebuggable = function(debug) {
     var self = this;
-    debug = parseBoolean(debug);
+    debug = common.parseBoolean(debug);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
 };
 
@@ -507,7 +509,7 @@ App.prototype.setDebuggable = function(debug) {
  */
 App.prototype.setAllGesturesEnabled = function(enabled) {
     var self = this;
-    enabled = parseBoolean(enabled);
+    enabled = common.parseBoolean(enabled);
     cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setAllGesturesEnabled', enabled]);
 };
 
@@ -666,7 +668,7 @@ var _append_child = function(event) {
     if (target.nodeType != 1) {
         return;
     }
-    var size = getDivRect(target);
+    var size = common.getDivRect(target);
     var elemId = "pgm" + Math.floor(Math.random() * Date.now());
     target.setAttribute("__pluginDomId", elemId);
 
@@ -700,7 +702,7 @@ App.prototype.setDiv = function(div) {
         element;
 
     var currentDiv = self.get("div");
-    if (isDom(div) === false || currentDiv !== div) {
+    if (common.isDom(div) === false || currentDiv !== div) {
         if (currentDiv) {
             var children = getAllChildren(currentDiv);
             for (var i = 0; i < children.length; i++) {
@@ -727,10 +729,10 @@ App.prototype.setDiv = function(div) {
         self.set("keepWatching", false);
     }
 
-    if (isDom(div)) {
+    if (common.isDom(div)) {
         var children = getAllChildren(div);;
         self.set("div", div);
-        args.push(getDivRect(div));
+        args.push(common.getDivRect(div));
         var elements = [];
         var elemId;
         var clickable;
@@ -741,7 +743,7 @@ App.prototype.setDiv = function(div) {
                 continue;
             }
             clickable = element.getAttribute("data-clickable");
-            if (clickable && parseBoolean(clickable) == false) {
+            if (clickable && common.parseBoolean(clickable) == false) {
                 continue;
             }
             elemId = element.getAttribute("__pluginDomId");
@@ -751,7 +753,7 @@ App.prototype.setDiv = function(div) {
             }
             elements.push({
                 id: elemId,
-                size: getDivRect(element)
+                size: common.getDivRect(element)
             });
         }
         args.push(elements);
@@ -903,11 +905,11 @@ App.prototype.addMarker = function(markerOptions, callback) {
         markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
 
         if ("color" in markerOptions.styles) {
-            markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
+            markerOptions.styles.color = common.HTMLColor2RGBA(markerOptions.styles.color || "#000000");
         }
     }
-    if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
-        markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
+    if (markerOptions.icon && common.isHTMLColorString(markerOptions.icon)) {
+        markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
     }
 
     cordova.exec(function(result) {
@@ -938,8 +940,8 @@ App.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.center = circleOptions.center || {};
     circleOptions.center.lat = circleOptions.center.lat || 0.0;
     circleOptions.center.lng = circleOptions.center.lng || 0.0;
-    circleOptions.strokeColor = HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000", 0.75);
-    circleOptions.fillColor = HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
+    circleOptions.strokeColor = common.HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000", 0.75);
+    circleOptions.fillColor = common.HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
     circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
     circleOptions.zIndex = circleOptions.zIndex || 3;
@@ -954,7 +956,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, circle, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Circle.createCircle', self.deleteFromObject(circleOptions,'function')]);
+    }, self.errorHandler, 'Circle', 'create', [self.deleteFromObject(circleOptions,'function')]);
 };
 //-------------
 // Polyline
@@ -962,7 +964,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
 App.prototype.addPolyline = function(polylineOptions, callback) {
     var self = this;
     polylineOptions.points = polylineOptions.points || [];
-    polylineOptions.color = HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
+    polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
     polylineOptions.width = polylineOptions.width || 10;
     polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
     polylineOptions.zIndex = polylineOptions.zIndex || 4;
@@ -997,9 +999,9 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
-    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
+    polygonOptions.strokeColor = common.HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
     if (polygonOptions.fillColor) {
-        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+        polygonOptions.fillColor = common.HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
@@ -1186,93 +1188,7 @@ var LatLng = function(latitude, longitude) {
 
 
 
-/*****************************************************************************
- * Circle Class
- *****************************************************************************/
-var Circle = function(map, circleId, circleOptions) {
-    BaseClass.apply(this);
 
-    var self = this;
-    Object.defineProperty(self, "map", {
-        value: map,
-        writable: false
-    });
-    Object.defineProperty(self, "id", {
-        value: circleId,
-        writable: false
-    });
-    Object.defineProperty(self, "type", {
-        value: "Circle",
-        writable: false
-    });
-
-    var ignores = ["map", "id", "type"];
-    for (var key in circleOptions) {
-        if (ignores.indexOf(key) === -1) {
-            self.set(key, circleOptions[key]);
-        }
-    }
-};
-
-Circle.prototype = new BaseClass();
-
-Circle.prototype.getMap = function() {
-    return this.map;
-};
-Circle.prototype.getId = function() {
-    return this.id;
-};
-Circle.prototype.getCenter = function() {
-    return this.get('center');
-};
-Circle.prototype.getRadius = function() {
-    return this.get('radius');
-};
-Circle.prototype.getStrokeColor = function() {
-    return this.get('strokeColor');
-};
-Circle.prototype.getStrokeWidth = function() {
-    return this.get('strokeWidth');
-};
-Circle.prototype.getZIndex = function() {
-    return this.get('zIndex');
-};
-Circle.prototype.getVisible = function() {
-    return this.get('visible');
-};
-Circle.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.remove', this.getId()]);
-    this.off();
-};
-Circle.prototype.setCenter = function(center) {
-    this.set('center', center);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setCenter', this.getId(), center.lat, center.lng]);
-};
-Circle.prototype.setFillColor = function(color) {
-    this.set('fillColor', color);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setFillColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
-};
-Circle.prototype.setStrokeColor = function(color) {
-    this.set('strokeColor', color);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
-};
-Circle.prototype.setStrokeWidth = function(width) {
-    this.set('strokeWidth', width);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setStrokeWidth', this.getId(), width]);
-};
-Circle.prototype.setVisible = function(visible) {
-    visible = parseBoolean(visible);
-    this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setVisible', this.getId(), visible]);
-};
-Circle.prototype.setZIndex = function(zIndex) {
-    this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setZIndex', this.getId(), zIndex]);
-};
-Circle.prototype.setRadius = function(radius) {
-    this.set('radius', radius);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Circle.setRadius', this.getId(), radius]);
-};
 /*****************************************************************************
  * Polyline Class
  *****************************************************************************/
@@ -1324,7 +1240,7 @@ Polyline.prototype.getPoints = function() {
 };
 Polyline.prototype.setColor = function(color) {
     this.set('color', color);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setColor', this.getId(), HTMLColor2RGBA(color, 0.75)]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setColor', this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Polyline.prototype.getColor = function() {
     return this.get('color');
@@ -1337,7 +1253,7 @@ Polyline.prototype.getWidth = function() {
     return this.get('width');
 };
 Polyline.prototype.setVisible = function(visible) {
-    visible = parseBoolean(visible);
+    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setVisible', this.getId(), visible]);
 };
@@ -1345,7 +1261,7 @@ Polyline.prototype.getVisible = function() {
     return this.get('visible');
 };
 Polyline.prototype.setGeodesic = function(geodesic) {
-    geodesic = parseBoolean(geodesic);
+    geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setGeodesic', this.getId(), geodesic]);
 };
@@ -1418,7 +1334,7 @@ TileOverlay.prototype.setZIndex = function(zIndex) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setZIndex', this.getId(), zIndex]);
 };
 TileOverlay.prototype.setFadeIn = function(fadeIn) {
-    fadeIn = parseBoolean(fadeIn);
+    fadeIn = common.parseBoolean(fadeIn);
     this.set('fadeIn', fadeIn);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setFadeIn', this.getId(), fadeIn]);
 };
@@ -1426,7 +1342,7 @@ TileOverlay.prototype.getFadeIn = function() {
     return this.get('fadeIn');
 };
 TileOverlay.prototype.setVisible = function(visible) {
-    visible = parseBoolean(visible);
+    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setVisible', this.getId(), visible]);
 };
@@ -1683,227 +1599,7 @@ LatLngBounds.prototype.contains = function(latLng) {
 /*****************************************************************************
  * Private functions
  *****************************************************************************/
-//---------------------------
-// Convert HTML color to RGB
-//---------------------------
-function isHTMLColorString(inputValue) {
-    if (!inputValue || typeof inputValue !== "string") {
-        return false;
-    }
-    if (inputValue.match(/^#[0-9A-F]{3}$/i) ||
-        inputValue.match(/^#[0-9A-F]{4}$/i) ||
-        inputValue.match(/^#[0-9A-F]{6}$/i) ||
-        inputValue.match(/^#[0-9A-F]{8}$/i) ||
-        inputValue.match(/^rgba?\([\d,.\s]+\)$/) ||
-        inputValue.match(/^hsla?\([\d%,.\s]+\)$/)) {
-        return true;
-    }
 
-    inputValue = inputValue.toLowerCase();
-    return inputValue in HTML_COLORS;
-}
-
-function HTMLColor2RGBA(colorValue, defaultOpacity) {
-    defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
-    if(colorValue instanceof Array) {
-        return colorValue;
-    }
-    if (colorValue === "transparent" || !colorValue) {
-        return [0, 0, 0, 0];
-    }
-    var alpha = Math.floor(255 * defaultOpacity),
-        matches,
-        result = {
-            r: 0,
-            g: 0,
-            b: 0
-        };
-    var colorStr = colorValue.toLowerCase();
-    if (colorStr in HTML_COLORS) {
-        colorStr = HTML_COLORS[colorStr];
-    }
-    if (colorStr.match(/^#([0-9A-F]){3}$/i)) {
-        matches = colorStr.match(/([0-9A-F])/ig);
-
-        return [
-            parseInt(matches[0], 16),
-            parseInt(matches[1], 16),
-            parseInt(matches[2], 16),
-            alpha
-        ];
-    }
-
-    if (colorStr.match(/^#[0-9A-F]{4}$/i)) {
-        alpha = colorStr.substr(4, 1);
-        alpha = parseInt(alpha + alpha, 16);
-
-        matches = colorStr.match(/([0-9A-F])/ig);
-        return [
-            parseInt(matches[0], 16),
-            parseInt(matches[1], 16),
-            parseInt(matches[2], 16),
-            alpha
-        ];
-    }
-
-    if (colorStr.match(/^#[0-9A-F]{6}$/i)) {
-        matches = colorStr.match(/([0-9A-F]{2})/ig);
-        return [
-            parseInt(matches[0], 16),
-            parseInt(matches[1], 16),
-            parseInt(matches[2], 16),
-            alpha
-        ];
-    }
-    if (colorStr.match(/^#[0-9A-F]{8}$/i)) {
-        matches = colorStr.match(/([0-9A-F]{2})/ig);
-
-        return [
-            parseInt(matches[0], 16),
-            parseInt(matches[1], 16),
-            parseInt(matches[2], 16),
-            parseInt(matches[3], 16)
-        ];
-    }
-    // convert rgb(), rgba()
-    if (colorStr.match(/^rgba?\([\d,.\s]+\)$/)) {
-        matches = colorStr.match(/([\d.]+)/g);
-        alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 256) : alpha;
-        return [
-            parseInt(matches[0], 10),
-            parseInt(matches[1], 10),
-            parseInt(matches[2], 10),
-            alpha
-        ];
-    }
-
-
-    // convert hsl(), hsla()
-    if (colorStr.match(/^hsla?\([\d%,.\s]+\)$/)) {
-        matches = colorStr.match(/([\d%.]+)/g);
-        alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 256) : alpha;
-        var rgb = HLStoRGB(matches[0], matches[1], matches[2]);
-        rgb.push(alpha);
-        return rgb;
-    }
-
-    console.log("Warning: '" + colorValue + "' is not available. The overlay is drew by black.");
-    return [0, 0, 0, alpha];
-}
-
-/**
- * http://d.hatena.ne.jp/ja9/20100907/1283840213
- */
-function HLStoRGB(h, l, s) {
-    var r, g, b; // 0..255
-
-    while (h < 0) {
-        h += 360;
-    }
-    h = h % 360;
-
-    // In case of saturation = 0
-    if (s == 0) {
-        // RGB are the same as V
-        l = Math.round(l * 255);
-        return [l, l, l];
-    }
-
-    var m2 = (l < 0.5) ? l * (1 + s) : l + s - l * s,
-        m1 = l * 2 - m2,
-        tmp;
-
-    tmp = h + 120;
-    if (tmp > 360) {
-        tmp = tmp - 360;
-    }
-
-    if (tmp < 60) {
-        r = (m1 + (m2 - m1) * tmp / 60);
-    } else if (tmp < 180) {
-        r = m2;
-    } else if (tmp < 240) {
-        r = m1 + (m2 - m1) * (240 - tmp) / 60;
-    } else {
-        r = m1;
-    }
-
-    tmp = h;
-    if (tmp < 60) {
-        g = m1 + (m2 - m1) * tmp / 60;
-    } else if (tmp < 180) {
-        g = m2;
-    } else if (tmp < 240) {
-        g = m1 + (m2 - m1) * (240 - tmp) / 60;
-    } else {
-        g = m1;
-    }
-
-    tmp = h - 120;
-    if (tmp < 0) {
-        tmp = tmp + 360;
-    }
-    if (tmp < 60) {
-        b = m1 + (m2 - m1) * tmp / 60;
-    } else if (tmp < 180) {
-        b = m2;
-    } else if (tmp < 240) {
-        b = m1 + (m2 - m1) * (240 - tmp) / 60;
-    } else {
-        b = m1;
-    }
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function parseBoolean(boolValue) {
-    return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
-        boolValue === true ||
-        boolValue === 1;
-}
-
-function isDom(element) {
-    return !!element &&
-        typeof element === "object" &&
-        "getBoundingClientRect" in element;
-}
-
-function getPageRect() {
-    var doc = document.documentElement;
-
-    var pageWidth = window.innerWidth ||
-        document.documentElement.clientWidth ||
-        document.body.clientWidth,
-        pageHeight = window.innerHeight ||
-        document.documentElement.clientHeight ||
-        document.body.clientHeight;
-    var pageLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-    var pageTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-
-    return {
-        'width': pageWidth,
-        'height': pageHeight,
-        'left': pageLeft,
-        'top': pageTop
-    };
-}
-
-function getDivRect(div) {
-    if (!div) {
-        return;
-    }
-
-    var pageRect = getPageRect();
-
-    var rect = div.getBoundingClientRect();
-    var divRect = {
-        'left': rect.left + pageRect.left,
-        'top': rect.top + pageRect.top,
-        'width': rect.width,
-        'height': rect.height
-    };
-
-    return divRect;
-}
 
 function onMapResize(event) {
     var self = window.plugin.google.maps.Map;
@@ -1911,7 +1607,7 @@ function onMapResize(event) {
     if (!div) {
         return;
     }
-    if (isDom(div) === false) {
+    if (common.isDom(div) === false) {
         self.set("div", null);
         cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
     } else {
@@ -1920,14 +1616,14 @@ function onMapResize(event) {
         var children = getAllChildren(div);
         var elemId, clickable;
 
-        args.push(getDivRect(div));
+        args.push(common.getDivRect(div));
         for (var i = 0; i < children.length; i++) {
             element = children[i];
             if (element.nodeType != 1) {
                 continue;
             }
             clickable = element.getAttribute("data-clickable");
-            if (clickable && parseBoolean(clickable) == false) {
+            if (clickable && common.parseBoolean(clickable) == false) {
                 continue;
             }
             elemId = element.getAttribute("__pluginDomId");
@@ -1937,11 +1633,11 @@ function onMapResize(event) {
             }
             elements.push({
                 id: elemId,
-                size: getDivRect(element)
+                size: common.getDivRect(element)
             });
         }
         args.push(elements);
-        //alert(JSON.stringify(getDivRect(div), null, 4));
+        //alert(JSON.stringify(common.getDivRect(div), null, 4));
         cordova.exec(null, null, PLUGIN_NAME, 'resizeMap', args);
     }
 
@@ -2029,7 +1725,7 @@ _mapInstance.addEventListener("keepWatching_changed", function(oldValue, newValu
                 return;
             }
             prevChildrenCnt = childCnt;
-            divSize = getDivRect(div);
+            divSize = common.getDivRect(div);
             if (prevSize) {
                 if (divSize.left != prevSize.left ||
                     divSize.top != prevSize.top ||
@@ -2248,154 +1944,3 @@ document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);
     plugin.google.maps.Map.isAvailable();
 });
-
-var HTML_COLORS = {
-    "aliceblue": "#f0f8ff",
-    "antiquewhite": "#faebd7",
-    "aqua": "#00ffff",
-    "aquamarine": "#7fffd4",
-    "azure": "#f0ffff",
-    "beige": "#f5f5dc",
-    "bisque": "#ffe4c4",
-    "black": "#000000",
-    "blanchedalmond": "#ffebcd",
-    "blue": "#0000ff",
-    "blueviolet": "#8a2be2",
-    "brown": "#a52a2a",
-    "burlywood": "#deb887",
-    "cadetblue": "#5f9ea0",
-    "chartreuse": "#7fff00",
-    "chocolate": "#d2691e",
-    "coral": "#ff7f50",
-    "cornflowerblue": "#6495ed",
-    "cornsilk": "#fff8dc",
-    "crimson": "#dc143c",
-    "cyan": "#00ffff",
-    "darkblue": "#00008b",
-    "darkcyan": "#008b8b",
-    "darkgoldenrod": "#b8860b",
-    "darkgray": "#a9a9a9",
-    "darkgrey": "#a9a9a9",
-    "darkgreen": "#006400",
-    "darkkhaki": "#bdb76b",
-    "darkmagenta": "#8b008b",
-    "darkolivegreen": "#556b2f",
-    "darkorange": "#ff8c00",
-    "darkorchid": "#9932cc",
-    "darkred": "#8b0000",
-    "darksalmon": "#e9967a",
-    "darkseagreen": "#8fbc8f",
-    "darkslateblue": "#483d8b",
-    "darkslategray": "#2f4f4f",
-    "darkslategrey": "#2f4f4f",
-    "darkturquoise": "#00ced1",
-    "darkviolet": "#9400d3",
-    "deeppink": "#ff1493",
-    "deepskyblue": "#00bfff",
-    "dimgray": "#696969",
-    "dimgrey": "#696969",
-    "dodgerblue": "#1e90ff",
-    "firebrick": "#b22222",
-    "floralwhite": "#fffaf0",
-    "forestgreen": "#228b22",
-    "fuchsia": "#ff00ff",
-    "gainsboro": "#dcdcdc",
-    "ghostwhite": "#f8f8ff",
-    "gold": "#ffd700",
-    "goldenrod": "#daa520",
-    "gray": "#808080",
-    "grey": "#808080",
-    "green": "#008000",
-    "greenyellow": "#adff2f",
-    "honeydew": "#f0fff0",
-    "hotpink": "#ff69b4",
-    "indianred ": "#cd5c5c",
-    "indigo  ": "#4b0082",
-    "ivory": "#fffff0",
-    "khaki": "#f0e68c",
-    "lavender": "#e6e6fa",
-    "lavenderblush": "#fff0f5",
-    "lawngreen": "#7cfc00",
-    "lemonchiffon": "#fffacd",
-    "lightblue": "#add8e6",
-    "lightcoral": "#f08080",
-    "lightcyan": "#e0ffff",
-    "lightgoldenrodyellow": "#fafad2",
-    "lightgray": "#d3d3d3",
-    "lightgrey": "#d3d3d3",
-    "lightgreen": "#90ee90",
-    "lightpink": "#ffb6c1",
-    "lightsalmon": "#ffa07a",
-    "lightseagreen": "#20b2aa",
-    "lightskyblue": "#87cefa",
-    "lightslategray": "#778899",
-    "lightslategrey": "#778899",
-    "lightsteelblue": "#b0c4de",
-    "lightyellow": "#ffffe0",
-    "lime": "#00ff00",
-    "limegreen": "#32cd32",
-    "linen": "#faf0e6",
-    "magenta": "#ff00ff",
-    "maroon": "#800000",
-    "mediumaquamarine": "#66cdaa",
-    "mediumblue": "#0000cd",
-    "mediumorchid": "#ba55d3",
-    "mediumpurple": "#9370db",
-    "mediumseagreen": "#3cb371",
-    "mediumslateblue": "#7b68ee",
-    "mediumspringgreen": "#00fa9a",
-    "mediumturquoise": "#48d1cc",
-    "mediumvioletred": "#c71585",
-    "midnightblue": "#191970",
-    "mintcream": "#f5fffa",
-    "mistyrose": "#ffe4e1",
-    "moccasin": "#ffe4b5",
-    "navajowhite": "#ffdead",
-    "navy": "#000080",
-    "oldlace": "#fdf5e6",
-    "olive": "#808000",
-    "olivedrab": "#6b8e23",
-    "orange": "#ffa500",
-    "orangered": "#ff4500",
-    "orchid": "#da70d6",
-    "palegoldenrod": "#eee8aa",
-    "palegreen": "#98fb98",
-    "paleturquoise": "#afeeee",
-    "palevioletred": "#db7093",
-    "papayawhip": "#ffefd5",
-    "peachpuff": "#ffdab9",
-    "peru": "#cd853f",
-    "pink": "#ffc0cb",
-    "plum": "#dda0dd",
-    "powderblue": "#b0e0e6",
-    "purple": "#800080",
-    "rebeccapurple": "#663399",
-    "red": "#ff0000",
-    "rosybrown": "#bc8f8f",
-    "royalblue": "#4169e1",
-    "saddlebrown": "#8b4513",
-    "salmon": "#fa8072",
-    "sandybrown": "#f4a460",
-    "seagreen": "#2e8b57",
-    "seashell": "#fff5ee",
-    "sienna": "#a0522d",
-    "silver": "#c0c0c0",
-    "skyblue": "#87ceeb",
-    "slateblue": "#6a5acd",
-    "slategray": "#708090",
-    "slategrey": "#708090",
-    "snow": "#fffafa",
-    "springgreen": "#00ff7f",
-    "steelblue": "#4682b4",
-    "tan": "#d2b48c",
-    "teal": "#008080",
-    "thistle": "#d8bfd8",
-    "tomato": "#ff6347",
-    "turquoise": "#40e0d0",
-    "violet": "#ee82ee",
-    "wheat": "#f5deb3",
-    "white": "#ffffff",
-    "whitesmoke": "#f5f5f5",
-    "yellow": "#ffff00",
-    "yellowgreen": "#9acd32"
-};

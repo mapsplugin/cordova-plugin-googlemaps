@@ -17,12 +17,11 @@ public class PluginCircle extends MyPlugin  {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
-  private void createCircle(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final CircleOptions circleOptions = new CircleOptions();
     int color;
     
-    JSONObject opts = args.getJSONObject(1);
+    JSONObject opts = args.getJSONObject(0);
     if (opts.has("center")) {
       JSONObject center = opts.getJSONObject("center");
       circleOptions.center(new LatLng(center.getDouble("lat"), center.getDouble("lng")));
@@ -47,14 +46,26 @@ public class PluginCircle extends MyPlugin  {
     if (opts.has("zIndex")) {
       circleOptions.zIndex(opts.getInt("zIndex"));
     }
-    Circle circle = map.addCircle(circleOptions);
-    String id = "circle_" + circle.getId();
-    this.objects.put(id, circle);
-    
-    JSONObject result = new JSONObject();
-    result.put("hashCode", circle.hashCode());
-    result.put("id", id);
-    callbackContext.success(result);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Circle circle = map.addCircle(circleOptions);
+        String id = "circle_" + circle.getId();
+        self.objects.put(id, circle);
+
+        JSONObject result = new JSONObject();
+        try {
+          result.put("hashCode", circle.hashCode());
+          result.put("id", id);
+          callbackContext.success(result);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+      }
+    });
+
   }
 
   /**
@@ -64,12 +75,18 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setCenter(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    LatLng center = new LatLng(args.getDouble(2), args.getDouble(3));
-    Circle circle = this.getCircle(id);
-    circle.setCenter(center);
-    callbackContext.success();
+  public void setCenter(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    final LatLng center = new LatLng(args.getDouble(1), args.getDouble(2));
+    final Circle circle = this.getCircle(id);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        circle.setCenter(center);
+        callbackContext.success();
+      }
+    });
   }
   
   /**
@@ -79,9 +96,9 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
+  public void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
     this.setInt("setFillColor", id, color, callbackContext);
   }
   
@@ -92,9 +109,9 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
+  public void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
     this.setInt("setStrokeColor", id, color, callbackContext);
   }
   
@@ -105,9 +122,9 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float width = (float) args.getDouble(2) * this.density;
+  public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    float width = (float) args.getDouble(1) * this.density;
     this.setFloat("setStrokeWidth", id, width, callbackContext);
   }
   
@@ -118,9 +135,9 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float radius = (float) args.getDouble(2);
+  public void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    float radius = (float) args.getDouble(1);
     this.setDouble("setRadius", id, radius, callbackContext);
   }
   
@@ -131,9 +148,9 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float zIndex = (float) args.getDouble(2);
+  public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    float zIndex = (float) args.getDouble(1);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
   
@@ -145,8 +162,8 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException 
    */
   protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(2);
-    String id = args.getString(1);
+    boolean visible = args.getBoolean(1);
+    String id = args.getString(0);
     this.setBoolean("setVisible", id, visible, callbackContext);
   }
   
@@ -157,15 +174,20 @@ public class PluginCircle extends MyPlugin  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    Circle circle = this.getCircle(id);
+  public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final String id = args.getString(0);
+    final Circle circle = this.getCircle(id);
     if (circle == null) {
       this.sendNoResult(callbackContext);
       return;
     }
-    circle.remove();
-    this.objects.remove(id);
-    this.sendNoResult(callbackContext);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        circle.remove();
+        objects.remove(id);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 }

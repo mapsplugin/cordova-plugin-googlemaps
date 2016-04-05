@@ -103,7 +103,7 @@ public class PluginMarker extends MyPlugin {
             try {
               // Store the marker
               String id = "marker_" + marker.getId();
-              PluginMarker.this.objects.put(id, marker);
+              self.objects.put(id, marker);
 
               JSONObject properties = new JSONObject();
               if (opts.has("styles")) {
@@ -114,7 +114,7 @@ public class PluginMarker extends MyPlugin {
               } else {
                 properties.put("disableAutoPan", false);
               }
-              PluginMarker.this.objects.put("marker_property_" + marker.getId(), properties);
+              self.objects.put("marker_property_" + marker.getId(), properties);
 
               // Prepare the result
               final JSONObject result = new JSONObject();
@@ -482,13 +482,13 @@ public class PluginMarker extends MyPlugin {
     Marker marker = this.getMarker(id);
     String propertyId = "marker_property_" + marker.getId();
     JSONObject properties = null;
-    if (this.objects.containsKey(propertyId)) {
-      properties = (JSONObject)this.objects.get(propertyId);
+    if (self.objects.containsKey(propertyId)) {
+      properties = (JSONObject)self.objects.get(propertyId);
     } else {
       properties = new JSONObject();
     }
     properties.put("disableAutoPan", disableAutoPan);
-    this.objects.put(propertyId, properties);
+    self.objects.put(propertyId, properties);
     this.sendNoResult(callbackContext);
   }
   /**
@@ -602,7 +602,7 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
     
-    Bundle imageSize = (Bundle) this.objects.get("imageSize");
+    Bundle imageSize = (Bundle) self.objects.get("imageSize");
     if (imageSize != null) {
       this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
@@ -622,7 +622,7 @@ public class PluginMarker extends MyPlugin {
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
     
-    Bundle imageSize = (Bundle) this.objects.get("imageSize");
+    Bundle imageSize = (Bundle) self.objects.get("imageSize");
     if (imageSize != null) {
       this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
@@ -817,7 +817,7 @@ public class PluginMarker extends MyPlugin {
               Bundle imageSize = new Bundle();
               imageSize.putInt("width", image.getWidth());
               imageSize.putInt("height", image.getHeight());
-              PluginMarker.this.objects.put("imageSize", imageSize);
+              self.objects.put("imageSize", imageSize);
               
     
               // The `anchor` of the `icon` property
@@ -881,7 +881,7 @@ public class PluginMarker extends MyPlugin {
           Bundle imageSize = new Bundle();
           imageSize.putInt("width", image.getWidth());
           imageSize.putInt("height", image.getHeight());
-          PluginMarker.this.objects.put("imageSize", imageSize);
+          self.objects.put("imageSize", imageSize);
 
           // The `anchor` of the `icon` property
           if (iconProperty.containsKey("anchor") == true) {
