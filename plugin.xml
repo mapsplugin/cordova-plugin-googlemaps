@@ -37,6 +37,9 @@
     <js-module name="Common" src="www/Common.js">
       <runs />
     </js-module>
+    <js-module name="encoding" src="www/encoding.js">
+      <runs />
+    </js-module>
     <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
       <clobbers target="plugin.google.maps" />
     </js-module>
