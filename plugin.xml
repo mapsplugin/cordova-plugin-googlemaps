@@ -4,6 +4,18 @@
     <js-module name="BaseClass" src="www/BaseClass.js">
       <clobbers target="plugin.google.maps.BaseClass" />
     </js-module>
+    <js-module name="LatLng" src="www/LatLng.js">
+      <runs />
+    </js-module>
+    <js-module name="LatLngBounds" src="www/LatLngBounds.js">
+      <runs />
+    </js-module>
+    <js-module name="Location" src="www/Location.js">
+      <runs />
+    </js-module>
+    <js-module name="CameraPosition" src="www/CameraPosition.js">
+      <runs />
+    </js-module>
     <js-module name="Polyline" src="www/Polyline.js">
       <runs />
     </js-module>

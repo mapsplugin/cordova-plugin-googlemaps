@@ -2,6 +2,7 @@ var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
     common = require('./Common'),
+    LatLng = require('./LatLng'),
     BaseClass = require('./BaseClass');
 
 var PLUGIN_NAME = "Marker";

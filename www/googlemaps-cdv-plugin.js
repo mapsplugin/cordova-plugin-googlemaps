@@ -7,8 +7,12 @@ var OVERLAYS = {};
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
-    BaseClass = require('./BaseClass'),
     common = require('./Common'),
+    BaseClass = require('./BaseClass'),
+    LatLng = require('./LatLng'),
+    LatLngBounds = require('./LatLngBounds'),
+    Location = require('./Location'),
+    CameraPosition = require('./CameraPosition'),
     Marker = require('./Marker'),
     Circle = require('./Circle'),
     Polyline = require('./Polyline'),
@@ -1104,87 +1108,7 @@ App.prototype.geocode = function(geocoderRequest, callback) {
     console.log("Map.geocode will be deprecated. Please use Geocoder.geocode instead.");
     Geocoder.geocode(geocoderRequest, callback);
 };
-/********************************************************************************
- * @name CameraPosition
- * @class This class represents new camera position
- * @property {LatLng} target The location where you want to show
- * @property {Number} [tilt] View angle
- * @property {Number} [zoom] Zoom level
- * @property {Number} [bearing] Map orientation
- * @property {Number} [duration] The duration of animation
- *******************************************************************************/
-var CameraPosition = function(params) {
-    var self = this;
-    self.zoom = params.zoom;
-    self.tilt = params.tilt;
-    self.target = params.target;
-    self.bearing = params.bearing;
-    self.hashCode = params.hashCode;
-    self.duration = params.duration;
-};
-/*****************************************************************************
- * Location Class
- *****************************************************************************/
-var Location = function(params) {
-    var self = this;
-    self.latLng = params.latLng || new LatLng(params.lat || 0, params.lng || 0);
-    self.elapsedRealtimeNanos = params.elapsedRealtimeNanos;
-    self.time = params.time;
-    self.accuracy = params.accuracy || null;
-    self.bearing = params.bearing || null;
-    self.altitude = params.altitude || null;
-    self.speed = params.speed || null;
-    self.provider = params.provider;
-    self.hashCode = params.hashCode;
-};
 
-/*******************************************************************************
- * @name LatLng
- * @class This class represents new camera position
- * @param {Number} latitude
- * @param {Number} longitude
- ******************************************************************************/
-var LatLng = function(latitude, longitude) {
-    var self = this;
-    /**
-     * @property {Number} latitude
-     */
-    self.lat = parseFloat(latitude || 0, 10);
-
-    /**
-     * @property {Number} longitude
-     */
-    self.lng = parseFloat(longitude || 0, 10);
-
-    /**
-     * Comparison function.
-     * @method
-     * @return {Boolean}
-     */
-    self.equals = function(other) {
-        other = other || {};
-        return other.lat === self.lat &&
-            other.lng === self.lng;
-    };
-
-    /**
-     * @method
-     * @return {String} latitude,lontitude
-     */
-    self.toString = function() {
-        return self.lat + "," + self.lng;
-    };
-
-    /**
-     * @method
-     * @param {Number}
-     * @return {String} latitude,lontitude
-     */
-    self.toUrlValue = function(precision) {
-        precision = precision || 6;
-        return self.lat.toFixed(precision) + "," + self.lng.toFixed(precision);
-    };
-};
 
 /*****************************************************************************
  * TileOverlay Class
@@ -1420,82 +1344,7 @@ KmlOverlay.prototype.remove = function() {
     }, 1000);
 };
 
-/*****************************************************************************
- * LatLngBounds Class
- *****************************************************************************/
-var LatLngBounds = function() {
-    Object.defineProperty(this, "type", {
-        value: "LatLngBounds",
-        writable: false
-    });
 
-    var args = [];
-    if (arguments.length === 1 &&
-        typeof arguments[0] === "object" &&
-        "push" in arguments[0]) {
-        args = arguments[0];
-    } else {
-        args = Array.prototype.slice.call(arguments, 0);
-    }
-    for (var i = 0; i < args.length; i++) {
-        if ("lat" in args[i] && "lng" in args[i]) {
-            this.extend(args[i]);
-        }
-    }
-};
-
-LatLngBounds.prototype.northeast = null;
-LatLngBounds.prototype.southwest = null;
-
-LatLngBounds.prototype.toString = function() {
-    return "[[" + this.southwest.toString() + "],[" + this.northeast.toString() + "]]";
-};
-LatLngBounds.prototype.toUrlValue = function(precision) {
-    return "[[" + this.southwest.toUrlValue(precision) + "],[" + this.northeast.toUrlValue(precision) + "]]";
-};
-
-LatLngBounds.prototype.extend = function(latLng) {
-    if ("lat" in latLng && "lng" in latLng) {
-        if (!this.southwest && !this.northeast) {
-            this.southwest = latLng;
-            this.northeast = latLng;
-        } else {
-            var swLat = Math.min(latLng.lat, this.southwest.lat);
-            var swLng = Math.min(latLng.lng, this.southwest.lng);
-            var neLat = Math.max(latLng.lat, this.northeast.lat);
-            var neLng = Math.max(latLng.lng, this.northeast.lng);
-
-            delete this.southwest;
-            delete this.northeast;
-            this.southwest = new LatLng(swLat, swLng);
-            this.northeast = new LatLng(neLat, neLng);
-        }
-        this[0] = this.southwest;
-        this[1] = this.northeast;
-    }
-};
-
-LatLngBounds.prototype.getCenter = function() {
-    var centerLat = (this.southwest.lat + this.northeast.lat) / 2;
-
-    var swLng = this.southwest.lng;
-    var neLng = this.northeast.lng;
-    var sumLng = swLng + neLng;
-    var centerLng = sumLng / 2;
-
-    if ((swLng > 0 && neLng < 0 && sumLng < 180)) {
-        centerLng += sumLng > 0 ? -180 : 180;
-    }
-    return new LatLng(centerLat, centerLng);
-};
-
-LatLngBounds.prototype.contains = function(latLng) {
-    if (!("lat" in latLng) || !("lng" in latLng)) {
-        return false;
-    }
-    return (latLng.lat >= this.southwest.lat) && (latLng.lat <= this.northeast.lat) &&
-        (latLng.lng >= this.southwest.lng) && (latLng.lng <= this.northeast.lng);
-};
 
 /*****************************************************************************
  * Private functions
