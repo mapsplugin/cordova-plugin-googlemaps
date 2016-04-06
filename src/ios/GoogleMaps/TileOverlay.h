@@ -12,7 +12,7 @@
 @interface TileOverlay : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createTileOverlay:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 -(void)setVisible:(CDVInvokedUrlCommand *)command;
 -(void)remove:(CDVInvokedUrlCommand *)command;
 -(void)clearTileCache:(CDVInvokedUrlCommand *)command;

@@ -28,6 +28,9 @@
     <js-module name="Circle" src="www/Circle.js">
       <runs />
     </js-module>
+    <js-module name="TileOverlay" src="www/TileOverlay.js">
+      <runs />
+    </js-module>
     <js-module name="Common" src="www/Common.js">
       <runs />
     </js-module>
@@ -82,6 +85,9 @@
             </feature>
             <feature name="Circle">
                 <param name="android-package" value="plugin.google.maps.PluginCircle" />
+            </feature>
+            <feature name="TileOverlay">
+                <param name="android-package" value="plugin.google.maps.PluginTileOverlay" />
             </feature>
         </config-file>
 
