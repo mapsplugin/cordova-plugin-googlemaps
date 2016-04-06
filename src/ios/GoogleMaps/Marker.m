@@ -29,7 +29,7 @@
       
       if (self.iconCache == nil) {
           self.iconCache = [[NSCache alloc]init];
-          self.iconCache.totalCostLimit = 12400;
+          self.iconCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
       }
     }
   

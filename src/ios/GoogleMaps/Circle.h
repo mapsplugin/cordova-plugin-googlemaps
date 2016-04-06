@@ -11,7 +11,7 @@
 
 @interface Circle : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createCircle:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setFillColor:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeColor:(CDVInvokedUrlCommand*)command;
