@@ -11,7 +11,7 @@
 
 @interface Polyline : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createPolyline:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 
 - (void)setColor:(CDVInvokedUrlCommand*)command;
 - (void)setWidth:(CDVInvokedUrlCommand*)command;

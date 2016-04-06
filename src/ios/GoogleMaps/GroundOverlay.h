@@ -13,7 +13,7 @@
 @interface GroundOverlay : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-- (void)createGroundOverlay:(CDVInvokedUrlCommand*)command;
+- (void)create:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand *)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
 - (void)setImage:(CDVInvokedUrlCommand*)command;
@@ -22,5 +22,6 @@
 - (void)setBearing:(CDVInvokedUrlCommand*)command;
 - (void)setZIndex:(CDVInvokedUrlCommand *)command;
 - (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr completionHandler:(MYCompletionHandler)completionHandler;
+- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(NSError *error, UIImage *image))completionBlock;
 
 @end

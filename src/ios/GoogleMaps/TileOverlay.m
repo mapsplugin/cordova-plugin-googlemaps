@@ -29,7 +29,7 @@
   NSDictionary *json = [command.arguments objectAtIndex:0];
   NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
 
-  dispatch_queue_t gueue = dispatch_queue_create("createCircle", NULL);
+  dispatch_queue_t gueue = dispatch_queue_create("createTileOverlay", NULL);
   dispatch_async(gueue, ^{
 
 

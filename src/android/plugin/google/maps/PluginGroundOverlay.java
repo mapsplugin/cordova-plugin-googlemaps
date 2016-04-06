@@ -29,13 +29,12 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void createGroundOverlay(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    JSONObject opts = args.getJSONObject(1);
+  public void create(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    JSONObject opts = args.getJSONObject(0);
     _createGroundOverlay(opts, callbackContext);
   }
   
-  private void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
+  public void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
     GroundOverlayOptions options = new GroundOverlayOptions();
 
     if (opts.has("anchor")) {
@@ -70,14 +69,14 @@ public class PluginGroundOverlay extends MyPlugin {
         GroundOverlay groundOverlay = (GroundOverlay)object;
 
         String id = "groundOverlay_" + groundOverlay.getId();
-        PluginGroundOverlay.this.objects.put(id, groundOverlay);
+        self.objects.put(id, groundOverlay);
 
         JSONObject result = new JSONObject();
         try {
           result.put("hashCode", groundOverlay.hashCode());
           result.put("id", id);
           
-          PluginGroundOverlay.this.objects.put("gOverlay_property_" + groundOverlay.getId(), opts);
+          self.objects.put("gOverlay_property_" + groundOverlay.getId(), opts);
         } catch (Exception e) {}
         callbackContext.success(result);
       }
@@ -89,8 +88,9 @@ public class PluginGroundOverlay extends MyPlugin {
       
     });
   }
+  
   @SuppressWarnings("resource")
-  private void _setImage(final String url, final GroundOverlayOptions options, final PluginAsyncInterface callback) {
+  public void _setImage(final String url, final GroundOverlayOptions options, final PluginAsyncInterface callback) {
     if (url == null || url.length() == 0) {
       callback.onError("The url property is empty");
       return;
@@ -125,7 +125,7 @@ public class PluginGroundOverlay extends MyPlugin {
           BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
           if (bitmapDescriptor != null) {
             options.image(bitmapDescriptor);
-            GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
+            GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
             callback.onPostExecute(groundOverlay);
           } else {
             callback.onError("Can not load image from " + url);
@@ -177,8 +177,14 @@ public class PluginGroundOverlay extends MyPlugin {
       BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
       if (bitmapDescriptor != null) {
         options.image(bitmapDescriptor);
-        GroundOverlay groundOverlay = PluginGroundOverlay.this.map.addGroundOverlay(options);
-        callback.onPostExecute(groundOverlay);
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
+            callback.onPostExecute(groundOverlay);
+          }
+        });
       } else {
         callback.onError("Can not load image from " + url);
       }
@@ -195,16 +201,16 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  protected void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+  public void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     if (groundOverlay == null) {
       this.sendNoResult(callbackContext);
       return;
     }
 
     String propertyId = "gOverlay_property_" + id;
-    this.objects.remove(propertyId);
+    self.objects.remove(propertyId);
     groundOverlay.remove();
     this.sendNoResult(callbackContext);
   }
@@ -215,11 +221,11 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(2);
+  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(1);
     
-    String id = args.getString(1);
-    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+    String id = args.getString(0);
+    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     if (groundOverlay == null) {
       this.sendNoResult(callbackContext);
       return;
@@ -235,14 +241,13 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
-  private void setImage(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
-    String url = args.getString(2);
+  public void setImage(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
+    String url = args.getString(1);
     
     String propertyId = "gOverlay_property_" + id;
-    JSONObject opts = (JSONObject) this.objects.get(propertyId);
+    JSONObject opts = (JSONObject) self.objects.get(propertyId);
     opts.put("url", url);
     
     _createGroundOverlay(opts, callbackContext);
@@ -255,12 +260,11 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setBounds(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    GroundOverlay groundOverlay = (GroundOverlay)this.objects.get(id);
+  public void setBounds(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     
-    JSONArray points = args.getJSONArray(2);
+    JSONArray points = args.getJSONArray(1);
     LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
     groundOverlay.setPositionFromBounds(bounds);
 
@@ -273,10 +277,9 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
-  private void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    float alpha = (float)args.getDouble(2);
-    String id = args.getString(1);
+  public void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    float alpha = (float)args.getDouble(1);
+    String id = args.getString(0);
     this.setFloat("setTransparency", id, 1 - alpha, callbackContext);
   }
   /**
@@ -285,10 +288,9 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
-  private void setBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    float bearing = (float)args.getDouble(2);
-    String id = args.getString(1);
+  public void setBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    float bearing = (float)args.getDouble(1);
+    String id = args.getString(0);
     this.setFloat("setBearing", id, bearing, callbackContext);
   }
   /**
@@ -297,10 +299,9 @@ public class PluginGroundOverlay extends MyPlugin {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float zIndex = (float) args.getDouble(2);
+  public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    float zIndex = (float) args.getDouble(1);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
 }

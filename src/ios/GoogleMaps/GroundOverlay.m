@@ -15,157 +15,199 @@
     self.mapCtrl = viewCtrl;
 }
 
--(void)createGroundOverlay:(CDVInvokedUrlCommand *)command
+-(void)create:(CDVInvokedUrlCommand *)command
 {
-    NSDictionary *json = [command.arguments objectAtIndex:1];
-
-    NSArray *points = [json objectForKey:@"bounds"];
-
-    GMSGroundOverlay *layer;
-    GMSMutablePath *path = [GMSMutablePath path];
-    GMSCoordinateBounds *bounds;
-
-    if (points) {
-        //Generate a bounds
-        int i = 0;
-        NSDictionary *latLng;
-        for (i = 0; i < points.count; i++) {
-            latLng = [points objectAtIndex:i];
-            [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
-        }
+    // Initialize this plugin
+    if (self.mapCtrl == nil) {
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+        GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+        self.mapCtrl = googlemaps.mapCtrl;
+        [self.mapCtrl.plugins setObject:self forKey:@"GroundOverlay"];
     }
-    bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-    layer = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
-
-
-    if ([[json valueForKey:@"visible"] boolValue]) {
-        layer.map = self.mapCtrl.map;
-    }
-    if ([json valueForKey:@"zIndex"]) {
-        layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
-    }
-
+  
+    __block GMSGroundOverlay *layer;
     __block GroundOverlay *self_ = self;
-    MYCompletionHandler callback = ^(NSError *error) {
+  
+    dispatch_queue_t gueue = dispatch_queue_create("createGroundOverlay", NULL);
+    dispatch_async(gueue, ^{
+        NSDictionary *json = [command.arguments objectAtIndex:0];
 
-        if ([json valueForKey:@"opacity"]) {
-            CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
-            layer.icon = [layer.icon imageByApplyingAlpha:opacity];
+        NSArray *points = [json objectForKey:@"bounds"];
+
+      
+        GMSMutablePath *path = [GMSMutablePath path];
+        GMSCoordinateBounds *bounds;
+
+        if (points) {
+            //Generate a bounds
+            int i = 0;
+            NSDictionary *latLng;
+            for (i = 0; i < points.count; i++) {
+                latLng = [points objectAtIndex:i];
+                [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+            }
         }
-        if ([json valueForKey:@"bearing"]) {
-            layer.bearing = [[json valueForKey:@"bearing"] floatValue];
-        }
+        bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            layer = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
-        layer.tappable = YES;
+            if ([[json valueForKey:@"visible"] boolValue]) {
+                layer.map = self.mapCtrl.map;
+            }
+            if ([json valueForKey:@"zIndex"]) {
+                layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
+            }
 
-        NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
-        [self_.mapCtrl.overlayManager setObject:layer forKey: id];
-        layer.title = id;
+            dispatch_async(gueue, ^{
+            
+                MYCompletionHandler callback = ^(NSError *error) {
+                    if (error) {
+                        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+                        [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                        return;
+                    }
 
-        NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-        [result setObject:id forKey:@"id"];
-        [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)layer.hash] forKey:@"hashCode"];
+                    if ([json valueForKey:@"opacity"]) {
+                        CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
+                        layer.icon = [layer.icon imageByApplyingAlpha:opacity];
+                    }
+                    if ([json valueForKey:@"bearing"]) {
+                        layer.bearing = [[json valueForKey:@"bearing"] floatValue];
+                    }
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-        [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                    layer.tappable = YES;
 
-    };
+                    NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
+                    [self_.mapCtrl.overlayManager setObject:layer forKey: id];
+                    layer.title = id;
 
-    NSString *urlStr = [json objectForKey:@"url"];
-    if (urlStr) {
-        [self _setImage:layer urlStr:urlStr completionHandler: callback];
-    } else {
-        callback(nil);
-    }
+                    NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+                    [result setObject:id forKey:@"id"];
+                    [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)layer.hash] forKey:@"hashCode"];
+
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+                    [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+                };
+
+                NSString *urlStr = [json objectForKey:@"url"];
+                if (urlStr) {
+                    [self _setImage:layer urlStr:urlStr completionHandler: callback];
+                } else {
+                    callback(nil);
+                }
+
+            });
+        });
+    });
 }
 
 - (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr completionHandler:(MYCompletionHandler)completionHandler {
 
-    NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
+    __block NSString *urlStrStatic = urlStr;
 
-    NSError *error;
-    NSRange range = [urlStr rangeOfString:@"://"];
-    if (range.location == NSNotFound) {
-        range = [urlStr rangeOfString:@"www/"];
+    dispatch_queue_t gueue = dispatch_queue_create("_setImgForGroundOverlay", NULL);
+    dispatch_async(gueue, ^{
+        NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
+
+        NSError *error;
+        NSRange range = [urlStrStatic rangeOfString:@"://"];
         if (range.location == NSNotFound) {
-            range = [urlStr rangeOfString:@"/"];
-            if (range.location != 0) {
-                urlStr = [NSString stringWithFormat:@"./%@", urlStr];
+            range = [urlStrStatic rangeOfString:@"www/"];
+            if (range.location == NSNotFound) {
+                range = [urlStrStatic rangeOfString:@"/"];
+                if (range.location != 0) {
+                    urlStrStatic = [NSString stringWithFormat:@"./%@", urlStrStatic];
+                }
             }
         }
-    }
 
-    range = [urlStr rangeOfString:@"./"];
-    if (range.location != NSNotFound) {
-		SEL requestSelector = NSSelectorFromString(@"request");
-		SEL urlSelector = NSSelectorFromString(@"URL");
-		NSString *currentPath = @"";
-		if ([self.webView respondsToSelector:requestSelector]) {
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
-			[invocation setSelector:requestSelector];
-			[invocation setTarget:self.webView];
-			[invocation invoke];
-			NSURLRequest *request;
-			[invocation getReturnValue:&request];
-			currentPath = [request.URL absoluteString];
-		} else if ([self.webView respondsToSelector:urlSelector]) {
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
-			[invocation setSelector:urlSelector];
-			[invocation setTarget:self.webView];
-			[invocation invoke];
-			NSURL *URL;
-			[invocation getReturnValue:&URL];
-			currentPath = [URL absoluteString];
-		}
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
-        currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
-        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
-    }
-
-    range = [urlStr rangeOfString:@"cdvfile://"];
-    if (range.location != NSNotFound) {
-        urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
-        if (urlStr == nil) {
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+        range = [urlStrStatic rangeOfString:@"./"];
+        if (range.location != NSNotFound) {
+            SEL requestSelector = NSSelectorFromString(@"request");
+            SEL urlSelector = NSSelectorFromString(@"URL");
+            NSString *currentPath = @"";
+            if ([self.webView respondsToSelector:requestSelector]) {
+              NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
+              [invocation setSelector:requestSelector];
+              [invocation setTarget:self.webView];
+              [invocation invoke];
+              NSURLRequest *request;
+              [invocation getReturnValue:&request];
+              currentPath = [request.URL absoluteString];
+            } else if ([self.webView respondsToSelector:urlSelector]) {
+              NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
+              [invocation setSelector:urlSelector];
+              [invocation setTarget:self.webView];
+              [invocation invoke];
+              NSURL *URL;
+              [invocation getReturnValue:&URL];
+              currentPath = [URL absoluteString];
+            }
+            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
+            currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
+            urlStrStatic = [urlStrStatic stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
         }
-    }
 
-    range = [urlStr rangeOfString:@"file://"];
-    if (range.location != NSNotFound) {
-        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if (![fileManager fileExistsAtPath:urlStr]) {
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+        range = [urlStrStatic rangeOfString:@"cdvfile://"];
+        if (range.location != NSNotFound) {
+            urlStrStatic = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStrStatic];
+            if (urlStrStatic == nil) {
+                NSMutableDictionary* details = [NSMutableDictionary dictionary];
+                [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStrStatic] forKey:NSLocalizedDescriptionKey];
+                error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+            }
         }
-    }
 
-    // If there is an error, return
-    if (error) {
-        completionHandler(error);
-        return;
-    }
+        range = [urlStrStatic rangeOfString:@"file://"];
+        if (range.location != NSNotFound) {
+            urlStrStatic = [urlStrStatic stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            if (![fileManager fileExistsAtPath:urlStrStatic]) {
+                NSMutableDictionary* details = [NSMutableDictionary dictionary];
+                [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStrStatic] forKey:NSLocalizedDescriptionKey];
+                error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+            }
+        }
+
+        // If there is an error, return
+        if (error) {
+            completionHandler(error);
+            return;
+        }
 
 
 
-    if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
-        dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_createGroundOverlay", NULL);
-        dispatch_sync(gueue, ^{
-            NSURL *url = [NSURL URLWithString:urlStr];
-            NSData *data = [NSData dataWithContentsOfURL:url];
-            UIImage *layerImg = [UIImage imageWithData:data];
-            layer.icon = layerImg;
-            [self.mapCtrl.overlayManager setObject:layerImg forKey: id];
-            completionHandler(nil);
-        });
-    } else {
-        layer.icon = [UIImage imageNamed:urlStr];
-        [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
-        completionHandler(nil);
-    }
+        if ([urlStrStatic hasPrefix:@"http://"] || [urlStrStatic hasPrefix:@"https://"]) {
+            
+            NSURL *url = [NSURL URLWithString:urlStrStatic];
+            [self downloadImageWithURL:url  completionBlock:^(NSError *error, UIImage *image) {
+            
+                if (error) {
+                  completionHandler(error);
+                  return;
+                }
+              
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    NSURL *url = [NSURL URLWithString:urlStrStatic];
+                    NSData *data = [NSData dataWithContentsOfURL:url];
+                    UIImage *layerImg = [UIImage imageWithData:data];
+                    layer.icon = layerImg;
+                    [self.mapCtrl.overlayManager setObject:layerImg forKey: id];
+                    completionHandler(nil);
+                });
+              
+            }];
+
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                layer.icon = [UIImage imageNamed:urlStrStatic];
+                [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
+                completionHandler(nil);
+            });
+        }
+    });
 }
 
 /**
@@ -174,7 +216,7 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
     NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
     layer.map = nil;
@@ -193,9 +235,9 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
-    Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
+    Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
     if (isVisible) {
         layer.map = self.mapCtrl.map;
@@ -213,14 +255,20 @@
  */
 -(void)setImage:(CDVInvokedUrlCommand *)command
 {
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
 
-    NSString *urlStr = [command.arguments objectAtIndex:2];
+    NSString *urlStr = [command.arguments objectAtIndex:1];
     if (urlStr) {
         __block GroundOverlay *self_ = self;
         [self _setImage:layer urlStr:urlStr completionHandler:^(NSError *error) {
-            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            CDVPluginResult* pluginResult;
+            if (error) {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            } else {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            }
+          
             [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }];
     } else {
@@ -237,11 +285,11 @@
  */
 -(void)setBounds:(CDVInvokedUrlCommand *)command
 {
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
     GMSMutablePath *path = [GMSMutablePath path];
 
-    NSArray *points = [command.arguments objectAtIndex:2];
+    NSArray *points = [command.arguments objectAtIndex:1];
     int i = 0;
     NSDictionary *latLng;
     for (i = 0; i < points.count; i++) {
@@ -264,9 +312,9 @@
 {
 
 
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
-    CGFloat opacity = [[command.arguments objectAtIndex:2] floatValue];
+    CGFloat opacity = [[command.arguments objectAtIndex:1] floatValue];
 
     NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
     UIImage *icon = [self.mapCtrl getUIImageByKey:id];
@@ -283,9 +331,9 @@
  */
 -(void)setBearing:(CDVInvokedUrlCommand *)command
 {
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
-    layer.bearing = [[command.arguments objectAtIndex:2] floatValue];
+    layer.bearing = [[command.arguments objectAtIndex:1] floatValue];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -296,12 +344,38 @@
  */
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
-    NSString *key = [command.arguments objectAtIndex:1];
+    NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
-    NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
+    NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
     [layer setZIndex:(int)zIndex];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(NSError *error, UIImage *image))completionBlock
+{
+
+    NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                      cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                                      timeoutInterval:5];
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
+    if (cachedResponse != nil) {
+      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
+      completionBlock(nil, image);
+      return;
+    }
+  
+    [NSURLConnection sendAsynchronousRequest:req
+          queue:[NSOperationQueue mainQueue]
+          completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
+            if ( !YES ) {
+              UIImage *image = [UIImage imageWithData:data];
+              completionBlock(nil, image);
+            } else {
+              completionBlock(error, nil);
+            }
+        
+    }];
+}
+
 @end

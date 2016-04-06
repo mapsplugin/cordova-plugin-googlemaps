@@ -17,7 +17,8 @@ var argscheck = require('cordova/argscheck'),
     Circle = require('./Circle'),
     Polyline = require('./Polyline'),
     Polygon = require('./Polygon'),
-    TileOverlay = require('./TileOverlay');
+    TileOverlay = require('./TileOverlay'),
+    GroundOverlay = require('./GroundOverlay');
 
 /**
  * Google Maps model.
@@ -1074,7 +1075,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, groundOverlay, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.createGroundOverlay', self.deleteFromObject(groundOverlayOptions,'function')]);
+    }, self.errorHandler, 'GroundOverlay', 'create', [self.deleteFromObject(groundOverlayOptions,'function')]);
 
 };
 
@@ -1111,106 +1112,11 @@ App.prototype.geocode = function(geocoderRequest, callback) {
 };
 
 
-/*****************************************************************************
- * GroundOverlay Class
- *****************************************************************************/
-var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
-    BaseClass.apply(this);
 
-    var self = this;
-    groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
-    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
-    groundOverlayOptions.opacity = groundOverlayOptions.opacity || 1;
-    groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
-    groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0, 0];
-    groundOverlayOptions.bearing = groundOverlayOptions.bearing || 0;
-    Object.defineProperty(self, "id", {
-        value: groundOverlayId,
-        writable: false
-    });
-    Object.defineProperty(self, "type", {
-        value: "GroundOverlay",
-        writable: false
-    });
-    Object.defineProperty(self, "map", {
-        value: map,
-        writable: false
-    });
-    var ignores = ["map", "id", "type"];
-    for (var key in groundOverlayOptions) {
-        if (ignores.indexOf(key) === -1) {
-            self.set(key, groundOverlayOptions[key]);
-        }
-    }
-};
 
 GroundOverlay.prototype = new BaseClass();
 
-GroundOverlay.prototype.getMap = function() {
-    return this.map;
-};
-GroundOverlay.prototype.getId = function() {
-    return this.id;
-};
-GroundOverlay.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.remove', this.getId()]);
-    this.off();
-};
 
-GroundOverlay.prototype.setVisible = function(visible) {
-    this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setVisible', this.getId(), visible]);
-};
-
-GroundOverlay.prototype.getVisible = function() {
-    return this.get('visible');
-};
-
-GroundOverlay.prototype.setImage = function(url) {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setImage', this.getId(), url]);
-};
-
-GroundOverlay.prototype.setBounds = function(points) {
-    this.set('bounds', points);
-    var i,
-        bounds = [];
-    for (i = 0; i < points.length; i++) {
-        bounds.push({
-            "lat": points[i].lat,
-            "lng": points[i].lng
-        });
-    }
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBounds', this.getId(), bounds]);
-};
-
-GroundOverlay.prototype.getOpacity = function() {
-    return this.get("opacity");
-};
-
-GroundOverlay.prototype.getBearing = function() {
-    return this.get("bearing");
-};
-
-GroundOverlay.prototype.setOpacity = function(opacity) {
-    if (!opacity && opacity !== 0) {
-        console.log('opacity value must be int or double');
-        return false;
-    }
-    this.set('opacity', opacity);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setOpacity', this.getId(), opacity]);
-};
-GroundOverlay.prototype.setBearing = function(bearing) {
-    this.set('bearing', bearing);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setBearing', this.getId(), bearing]);
-};
-
-GroundOverlay.prototype.getZIndex = function() {
-    return this.get("zIndex");
-};
-GroundOverlay.prototype.setZIndex = function(zIndex) {
-    this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['GroundOverlay.setZIndex', this.getId(), zIndex]);
-};
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
