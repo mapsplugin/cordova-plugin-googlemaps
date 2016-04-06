@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -22,13 +23,12 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
-  private void createPolyline(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
-    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    final LatLngBounds.Builder builder = new LatLngBounds.Builder();
     
-    JSONObject opts = args.getJSONObject(1);
+    JSONObject opts = args.getJSONObject(0);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
       List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
@@ -54,18 +54,30 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     if (opts.has("zIndex")) {
       polylineOptions.zIndex(opts.getInt("zIndex"));
     }
-    
-    Polyline polyline = map.addPolyline(polylineOptions);
-    String id = "polyline_" + polyline.getId();
-    this.objects.put(id, polyline);
 
-    String boundsId = "polyline_bounds_" + polyline.getId();
-    this.objects.put(boundsId, builder.build());
-    
-    JSONObject result = new JSONObject();
-    result.put("hashCode", polyline.hashCode());
-    result.put("id", id);
-    callbackContext.success(result);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        Polyline polyline = map.addPolyline(polylineOptions);
+        String id = "polyline_" + polyline.getId();
+        self.objects.put(id, polyline);
+
+        String boundsId = "polyline_bounds_" + polyline.getId();
+        self.objects.put(boundsId, builder.build());
+
+        try {
+          JSONObject result = new JSONObject();
+          result.put("hashCode", polyline.hashCode());
+          result.put("id", id);
+          callbackContext.success(result);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error("" + e.getMessage());
+        }
+      }
+      
+    });
   }
   
   /**
@@ -78,11 +90,11 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  private void createPolyline2(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void createPolyline2(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
     
-    JSONObject opts = args.getJSONObject(1);
+    JSONObject opts = args.getJSONObject(0);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
       List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
@@ -174,10 +186,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
+  public void setColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
     this.setInt("setColor", id, color, callbackContext);
   }
   
@@ -187,10 +198,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float width = (float) args.getDouble(2) * this.density;
+  public void setWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    float width = (float) args.getDouble(1) * this.density;
     this.setFloat("setWidth", id, width, callbackContext);
   }
   
@@ -200,10 +210,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    float zIndex = (float) args.getDouble(2);
+  public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    float zIndex = (float) args.getDouble(1);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
   
@@ -214,34 +223,38 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    Polyline polyline = this.getPolyline(id);
+  public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    final Polyline polyline = this.getPolyline(id);
     if (polyline == null) {
       this.sendNoResult(callbackContext);
       return;
     }
-    this.objects.remove(id);
+    self.objects.remove(id);
     
     id = "polyline_bounds_" + polyline.getId();
-    this.objects.remove(id);
-    
-    polyline.remove();
-    this.sendNoResult(callbackContext);
+    self.objects.remove(id);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        polyline.remove();
+        sendNoResult(callbackContext);
+      }
+    });
   }
+
   /**
    * Set points
    * @param args
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
+  public void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
     Polyline polyline = this.getPolyline(id);
     
-    JSONArray points = args.getJSONArray(2);
+    JSONArray points = args.getJSONArray(1);
     List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
     polyline.setPoints(path);
 
@@ -249,7 +262,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     for (int i = 0; i < path.size(); i++) {
       builder.include(path.get(i));
     }
-    this.objects.put("polyline_bounds_" + polyline.getId(), builder.build());
+    self.objects.put("polyline_bounds_" + polyline.getId(), builder.build());
 
     this.sendNoResult(callbackContext);
   }
@@ -259,10 +272,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
-  private void setGeodesic(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(1);
-    boolean isGeodisic = args.getBoolean(2);
+  public void setGeodesic(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    boolean isGeodisic = args.getBoolean(1);
     this.setBoolean("setGeodesic", id, isGeodisic, callbackContext);
   }
 
@@ -272,10 +284,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
-  private void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(2);
-    String id = args.getString(1);
+  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean visible = args.getBoolean(1);
+    String id = args.getString(0);
     this.setBoolean("setVisible", id, visible, callbackContext);
   }
 }

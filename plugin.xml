@@ -4,6 +4,9 @@
     <js-module name="BaseClass" src="www/BaseClass.js">
       <clobbers target="plugin.google.maps.BaseClass" />
     </js-module>
+    <js-module name="Polyline" src="www/Polyline.js">
+      <runs />
+    </js-module>
     <js-module name="Polygon" src="www/Polygon.js">
       <runs />
     </js-module>
@@ -55,6 +58,9 @@
             </feature>
             <feature name="Geocoder">
                 <param name="android-package" value="plugin.google.maps.MyGeocoder" />
+            </feature>
+            <feature name="Polyline">
+                <param name="android-package" value="plugin.google.maps.PluginPolyline" />
             </feature>
             <feature name="Polygon">
                 <param name="android-package" value="plugin.google.maps.PluginPolygon" />
