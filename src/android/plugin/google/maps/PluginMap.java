@@ -194,7 +194,6 @@ public class PluginMap extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  @SuppressWarnings("unused")
   public void moveCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.updateCameraPosition("moveCamera", args, callbackContext);
   }
@@ -206,8 +205,8 @@ public class PluginMap extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  public void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    
+  private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
     int durationMS = 4000;
     CameraPosition.Builder builder = CameraPosition.builder();
     final JSONObject cameraPos = args.getJSONObject(1);
@@ -424,7 +423,7 @@ public class PluginMap extends MyPlugin {
    * @param callbackContext
    */
   public void myAnimateCamera(final CameraUpdate cameraUpdate, final int durationMS, final CallbackContext callbackContext) {
-    GoogleMap.CancelableCallback callback = new GoogleMap.CancelableCallback() {
+    final GoogleMap.CancelableCallback callback = new GoogleMap.CancelableCallback() {
       @Override
       public void onFinish() {
         callbackContext.success();
@@ -436,11 +435,16 @@ public class PluginMap extends MyPlugin {
       }
     };
 
-    if (durationMS > 0) {
-      map.animateCamera(cameraUpdate, durationMS, callback);
-    } else {
-      map.animateCamera(cameraUpdate, callback);
-    }
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (durationMS > 0) {
+          map.animateCamera(cameraUpdate, durationMS, callback);
+        } else {
+          map.animateCamera(cameraUpdate, callback);
+        }
+      }
+    });
   }
   
 

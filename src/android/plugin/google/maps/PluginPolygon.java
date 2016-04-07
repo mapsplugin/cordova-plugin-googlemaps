@@ -31,6 +31,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
      */
     @Override
     public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        self = this;
 
         final PolygonOptions polygonOptions = new PolygonOptions();
         int color;

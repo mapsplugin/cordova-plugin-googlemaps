@@ -8,6 +8,7 @@ import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -157,7 +159,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       mCallback.error("KML Parse error");
       return null;
     }
-    Log.d("KmlParser", kmlData.toString() + "");
     Bundle styles = kmlData.getBundle("styles");
     ArrayList<Bundle> placeMarks = kmlData.getParcelableArrayList("placeMarks");
 
@@ -409,7 +410,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       PluginManager manager = mMapCtrl.webView.getPluginManager();
 
       try {
-        Log.d("KMLParser", "plugin = " +  manager.getPlugin("Map"));
         manager.getPlugin("Map").execute("animateCamera", paramsCamera, new CallbackContext("kml-viewport-change", AsyncKmlParser.this.mMapCtrl.webView));
       } catch (JSONException e) {
         e.printStackTrace();
@@ -466,9 +466,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private void execOtherClassMethod(String className, String action, final JSONArray params, final CallbackContext callback) {
 
     try {
-      Log.d("KMLParser", "--load plugin = " + className);
       mMapCtrl.loadPlugin(className);
-      Log.d("KMLParser", "--execute  = " + className + ", action = " + action);
       mMapCtrl.plugins.get(className).plugin.execute(action, params, callback);
     } catch (JSONException e) {
       e.printStackTrace();
@@ -479,12 +477,10 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private void implementToMap(final String className, final JSONObject optionsJSON, final String kmlId) {
     JSONArray params = new JSONArray();
     params.put(optionsJSON);
-    Log.d("KMLParser", "----> implementToMap : " + className + " : "  + kmlId);
     AsyncKmlParser.this.execOtherClassMethod(className, "create", params, new PluginUtil.MyCallbackContext(kmlId +"_callback", mMapCtrl.webView) {
 
       @Override
       public void onResult(PluginResult pluginResult) {
-        Log.d("KMLParser", "----> notify : "  + kmlId);
         mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
             "_onKmlEvent('add', '" + className.toLowerCase(Locale.US) + "','" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
       }

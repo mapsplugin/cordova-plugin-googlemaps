@@ -66,32 +66,31 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     */
 
 
-    if (methods.size() == 0) {
-      if (self == null) {
-        PluginManager manager = this.webView.getPluginManager();
-        GoogleMaps googleMaps = (GoogleMaps) manager.getPlugin("GoogleMaps");
-        Log.d("MyPlugin", "isDebug =  " + googleMaps.isDebug + ", TAG = " + TAG);
-        if (googleMaps.isDebug) {
-          if (args != null && args.length() > 0) {
-            Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
-          } else {
-            Log.d(TAG, "(debug)action=" + action);
-          }
+    if (self == null) {
+      PluginManager manager = this.webView.getPluginManager();
+      GoogleMaps googleMaps = (GoogleMaps) manager.getPlugin("GoogleMaps");
+      if (googleMaps.isDebug) {
+        if (args != null && args.length() > 0) {
+          Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
+        } else {
+          Log.d(TAG, "(debug)action=" + action);
         }
-        this.mapCtrl = googleMaps;
-        googleMaps.loadPlugin(this.getServiceName());
-        self = (MyPlugin) this.mapCtrl.plugins.get(this.getServiceName()).plugin;
-        this.map = this.mapCtrl.map;
-        Method[] classMethods = self.getClass().getMethods();
-        for (int i = 0; i < classMethods.length; i++) {
-          methods.put(classMethods[i].getName(), classMethods[i]);
-        }
+      }
+      //this.mapCtrl = googleMaps;
+      googleMaps.loadPlugin(this.getServiceName());
+      self = (MyPlugin) googleMaps.plugins.get(this.getServiceName()).plugin;
+      //this.map = this.mapCtrl.map;
+      self.map = googleMaps.map;
+      self.mapCtrl = googleMaps;
+      Method[] classMethods = self.getClass().getMethods();
+      for (int i = 0; i < classMethods.length; i++) {
+        methods.put(classMethods[i].getName(), classMethods[i]);
       }
     }
     //  this.create(args, callbackContext);
     //  return true;
     if (methods.containsKey(action)) {
-      if (this.mapCtrl.isDebug) {
+      if (self.mapCtrl.isDebug) {
         if (args != null && args.length() > 0) {
           Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
         } else {
