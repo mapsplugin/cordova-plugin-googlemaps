@@ -416,7 +416,7 @@ public class PluginMap extends MyPlugin {
         : mapTypeId;
 
     if (mapTypeId == -1) {
-      callbackContext.error("Unknow MapTypeID is specified:" + typeStr);
+      callbackContext.error("Unknown MapTypeID is specified:" + typeStr);
       return;
     }
     
