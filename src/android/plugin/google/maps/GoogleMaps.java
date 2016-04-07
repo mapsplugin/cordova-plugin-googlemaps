@@ -20,6 +20,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
@@ -85,16 +86,17 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("deprecation")
@@ -1384,14 +1386,119 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param point
    */
   public void onMapClick(final LatLng point) {
-    cordova.getThreadPool().execute(new Runnable() {
+    AsyncTask<Void, Void, HashMap<String, Object>> task = new AsyncTask<Void, Void, HashMap<String, Object>>() {
       @Override
-      public void run() {
-
-        boolean hitPoly = false;
+      protected HashMap<String, Object> doInBackground(Void... voids) {
         String key;
         LatLngBounds bounds;
+        HashMap<String, Object> results = new HashMap<String, Object>();
+        PluginEntry pluginEntry;
 
+        // Polyline
+        pluginEntry = plugins.get("Polyline");
+        if (pluginEntry != null) {
+          PluginPolyline polylineClass = (PluginPolyline) pluginEntry.plugin;
+          for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
+            key = entry.getKey();
+            if (key.contains("polyline_bounds_")) {
+              bounds = (LatLngBounds) entry.getValue();
+              if (bounds.contains(point)) {
+                key = key.replace("bounds_", "");
+                results.put(key, polylineClass.getPolyline(key));
+              }
+            }
+          }
+        }
+
+        // Loop through all polygons to check if within the touch point
+        pluginEntry = plugins.get("Polygon");
+        if (pluginEntry != null) {
+          PluginPolygon polygonPlugin = (PluginPolygon) pluginEntry.plugin;
+          for (HashMap.Entry<String, Object> entry : polygonPlugin.objects.entrySet()) {
+            key = entry.getKey();
+            Log.d("Polygon", "--key = " + key);
+            if (key.contains("polygon_bounds_")) {
+              bounds = (LatLngBounds) entry.getValue();
+              if (bounds.contains(point)) {
+                key = key.replace("_bounds", "");
+                results.put(key, polygonPlugin.getPolygon(key));
+              }
+            }
+          }
+        }
+
+        return results;
+      }
+
+      @Override
+      public void onPostExecute(HashMap<String, Object> boundsHitList) {
+        boolean hitPoly = false;
+        String key;
+        Map.Entry<String, Object> entry;
+
+        Set<Map.Entry<String, Object>> entrySet = boundsHitList.entrySet();
+        Iterator<Map.Entry<String, Object>> iterator = entrySet.iterator();
+
+
+        List<LatLng> points ;
+        Polyline polyline;
+        Polygon polygon;
+        Point origin = new Point();
+        Point hitArea = new Point();
+        hitArea.x = 1;
+        hitArea.y = 1;
+        Projection projection = map.getProjection();
+        double threshold = calculateDistance(
+            projection.fromScreenLocation(origin),
+            projection.fromScreenLocation(hitArea));
+
+
+        while(iterator.hasNext()) {
+          entry = iterator.next();
+          key = entry.getKey();
+          Log.d("GoogleMaps", key);
+
+          if (key.startsWith("polyline")) {
+
+            polyline = ((Polyline)entry.getValue());
+            points = polyline.getPoints();
+
+            if (polyline.isGeodesic()) {
+              if (isPointOnTheGeodesicLine(points, point, threshold)) {
+                hitPoly = true;
+                onPolylineClick(polyline, point);
+                break;
+              }
+            } else {
+              if (isPointOnTheLine(points, point)) {
+                hitPoly = true;
+                onPolylineClick(polyline, point);
+                break;
+              }
+            }
+
+          }
+
+          if (key.startsWith("polygon")) {
+            polygon = ((Polygon)entry.getValue());
+            if (isPolygonContains(polygon.getPoints(), point)) {
+              hitPoly = true;
+              onPolygonClick(polygon, point);
+              break;
+            }
+          }
+        }
+        if (!hitPoly) {
+          // Only emit click event if no overlays hit
+          onMapEvent("click", point);
+        }
+
+      }
+    };
+    task.execute();
+
+
+/*
         // Polyline
         PluginEntry polylinePlugin = plugins.get("Polyline");
         Log.d("GoogleMaps", "--polyline = " + polylinePlugin);
@@ -1437,15 +1544,19 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             return;
           }
         }
+*/
 
-        // Loop through all polygons to check if within the touch point
+
+    /*
         PluginEntry polygonPlugin = plugins.get("Polygon");
-        Log.d("GoogleMaps", "--Polygon = " + polygonPlugin);
+        Log.d("GoogleMaps", "--Polygon = " + polygonPlugin.plugin);
         if (polygonPlugin != null) {
           PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
 
+          Log.d("GoogleMaps", "--key = " + polygonClass.objects.entrySet());
           for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
             key = entry.getKey();
+            Log.d("GoogleMaps", "--key = " + key);
             if (key.contains("polygon_bounds_")) {
               bounds = (LatLngBounds) entry.getValue();
               if (bounds.contains(point)) {
@@ -1506,9 +1617,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
         // Only emit click event if no overlays hit
         onMapEvent("click", point);
+*/
 
-      }
-    });
   }
 
   /**

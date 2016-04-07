@@ -20,6 +20,7 @@ import android.util.Log;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
@@ -66,7 +67,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     */
 
 
-    if (self == null) {
+    if (methods.size() == 0) {
       PluginManager manager = this.webView.getPluginManager();
       GoogleMaps googleMaps = (GoogleMaps) manager.getPlugin("GoogleMaps");
       if (googleMaps.isDebug) {
@@ -76,12 +77,16 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
           Log.d(TAG, "(debug)action=" + action);
         }
       }
-      //this.mapCtrl = googleMaps;
-      googleMaps.loadPlugin(this.getServiceName());
-      self = (MyPlugin) googleMaps.plugins.get(this.getServiceName()).plugin;
-      //this.map = this.mapCtrl.map;
+      self = this;
+      this.mapCtrl = googleMaps;
+      //googleMaps.loadPlugin(this.getServiceName());
+      //self = (MyPlugin) googleMaps.plugins.get(this.getServiceName()).plugin;
+      this.map = this.mapCtrl.map;
+      Log.d("MyPlugin", "this = " + this);
       self.map = googleMaps.map;
       self.mapCtrl = googleMaps;
+      Log.d("MyPlugin", "self = " + self);
+
       Method[] classMethods = self.getClass().getMethods();
       for (int i = 0; i < classMethods.length; i++) {
         methods.put(classMethods[i].getName(), classMethods[i]);
@@ -184,5 +189,14 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
     pluginResult.setKeepCallback(true);
     callbackContext.sendPluginResult(pluginResult);
+  }
+
+
+  protected void onOverlayEvent(String eventName, String overlayId, LatLng point) {
+    webView.loadUrl("javascript:plugin.google.maps.Map." +
+        "_onOverlayEvent(" +
+        "'" + eventName + "','" + overlayId + "', " +
+        "new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + ")" +
+        ")");
   }
 }
