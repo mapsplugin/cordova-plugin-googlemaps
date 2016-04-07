@@ -1345,7 +1345,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param eventName
    */
   private void onMapEvent(final String eventName) {
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('" + eventName + "')");
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('" + eventName + "')");
+      }
+    });
   }
 
   /**
@@ -1354,8 +1359,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param point
    */
   private void onMapEvent(final String eventName, final LatLng point) {
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent(" +
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent(" +
             "'" + eventName + "', new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + "))");
+      }
+    });
   }
 
   @Override
@@ -1373,121 +1383,132 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * Notify map click event to JS, also checks for click on a polygon and triggers onPolygonEvent
    * @param point
    */
-  public void onMapClick(LatLng point) {
-    boolean hitPoly = false;
-    String key;
-    LatLngBounds bounds;
+  public void onMapClick(final LatLng point) {
+    cordova.getThreadPool().execute(new Runnable() {
+      @Override
+      public void run() {
 
-    // Polyline
-    PluginEntry polylinePlugin = this.plugins.get("Polyline");
-    if(polylinePlugin != null) {
-      PluginPolyline polylineClass = (PluginPolyline) polylinePlugin.plugin;
+        boolean hitPoly = false;
+        String key;
+        LatLngBounds bounds;
 
-      List<LatLng> points ;
-      Polyline polyline;
-      Point origin = new Point();
-      Point hitArea = new Point();
-      hitArea.x = 1;
-      hitArea.y = 1;
-      Projection projection = map.getProjection();
-      double threshold = this.calculateDistance(
-          projection.fromScreenLocation(origin),
-          projection.fromScreenLocation(hitArea));
+        // Polyline
+        PluginEntry polylinePlugin = plugins.get("Polyline");
+        Log.d("GoogleMaps", "--polyline = " + polylinePlugin);
+        if (polylinePlugin != null) {
+          PluginPolyline polylineClass = (PluginPolyline) polylinePlugin.plugin;
 
-      for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
-        key = entry.getKey();
-        if (key.contains("polyline_bounds_")) {
-          bounds = (LatLngBounds) entry.getValue();
-          if (bounds.contains(point)) {
-            key = key.replace("bounds_", "");
+          List<LatLng> points ;
+          Polyline polyline;
+          Point origin = new Point();
+          Point hitArea = new Point();
+          hitArea.x = 1;
+          hitArea.y = 1;
+          Projection projection = map.getProjection();
+          double threshold = calculateDistance(
+              projection.fromScreenLocation(origin),
+              projection.fromScreenLocation(hitArea));
 
-            polyline = polylineClass.getPolyline(key);
-            points = polyline.getPoints();
+          for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
+            key = entry.getKey();
+            if (key.contains("polyline_bounds_")) {
+              bounds = (LatLngBounds) entry.getValue();
+              if (bounds.contains(point)) {
+                key = key.replace("bounds_", "");
 
-            if (polyline.isGeodesic()) {
-              if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
-                hitPoly = true;
-                this.onPolylineClick(polyline, point);
-              }
-            } else {
-                if (this.isPointOnTheLine(points, point)) {
-                  hitPoly = true;
-                  this.onPolylineClick(polyline, point);
+                polyline = polylineClass.getPolyline(key);
+                points = polyline.getPoints();
+
+                if (polyline.isGeodesic()) {
+                  if (isPointOnTheGeodesicLine(points, point, threshold)) {
+                    hitPoly = true;
+                    onPolylineClick(polyline, point);
+                  }
+                } else {
+                  if (isPointOnTheLine(points, point)) {
+                    hitPoly = true;
+                    onPolylineClick(polyline, point);
+                  }
                 }
+              }
             }
           }
+          if (hitPoly) {
+            return;
+          }
         }
-      }
-      if (hitPoly) {
-        return;
-      }
-    }
 
-    // Loop through all polygons to check if within the touch point
-    PluginEntry polygonPlugin = this.plugins.get("Polygon");
-    if (polygonPlugin != null) {
-      PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
+        // Loop through all polygons to check if within the touch point
+        PluginEntry polygonPlugin = plugins.get("Polygon");
+        Log.d("GoogleMaps", "--Polygon = " + polygonPlugin);
+        if (polygonPlugin != null) {
+          PluginPolygon polygonClass = (PluginPolygon) polygonPlugin.plugin;
 
-      for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
-        key = entry.getKey();
-        if (key.contains("polygon_bounds_")) {
-          bounds = (LatLngBounds) entry.getValue();
-          if (bounds.contains(point)) {
+          for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
+            key = entry.getKey();
+            if (key.contains("polygon_bounds_")) {
+              bounds = (LatLngBounds) entry.getValue();
+              if (bounds.contains(point)) {
 
-            key = key.replace("_bounds", "");
-            Polygon polygon = polygonClass.getPolygon(key);
+                key = key.replace("_bounds", "");
+                Polygon polygon = polygonClass.getPolygon(key);
 
-            if (this.isPolygonContains(polygon.getPoints(), point)) {
+                if (isPolygonContains(polygon.getPoints(), point)) {
+                  hitPoly = true;
+                  onPolygonClick(polygon, point);
+                }
+              }
+            }
+          }
+          if (hitPoly) {
+            return;
+          }
+        }
+
+        // Loop through all circles to check if within the touch point
+        PluginEntry circlePlugin = plugins.get("Circle");
+        Log.d("GoogleMaps", "--circlePlugin = " + circlePlugin);
+        if (circlePlugin != null) {
+          PluginCircle circleClass = (PluginCircle) circlePlugin.plugin;
+
+          for (HashMap.Entry<String, Object> entry : circleClass.objects.entrySet()) {
+            Circle circle = (Circle) entry.getValue();
+            if (isCircleContains(circle, point)) {
               hitPoly = true;
-              this.onPolygonClick(polygon, point);
+              onCircleClick(circle, point);
             }
           }
-        }
-      }
-      if (hitPoly) {
-        return;
-      }
-    }
-
-    // Loop through all circles to check if within the touch point
-    PluginEntry circlePlugin = this.plugins.get("Circle");
-    if (circlePlugin != null) {
-      PluginCircle circleClass = (PluginCircle) circlePlugin.plugin;
-
-      for (HashMap.Entry<String, Object> entry : circleClass.objects.entrySet()) {
-        Circle circle = (Circle) entry.getValue();
-        if (this.isCircleContains(circle, point)) {
-          hitPoly = true;
-          this.onCircleClick(circle, point);
-        }
-      }
-      if (hitPoly) {
-        return;
-      }
-    }
-
-    // Loop through ground overlays to check if within the touch point
-    PluginEntry groundOverlayPlugin = this.plugins.get("GroundOverlay");
-    if (groundOverlayPlugin != null) {
-      PluginGroundOverlay groundOverlayClass = (PluginGroundOverlay) groundOverlayPlugin.plugin;
-
-      for (HashMap.Entry<String, Object> entry : groundOverlayClass.objects.entrySet()) {
-        key = entry.getKey();
-        if (key.contains("groundOverlay_")) {
-          GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
-          if (this.isGroundOverlayContains(groundOverlay, point)) {
-            hitPoly = true;
-            this.onGroundOverlayClick(groundOverlay, point);
+          if (hitPoly) {
+            return;
           }
         }
-      }
-      if (hitPoly) {
-        return;
-      }
-    }
 
-    // Only emit click event if no overlays hit
-    this.onMapEvent("click", point);
+        // Loop through ground overlays to check if within the touch point
+        PluginEntry groundOverlayPlugin = plugins.get("GroundOverlay");
+        Log.d("GoogleMaps", "--GroundOverlay = " + groundOverlayPlugin);
+        if (groundOverlayPlugin != null) {
+          PluginGroundOverlay groundOverlayClass = (PluginGroundOverlay) groundOverlayPlugin.plugin;
+
+          for (HashMap.Entry<String, Object> entry : groundOverlayClass.objects.entrySet()) {
+            key = entry.getKey();
+            if (key.contains("groundOverlay_")) {
+              GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
+              if (isGroundOverlayContains(groundOverlay, point)) {
+                hitPoly = true;
+                onGroundOverlayClick(groundOverlay, point);
+              }
+            }
+          }
+          if (hitPoly) {
+            return;
+          }
+        }
+
+        // Only emit click event if no overlays hit
+        onMapEvent("click", point);
+
+      }
+    });
   }
 
   /**
