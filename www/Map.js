@@ -166,23 +166,23 @@ Map.prototype.setOptions = function(options) {
       options.camera.target = options.camera.latLng;
       delete options.camera.latLng;
     }
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', this.deleteFromObject(options,'function')]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setOptions', [this.deleteFromObject(options,'function')]);
 };
 
 Map.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
     cordova.exec(null, this.errorHandler,
-        PLUGIN_NAME, 'exec', ['Map.setCenter', latLng.lat, latLng.lng]);
+        PLUGIN_NAME, 'setCenter', [latLng.lat, latLng.lng]);
 };
 
 Map.prototype.setZoom = function(zoom) {
     this.set('zoom', zoom);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setZoom', zoom]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setZoom', [zoom]);
 };
 Map.prototype.panBy = function(x, y) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.panBy', x, y]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'panBy', [x, y]);
 };
 
 /**
@@ -199,7 +199,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
         return this.errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMapTypeId', mapTypeId]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setMapTypeId', [mapTypeId]);
 };
 
 /**
@@ -208,7 +208,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTilt', tilt]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTilt', [tilt]);
 };
 
 
@@ -247,7 +247,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
             if (typeof callback === "function") {
                 callback.call(self);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.animateCamera', self.deleteFromObject(cameraPosition,'function')]);
+        }, self.errorHandler, PLUGIN_NAME, 'animateCamera', [self.deleteFromObject(cameraPosition,'function')]);
     }.bind(self), 10);
 
 
@@ -287,27 +287,27 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
             if (typeof callback === "function") {
                 callback.call(self);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.moveCamera', self.deleteFromObject(cameraPosition,'function')]);
+        }, self.errorHandler, PLUGIN_NAME, 'moveCamera', [self.deleteFromObject(cameraPosition,'function')]);
     }.bind(self), 10);
 
 };
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setMyLocationEnabled', [enabled]);
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setIndoorEnabled', [enabled]);
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTrafficEnabled', enabled]);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTrafficEnabled', [enabled]);
 };
 Map.prototype.setCompassEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setCompassEnabled', enabled]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setCompassEnabled', [enabled]);
 };
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
     var args = [params || {}, success_callback || null, error_callback];
@@ -366,7 +366,7 @@ Map.prototype.setDebuggable = function(debug) {
 Map.prototype.setAllGesturesEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setAllGesturesEnabled', enabled]);
+    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setAllGesturesEnabled', [enabled]);
 };
 
 /**
@@ -475,7 +475,7 @@ Map.prototype.toDataURL = function(params, callback) {
         if (typeof callback === "function") {
             callback.call(self, image);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.toDataURL', self.deleteFromObject(params,'function')]);
+    }, self.errorHandler, PLUGIN_NAME, 'toDataURL', [self.deleteFromObject(params,'function')]);
 };
 
 var _append_child = function(event) {
@@ -631,7 +631,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
             if (typeof callback === "function") {
                 callback.call(self, result);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.fromLatLngToPoint', latLng.lat, latLng.lng]);
+        }, self.errorHandler, PLUGIN_NAME, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
     } else {
         if (typeof callback === "function") {
             callback.call(self, [undefined, undefined]);
@@ -650,7 +650,7 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
                 var latLng = new LatLng(result[0] || 0, result[1] || 0);
                 callback.call(self, result);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.fromPointToLatLng', pixel[0], pixel[1]]);
+        }, self.errorHandler, PLUGIN_NAME, 'fromPointToLatLng', [pixel[0], pixel[1]]);
     } else {
         if (typeof callback === "function") {
             callback.call(self, [undefined, undefined]);
@@ -699,7 +699,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
             var latLng = new LatLng(result[0] || 0, result[1] || 0);
             callback.call(self, result);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.setPadding', padding]);
+    }, self.errorHandler, PLUGIN_NAME, 'setPadding', [padding]);
 };
 
 

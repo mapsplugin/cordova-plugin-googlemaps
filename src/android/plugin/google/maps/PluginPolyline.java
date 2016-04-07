@@ -24,6 +24,8 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException 
    */
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    self = this;
+
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
     final LatLngBounds.Builder builder = new LatLngBounds.Builder();

@@ -1386,20 +1386,22 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param point
    */
   public void onMapClick(final LatLng point) {
+    final PluginManager pluginManager = this.webView.getPluginManager();
+
     AsyncTask<Void, Void, HashMap<String, Object>> task = new AsyncTask<Void, Void, HashMap<String, Object>>() {
       @Override
       protected HashMap<String, Object> doInBackground(Void... voids) {
         String key;
         LatLngBounds bounds;
         HashMap<String, Object> results = new HashMap<String, Object>();
-        PluginEntry pluginEntry;
 
         // Polyline
-        pluginEntry = plugins.get("Polyline");
-        if (pluginEntry != null) {
-          PluginPolyline polylineClass = (PluginPolyline) pluginEntry.plugin;
+        PluginPolyline polylineClass = (PluginPolyline) pluginManager.getPlugin("Polyline");
+        Log.d("GoogleMaps", "Polyline = " + polylineClass);
+        if (polylineClass != null) {
           for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
             key = entry.getKey();
+            Log.d("GoogleMaps", "key = " + key);
             if (key.contains("polyline_bounds_")) {
               bounds = (LatLngBounds) entry.getValue();
               if (bounds.contains(point)) {
@@ -1411,9 +1413,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
 
         // Loop through all polygons to check if within the touch point
-        pluginEntry = plugins.get("Polygon");
-        if (pluginEntry != null) {
-          PluginPolygon polygonPlugin = (PluginPolygon) pluginEntry.plugin;
+        PluginPolygon polygonPlugin = (PluginPolygon) pluginManager.getPlugin("Polyline");
+        if (polygonPlugin != null) {
           for (HashMap.Entry<String, Object> entry : polygonPlugin.objects.entrySet()) {
             key = entry.getKey();
             Log.d("Polygon", "--key = " + key);
@@ -1954,18 +1955,21 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return null;
     }
 
+    PluginManager pluginManager = this.webView.getPluginManager();
+    PluginMarker pluginMarker = (PluginMarker)pluginManager.getPlugin("Marker");
+
     JSONObject properties = null;
     JSONObject styles = null;
     String propertyId = "marker_property_" + marker.getId();
-    PluginEntry pluginEntry = this.plugins.get("Marker");
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
 
       if (properties.has("styles")) {
         try {
           styles = (JSONObject) properties.getJSONObject("styles");
-        } catch (JSONException e) {}
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
       }
     }
 

@@ -95,6 +95,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     //  this.create(args, callbackContext);
     //  return true;
     if (methods.containsKey(action)) {
+      self = this;
       if (self.mapCtrl.isDebug) {
         if (args != null && args.length() > 0) {
           Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
