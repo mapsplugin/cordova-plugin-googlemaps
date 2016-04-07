@@ -2,7 +2,7 @@
 <plugin id="cordova-plugin-googlemaps" version="1.3.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>phonegap-googlemaps-plugin</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
-      <clobbers target="plugin.google.maps.BaseClass" />
+      <runs />
     </js-module>
     <js-module name="LatLng" src="www/LatLng.js">
       <runs />
@@ -38,6 +38,24 @@
       <runs />
     </js-module>
     <js-module name="encoding" src="www/encoding.js">
+      <runs />
+    </js-module>
+    <js-module name="Geocoder" src="www/Geocoder.js">
+      <runs />
+    </js-module>
+    <js-module name="ExternalService" src="www/ExternalService.js">
+      <runs />
+    </js-module>
+    <js-module name="Map" src="www/Map.js">
+      <runs />
+    </js-module>
+    <js-module name="event" src="www/event.js">
+      <runs />
+    </js-module>
+    <js-module name="MapTypeId" src="www/MapTypeId.js">
+      <runs />
+    </js-module>
+    <js-module name="KmlOverlay" src="www/KmlOverlay.js">
       <runs />
     </js-module>
     <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
@@ -97,6 +115,15 @@
             </feature>
             <feature name="GroundOverlay">
                 <param name="android-package" value="plugin.google.maps.PluginGroundOverlay" />
+            </feature>
+            <feature name="KmlOverlay">
+                <param name="android-package" value="plugin.google.maps.PluginKmlOverlay" />
+            </feature>
+            <feature name="External">
+                <param name="android-package" value="plugin.google.maps.External" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
             </feature>
         </config-file>
 

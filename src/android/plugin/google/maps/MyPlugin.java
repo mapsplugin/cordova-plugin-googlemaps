@@ -49,21 +49,24 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-/*
-    String[] params = args.getString(0).split("\\.");
-    try {
-      Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-      method.setAccessible(true);
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage());
-      return false;
+    /*
+    if ("Map.animateCamera".equals(args.getString(0))) {
+      String[] params = args.getString(0).split("\\.");
+      try {
+        Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
+        method.setAccessible(true);
+        method.invoke(this, args, callbackContext);
+        return true;
+      } catch (Exception e) {
+        e.printStackTrace();
+        callbackContext.error(e.getMessage());
+        return false;
+      }
     }
-*/
+    */
 
-    if (action.startsWith("create")) {
+
+    if (methods.size() == 0) {
       if (self == null) {
         PluginManager manager = this.webView.getPluginManager();
         GoogleMaps googleMaps = (GoogleMaps) manager.getPlugin("GoogleMaps");
@@ -84,9 +87,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
           methods.put(classMethods[i].getName(), classMethods[i]);
         }
       }
-      this.create(args, callbackContext);
-      return true;
-    } else if (methods.containsKey(action)) {
+    }
+    //  this.create(args, callbackContext);
+    //  return true;
+    if (methods.containsKey(action)) {
       if (this.mapCtrl.isDebug) {
         if (args != null && args.length() > 0) {
           Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));

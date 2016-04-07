@@ -161,7 +161,7 @@ public class PluginCircle extends MyPlugin  {
    * @param callbackContext
    * @throws JSONException 
    */
-  protected void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(1);
     String id = args.getString(0);
     this.setBoolean("setVisible", id, visible, callbackContext);
@@ -173,7 +173,6 @@ public class PluginCircle extends MyPlugin  {
    * @param callbackContext
    * @throws JSONException
    */
-  @SuppressWarnings("unused")
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String id = args.getString(0);
     final Circle circle = this.getCircle(id);
