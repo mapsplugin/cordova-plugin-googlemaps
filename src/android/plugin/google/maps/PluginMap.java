@@ -27,6 +27,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 public class PluginMap extends MyPlugin {
+  private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
+  private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
+
   /**
    * @param args
    * @param callbackContext
@@ -249,7 +252,7 @@ public class PluginMap extends MyPlugin {
     PluginUtil.MyCallbackContext myCallback = new PluginUtil.MyCallbackContext("moveCamera", webView) {
       @Override
       public void onResult(final PluginResult pluginResult) {
-        if (finalCameraBounds != null) {
+        if (finalCameraBounds != null && ANIMATE_CAMERA_DONE.equals(pluginResult.getStrMessage())) {
           CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraBounds, (int)density);
           map.moveCamera(cameraUpdate);
 
@@ -273,7 +276,7 @@ public class PluginMap extends MyPlugin {
           builder.target(map.getCameraPosition().target);
           map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
         }
-        callbackContext.sendPluginResult(pluginResult);
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
       }
     };
     if (action.equals("moveCamera")) {
@@ -426,12 +429,12 @@ public class PluginMap extends MyPlugin {
     final GoogleMap.CancelableCallback callback = new GoogleMap.CancelableCallback() {
       @Override
       public void onFinish() {
-        callbackContext.success();
+        callbackContext.success(ANIMATE_CAMERA_DONE);
       }
 
       @Override
       public void onCancel() {
-        callbackContext.success();
+        callbackContext.success(ANIMATE_CAMERA_CANCELED);
       }
     };
 
