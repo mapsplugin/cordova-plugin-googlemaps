@@ -75,6 +75,9 @@ Map.prototype.addMarker = function(markerOptions, callback) {
         markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
     }
 
+    var markerClick = markerOptions.markerClick;
+    var infoClick = markerOptions.infoClick;
+
     cordova.exec(function(result) {
         markerOptions.hashCode = result.hashCode;
         var marker = new Marker(self, result.id, markerOptions);
@@ -82,11 +85,11 @@ Map.prototype.addMarker = function(markerOptions, callback) {
         MARKERS[result.id] = marker;
         OVERLAYS[result.id] = marker;
 
-        if (typeof markerOptions.markerClick === "function") {
-            marker.on(event.MARKER_CLICK, markerOptions.markerClick);
+        if (typeof markerClick === "function") {
+            marker.on(event.MARKER_CLICK, markerClick);
         }
-        if (typeof markerOptions.infoClick === "function") {
-            marker.on(event.INFO_CLICK, markerOptions.infoClick);
+        if (typeof infoClick === "function") {
+            marker.on(event.INFO_CLICK, infoClick);
         }
         if (typeof callback === "function") {
             callback.call(self, marker, self);
