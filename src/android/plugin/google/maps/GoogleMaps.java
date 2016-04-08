@@ -86,6 +86,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
+import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -585,7 +586,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
             if (controls.has("myLocationButton")) {
               Boolean isEnabled = controls.getBoolean("myLocationButton");
-              map.setMyLocationEnabled(isEnabled);
+
+              // TODO: Check permission
+              //map.setMyLocationEnabled(isEnabled);
               map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
             }
             if (controls.has("indoorPicker")) {
@@ -1413,7 +1416,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         }
 
         // Loop through all polygons to check if within the touch point
-        PluginPolygon polygonPlugin = (PluginPolygon) pluginManager.getPlugin("Polyline");
+        PluginPolygon polygonPlugin = (PluginPolygon) pluginManager.getPlugin("Polygon");
         if (polygonPlugin != null) {
           for (HashMap.Entry<String, Object> entry : polygonPlugin.objects.entrySet()) {
             key = entry.getKey();
