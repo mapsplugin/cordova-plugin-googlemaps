@@ -7,7 +7,7 @@ var argscheck = require('cordova/argscheck'),
     MapTypeId = require('./MapTypeId'),
     event = require('./event');
 
-var PLUGIN_NAME = "GoogleMaps";
+var PLUGIN_NAME = "Map";
 
 /**
  * Google Maps model.
@@ -120,7 +120,7 @@ Map.prototype.getMap = function(div, params) {
             self.refreshLayout();
             self.trigger(event.MAP_READY, self);
         }, 100);
-    }, self.errorHandler, PLUGIN_NAME, 'getMap', self.deleteFromObject(args,'function'));
+    }, self.errorHandler, 'GoogleMaps', 'getMap', self.deleteFromObject(args,'function'));
     return self;
 };
 
@@ -129,7 +129,7 @@ Map.prototype.getLicenseInfo = function(callback) {
     var self = this;
     cordova.exec(function(txt) {
         callback.call(self, txt);
-    }, self.errorHandler, PLUGIN_NAME, 'getLicenseInfo', []);
+    }, self.errorHandler, 'GoogleMaps', 'getLicenseInfo', []);
 };
 
 
@@ -331,7 +331,7 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    cordova.exec(successHandler, errorHandler, PLUGIN_NAME, 'getMyLocation', [self.deleteFromObject(params,'function')]);
+    cordova.exec(successHandler, errorHandler, 'GoogleMaps', 'getMyLocation', [self.deleteFromObject(params,'function')]);
 };
 Map.prototype.getFocusedBuilding = function(callback) {
     var self = this;
@@ -345,19 +345,19 @@ Map.prototype.setVisible = function(isVisible) {
 Map.prototype.setClickable = function(isClickable) {
     var self = this;
     isClickable = common.parseBoolean(isClickable);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setClickable', [isClickable]);
+    cordova.exec(null, self.errorHandler, 'GoogleMaps', 'pluginLayer_setClickable', [isClickable]);
 };
 
 Map.prototype.setBackgroundColor = function(color) {
     this.set('strokeColor', color);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [common.HTMLColor2RGBA(color)]);
+    cordova.exec(null, this.errorHandler, 'GoogleMaps', 'pluginLayer_setBackGroundColor', [common.HTMLColor2RGBA(color)]);
 };
 
 
 Map.prototype.setDebuggable = function(debug) {
     var self = this;
     debug = common.parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+    cordova.exec(null, self.errorHandler, 'GoogleMaps', 'pluginLayer_setDebuggable', [debug]);
 };
 
 /**
@@ -380,7 +380,7 @@ Map.prototype.getCameraPosition = function(callback) {
             camera.target = new LatLng(camera.target.lat, camera.target.lng);
             callback.call(self, camera);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
+    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
 };
 
 
@@ -390,7 +390,7 @@ Map.prototype.getZoom = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, camera.zoom);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
+    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
 };
 
 Map.prototype.getTilt = function(callback) {
@@ -399,7 +399,7 @@ Map.prototype.getTilt = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, camera.tilt);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
+    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
 };
 
 Map.prototype.getBearing = function(callback) {
@@ -408,7 +408,7 @@ Map.prototype.getBearing = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, camera.bearing);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getCameraPosition']);
+    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
 };
 
 
@@ -442,7 +442,7 @@ Map.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'remove', []);
+    }, self.errorHandler, 'GoogleMaps', 'remove', []);
 };
 
 
@@ -457,7 +457,7 @@ Map.prototype.isAvailable = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, false, message);
         }
-    }, PLUGIN_NAME, 'isAvailable', ['']);
+    }, 'GoogleMaps', 'isAvailable', ['']);
 };
 
 Map.prototype.toDataURL = function(params, callback) {
@@ -492,7 +492,7 @@ var _append_child = function(event) {
     var elemId = "pgm" + Math.floor(Math.random() * Date.now());
     target.setAttribute("__pluginDomId", elemId);
 
-    cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_pushHtmlElement', [elemId, size]);
+    cordova.exec(null, null, 'GoogleMaps', 'pluginLayer_pushHtmlElement', [elemId, size]);
 };
 
 var _remove_child = function(event) {
@@ -510,7 +510,7 @@ var _remove_child = function(event) {
         return;
     }
     target.removeAttribute("__pluginDomId");
-    cordova.exec(null, null, PLUGIN_NAME, 'pluginLayer_removeHtmlElement', [elemId]);
+    cordova.exec(null, null, 'GoogleMaps', 'pluginLayer_removeHtmlElement', [elemId]);
 };
 
 /**
@@ -601,7 +601,7 @@ Map.prototype.setDiv = function(div) {
             self.set("keepWatching", true);
         }, 1000);
     }
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', self.deleteFromObject(args,'function'));
+    cordova.exec(null, self.errorHandler, 'GoogleMaps', 'setDiv', self.deleteFromObject(args,'function'));
 };
 
 /**
@@ -618,7 +618,7 @@ Map.prototype.getVisibleRegion = function(callback) {
             latLngBounds.southwest = new LatLng(result.southwest.lat, result.southwest.lng);
             callback.call(self, latLngBounds);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'exec', ['Map.getVisibleRegion']);
+    }, self.errorHandler, PLUGIN_NAME, 'getVisibleRegion', []);
 };
 
 /**

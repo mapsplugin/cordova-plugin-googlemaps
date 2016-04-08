@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
@@ -29,6 +30,12 @@ import com.google.android.gms.maps.model.VisibleRegion;
 public class PluginMap extends MyPlugin {
   private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
   private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
+
+  private class CameraUpdateResult {
+    CameraUpdate cameraUpdate;
+    int durationMS;
+    LatLngBounds cameraBounds;
+  }
 
   /**
    * @param args
@@ -200,6 +207,7 @@ public class PluginMap extends MyPlugin {
   public void moveCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.updateCameraPosition("moveCamera", args, callbackContext);
   }
+
   
   /**
    * move the camera
@@ -208,82 +216,132 @@ public class PluginMap extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    int durationMS = 4000;
-    CameraPosition.Builder builder = CameraPosition.builder();
-    final JSONObject cameraPos = args.getJSONObject(1);
-    if (cameraPos.has("tilt")) {
-      builder.tilt((float) cameraPos.getDouble("tilt"));
-    }
-    if (cameraPos.has("bearing")) {
-      builder.bearing((float) cameraPos.getDouble("bearing"));
-    }
-    if (cameraPos.has("zoom")) {
-      builder.zoom((float) cameraPos.getDouble("zoom"));
-    }
-    if (cameraPos.has("duration")) {
-      durationMS = cameraPos.getInt("duration");
-    }
-    CameraPosition newPosition;
-    CameraUpdate cameraUpdate = null;
-    LatLngBounds cameraBounds = null;
-    if (cameraPos.has("target")) {
-      Object target = cameraPos.get("target");
-      @SuppressWarnings("rawtypes")
-      Class targetClass = target.getClass();
-      JSONObject latLng;
-      if ("org.json.JSONArray".equals(targetClass.getName())) {
-        JSONArray points = cameraPos.getJSONArray("target");
-        cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
-        cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, (int)(20 * this.density));
-      } else {
-        latLng = cameraPos.getJSONObject("target");
-        builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
-        newPosition = builder.build();
-        cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
-      }
-    } else {
-      builder.target(this.map.getCameraPosition().target);
-      cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
-    }
+    final CameraPosition.Builder builder = CameraPosition.builder();
+    final JSONObject cameraPos = args.getJSONObject(0);
 
-    final LatLngBounds finalCameraBounds = cameraBounds;
-    PluginUtil.MyCallbackContext myCallback = new PluginUtil.MyCallbackContext("moveCamera", webView) {
+    AsyncTask<Void, Void, CameraUpdateResult> createCameraUpdate = new AsyncTask<Void, Void, CameraUpdateResult>() {
+      private Exception mException = null;
+
       @Override
-      public void onResult(final PluginResult pluginResult) {
-        if (finalCameraBounds != null && ANIMATE_CAMERA_DONE.equals(pluginResult.getStrMessage())) {
-          CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraBounds, (int)density);
-          map.moveCamera(cameraUpdate);
-
-
-          Builder builder = CameraPosition.builder();
+      protected CameraUpdateResult doInBackground(Void... voids) {
+        CameraUpdateResult result = new CameraUpdateResult();
+        try {
+          result.durationMS = 4000;
           if (cameraPos.has("tilt")) {
-            try {
-              builder.tilt((float) cameraPos.getDouble("tilt"));
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }
+            builder.tilt((float) cameraPos.getDouble("tilt"));
           }
           if (cameraPos.has("bearing")) {
-            try {
-              builder.bearing((float) cameraPos.getDouble("bearing"));
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }
+            builder.bearing((float) cameraPos.getDouble("bearing"));
           }
-          builder.zoom(map.getCameraPosition().zoom);
-          builder.target(map.getCameraPosition().target);
-          map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+          if (cameraPos.has("zoom")) {
+            builder.zoom((float) cameraPos.getDouble("zoom"));
+          }
+          if (cameraPos.has("duration")) {
+            result.durationMS = cameraPos.getInt("duration");
+          }
+
+          if (!cameraPos.has("target")) {
+            return result;
+          }
+
+          //------------------------
+          // Create a cameraUpdate
+          //------------------------
+          result.cameraUpdate = null;
+          result.cameraBounds = null;
+          CameraPosition newPosition;
+          Object target = cameraPos.get("target");
+          @SuppressWarnings("rawtypes")
+          Class targetClass = target.getClass();
+          JSONObject latLng;
+          if ("org.json.JSONArray".equals(targetClass.getName())) {
+            JSONArray points = cameraPos.getJSONArray("target");
+            result.cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
+            result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(20 * density));
+          } else {
+            latLng = cameraPos.getJSONObject("target");
+            builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+            newPosition = builder.build();
+            result.cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
+          }
+        } catch (Exception e) {
+          mException = e;
+          e.printStackTrace();
+          this.cancel(true);
+          return null;
         }
-        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+
+        return result;
+      }
+
+      @Override
+      public void onCancelled() {
+        if (mException != null) {
+          mException.printStackTrace();
+        }
+        callbackContext.error(mException != null ? mException.getMessage() + "" : "");
+      }
+      @Override
+      public void onCancelled(CameraUpdateResult cameraUpdateResult) {
+        if (mException != null) {
+          mException.printStackTrace();
+        }
+        callbackContext.error(mException != null ? mException.getMessage() + "" : "");
+      }
+
+      @Override
+      public void onPostExecute(CameraUpdateResult cameraUpdateResult) {
+        if (cameraUpdateResult.cameraUpdate == null) {
+          builder.target(map.getCameraPosition().target);
+          cameraUpdateResult.cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
+        }
+
+        final LatLngBounds finalCameraBounds = cameraUpdateResult.cameraBounds;
+        PluginUtil.MyCallbackContext myCallback = new PluginUtil.MyCallbackContext("moveCamera", webView) {
+          @Override
+          public void onResult(final PluginResult pluginResult) {
+            if (finalCameraBounds != null && ANIMATE_CAMERA_DONE.equals(pluginResult.getStrMessage())) {
+              CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraBounds, (int)density);
+              map.moveCamera(cameraUpdate);
+
+
+              Builder builder = CameraPosition.builder();
+              if (cameraPos.has("tilt")) {
+                try {
+                  builder.tilt((float) cameraPos.getDouble("tilt"));
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
+              }
+              if (cameraPos.has("bearing")) {
+                try {
+                  builder.bearing((float) cameraPos.getDouble("bearing"));
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
+              }
+              builder.zoom(map.getCameraPosition().zoom);
+              builder.target(map.getCameraPosition().target);
+              map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+            }
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+          }
+        };
+        if (action.equals("moveCamera")) {
+          myMoveCamera(cameraUpdateResult.cameraUpdate, myCallback);
+        } else {
+          myAnimateCamera(cameraUpdateResult.cameraUpdate, cameraUpdateResult.durationMS, myCallback);
+        }
+
       }
     };
-    if (action.equals("moveCamera")) {
-      myMoveCamera(cameraUpdate, myCallback);
-    } else {
-      myAnimateCamera(cameraUpdate, durationMS, myCallback);
-    }
+    createCameraUpdate.execute();
+
+
+
+
   }
 
   /**
@@ -458,18 +516,28 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void getCameraPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    CameraPosition camera = map.getCameraPosition();
-    JSONObject json = new JSONObject();
-    JSONObject latlng = new JSONObject();
-    latlng.put("lat", camera.target.latitude);
-    latlng.put("lng", camera.target.longitude);
-    json.put("target", latlng);
-    json.put("zoom", camera.zoom);
-    json.put("tilt", camera.tilt);
-    json.put("bearing", camera.bearing);
-    json.put("hashCode", camera.hashCode());
-    
-    callbackContext.success(json);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        CameraPosition camera = map.getCameraPosition();
+        JSONObject json = new JSONObject();
+        JSONObject latlng = new JSONObject();
+        try {
+          latlng.put("lat", camera.target.latitude);
+          latlng.put("lng", camera.target.longitude);
+          json.put("target", latlng);
+          json.put("zoom", camera.zoom);
+          json.put("tilt", camera.tilt);
+          json.put("bearing", camera.bearing);
+          json.put("hashCode", camera.hashCode());
+
+          callbackContext.success(json);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+      }
+    });
   }
   
   /**

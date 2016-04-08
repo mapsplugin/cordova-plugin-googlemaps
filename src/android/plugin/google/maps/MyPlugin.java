@@ -50,22 +50,6 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    /*
-    if ("Map.animateCamera".equals(args.getString(0))) {
-      String[] params = args.getString(0).split("\\.");
-      try {
-        Method method = this.getClass().getDeclaredMethod(params[1], JSONArray.class, CallbackContext.class);
-        method.setAccessible(true);
-        method.invoke(this, args, callbackContext);
-        return true;
-      } catch (Exception e) {
-        e.printStackTrace();
-        callbackContext.error(e.getMessage());
-        return false;
-      }
-    }
-    */
-
 
     if (methods.size() == 0) {
       PluginManager manager = this.webView.getPluginManager();
@@ -82,10 +66,8 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       //googleMaps.loadPlugin(this.getServiceName());
       //self = (MyPlugin) googleMaps.plugins.get(this.getServiceName()).plugin;
       this.map = this.mapCtrl.map;
-      Log.d("MyPlugin", "this = " + this);
       self.map = googleMaps.map;
       self.mapCtrl = googleMaps;
-      Log.d("MyPlugin", "self = " + self);
 
       Method[] classMethods = self.getClass().getMethods();
       for (int i = 0; i < classMethods.length; i++) {
@@ -109,7 +91,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
         return true;
       } catch (Exception e) {
         e.printStackTrace();
-        callbackContext.error(e.getMessage());
+        callbackContext.error("" + e.getMessage());
         return false;
       }
     } else {
