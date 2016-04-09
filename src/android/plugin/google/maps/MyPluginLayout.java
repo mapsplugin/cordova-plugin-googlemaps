@@ -1,14 +1,5 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import android.view.View;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -16,15 +7,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout  {
@@ -152,7 +150,7 @@ public class MyPluginLayout extends FrameLayout  {
       params.leftMargin = (int) this.drawRect.left;
       params.gravity = Gravity.TOP;
       myView.setLayoutParams(params);
-    } 
+    }
     if (android.os.Build.VERSION.SDK_INT < 11) {
       // Force redraw
       myView.requestLayout();

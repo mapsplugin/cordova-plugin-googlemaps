@@ -236,17 +236,31 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         Log.d(TAG, "(debug)action=" + action);
       }
     }
+    if ((!"getMap".equals(action) &&
+        !"isAvailable".equals(action) &&
+        !"getLicenseInfo".equals(action) &&
+        !"pluginLayer_setDebuggable".equals(action)) &&
+        map == null) {
+      callbackContext.error("Can not execute '" + action + "' because the map is not created.");
+      return true;
+    }
+
+    try {
+      Method method = GoogleMaps.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+      if (!method.isAccessible()) {
+        method.setAccessible(true);
+      }
+      method.invoke(GoogleMaps.this, args, callbackContext);
+    } catch (Exception e) {
+      e.printStackTrace();
+      callbackContext.error("'" + action + "' is not defined in GoogleMaps plugin.");
+    }
+
+
+    /*
 
     Runnable runnable = new Runnable() {
       public void run() {
-        if ((!"getMap".equals(action) &&
-            !"isAvailable".equals(action) &&
-            !"getLicenseInfo".equals(action) &&
-            !"pluginLayer_setDebuggable".equals(action)) &&
-            GoogleMaps.this.map == null) {
-          Log.w(TAG, "Can not execute '" + action + "' because the map is not created.");
-          return;
-        }
         if ("exec".equals(action)) {
 
           try {
@@ -300,6 +314,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       }
     };
     cordova.getActivity().runOnUiThread(runnable);
+    */
 
     return true;
   }
@@ -525,16 +540,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     if (params.has("mapType")) {
       String typeStr = params.getString("mapType");
       int mapTypeId = -1;
-      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
-          : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : mapTypeId;
+      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : mapTypeId;
       if (mapTypeId != -1) {
         options.mapType(mapTypeId);
       }
@@ -573,68 +583,76 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     mapView = new MapView(activity, options);
     mapView.onCreate(null);
     mapView.onResume();
-    mapView.getMapAsync(new OnMapReadyCallback() {
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
-      public void onMapReady(GoogleMap googleMap) {
+      public void run() {
 
-        map = googleMap;
+        mapView.getMapAsync(new OnMapReadyCallback() {
+          @Override
+          public void onMapReady(GoogleMap googleMap) {
 
-        try {
-          //controls
-          if (params.has("controls")) {
-            JSONObject controls = params.getJSONObject("controls");
+            map = googleMap;
 
-            if (controls.has("myLocationButton")) {
-              Boolean isEnabled = controls.getBoolean("myLocationButton");
+            try {
+              //controls
+              if (params.has("controls")) {
+                JSONObject controls = params.getJSONObject("controls");
 
-              // TODO: Check permission
-              //map.setMyLocationEnabled(isEnabled);
-              map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
-            }
-            if (controls.has("indoorPicker")) {
-              Boolean isEnabled = controls.getBoolean("indoorPicker");
-              map.setIndoorEnabled(isEnabled);
-            }
-          }
+                if (controls.has("myLocationButton")) {
+                  Boolean isEnabled = controls.getBoolean("myLocationButton");
 
-          // Set event listener
-          map.setOnCameraChangeListener(GoogleMaps.this);
-          map.setOnInfoWindowClickListener(GoogleMaps.this);
-          map.setOnMapClickListener(GoogleMaps.this);
-          map.setOnMapLoadedCallback(GoogleMaps.this);
-          map.setOnMapLongClickListener(GoogleMaps.this);
-          map.setOnMarkerClickListener(GoogleMaps.this);
-          map.setOnMarkerDragListener(GoogleMaps.this);
-          map.setOnMyLocationButtonClickListener(GoogleMaps.this);
-          map.setOnIndoorStateChangeListener(GoogleMaps.this);
-
-          // Load PluginMap class
-          GoogleMaps.this.loadPlugin("Map");
-          //Custom info window
-          map.setInfoWindowAdapter(GoogleMaps.this);
-          // ------------------------------
-          // Embed the map if a container is specified.
-          // ------------------------------
-          if (args.length() == 3) {
-            GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
-            mPluginLayout.attachMyView(mapView);
-            GoogleMaps.this.resizeMap(args, callbackContext);
-          } else {
-            if (initCameraBounds != null) {
-              Handler handler = new Handler();
-              handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                  fitBounds(initCameraBounds);
+                  // TODO: Check permission
+                  map.setMyLocationEnabled(isEnabled);
+                  map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
                 }
-              }, 300);
+                if (controls.has("indoorPicker")) {
+                  Boolean isEnabled = controls.getBoolean("indoorPicker");
+                  map.setIndoorEnabled(isEnabled);
+                }
+              }
+
+              // Set event listener
+              map.setOnCameraChangeListener(GoogleMaps.this);
+              map.setOnInfoWindowClickListener(GoogleMaps.this);
+              map.setOnMapClickListener(GoogleMaps.this);
+              map.setOnMapLoadedCallback(GoogleMaps.this);
+              map.setOnMapLongClickListener(GoogleMaps.this);
+              map.setOnMarkerClickListener(GoogleMaps.this);
+              map.setOnMarkerDragListener(GoogleMaps.this);
+              map.setOnMyLocationButtonClickListener(GoogleMaps.this);
+              map.setOnIndoorStateChangeListener(GoogleMaps.this);
+
+              // Load PluginMap class
+              //GoogleMaps.this.loadPlugin("Map");
+              //Custom info window
+              map.setInfoWindowAdapter(GoogleMaps.this);
+              // ------------------------------
+              // Embed the map if a container is specified.
+              // ------------------------------
+              if (args.length() == 3) {
+                GoogleMaps.this.mapDivLayoutJSON = args.getJSONObject(1);
+                mPluginLayout.attachMyView(mapView);
+                GoogleMaps.this.resizeMap(args, callbackContext);
+              } else {
+                if (initCameraBounds != null) {
+                  Handler handler = new Handler();
+                  handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                      fitBounds(initCameraBounds);
+                    }
+                  }, 300);
+                }
+              }
+              callbackContext.success();
+            } catch (Exception e) {
+              Log.d("GoogleMaps", "------->error");
+              callbackContext.error(e.getMessage());
             }
           }
-          callbackContext.success();
-        } catch (Exception e) {
-          Log.d("GoogleMaps", "------->error");
-          callbackContext.error(e.getMessage());
-        }
+        });
+
       }
     });
 
@@ -883,19 +901,25 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       return;
     }
     try {
-      float divW = contentToView(mapDivLayoutJSON.getLong("width"));
-      float divH = contentToView(mapDivLayoutJSON.getLong("height"));
-      float divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
-      float divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+      final float divW = contentToView(mapDivLayoutJSON.getLong("width"));
+      final float divH = contentToView(mapDivLayoutJSON.getLong("height"));
+      final float divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
+      final float divTop = contentToView(mapDivLayoutJSON.getLong("top"));
 
       // Update the plugin drawing view rect
-      mPluginLayout.setDrawingRect(
-          divLeft,
-          divTop - webView.getView().getScrollY(),
-          divLeft + divW,
-          divTop + divH - webView.getView().getScrollY());
-      mPluginLayout.updateViewPosition();
-      mapView.requestLayout();
+      activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          mPluginLayout.setDrawingRect(
+              divLeft,
+              divTop - webView.getView().getScrollY(),
+              divLeft + divW,
+              divTop + divH - webView.getView().getScrollY());
+          mPluginLayout.updateViewPosition();
+          mapView.requestLayout();
+
+        }
+      });
     } catch (JSONException e) {
       e.printStackTrace();
     }
