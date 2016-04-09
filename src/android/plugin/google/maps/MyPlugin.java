@@ -1,21 +1,5 @@
 package plugin.google.maps;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginManager;
-import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.util.Log;
@@ -28,6 +12,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlay;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginEntry;
+import org.apache.cordova.PluginManager;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   protected HashMap<String, Object> objects;
@@ -53,18 +50,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    Log.d("MyPlugin", "----> execute");
 
     if (methods.size() == 0) {
       PluginManager manager = this.webView.getPluginManager();
       GoogleMaps googleMaps = (GoogleMaps) manager.getPlugin("GoogleMaps");
-      if (googleMaps.isDebug) {
-        if (args != null && args.length() > 0) {
-          Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
-        } else {
-          Log.d(TAG, "(debug)action=" + action);
-        }
-      }
       self = this;
       this.mapCtrl = googleMaps;
       //googleMaps.loadPlugin(this.getServiceName());
@@ -72,6 +61,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       this.map = this.mapCtrl.map;
       self.map = googleMaps.map;
       self.mapCtrl = googleMaps;
+      TAG = this.getServiceName();
+      PluginEntry pluginEntry = new PluginEntry(TAG, this);
+      self.mapCtrl.plugins.put(TAG, pluginEntry);
+
 
       CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
           Log.d("MyPlugin", "---> this = " + this);
