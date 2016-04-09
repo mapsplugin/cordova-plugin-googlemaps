@@ -97,6 +97,17 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     }, self.errorHandler, 'Marker', 'create', [self.deleteFromObject(markerOptions,'function')]);
 };
 
+Marker.prototype.remove = function(callback) {
+    var self = this;
+    self.set("keepWatching", false);
+    delete MARKERS[this.id];
+    cordova.exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, 'Marker', 'remove', [this.getId()]);
+    self.off();
+};
 
 //-------------
 // Circle
@@ -124,6 +135,11 @@ Map.prototype.addCircle = function(circleOptions, callback) {
         }
     }, self.errorHandler, 'Circle', 'create', [self.deleteFromObject(circleOptions,'function')]);
 };
+Circle.prototype.remove = function() {
+    delete OVERLAYS[this.getId()];
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+    this.off();
+};
 //-------------
 // Polyline
 //-------------
@@ -139,13 +155,16 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     cordova.exec(function(result) {
         var polyline = new Polyline(self, result.id, polylineOptions);
         OVERLAYS[result.id] = polyline;
-        /*if (typeof polylineOptions.onClick === "function") {
-          polyline.on(event.OVERLAY_CLICK, polylineOptions.onClick);
-        }*/
         if (typeof callback === "function") {
             callback.call(self, polyline, self);
         }
     }, self.errorHandler, 'Polyline', 'create', [self.deleteFromObject(polylineOptions,'function')]);
+};
+
+Polyline.prototype.remove = function() {
+    delete OVERLAYS[this.getId()];
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+    this.off();
 };
 //-------------
 // Polygon
@@ -186,6 +205,12 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     }, self.errorHandler, "Polygon", 'create', [self.deleteFromObject(polygonOptions,'function')]);
 };
 
+Polygon.prototype.remove = function() {
+    delete OVERLAYS[this.getId()];
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+    this.off();
+};
+
 //-------------
 // Tile overlay
 //-------------
@@ -204,15 +229,15 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     cordova.exec(function(result) {
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
         OVERLAYS[result.id] = tileOverlay;
-        /*
-        if (typeof tilelayerOptions.onClick === "function") {
-          tileOverlay.on(event.OVERLAY_CLICK, tilelayerOptions.onClick);
-        }
-        */
         if (typeof callback === "function") {
             callback.call(self, tileOverlay, self);
         }
     }, self.errorHandler, 'TileOverlay', 'create', [self.deleteFromObject(tilelayerOptions,'function')]);
+};
+TileOverlay.prototype.remove = function() {
+    delete OVERLAYS[this.getId()];
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+    this.off();
 };
 //-------------
 // Ground overlay
@@ -236,6 +261,12 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
         }
     }, self.errorHandler, 'GroundOverlay', 'create', [self.deleteFromObject(groundOverlayOptions,'function')]);
 
+};
+
+GroundOverlay.prototype.remove = function() {
+    delete OVERLAYS[result.id];
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+    this.off();
 };
 
 //-------------

@@ -120,9 +120,5 @@ Polygon.prototype.setZIndex = function(zIndex) {
 Polygon.prototype.getZIndex = function() {
     return this.get('zIndex');
 };
-Polygon.prototype.remove = function() {
-    exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
 
 module.exports = Polygon;

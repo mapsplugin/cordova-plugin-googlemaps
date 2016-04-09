@@ -82,9 +82,5 @@ TileOverlay.prototype.setOpacity = function(opacity) {
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
 };
-TileOverlay.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
 
 module.exports = TileOverlay;

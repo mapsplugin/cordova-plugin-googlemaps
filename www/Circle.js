@@ -60,10 +60,6 @@ Circle.prototype.getZIndex = function() {
 Circle.prototype.getVisible = function() {
     return this.get('visible');
 };
-Circle.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
 Circle.prototype.setCenter = function(center) {
     this.set('center', center);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setCenter', [this.getId(), center.lat, center.lng]);

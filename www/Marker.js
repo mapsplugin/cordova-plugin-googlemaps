@@ -81,17 +81,6 @@ Marker.prototype.setAnimation = function(animation, callback) {
     }, this.errorHandler, PLUGIN_NAME, 'setAnimation', [this.getId(), self.deleteFromObject(animation,'function')]);
 };
 
-Marker.prototype.remove = function(callback) {
-    var self = this;
-    self.set("keepWatching", false);
-    delete MARKERS[this.id];
-    cordova.exec(function() {
-        if (typeof callback === "function") {
-            callback.call(self);
-        }
-    }, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
     disableAutoPan = common.parseBoolean(disableAutoPan);
     this.set('disableAutoPan', disableAutoPan);

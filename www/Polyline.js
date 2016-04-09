@@ -92,10 +92,6 @@ Polyline.prototype.setZIndex = function(zIndex) {
 Polyline.prototype.getZIndex = function() {
     return this.get('zIndex');
 };
-Polyline.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
 
 Polyline.prototype.getMap = function() {
     return this.map;

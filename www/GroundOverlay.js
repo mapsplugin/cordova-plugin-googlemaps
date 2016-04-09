@@ -48,10 +48,6 @@ GroundOverlay.prototype.getMap = function() {
 GroundOverlay.prototype.getId = function() {
     return this.id;
 };
-GroundOverlay.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
 
 GroundOverlay.prototype.setVisible = function(visible) {
     this.set('visible', visible);
