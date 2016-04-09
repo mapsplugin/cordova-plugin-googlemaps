@@ -4,6 +4,7 @@ var argscheck = require('cordova/argscheck'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
     LatLng = require('./LatLng'),
+    LatLngBounds = require('./LatLngBounds'),
     MapTypeId = require('./MapTypeId'),
     event = require('./event');
 

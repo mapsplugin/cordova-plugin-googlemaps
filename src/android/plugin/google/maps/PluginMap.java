@@ -1,13 +1,16 @@
 package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Method;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -28,6 +31,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 public class PluginMap extends MyPlugin {
+  private JSONArray _saveArgs = null;
+  private CallbackContext _saveCallbackContext = null;
+
+  private final int SET_MY_LOCATION_ENABLED = 0x7f999990;  //random
+  //private final int SET_MY_LOCATION_ENABLED = 0x7f99991; //random
+
   private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
   private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
 
@@ -46,7 +55,7 @@ public class PluginMap extends MyPlugin {
   /**
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setOptions(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final AsyncTask<UiSettings, Void, AsyncSetOptionsResult> task = new AsyncTask<UiSettings, Void, AsyncSetOptionsResult>() {
@@ -148,7 +157,7 @@ public class PluginMap extends MyPlugin {
               mapCtrl.fitBounds(cameraBounds);
             }
           }
-          
+
         } catch (Exception e) {
           mException = e;
           this.cancel(true);
@@ -168,16 +177,24 @@ public class PluginMap extends MyPlugin {
         }
 
       }
-      
+
       @Override
       public void onPostExecute(AsyncSetOptionsResult results) {
-        if (results.myLocationButtonEnabled) {
-          map.setMyLocationEnabled(true);
-        }
         if (results.MAP_TYPE_ID != -1) {
           map.setMapType(results.MAP_TYPE_ID);
         }
-        sendNoResult(callbackContext);
+        if (results.myLocationButtonEnabled) {
+          try {
+            JSONArray args = new JSONArray();
+            args.put(true);
+            PluginMap.this.setMyLocationEnabled(args, callbackContext);
+          } catch (JSONException e) {
+            e.printStackTrace();
+            callbackContext.error(e.getMessage() + "");
+          }
+        } else {
+          sendNoResult(callbackContext);
+        }
       }
     };
 
@@ -190,21 +207,21 @@ public class PluginMap extends MyPlugin {
     });
 
 
-    
-    
+
+
   }
-  
+
   /**
    * Set center location of the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setCenter(JSONArray args, CallbackContext callbackContext) throws JSONException {
     double lat, lng;
 
-    lat = args.getDouble(1);
-    lng = args.getDouble(2);
+    lat = args.getDouble(0);
+    lng = args.getDouble(1);
 
     LatLng latLng = new LatLng(lat, lng);
     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
@@ -215,11 +232,11 @@ public class PluginMap extends MyPlugin {
    * Set angle of the map view
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setTilt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float tilt = -1;
-    tilt = (float) args.getDouble(1);
+    tilt = (float) args.getDouble(0);
 
     if (tilt > 0 && tilt <= 90) {
       CameraPosition currentPos = map.getCameraPosition();
@@ -236,29 +253,29 @@ public class PluginMap extends MyPlugin {
    * Move the camera with animation
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void animateCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.updateCameraPosition("animateCamera", args, callbackContext);
   }
-  
+
   /**
    * Move the camera without animation
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void moveCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.updateCameraPosition("moveCamera", args, callbackContext);
   }
 
-  
+
   /**
    * move the camera
    * @param action
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
@@ -392,12 +409,12 @@ public class PluginMap extends MyPlugin {
    * Set zoom of the map
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   public void setZoom(JSONArray args, CallbackContext callbackContext) throws JSONException {
     Long zoom;
-    zoom = args.getLong(1);
+    zoom = args.getLong(0);
 
     this.myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
   }
@@ -406,19 +423,24 @@ public class PluginMap extends MyPlugin {
    * Pan by the specified pixel
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   public void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    int x = args.getInt(1);
-    int y = args.getInt(2);
+    int x = args.getInt(0);
+    int y = args.getInt(1);
     float xPixel = -x * this.density;
     float yPixel = -y * this.density;
-    
-    CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
-    map.animateCamera(cameraUpdate);
+    final CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.animateCamera(cameraUpdate);
+      }
+    });
   }
-  
+
   /**
    * Move the camera of the map
    * @param cameraPosition
@@ -435,22 +457,73 @@ public class PluginMap extends MyPlugin {
    * @param callbackContext
    */
   public void myMoveCamera(final CameraUpdate cameraUpdate, final CallbackContext callbackContext) {
-    map.moveCamera(cameraUpdate);
-    callbackContext.success();
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.moveCamera(cameraUpdate);
+        callbackContext.success();
+      }
+    });
+  }
+
+  public void onRequestPermissionResult(int requestCode, String[] permissions,
+                                        int[] grantResults) throws JSONException {
+    PluginResult result;
+    for (int r : grantResults) {
+      if (r == PackageManager.PERMISSION_DENIED) {
+        result = new PluginResult(PluginResult.Status.ERROR, "Geolocation permission request was denied.");
+        _saveCallbackContext.sendPluginResult(result);
+        return;
+      }
+    }
+    switch (requestCode) {
+      case SET_MY_LOCATION_ENABLED:
+        this.setMyLocationEnabled(_saveArgs, _saveCallbackContext);
+        break;
+
+      default:
+        break;
+    }
   }
 
   /**
    * Enable MyLocation feature if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnabled = false;
-    isEnabled = args.getBoolean(1);
-    map.setMyLocationEnabled(isEnabled);
-    map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
-    this.sendNoResult(callbackContext);
+
+    // Request geolocation permission.
+    boolean locationPermission = false;
+    try {
+      Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
+
+      String permission = "android.permission.ACCESS_COARSE_LOCATION";
+      locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
+    } catch (Exception e) {
+      PluginResult result;
+      result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+      callbackContext.sendPluginResult(result);
+      return;
+    }
+
+    if (!locationPermission) {
+      _saveArgs = args;
+      _saveCallbackContext = callbackContext;
+      mapCtrl.requestPermissions(this, SET_MY_LOCATION_ENABLED, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+      return;
+    }
+
+    final Boolean isEnabled = args.getBoolean(0);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.setMyLocationEnabled(isEnabled);
+        map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
@@ -460,9 +533,14 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnabled = args.getBoolean(1);
-    map.setIndoorEnabled(isEnabled);
-    this.sendNoResult(callbackContext);
+    final Boolean isEnabled = args.getBoolean(0);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.setIndoorEnabled(isEnabled);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
@@ -472,9 +550,14 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnabled = args.getBoolean(1);
-    map.setTrafficEnabled(isEnabled);
-    this.sendNoResult(callbackContext);
+    final Boolean isEnabled = args.getBoolean(0);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.setTrafficEnabled(isEnabled);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
@@ -484,10 +567,15 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnabled = args.getBoolean(1);
-    UiSettings uiSettings = map.getUiSettings();
-    uiSettings.setCompassEnabled(isEnabled);
-    this.sendNoResult(callbackContext);
+    final Boolean isEnabled = args.getBoolean(0);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        UiSettings uiSettings = map.getUiSettings();
+        uiSettings.setCompassEnabled(isEnabled);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
@@ -497,18 +585,14 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void setMapTypeId(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
     int mapTypeId = -1;
-    String typeStr = args.getString(1);
-    mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
-        : mapTypeId;
-    mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
-        : mapTypeId;
-    mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
-        : mapTypeId;
-    mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
-        : mapTypeId;
-    mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
-        : mapTypeId;
+    String typeStr = args.getString(0);
+    mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : mapTypeId;
+    mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : mapTypeId;
 
     if (mapTypeId == -1) {
       callbackContext.error("Unknown MapTypeID is specified:" + typeStr);
@@ -516,8 +600,13 @@ public class PluginMap extends MyPlugin {
     }
     
     final int myMapTypeId = mapTypeId;
-    map.setMapType(myMapTypeId);
-    this.sendNoResult(callbackContext);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.setMapType(myMapTypeId);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
 
@@ -592,59 +681,96 @@ public class PluginMap extends MyPlugin {
    */
   public void toDataURL(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    JSONObject params = args.getJSONObject(1);
+    JSONObject params = args.getJSONObject(0);
     boolean uncompress = false;
     if (params.has("uncompress")) {
       uncompress = params.getBoolean("uncompress");
     }
     final boolean finalUncompress = uncompress;
 
-
-    this.map.snapshot(new GoogleMap.SnapshotReadyCallback() {
-      
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
-      public void onSnapshotReady(Bitmap image) {
-        if (!finalUncompress) {
-          float density = Resources.getSystem().getDisplayMetrics().density;
-          image = PluginUtil.resizeBitmap(image,
-              (int) (image.getWidth() / density),
-              (int) (image.getHeight() / density));
-        }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
-        image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        byte[] byteArray = outputStream.toByteArray();
-        String imageEncoded = "data:image/png;base64," + 
-                Base64.encodeToString(byteArray, Base64.NO_WRAP);
-        
-        callbackContext.success(imageEncoded);
+      public void run() {
+
+        map.snapshot(new GoogleMap.SnapshotReadyCallback() {
+
+          @Override
+          public void onSnapshotReady(final Bitmap image) {
+
+            AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+              @Override
+              protected String doInBackground(Void... voids) {
+                Bitmap image2 = image;
+                if (!finalUncompress) {
+                  float density = Resources.getSystem().getDisplayMetrics().density;
+                  image2 = PluginUtil.resizeBitmap(image,
+                      (int) (image2.getWidth() / density),
+                      (int) (image2.getHeight() / density));
+                }
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                image2.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                byte[] byteArray = outputStream.toByteArray();
+                return "data:image/png;base64," +
+                    Base64.encodeToString(byteArray, Base64.NO_WRAP);
+              }
+
+              @Override
+              public void onPostExecute(String imageEncoded) {
+                callbackContext.success(imageEncoded);
+              }
+            };
+            task.execute();
+          }
+        });
       }
     });
     
   }
   public void fromLatLngToPoint(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     double lat, lng;
-    lat = args.getDouble(1);
-    lng = args.getDouble(2);
-    LatLng latLng = new LatLng(lat, lng);
-    Point point = map.getProjection().toScreenLocation(latLng);
-    JSONArray pointJSON = new JSONArray();
-    pointJSON.put(point.x / this.density);
-    pointJSON.put(point.y / this.density);
-    callbackContext.success(pointJSON);
+    lat = args.getDouble(0);
+    lng = args.getDouble(1);
+    final LatLng latLng = new LatLng(lat, lng);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Point point = map.getProjection().toScreenLocation(latLng);
+        try {
+          JSONArray pointJSON = new JSONArray();
+          pointJSON.put(point.x / density);
+          pointJSON.put(point.y / density);
+          callbackContext.success(pointJSON);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+      }
+    });
   }
   
   public void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     int pointX, pointY;
-    pointX = args.getInt(1);
-    pointY = args.getInt(2);
-    Point point = new Point();
+    pointX = args.getInt(0);
+    pointY = args.getInt(1);
+    final Point point = new Point();
     point.x = pointX;
     point.y = pointY;
-    LatLng latlng = map.getProjection().fromScreenLocation(point);
-    JSONArray pointJSON = new JSONArray();
-    pointJSON.put(latlng.latitude);
-    pointJSON.put(latlng.longitude);
-    callbackContext.success(pointJSON);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        LatLng latlng = map.getProjection().fromScreenLocation(point);
+        try {
+          JSONArray pointJSON = new JSONArray();
+          pointJSON.put(latlng.latitude);
+          pointJSON.put(latlng.longitude);
+          callbackContext.success(pointJSON);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+      }
+    });
   }
   
   /**
@@ -652,24 +778,34 @@ public class PluginMap extends MyPlugin {
    * Thanks @fschmidt
    */
   public void getVisibleRegion(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
-    LatLngBounds latLngBounds = visibleRegion.latLngBounds;
-    JSONObject result = new JSONObject();
-    JSONObject northeast = new JSONObject();
-    JSONObject southwest = new JSONObject();
-    northeast.put("lat", latLngBounds.northeast.latitude);
-    northeast.put("lng", latLngBounds.northeast.longitude);
-    southwest.put("lat", latLngBounds.southwest.latitude);
-    southwest.put("lng", latLngBounds.southwest.longitude);
-    result.put("northeast", northeast);
-    result.put("southwest", southwest);
-    
-    JSONArray latLngArray = new JSONArray();
-    latLngArray.put(northeast);
-    latLngArray.put(southwest);
-    result.put("latLngArray", latLngArray);
-    
-    callbackContext.success(result);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
+          LatLngBounds latLngBounds = visibleRegion.latLngBounds;
+          JSONObject result = new JSONObject();
+          JSONObject northeast = new JSONObject();
+          JSONObject southwest = new JSONObject();
+          northeast.put("lat", latLngBounds.northeast.latitude);
+          northeast.put("lng", latLngBounds.northeast.longitude);
+          southwest.put("lat", latLngBounds.southwest.latitude);
+          southwest.put("lng", latLngBounds.southwest.longitude);
+          result.put("northeast", northeast);
+          result.put("southwest", southwest);
+
+          JSONArray latLngArray = new JSONArray();
+          latLngArray.put(northeast);
+          latLngArray.put(southwest);
+          result.put("latLngArray", latLngArray);
+
+          callbackContext.success(result);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+      }
+    });
   }
   
 
@@ -680,10 +816,15 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void setAllGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnabled = args.getBoolean(1);
-    UiSettings uiSettings = map.getUiSettings();
-    uiSettings.setAllGesturesEnabled(isEnabled);
-    this.sendNoResult(callbackContext);
+    final Boolean isEnabled = args.getBoolean(0);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        UiSettings uiSettings = map.getUiSettings();
+        uiSettings.setAllGesturesEnabled(isEnabled);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
@@ -693,12 +834,17 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException 
    */
   public void setPadding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    JSONObject padding = args.getJSONObject(1);
-    int left = padding.getInt("left");
-    int top = padding.getInt("top");
-    int bottom = padding.getInt("bottom");
-    int right = padding.getInt("right");
-    map.setPadding(left, top, right, bottom);
-    this.sendNoResult(callbackContext);
+    JSONObject padding = args.getJSONObject(0);
+    final int left = padding.getInt("left");
+    final int top = padding.getInt("top");
+    final int bottom = padding.getInt("bottom");
+    final int right = padding.getInt("right");
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.setPadding(left, top, right, bottom);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 }
