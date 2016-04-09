@@ -70,7 +70,7 @@ public class PluginMarker extends MyPlugin {
         markerOptions.snippet(opts.getString("snippet"));
     }
     if (opts.has("visible")) {
-      if (opts.has("icon") && "".equals(opts.getString("icon")) == false) {
+      if (opts.has("icon") && !"".equals(opts.getString("icon"))) {
         markerOptions.visible(false);
       } else {
         markerOptions.visible(opts.getBoolean("visible"));

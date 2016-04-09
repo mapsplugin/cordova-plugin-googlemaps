@@ -2,12 +2,15 @@ package plugin.google.maps;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -50,6 +53,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+    Log.d("MyPlugin", "----> execute");
 
     if (methods.size() == 0) {
       PluginManager manager = this.webView.getPluginManager();
@@ -68,6 +72,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       this.map = this.mapCtrl.map;
       self.map = googleMaps.map;
       self.mapCtrl = googleMaps;
+
+      CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
+          Log.d("MyPlugin", "---> this = " + this);
+          Log.d("MyPlugin", "---> plugin = " + plugin);
 
       Method[] classMethods = self.getClass().getMethods();
       for (int i = 0; i < classMethods.length; i++) {

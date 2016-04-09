@@ -1300,7 +1300,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     JSONObject properties = null;
     String propertyId = "marker_property_" + marker.getId();
-    PluginEntry pluginEntry = this.plugins.get("Marker");
+    PluginEntry pluginEntry = plugins.get("Marker");
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);

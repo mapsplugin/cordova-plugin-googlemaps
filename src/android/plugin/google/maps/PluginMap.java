@@ -31,10 +31,16 @@ public class PluginMap extends MyPlugin {
   private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
   private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
 
-  private class CameraUpdateResult {
+  private class AsyncUpdateCameraPositionResult {
     CameraUpdate cameraUpdate;
     int durationMS;
     LatLngBounds cameraBounds;
+  }
+
+  private class AsyncSetOptionsResult {
+    UiSettings uiSettings;
+    boolean myLocationButtonEnabled;
+    int MAP_TYPE_ID;
   }
 
   /**
@@ -42,112 +48,150 @@ public class PluginMap extends MyPlugin {
    * @param callbackContext
    * @throws JSONException 
    */
-  public void setOptions(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void setOptions(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final AsyncTask<UiSettings, Void, AsyncSetOptionsResult> task = new AsyncTask<UiSettings, Void, AsyncSetOptionsResult>() {
+      private Exception mException = null;
+      @Override
+      protected AsyncSetOptionsResult doInBackground(UiSettings... settingses) {
+        UiSettings settings = settingses[0];
+        AsyncSetOptionsResult results = new AsyncSetOptionsResult();
 
-    
-    UiSettings settings = this.map.getUiSettings();
-    JSONObject params = args.getJSONObject(1);
-    //controls
-    if (params.has("controls")) {
-      JSONObject controls = params.getJSONObject("controls");
+        try {
+          JSONObject params = args.getJSONObject(0);
 
-      if (controls.has("compass")) {
-        settings.setCompassEnabled(controls.getBoolean("compass"));
-      }
-      if (controls.has("zoom")) {
-        settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
-      }
-      if (controls.has("indoorPicker")) {
-        settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
-      }
-      if (controls.has("myLocationButton")) {
-        settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
-        map.setMyLocationEnabled(controls.getBoolean("myLocationButton"));
-      }
-    }
-    
-    //gestures
-    if (params.has("gestures")) {
-      JSONObject gestures = params.getJSONObject("gestures");
+          //controls
+          if (params.has("controls")) {
+            JSONObject controls = params.getJSONObject("controls");
 
-      if (gestures.has("tilt")) {
-        settings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
-      }
-      if (gestures.has("scroll")) {
-        settings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
-      }
-      if (gestures.has("rotate")) {
-        settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
-      }
-      if (gestures.has("zoom")) {
-        GoogleMapOptions options = new GoogleMapOptions();
-        settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
-      }
-    }
-    
-    // map type
-    if (params.has("mapType")) {
-      String typeStr = params.getString("mapType");
-      int mapTypeId = -1;
-      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
-          : mapTypeId;
-      if (mapTypeId != -1) {
-        this.map.setMapType(mapTypeId);
-      }
-    }
-    
-    //controls
-    Boolean isEnabled = true;
+            if (controls.has("compass")) {
+              results.uiSettings.setCompassEnabled(controls.getBoolean("compass"));
+            }
+            if (controls.has("zoom")) {
+              results.uiSettings.setZoomControlsEnabled(controls.getBoolean("zoom"));
+            }
+            if (controls.has("indoorPicker")) {
+              results.uiSettings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+            }
+            if (controls.has("myLocationButton")) {
+              results.uiSettings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
+            }
+          }
 
-    // move the camera position
-    if (params.has("camera")) {
-      LatLngBounds cameraBounds = null;
-      JSONObject camera = params.getJSONObject("camera");
-      Builder builder = CameraPosition.builder();
-      if (camera.has("bearing")) {
-        builder.bearing((float) camera.getDouble("bearing"));
-      }
-      if (camera.has("latLng")) {
-        JSONObject latLng = camera.getJSONObject("latLng");
-        builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
-      }
+          //gestures
+          if (params.has("gestures")) {
+            JSONObject gestures = params.getJSONObject("gestures");
 
-      if (camera.has("target")) {
-        CameraPosition newPosition;
-        Object target = camera.get("target");
-        @SuppressWarnings("rawtypes")
-        Class targetClass = target.getClass();
-        if ("org.json.JSONArray".equals(targetClass.getName())) {
-          JSONArray points = camera.getJSONArray("target");
-          cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
-          builder.target(cameraBounds.getCenter());
+            if (gestures.has("tilt")) {
+              results.uiSettings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
+            }
+            if (gestures.has("scroll")) {
+              results.uiSettings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
+            }
+            if (gestures.has("rotate")) {
+              results.uiSettings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
+            }
+            if (gestures.has("zoom")) {
+              results.uiSettings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
+            }
+          }
 
-        } else {
-          JSONObject latLng = camera.getJSONObject("target");
-          builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+          // map type
+          if (params.has("mapType")) {
+            String typeStr = params.getString("mapType");
+            results.MAP_TYPE_ID = -1;
+            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : results.MAP_TYPE_ID;
+            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : results.MAP_TYPE_ID;
+            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : results.MAP_TYPE_ID;
+            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : results.MAP_TYPE_ID;
+            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : results.MAP_TYPE_ID;
+          }
+
+          //controls
+          Boolean isEnabled = true;
+
+          // move the camera position
+          if (params.has("camera")) {
+            LatLngBounds cameraBounds = null;
+            JSONObject camera = params.getJSONObject("camera");
+            Builder builder = CameraPosition.builder();
+            if (camera.has("bearing")) {
+              builder.bearing((float) camera.getDouble("bearing"));
+            }
+            if (camera.has("latLng")) {
+              JSONObject latLng = camera.getJSONObject("latLng");
+              builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+            }
+
+            if (camera.has("target")) {
+              CameraPosition newPosition;
+              Object target = camera.get("target");
+              @SuppressWarnings("rawtypes")
+              Class targetClass = target.getClass();
+              if ("org.json.JSONArray".equals(targetClass.getName())) {
+                JSONArray points = camera.getJSONArray("target");
+                cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
+                builder.target(cameraBounds.getCenter());
+
+              } else {
+                JSONObject latLng = camera.getJSONObject("target");
+                builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+              }
+            }
+            if (camera.has("tilt")) {
+              builder.tilt((float) camera.getDouble("tilt"));
+            }
+            if (camera.has("zoom")) {
+              builder.zoom((float) camera.getDouble("zoom"));
+            }
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+            if (cameraBounds != null) {
+              mapCtrl.fitBounds(cameraBounds);
+            }
+          }
+          
+        } catch (Exception e) {
+          mException = e;
+          this.cancel(true);
+          return null;
         }
+
+        return results;
       }
-      if (camera.has("tilt")) {
-        builder.tilt((float) camera.getDouble("tilt"));
+
+      @Override
+      public void onCancelled() {
+        if (mException != null) {
+          mException.printStackTrace();
+          callbackContext.error("" + mException.getMessage());
+        } else {
+          callbackContext.error("");
+        }
+
       }
-      if (camera.has("zoom")) {
-        builder.zoom((float) camera.getDouble("zoom"));
+      
+      @Override
+      public void onPostExecute(AsyncSetOptionsResult results) {
+        if (results.myLocationButtonEnabled) {
+          map.setMyLocationEnabled(true);
+        }
+        if (results.MAP_TYPE_ID != -1) {
+          map.setMapType(results.MAP_TYPE_ID);
+        }
+        sendNoResult(callbackContext);
       }
-      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-      if (cameraBounds != null) {
-        mapCtrl.fitBounds(cameraBounds);
+    };
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        UiSettings settings = map.getUiSettings();
+        task.execute(settings);
       }
-    }
+    });
+
+
     
-    this.sendNoResult(callbackContext);
+    
   }
   
   /**
@@ -221,12 +265,12 @@ public class PluginMap extends MyPlugin {
     final CameraPosition.Builder builder = CameraPosition.builder();
     final JSONObject cameraPos = args.getJSONObject(0);
 
-    AsyncTask<Void, Void, CameraUpdateResult> createCameraUpdate = new AsyncTask<Void, Void, CameraUpdateResult>() {
+    AsyncTask<Void, Void, AsyncUpdateCameraPositionResult> createCameraUpdate = new AsyncTask<Void, Void, AsyncUpdateCameraPositionResult>() {
       private Exception mException = null;
 
       @Override
-      protected CameraUpdateResult doInBackground(Void... voids) {
-        CameraUpdateResult result = new CameraUpdateResult();
+      protected AsyncUpdateCameraPositionResult doInBackground(Void... voids) {
+        AsyncUpdateCameraPositionResult result = new AsyncUpdateCameraPositionResult();
         try {
           result.durationMS = 4000;
           if (cameraPos.has("tilt")) {
@@ -284,7 +328,7 @@ public class PluginMap extends MyPlugin {
         callbackContext.error(mException != null ? mException.getMessage() + "" : "");
       }
       @Override
-      public void onCancelled(CameraUpdateResult cameraUpdateResult) {
+      public void onCancelled(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
         if (mException != null) {
           mException.printStackTrace();
         }
@@ -292,13 +336,13 @@ public class PluginMap extends MyPlugin {
       }
 
       @Override
-      public void onPostExecute(CameraUpdateResult cameraUpdateResult) {
-        if (cameraUpdateResult.cameraUpdate == null) {
+      public void onPostExecute(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
+        if (AsyncUpdateCameraPositionResult.cameraUpdate == null) {
           builder.target(map.getCameraPosition().target);
-          cameraUpdateResult.cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
+          AsyncUpdateCameraPositionResult.cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
         }
 
-        final LatLngBounds finalCameraBounds = cameraUpdateResult.cameraBounds;
+        final LatLngBounds finalCameraBounds = AsyncUpdateCameraPositionResult.cameraBounds;
         PluginUtil.MyCallbackContext myCallback = new PluginUtil.MyCallbackContext("moveCamera", webView) {
           @Override
           public void onResult(final PluginResult pluginResult) {
@@ -330,9 +374,9 @@ public class PluginMap extends MyPlugin {
           }
         };
         if (action.equals("moveCamera")) {
-          myMoveCamera(cameraUpdateResult.cameraUpdate, myCallback);
+          myMoveCamera(AsyncUpdateCameraPositionResult.cameraUpdate, myCallback);
         } else {
-          myAnimateCamera(cameraUpdateResult.cameraUpdate, cameraUpdateResult.durationMS, myCallback);
+          myAnimateCamera(AsyncUpdateCameraPositionResult.cameraUpdate, AsyncUpdateCameraPositionResult.durationMS, myCallback);
         }
 
       }
