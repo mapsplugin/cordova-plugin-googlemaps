@@ -698,9 +698,14 @@ public class PluginMarker extends MyPlugin {
   
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
     if (iconProperty.containsKey("iconHue")) {
-      float hue = iconProperty.getFloat("iconHue");
-      marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
-      callback.onPostExecute(marker);
+      cordova.getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          float hue = iconProperty.getFloat("iconHue");
+          marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
+          callback.onPostExecute(marker);
+        }
+      });
       return;
     }
     
