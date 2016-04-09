@@ -388,7 +388,9 @@ public class PluginMarker extends MyPlugin {
       @Override
       public void run() {
         Marker marker = getMarker(id);
-        marker.showInfoWindow();
+        if (marker != null) {
+          marker.showInfoWindow();
+        }
         sendNoResult(callbackContext);
       }
     });
@@ -442,7 +444,9 @@ public class PluginMarker extends MyPlugin {
       @Override
       public void run() {
         Marker marker = getMarker(id);
-        marker.setPosition(position);
+        if (marker != null) {
+          marker.setPosition(position);
+        }
         sendNoResult(callbackContext);
       }
     });
@@ -480,6 +484,10 @@ public class PluginMarker extends MyPlugin {
     boolean disableAutoPan = args.getBoolean(1);
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
+    if (marker == null) {
+      this.sendNoResult(callbackContext);
+      return;
+    }
     String propertyId = "marker_property_" + marker.getId();
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
@@ -524,7 +532,9 @@ public class PluginMarker extends MyPlugin {
   public void hideInfoWindow(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
-    marker.hideInfoWindow();
+    if (marker != null) {
+      marker.hideInfoWindow();
+    }
     this.sendNoResult(callbackContext);
   }
 
@@ -536,13 +546,27 @@ public class PluginMarker extends MyPlugin {
    */
   public void getPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    Marker marker = this.getMarker(id);
-    LatLng position = marker.getPosition();
-    
-    JSONObject result = new JSONObject();
-    result.put("lat", position.latitude);
-    result.put("lng", position.longitude);
-    callbackContext.success(result);
+    final Marker marker = this.getMarker(id);
+    if (marker == null) {
+      callbackContext.error("undefined");
+      return;
+    }
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        LatLng position = marker.getPosition();
+
+        try {
+          JSONObject result = new JSONObject();
+          result.put("lat", position.latitude);
+          result.put("lng", position.longitude);
+          callbackContext.success(result);
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+      }
+    });
   }
   
   /**
