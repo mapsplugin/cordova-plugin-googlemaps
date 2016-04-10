@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -172,68 +171,80 @@ public class MyPluginLayout extends FrameLayout  {
     if (myView == null) {
       return;
     }
-    root.removeView(this);
-    this.removeView(frontLayer);
-    frontLayer.removeView(view);
-    
-    scrollFrameLayout.removeView(myView);
-    myView.removeView(this.touchableWrapper);
-    
-    this.removeView(this.scrollView);
-    this.scrollView.removeView(scrollFrameLayout);
-    if (orgLayoutParams != null) {
-      myView.setLayoutParams(orgLayoutParams);
-    }
-    
-    root.addView(view);
-    myView = null;
-    mActivity.getWindow().getDecorView().requestFocus();
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        root.removeView(MyPluginLayout.this);
+        removeView(frontLayer);
+        frontLayer.removeView(view);
+
+        scrollFrameLayout.removeView(myView);
+        myView.removeView(touchableWrapper);
+
+        removeView(scrollView);
+        scrollView.removeView(scrollFrameLayout);
+        if (orgLayoutParams != null) {
+          myView.setLayoutParams(orgLayoutParams);
+        }
+
+        root.addView(view);
+        myView = null;
+        mActivity.getWindow().getDecorView().requestFocus();
+      }
+    });
   }
   
-  public void attachMyView(ViewGroup pluginView) {
-    view.setBackgroundColor(Color.TRANSPARENT);
-    if("org.xwalk.core.XWalkView".equals(view.getClass().getName())
-        || "org.crosswalk.engine.XWalkCordovaView".equals(view.getClass().getName())) {
-      try {
+  public void attachMyView(final ViewGroup pluginView) {
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        view.setBackgroundColor(Color.TRANSPARENT);
+        if("org.xwalk.core.XWalkView".equals(view.getClass().getName())
+            || "org.crosswalk.engine.XWalkCordovaView".equals(view.getClass().getName())) {
+          try {
         /* view.setZOrderOnTop(true)
          * Called just in time as with root.setBackground(...) the color
          * come in front and take the whoel screen */
-        view.getClass().getMethod("setZOrderOnTop", boolean.class)
-          .invoke(view, true);
+            view.getClass().getMethod("setZOrderOnTop", boolean.class)
+                .invoke(view, true);
+          }
+          catch(Exception e) {}
+        }
+        scrollView.setHorizontalScrollBarEnabled(false);
+        scrollView.setVerticalScrollBarEnabled(false);
+
+        scrollView.scrollTo(view.getScrollX(), view.getScrollY());
+        if (myView == pluginView) {
+          return;
+        } else {
+          detachMyView();
+        }
+        //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
+
+        myView = pluginView;
+        ViewGroup.LayoutParams lParams = myView.getLayoutParams();
+        orgLayoutParams = null;
+        if (lParams != null) {
+          orgLayoutParams = new ViewGroup.LayoutParams(lParams);
+        }
+        root.removeView(view);
+        scrollView.addView(scrollFrameLayout);
+        addView(scrollView);
+
+        pluginView.addView(touchableWrapper);
+        scrollFrameLayout.addView(pluginView);
+
+        frontLayer.addView(view);
+        addView(frontLayer);
+        root.addView(MyPluginLayout.this);
+        mActivity.getWindow().getDecorView().requestFocus();
+
+        scrollView.setHorizontalScrollBarEnabled(true);
+        scrollView.setVerticalScrollBarEnabled(true);
       }
-      catch(Exception e) {}
-    }
-    scrollView.setHorizontalScrollBarEnabled(false);
-    scrollView.setVerticalScrollBarEnabled(false);
-    
-    scrollView.scrollTo(view.getScrollX(), view.getScrollY());
-    if (myView == pluginView) {
-      return;
-    } else {
-      this.detachMyView();
-    }
-    //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
-    
-    myView = pluginView;
-    ViewGroup.LayoutParams lParams = myView.getLayoutParams();
-    orgLayoutParams = null;
-    if (lParams != null) {
-      orgLayoutParams = new ViewGroup.LayoutParams(lParams);
-    }
-    root.removeView(view);
-    scrollView.addView(scrollFrameLayout);
-    this.addView(scrollView);
-    
-    pluginView.addView(this.touchableWrapper);
-    scrollFrameLayout.addView(pluginView);
-    
-    frontLayer.addView(view);
-    this.addView(frontLayer);
-    root.addView(this);
-    mActivity.getWindow().getDecorView().requestFocus();
-    
-    scrollView.setHorizontalScrollBarEnabled(true);
-    scrollView.setVerticalScrollBarEnabled(true);
+    });
   }
   
   public void setPageSize(int width, int height) {

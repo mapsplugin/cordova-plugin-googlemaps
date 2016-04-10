@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -47,9 +48,10 @@ public class PluginMap extends MyPlugin {
   }
 
   private class AsyncSetOptionsResult {
-    UiSettings uiSettings;
     boolean myLocationButtonEnabled;
     int MAP_TYPE_ID;
+    CameraPosition cameraPosition;
+    LatLngBounds cameraBounds;
   }
 
   /**
@@ -58,56 +60,24 @@ public class PluginMap extends MyPlugin {
    * @throws JSONException
    */
   public void setOptions(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final AsyncTask<UiSettings, Void, AsyncSetOptionsResult> task = new AsyncTask<UiSettings, Void, AsyncSetOptionsResult>() {
+
+    //JSONObject params = args.getJSONObject(0);
+
+    final AsyncTask<Void, Void, AsyncSetOptionsResult> task = new AsyncTask<Void, Void, AsyncSetOptionsResult>() {
       private Exception mException = null;
       @Override
-      protected AsyncSetOptionsResult doInBackground(UiSettings... settingses) {
-        UiSettings settings = settingses[0];
+      protected AsyncSetOptionsResult doInBackground(Void... Void) {
         AsyncSetOptionsResult results = new AsyncSetOptionsResult();
 
         try {
           JSONObject params = args.getJSONObject(0);
+          Log.d("PluginMap", "--" + params);
 
-          //controls
-          if (params.has("controls")) {
-            JSONObject controls = params.getJSONObject("controls");
-
-            if (controls.has("compass")) {
-              results.uiSettings.setCompassEnabled(controls.getBoolean("compass"));
-            }
-            if (controls.has("zoom")) {
-              results.uiSettings.setZoomControlsEnabled(controls.getBoolean("zoom"));
-            }
-            if (controls.has("indoorPicker")) {
-              results.uiSettings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
-            }
-            if (controls.has("myLocationButton")) {
-              results.uiSettings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
-            }
-          }
-
-          //gestures
-          if (params.has("gestures")) {
-            JSONObject gestures = params.getJSONObject("gestures");
-
-            if (gestures.has("tilt")) {
-              results.uiSettings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
-            }
-            if (gestures.has("scroll")) {
-              results.uiSettings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
-            }
-            if (gestures.has("rotate")) {
-              results.uiSettings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
-            }
-            if (gestures.has("zoom")) {
-              results.uiSettings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
-            }
-          }
 
           // map type
+          results.MAP_TYPE_ID = -1;
           if (params.has("mapType")) {
             String typeStr = params.getString("mapType");
-            results.MAP_TYPE_ID = -1;
             results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : results.MAP_TYPE_ID;
             results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : results.MAP_TYPE_ID;
             results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : results.MAP_TYPE_ID;
@@ -115,8 +85,6 @@ public class PluginMap extends MyPlugin {
             results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : results.MAP_TYPE_ID;
           }
 
-          //controls
-          Boolean isEnabled = true;
 
           // move the camera position
           if (params.has("camera")) {
@@ -132,7 +100,6 @@ public class PluginMap extends MyPlugin {
             }
 
             if (camera.has("target")) {
-              CameraPosition newPosition;
               Object target = camera.get("target");
               @SuppressWarnings("rawtypes")
               Class targetClass = target.getClass();
@@ -152,10 +119,9 @@ public class PluginMap extends MyPlugin {
             if (camera.has("zoom")) {
               builder.zoom((float) camera.getDouble("zoom"));
             }
-            map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-            if (cameraBounds != null) {
-              mapCtrl.fitBounds(cameraBounds);
-            }
+            results.cameraPosition = builder.build();
+            results.cameraBounds = cameraBounds;
+
           }
 
         } catch (Exception e) {
@@ -180,9 +146,83 @@ public class PluginMap extends MyPlugin {
 
       @Override
       public void onPostExecute(AsyncSetOptionsResult results) {
+        if (results.cameraPosition != null) {
+          map.moveCamera(CameraUpdateFactory.newCameraPosition(results.cameraPosition));
+          if (results.cameraBounds != null) {
+            mapCtrl.fitBounds(results.cameraBounds);
+          }
+        }
         if (results.MAP_TYPE_ID != -1) {
           map.setMapType(results.MAP_TYPE_ID);
         }
+
+
+        JSONObject params = null;
+        try {
+          params = args.getJSONObject(0);
+
+          //background color
+          if (params.has("backgroundColor")) {
+            JSONArray rgba = null;
+            try {
+              rgba = params.getJSONArray("backgroundColor");
+            } catch (JSONException e) {
+              e.printStackTrace();
+              callbackContext.error(e.getMessage() + "");
+            }
+
+            int backgroundColor = Color.WHITE;
+            if (rgba != null && rgba.length() == 4) {
+              try {
+                backgroundColor = PluginUtil.parsePluginColor(rgba);
+                mapCtrl.mPluginLayout.setBackgroundColor(backgroundColor);
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+            }
+            UiSettings settings = map.getUiSettings();
+
+            //controls
+            if (params.has("controls")) {
+              JSONObject controls = params.getJSONObject("controls");
+
+              if (controls.has("compass")) {
+                settings.setCompassEnabled(controls.getBoolean("compass"));
+              }
+              if (controls.has("zoom")) {
+                settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
+              }
+              if (controls.has("indoorPicker")) {
+                settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+              }
+              if (controls.has("myLocationButton")) {
+                settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
+              }
+            }
+
+            //gestures
+            if (params.has("gestures")) {
+              JSONObject gestures = params.getJSONObject("gestures");
+
+              if (gestures.has("tilt")) {
+                settings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
+              }
+              if (gestures.has("scroll")) {
+                settings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
+              }
+              if (gestures.has("rotate")) {
+                settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
+              }
+              if (gestures.has("zoom")) {
+                settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
+              }
+            }
+          }
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error("" + e.getMessage());
+        }
+
         if (results.myLocationButtonEnabled) {
           try {
             JSONArray args = new JSONArray();
@@ -197,17 +237,7 @@ public class PluginMap extends MyPlugin {
         }
       }
     };
-
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        UiSettings settings = map.getUiSettings();
-        task.execute(settings);
-      }
-    });
-
-
-
+    task.execute();
 
   }
 

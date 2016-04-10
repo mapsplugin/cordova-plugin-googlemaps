@@ -513,6 +513,10 @@ function onBackbutton() {
  */
 Map.prototype.showDialog = function() {
     document.addEventListener("backbutton", onBackbutton, false);
+    document.addEventListener('map_close', function() {
+        document.removeEventListener("backbutton", onBackbutton, false);
+        document.removeEventListener('map_close', arguments.callee, false);
+    }, false);
     cordova.exec(null, this.errorHandler, 'GoogleMaps', 'showDialog', []);
 };
 
@@ -520,7 +524,6 @@ Map.prototype.showDialog = function() {
  * @desc Close the map dialog
  */
 Map.prototype.closeDialog = function() {
-    document.removeEventListener("backbutton", onBackbutton, false);
     cordova.exec(null, this.errorHandler, 'GoogleMaps', 'closeDialog', []);
 };
 
