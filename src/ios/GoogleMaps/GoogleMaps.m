@@ -170,17 +170,15 @@
 
         dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
         dispatch_async(gueue, ^{
-
             // Create a map view
             NSDictionary *options = [command.arguments objectAtIndex:0];
             self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
             self.mapCtrl.webView = self.webView;
-
+            
             if ([options objectForKey:@"backgroundColor"]) {
                 NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
                 self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
             }
-
 
             // Create an instance of Map Class
 #if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
@@ -193,12 +191,11 @@
             [self.mapCtrl.plugins setObject:mapClass forKey:@"Map"];
 
             if ([command.arguments count] != 3) {
-              
                 CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                return;
             }
-          
-          
+            
           
             dispatch_sync(dispatch_get_main_queue(), ^{
                 [self.mapCtrl.view removeFromSuperview];
@@ -208,7 +205,6 @@
             
               
                 [self.pluginScrollView attachView:self.mapCtrl.view];
-                //[self.pluginScrollView addSubview:self.mapCtrl.view];
                 [self resizeMap:command];
             });
 
