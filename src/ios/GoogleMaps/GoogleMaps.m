@@ -170,7 +170,7 @@
 
         dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
         dispatch_async(gueue, ^{
-            // Create a map view
+          
             NSDictionary *options = [command.arguments objectAtIndex:0];
             self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
             self.mapCtrl.webView = self.webView;
@@ -464,100 +464,108 @@
     if (self.mapCtrl.isFullScreen == YES) {
         return;
     }
+    
+    dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.showDialog", NULL);
+    dispatch_async(gueue, ^{
+        if (self.footer == nil) {
+            // Create the footer background
+            self.footer = [[UIView alloc]init];
+            self.footer.backgroundColor = [UIColor lightGrayColor];
 
-    if (self.footer == nil) {
-        // Create the footer background
-        self.footer = [[UIView alloc]init];
-        self.footer.backgroundColor = [UIColor lightGrayColor];
+            self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+            UIViewAutoresizingFlexibleWidth;
 
-        self.footer.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleWidth;
+            // Create the close button
+            self.closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            CGRect frame = [self.closeButton frame];
+            frame.origin.x = 10;
+            frame.origin.y = 0;
+            frame.size.width = 50;
+            frame.size.height = 40;
+            [self.closeButton setFrame:frame];
+            self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+            UIViewAutoresizingFlexibleHeight;
+            [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
+            [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.footer addSubview:self.closeButton];
 
-        // Create the close button
-        self.closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        CGRect frame = [self.closeButton frame];
-        frame.origin.x = 10;
-        frame.origin.y = 0;
-        frame.size.width = 50;
-        frame.size.height = 40;
-        [self.closeButton setFrame:frame];
-        self.closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleHeight;
-        [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
-        [self.closeButton addTarget:self action:@selector(onCloseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
-        [self.footer addSubview:self.closeButton];
+            // Create the legal notices button
+            self.licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+            UIViewAutoresizingFlexibleLeftMargin |
+            UIViewAutoresizingFlexibleHeight;
+            [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
+            [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.footer addSubview:self.licenseButton];
+        }
 
-        // Create the legal notices button
-        self.licenseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        self.licenseButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleLeftMargin |
-        UIViewAutoresizingFlexibleHeight;
-        [self.licenseButton setTitle:@"Legal Notices" forState:UIControlStateNormal];
-        [self.licenseButton addTarget:self action:@selector(onLicenseBtn_clicked:) forControlEvents:UIControlEventTouchUpInside];
-        [self.footer addSubview:self.licenseButton];
-    }
+        // remove the map view from the parent
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
+            float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
+            if (width > 0.0f && height > 0.0f) {
+                [self.mapCtrl.view removeFromSuperview];
+            }
 
-    // remove the map view from the parent
-    float width = [[self.mapCtrl.embedRect objectForKey:@"width"] floatValue];
-    float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
-    if (width > 0.0f && height > 0.0f) {
-        [self.mapCtrl.view removeFromSuperview];
-    }
+            self.mapCtrl.isFullScreen = YES;
 
-    self.mapCtrl.isFullScreen = YES;
-
-    self.mapCtrl.view.autoresizingMask =  UIViewAutoresizingFlexibleWidth |
-    UIViewAutoresizingFlexibleHeight |
-    UIViewAutoresizingFlexibleLeftMargin |
-    UIViewAutoresizingFlexibleRightMargin |
-    UIViewAutoresizingFlexibleBottomMargin;
-
-
-    int footerHeight = 40;
-    int footerAdjustment = 0;
-    if ([PluginUtil isIOS7_OR_OVER] == false) {
-        footerAdjustment = 20;
-    }
-
-    // Calculate the full screen size
-    CGRect screenSize = self.mapCtrl.screenSize;
-    CGRect pluginRect = self.mapCtrl.view.frame;
-    pluginRect.origin.x = 0;
-    pluginRect.origin.y = 0;
-    int direction;
-
+            self.mapCtrl.view.autoresizingMask =  UIViewAutoresizingFlexibleWidth |
+                                                  UIViewAutoresizingFlexibleHeight |
+                                                  UIViewAutoresizingFlexibleLeftMargin |
+                                                  UIViewAutoresizingFlexibleRightMargin |
+                                                  UIViewAutoresizingFlexibleBottomMargin;
+            
+            
+            int footerHeight = 40;
+            int footerAdjustment = 0;
+            if ([PluginUtil isIOS7_OR_OVER] == false) {
+                footerAdjustment = 20;
+            }
+            
+            
+            // Calculate the full screen size
+            CGRect screenSize = self.mapCtrl.screenSize;
+            CGRect pluginRect = self.mapCtrl.view.frame;
+            pluginRect.origin.x = 0;
+            pluginRect.origin.y = 0;
+            int direction;
+            
 #if !defined(__IPHONE_8_0)
-    // iOS 7
-    direction = self.mapCtrl.interfaceOrientation;
+            // iOS 7
+            direction = self.mapCtrl.interfaceOrientation;
 #else
-    // iOS8 or above
-    direction = [UIDevice currentDevice].orientation;
+            // iOS8 or above
+            direction = [UIDevice currentDevice].orientation;
 #endif
-
-
-    if (direction == UIInterfaceOrientationLandscapeLeft ||
-        direction == UIInterfaceOrientationLandscapeRight) {
-        pluginRect.size.width = screenSize.size.height;
-        pluginRect.size.height = screenSize.size.width - footerHeight - footerAdjustment;
-    } else {
-        pluginRect.size.width = screenSize.size.width;
-        pluginRect.size.height = screenSize.size.height - footerHeight - footerAdjustment;
-    }
-    [self.mapCtrl.view setFrame:pluginRect];
-
-    //self.mapCtrl.view.frame = pluginRect;
-    [self.footer setFrameWithInt:0 top:pluginRect.size.height width:pluginRect.size.width height:footerHeight];
-    [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
-    [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
-
-    // Show the map
-    [self.webView addSubview:self.mapCtrl.view];
-
-    // Add the footer
-    [self.webView addSubview:self.footer];
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            
+            
+            if (direction == UIInterfaceOrientationLandscapeLeft ||
+                direction == UIInterfaceOrientationLandscapeRight) {
+                pluginRect.size.width = screenSize.size.height;
+                pluginRect.size.height = screenSize.size.width - footerHeight - footerAdjustment;
+            } else {
+                pluginRect.size.width = screenSize.size.width;
+                pluginRect.size.height = screenSize.size.height - footerHeight - footerAdjustment;
+            }
+            [self.mapCtrl.view setFrame:pluginRect];
+            
+            //self.mapCtrl.view.frame = pluginRect;
+            [self.footer setFrameWithInt:0 top:pluginRect.size.height width:pluginRect.size.width height:footerHeight];
+            [self.licenseButton setFrameWithInt:pluginRect.size.width - 110 top:0 width:100 height:footerHeight];
+            [self.closeButton setFrameWithInt:10 top:0 width:50 height:footerHeight];
+            
+            // Show the map
+            [self.webView addSubview:self.mapCtrl.view];
+            
+            // Add the footer
+            [self.webView addSubview:self.footer];
+            
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            
+        });
+        
+    });
 
 }
 
