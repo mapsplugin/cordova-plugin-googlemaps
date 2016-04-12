@@ -2,6 +2,7 @@ package plugin.google.maps;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URLConnection;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -69,7 +70,17 @@ public class PluginTileProvider implements TileProvider {
         }
         
         inputStream = http.getInputStream();
+      } else if(urlStr.startsWith("file://")){
+        URL url = new URL(urlStr);
+        try{
+          URLConnection fileConn = url.openConnection();  
+          inputStream = fileConn.getInputStream();
+        }catch(Exception e){
+            return null; // file not found
+        }
+      }
         
+      if(inputStream != null){
         Bitmap image = BitmapFactory.decodeStream(inputStream);
         Bitmap tileImage = this.resizeForTile(image);
         
