@@ -2697,9 +2697,7 @@ function getAllChildren(root) {
             node = node.nextSibling;
         }
     };
-    for (var i = 0; i < root.childNodes.length; i++) {
-        search(root.childNodes[i]);
-    }
+    search(root.firstChild);
     return list;
 }
 
