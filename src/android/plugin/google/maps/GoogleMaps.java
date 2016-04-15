@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
@@ -96,20 +97,44 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
+      OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter, ViewTreeObserver.OnScrollChangedListener {
   private final String TAG = "GoogleMapsPlugin";
   private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   private FrameLayout mapFrame = null;
 
-  private enum EVENTS {
-    onScrollChanged
+  @Override
+  public void onScrollChanged() {
+    if (mPluginLayout == null) {
+      return;
+    }
+    View view = webView.getView();
+    mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
+
+    if (mapDivLayoutJSON != null) {
+      try {
+        float divW = contentToView(mapDivLayoutJSON.getLong("width"));
+        float divH = contentToView(mapDivLayoutJSON.getLong("height"));
+        float divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
+        float divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+
+        mPluginLayout.setDrawingRect(
+            divLeft,
+            divTop - view.getScrollY(),
+            divLeft + divW,
+            divTop + divH - view.getScrollY());
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
   }
+
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
@@ -140,6 +165,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     density = Resources.getSystem().getDisplayMetrics().density;
     final View view = webView.getView();
     root = (ViewGroup) view.getParent();
+    view.getViewTreeObserver().addOnScrollChangedListener(GoogleMaps.this);
 
     // Is this release build version?
     boolean isRelease = false;
