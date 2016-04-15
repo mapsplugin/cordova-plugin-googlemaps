@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
@@ -104,16 +105,14 @@ import java.util.Set;
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, OnMarkerClickListener,
       OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
-      OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter {
+      OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter,
+      ViewTreeObserver.OnScrollChangedListener{
   private final String TAG = "GoogleMapsPlugin";
   public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   private FrameLayout mapFrame = null;
-
-  private enum EVENTS {
-    onScrollChanged
-  }
+  
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
@@ -143,6 +142,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     activity = cordova.getActivity();
     density = Resources.getSystem().getDisplayMetrics().density;
     final View view = webView.getView();
+    view.getViewTreeObserver().addOnScrollChangedListener(GoogleMaps.this);
     root = (ViewGroup) view.getParent();
 
     // Is this release build version?
@@ -151,45 +151,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       PackageManager manager = activity.getPackageManager();
       ApplicationInfo appInfo = manager.getApplicationInfo(activity.getPackageName(), 0);
       isRelease = !((appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE);
-    } catch (Exception e) {}
-
-    //Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
-
-    if (!isRelease) {
-      cordova.getThreadPool().execute(new Runnable() {
-        @Override
-        public void run() {
-
-          try {
-
-            /*
-
-            JSONArray params = new JSONArray();
-            params.put("get");
-            params.put("http://plugins.cordova.io/api/plugin.google.maps");
-            HttpRequest httpReq = new HttpRequest();
-            httpReq.initialize(cordova, null);
-            httpReq.execute("execute", params, new CallbackContext("version_check", webView) {
-              @Override
-              public void sendPluginResult(PluginResult pluginResult) {
-                if (pluginResult.getStatus() == PluginResult.Status.OK.ordinal()) {
-                  try {
-                    JSONObject result = new JSONObject(pluginResult.getStrMessage());
-                    JSONObject distTags = result.getJSONObject("dist-tags");
-                    String latestVersion = distTags.getString("latest");
-                    if (latestVersion.equals(PLUGIN_VERSION) == false) {
-                      Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
-                    }
-                  } catch (JSONException e) {}
-
-                }
-              }
-            });
-            */
-          } catch (Exception e) {}
-        }
-      });
-    }
+    } catch (Exception e) {e.printStackTrace();}
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
@@ -222,9 +184,36 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               e.printStackTrace();
             }
         }
+
       }
     });
 
+  }
+
+  @Override
+  public void onScrollChanged() {
+    if (mPluginLayout == null) {
+      return;
+    }
+    View view = webView.getView();
+    mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
+
+    if (mapDivLayoutJSON != null) {
+      try {
+        float divW = contentToView(mapDivLayoutJSON.getLong("width"));
+        float divH = contentToView(mapDivLayoutJSON.getLong("height"));
+        float divLeft = contentToView(mapDivLayoutJSON.getLong("left"));
+        float divTop = contentToView(mapDivLayoutJSON.getLong("top"));
+
+        mPluginLayout.setDrawingRect(
+            divLeft,
+            divTop - view.getScrollY(),
+            divLeft + divW,
+            divTop + divH - view.getScrollY());
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   @Override
@@ -335,8 +324,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Set visibility of the map
-   * @param args
-   * @param callbackContext
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
@@ -585,12 +574,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             callbackContext.error(e.getMessage() + "");
           }
 
-          int backgroundColor = Color.WHITE;
           if (rgba != null && rgba.length() == 4) {
             try {
-              backgroundColor = PluginUtil.parsePluginColor(rgba);
+              int backgroundColor = PluginUtil.parsePluginColor(rgba);
               mPluginLayout.setBackgroundColor(backgroundColor);
-            } catch (JSONException e) {}
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
           }
 
         }
@@ -768,7 +758,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       this.mPluginLayout.detachMyView();
     }
 
-    ViewGroup.LayoutParams lParams = (ViewGroup.LayoutParams) mapView.getLayoutParams();
+    ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
     if (lParams == null) {
       lParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
@@ -1036,7 +1026,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
 
     // Request geolocation permission.
-    boolean locationPermission = false;
+    boolean locationPermission;
     try {
       Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
 
@@ -1682,7 +1672,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param points
    * @param point
    * @param threshold
-   * @return
+   * @return boolean
    */
   private boolean isPointOnTheGeodesicLine(List<LatLng> points, LatLng point, double threshold) {
     double trueDistance, testDistance1, testDistance2;
@@ -1780,8 +1770,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Check if a circle contains a point
-   * @param circle
-   * @param point
+   * @param circle Instance of Circle class
+   * @param point LatLng
    */
   private boolean isCircleContains(Circle circle, LatLng point) {
     double r = circle.getRadius();
@@ -2197,8 +2187,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Clear all markups
-   * @param args
-   * @param callbackContext
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
@@ -2245,8 +2235,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Set click-ability of the map
-   * @param args
-   * @param callbackContext
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
@@ -2260,8 +2250,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Set the app background
-   * @param args
-   * @param callbackContext
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
@@ -2281,8 +2271,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Set the debug flag of myPluginLayer
-   * @param args
-   * @param callbackContext
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
@@ -2290,6 +2280,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     Log.d("GoogleMaps", "pluginLayer_setDebuggable ");
     boolean debuggable = args.getBoolean(0);
     if (mapView != null && this.windowLayer == null) {
+      Log.d("GoogleMaps", "---> mPluginLayout = " + mPluginLayout);
       this.mPluginLayout.setDebug(debuggable);
     }
     this.isDebug = debuggable;
@@ -2298,8 +2289,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   /**
    * Destroy the map completely
-   * @param args
-   * @param callbackContext
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
    */
   @SuppressWarnings("unused")
   private void remove(JSONArray args, CallbackContext callbackContext) {

@@ -79,13 +79,13 @@ public class MyPluginLayout extends FrameLayout  {
     this.drawRect.top = top;
     this.drawRect.right = right;
     this.drawRect.bottom = bottom;
-    if (this.isDebug == true) {
+    if (this.isDebug) {
       this.inValidate();
     }
   }
   
   public void putHTMLElement(String domId, float left, float top, float right, float bottom) {
-    RectF rect = null;
+    RectF rect;
     if (this.HTMLNodes.containsKey(domId)) {
       rect = this.HTMLNodes.get(domId);
     } else {
@@ -96,26 +96,26 @@ public class MyPluginLayout extends FrameLayout  {
     rect.right = right;
     rect.bottom = bottom;
     this.HTMLNodes.put(domId, rect);
-    if (this.isDebug == true) {
+    if (this.isDebug) {
       this.inValidate();
     }
   }
   public void removeHTMLElement(String domId) {
     this.HTMLNodes.remove(domId);
-    if (this.isDebug == true) {
+    if (this.isDebug) {
       this.inValidate();
     }
   }
   public void clearHTMLElement() {
     this.HTMLNodes.clear();
-    if (this.isDebug == true) {
+    if (this.isDebug) {
       this.inValidate();
     }
   }
 
   public void setClickable(boolean clickable) {
     this.isClickable = clickable;
-    if (this.isDebug == true) {
+    if (this.isDebug) {
       this.inValidate();
     }
   }
@@ -160,11 +160,16 @@ public class MyPluginLayout extends FrameLayout  {
   public View getMyView() {
     return myView;
   }
-  public void setDebug(boolean debug) {
+  public void setDebug(final boolean debug) {
     this.isDebug = debug;
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (debug) {
+          inValidate();
+        }
+      }
+    });
   }
 
   public void detachMyView() {
@@ -206,7 +211,7 @@ public class MyPluginLayout extends FrameLayout  {
           try {
         /* view.setZOrderOnTop(true)
          * Called just in time as with root.setBackground(...) the color
-         * come in front and take the whoel screen */
+         * come in front and take the whole screen */
             view.getClass().getMethod("setZOrderOnTop", boolean.class)
                 .invoke(view, true);
           }
@@ -277,7 +282,7 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
+      if (!isClickable || myView == null || myView.getVisibility() != View.VISIBLE) {
         view.requestFocus(View.FOCUS_DOWN);
         return false;
       }
@@ -286,9 +291,9 @@ public class MyPluginLayout extends FrameLayout  {
       int scrollY = view.getScrollY();
       boolean contains = drawRect.contains(x, y);
       int action = event.getAction();
-      isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
-      isScrolling = (action == MotionEvent.ACTION_UP) ? false : isScrolling;
-      contains = isScrolling == true ? false : contains;
+      isScrolling = (!contains && action == MotionEvent.ACTION_DOWN) || isScrolling;
+      isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
+      contains = !isScrolling && contains;
       
       if (contains) {
         // Is the touch point on any HTML elements?
@@ -296,7 +301,7 @@ public class MyPluginLayout extends FrameLayout  {
         Iterator<Entry<String, RectF>> iterator = elements.iterator();
         Entry <String, RectF> entry;
         RectF rect;
-        while(iterator.hasNext() && contains == true) {
+        while(iterator.hasNext() && contains) {
           entry = iterator.next();
           rect = entry.getValue();
           rect.top -= scrollY;
@@ -315,7 +320,7 @@ public class MyPluginLayout extends FrameLayout  {
     }
     @Override
     protected void onDraw(Canvas canvas) {
-      if (drawRect == null || isDebug == false) {
+      if (drawRect == null || !isDebug) {
         return;
       }
       int width = canvas.getWidth();
@@ -324,7 +329,7 @@ public class MyPluginLayout extends FrameLayout  {
       
       Paint paint = new Paint();
       paint.setColor(Color.argb(100, 0, 255, 0));
-      if (isClickable == false) {
+      if (!isClickable) {
         canvas.drawRect(0f, 0f, width, height, paint);
         return;
       }
