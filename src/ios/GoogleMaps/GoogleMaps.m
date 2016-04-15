@@ -189,7 +189,7 @@
             mapClass.commandDelegate = self.commandDelegate;
             [mapClass setGoogleMapsViewController:self.mapCtrl];
             [self.mapCtrl.plugins setObject:mapClass forKey:@"Map"];
-
+            
             if ([command.arguments count] != 3) {
                 CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -206,6 +206,9 @@
               
                 [self.pluginScrollView attachView:self.mapCtrl.view];
                 [self resizeMap:command];
+                
+                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             });
 
         });
