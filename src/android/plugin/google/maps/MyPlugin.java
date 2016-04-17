@@ -66,9 +66,9 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       self.mapCtrl.plugins.put(TAG, pluginEntry);
 
 
-      CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
-          Log.d("MyPlugin", "---> this = " + this);
-          Log.d("MyPlugin", "---> plugin = " + plugin);
+      //CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
+      //    Log.d("MyPlugin", "---> this = " + this);
+      //    Log.d("MyPlugin", "---> plugin = " + plugin);
 
       Method[] classMethods = self.getClass().getMethods();
       for (int i = 0; i < classMethods.length; i++) {

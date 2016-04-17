@@ -71,7 +71,6 @@ public class PluginMap extends MyPlugin {
 
         try {
           JSONObject params = args.getJSONObject(0);
-          Log.d("PluginMap", "--" + params);
 
 
           // map type
@@ -180,60 +179,58 @@ public class PluginMap extends MyPlugin {
                 e.printStackTrace();
               }
             }
-            UiSettings settings = map.getUiSettings();
+          }
 
-            //controls
-            if (params.has("controls")) {
-              JSONObject controls = params.getJSONObject("controls");
+          UiSettings settings = map.getUiSettings();
 
-              if (controls.has("compass")) {
-                settings.setCompassEnabled(controls.getBoolean("compass"));
-              }
-              if (controls.has("zoom")) {
-                settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
-              }
-              if (controls.has("indoorPicker")) {
-                settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
-              }
-              if (controls.has("myLocationButton")) {
-                settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
-              }
+          //gestures
+          if (params.has("gestures")) {
+            JSONObject gestures = params.getJSONObject("gestures");
+
+            if (gestures.has("tilt")) {
+              settings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
             }
-
-            //gestures
-            if (params.has("gestures")) {
-              JSONObject gestures = params.getJSONObject("gestures");
-
-              if (gestures.has("tilt")) {
-                settings.setTiltGesturesEnabled(gestures.getBoolean("tilt"));
-              }
-              if (gestures.has("scroll")) {
-                settings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
-              }
-              if (gestures.has("rotate")) {
-                settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
-              }
-              if (gestures.has("zoom")) {
-                settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
-              }
+            if (gestures.has("scroll")) {
+              settings.setScrollGesturesEnabled(gestures.getBoolean("scroll"));
+            }
+            if (gestures.has("rotate")) {
+              settings.setRotateGesturesEnabled(gestures.getBoolean("rotate"));
+            }
+            if (gestures.has("zoom")) {
+              settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
             }
           }
+
+          //controls
+          if (params.has("controls")) {
+            JSONObject controls = params.getJSONObject("controls");
+
+            if (controls.has("compass")) {
+              settings.setCompassEnabled(controls.getBoolean("compass"));
+            }
+            if (controls.has("zoom")) {
+              settings.setZoomControlsEnabled(controls.getBoolean("zoom"));
+            }
+            if (controls.has("indoorPicker")) {
+              settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+            }
+            if (controls.has("myLocationButton")) {
+              boolean isEnabled = controls.getBoolean("myLocationButton");
+              settings.setMyLocationButtonEnabled(isEnabled);
+
+              JSONArray args = new JSONArray();
+              args.put(isEnabled);
+              PluginMap.this.setMyLocationEnabled(args, callbackContext);
+            } else {
+              sendNoResult(callbackContext);
+            }
+          } else {
+            sendNoResult(callbackContext);
+          }
+
         } catch (JSONException e) {
           e.printStackTrace();
           callbackContext.error("" + e.getMessage());
-        }
-
-        if (results.myLocationButtonEnabled) {
-          try {
-            JSONArray args = new JSONArray();
-            args.put(true);
-            PluginMap.this.setMyLocationEnabled(args, callbackContext);
-          } catch (JSONException e) {
-            e.printStackTrace();
-            callbackContext.error(e.getMessage() + "");
-          }
-        } else {
-          sendNoResult(callbackContext);
         }
       }
     };
