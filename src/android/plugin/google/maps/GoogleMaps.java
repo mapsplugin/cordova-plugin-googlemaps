@@ -600,11 +600,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           if (params.has("controls")) {
             JSONObject controls = params.getJSONObject("controls");
 
-            if (controls.has("myLocationButton")) {
-              Boolean isEnabled = controls.getBoolean("myLocationButton");
-              map.setMyLocationEnabled(isEnabled);
-              map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
-            }
             if (controls.has("indoorPicker")) {
               Boolean isEnabled = controls.getBoolean("indoorPicker");
               map.setIndoorEnabled(isEnabled);
@@ -644,7 +639,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               }, 300);
             }
           }
-          callbackContext.success();
+
+
+          if (params.has("controls")) {
+            JSONObject controls = params.getJSONObject("controls");
+
+            if (controls.has("myLocationButton")) {
+              final Boolean isEnabled = controls.getBoolean("myLocationButton");
+              Log.d("GoogleMaps", "-->isEnabled = " + isEnabled);
+              JSONArray args = new JSONArray();
+              args.put("Map.setMyLocationEnabled");
+              args.put(isEnabled);
+              GoogleMaps.this.execute("exec", args, callbackContext);
+
+            } else {
+              callbackContext.success();
+            }
+          } else {
+            callbackContext.success();
+          }
+
         } catch (Exception e) {
           Log.d("GoogleMaps", "------->error");
           callbackContext.error(e.getMessage());
