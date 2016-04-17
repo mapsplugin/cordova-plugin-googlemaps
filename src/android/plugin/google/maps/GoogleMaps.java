@@ -104,7 +104,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       OnCameraChangeListener, OnMapLoadedCallback, OnMarkerDragListener,
       OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter, ViewTreeObserver.OnScrollChangedListener {
   private final String TAG = "GoogleMapsPlugin";
-  private final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
+  public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
   private FrameLayout mapFrame = null;
@@ -150,7 +150,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   private ViewGroup root;
   private final int CLOSE_LINK_ID = 0x7f999990;  //random
   private final int LICENSE_LINK_ID = 0x7f99991; //random
-  private final String PLUGIN_VERSION = "1.3.3";
   private MyPluginLayout mPluginLayout = null;
   public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
@@ -176,42 +175,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     } catch (Exception e) {}
 
     //Log.i("CordovaLog", "This app uses phonegap-googlemaps-plugin version " + PLUGIN_VERSION);
-
-    if (!isRelease) {
-      cordova.getThreadPool().execute(new Runnable() {
-        @Override
-        public void run() {
-
-          try {
-
-            /*
-
-            JSONArray params = new JSONArray();
-            params.put("get");
-            params.put("http://plugins.cordova.io/api/plugin.google.maps");
-            HttpRequest httpReq = new HttpRequest();
-            httpReq.initialize(cordova, null);
-            httpReq.execute("execute", params, new CallbackContext("version_check", webView) {
-              @Override
-              public void sendPluginResult(PluginResult pluginResult) {
-                if (pluginResult.getStatus() == PluginResult.Status.OK.ordinal()) {
-                  try {
-                    JSONObject result = new JSONObject(pluginResult.getStrMessage());
-                    JSONObject distTags = result.getJSONObject("dist-tags");
-                    String latestVersion = distTags.getString("latest");
-                    if (latestVersion.equals(PLUGIN_VERSION) == false) {
-                      Log.i("CordovaLog", "phonegap-googlemaps-plugin version " + latestVersion + " is available.");
-                    }
-                  } catch (JSONException e) {}
-
-                }
-              }
-            });
-            */
-          } catch (Exception e) {}
-        }
-      });
-    }
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
@@ -645,8 +608,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             JSONObject controls = params.getJSONObject("controls");
 
             if (controls.has("myLocationButton")) {
-              final Boolean isEnabled = controls.getBoolean("myLocationButton");
-              Log.d("GoogleMaps", "-->isEnabled = " + isEnabled);
+              Boolean isEnabled = controls.getBoolean("myLocationButton");
               JSONArray args = new JSONArray();
               args.put("Map.setMyLocationEnabled");
               args.put(isEnabled);
