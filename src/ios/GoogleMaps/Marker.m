@@ -798,15 +798,6 @@
             /***
              * Load the icon from over the internet
              */
-
-            /*
-             // download the image asynchronously
-             R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:url];
-             [request setHTTPMethod:@"GET"];
-             [request setTimeoutInterval:5];
-             [request setFailedHandler:^(NSError *error){}];
-             */
-            
             
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
             dispatch_async(queue, ^{
@@ -880,16 +871,23 @@
             
         }
     } else if ([iconProperty valueForKey:@"iconColor"]) {
-        UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
-        marker.icon = [GMSMarker markerImageWithColor:iconColor];
-        
-        if (animation) {
-            // Do animation, then send the result
-            [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
-        } else {
-            // Send the result
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
+            marker.icon = [GMSMarker markerImageWithColor:iconColor];
+            
+            // The `visible` property
+            if (iconProperty[@"visible"]) {
+                marker.map = self.mapCtrl.map;
+            }
+            
+            if (animation) {
+                // Do animation, then send the result
+                [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+            } else {
+                // Send the result
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            }
+        });
         
     }
     
