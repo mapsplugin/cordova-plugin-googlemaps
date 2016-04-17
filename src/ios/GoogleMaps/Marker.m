@@ -86,10 +86,10 @@
     }
     
     // Visible property
-    if ([[json valueForKey:@"visible"] boolValue] == true) {
-        iconProperty[@"visible"] = @YES;
-    } else {
+    if ([[json valueForKey:@"visible"] boolValue] == false) {
         iconProperty[@"visible"] = @NO;
+    } else {
+        iconProperty[@"visible"] = @YES;
     }
     // Animation
     NSString *animation = nil;
@@ -109,13 +109,6 @@
         if ([json valueForKey:@"infoWindowAnchor"]) {
             [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
         }
-        
-        /*
-         // Send an temporally signal at once
-         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-         [pluginResult setKeepCallbackAsBool:YES];
-         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-         */
         
         // Load icon in asynchronise
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
@@ -854,6 +847,11 @@
     } else if ([iconProperty valueForKey:@"iconColor"]) {
         UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
         marker.icon = [GMSMarker markerImageWithColor:iconColor];
+        
+        // The `visible` property
+        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+            marker.map = self.mapCtrl.map;
+        }
         
         if (animation) {
             // Do animation, then send the result
