@@ -123,32 +123,25 @@
             }
         }
 
-        range = [urlStrStatic rangeOfString:@"./"];
-        if (range.location != NSNotFound) {
-            SEL requestSelector = NSSelectorFromString(@"request");
-            SEL urlSelector = NSSelectorFromString(@"URL");
-            NSString *currentPath = @"";
-            if ([self.webView respondsToSelector:requestSelector]) {
-              NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
-              [invocation setSelector:requestSelector];
-              [invocation setTarget:self.webView];
-              [invocation invoke];
-              NSURLRequest *request;
-              [invocation getReturnValue:&request];
-              currentPath = [request.URL absoluteString];
-            } else if ([self.webView respondsToSelector:urlSelector]) {
-              NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
-              [invocation setSelector:urlSelector];
-              [invocation setTarget:self.webView];
-              [invocation invoke];
-              NSURL *URL;
-              [invocation getReturnValue:&URL];
-              currentPath = [URL absoluteString];
+
+        range = [urlStrStatic rangeOfString:@"://"];
+        if (range.location == NSNotFound) {
+            range = [urlStrStatic rangeOfString:@"www/"];
+            if (range.location == NSNotFound) {
+                urlStrStatic = [NSString stringWithFormat:@"www/%@", urlStrStatic];
             }
-            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
-            currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
-            urlStrStatic = [urlStrStatic stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
+
+            range = [urlStrStatic rangeOfString:@"/"];
+            if (range.location != 0) {
+              // Get the absolute path of the www folder.
+              // https://github.com/apache/cordova-plugin-file/blob/1e2593f42455aa78d7fff7400a834beb37a0683c/src/ios/CDVFile.m#L506
+              NSString *applicationDirectory = [[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]] absoluteString];
+              urlStrStatic = [NSString stringWithFormat:@"%@%@", applicationDirectory, urlStrStatic];
+            } else {
+              urlStrStatic = [NSString stringWithFormat:@"file://%@", urlStrStatic];
+            }
         }
+
 
         range = [urlStrStatic rangeOfString:@"cdvfile://"];
         if (range.location != NSNotFound) {

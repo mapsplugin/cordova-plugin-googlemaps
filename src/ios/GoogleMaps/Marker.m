@@ -615,8 +615,6 @@
     NSString *iconPath = nil;
     CGFloat width = 0;
     CGFloat height = 0;
-    CGFloat anchorX = 0;
-    CGFloat anchorY = 0;
     
     // `url` property
     iconPath = [iconProperty valueForKey:@"url"];
@@ -637,50 +635,12 @@
     
     if (iconPath) {
         NSError *error;
-        NSRange range = [iconPath rangeOfString:@"://"];
-        if (range.location == NSNotFound) {
-            range = [iconPath rangeOfString:@"www/"];
-            if (range.location == NSNotFound) {
-                range = [iconPath rangeOfString:@"/"];
-                if (range.location != 0) {
-                    iconPath = [NSString stringWithFormat:@"./%@", iconPath];
-                }
-            }
-        }
-        
-        range = [iconPath rangeOfString:@"./"];
-        if (range.location != NSNotFound) {
-            SEL requestSelector = NSSelectorFromString(@"request");
-            SEL urlSelector = NSSelectorFromString(@"URL");
-            NSString *currentPath = @"";
-            if ([self.webView respondsToSelector:requestSelector]) {
-                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
-                [invocation setSelector:requestSelector];
-                [invocation setTarget:self.webView];
-                [invocation invoke];
-                NSURLRequest *request;
-                [invocation getReturnValue:&request];
-                currentPath = [request.URL absoluteString];
-            } else if ([self.webView respondsToSelector:urlSelector]) {
-                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
-                [invocation setSelector:urlSelector];
-                [invocation setTarget:self.webView];
-                [invocation invoke];
-                NSURL *URL;
-                [invocation getReturnValue:&URL];
-                currentPath = [URL absoluteString];
-            }
-          
-            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
-            currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
-            iconPath = [iconPath stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
-        }
         
         if (self.mapCtrl.debuggable) {
             NSLog(@"iconPath = %@", iconPath);
         }
         
-        range = [iconPath rangeOfString:@"http"];
+        NSRange range = [iconPath rangeOfString:@"http"];
         if (range.location != 0) {
             /**
              * Load icon from file or Base64 encoded strings
@@ -714,14 +674,6 @@
                     image = [image resize:width height:height];
                 }
                 
-                // The `anchor` property for the icon
-                if ([iconProperty valueForKey:@"anchor"]) {
-                    NSArray *points = [iconProperty valueForKey:@"anchor"];
-                    anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                    marker.groundAnchor = CGPointMake(anchorX, anchorY);
-                }
-                
             } else {
                 /**
                  * Load the icon from local path
@@ -740,6 +692,25 @@
                         return;
                     }
                 }
+                
+                range = [iconPath rangeOfString:@"://"];
+                if (range.location == NSNotFound) {
+                    range = [iconPath rangeOfString:@"www/"];
+                    if (range.location == NSNotFound) {
+                        iconPath = [NSString stringWithFormat:@"www/%@", iconPath];
+                    }
+
+                    range = [iconPath rangeOfString:@"/"];
+                    if (range.location != 0) {
+                      // Get the absolute path of the www folder.
+                      // https://github.com/apache/cordova-plugin-file/blob/1e2593f42455aa78d7fff7400a834beb37a0683c/src/ios/CDVFile.m#L506
+                      NSString *applicationDirectory = [[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]] absoluteString];
+                      iconPath = [NSString stringWithFormat:@"%@%@", applicationDirectory, iconPath];
+                    } else {
+                      iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
+                    }
+                }
+
                 
                 range = [iconPath rangeOfString:@"file://"];
                 if (range.location != NSNotFound) {
@@ -761,36 +732,41 @@
                 }
             }
             
-            marker.icon = image;
-            // The `anchor` property for the icon
-            if ([iconProperty valueForKey:@"anchor"]) {
-                NSArray *points = [iconProperty valueForKey:@"anchor"];
-                anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                marker.groundAnchor = CGPointMake(anchorX, anchorY);
-            }
-            
-            // The `infoWindowAnchor` property
-            if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-                NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-                anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-            }
-            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                marker.icon = image;
+                
+                CGFloat anchorX = 0;
+                CGFloat anchorY = 0;
+                // The `anchor` property for the icon
+                if ([iconProperty valueForKey:@"anchor"]) {
+                    NSArray *points = [iconProperty valueForKey:@"anchor"];
+                    anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                    anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                    marker.groundAnchor = CGPointMake(anchorX, anchorY);
+                }
+                
+                // The `infoWindowAnchor` property
+                if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+                    NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+                    anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                    anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                    marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+                }
+                
 
-            // The `visible` property
-            if (iconProperty[@"visible"]) {
-                marker.map = self.mapCtrl.map;
-            }
+                // The `visible` property
+                if (iconProperty[@"visible"]) {
+                    marker.map = self.mapCtrl.map;
+                }
 
-            if (animation) {
-                // Do animation, then send the result
-                [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
-            } else {
-                // Send the result
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-            }
+                if (animation) {
+                    // Do animation, then send the result
+                    [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+                } else {
+                    // Send the result
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                }
+            });
         } else {
             if (self.mapCtrl.debuggable) {
                 NSLog(@"---- Load the icon from over the internet");
