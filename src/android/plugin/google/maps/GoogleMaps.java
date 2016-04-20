@@ -612,7 +612,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
               JSONArray args = new JSONArray();
               args.put("Map.setMyLocationEnabled");
               args.put(isEnabled);
-              GoogleMaps.this.execute("exec", args, callbackContext);
+              GoogleMaps.this.execute("exec", args, new PluginUtil.MyCallbackContext("myLocationButton", webView) {
+                @Override
+                public void onResult(PluginResult pluginResult) {
+                  callbackContext.success();
+                }
+              });
 
             } else {
               callbackContext.success();
