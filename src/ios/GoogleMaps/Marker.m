@@ -831,7 +831,12 @@
     } else if ([iconProperty valueForKey:@"iconColor"]) {
         UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
         marker.icon = [GMSMarker markerImageWithColor:iconColor];
-
+        
+        // The `visible` property
+        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+            marker.map = self.mapCtrl.map;
+        }
+        
         if (animation) {
             // Do animation, then send the result
             [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
