@@ -868,7 +868,25 @@
     }
     
 }
+/*
+ - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
+{
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request
+               completionHandler:^(NSData *data, NSURLResponse *response,  NSError *error) {
+                               if ( !error )
+                               {
+                                   UIImage *image = [[UIImage alloc] initWithData:data];
+                                   completionBlock(YES,image);
+                               } else{
+                                   completionBlock(NO,nil);
+                               }
+                           }];
+    [task resume];
 
+}
+*/
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
 
@@ -889,6 +907,8 @@
         completionBlock(YES, image);
         return;
     }
+  
+  
   
     [NSURLConnection sendAsynchronousRequest:req
           queue:[NSOperationQueue mainQueue]

@@ -26,18 +26,20 @@ import org.json.JSONException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
+public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   protected HashMap<String, Object> objects;
   public MyPlugin self = null;
   public final HashMap<String, Method> methods = new HashMap<String, Method>();
 
   public GoogleMaps mapCtrl = null;
   public GoogleMap map = null;
+  public PluginMap pluginMap = null;
   public float density = Resources.getSystem().getDisplayMetrics().density;
 
-  public void setMapCtrl(GoogleMaps mapCtrl) {
-    this.mapCtrl = mapCtrl;
-    this.map = mapCtrl.map;
+  public void setPluginMap(PluginMap pluginMap) {
+    this.pluginMap = pluginMap;
+    this.mapCtrl = pluginMap.mapCtrl;
+    this.map = pluginMap.map;
   }
   protected String TAG = "";
 
@@ -52,18 +54,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
     if (methods.size() == 0) {
-      PluginManager manager = this.webView.getPluginManager();
-      GoogleMaps googleMaps = (GoogleMaps) manager.getPlugin("GoogleMaps");
       self = this;
-      this.mapCtrl = googleMaps;
-      //googleMaps.loadPlugin(this.getServiceName());
-      //self = (MyPlugin) googleMaps.plugins.get(this.getServiceName()).plugin;
-      this.map = this.mapCtrl.map;
-      self.map = googleMaps.map;
-      self.mapCtrl = googleMaps;
       TAG = this.getServiceName();
       PluginEntry pluginEntry = new PluginEntry(TAG, this);
-      self.mapCtrl.plugins.put(TAG, pluginEntry);
+      pluginMap.plugins.put(TAG, pluginEntry);
 
 
       //CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
@@ -71,8 +65,8 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
       //    Log.d("MyPlugin", "---> plugin = " + plugin);
 
       Method[] classMethods = self.getClass().getMethods();
-      for (int i = 0; i < classMethods.length; i++) {
-        methods.put(classMethods[i].getName(), classMethods[i]);
+      for (Method classMethod : classMethods) {
+        methods.put(classMethod.getName(), classMethod);
       }
     }
     //  this.create(args, callbackContext);
@@ -110,10 +104,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   }
 
 
-  protected GroundOverlay getGroundOverlay(String id) {
-    return (GroundOverlay)this.objects.get(id);
-  }
-
+  protected GroundOverlay getGroundOverlay(String id) { return (GroundOverlay)this.objects.get(id);}
   protected Marker getMarker(String id) {
     return (Marker)this.objects.get(id);
   }

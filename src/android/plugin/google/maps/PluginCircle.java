@@ -9,7 +9,7 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
-public class PluginCircle extends MyPlugin  {
+public class PluginCircle extends MyPlugin implements MyPluginInterface {
 
   /**
    * Create circle

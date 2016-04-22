@@ -1,3 +1,7 @@
+var MARKERS = {};
+var KML_LAYERS = {};
+var OVERLAYS = {};
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
@@ -8,25 +12,87 @@ var argscheck = require('cordova/argscheck'),
     MapTypeId = require('./MapTypeId'),
     event = require('./event');
 
-var PLUGIN_NAME = "Map";
+var Marker = require('./Marker');
+var Circle = require('./Circle');
+var Polyline = require('./Polyline');
+var Polygon = require('./Polygon');
+var TileOverlay = require('./TileOverlay');
+var GroundOverlay = require('./GroundOverlay');
+var KmlOverlay = require('./KmlOverlay');
+
+var PLUGIN_NAME = "";
 
 /**
  * Google Maps model.
  */
-var Map = function() {
+var Map = function(id) {
     BaseClass.apply(this);
+    PLUGIN_NAME = id;
+
     Object.defineProperty(this, "type", {
         value: "Map",
+        writable: false
+    });
+
+    Object.defineProperty(this, "id", {
+        value: id,
         writable: false
     });
 };
 
 utils.extend(Map, BaseClass);
 
+Map.prototype.getId = function() {
+    return this.id;
+};
 
-Map.prototype.getMap = function(div, params) {
+/**
+ * @desc Recalculate the position of HTML elements
+ */
+Map.prototype.refreshLayout = function(event) {
+    var self = this;
+    var div = self.get("div");
+    if (!div) {
+        return;
+    }
+    if (common.isDom(div) === false) {
+        self.set("div", null);
+        cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
+    } else {
+        var args = [];
+        var element, elements = [];
+        var children = common.getAllChildren(div);
+        var elemId, clickable;
+
+        args.push(common.getDivRect(div));
+        for (var i = 0; i < children.length; i++) {
+            element = children[i];
+            if (element.nodeType != 1) {
+                continue;
+            }
+            clickable = element.getAttribute("data-clickable");
+            if (clickable && common.parseBoolean(clickable) == false) {
+                continue;
+            }
+            elemId = element.getAttribute("__pluginDomId");
+            if (!elemId) {
+                elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+                element.setAttribute("__pluginDomId", elemId);
+            }
+            elements.push({
+                id: elemId,
+                size: common.getDivRect(element)
+            });
+        }
+        args.push(elements);
+        //console.log("----> mapId = " + self.getId() + " / " + JSON.stringify(common.getDivRect(div), null, 4));
+        cordova.exec(null, null, PLUGIN_NAME, 'resizeMap', args);
+    }
+};
+
+Map.prototype.getMap = function(mapId, div, params) {
     var self = this,
-        args = [];
+        args = [mapId];
 
     if (!common.isDom(div)) {
         params = div;
@@ -48,7 +114,7 @@ Map.prototype.getMap = function(div, params) {
                 elemId = element.getAttribute("__pluginDomId");
                 element.removeAttribute("__pluginDomId");
             }
-            currentDiv.removeEventListener("DOMNodeRemoved", _remove_child);
+            currentDiv.removeEventListener("DOMNodeRemoved", common._remove_child.bind(self));
 
             while (currentDiv) {
                 if (currentDiv.style) {
@@ -97,8 +163,8 @@ Map.prototype.getMap = function(div, params) {
         }
         args.push(elements);
 
-        div.addEventListener("DOMNodeRemoved", _remove_child);
-        div.addEventListener("DOMNodeInserted", _append_child);
+        div.addEventListener("DOMNodeRemoved", common._remove_child.bind(self));
+        div.addEventListener("DOMNodeInserted", common._append_child.bind(self));
 
         self.set("keepWatching", true);
         var className;
@@ -121,7 +187,7 @@ Map.prototype.getMap = function(div, params) {
             self.refreshLayout();
             self.trigger(event.MAP_READY, self);
         }, 100);
-    }, self.errorHandler, 'GoogleMaps', 'getMap', self.deleteFromObject(args,'function'));
+    }, self.errorHandler, 'GoogleMaps', 'getMap', args);
     return self;
 };
 
@@ -187,6 +253,35 @@ Map.prototype.panBy = function(x, y) {
 };
 
 /**
+ * Clears all markup that has been added to the map,
+ * including markers, polylines and ground overlays.
+ */
+Map.prototype.clear = function(callback) {
+    var self = this;
+
+    var clearObj = function (obj) {
+        var ids = Object.keys(obj);
+        var id;
+        for (var i = 0; i < ids.length; i++) {
+            id = ids[i];
+            obj[id].off();
+            delete obj[id];
+        }
+        obj = {};
+    };
+
+    clearObj(OVERLAYS);
+    clearObj(MARKERS);
+    clearObj(KML_LAYERS);
+
+    cordova.exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, 'GoogleMaps', 'clear', []);
+};
+
+/**
  * @desc Change the map type
  * @param {String} mapTypeId   Specifies the one of the follow strings:
  *                               MAP_TYPE_HYBRID
@@ -212,6 +307,18 @@ Map.prototype.setTilt = function(tilt) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTilt', [tilt]);
 };
 
+
+/**
+ * @desc Open the map dialog
+ */
+Map.prototype.showDialog = function() {
+    document.addEventListener("backbutton", common._onBackbutton, false);
+    document.addEventListener('map_close', function() {
+        document.removeEventListener("backbutton", onBackbutton, false);
+        document.removeEventListener('map_close', arguments.callee, false);
+    }, false);
+    cordova.exec(null, this.errorHandler, 'GoogleMaps', 'showDialog', []);
+};
 
 /**
  * @desc   Move the map camera with animation
@@ -434,16 +541,17 @@ Map.prototype.remove = function(callback) {
             div = div.parentNode;
         }
     }
-    this.set('div', undefined);
+    self.trigger("remove");
+    self.set('div', undefined);
     self.set("keepWatching", false);
-    this.clear();
-    this.empty();
-    this.off();
+    self.clear();
+    self.empty();
+    self.off();
     cordova.exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, 'GoogleMaps', 'remove', []);
+    }, self.errorHandler, PLUGIN_NAME, 'remove', []);
 };
 
 
@@ -479,41 +587,6 @@ Map.prototype.toDataURL = function(params, callback) {
     }, self.errorHandler, PLUGIN_NAME, 'toDataURL', [self.deleteFromObject(params,'function')]);
 };
 
-var _append_child = function(event) {
-    event = event || window.event;
-    event = event || {};
-    var target = event.srcElement;
-    if (!target || "nodeType" in target == false) {
-        return;
-    }
-    if (target.nodeType != 1) {
-        return;
-    }
-    var size = common.getDivRect(target);
-    var elemId = "pgm" + Math.floor(Math.random() * Date.now());
-    target.setAttribute("__pluginDomId", elemId);
-
-    cordova.exec(null, null, 'GoogleMaps', 'pluginLayer_pushHtmlElement', [elemId, size]);
-};
-
-var _remove_child = function(event) {
-    event = event || window.event;
-    event = event || {};
-    var target = event.srcElement;
-    if (!target || "nodeType" in target == false) {
-        return;
-    }
-    if (target.nodeType != 1) {
-        return;
-    }
-    var elemId = target.getAttribute("__pluginDomId");
-    if (!elemId) {
-        return;
-    }
-    target.removeAttribute("__pluginDomId");
-    cordova.exec(null, null, 'GoogleMaps', 'pluginLayer_removeHtmlElement', [elemId]);
-};
-
 /**
  * Show the map into the specified div.
  */
@@ -531,7 +604,7 @@ Map.prototype.setDiv = function(div) {
                 elemId = element.getAttribute("__pluginDomId");
                 element.removeAttribute("__pluginDomId");
             }
-            currentDiv.removeEventListener("DOMNodeRemoved", _remove_child);
+            currentDiv.removeEventListener("DOMNodeRemoved", common._remove_child.bind(self));
 
             while (currentDiv) {
                 if (currentDiv.style) {
@@ -579,8 +652,8 @@ Map.prototype.setDiv = function(div) {
         }
         args.push(elements);
 
-        div.addEventListener("DOMNodeRemoved", _remove_child);
-        div.addEventListener("DOMNodeInserted", _append_child);
+        div.addEventListener("DOMNodeRemoved", common._remove_child.bind(self));
+        div.addEventListener("DOMNodeInserted", common._append_child.bind(self));
 
         var className;
         while (div.parentNode) {
@@ -703,5 +776,217 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
     }, self.errorHandler, PLUGIN_NAME, 'setPadding', [padding]);
 };
 
+
+//-------------
+// KML Layer
+//-------------
+Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
+    var self = this;
+    kmlOverlayOptions = kmlOverlayOptions || {};
+    kmlOverlayOptions.url = kmlOverlayOptions.url || null;
+    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport  === true;
+    kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
+
+    var kmlId = "kml" + (Math.random() * 9999999);
+    kmlOverlayOptions.kmlId = kmlId;
+
+    var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
+    OVERLAYS[kmlId] = kmlOverlay;
+    KML_LAYERS[kmlId] = kmlOverlay;
+
+    cordova.exec(function(kmlId) {
+        if (typeof callback === "function") {
+            callback.call(self, kmlOverlay, self);
+        }
+    }, self.errorHandler, 'KmlOverlay', 'create', [self.deleteFromObject(kmlOverlayOptions,'function')]);
+
+};
+
+//-------------
+// Ground overlay
+//-------------
+Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
+    var self = this;
+    groundOverlayOptions = groundOverlayOptions || {};
+    groundOverlayOptions.url = groundOverlayOptions.url || null;
+    groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
+    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
+    groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
+
+    cordova.exec(function(result) {
+        var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
+        OVERLAYS[result.id] = groundOverlay;
+        if (typeof groundOverlayOptions.onClick === "function") {
+            groundOverlay.on(event.OVERLAY_CLICK, groundOverlayOptions.onClick);
+        }
+        if (typeof callback === "function") {
+            callback.call(self, groundOverlay, self);
+        }
+    }, self.errorHandler, 'GroundOverlay', 'create', [self.deleteFromObject(groundOverlayOptions,'function')]);
+
+};
+
+//-------------
+// Tile overlay
+//-------------
+Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
+    var self = this;
+    tilelayerOptions = tilelayerOptions || {};
+    tilelayerOptions.tileUrlFormat = tilelayerOptions.tileUrlFormat || null;
+    if (typeof tilelayerOptions.tileUrlFormat !== "string") {
+        throw new Error("tilelayerOptions.tileUrlFormat should set a string.");
+    }
+    tilelayerOptions.visible = tilelayerOptions.visible === undefined ? true : tilelayerOptions.visible;
+    tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
+    tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
+    tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
+
+    cordova.exec(function(result) {
+        var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
+        OVERLAYS[result.id] = tileOverlay;
+        if (typeof callback === "function") {
+            callback.call(self, tileOverlay, self);
+        }
+    }, self.errorHandler, 'TileOverlay', 'create', [self.deleteFromObject(tilelayerOptions,'function')]);
+};
+
+//-------------
+// Polygon
+//-------------
+Map.prototype.addPolygon = function(polygonOptions, callback) {
+    var self = this;
+    polygonOptions.points = polygonOptions.points || [];
+    polygonOptions.holes = polygonOptions.holes || [];
+    if (polygonOptions.holes.length > 0 && !Array.isArray(polygonOptions.holes[0])) {
+      polygonOptions.holes = [polygonOptions.holes];
+    }
+    polygonOptions.holes = polygonOptions.holes.map(function(hole) {
+      if (!Array.isArray(hole)) {
+        return [];
+      }
+      return hole.map(function(latLng) {
+        return {lat: latLng.lat, lng: latLng.lng};
+      });
+    });
+    polygonOptions.strokeColor = common.HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
+    if (polygonOptions.fillColor) {
+        polygonOptions.fillColor = common.HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+    }
+    polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
+    polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
+    polygonOptions.zIndex = polygonOptions.zIndex || 2;
+    polygonOptions.geodesic = polygonOptions.geodesic  === true;
+
+    cordova.exec(function(result) {
+        var polygon = new Polygon(self, result.id, polygonOptions);
+        OVERLAYS[result.id] = polygon;
+        if (typeof polygonOptions.onClick === "function") {
+            polygon.on(event.OVERLAY_CLICK, polygonOptions.onClick);
+        }
+        if (typeof callback === "function") {
+            callback.call(self, polygon, self);
+        }
+    }, self.errorHandler, "Polygon", 'create', [self.deleteFromObject(polygonOptions,'function')]);
+};
+
+//-------------
+// Polyline
+//-------------
+Map.prototype.addPolyline = function(polylineOptions, callback) {
+    var self = this;
+    polylineOptions.points = polylineOptions.points || [];
+    polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
+    polylineOptions.width = polylineOptions.width || 10;
+    polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
+    polylineOptions.zIndex = polylineOptions.zIndex || 4;
+    polylineOptions.geodesic = polylineOptions.geodesic  === true;
+
+    cordova.exec(function(result) {
+        var polyline = new Polyline(self, result.id, polylineOptions);
+        OVERLAYS[result.id] = polyline;
+        if (typeof callback === "function") {
+            callback.call(self, polyline, self);
+        }
+    }, self.errorHandler, 'Polyline', 'create', [self.deleteFromObject(polylineOptions,'function')]);
+};
+
+//-------------
+// Circle
+//-------------
+Map.prototype.addCircle = function(circleOptions, callback) {
+    var self = this;
+    circleOptions.center = circleOptions.center || {};
+    circleOptions.center.lat = circleOptions.center.lat || 0.0;
+    circleOptions.center.lng = circleOptions.center.lng || 0.0;
+    circleOptions.strokeColor = common.HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000", 0.75);
+    circleOptions.fillColor = common.HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
+    circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
+    circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
+    circleOptions.zIndex = circleOptions.zIndex || 3;
+    circleOptions.radius = circleOptions.radius || 1;
+
+    cordova.exec(function(result) {
+        var circle = new Circle(self, result.id, circleOptions);
+        OVERLAYS[result.id] = circle;
+        if (typeof circleOptions.onClick === "function") {
+            circle.on(event.OVERLAY_CLICK, circleOptions.onClick);
+        }
+        if (typeof callback === "function") {
+            callback.call(self, circle, self);
+        }
+    }, self.errorHandler, 'Circle', 'create', [self.deleteFromObject(circleOptions,'function')]);
+};
+
+//-------------
+// Marker
+//-------------
+Map.prototype.addMarker = function(markerOptions, callback) {
+    var self = this;
+    markerOptions.animation = markerOptions.animation || undefined;
+    markerOptions.position = markerOptions.position || {};
+    markerOptions.position.lat = markerOptions.position.lat || 0.0;
+    markerOptions.position.lng = markerOptions.position.lng || 0.0;
+    markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
+    markerOptions.draggable = markerOptions.draggable === true;
+    markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.snippet = markerOptions.snippet || undefined;
+    markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
+    markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
+    markerOptions.flat = markerOptions.flat  === true;
+    markerOptions.rotation = markerOptions.rotation || 0;
+    markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+    markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
+    if ("styles" in markerOptions) {
+        markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
+
+        if ("color" in markerOptions.styles) {
+            markerOptions.styles.color = common.HTMLColor2RGBA(markerOptions.styles.color || "#000000");
+        }
+    }
+    if (markerOptions.icon && common.isHTMLColorString(markerOptions.icon)) {
+        markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
+    }
+
+    var markerClick = markerOptions.markerClick;
+    var infoClick = markerOptions.infoClick;
+
+    cordova.exec(function(result) {
+        markerOptions.hashCode = result.hashCode;
+        var marker = new Marker(self, result.id, markerOptions);
+
+        MARKERS[result.id] = marker;
+        OVERLAYS[result.id] = marker;
+
+        if (typeof markerClick === "function") {
+            marker.on(event.MARKER_CLICK, markerClick);
+        }
+        if (typeof infoClick === "function") {
+            marker.on(event.INFO_CLICK, infoClick);
+        }
+        if (typeof callback === "function") {
+            callback.call(self, marker, self);
+        }
+    }, self.errorHandler, PLUGIN_NAME, 'loadPlugin', ['Marker', self.deleteFromObject(markerOptions,'function')]);
+};
 
 module.exports = Map;

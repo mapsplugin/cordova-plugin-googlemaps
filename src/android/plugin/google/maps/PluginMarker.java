@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
-public class PluginMarker extends MyPlugin {
+public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   
   private enum Animation {
     DROP,
@@ -586,7 +586,7 @@ public class PluginMarker extends MyPlugin {
       }
     });
   }
-  
+
   /**
    * Remove the marker
    * @param args

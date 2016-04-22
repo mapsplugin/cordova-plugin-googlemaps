@@ -464,14 +464,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
 
   
   private void execOtherClassMethod(String className, String action, final JSONArray params, final CallbackContext callback) {
-
+/*
     try {
       mMapCtrl.loadPlugin(className);
       mMapCtrl.plugins.get(className).plugin.execute(action, params, callback);
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    
+*/
   }
 
   private void implementToMap(final String className, final JSONObject optionsJSON, final String kmlId) {

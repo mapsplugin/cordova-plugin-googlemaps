@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build.VERSION;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,32 +26,32 @@ import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout  {
-  private View view;
+  private View browserView;
   private ViewGroup root;
-  private RectF drawRect = new RectF();
+  private HashMap<String, RectF> drawRects = new HashMap<String, RectF>();
   private Context context;
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
   private FrameLayout scrollFrameLayout = null;
   private View backgroundView = null;
-  private TouchableWrapper touchableWrapper;
-  private ViewGroup myView = null;
+  private HashMap<String, ViewGroup> myViews = new HashMap<String, ViewGroup>();
   private boolean isScrolling = false;
-  private ViewGroup.LayoutParams orgLayoutParams = null;
+  private HashMap<String, ViewGroup.LayoutParams> orgLayoutParams = new HashMap<String, ViewGroup.LayoutParams>();
   private boolean isDebug = false;
   private boolean isClickable = true;
-  private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
+  private HashMap<String, HashMap<String, RectF>> MAP_HTMLNodes = new HashMap<String, HashMap<String, RectF>>();
   private Activity mActivity = null;
+  private Paint debugPaint = new Paint();
   
   @SuppressLint("NewApi")
-  public MyPluginLayout(View view, Activity activity) {
-    super(view.getContext());
+  public MyPluginLayout(View browserView, Activity activity) {
+    super(browserView.getContext());
     mActivity = activity;
-    this.view = view;
-    this.root = (ViewGroup) view.getParent();
-    this.context = view.getContext();
-    if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())) {
-      view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+    this.browserView = browserView;
+    this.root = (ViewGroup) browserView.getParent();
+    this.context = browserView.getContext();
+    if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
+      browserView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
     }
     frontLayer = new FrontLayerLayout(this.context);
     
@@ -62,32 +63,48 @@ public class MyPluginLayout extends FrameLayout  {
     backgroundView.setVerticalScrollBarEnabled(false);
     backgroundView.setHorizontalScrollBarEnabled(false);
     backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 9999));
-    
+
+    root.removeView(browserView);
+    frontLayer.addView(browserView);
+
     scrollFrameLayout = new FrameLayout(this.context);
     scrollFrameLayout.addView(backgroundView);
     scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-    
-    scrollView.setHorizontalScrollBarEnabled(false);
-    scrollView.setVerticalScrollBarEnabled(false);
-    
-    this.touchableWrapper = new TouchableWrapper(this.context);
-    
+
+    scrollView.setHorizontalScrollBarEnabled(true);
+    scrollView.setVerticalScrollBarEnabled(true);
+    scrollView.addView(scrollFrameLayout);
+
+
+
+    this.addView(scrollView);
+    this.addView(frontLayer);
+    root.addView(this);
+    mActivity.getWindow().getDecorView().requestFocus();
   }
   
-  public void setDrawingRect(float left, float top, float right, float bottom) {
-    this.drawRect.left = left;
-    this.drawRect.top = top;
-    this.drawRect.right = right;
-    this.drawRect.bottom = bottom;
-    if (this.isDebug) {
-      this.inValidate();
+  public void setDrawingRect(String mapId, float left, float top, float right, float bottom) {
+    RectF drawRect = drawRects.get(mapId);
+    drawRect.left = left;
+    drawRect.top = top;
+    drawRect.right = right;
+    drawRect.bottom = bottom;
+  }
+  
+  public void putHTMLElement(String mapId, String domId, float left, float top, float right, float bottom) {
+    Log.d("MyPluginLayout", "--> putHTMLElement / mapId = " + mapId + ", domId = " + domId);
+    Log.d("MyPluginLayout", "--> putHTMLElement / " + left + ", " + top + " - " + right + ", " + bottom);
+    HashMap<String, RectF> HTMLNodes;
+    if (MAP_HTMLNodes.containsKey(mapId)) {
+      HTMLNodes = MAP_HTMLNodes.get(mapId);
+    } else {
+      HTMLNodes = new HashMap<String, RectF>();
+      MAP_HTMLNodes.put(mapId, HTMLNodes);
     }
-  }
-  
-  public void putHTMLElement(String domId, float left, float top, float right, float bottom) {
+
     RectF rect;
-    if (this.HTMLNodes.containsKey(domId)) {
-      rect = this.HTMLNodes.get(domId);
+    if (HTMLNodes.containsKey(domId)) {
+      rect = HTMLNodes.get(domId);
     } else {
       rect = new RectF();
     }
@@ -95,19 +112,28 @@ public class MyPluginLayout extends FrameLayout  {
     rect.top = top;
     rect.right = right;
     rect.bottom = bottom;
-    this.HTMLNodes.put(domId, rect);
+    HTMLNodes.put(domId, rect);
     if (this.isDebug) {
       this.inValidate();
     }
   }
-  public void removeHTMLElement(String domId) {
-    this.HTMLNodes.remove(domId);
+  public void removeHTMLElement(String mapId, String domId) {
+    if (!MAP_HTMLNodes.containsKey(mapId)) {
+      return;
+    }
+    HashMap<String, RectF> HTMLNodes = MAP_HTMLNodes.get(mapId);
+    HTMLNodes.remove(domId);
     if (this.isDebug) {
       this.inValidate();
     }
   }
-  public void clearHTMLElement() {
-    this.HTMLNodes.clear();
+  public void clearHTMLElement(String mapId) {
+    if (!MAP_HTMLNodes.containsKey(mapId)) {
+      return;
+    }
+    HashMap<String, RectF> HTMLNodes = MAP_HTMLNodes.get(mapId);
+    HTMLNodes.clear();
+    MAP_HTMLNodes.remove(mapId);
     if (this.isDebug) {
       this.inValidate();
     }
@@ -120,33 +146,38 @@ public class MyPluginLayout extends FrameLayout  {
     }
   }
   
-  public void updateViewPosition() {
-    if (myView == null) {
+  public void updateViewPosition(String mapId) {
+    Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
+
+    if (!myViews.containsKey(mapId)) {
       return;
     }
-    ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
-    int scrollY = view.getScrollY();
+
+    ViewGroup myView = myViews.get(mapId);
+    ViewGroup.LayoutParams lParams = myView.getLayoutParams();
+    int scrollY = browserView.getScrollY();
+    RectF drawRect = drawRects.get(mapId);
 
     if (lParams instanceof AbsoluteLayout.LayoutParams) {
       AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-      params.width = (int) this.drawRect.width();
-      params.height = (int) this.drawRect.height();
-      params.x = (int) this.drawRect.left;
-      params.y = (int) this.drawRect.top + scrollY;
+      params.width = (int) drawRect.width();
+      params.height = (int) drawRect.height();
+      params.x = (int) drawRect.left;
+      params.y = (int) drawRect.top + scrollY;
       myView.setLayoutParams(params);
     } else if (lParams instanceof LinearLayout.LayoutParams) {
       LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-      params.width = (int) this.drawRect.width();
-      params.height = (int) this.drawRect.height();
-      params.topMargin = (int) this.drawRect.top + scrollY;
-      params.leftMargin = (int) this.drawRect.left;
+      params.width = (int) drawRect.width();
+      params.height = (int) drawRect.height();
+      params.topMargin = (int) drawRect.top + scrollY;
+      params.leftMargin = (int) drawRect.left;
       myView.setLayoutParams(params);
     } else if (lParams instanceof FrameLayout.LayoutParams) {
       FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-      params.width = (int) this.drawRect.width();
-      params.height = (int) this.drawRect.height();
-      params.topMargin = (int) this.drawRect.top + scrollY;
-      params.leftMargin = (int) this.drawRect.left;
+      params.width = (int) drawRect.width();
+      params.height = (int) drawRect.height();
+      params.topMargin = (int) drawRect.top + scrollY;
+      params.leftMargin = (int) drawRect.left;
       params.gravity = Gravity.TOP;
       myView.setLayoutParams(params);
     }
@@ -154,11 +185,17 @@ public class MyPluginLayout extends FrameLayout  {
       // Force redraw
       myView.requestLayout();
     }
+    Log.d("MyPluginLayout", "---> drawRect =" +drawRect.left + "," + drawRect.top + scrollY + " / " + drawRect.width() + ", " + drawRect.height());
+
     this.frontLayer.invalidate();
   }
 
-  public View getMyView() {
-    return myView;
+  public View getMyView(String mapId) {
+    if (!myViews.containsKey(mapId)) {
+      return null;
+    }
+
+    return myViews.get(mapId);
   }
   public void setDebug(final boolean debug) {
     this.isDebug = debug;
@@ -172,78 +209,79 @@ public class MyPluginLayout extends FrameLayout  {
     });
   }
 
-  public void detachMyView() {
-    if (myView == null) {
+  public void removeMapView(final String mapId) {
+    if (!myViews.containsKey(mapId)) {
       return;
     }
+
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        ViewGroup myView = myViews.get(mapId);
 
         root.removeView(MyPluginLayout.this);
         removeView(frontLayer);
-        frontLayer.removeView(view);
+        frontLayer.removeView(browserView);
 
         scrollFrameLayout.removeView(myView);
-        myView.removeView(touchableWrapper);
+        //myView.removeView(touchableWrapper);
 
         removeView(scrollView);
         scrollView.removeView(scrollFrameLayout);
-        if (orgLayoutParams != null) {
-          myView.setLayoutParams(orgLayoutParams);
+        if (orgLayoutParams.containsKey(mapId)) {
+          myView.setLayoutParams(orgLayoutParams.remove(mapId));
         }
 
-        root.addView(view);
-        myView = null;
+        root.addView(browserView);
+        myViews.remove(mapId);
+        drawRects.remove(mapId);
         mActivity.getWindow().getDecorView().requestFocus();
       }
     });
   }
   
-  public void attachMyView(final ViewGroup pluginView) {
+  public void addMapView(final String mapId, final ViewGroup pluginView) {
+    if (myViews.containsKey(mapId)) {
+      return;
+    } else {
+      removeMapView(mapId);
+    }
+    MAP_HTMLNodes.put(mapId, new HashMap<String, RectF>());
+    drawRects.put(mapId, new RectF());
+
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-
-        view.setBackgroundColor(Color.TRANSPARENT);
-        if("org.xwalk.core.XWalkView".equals(view.getClass().getName())
-            || "org.crosswalk.engine.XWalkCordovaView".equals(view.getClass().getName())) {
+        browserView.setBackgroundColor(Color.TRANSPARENT);
+        if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
+            || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
           try {
         /* view.setZOrderOnTop(true)
          * Called just in time as with root.setBackground(...) the color
          * come in front and take the whole screen */
-            view.getClass().getMethod("setZOrderOnTop", boolean.class)
-                .invoke(view, true);
+            browserView.getClass().getMethod("setZOrderOnTop", boolean.class)
+                .invoke(browserView, true);
           }
-          catch(Exception e) {}
+          catch(Exception e) {
+            e.printStackTrace();
+          }
         }
         scrollView.setHorizontalScrollBarEnabled(false);
         scrollView.setVerticalScrollBarEnabled(false);
 
-        scrollView.scrollTo(view.getScrollX(), view.getScrollY());
-        if (myView == pluginView) {
-          return;
-        } else {
-          detachMyView();
-        }
+        scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
+
         //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
 
-        myView = pluginView;
-        ViewGroup.LayoutParams lParams = myView.getLayoutParams();
-        orgLayoutParams = null;
+        myViews.put(mapId, pluginView);
+        ViewGroup.LayoutParams lParams = pluginView.getLayoutParams();
         if (lParams != null) {
-          orgLayoutParams = new ViewGroup.LayoutParams(lParams);
+          orgLayoutParams.put(mapId, new ViewGroup.LayoutParams(lParams));
         }
-        root.removeView(view);
-        scrollView.addView(scrollFrameLayout);
-        addView(scrollView);
 
-        pluginView.addView(touchableWrapper);
+        pluginView.addView(new TouchableWrapper(context));
         scrollFrameLayout.addView(pluginView);
 
-        frontLayer.addView(view);
-        addView(frontLayer);
-        root.addView(MyPluginLayout.this);
         mActivity.getWindow().getDecorView().requestFocus();
 
         scrollView.setHorizontalScrollBarEnabled(true);
@@ -282,78 +320,141 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (!isClickable || myView == null || myView.getVisibility() != View.VISIBLE) {
-        view.requestFocus(View.FOCUS_DOWN);
+      if (!isClickable) {
+        browserView.requestFocus(View.FOCUS_DOWN);
         return false;
       }
+
+      int action = event.getAction();
+      //Log.d("FrontLayerLayout", "----> action = " + MotionEvent.actionToString(action) + ", isScrolling = " + isScrolling);
+
+      // The scroll action that started in the browser region is end.
+      isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
+      if (isScrolling) {
+        return false;
+      }
+
+      ViewGroup myView;
+      Iterator<Map.Entry<String, ViewGroup>> iterator =  myViews.entrySet().iterator();
+      Entry<String, ViewGroup> entry;
+      HashMap<String, RectF> HTMLNodes;
+      String mapId;
       int x = (int)event.getX();
       int y = (int)event.getY();
-      int scrollY = view.getScrollY();
-      boolean contains = drawRect.contains(x, y);
-      int action = event.getAction();
-      isScrolling = (!contains && action == MotionEvent.ACTION_DOWN) || isScrolling;
-      isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
-      contains = !isScrolling && contains;
-      
-      if (contains) {
-        // Is the touch point on any HTML elements?
-        Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
-        Iterator<Entry<String, RectF>> iterator = elements.iterator();
-        Entry <String, RectF> entry;
-        RectF rect;
-        while(iterator.hasNext() && contains) {
-          entry = iterator.next();
-          rect = entry.getValue();
-          rect.top -= scrollY;
-          rect.bottom -= scrollY;
-          if (entry.getValue().contains(x, y)) {
-            contains = false;
+      int scrollY = browserView.getScrollY();
+      RectF drawRect;
+      boolean contains = false;
+
+
+      Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / mouseTouch x = " + x + ", " + y);
+      while(iterator.hasNext()) {
+        entry = iterator.next();
+        mapId = entry.getKey();
+        Log.d("FrontLayerLayout", "----> mapId = " + mapId );
+        myView = entry.getValue();
+        if (myView.getVisibility() != View.VISIBLE) {
+          browserView.requestFocus(View.FOCUS_DOWN);
+          continue;
+        }
+
+        drawRect = drawRects.get(mapId);
+        contains = drawRect.contains(x, y);
+
+        Log.d("FrontLayerLayout", "----> drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + "," + drawRect.height() );
+        Log.d("FrontLayerLayout", "----> contains = " + contains + ", isScrolling = " + isScrolling);
+
+        if (contains && MAP_HTMLNodes.containsKey(mapId)) {
+          // Is the touch point on any HTML elements?
+          HTMLNodes = MAP_HTMLNodes.get(mapId);
+          Set<Entry<String, RectF>> elements = HTMLNodes.entrySet();
+          Iterator<Entry<String, RectF>> iterator2 = elements.iterator();
+          Entry <String, RectF> entry2;
+          RectF rect;
+          Log.d("FrontLayerLayout", "----> elements.size() = " + elements.size() );
+          while(iterator2.hasNext() && contains) {
+            entry2 = iterator2.next();
+            rect = entry2.getValue();
+            rect.top -= scrollY;
+            rect.bottom -= scrollY;
+            Log.d("FrontLayerLayout", "----> rect = " + rect.left + "," + rect.top + " - " + rect.width() + "," + rect.height() );
+
+
+            if (entry2.getValue().contains(x, y)) {
+              contains = false;
+            }
+            rect.top += scrollY;
+            rect.bottom += scrollY;
           }
-          rect.top += scrollY;
-          rect.bottom += scrollY;
+        }
+        if (contains) {
+          break;
         }
       }
+      isScrolling = (!contains && action == MotionEvent.ACTION_DOWN) || isScrolling;
+      contains = !isScrolling && contains;
+
       if (!contains) {
-        view.requestFocus(View.FOCUS_DOWN);
+        browserView.requestFocus(View.FOCUS_DOWN);
       }
+
+
+      Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / contains = " + contains);
       return contains;
     }
     @Override
     protected void onDraw(Canvas canvas) {
-      if (drawRect == null || !isDebug) {
+      if (drawRects.isEmpty() || !isDebug) {
         return;
       }
       int width = canvas.getWidth();
       int height = canvas.getHeight();
-      int scrollY = view.getScrollY();
-      
-      Paint paint = new Paint();
-      paint.setColor(Color.argb(100, 0, 255, 0));
+      int scrollY = browserView.getScrollY();
+
       if (!isClickable) {
-        canvas.drawRect(0f, 0f, width, height, paint);
+        canvas.drawRect(0f, 0f, width, height, debugPaint);
         return;
       }
-      canvas.drawRect(0f, 0f, width, drawRect.top, paint);
-      canvas.drawRect(0, drawRect.top, drawRect.left, drawRect.bottom, paint);
-      canvas.drawRect(drawRect.right, drawRect.top, width, drawRect.bottom, paint);
-      canvas.drawRect(0, drawRect.bottom, width, height, paint);
-      
-      
-      paint.setColor(Color.argb(100, 255, 0, 0));
-      
-      Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
-      Iterator<Entry<String, RectF>> iterator = elements.iterator();
-      Entry <String, RectF> entry;
-      RectF rect;
+      RectF drawRect;
+      ViewGroup myView = null;
+      Iterator<Entry<String, HashMap<String, RectF>>> iterator = MAP_HTMLNodes.entrySet().iterator();
+      Entry<String, HashMap<String, RectF>> entry;
+      HashMap<String, RectF> HTMLNodes;
+      String mapId;
+      Set<Entry<String, RectF>> elements;
+      Iterator<Entry<String, RectF>> iterator2;
+      Entry <String, RectF> entry2;
       while(iterator.hasNext()) {
         entry = iterator.next();
-        rect = entry.getValue();
-        rect.top -= scrollY;
-        rect.bottom -= scrollY;
-        canvas.drawRect(rect, paint);
-        rect.top += scrollY;
-        rect.bottom += scrollY;
+        mapId = entry.getKey();
+        drawRect = drawRects.get(mapId);
+        Log.d("MyPluginLayout", "---> mapId = " + mapId + ", drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
+
+        debugPaint.setColor(Color.argb(100, 0, 255, 0));
+        canvas.drawRect(0f, 0f, width, drawRect.top, debugPaint);
+        canvas.drawRect(0, drawRect.top, drawRect.left, drawRect.bottom, debugPaint);
+        canvas.drawRect(drawRect.right, drawRect.top, width, drawRect.bottom, debugPaint);
+        canvas.drawRect(0, drawRect.bottom, width, height, debugPaint);
+
+
+        debugPaint.setColor(Color.argb(100, 255, 0, 0));
+        HTMLNodes = MAP_HTMLNodes.get(mapId);
+
+        elements = HTMLNodes.entrySet();
+        iterator2 = elements.iterator();
+        RectF rect;
+        while(iterator2.hasNext()) {
+          entry2 = iterator2.next();
+          rect = entry2.getValue();
+          rect.top -= scrollY;
+          rect.bottom -= scrollY;
+          canvas.drawRect(rect, debugPaint);
+          rect.top += scrollY;
+          rect.bottom += scrollY;
+        }
+
       }
+
+
     }
   }
   

@@ -12,7 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-public class PluginKmlOverlay extends MyPlugin {
+public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
   
   //@SuppressLint("UseSparseArrays")
   //@Override

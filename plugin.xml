@@ -95,12 +95,6 @@
             <feature name="Map">
                 <param name="android-package" value="plugin.google.maps.PluginMap" />
             </feature>
-            <feature name="External">
-                <param name="android-package" value="plugin.google.maps.External" />
-            </feature>
-            <feature name="Geocoder">
-                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
-            </feature>
             <feature name="Polyline">
                 <param name="android-package" value="plugin.google.maps.PluginPolyline" />
             </feature>
@@ -121,6 +115,12 @@
             </feature>
             <feature name="KmlOverlay">
                 <param name="android-package" value="plugin.google.maps.PluginKmlOverlay" />
+            </feature>
+            <feature name="External">
+                <param name="android-package" value="plugin.google.maps.External" />
+            </feature>
+            <feature name="Geocoder">
+                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
             </feature>
             <feature name="External">
                 <param name="android-package" value="plugin.google.maps.External" />

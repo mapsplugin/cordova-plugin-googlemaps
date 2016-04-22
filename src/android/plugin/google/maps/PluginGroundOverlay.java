@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-public class PluginGroundOverlay extends MyPlugin {
+public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  {
 
   /**
    * Create ground overlay
