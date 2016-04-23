@@ -38,6 +38,7 @@
 
 - (void)removeObjectForKey: (NSString *)key;
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)level;

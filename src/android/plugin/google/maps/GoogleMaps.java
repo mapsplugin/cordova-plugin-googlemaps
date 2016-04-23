@@ -12,17 +12,14 @@ import android.content.IntentSender.SendIntentException;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -34,7 +31,6 @@ import android.view.ViewTreeObserver;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,23 +47,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CameraPosition.Builder;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.IndoorBuilding;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -85,7 +66,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
@@ -518,7 +498,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
       entry = iterator.next();
       mapId = entry.getKey();
       rectF = entry.getValue();
-      Log.d(TAG, "---> updateMapViewLayout / " + mapId + " / " + rectF.left + ", " + rectF.top + " - " + rectF.width() + ", " + rectF.height());
+      //Log.d(TAG, "---> updateMapViewLayout / " + mapId + " / " + rectF.left + ", " + rectF.top + " - " + rectF.width() + ", " + rectF.height());
 
       mPluginLayout.setDrawingRect(
           mapId,
@@ -999,33 +979,32 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
       result.put("status", false);
       result.put("error_code", "service_denied");
       result.put("error_message", "This app has been rejected to use Location Services.");
-    } catch (JSONException e) {}
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
     callbackContext.error(result);
   }
 
   @Override
   public void onPause(boolean multitasking) {
-    Iterator<Map.Entry<String, MapView>> iterator = mapViews.entrySet().iterator();
-    while (iterator.hasNext()) {
-      ((MapView)(iterator.next())).onPause();
+    for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
+      (stringMapViewEntry).getValue().onPause();
     }
     super.onPause(multitasking);
   }
 
   @Override
   public void onResume(boolean multitasking) {
-    Iterator<Map.Entry<String, MapView>> iterator = mapViews.entrySet().iterator();
-    while (iterator.hasNext()) {
-      ((MapView)(iterator.next())).onResume();
+    for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
+      (stringMapViewEntry).getValue().onResume();
     }
     super.onResume(multitasking);
   }
 
   @Override
   public void onDestroy() {
-    Iterator<Map.Entry<String, MapView>> iterator = mapViews.entrySet().iterator();
-    while (iterator.hasNext()) {
-      ((MapView)(iterator.next())).onDestroy();
+    for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
+      (stringMapViewEntry).getValue().onDestroy();
     }
     super.onDestroy();
   }
@@ -1040,7 +1019,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     }
     if (viewId == LICENSE_LINK_ID) {
       showLicenseText();
-      return;
     }
   }
 
@@ -1124,6 +1102,21 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
     pluginResult.setKeepCallback(true);
     callbackContext.sendPluginResult(pluginResult);
+  }
+
+  /**
+   * Called by the system when the device configuration changes while your activity is running.
+   *
+   * @param newConfig		The new device configuration
+   */
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+// Checks the orientation of the screen
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      Toast.makeText(activity, "landscape", Toast.LENGTH_SHORT).show();
+    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+      Toast.makeText(activity, "portrait", Toast.LENGTH_SHORT).show();
+    }
   }
 
 }

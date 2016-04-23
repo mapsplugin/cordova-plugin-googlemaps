@@ -18,7 +18,6 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,8 +55,13 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     if (methods.size() == 0) {
       self = this;
       TAG = this.getServiceName();
-      PluginEntry pluginEntry = new PluginEntry(TAG, this);
-      pluginMap.plugins.put(TAG, pluginEntry);
+      Log.d("MyPlugin", "TAG = " + TAG);
+      if (TAG.startsWith("map_")) {
+        mapCtrl.mapPlugins.put(TAG, (PluginMap) this);
+      } else {
+        PluginEntry pluginEntry = new PluginEntry(TAG, this);
+        pluginMap.plugins.put(TAG, pluginEntry);
+      }
 
 
       //CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());

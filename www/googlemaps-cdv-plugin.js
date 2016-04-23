@@ -12,7 +12,6 @@ var Map = require('./Map');
 var LatLng = require('./LatLng');
 var LatLngBounds = require('./LatLngBounds');
 var Location = require('./Location');
-var CameraPosition = require('./CameraPosition');
 var Marker = require('./Marker');
 var Circle = require('./Circle');
 var Polyline = require('./Polyline');
@@ -83,135 +82,10 @@ GroundOverlay.prototype.remove = function() {
     this.off();
 };
 
+
 /*****************************************************************************
  * Private functions
  *****************************************************************************/
-
- /*
-  * Callback from Native
-  */
-
- Map.prototype._onMarkerEvent = function(eventName, hashCode) {
-     var marker = MARKERS[hashCode] || null;
-     if (marker) {
-         marker.trigger(eventName, marker);
-     }
- };
-
- Map.prototype._onOverlayEvent = function(eventName, hashCode) {
-     var overlay = OVERLAYS[hashCode] || null;
-     if (overlay) {
-         var args = [eventName, overlay];
-         for (var i = 2; i < arguments.length; i++) {
-             args.push(arguments[i]);
-         }
-         overlay.trigger.apply(this, args);
-     }
- };
-
-/*
- * Callback from Native
- */
-Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, options) {
-    var kmlLayer = KML_LAYERS[kmlLayerId] || null;
-    if (kmlLayer) {
-        var self = this;
-        var args = [eventName];
-        if (eventName === "add") {
-            var overlay = null;
-
-            switch ((objectType + "").toLowerCase()) {
-                case "marker":
-                    overlay = new Marker(self, result.id, options);
-                    MARKERS[result.id] = overlay;
-                    args.push({
-                        "type": "Marker",
-                        "object": overlay
-                    });
-                    overlay.on(event.MARKER_CLICK, function() {
-                        kmlLayer.trigger(event.OVERLAY_CLICK, overlay, overlay.getPosition());
-                    });
-                    break;
-
-                case "polygon":
-                    overlay = new Polygon(self, result.id, options);
-                    args.push({
-                        "type": "Polygon",
-                        "object": overlay
-                    });
-
-                    overlay.on(event.OVERLAY_CLICK, function(latLng) {
-                        kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
-                    });
-                    break;
-
-                case "polyline":
-                    overlay = new Polyline(self, result.id, options);
-                    args.push({
-                        "type": "Polyline",
-                        "object": overlay
-                    });
-                    overlay.on(event.OVERLAY_CLICK, function(latLng) {
-                        kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
-                    });
-                    break;
-            }
-            if (overlay) {
-                OVERLAYS[result.id] = overlay;
-                overlay.hashCode = result.hashCode;
-                kmlLayer._overlays.push(overlay);
-                kmlLayer.on("_REMOVE", function() {
-                    var idx = kmlLayer._overlays.indexOf(overlay);
-                    if (idx > -1) {
-                        kmlLayer._overlays.splice(idx, 1);
-                    }
-                    overlay.remove();
-                    overlay.off();
-                });
-            }
-        } else {
-            for (var i = 2; i < arguments.length; i++) {
-                args.push(arguments[i]);
-            }
-        }
-        //kmlLayer.trigger.apply(kmlLayer, args);
-    }
-};
-
-/**
- * Callback from Native
- */
-Map.prototype._onMapEvent = function(eventName) {
-    var args = [eventName];
-    for (var i = 1; i < arguments.length; i++) {
-        if (typeof(arguments[i]) === "string") {
-            if (["true", "false"].indexOf(arguments[i].toLowerCase()) > -1) {
-                arguments[i] = common.parseBoolean(arguments[i]);
-            }
-        }
-        args.push(arguments[i]);
-    }
-    args.push(this);
-    this.trigger.apply(this, args);
-};
-/**
- * Callback from Native
- */
-Map.prototype._onMyLocationChange = function(params) {
-    var location = new Location(params);
-    this.trigger('my_location_change', location, this);
-};
-/**
- * Callback from Native
- */
-Map.prototype._onCameraEvent = function(eventName, params) {
-    var cameraPosition = new CameraPosition(params);
-    this.trigger(eventName, cameraPosition, this);
-};
-/*****************************************************************************
- * Private functions
- *****************************************************************************/
-
 
 function onMapResize(event) {
     var mapIDs = Object.keys(MAPS);
@@ -313,7 +187,11 @@ _global.addEventListener("keepWatching_changed", function(oldValue, newValue) {
     window._watchDogTimer = null;
 });
 
-
+function nativeCallback(params) {
+  var args = params.args || [];
+  args.unshift(params.evtName);
+  this[params.callback].apply(this, args);
+}
 
 /*****************************************************************************
  * Name space
@@ -330,11 +208,15 @@ module.exports = {
       getMap: function() {
         var mapId = "map_" + MAP_CNT;
         var map = new Map(mapId);
+        document.addEventListener(mapId, nativeCallback.bind(map));
         map.showDialog = function() {
           showDialog(mapId).bind(map);
         };
         map.one('remove', function() {
+          document.removeEventListener(mapId, nativeCallback);
+          map.clear();
           delete MAPS[mapId];
+          map = null;
         });
         MAP_CNT++;
         MAPS[mapId] = map;

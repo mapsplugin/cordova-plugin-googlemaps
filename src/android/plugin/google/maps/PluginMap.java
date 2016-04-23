@@ -68,6 +68,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -370,7 +371,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (mapCtrl.mPluginLayout == null) {
-      Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
+      //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
       callbackContext.success();
       if (initCameraBounds != null) {
         Handler handler = new Handler();
@@ -395,7 +396,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     rectF.right = rectF.left + mapCtrl.contentToView(mapDivLayoutJSON.getLong("width"));
     rectF.bottom = rectF.top + mapCtrl.contentToView(mapDivLayoutJSON.getLong("height"));
     mapCtrl.mapDivLayouts.put(mapId, rectF);
-    Log.d("PluginMap", "---> resizeMap / rectF = " + rectF.left + "," + rectF.top + "," + rectF.width() + "," + rectF.height());
+    //Log.d("PluginMap", "---> resizeMap / rectF = " + rectF.left + "," + rectF.top + "," + rectF.width() + "," + rectF.height());
 
     JSONArray HTMLs = args.getJSONArray(args.length() - 1);
     JSONObject elemInfo, elemSize;
@@ -484,6 +485,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     mapCtrl.mPluginLayout.setClickable(false);
     mapCtrl.mPluginLayout.removeMapView(mapId);
     plugins.clear();
+    mapCtrl.mapPlugins.remove(mapId);
     if (map != null) {
       map.setMyLocationEnabled(false);
       map.clear();
@@ -1611,12 +1613,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param eventName
    */
   public void onMapEvent(final String eventName) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('" + mapId + "', '" + eventName + "')");
-      }
-    });
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', callback:'_onMapEvent', {evtName: '%s'})",
+        mapId, eventName);
+    jsCallback(js);
   }
 
 
@@ -1631,16 +1630,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void onMarkerEvent(String eventName, Marker marker) {
     String markerId = "marker_" + marker.getId();
-    webView.loadUrl("javascript:plugin.google.maps.Map." +
-        "_onMarkerEvent('" + mapId + "', " + eventName + "','" + markerId + "')");
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s']})",
+        mapId, eventName, markerId);
+    jsCallback(js);
   }
   public void onOverlayEvent(String eventName, String overlayId, LatLng point) {
-    webView.loadUrl("javascript:plugin.google.maps.Map." +
-        "_onOverlayEvent(" +
-        "'" + mapId + "', " +
-        "'" + eventName + "','" + overlayId + "', " +
-        "new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + ")" +
-        ")");
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onOverlayEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
+        mapId, eventName, overlayId, point.latitude, point.longitude);
+    jsCallback(js);
   }
   public void onPolylineClick(Polyline polyline, LatLng point) {
     String overlayId = "polyline_" + polyline.getId();
@@ -1666,14 +1663,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param point
    */
   public void onMapEvent(final String eventName, final LatLng point) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent(" +
-            "'" + mapId + "', " +
-            "'" + eventName + "', new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + "))");
-      }
-    });
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:[new plugin.google.maps.LatLng(%f, %f)]})",
+        mapId, eventName, point.latitude, point.longitude);
+    jsCallback(js);
   }
 
   @Override
@@ -1828,14 +1820,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMyLocationButtonClick() {
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('my_location_button_click')");
+    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s',{evtName: 'my_location_button_click', callback:'_onMapEvent'})", mapId));
     return false;
   }
 
 
   @Override
   public void onMapLoaded() {
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('map_loaded')");
+    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'map_loaded', callback:'_onMapEvent'})", mapId));
   }
 
   /**
@@ -1846,24 +1838,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     JSONObject params = new JSONObject();
     String jsonStr = "";
     try {
-      JSONObject target = new JSONObject();
-      target.put("lat", position.target.latitude);
-      target.put("lng", position.target.longitude);
-      params.put("target", target);
       params.put("hashCode", position.hashCode());
       params.put("bearing", position.bearing);
       params.put("tilt", position.tilt);
       params.put("zoom", position.zoom);
+
+      JSONObject target = new JSONObject();
+      target.put("lat", position.target.latitude);
+      target.put("lng", position.target.longitude);
+      params.put("target", target);
       jsonStr = params.toString();
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    webView.loadUrl("javascript:plugin.google.maps.Map._onCameraEvent('camera_change', " + jsonStr + ")");
+
+    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'camera_change', callback:'_onCameraEvent', args: [%s]})", mapId, jsonStr));
   }
 
   @Override
   public void onIndoorBuildingFocused() {
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')");
+    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_building_focused', callback:'_onMapEvent'})", mapId));
   }
 
   @Override
@@ -1873,7 +1867,16 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (result != null) {
       jsonStr = result.toString();
     }
-    webView.loadUrl("javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', " + jsonStr + ")");
+    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_level_activated', callback:'_onMapEvent', args: [%s]})", mapId, jsonStr));
+  }
+
+  private void jsCallback(final String js) {
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        webView.loadUrl(js);
+      }
+    });
   }
 
   /**

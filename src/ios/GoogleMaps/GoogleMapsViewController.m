@@ -26,6 +26,11 @@ NSDictionary *initOptions;
 
     return self;
 }
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    // TODO: refreshlayout
+    [self updateMapViewLayout];
+}
 
 - (void)loadView {
   [super loadView];

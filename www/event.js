@@ -1,7 +1,6 @@
 module.exports = {
     MAP_CLICK: 'click',
     MAP_LONG_CLICK: 'long_click',
-    MY_LOCATION_CHANGE: 'my_location_change', // for Android
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
     INDOOR_BUILDING_FOCUSED: 'indoor_building_focused',
     INDOOR_LEVEL_ACTIVATED: 'indoor_level_activated',

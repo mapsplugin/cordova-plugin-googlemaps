@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build.VERSION;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,7 +33,8 @@ public class MyPluginLayout extends FrameLayout  {
   private ScrollView scrollView = null;
   private FrameLayout scrollFrameLayout = null;
   private View backgroundView = null;
-  private HashMap<String, ViewGroup> myViews = new HashMap<String, ViewGroup>();
+  private HashMap<String, ViewGroup> mapViews = new HashMap<String, ViewGroup>();
+  private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   private HashMap<String, ViewGroup.LayoutParams> orgLayoutParams = new HashMap<String, ViewGroup.LayoutParams>();
   private boolean isDebug = false;
@@ -92,8 +92,8 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void putHTMLElement(String mapId, String domId, float left, float top, float right, float bottom) {
-    Log.d("MyPluginLayout", "--> putHTMLElement / mapId = " + mapId + ", domId = " + domId);
-    Log.d("MyPluginLayout", "--> putHTMLElement / " + left + ", " + top + " - " + right + ", " + bottom);
+    //Log.d("MyPluginLayout", "--> putHTMLElement / mapId = " + mapId + ", domId = " + domId);
+    //Log.d("MyPluginLayout", "--> putHTMLElement / " + left + ", " + top + " - " + right + ", " + bottom);
     HashMap<String, RectF> HTMLNodes;
     if (MAP_HTMLNodes.containsKey(mapId)) {
       HTMLNodes = MAP_HTMLNodes.get(mapId);
@@ -146,56 +146,61 @@ public class MyPluginLayout extends FrameLayout  {
     }
   }
   
-  public void updateViewPosition(String mapId) {
-    Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
+  public void updateViewPosition(final String mapId) {
+    //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
 
-    if (!myViews.containsKey(mapId)) {
+    if (!mapViews.containsKey(mapId)) {
       return;
     }
 
-    ViewGroup myView = myViews.get(mapId);
-    ViewGroup.LayoutParams lParams = myView.getLayoutParams();
-    int scrollY = browserView.getScrollY();
-    RectF drawRect = drawRects.get(mapId);
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        ViewGroup mapView = mapViews.get(mapId);
+        ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+        int scrollY = browserView.getScrollY();
+        RectF drawRect = drawRects.get(mapId);
 
-    if (lParams instanceof AbsoluteLayout.LayoutParams) {
-      AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-      params.width = (int) drawRect.width();
-      params.height = (int) drawRect.height();
-      params.x = (int) drawRect.left;
-      params.y = (int) drawRect.top + scrollY;
-      myView.setLayoutParams(params);
-    } else if (lParams instanceof LinearLayout.LayoutParams) {
-      LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-      params.width = (int) drawRect.width();
-      params.height = (int) drawRect.height();
-      params.topMargin = (int) drawRect.top + scrollY;
-      params.leftMargin = (int) drawRect.left;
-      myView.setLayoutParams(params);
-    } else if (lParams instanceof FrameLayout.LayoutParams) {
-      FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-      params.width = (int) drawRect.width();
-      params.height = (int) drawRect.height();
-      params.topMargin = (int) drawRect.top + scrollY;
-      params.leftMargin = (int) drawRect.left;
-      params.gravity = Gravity.TOP;
-      myView.setLayoutParams(params);
-    }
-    if (android.os.Build.VERSION.SDK_INT < 11) {
-      // Force redraw
-      myView.requestLayout();
-    }
-    Log.d("MyPluginLayout", "---> drawRect =" +drawRect.left + "," + drawRect.top + scrollY + " / " + drawRect.width() + ", " + drawRect.height());
+        if (lParams instanceof AbsoluteLayout.LayoutParams) {
+          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+          params.width = (int) drawRect.width();
+          params.height = (int) drawRect.height();
+          params.x = (int) drawRect.left;
+          params.y = (int) drawRect.top + scrollY;
+          mapView.setLayoutParams(params);
+        } else if (lParams instanceof LinearLayout.LayoutParams) {
+          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+          params.width = (int) drawRect.width();
+          params.height = (int) drawRect.height();
+          params.topMargin = (int) drawRect.top + scrollY;
+          params.leftMargin = (int) drawRect.left;
+          mapView.setLayoutParams(params);
+        } else if (lParams instanceof FrameLayout.LayoutParams) {
+          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+          params.width = (int) drawRect.width();
+          params.height = (int) drawRect.height();
+          params.topMargin = (int) drawRect.top + scrollY;
+          params.leftMargin = (int) drawRect.left;
+          params.gravity = Gravity.TOP;
+          mapView.setLayoutParams(params);
+        }
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+          // Force redraw
+          mapView.requestLayout();
+        }
+        //Log.d("MyPluginLayout", "---> drawRect =" +drawRect.left + "," + drawRect.top + scrollY + " / " + drawRect.width() + ", " + drawRect.height());
 
-    this.frontLayer.invalidate();
+        frontLayer.invalidate();
+      }
+    });
   }
 
-  public View getMyView(String mapId) {
-    if (!myViews.containsKey(mapId)) {
+  public View getmapView(String mapId) {
+    if (!mapViews.containsKey(mapId)) {
       return null;
     }
 
-    return myViews.get(mapId);
+    return mapViews.get(mapId);
   }
   public void setDebug(final boolean debug) {
     this.isDebug = debug;
@@ -210,38 +215,31 @@ public class MyPluginLayout extends FrameLayout  {
   }
 
   public void removeMapView(final String mapId) {
-    if (!myViews.containsKey(mapId)) {
+    if (!mapViews.containsKey(mapId)) {
       return;
     }
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        ViewGroup myView = myViews.get(mapId);
+        ViewGroup mapView = mapViews.remove(mapId);
 
-        root.removeView(MyPluginLayout.this);
-        removeView(frontLayer);
-        frontLayer.removeView(browserView);
-
-        scrollFrameLayout.removeView(myView);
-        //myView.removeView(touchableWrapper);
+        scrollFrameLayout.removeView(mapView);
+        mapView.removeView(touchableWrappers.remove(mapId));
+        drawRects.remove(mapId);
 
         removeView(scrollView);
-        scrollView.removeView(scrollFrameLayout);
         if (orgLayoutParams.containsKey(mapId)) {
-          myView.setLayoutParams(orgLayoutParams.remove(mapId));
+          mapView.setLayoutParams(orgLayoutParams.remove(mapId));
         }
 
-        root.addView(browserView);
-        myViews.remove(mapId);
-        drawRects.remove(mapId);
         mActivity.getWindow().getDecorView().requestFocus();
       }
     });
   }
   
   public void addMapView(final String mapId, final ViewGroup pluginView) {
-    if (myViews.containsKey(mapId)) {
+    if (mapViews.containsKey(mapId)) {
       return;
     } else {
       removeMapView(mapId);
@@ -273,13 +271,15 @@ public class MyPluginLayout extends FrameLayout  {
 
         //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
 
-        myViews.put(mapId, pluginView);
+        mapViews.put(mapId, pluginView);
         ViewGroup.LayoutParams lParams = pluginView.getLayoutParams();
         if (lParams != null) {
           orgLayoutParams.put(mapId, new ViewGroup.LayoutParams(lParams));
         }
 
-        pluginView.addView(new TouchableWrapper(context));
+        TouchableWrapper wrapper = new TouchableWrapper(context);
+        touchableWrappers.put(mapId, wrapper);
+        pluginView.addView(wrapper);
         scrollFrameLayout.addView(pluginView);
 
         mActivity.getWindow().getDecorView().requestFocus();
@@ -334,8 +334,8 @@ public class MyPluginLayout extends FrameLayout  {
         return false;
       }
 
-      ViewGroup myView;
-      Iterator<Map.Entry<String, ViewGroup>> iterator =  myViews.entrySet().iterator();
+      ViewGroup mapView;
+      Iterator<Map.Entry<String, ViewGroup>> iterator =  mapViews.entrySet().iterator();
       Entry<String, ViewGroup> entry;
       HashMap<String, RectF> HTMLNodes;
       String mapId;
@@ -346,22 +346,21 @@ public class MyPluginLayout extends FrameLayout  {
       boolean contains = false;
 
 
-      Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / mouseTouch x = " + x + ", " + y);
+      //Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / mouseTouch x = " + x + ", " + y);
       while(iterator.hasNext()) {
         entry = iterator.next();
         mapId = entry.getKey();
-        Log.d("FrontLayerLayout", "----> mapId = " + mapId );
-        myView = entry.getValue();
-        if (myView.getVisibility() != View.VISIBLE) {
-          browserView.requestFocus(View.FOCUS_DOWN);
+        //Log.d("FrontLayerLayout", "----> mapId = " + mapId );
+        mapView = entry.getValue();
+        if (mapView.getVisibility() != View.VISIBLE) {
           continue;
         }
 
         drawRect = drawRects.get(mapId);
         contains = drawRect.contains(x, y);
 
-        Log.d("FrontLayerLayout", "----> drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + "," + drawRect.height() );
-        Log.d("FrontLayerLayout", "----> contains = " + contains + ", isScrolling = " + isScrolling);
+        //Log.d("FrontLayerLayout", "----> drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + "," + drawRect.height() );
+        //Log.d("FrontLayerLayout", "----> contains = " + contains + ", isScrolling = " + isScrolling);
 
         if (contains && MAP_HTMLNodes.containsKey(mapId)) {
           // Is the touch point on any HTML elements?
@@ -370,13 +369,13 @@ public class MyPluginLayout extends FrameLayout  {
           Iterator<Entry<String, RectF>> iterator2 = elements.iterator();
           Entry <String, RectF> entry2;
           RectF rect;
-          Log.d("FrontLayerLayout", "----> elements.size() = " + elements.size() );
+          //Log.d("FrontLayerLayout", "----> elements.size() = " + elements.size() );
           while(iterator2.hasNext() && contains) {
             entry2 = iterator2.next();
             rect = entry2.getValue();
             rect.top -= scrollY;
             rect.bottom -= scrollY;
-            Log.d("FrontLayerLayout", "----> rect = " + rect.left + "," + rect.top + " - " + rect.width() + "," + rect.height() );
+            //Log.d("FrontLayerLayout", "----> rect = " + rect.left + "," + rect.top + " - " + rect.width() + "," + rect.height() );
 
 
             if (entry2.getValue().contains(x, y)) {
@@ -398,7 +397,7 @@ public class MyPluginLayout extends FrameLayout  {
       }
 
 
-      Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / contains = " + contains);
+      //Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / contains = " + contains+ ", isScrolling = " + isScrolling);
       return contains;
     }
     @Override
@@ -415,7 +414,7 @@ public class MyPluginLayout extends FrameLayout  {
         return;
       }
       RectF drawRect;
-      ViewGroup myView = null;
+      ViewGroup mapView = null;
       Iterator<Entry<String, HashMap<String, RectF>>> iterator = MAP_HTMLNodes.entrySet().iterator();
       Entry<String, HashMap<String, RectF>> entry;
       HashMap<String, RectF> HTMLNodes;
@@ -427,7 +426,7 @@ public class MyPluginLayout extends FrameLayout  {
         entry = iterator.next();
         mapId = entry.getKey();
         drawRect = drawRects.get(mapId);
-        Log.d("MyPluginLayout", "---> mapId = " + mapId + ", drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
+        //Log.d("MyPluginLayout", "---> mapId = " + mapId + ", drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
 
         debugPaint.setColor(Color.argb(100, 0, 255, 0));
         canvas.drawRect(0f, 0f, width, drawRect.top, debugPaint);
