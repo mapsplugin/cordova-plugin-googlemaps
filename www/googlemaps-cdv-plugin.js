@@ -214,7 +214,7 @@ module.exports = {
         };
         map.one('remove', function() {
           document.removeEventListener(mapId, nativeCallback);
-          map.clear();
+          MAPS[mapId].clear();
           delete MAPS[mapId];
           map = null;
         });

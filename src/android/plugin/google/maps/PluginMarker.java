@@ -58,7 +58,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
-    final JSONObject opts = args.getJSONObject(0);
+    final JSONObject opts = args.getJSONObject(1);
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
         markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));

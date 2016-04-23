@@ -325,6 +325,35 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   }
 
+  //-----------------------------------
+  // Create the instance of class
+  //-----------------------------------
+  public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String serviceName = args.getString(0);
+
+    if (plugins.containsKey(mapId)) {
+      plugins.get(serviceName).plugin.execute("create", args, callbackContext);
+      return;
+    }
+    try {
+      String className = "plugin.google.maps.Plugin" + serviceName;
+      Class pluginCls = Class.forName(className);
+
+      CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
+      PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
+      this.plugins.put(serviceName, pluginEntry);
+
+      plugin.privateInitialize(className, this.cordova, webView, null);
+
+      plugin.initialize(this.cordova, webView);
+      ((MyPluginInterface)plugin).setPluginMap(this);
+      Log.d("PluginMap", "loadPlugin = " + serviceName + ", mapId = " + mapId);
+      plugins.get(serviceName).plugin.execute("create", args, callbackContext);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
   public void fitBounds(final LatLngBounds cameraBounds) {
     Builder builder = CameraPosition.builder();

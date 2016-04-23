@@ -1,7 +1,3 @@
-var MARKERS = {};
-var KML_LAYERS = {};
-var OVERLAYS = {};
-
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
@@ -21,7 +17,6 @@ var GroundOverlay = require('./GroundOverlay');
 var KmlOverlay = require('./KmlOverlay');
 var CameraPosition = require('./CameraPosition');
 
-var PLUGIN_NAME = "";
 
 /**
  * Google Maps model.
@@ -29,7 +24,10 @@ var PLUGIN_NAME = "";
 var Map = function(id) {
     var self = this;
     BaseClass.apply(self);
-    PLUGIN_NAME = id;
+
+    self.MARKERS = {};
+    self.KML_LAYERS = {};
+    self.OVERLAYS = {};
 
     Object.defineProperty(self, "type", {
         value: "Map",
@@ -60,7 +58,7 @@ Map.prototype.refreshLayout = function(event) {
     }
     if (common.isDom(div) === false) {
         self.set("div", null);
-        cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setDiv', []);
+        cordova.exec(null, self.errorHandler, self.id, 'setDiv', []);
     } else {
         var args = [];
         var element, elements = [];
@@ -89,7 +87,7 @@ Map.prototype.refreshLayout = function(event) {
         }
         args.push(elements);
         //console.log("----> mapId = " + self.getId() + " / " + JSON.stringify(common.getDivRect(div), null, 4));
-        cordova.exec(null, null, PLUGIN_NAME, 'resizeMap', args);
+        cordova.exec(null, null, self.id, 'resizeMap', args);
     }
 };
 
@@ -236,23 +234,22 @@ Map.prototype.setOptions = function(options) {
       options.camera.target = options.camera.latLng;
       delete options.camera.latLng;
     }
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setOptions', [this.deleteFromObject(options,'function')]);
+    cordova.exec(null, this.errorHandler, this.id, 'setOptions', [this.deleteFromObject(options,'function')]);
 };
 
 Map.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
-    cordova.exec(null, this.errorHandler,
-        PLUGIN_NAME, 'setCenter', [latLng.lat, latLng.lng]);
+    cordova.exec(null, this.errorHandler, this.id, 'setCenter', [latLng.lat, latLng.lng]);
 };
 
 Map.prototype.setZoom = function(zoom) {
     this.set('zoom', zoom);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setZoom', [zoom]);
+    cordova.exec(null, this.errorHandler, this.id, 'setZoom', [zoom]);
 };
 Map.prototype.panBy = function(x, y) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'panBy', [x, y]);
+    cordova.exec(null, this.errorHandler, this.id, 'panBy', [x, y]);
 };
 
 /**
@@ -273,15 +270,15 @@ Map.prototype.clear = function(callback) {
         obj = {};
     };
 
-    clearObj(OVERLAYS);
-    clearObj(MARKERS);
-    clearObj(KML_LAYERS);
+    clearObj(self.OVERLAYS);
+    clearObj(self.MARKERS);
+    clearObj(self.KML_LAYERS);
 
     cordova.exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, 'GoogleMaps', 'clear', []);
+    }, self.errorHandler, this.id, 'clear', []);
 };
 
 /**
@@ -298,7 +295,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
         return this.errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setMapTypeId', [mapTypeId]);
+    cordova.exec(null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
 };
 
 /**
@@ -307,7 +304,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTilt', [tilt]);
+    cordova.exec(null, this.errorHandler, this.id, 'setTilt', [tilt]);
 };
 
 
@@ -334,31 +331,35 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
         cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
     }
 
+    // TODO: fix the below shoddy code...
     if (!cameraPosition.hasOwnProperty('zoom')) {
         self.getZoom(function(zoom) {
             cameraPosition.zoom = zoom;
         });
     }
 
+    // TODO: fix the below shoddy code...
     if (!cameraPosition.hasOwnProperty('tilt')) {
         self.getTilt(function(tilt) {
             cameraPosition.tilt = tilt;
         });
     }
 
+    // TODO: fix the below shoddy code...
     if (!cameraPosition.hasOwnProperty('bearing')) {
         self.getBearing(function(bearing) {
             cameraPosition.bearing = bearing;
         });
     }
 
+    // TODO: fix the below shoddy code...
     var self = this;
     setTimeout(function() {
         cordova.exec(function() {
             if (typeof callback === "function") {
                 callback.call(self);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'animateCamera', [self.deleteFromObject(cameraPosition,'function')]);
+        }, self.errorHandler, self.id, 'animateCamera', [self.deleteFromObject(cameraPosition,'function')]);
     }.bind(self), 10);
 
 
@@ -375,50 +376,54 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     }
     var self = this;
 
+    // TODO: fix the below shoddy code...
     if (!cameraPosition.hasOwnProperty('zoom')) {
         self.getZoom(function(zoom) {
             cameraPosition.zoom = zoom;
         });
     }
 
+    // TODO: fix the below shoddy code...
     if (!cameraPosition.hasOwnProperty('tilt')) {
         self.getTilt(function(tilt) {
             cameraPosition.tilt = tilt;
         });
     }
 
+    // TODO: fix the below shoddy code...
     if (!cameraPosition.hasOwnProperty('bearing')) {
         self.getBearing(function(bearing) {
             cameraPosition.bearing = bearing;
         });
     }
 
+    // TODO: fix the below shoddy code...
     setTimeout(function() {
         cordova.exec(function() {
             if (typeof callback === "function") {
                 callback.call(self);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'moveCamera', [self.deleteFromObject(cameraPosition,'function')]);
+        }, self.errorHandler, self.id, 'moveCamera', [self.deleteFromObject(cameraPosition,'function')]);
     }.bind(self), 10);
 
 };
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setMyLocationEnabled', [enabled]);
+    cordova.exec(null, this.errorHandler, self.id, 'setMyLocationEnabled', [enabled]);
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setIndoorEnabled', [enabled]);
+    cordova.exec(null, this.errorHandler, self.id, 'setIndoorEnabled', [enabled]);
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTrafficEnabled', [enabled]);
+    cordova.exec(null, this.errorHandler, self.id, 'setTrafficEnabled', [enabled]);
 };
 Map.prototype.setCompassEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setCompassEnabled', [enabled]);
+    cordova.exec(null, self.errorHandler, self.id, 'setCompassEnabled', [enabled]);
 };
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
     var args = [params || {}, success_callback || null, error_callback];
@@ -446,12 +451,12 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
 };
 Map.prototype.getFocusedBuilding = function(callback) {
     var self = this;
-    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'getFocusedBuilding', []);
+    cordova.exec(callback, this.errorHandler, self.id, 'getFocusedBuilding', []);
 };
 Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setVisible', [isVisible]);
+    cordova.exec(null, self.errorHandler, self.id, 'setVisible', [isVisible]);
 };
 Map.prototype.setClickable = function(isClickable) {
     var self = this;
@@ -477,7 +482,7 @@ Map.prototype.setDebuggable = function(debug) {
 Map.prototype.setAllGesturesEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'setAllGesturesEnabled', [enabled]);
+    cordova.exec(null, self.errorHandler, self.id, 'setAllGesturesEnabled', [enabled]);
 };
 
 /**
@@ -491,7 +496,7 @@ Map.prototype.getCameraPosition = function(callback) {
             camera.target = new LatLng(camera.target.lat, camera.target.lng);
             callback.call(self, camera);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
+    }, self.errorHandler, self.id, 'getCameraPosition', []);
 };
 
 
@@ -501,7 +506,7 @@ Map.prototype.getZoom = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, camera.zoom);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
+    }, self.errorHandler, self.id, 'getCameraPosition', []);
 };
 
 Map.prototype.getTilt = function(callback) {
@@ -510,7 +515,7 @@ Map.prototype.getTilt = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, camera.tilt);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
+    }, self.errorHandler, self.id, 'getCameraPosition', []);
 };
 
 Map.prototype.getBearing = function(callback) {
@@ -519,7 +524,7 @@ Map.prototype.getBearing = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, camera.bearing);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'getCameraPosition', []);
+    }, self.errorHandler, self.id, 'getCameraPosition', []);
 };
 
 
@@ -554,7 +559,7 @@ Map.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'remove', []);
+    }, self.errorHandler, self.id, 'remove', []);
 };
 
 
@@ -587,7 +592,7 @@ Map.prototype.toDataURL = function(params, callback) {
         if (typeof callback === "function") {
             callback.call(self, image);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'toDataURL', [self.deleteFromObject(params,'function')]);
+    }, self.errorHandler, self.id, 'toDataURL', [self.deleteFromObject(params,'function')]);
 };
 
 /**
@@ -692,7 +697,7 @@ Map.prototype.getVisibleRegion = function(callback) {
             latLngBounds.southwest = new LatLng(result.southwest.lat, result.southwest.lng);
             callback.call(self, latLngBounds);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'getVisibleRegion', []);
+    }, self.errorHandler, self.id, 'getVisibleRegion', []);
 };
 
 /**
@@ -705,7 +710,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
             if (typeof callback === "function") {
                 callback.call(self, result);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
+        }, self.errorHandler, self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
     } else {
         if (typeof callback === "function") {
             callback.call(self, [undefined, undefined]);
@@ -724,7 +729,7 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
                 var latLng = new LatLng(result[0] || 0, result[1] || 0);
                 callback.call(self, result);
             }
-        }, self.errorHandler, PLUGIN_NAME, 'fromPointToLatLng', [pixel[0], pixel[1]]);
+        }, self.errorHandler, self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
     } else {
         if (typeof callback === "function") {
             callback.call(self, [undefined, undefined]);
@@ -773,7 +778,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
             var latLng = new LatLng(result[0] || 0, result[1] || 0);
             callback.call(self, result);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'setPadding', [padding]);
+    }, self.errorHandler, this.id, 'setPadding', [padding]);
 };
 
 
@@ -791,14 +796,14 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     kmlOverlayOptions.kmlId = kmlId;
 
     var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
-    OVERLAYS[kmlId] = kmlOverlay;
-    KML_LAYERS[kmlId] = kmlOverlay;
+    self.OVERLAYS[kmlId] = kmlOverlay;
+    self.KML_LAYERS[kmlId] = kmlOverlay;
 
     cordova.exec(function(kmlId) {
         if (typeof callback === "function") {
             callback.call(self, kmlOverlay, self);
         }
-    }, self.errorHandler, 'KmlOverlay', 'create', [self.deleteFromObject(kmlOverlayOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', self.deleteFromObject(kmlOverlayOptions,'function')]);
 
 };
 
@@ -815,14 +820,14 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
 
     cordova.exec(function(result) {
         var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
-        OVERLAYS[result.id] = groundOverlay;
+        self.OVERLAYS[result.id] = groundOverlay;
         if (typeof groundOverlayOptions.onClick === "function") {
             groundOverlay.on(event.OVERLAY_CLICK, groundOverlayOptions.onClick);
         }
         if (typeof callback === "function") {
             callback.call(self, groundOverlay, self);
         }
-    }, self.errorHandler, 'GroundOverlay', 'create', [self.deleteFromObject(groundOverlayOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', self.deleteFromObject(groundOverlayOptions,'function')]);
 
 };
 
@@ -843,11 +848,11 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
 
     cordova.exec(function(result) {
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
-        OVERLAYS[result.id] = tileOverlay;
+        self.OVERLAYS[result.id] = tileOverlay;
         if (typeof callback === "function") {
             callback.call(self, tileOverlay, self);
         }
-    }, self.errorHandler, 'TileOverlay', 'create', [self.deleteFromObject(tilelayerOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', self.deleteFromObject(tilelayerOptions,'function')]);
 };
 
 //-------------
@@ -879,14 +884,14 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
 
     cordova.exec(function(result) {
         var polygon = new Polygon(self, result.id, polygonOptions);
-        OVERLAYS[result.id] = polygon;
+        self.OVERLAYS[result.id] = polygon;
         if (typeof polygonOptions.onClick === "function") {
             polygon.on(event.OVERLAY_CLICK, polygonOptions.onClick);
         }
         if (typeof callback === "function") {
             callback.call(self, polygon, self);
         }
-    }, self.errorHandler, "Polygon", 'create', [self.deleteFromObject(polygonOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", self.deleteFromObject(polygonOptions,'function')]);
 };
 
 //-------------
@@ -903,11 +908,11 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
 
     cordova.exec(function(result) {
         var polyline = new Polyline(self, result.id, polylineOptions);
-        OVERLAYS[result.id] = polyline;
+        self.OVERLAYS[result.id] = polyline;
         if (typeof callback === "function") {
             callback.call(self, polyline, self);
         }
-    }, self.errorHandler, 'Polyline', 'create', [self.deleteFromObject(polylineOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', self.deleteFromObject(polylineOptions,'function')]);
 };
 
 //-------------
@@ -927,14 +932,14 @@ Map.prototype.addCircle = function(circleOptions, callback) {
 
     cordova.exec(function(result) {
         var circle = new Circle(self, result.id, circleOptions);
-        OVERLAYS[result.id] = circle;
+        self.OVERLAYS[result.id] = circle;
         if (typeof circleOptions.onClick === "function") {
             circle.on(event.OVERLAY_CLICK, circleOptions.onClick);
         }
         if (typeof callback === "function") {
             callback.call(self, circle, self);
         }
-    }, self.errorHandler, 'Circle', 'create', [self.deleteFromObject(circleOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Circle', self.deleteFromObject(circleOptions,'function')]);
 };
 
 //-------------
@@ -974,8 +979,8 @@ Map.prototype.addMarker = function(markerOptions, callback) {
         markerOptions.hashCode = result.hashCode;
         var marker = new Marker(self, result.id, markerOptions);
 
-        MARKERS[result.id] = marker;
-        OVERLAYS[result.id] = marker;
+        self.MARKERS[result.id] = marker;
+        self.OVERLAYS[result.id] = marker;
 
         if (typeof markerClick === "function") {
             marker.on(event.MARKER_CLICK, markerClick);
@@ -986,7 +991,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, marker, self);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'loadPlugin', ['Marker', self.deleteFromObject(markerOptions,'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Marker', self.deleteFromObject(markerOptions,'function')]);
 };
 
 /*****************************************************************************
@@ -1007,7 +1012,10 @@ Map.prototype._onMapEvent = function(eventName, params) {
 };
 
 Map.prototype._onMarkerEvent = function(eventName, hashCode) {
-    var marker = MARKERS[hashCode] || null;
+  var self = this;
+  console.log("eventName = " + eventName + ", hashCode = " + hashCode + ", map = " + this.getId());
+  console.log(JSON.stringify(self.MARKERS));
+    var marker = self.MARKERS[hashCode] || null;
     if (marker) {
         marker.trigger(eventName, marker);
     }
@@ -1015,7 +1023,8 @@ Map.prototype._onMarkerEvent = function(eventName, hashCode) {
 
 
 Map.prototype._onOverlayEvent = function(eventName, hashCode) {
-   var overlay = OVERLAYS[hashCode] || null;
+   var self = this;
+   var overlay = self.OVERLAYS[hashCode] || null;
    if (overlay) {
        var args = [eventName, overlay];
        for (var i = 2; i < arguments.length; i++) {
@@ -1026,69 +1035,70 @@ Map.prototype._onOverlayEvent = function(eventName, hashCode) {
 };
 
 Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, options) {
-    var kmlLayer = KML_LAYERS[kmlLayerId] || null;
-    if (kmlLayer) {
-        var self = this;
-        var args = [eventName];
-        if (eventName === "add") {
-            var overlay = null;
-
-            switch ((objectType + "").toLowerCase()) {
-                case "marker":
-                    overlay = new Marker(self, result.id, options);
-                    MARKERS[result.id] = overlay;
-                    args.push({
-                        "type": "Marker",
-                        "object": overlay
-                    });
-                    overlay.on(event.MARKER_CLICK, function() {
-                        kmlLayer.trigger(event.OVERLAY_CLICK, overlay, overlay.getPosition());
-                    });
-                    break;
-
-                case "polygon":
-                    overlay = new Polygon(self, result.id, options);
-                    args.push({
-                        "type": "Polygon",
-                        "object": overlay
-                    });
-
-                    overlay.on(event.OVERLAY_CLICK, function(latLng) {
-                        kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
-                    });
-                    break;
-
-                case "polyline":
-                    overlay = new Polyline(self, result.id, options);
-                    args.push({
-                        "type": "Polyline",
-                        "object": overlay
-                    });
-                    overlay.on(event.OVERLAY_CLICK, function(latLng) {
-                        kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
-                    });
-                    break;
-            }
-            if (overlay) {
-                OVERLAYS[result.id] = overlay;
-                overlay.hashCode = result.hashCode;
-                kmlLayer._overlays.push(overlay);
-                kmlLayer.on("_REMOVE", function() {
-                    var idx = kmlLayer._overlays.indexOf(overlay);
-                    if (idx > -1) {
-                        kmlLayer._overlays.splice(idx, 1);
-                    }
-                    overlay.remove();
-                    overlay.off();
-                });
-            }
-        } else {
-            for (var i = 2; i < arguments.length; i++) {
-                args.push(arguments[i]);
-            }
-        }
-        //kmlLayer.trigger.apply(kmlLayer, args);
+    var self = this;
+    var kmlLayer = self.KML_LAYERS[kmlLayerId] || null;
+    if (!kmlLayer) {
+      return;
     }
+    var args = [eventName];
+    if (eventName === "add") {
+        var overlay = null;
+
+        switch ((objectType + "").toLowerCase()) {
+            case "marker":
+                overlay = new Marker(self, result.id, options);
+                self.MARKERS[result.id] = overlay;
+                args.push({
+                    "type": "Marker",
+                    "object": overlay
+                });
+                overlay.on(event.MARKER_CLICK, function() {
+                    kmlLayer.trigger(event.OVERLAY_CLICK, overlay, overlay.getPosition());
+                });
+                break;
+
+            case "polygon":
+                overlay = new Polygon(self, result.id, options);
+                args.push({
+                    "type": "Polygon",
+                    "object": overlay
+                });
+
+                overlay.on(event.OVERLAY_CLICK, function(latLng) {
+                    kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
+                });
+                break;
+
+            case "polyline":
+                overlay = new Polyline(self, result.id, options);
+                args.push({
+                    "type": "Polyline",
+                    "object": overlay
+                });
+                overlay.on(event.OVERLAY_CLICK, function(latLng) {
+                    kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
+                });
+                break;
+        }
+        if (overlay) {
+            self.OVERLAYS[result.id] = overlay;
+            overlay.hashCode = result.hashCode;
+            kmlLayer._overlays.push(overlay);
+            kmlLayer.on("_REMOVE", function() {
+                var idx = kmlLayer._overlays.indexOf(overlay);
+                if (idx > -1) {
+                    kmlLayer._overlays.splice(idx, 1);
+                }
+                overlay.remove();
+                overlay.off();
+            });
+        }
+    } else {
+        for (var i = 2; i < arguments.length; i++) {
+            args.push(arguments[i]);
+        }
+    }
+    //kmlLayer.trigger.apply(kmlLayer, args);
 };
 
 Map.prototype._onCameraEvent = function(eventName, params) {
