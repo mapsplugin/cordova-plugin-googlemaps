@@ -42,6 +42,10 @@ var Marker = function(map, id, markerOptions) {
 
 utils.extend(Marker, BaseClass);
 
+Marker.prototype.getPluginName = function() {
+    return this.map.getId() + "::Marker";
+};
+
 Marker.prototype.isVisible = function() {
     return this.get('visible');
 };
@@ -78,13 +82,13 @@ Marker.prototype.setAnimation = function(animation, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, this.errorHandler, PLUGIN_NAME, 'setAnimation', [this.getId(), self.deleteFromObject(animation,'function')]);
+    }, this.errorHandler, self.getPluginName(), 'setAnimation', [this.getId(), self.deleteFromObject(animation,'function')]);
 };
 
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
     disableAutoPan = common.parseBoolean(disableAutoPan);
     this.set('disableAutoPan', disableAutoPan);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setDisableAutoPan', [this.getId(), disableAutoPan]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setDisableAutoPan', [this.getId(), disableAutoPan]);
 };
 Marker.prototype.getParams = function() {
     return this.get('params');
@@ -95,30 +99,30 @@ Marker.prototype.setOpacity = function(opacity) {
         return false;
     }
     this.set('opacity', opacity);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setOpacity', [this.getId(), opacity]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setOpacity', [this.getId(), opacity]);
 };
 Marker.prototype.setZIndex = function(zIndex) {
     if (typeof zIndex === 'undefined') {
         return false;
     }
     this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setZIndex', [this.getId(), zIndex]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
 };
 Marker.prototype.getOpacity = function() {
     return this.get('opacity');
 };
 Marker.prototype.setIconAnchor = function(anchorX, anchorY) {
     this.set('anchor', [anchorX, anchorY]);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setIconAnchor', [this.getId(), anchorX, anchorY]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setIconAnchor', [this.getId(), anchorX, anchorY]);
 };
 Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
     this.set('anchor', [anchorX, anchorY]);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setInfoWindowAnchor', [this.getId(), anchorX, anchorY]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setInfoWindowAnchor', [this.getId(), anchorX, anchorY]);
 };
 Marker.prototype.setDraggable = function(draggable) {
     draggable = common.parseBoolean(draggable);
     this.set('draggable', draggable);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setDraggable', [this.getId(), draggable]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setDraggable', [this.getId(), draggable]);
 };
 Marker.prototype.isDraggable = function() {
     return this.get('draggable');
@@ -126,13 +130,13 @@ Marker.prototype.isDraggable = function() {
 Marker.prototype.setFlat = function(flat) {
     flat = common.parseBoolean(flat);
     this.set('flat', flat);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setFlat', [this.getId(), flat]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setFlat', [this.getId(), flat]);
 };
 Marker.prototype.setIcon = function(url) {
     if (url && common.isHTMLColorString(url)) {
         url = common.HTMLColor2RGBA(url);
     }
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setIcon', [this.getId(), url]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setIcon', [this.getId(), url]);
 };
 Marker.prototype.setTitle = function(title) {
     if (!title) {
@@ -140,19 +144,19 @@ Marker.prototype.setTitle = function(title) {
         return false;
     }
     this.set('title', String(title));
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setTitle', [this.getId(), title]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setTitle', [this.getId(), title]);
 };
 Marker.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setVisible', [this.getId(), visible]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setVisible', [this.getId(), visible]);
 };
 Marker.prototype.getTitle = function() {
     return this.get('title');
 };
 Marker.prototype.setSnippet = function(snippet) {
     this.set('snippet', snippet);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setSnippet', [this.getId(), snippet]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setSnippet', [this.getId(), snippet]);
 };
 Marker.prototype.getSnippet = function() {
     return this.get('snippet');
@@ -163,16 +167,16 @@ Marker.prototype.setRotation = function(rotation) {
         return false;
     }
     this.set('rotation', rotation);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setRotation', [this.getId(), rotation]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setRotation', [this.getId(), rotation]);
 };
 Marker.prototype.getRotation = function() {
     return this.get('rotation');
 };
 Marker.prototype.showInfoWindow = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'showInfoWindow', [this.getId()]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'showInfoWindow', [this.getId()]);
 };
 Marker.prototype.hideInfoWindow = function() {
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'hideInfoWindow', [this.getId()]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()]);
 };
 Marker.prototype.isInfoWindowShown = function(callback) {
     var self = this;
@@ -181,7 +185,7 @@ Marker.prototype.isInfoWindowShown = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, isVisible);
         }
-    }, self.errorHandler, PLUGIN_NAME, 'isInfoWindowShown', [this.getId()]);
+    }, self.errorHandler, this.getPluginName(), 'isInfoWindowShown', [this.getId()]);
 };
 Marker.prototype.isVisible = function() {
     return this.get("visible");
@@ -193,7 +197,7 @@ Marker.prototype.setPosition = function(position) {
         return false;
     }
     this.set('position', position);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'setPosition', [this.getId(), position.lat, position.lng]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setPosition', [this.getId(), position.lat, position.lng]);
 };
 
 module.exports = Marker;

@@ -330,25 +330,28 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   //-----------------------------------
   public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String serviceName = args.getString(0);
+    String pluginName = mapId + "::" + serviceName;
+    Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
-    if (plugins.containsKey(mapId)) {
-      plugins.get(serviceName).plugin.execute("create", args, callbackContext);
+    if (plugins.containsKey(pluginName)) {
+      plugins.get(pluginName).plugin.execute("create", args, callbackContext);
       return;
     }
+
     try {
       String className = "plugin.google.maps.Plugin" + serviceName;
       Class pluginCls = Class.forName(className);
 
       CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
-      PluginEntry pluginEntry = new PluginEntry("GoogleMaps", plugin);
-      this.plugins.put(serviceName, pluginEntry);
+      PluginEntry pluginEntry = new PluginEntry(pluginName, plugin);
+      this.plugins.put(pluginName, pluginEntry);
+      mapCtrl.pluginManager.addService(pluginEntry);
 
-      plugin.privateInitialize(className, this.cordova, webView, null);
+      plugin.privateInitialize(pluginName, this.cordova, webView, null);
 
       plugin.initialize(this.cordova, webView);
       ((MyPluginInterface)plugin).setPluginMap(this);
-      Log.d("PluginMap", "loadPlugin = " + serviceName + ", mapId = " + mapId);
-      plugins.get(serviceName).plugin.execute("create", args, callbackContext);
+      plugins.get(pluginName).plugin.execute("create", args, callbackContext);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1592,7 +1595,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     JSONObject properties = null;
     String propertyId = "marker_property_" + marker.getId();
-    PluginEntry pluginEntry = plugins.get("Marker");
+    PluginEntry pluginEntry = plugins.get(mapId + "::Marker");
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
@@ -1600,7 +1603,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         boolean disableAutoPan = false;
         try {
           disableAutoPan = properties.getBoolean("disableAutoPan");
-        } catch (JSONException e) {}
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
         if (disableAutoPan) {
           marker.showInfoWindow();
           return true;

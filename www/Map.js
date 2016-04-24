@@ -1011,11 +1011,9 @@ Map.prototype._onMapEvent = function(eventName, params) {
    this.trigger.apply(this, args);
 };
 
-Map.prototype._onMarkerEvent = function(eventName, hashCode) {
-  var self = this;
-  console.log("eventName = " + eventName + ", hashCode = " + hashCode + ", map = " + this.getId());
-  console.log(JSON.stringify(self.MARKERS));
-    var marker = self.MARKERS[hashCode] || null;
+Map.prototype._onMarkerEvent = function(eventName, markerId) {
+    var self = this;
+    var marker = self.MARKERS[markerId] || null;
     if (marker) {
         marker.trigger(eventName, marker);
     }

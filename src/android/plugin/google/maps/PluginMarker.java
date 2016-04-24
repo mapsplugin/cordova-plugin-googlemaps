@@ -124,6 +124,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
               // Load icon
               if (opts.has("icon")) {
+                //------------------------------
+                // Case: have the icon property
+                //------------------------------
                 Bundle bundle = null;
                 Object value = opts.get("icon");
                 if (JSONObject.class.isInstance(value)) {
@@ -219,6 +222,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
                 });
               } else {
+                //--------------------------
+                // Case: no icon property
+                //--------------------------
                 String markerAnimation = null;
                 if (opts.has("animation")) {
                   markerAnimation = opts.getString("animation");
@@ -240,6 +246,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                   });
                 } else {
                   // Return the result if does not specify the icon property.
+                  Log.d("PluginMarker", TAG + " --> " + result.toString(2));
                   callbackContext.success(result);
                 }
               }
@@ -293,36 +300,43 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
    */
   private void setBounceAnimation_(final Marker marker, final PluginAsyncInterface callback) {
-    final Handler handler = new Handler();
     final long startTime = SystemClock.uptimeMillis();
     final long duration = 2000;
-    
-    final Projection proj = this.map.getProjection();
-    final LatLng markerLatLng = marker.getPosition();
-    final Point startPoint = proj.toScreenLocation(markerLatLng);
-    startPoint.offset(0, -200);
-    
     final Interpolator interpolator = new BounceInterpolator();
 
-    handler.post(new Runnable() {
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        long elapsed = SystemClock.uptimeMillis() - startTime;
-        float t = interpolator.getInterpolation((float) elapsed / duration);
-        double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
-        double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
-        marker.setPosition(new LatLng(lat, lng));
 
-        if (t < 1.0) {
-          // Post again 16ms later.
-          handler.postDelayed(this, 16);
-        } else {
-          marker.setPosition(markerLatLng);
-          callback.onPostExecute(marker);
-        }
+        final Handler handler = new Handler();
+        final Projection projection = map.getProjection();
+        final LatLng markerLatLng = marker.getPosition();
+        final Point startPoint = projection.toScreenLocation(markerLatLng);
+        startPoint.offset(0, -200);
+
+
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            LatLng startLatLng = projection.fromScreenLocation(startPoint);
+            long elapsed = SystemClock.uptimeMillis() - startTime;
+            float t = interpolator.getInterpolation((float) elapsed / duration);
+            double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+            double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
+            marker.setPosition(new LatLng(lat, lng));
+
+            if (t < 1.0) {
+              // Post again 16ms later.
+              handler.postDelayed(this, 16);
+            } else {
+              marker.setPosition(markerLatLng);
+              callback.onPostExecute(marker);
+            }
+          }
+        });
       }
     });
+
   }
   
   private void setMarkerAnimation_(Marker marker, String animationType, PluginAsyncInterface callback) {
@@ -358,9 +372,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException
    */
   public void setAnimation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
+    String markerId = args.getString(0);
     String animation = args.getString(1);
-    final Marker marker = this.getMarker(id);
+    final Marker marker = this.getMarker(markerId);
     
     this.setMarkerAnimation_(marker, animation, new PluginAsyncInterface() {
 

@@ -90,7 +90,7 @@ GroundOverlay.prototype.remove = function() {
 function onMapResize(event) {
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
-      mapIDs[mapId].refreshLayout();
+      MAPS[mapId].refreshLayout();
     });
 }
 

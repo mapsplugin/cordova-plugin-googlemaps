@@ -22,6 +22,7 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -56,7 +57,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
       self = this;
       TAG = this.getServiceName();
       Log.d("MyPlugin", "TAG = " + TAG);
-      if (TAG.startsWith("map_")) {
+      if (!TAG.contains("::")) {
         mapCtrl.mapPlugins.put(TAG, (PluginMap) this);
       } else {
         PluginEntry pluginEntry = new PluginEntry(TAG, this);
@@ -88,9 +89,13 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
       try {
         method.invoke(self, args, callbackContext);
         return true;
-      } catch (Exception e) {
+      } catch (IllegalAccessException e) {
         e.printStackTrace();
-        callbackContext.error("" + e.getMessage());
+        callbackContext.error("Cannot access to the '" + action + "' method.");
+        return false;
+      } catch (InvocationTargetException e) {
+        e.printStackTrace();
+        callbackContext.error("Cannot access to the '" + action + "' method.");
         return false;
       }
     } else {
