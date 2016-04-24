@@ -246,7 +246,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                   });
                 } else {
                   // Return the result if does not specify the icon property.
-                  Log.d("PluginMarker", TAG + " --> " + result.toString(2));
                   callbackContext.success(result);
                 }
               }
