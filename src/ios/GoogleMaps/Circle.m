@@ -41,9 +41,9 @@
       dispatch_sync(dispatch_get_main_queue(), ^{
           circle = [GMSCircle circleWithPosition:position radius:radius];
         
-          if ([[json valueForKey:@"visible"] boolValue]) {
-              circle.map = self.mapCtrl.map;
-          }
+          //if ([[json valueForKey:@"visible"] boolValue]) {
+          //    circle.map = self.mapCtrl.map;
+          //}
         
           NSArray *rgbColor = [json valueForKey:@"fillColor"];
           circle.fillColor = [rgbColor parsePluginColor];
@@ -174,6 +174,7 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *circleKey = [command.arguments objectAtIndex:0];
   GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
   Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
@@ -185,6 +186,7 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 /**

@@ -17,42 +17,9 @@
     self.webView.opaque = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
 #endif
-    self.licenseLayer = nil;
-    self.mapCtrl.isFullScreen = YES;
-    self.locationCommandQueue = [[NSMutableArray alloc] init];
-
-    //[self versionCheck];
-
-
-    self.pluginLayer = [[MyPluginLayer alloc] initWithFrame:self.webView.frame];
-    self.pluginLayer.backgroundColor = [UIColor whiteColor];
-    self.pluginLayer.webView = self.webView;
-    self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-    self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
-    self.pluginScrollView.debugView.webView = self.webView;
-    self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.webView.scrollView.delegate = self;
-    [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
-
-    //[self.webView removeFromSuperview];
-    self.pluginLayer.webView = self.webView;
-    [self.pluginLayer addSubview:self.pluginScrollView];
-    //[self.pluginLayer addSubview:self.webView];
-
-
-    NSArray *subViews = self.viewController.view.subviews;
-    UIView *view;
-    for (int i = 0; i < [subViews count]; i++) {
-        view = [subViews objectAtIndex:i];
-        //NSLog(@"remove i=%d class=%@", i, view.class);
-        [view removeFromSuperview];
-        [self.pluginLayer addSubview: view];
-    }
-
-    [self.viewController.view addSubview:self.pluginLayer];
-
-
+    //-------------------------------
+    // Check the Google Maps API key
+    //-------------------------------
     NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
     if (APIKey == nil) {
         NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
@@ -65,77 +32,72 @@
                                               cancelButtonTitle:@"CLOSE"
                                               otherButtonTitles:nil];
         [alert show];
-    } else {
-        [GMSServices provideAPIKey:APIKey];
-    }
-}
-/**
- * @Private
- * Execute the method of other plugin class internally.
- */
--(void)versionCheck
-{
-    NSString *PLUGIN_VERSION = @"1.3.3";
-    NSLog(@"This app uses phonegap-googlemaps-plugin version %@", PLUGIN_VERSION);
-
-    if ([PluginUtil isInDebugMode] == NO || [PluginUtil isIOS7_OR_OVER] == NO) {
         return;
     }
+    
+    //-------------------------------
+    // Plugin initialization
+    //-------------------------------
+    [GMSServices provideAPIKey:APIKey];
+    self.mapPlugins = [[NSMutableDictionary alloc] init];
+    
+    self.licenseLayer = nil;
+    
+    self.mapCtrl = [[GoogleMapsViewController alloc] init];
+    self.mapCtrl.webView = self.webView;
+    self.mapCtrl.isFullScreen = YES;
+    self.locationCommandQueue = [[NSMutableArray alloc] init];
 
-    BOOL isNetworkAvailable = NO;
-    MyReachability *reachablity = [MyReachability reachabilityForInternetConnection];
-    NetworkStatus status = [reachablity currentReachabilityStatus];
-    switch (status) {
-        case ReachableViaWiFi:
-        case ReachableViaWWAN:
-            isNetworkAvailable = YES;
-            break;
-        case NotReachable:
-            NSLog(@"[info] Can not connect to the internet");
-            break;
-        default:
-            break;
+
+    self.mapCtrl.pluginLayer = [[MyPluginLayer alloc] initWithFrame:self.webView.frame];
+    self.mapCtrl.pluginLayer.backgroundColor = [UIColor whiteColor];
+    self.mapCtrl.pluginLayer.webView = self.webView;
+    self.mapCtrl.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    self.mapCtrl.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
+    self.mapCtrl.pluginScrollView.debugView.webView = self.webView;
+    self.mapCtrl.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.webView.scrollView.delegate = self;
+    [self.mapCtrl.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
+
+    [self.webView removeFromSuperview];
+    self.mapCtrl.pluginLayer.webView = self.webView;
+    [self.mapCtrl.pluginLayer addSubview:self.mapCtrl.pluginScrollView];
+    [self.mapCtrl.pluginLayer addSubview:self.webView];
+
+    NSArray *subViews = self.viewController.view.subviews;
+    UIView *view;
+    for (int i = 0; i < [subViews count]; i++) {
+        view = [subViews objectAtIndex:i];
+        //NSLog(@"remove i=%d class=%@", i, view.class);
+        [view removeFromSuperview];
+        [self.mapCtrl.pluginLayer addSubview: view];
     }
-    if (isNetworkAvailable == NO) {
-        return;
-    }
 
-    /*
-     dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.version_check", NULL);
-     dispatch_async(gueue, ^{
-     NSURL *URL = [NSURL URLWithString:@"http://plugins.cordova.io/api/plugin.google.maps"];
-     R9HTTPRequest *request = [[R9HTTPRequest alloc] initWithURL:URL];
+    [self.viewController.view addSubview:self.mapCtrl.pluginLayer];
 
-     [request setHTTPMethod:@"GET"];
-     [request setTimeoutInterval:5];
-     [request setFailedHandler:^(NSError *error){}];
-     [request setCompletionHandler:^(NSHTTPURLResponse *responseHeader, NSString *responseString){
-     NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
-     NSError *error;
-     NSMutableDictionary *info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
-     NSDictionary *distTags = [info objectForKey:@"dist-tags"];
-     NSString *latestVersion = [distTags objectForKey:@"latest"];
-     if ([PLUGIN_VERSION isEqualToString:latestVersion] == NO) {
-     NSLog(@"phonegap-googlemaps-plugin version %@ is available.", latestVersion);
-     }
-     }];
-     [request startRequest];
-     });
-     */
+    
+    [self.mapCtrl.view removeFromSuperview];
+    self.mapCtrl.isFullScreen = NO;
+    //self.mapCtrl.pluginLayer.mapCtrl = self.mapCtrl;
+    self.mapCtrl.pluginLayer.webView = self.webView;
+    
+    [self.mapCtrl.pluginScrollView attachView:self.mapCtrl.view];
+
 }
 
 -(void)viewDidLayoutSubviews {
-    [self.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
-    [self.pluginScrollView flashScrollIndicators];
+    [self.mapCtrl.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
+    [self.mapCtrl.pluginScrollView flashScrollIndicators];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    CGPoint offset = self.pluginScrollView.contentOffset;
+    CGPoint offset = self.mapCtrl.pluginScrollView.contentOffset;
     offset.x = self.webView.scrollView.contentOffset.x;
     offset.y = self.webView.scrollView.contentOffset.y;
-    [self.pluginScrollView setContentOffset:offset];
-    [self.pluginLayer setNeedsDisplay];
-    [self.pluginScrollView.debugView setNeedsDisplay];
+    [self.mapCtrl.pluginScrollView setContentOffset:offset];
+    [self.mapCtrl.pluginLayer setNeedsDisplay];
+    [self.mapCtrl.pluginScrollView.debugView setNeedsDisplay];
 }
 
 -(void)pageDidLoad {
@@ -147,77 +109,23 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
-    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-    if (APIKey == nil) {
-        NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-        NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
-        NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
-
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"API key is not setted."
-                                                        message:message
-                                                       delegate:self
-                                              cancelButtonTitle:@"CLOSE"
-                                              otherButtonTitles:nil];
-        [alert show];
-        return;
-    }
-
-    if (self.mapCtrl) {
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
-    } else {
-
-        dispatch_queue_t gueue = dispatch_queue_create("plugins.google.maps.init", NULL);
-        dispatch_async(gueue, ^{
-          
-            NSDictionary *options = [command.arguments objectAtIndex:0];
-            self.mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:options];
-            self.mapCtrl.webView = self.webView;
-            
-            if ([options objectForKey:@"backgroundColor"]) {
-                NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
-                self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
-            }
-
-            // Create an instance of Map Class
-#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
-            Map *mapClass = [(CDVViewController*)self.viewController getCommandInstance:@"Map"];
-#else
-            Map *mapClass = [[NSClassFromString(@"Map")alloc] initWithWebView:self.webView];
-#endif
-            mapClass.commandDelegate = self.commandDelegate;
-            [mapClass setGoogleMapsViewController:self.mapCtrl];
-            [self.mapCtrl.plugins setObject:mapClass forKey:@"Map"];
-            
-            if ([command.arguments count] != 3) {
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                return;
-            }
-            
-          
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [self.mapCtrl.view removeFromSuperview];
-                self.mapCtrl.isFullScreen = NO;
-                self.pluginLayer.mapCtrl = self.mapCtrl;
-                self.pluginLayer.webView = self.webView;
-            
-              
-                [self.pluginScrollView attachView:self.mapCtrl.view];
-                [self resizeMap:command];
-                
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-            });
-
-        });
-    }
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    NSString *mapId = [[command.arguments objectAtIndex:0] stringValue];
+    
+    // Create an instance of the Map class everytime.
+    Map *mapPlugin = [[Map alloc] init];
+    [mapPlugin pluginInitialize];
+    mapPlugin.mapId = mapId;
+    mapPlugin.mapCtrl = self.mapCtrl;
+    [cdvViewController registerPlugin:mapPlugin withPluginName:mapId];
+    [self.mapPlugins setObject:mapPlugin forKey:mapId];
+    
+    [mapPlugin getMap:command];
 }
 
 
 -(void)setVisible:(CDVInvokedUrlCommand *)command
-{
+{/*
     Boolean isVisible = [[command.arguments objectAtIndex:0] boolValue];
     if (self.mapCtrl.isFullScreen == NO) {
         if (isVisible == YES) {
@@ -226,6 +134,7 @@
             self.mapCtrl.map.hidden = YES;
         }
     }
+*/
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -250,7 +159,7 @@
             NSDictionary *options = [command.arguments objectAtIndex:1];
             if ([options objectForKey:@"backgroundColor"]) {
                 NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
-                self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+                self.mapCtrl.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
             }
         }
 
@@ -313,12 +222,13 @@
 }
 
 - (void)_removeMapView{
+/*
     if (self.mapCtrl.isFullScreen == YES) {
         [self.mapCtrl.view removeFromSuperview];
-        [self.pluginScrollView dettachView];
+        [self.mapCtrl.pluginScrollView dettachView];
         [self.footer removeFromSuperview];
-        //[self.pluginLayer clearHTMLElement];
-        //[self.pluginScrollView.debugView clearHTMLElement];
+        //[self.mapCtrl.pluginLayer clearHTMLElement];
+        //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
         self.mapCtrl.isFullScreen = NO;
         self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
     }
@@ -327,16 +237,16 @@
     float height = [[self.mapCtrl.embedRect objectForKey:@"height"] floatValue];
     if (width > 0.0f && height > 0.0f) {
         //[self.webView.scrollView addSubview:self.mapCtrl.view];
-        [self.pluginScrollView attachView:self.mapCtrl.view];
+        [self.mapCtrl.pluginScrollView attachView:self.mapCtrl.view];
         [self.mapCtrl updateMapViewLayout];
         return;
     }
-    /*
-     [self.mapCtrl.view removeFromSuperview];
-     [self.footer removeFromSuperview];
-     self.mapCtrl.isFullScreen = NO;
-     self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
-     */
+ 
+    //[self.mapCtrl.view removeFromSuperview];
+    //[self.footer removeFromSuperview];
+    //self.mapCtrl.isFullScreen = NO;
+    //self.mapCtrl.view.autoresizingMask = UIViewAutoresizingNone;
+ 
     //Notify to the JS
     NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('map_close');"];
     if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
@@ -344,6 +254,7 @@
     } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
         [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
     }
+*/
 }
 
 /**
@@ -419,31 +330,34 @@
 }
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
+/*
     if ([command.arguments count] == 2) {
         //[self.mapCtrl.view removeFromSuperview];
-        [self.pluginScrollView dettachView];
-        [self.pluginLayer clearHTMLElement];
-        [self.pluginScrollView.debugView clearHTMLElement];
+        [self.mapCtrl.pluginScrollView dettachView];
+        [self.mapCtrl.pluginLayer clearHTMLElement];
+        [self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
         self.mapCtrl.isFullScreen = NO;
-        self.pluginLayer.mapCtrl = self.mapCtrl;
-        self.pluginLayer.webView = self.webView;
+        self.mapCtrl.pluginLayer.mapCtrl = self.mapCtrl;
+        self.mapCtrl.pluginLayer.webView = self.webView;
 
-        [self.pluginScrollView attachView:self.mapCtrl.view];
+        [self.mapCtrl.pluginScrollView attachView:self.mapCtrl.view];
         [self resizeMap:command];
     } else {
         //[self.mapCtrl.view removeFromSuperview];
-        [self.pluginScrollView dettachView];
+        [self.mapCtrl.pluginScrollView dettachView];
     }
+*/
 }
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
+/*
     NSInteger argCnt = [command.arguments count];
     self.mapCtrl.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-    self.pluginLayer.embedRect = self.mapCtrl.embedRect;
-    self.pluginScrollView.debugView.embedRect = self.mapCtrl.embedRect;
-    [self.pluginLayer clearHTMLElement];
-    [self.pluginScrollView.debugView clearHTMLElement];
+    self.mapCtrl.pluginLayer.embedRect = self.mapCtrl.embedRect;
+    self.mapCtrl.pluginScrollView.debugView.embedRect = self.mapCtrl.embedRect;
+    [self.mapCtrl.pluginLayer clearHTMLElement];
+    [self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
 
     NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
     NSString *elemId;
@@ -452,11 +366,12 @@
         elemInfo = [HTMLs objectAtIndex:i];
         elemSize = [elemInfo objectForKey:@"size"];
         elemId = [elemInfo objectForKey:@"id"];
-        [self.pluginLayer putHTMLElement:elemId size:elemSize];
-        [self.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
+        [self.mapCtrl.pluginLayer putHTMLElement:elemId size:elemSize];
+        [self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
     }
 
     [self.mapCtrl updateMapViewLayout];
+*/
 }
 
 
@@ -464,6 +379,7 @@
  * Show the map window
  */
 - (void)showDialog:(CDVInvokedUrlCommand *)command {
+/*
     if (self.mapCtrl.isFullScreen == YES) {
         return;
     }
@@ -569,7 +485,7 @@
         });
         
     });
-
+*/
 }
 
 /**
@@ -719,24 +635,28 @@
  * Clear all markups
  */
 - (void)clear:(CDVInvokedUrlCommand *)command {
+/*
     [self.mapCtrl.overlayManager removeAllObjects];
     [self.mapCtrl.map clear];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 - (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *domId = [command.arguments objectAtIndex:0];
-    NSDictionary *size = [command.arguments objectAtIndex:1];
-    [self.pluginLayer putHTMLElement:domId size:size];
-    [self.pluginScrollView.debugView putHTMLElement:domId size:size];
+    NSString *mapId = [command.arguments objectAtIndex:0];
+    NSString *domId = [command.arguments objectAtIndex:1];
+    NSDictionary *size = [command.arguments objectAtIndex:2];
+    [self.mapCtrl.pluginLayer putHTMLElement:mapId domId:domId size:size];
+    //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:domId size:size];
 }
 
 - (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *domId = [command.arguments objectAtIndex:0];
-    [self.pluginLayer removeHTMLElement:domId];
-    [self.pluginScrollView.debugView removeHTMLElement:domId];
+    NSString *mapId = [command.arguments objectAtIndex:0];
+    NSString *domId = [command.arguments objectAtIndex:1];
+    [self.mapCtrl.pluginLayer removeHTMLElement:mapId domId:domId];
+    //[self.mapCtrl.pluginScrollView.debugView removeHTMLElement:domId];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -746,10 +666,10 @@
 -(void)pluginLayer_setDebuggable:(CDVInvokedUrlCommand *)command
 {
     Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
-    self.pluginLayer.debuggable = isDebuggable;
-    self.pluginScrollView.debugView.debuggable = isDebuggable;
+    self.mapCtrl.pluginLayer.debuggable = isDebuggable;
+    self.mapCtrl.pluginScrollView.debugView.debuggable = isDebuggable;
     self.mapCtrl.debuggable = isDebuggable;
-    [self.pluginScrollView.debugView setNeedsDisplay];
+    [self.mapCtrl.pluginScrollView.debugView setNeedsDisplay];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -759,9 +679,9 @@
 -(void)pluginLayer_setClickable:(CDVInvokedUrlCommand *)command
 {
     Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
-    self.pluginLayer.clickable = isClickable;
-    self.pluginScrollView.debugView.clickable = isClickable;
-    [self.pluginScrollView.debugView setNeedsDisplay];
+    self.mapCtrl.pluginLayer.clickable = isClickable;
+    self.mapCtrl.pluginScrollView.debugView.clickable = isClickable;
+    [self.mapCtrl.pluginScrollView.debugView setNeedsDisplay];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -774,7 +694,7 @@
 -(void)pluginLayer_setBackGroundColor:(CDVInvokedUrlCommand *)command
 {
     NSArray *rgbColor = [command.arguments objectAtIndex:0];
-    self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+    self.mapCtrl.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -784,8 +704,10 @@
  * Remove the map
  */
 - (void)remove:(CDVInvokedUrlCommand *)command {
-    [self.pluginLayer clearHTMLElement];
-    [self.pluginScrollView.debugView clearHTMLElement];
+/*
+    NSString *mapId = [command.arguments objectAtIndex:0];
+    [self.mapCtrl.pluginLayer clearHTMLElement:mapId];
+    [self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
     [self.mapCtrl.overlayManager removeAllObjects];
     [self.mapCtrl.map clear];
     [self.mapCtrl.map removeFromSuperview];
@@ -801,5 +723,6 @@
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 @end

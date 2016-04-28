@@ -53,7 +53,7 @@
             layer = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
             if ([[json valueForKey:@"visible"] boolValue]) {
-                layer.map = self.mapCtrl.map;
+                //layer.map = self.mapCtrl.map;
             }
             if ([json valueForKey:@"zIndex"]) {
                 layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
@@ -228,6 +228,7 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
+/*
     NSString *key = [command.arguments objectAtIndex:0];
     GMSGroundOverlay *layer = [self.mapCtrl getGroundOverlayByKey:key];
     Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
@@ -240,6 +241,7 @@
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 /**

@@ -10,11 +10,82 @@
 
 @implementation Map
 
-
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+    self.mapCtrl = viewCtrl;
 }
+
+- (void)getMap:(CDVInvokedUrlCommand*)command {
+    
+      
+        //NSDictionary *options = [command.arguments objectAtIndex:1];
+        
+        //if ([options objectForKey:@"backgroundColor"]) {
+        //    NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
+        //    self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+        //}
+        
+        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
+                                            longitude:0
+                                            zoom:0
+                                            bearing:0
+                                            viewingAngle:0];
+
+        CGRect pluginRect = self.mapCtrl.view.frame;
+        int marginBottom = 0;
+        //if ([PluginUtil isIOS7] == false) {
+        //  marginBottom = 20;
+        //}
+        CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
+        //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
+        //NSLog(@"mapRect=%@", camera);
+        self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
+        //self.map.delegate = self;
+        self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+      
+        //indoor display
+        //self.map.indoorDisplay.delegate = self;
+      
+
+        if ([command.arguments count] != 4) {
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
+        }
+        
+    
+        [self resizeMap:command];
+            
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+ 
+
+}
+
+
+- (void)resizeMap:(CDVInvokedUrlCommand *)command {
+    NSInteger argCnt = [command.arguments count];
+    self.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
+    [self.mapCtrl.pluginLayer.drawRects setObject:self.embedRect forKey:self.mapId];
+    
+    //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
+    [self.mapCtrl.pluginLayer clearHTMLElement:self.mapId];
+    //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+
+    NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
+    NSString *elemId;
+    NSDictionary *elemSize, *elemInfo;
+    for (int i = 0; i < [HTMLs count]; i++) {
+        elemInfo = [HTMLs objectAtIndex:i];
+        elemSize = [elemInfo objectForKey:@"size"];
+        elemId = [elemInfo objectForKey:@"id"];
+        [self.mapCtrl.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
+        //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
+    }
+
+    [self.mapCtrl updateMapViewLayout];
+}
+
 
 /**
  * Move the center of the map
@@ -24,7 +95,7 @@
   float latitude = [[command.arguments objectAtIndex:1] floatValue];
   float longitude = [[command.arguments objectAtIndex:2] floatValue];
   
-  [self.mapCtrl.map animateToLocation:CLLocationCoordinate2DMake(latitude, longitude)];
+  [self.map animateToLocation:CLLocationCoordinate2DMake(latitude, longitude)];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -32,8 +103,8 @@
 
 - (void)setMyLocationEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-  self.mapCtrl.map.settings.myLocationButton = isEnabled;
-  self.mapCtrl.map.myLocationEnabled = isEnabled;
+  self.map.settings.myLocationButton = isEnabled;
+  self.map.myLocationEnabled = isEnabled;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -41,8 +112,8 @@
 
 - (void)setIndoorEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-  self.mapCtrl.map.settings.indoorPicker = isEnabled;
-  self.mapCtrl.map.indoorEnabled = isEnabled;
+  self.map.settings.indoorPicker = isEnabled;
+  self.map.indoorEnabled = isEnabled;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -50,7 +121,7 @@
 
 - (void)setTrafficEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-  self.mapCtrl.map.trafficEnabled = isEnabled;
+  self.map.trafficEnabled = isEnabled;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -58,7 +129,7 @@
 
 - (void)setCompassEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-  self.mapCtrl.map.settings.compassButton = isEnabled;
+  self.map.settings.compassButton = isEnabled;
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -73,7 +144,7 @@
 
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-  [self.mapCtrl.map.settings setAllGesturesEnabled:isEnabled];
+  [self.map.settings setAllGesturesEnabled:isEnabled];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -85,9 +156,9 @@
  */
 - (void)setZoom:(CDVInvokedUrlCommand *)command {
   float zoom = [[command.arguments objectAtIndex:1] floatValue];
-  CLLocationCoordinate2D center = [self.mapCtrl.map.projection coordinateForPoint:self.mapCtrl.map.center];
+  CLLocationCoordinate2D center = [self.map.projection coordinateForPoint:self.map.center];
   
-  [self.mapCtrl.map setCamera:[GMSCameraPosition cameraWithTarget:center zoom:zoom]];
+  [self.map setCamera:[GMSCameraPosition cameraWithTarget:center zoom:zoom]];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -100,7 +171,7 @@
   int x = [[command.arguments objectAtIndex:1] intValue];
   int y = [[command.arguments objectAtIndex:2] intValue];
   
-  [self.mapCtrl.map animateWithCameraUpdate:[GMSCameraUpdate scrollByX:x * -1 Y:y * -1]];
+  [self.map animateWithCameraUpdate:[GMSCameraUpdate scrollByX:x * -1 Y:y * -1]];
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -127,7 +198,7 @@
   if (caseBlock) {
     // Change the map type
     mapType = caseBlock();
-    self.mapCtrl.map.mapType = mapType;
+    self.map.mapType = mapType;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   } else {
     // Error : User specifies unknow map type id
@@ -156,7 +227,7 @@
 
 -(void)getCameraPosition:(CDVInvokedUrlCommand *)command
 {
-  GMSCameraPosition *camera = self.mapCtrl.map.camera;
+  GMSCameraPosition *camera = self.map.camera;
   
   NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
   [latLng setObject:[NSNumber numberWithFloat:camera.target.latitude] forKey:@"lat"];
@@ -209,7 +280,7 @@
       cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
       //CLLocationCoordinate2D center = cameraBounds.center;
       
-      cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
+      cameraPosition = [self.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
     
     } else {
       latLng = [json objectForKey:@"target"];
@@ -223,8 +294,8 @@
                                           viewingAngle:angle];
     }
   } else {
-    cameraPosition = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
-                                        longitude:self.mapCtrl.map.camera.target.longitude
+    cameraPosition = [GMSCameraPosition cameraWithLatitude:self.map.camera.target.latitude
+                                        longitude:self.map.camera.target.longitude
                                         zoom:zoom
                                         bearing:bearing
                                         viewingAngle:angle];
@@ -249,31 +320,31 @@
         
           GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
                                               longitude:cameraBounds.center.longitude
-                                              zoom:self.mapCtrl.map.camera.zoom
+                                              zoom:self.map.camera.zoom
                                               bearing:[[json objectForKey:@"bearing"] doubleValue]
                                               viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
         
-          [self.mapCtrl.map setCamera:cameraPosition2];
+          [self.map setCamera:cameraPosition2];
         }
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
       
-      [self.mapCtrl.map animateToCameraPosition: cameraPosition];
+      [self.map animateToCameraPosition: cameraPosition];
     }[CATransaction commit];
   }
   
   if ([action  isEqual: @"moveCamera"]) {
-    [self.mapCtrl.map setCamera:cameraPosition];
+    [self.map setCamera:cameraPosition];
 
     if (cameraBounds != nil){
     
       GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
                                           longitude:cameraBounds.center.longitude
-                                          zoom:self.mapCtrl.map.camera.zoom
+                                          zoom:self.map.camera.zoom
                                           bearing:[[json objectForKey:@"bearing"] doubleValue]
                                           viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
     
-      [self.mapCtrl.map setCamera:cameraPosition2];
+      [self.map setCamera:cameraPosition2];
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -296,7 +367,7 @@
   } else {
     UIGraphicsBeginImageContext(self.mapCtrl.view.frame.size);
   }
-  [self.mapCtrl.view drawViewHierarchyInRect:self.mapCtrl.map.layer.bounds afterScreenUpdates:NO];
+  [self.mapCtrl.view drawViewHierarchyInRect:self.map.layer.bounds afterScreenUpdates:NO];
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
@@ -316,7 +387,7 @@
   float latitude = [[command.arguments objectAtIndex:1] floatValue];
   float longitude = [[command.arguments objectAtIndex:2] floatValue];
   
-  CGPoint point = [self.mapCtrl.map.projection
+  CGPoint point = [self.map.projection
                       pointForCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
   
   NSMutableArray *pointJSON = [[NSMutableArray alloc] init];
@@ -335,7 +406,7 @@
   float pointX = [[command.arguments objectAtIndex:1] floatValue];
   float pointY = [[command.arguments objectAtIndex:2] floatValue];
   
-  CLLocationCoordinate2D latLng = [self.mapCtrl.map.projection
+  CLLocationCoordinate2D latLng = [self.map.projection
                       coordinateForPoint:CGPointMake(pointX, pointY)];
   
   NSMutableArray *latLngJSON = [[NSMutableArray alloc] init];
@@ -351,7 +422,7 @@
  * Thanks @fschmidt
  */
 - (void)getVisibleRegion:(CDVInvokedUrlCommand*)command {
-  GMSVisibleRegion visibleRegion = self.mapCtrl.map.projection.visibleRegion;
+  GMSVisibleRegion visibleRegion = self.map.projection.visibleRegion;
   GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
 
   NSMutableDictionary *json = [NSMutableDictionary dictionary];
@@ -395,7 +466,7 @@
                                   bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                   viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
     
-    self.mapCtrl.map.camera = camera;
+    self.map.camera = camera;
   }
 */
 
@@ -433,7 +504,7 @@
         
         camera = [GMSCameraPosition cameraWithLatitude:center.latitude
                                             longitude:center.longitude
-                                            zoom:self.mapCtrl.map.camera.zoom
+                                            zoom:self.map.camera.zoom
                                             bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                             viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
         
@@ -456,7 +527,7 @@
                               bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                               viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
     }
-    self.mapCtrl.map.camera = camera;
+    self.map.camera = camera;
 
     if (cameraBounds != nil){
       float scale = 1;
@@ -465,14 +536,14 @@
       }
       [[UIScreen mainScreen] scale];
       
-      [self.mapCtrl.map moveCamera:[GMSCameraUpdate fitBounds:cameraBounds withPadding:10 * scale]];
+      [self.map moveCamera:[GMSCameraUpdate fitBounds:cameraBounds withPadding:10 * scale]];
       GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
                                           longitude:cameraBounds.center.longitude
-                                          zoom:self.mapCtrl.map.camera.zoom
+                                          zoom:self.map.camera.zoom
                                           bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
                                           viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
     
-      [self.mapCtrl.map setCamera:cameraPosition2];
+      [self.map setCamera:cameraPosition2];
     }
 
   }
@@ -485,33 +556,33 @@
     if ([controls valueForKey:@"compass"] != nil) {
       isEnabled = [[controls valueForKey:@"compass"] boolValue];
       if (isEnabled == true) {
-        self.mapCtrl.map.settings.compassButton = YES;
+        self.map.settings.compassButton = YES;
       } else {
-        self.mapCtrl.map.settings.compassButton = NO;
+        self.map.settings.compassButton = NO;
       }
     }
     //myLocationButton
     if ([controls valueForKey:@"myLocationButton"] != nil) {
       isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
       if (isEnabled == true) {
-        self.mapCtrl.map.settings.myLocationButton = YES;
-        self.mapCtrl.map.myLocationEnabled = YES;
+        self.map.settings.myLocationButton = YES;
+        self.map.myLocationEnabled = YES;
       } else {
-        self.mapCtrl.map.settings.myLocationButton = NO;
-        self.mapCtrl.map.myLocationEnabled = NO;
+        self.map.settings.myLocationButton = NO;
+        self.map.myLocationEnabled = NO;
       }
     }
     //indoorPicker
     if ([controls valueForKey:@"indoorPicker"] != nil) {
       isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
       if (isEnabled == true) {
-        self.mapCtrl.map.settings.indoorPicker = YES;
+        self.map.settings.indoorPicker = YES;
       } else {
-        self.mapCtrl.map.settings.indoorPicker = NO;
+        self.map.settings.indoorPicker = NO;
       }
     }
   } else {
-    self.mapCtrl.map.settings.compassButton = YES;
+    self.map.settings.compassButton = YES;
   }
 
   //gestures
@@ -520,22 +591,22 @@
     //rotate
     if ([gestures valueForKey:@"rotate"] != nil) {
       isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
-      self.mapCtrl.map.settings.rotateGestures = isEnabled;
+      self.map.settings.rotateGestures = isEnabled;
     }
     //scroll
     if ([gestures valueForKey:@"scroll"] != nil) {
       isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
-      self.mapCtrl.map.settings.scrollGestures = isEnabled;
+      self.map.settings.scrollGestures = isEnabled;
     }
     //tilt
     if ([gestures valueForKey:@"tilt"] != nil) {
       isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
-      self.mapCtrl.map.settings.tiltGestures = isEnabled;
+      self.map.settings.tiltGestures = isEnabled;
     }
     //zoom
     if ([gestures valueForKey:@"zoom"] != nil) {
       isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
-      self.mapCtrl.map.settings.zoomGestures = isEnabled;
+      self.map.settings.zoomGestures = isEnabled;
     }
   }
 
@@ -557,7 +628,7 @@
     if (caseBlock) {
       // Change the map type
       mapType = caseBlock();
-      self.mapCtrl.map.mapType = mapType;
+      self.map.mapType = mapType;
     }
   }
 }
@@ -572,16 +643,16 @@
   
   UIEdgeInsets padding = UIEdgeInsetsMake(top, left, bottom, right);
   
-  [self.mapCtrl.map setPadding:padding];
+  [self.map setPadding:padding];
 }
 
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command {
-  GMSIndoorBuilding *building = self.mapCtrl.map.indoorDisplay.activeBuilding;
+  GMSIndoorBuilding *building = self.map.indoorDisplay.activeBuilding;
   if (building != nil) {
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
-  GMSIndoorLevel *activeLevel = self.mapCtrl.map.indoorDisplay.activeLevel;
+  GMSIndoorLevel *activeLevel = self.map.indoorDisplay.activeLevel;
   
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   

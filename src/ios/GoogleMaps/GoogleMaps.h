@@ -9,11 +9,9 @@
 #import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
 #import "GoogleMapsViewController.h"
-#import "Map.h"
 #import "PluginUtil.h"
-#import "MyPluginLayer.h"
 #import "MyReachability.h"
-#import "MyPluginScrollView.h"
+#import "Map.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
 
@@ -24,8 +22,7 @@
 @property (nonatomic) UIButton *licenseButton;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
-@property (nonatomic) MyPluginScrollView *pluginScrollView;
-@property (nonatomic) MyPluginLayer *pluginLayer;
+@property (nonatomic) NSMutableDictionary *mapPlugins;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;

@@ -46,7 +46,7 @@
           GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
 
           if ([[json valueForKey:@"visible"] boolValue]) {
-            polyline.map = self.mapCtrl.map;
+            //polyline.map = self.mapCtrl.map;
           }
           if ([[json valueForKey:@"geodesic"] boolValue]) {
             polyline.geodesic = YES;
@@ -159,7 +159,7 @@
   GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
   if (isVisible) {
-    polyline.map = self.mapCtrl.map;
+    //polyline.map = self.mapCtrl.map;
   } else {
     polyline.map = nil;
   }

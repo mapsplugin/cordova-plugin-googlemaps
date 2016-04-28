@@ -48,7 +48,7 @@
           GMSTileLayer *layer = [GMSURLTileLayer tileLayerWithURLConstructor:constructor];
 
           if ([[json valueForKey:@"visible"] boolValue]) {
-            layer.map = self.mapCtrl.map;
+            //layer.map = self.mapCtrl.map;
           }
           if ([json valueForKey:@"zIndex"]) {
             layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
@@ -89,7 +89,7 @@
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
   if (isVisible) {
-    layer.map = self.mapCtrl.map;
+    //layer.map = self.mapCtrl.map;
   } else {
     layer.map = nil;
   }

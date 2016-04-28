@@ -10,14 +10,20 @@
 #import "MyPlgunProtocol.h"
 //#import "NSData-Base64/NSData+Base64.h"
 #import "NSData+Base64.h"
+#import <GoogleMaps/GoogleMaps.h>
 
 @interface Map : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) NSString *mapId;
+@property (nonatomic, strong) GMSMapView* map;
+
 - (void)setTilt:(CDVInvokedUrlCommand*)command;
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setZoom:(CDVInvokedUrlCommand*)command;
 - (void)setMapTypeId:(CDVInvokedUrlCommand*)command;
 - (void)animateCamera:(CDVInvokedUrlCommand*)command;
+- (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)moveCamera:(CDVInvokedUrlCommand*)command;
 - (void)setMyLocationEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setIndoorEnabled:(CDVInvokedUrlCommand*)command;

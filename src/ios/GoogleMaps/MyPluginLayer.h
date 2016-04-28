@@ -8,19 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleMaps/GoogleMaps.h>
-#import "GoogleMapsViewController.h"
 
 @interface MyPluginLayer : UIView
 
 @property (nonatomic) UIView *webView;
-@property (nonatomic) GoogleMapsViewController* mapCtrl;
-@property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) NSMutableDictionary *drawRects;
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
 
-- (id)initWithFrame:(CGRect)aRect;
-- (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;
-- (void)removeHTMLElement:(NSString *)domId;
-- (void)clearHTMLElement;
+- (id)init:(CGRect)aRect;
+- (void)putHTMLElement:(NSString *)mapId domId:(NSString *)domId size:(NSDictionary *)size;
+- (void)removeHTMLElement:(NSString *)mapId domId:(NSString *)domId;
+- (void)clearHTMLElement:(NSString *)mapId;
 @end

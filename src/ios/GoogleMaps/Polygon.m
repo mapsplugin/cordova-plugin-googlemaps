@@ -71,7 +71,7 @@
       }
 
       if ([[json valueForKey:@"visible"] boolValue]) {
-        polygon.map = self.mapCtrl.map;
+        //polygon.map = self.mapCtrl.map;
       }
       if ([[json valueForKey:@"geodesic"] boolValue]) {
         polygon.geodesic = true;
@@ -286,7 +286,7 @@
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       if (isVisible) {
-        polygon.map = self.mapCtrl.map;
+        //polygon.map = self.mapCtrl.map;
       } else {
         polygon.map = nil;
       }

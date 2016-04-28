@@ -7,21 +7,22 @@
 //
 
 #import <Cordova/CDV.h>
-#import <GoogleMaps/GoogleMaps.h>
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
+#import "MyPluginScrollView.h"
+#import "MyPluginLayer.h"
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
-@property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic, strong) UIView* webView;
 @property (nonatomic, strong) NSMutableDictionary* overlayManager;
 @property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic) BOOL isFullScreen;
-@property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;
+@property (nonatomic) MyPluginScrollView *pluginScrollView;
+@property (nonatomic) MyPluginLayer *pluginLayer;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;

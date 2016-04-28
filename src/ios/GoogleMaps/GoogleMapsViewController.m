@@ -13,14 +13,21 @@
 
 
 @implementation GoogleMapsViewController
-NSDictionary *initOptions;
+
+- (id)init:(NSDictionary *) options {
+    self = [super init];
+    self.plugins = [NSMutableDictionary dictionary];
+    self.isFullScreen = NO;
+    self.screenSize = [[UIScreen mainScreen] bounds];
+    self.overlayManager = [NSMutableDictionary dictionary];
+
+    return self;
+}
 
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
-    initOptions = [[NSDictionary alloc] initWithDictionary:options];
     self.plugins = [NSMutableDictionary dictionary];
     self.isFullScreen = NO;
-    self.embedRect = nil;
     self.screenSize = [[UIScreen mainScreen] bounds];
     self.overlayManager = [NSMutableDictionary dictionary];
 
@@ -38,9 +45,9 @@ NSDictionary *initOptions;
 }
 - (void)updateMapViewLayout {
   
-  if (self.isFullScreen == NO) {
-    [self.view setFrameWithDictionary:self.embedRect];
-  }
+  //if (self.isFullScreen == NO) {
+  //  [self.view setFrameWithDictionary:self.embedRect];
+  //}
 }
 
 - (void)viewDidLoad
@@ -55,28 +62,7 @@ NSDictionary *initOptions;
     //------------------
     // Create a map view
     //------------------
-  
-    //Intial camera position
-    /*
-    NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-    NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
-    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
-    
-    if (cameraOpts) {
-      NSDictionary *latLngJSON = [cameraOpts objectForKey:@"latLng"];
-      [latLng setObject:[NSNumber numberWithFloat:[[latLngJSON valueForKey:@"lat"] floatValue]] forKey:@"lat"];
-      [latLng setObject:[NSNumber numberWithFloat:[[latLngJSON valueForKey:@"lng"] floatValue]] forKey:@"lng"];
-    }
-    GMSCameraPosition *camera = [GMSCameraPosition
-                                  cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
-                                  longitude: [[latLng valueForKey:@"lng"] floatValue]
-                                  zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
-                                  bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                  viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-    */
-    
-  
+/*
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
     [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
@@ -244,6 +230,7 @@ NSDictionary *initOptions;
 
       }
     });
+*/
 }
 
 
@@ -360,7 +347,7 @@ NSDictionary *initOptions;
   if ([properties objectForKey:@"disableAutoPan"] != nil) {
     disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
     if (disableAutoPan) {
-      self.map.selectedMarker = marker;
+      //self.map.selectedMarker = marker;
       return YES;
     }
   }
@@ -831,7 +818,7 @@ NSDictionary *initOptions;
 }
 
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
-  
+  /*
   GMSIndoorBuilding *building = self.map.indoorDisplay.activeBuilding;
   
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
@@ -864,6 +851,7 @@ NSDictionary *initOptions;
 	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
 		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
 	}
+    */
 }
 
 
