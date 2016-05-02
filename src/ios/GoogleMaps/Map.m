@@ -24,7 +24,7 @@
         //    NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
         //    self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
         //}
-        
+/*
         GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
                                             longitude:0
                                             zoom:0
@@ -40,20 +40,21 @@
         //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
         //NSLog(@"mapRect=%@", camera);
         self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
+  
         //self.map.delegate = self;
         self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
       
         //indoor display
         //self.map.indoorDisplay.delegate = self;
-      
-
+  
+        [self.pluginLayer addMapView:self.mapId map:self.map];
+*/
         if ([command.arguments count] != 4) {
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             return;
         }
-        
-    
+  
         [self resizeMap:command];
             
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -67,7 +68,8 @@
     NSInteger argCnt = [command.arguments count];
     self.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
     [self.mapCtrl.pluginLayer.drawRects setObject:self.embedRect forKey:self.mapId];
-    
+  
+  
     //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
     [self.mapCtrl.pluginLayer clearHTMLElement:self.mapId];
     //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];

@@ -10,11 +10,11 @@
 
 @implementation MyPluginLayer
 
--  (id)init:(CGRect)aRect
-{
+- (id)init:(CGRect)aRect {
   self = [super initWithFrame:aRect];
   self.drawRects = [[NSMutableDictionary alloc] init];
   self.HTMLNodes = [[NSMutableDictionary alloc] init];
+  self.mapViews = [[NSMutableDictionary alloc] init];
   self.clickable = YES;
   self.debuggable = NO;
   return self;
@@ -57,6 +57,34 @@
     [self setNeedsDisplay];
 }
 
+- (void)addMapView:(NSString *)mapId map:(GMSMapView *)map {
+  // Hold mapView instance with mapId.
+  [self.mapViews setObject:map forKey:mapId];
+  
+  // Hold the size and position information of the mapView.
+  [self.drawRects setObject:NSStringFromCGRect(map.frame) forKey:mapId];
+  
+  // Add the mapView under this view.
+  [self addSubview: map];
+  
+}
+
+
+- (void)updateViewPosition:(NSString *)mapId {
+  
+    float offsetX = self.mapCtrl.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
+    float offsetY = self.mapCtrl.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
+  
+    CGRect embedRect = CGRectFromString([self.drawRects objectForKey:mapId]);
+  
+    embedRect.origin.x -= offsetX;
+    embedRect.origin.y -= offsetY;
+  
+
+    GMSMapView *map = [self.mapViews objectForKey:mapId];
+    [map setFrame:embedRect];
+}
+
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
 
 /*
@@ -67,10 +95,10 @@
   }
   */
 return [super hitTest:point withEvent:event];
+  
   /*
   float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
   float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
-  
   float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
   float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
   float width = [[self.embedRect objectForKey:@"width"] floatValue];
