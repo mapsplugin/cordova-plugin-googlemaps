@@ -12,10 +12,8 @@
 #import "PluginUtil.h"
 #import "MyReachability.h"
 #import "Map.h"
-#import "MyPluginLayer.h"
-#import "MyPluginScrollView.h"
 
-@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate, UIScrollViewDelegate>
+@interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) UIView *licenseLayer;
@@ -25,8 +23,6 @@
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 @property (nonatomic) NSMutableDictionary *mapPlugins;
-@property (nonatomic) MyPluginScrollView *pluginScrollView;
-@property (nonatomic) MyPluginLayer *pluginLayer;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)showDialog:(CDVInvokedUrlCommand*)command;

@@ -9,7 +9,9 @@
 #import <Cordova/CDV.h>
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
+#import "MyPluginLayer.h"
 #import "NSData+Base64.h"
+#import "MyPluginLayer.h"
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
@@ -19,6 +21,7 @@
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;
+@property (nonatomic) MyPluginLayer *pluginLayer;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;

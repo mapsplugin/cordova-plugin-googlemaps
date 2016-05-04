@@ -10,14 +10,35 @@
 
 @implementation MyPluginLayer
 
-- (id)init:(CGRect)aRect {
-  self = [super initWithFrame:aRect];
-  self.drawRects = [[NSMutableDictionary alloc] init];
-  self.HTMLNodes = [[NSMutableDictionary alloc] init];
-  self.mapViews = [[NSMutableDictionary alloc] init];
-  self.clickable = YES;
-  self.debuggable = NO;
+- (id)initWithWebView:(UIWebView *)webView {
+    self = [super initWithFrame:webView.frame];
+    self.drawRects = [[NSMutableDictionary alloc] init];
+    self.HTMLNodes = [[NSMutableDictionary alloc] init];
+    self.mapViews = [[NSMutableDictionary alloc] init];
+    self.clickable = YES;
+    self.debuggable = NO;
+    self.webView = webView;
+    [self.webView removeFromSuperview];
+
+    self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
+    self.pluginScrollView.debugView.webView = self.webView;
+    self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.webView.scrollView.delegate = self;
+    [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
+    
+    [self addSubview:self.pluginScrollView];
+    [self addSubview:self.webView];
+
   return self;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGPoint offset = self.pluginScrollView.contentOffset;
+    offset.x = self.webView.scrollView.contentOffset.x;
+    offset.y = self.webView.scrollView.contentOffset.y;
+    [self.pluginScrollView setContentOffset:offset];
+    [self setNeedsDisplay];
+    [self.pluginScrollView.debugView setNeedsDisplay];
 }
 
 
@@ -65,15 +86,15 @@
   [self.drawRects setObject:NSStringFromCGRect(map.frame) forKey:mapId];
   
   // Add the mapView under this view.
-  [self addSubview: map];
+  [self.pluginScrollView addSubview: map];
   
 }
 
 
 - (void)updateViewPosition:(NSString *)mapId {
   
-    float offsetX = self.mapCtrl.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
-    float offsetY = self.mapCtrl.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
+    float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
+    float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
   
     CGRect embedRect = CGRectFromString([self.drawRects objectForKey:mapId]);
   

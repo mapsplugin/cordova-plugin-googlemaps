@@ -45,9 +45,18 @@
 }
 - (void)updateMapViewLayout {
   
-  //if (self.isFullScreen == NO) {
-  //  [self.view setFrameWithDictionary:self.embedRect];
-  //}
+  if (self.isFullScreen == NO) {
+
+    NSEnumerator *mapIDs = [self.pluginLayer.drawRects keyEnumerator];
+    CGRect rect;
+    GMSMapView *mapView;
+    for (NSString *mapId in mapIDs) {
+        rect = CGRectFromString([self.pluginLayer.drawRects objectForKey:mapId]);
+        NSLog(@"mapId = %@, rect = %@", mapId, [self.pluginLayer.drawRects objectForKey:mapId]);
+        mapView = [self.pluginLayer.mapViews objectForKey:mapId];
+        [mapView setFrame:rect];
+    }
+  }
 }
 
 - (void)viewDidLoad
