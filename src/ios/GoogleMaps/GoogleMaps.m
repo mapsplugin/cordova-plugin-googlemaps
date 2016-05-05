@@ -117,15 +117,15 @@
     CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
     //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
     //NSLog(@"mapRect=%@", camera);
-    mapPlugin.map = [GMSMapView mapWithFrame:mapRect camera:camera];
+    mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapRect camera:camera];
 
     //self.map.delegate = self;
-    mapPlugin.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
     //indoor display
     //self.map.indoorDisplay.delegate = self;
     
-    [mapCtrl.view addSubview:mapPlugin.map];
+    [mapCtrl.view addSubview:mapPlugin.mapCtrl.map];
     [self.pluginLayer addMapView:mapPlugin.mapId mapCtrl:mapCtrl];
 
   

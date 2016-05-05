@@ -117,7 +117,67 @@
     return [super hitTest:point withEvent:event];
   }
   */
-return [super hitTest:point withEvent:event];
+
+    float offsetX = self.webView.scrollView.contentOffset.x;
+    float offsetY = self.webView.scrollView.contentOffset.y;
+    CGRect rect;
+    NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
+    GoogleMapsViewController *mapCtrl;
+    id mapId;
+    BOOL isMapAction = NO;
+    while(mapId = [mapIDs nextObject]) {
+        rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+        if (point.x >= rect.origin.x && point.x <= (rect.origin.x + rect.size.width) &&
+            point.y >= rect.origin.y && point.y <= (rect.origin.y + rect.size.height)) {
+            isMapAction = YES;
+        } else {
+            continue;
+        }
+
+        /*
+        NSDictionary *elemSize;
+        for (NSString *domId in self.HTMLNodes) {
+          elemSize = [self.HTMLNodes objectForKey:domId];
+          left = [[elemSize objectForKey:@"left"] floatValue] - offsetX;
+          top = [[elemSize objectForKey:@"top"] floatValue] - offsetY;
+          width = [[elemSize objectForKey:@"width"] floatValue];
+          height = [[elemSize objectForKey:@"height"] floatValue];
+          
+          if (point.x >= left && point.x <= (left + width) &&
+              point.y >= top && point.y <= (top + height)) {
+            isMapAction = NO;
+            break;
+          }
+          
+        }
+        */
+
+        if (isMapAction == NO) {
+            continue;
+        }
+        // The issue #217 is fixed by @YazeedFares. Thank you!
+        mapCtrl = [self.mapCtrls objectForKey:mapId];
+        offsetX = mapCtrl.view.frame.origin.x - offsetX;
+        offsetY = mapCtrl.view.frame.origin.y - offsetY;
+        point.x -= offsetX;
+        point.y -= offsetY;
+
+        UIView *hitView =[mapCtrl.view hitTest:point withEvent:event];
+        NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
+        if ([PluginUtil isIOS7_OR_OVER] &&
+            [hitClass isEqualToString:@"UIButton"] &&
+            mapCtrl.map.isMyLocationEnabled &&
+            (point.x  + offsetX) >= (rect.origin.x + rect.size.width - 50) &&
+            (point.y + offsetY) >= (rect.origin.y + rect.size.height - 50)) {
+
+            BOOL retValue = [mapCtrl didTapMyLocationButtonForMapView:mapCtrl.map];
+            if (retValue == YES) {
+                return nil;
+            }
+        }
+        return hitView;
+    }
+    return [super hitTest:point withEvent:event];
   
   /*
   float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
