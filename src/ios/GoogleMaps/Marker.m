@@ -24,7 +24,7 @@
     if (self.mapCtrl == nil) {
       CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
       GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-      self.mapCtrl = googlemaps.mapCtrl;
+      //self.mapCtrl = googlemaps.mapCtrl;
       [self.mapCtrl.plugins setObject:self forKey:@"Marker"];
       
       if (self.iconCache == nil) {

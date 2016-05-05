@@ -12,10 +12,11 @@
 #import "PluginUtil.h"
 #import "MyReachability.h"
 #import "Map.h"
+#import "MyPluginLayer.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic) MyPluginLayer *pluginLayer;
 @property (nonatomic) UIView *licenseLayer;
 @property (nonatomic) UIView *footer;
 @property (nonatomic) UIButton *closeButton;

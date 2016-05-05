@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface MyPluginLayerDebugView : UIView
-@property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) UIView *webView;
 @property (nonatomic) float offsetX;
 @property (nonatomic) float offsetY;

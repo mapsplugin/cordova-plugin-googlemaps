@@ -44,19 +44,20 @@
   [self updateMapViewLayout];
 }
 - (void)updateMapViewLayout {
-  
+/*
   if (self.isFullScreen == NO) {
 
     NSEnumerator *mapIDs = [self.pluginLayer.drawRects keyEnumerator];
     CGRect rect;
     GMSMapView *mapView;
-    for (NSString *mapId in mapIDs) {
-        rect = CGRectFromString([self.pluginLayer.drawRects objectForKey:mapId]);
+    id mapId = nil;
+    while (mapId = [mapIDs nextObject]) {
         NSLog(@"mapId = %@, rect = %@", mapId, [self.pluginLayer.drawRects objectForKey:mapId]);
-        mapView = [self.pluginLayer.mapViews objectForKey:mapId];
+        rect = CGRectFromString([self.pluginLayer.drawRects objectForKey:mapId]);
         [mapView setFrame:rect];
     }
   }
+*/
 }
 
 - (void)viewDidLoad

@@ -16,6 +16,7 @@
 }
 -(void)create:(CDVInvokedUrlCommand *)command
 {
+/*
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
@@ -71,7 +72,7 @@
       });
   });
   
-  
+  */
   
 }
 /**

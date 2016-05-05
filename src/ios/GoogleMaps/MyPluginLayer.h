@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <GoogleMaps/GoogleMaps.h>
+#import "GoogleMapsViewController.h"
 #import "MyPluginScrollView.h"
 
 @interface MyPluginLayer : UIView<UIScrollViewDelegate>
@@ -17,7 +17,7 @@
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
-@property (nonatomic) NSMutableDictionary *mapViews;
+@property (nonatomic) NSMutableDictionary *mapCtrls;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 
 - (id)initWithWebView:(UIWebView *)webView;
@@ -25,6 +25,6 @@
 - (void)removeHTMLElement:(NSString *)mapId domId:(NSString *)domId;
 - (void)clearHTMLElement:(NSString *)mapId;
 - (void)updateViewPosition:(NSString *)mapId;
-- (void)addMapView:(NSString *)mapId map:(GMSMapView *)map;
+- (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
 
 @end

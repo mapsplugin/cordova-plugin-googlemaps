@@ -36,6 +36,7 @@
 
 - (void)drawRect:(CGRect)rect
 {
+/*
   if (self.debuggable == NO) {
     return;
   }
@@ -72,7 +73,7 @@
     CGContextFillRect(context, rectangle);
   
   }
-
+*/
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {

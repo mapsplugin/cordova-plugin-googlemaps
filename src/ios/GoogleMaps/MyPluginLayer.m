@@ -14,7 +14,7 @@
     self = [super initWithFrame:webView.frame];
     self.drawRects = [[NSMutableDictionary alloc] init];
     self.HTMLNodes = [[NSMutableDictionary alloc] init];
-    self.mapViews = [[NSMutableDictionary alloc] init];
+    self.mapCtrls = [[NSMutableDictionary alloc] init];
     self.clickable = YES;
     self.debuggable = NO;
     self.webView = webView;
@@ -78,15 +78,17 @@
     [self setNeedsDisplay];
 }
 
-- (void)addMapView:(NSString *)mapId map:(GMSMapView *)map {
-  // Hold mapView instance with mapId.
-  [self.mapViews setObject:map forKey:mapId];
+- (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl {
+  
+  
+  // Hold mapCtrl instance with mapId.
+  [self.mapCtrls setObject:mapCtrl forKey:mapId];
   
   // Hold the size and position information of the mapView.
-  [self.drawRects setObject:NSStringFromCGRect(map.frame) forKey:mapId];
+  [self.drawRects setObject:NSStringFromCGRect(mapCtrl.view.frame) forKey:mapId];
   
   // Add the mapView under this view.
-  [self.pluginScrollView addSubview: map];
+  [self.pluginScrollView addSubview: mapCtrl.view];
   
 }
 
@@ -100,10 +102,10 @@
   
     embedRect.origin.x -= offsetX;
     embedRect.origin.y -= offsetY;
-  
+  //NSLog(@"mapId = %@, embedRect = %@", mapId, embedRect);
 
-    GMSMapView *map = [self.mapViews objectForKey:mapId];
-    [map setFrame:embedRect];
+    GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
+    [mapCtrl.view setFrame:embedRect];
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {

@@ -66,12 +66,20 @@
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
     NSInteger argCnt = [command.arguments count];
-    self.embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-    [self.mapCtrl.pluginLayer.drawRects setObject:self.embedRect forKey:self.mapId];
-  
+    NSDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
+    self.embedRect = CGRectMake(
+                        [[embedRect objectForKey:@"left"] floatValue],
+                        [[embedRect objectForKey:@"top"] floatValue],
+                        [[embedRect objectForKey:@"width"] floatValue],
+                        [[embedRect objectForKey:@"height"] floatValue]);
+    
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+
+    [googlemaps.pluginLayer.drawRects setObject: NSStringFromCGRect(self.embedRect) forKey:self.mapId];
   
     //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
-    [self.mapCtrl.pluginLayer clearHTMLElement:self.mapId];
+    [googlemaps.pluginLayer clearHTMLElement:self.mapId];
     //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
 
     NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
@@ -81,11 +89,16 @@
         elemInfo = [HTMLs objectAtIndex:i];
         elemSize = [elemInfo objectForKey:@"size"];
         elemId = [elemInfo objectForKey:@"id"];
-        [self.mapCtrl.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
+        [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
         //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
     }
 
-    [self.mapCtrl updateMapViewLayout];
+    NSEnumerator *mapCtrls = [googlemaps.pluginLayer.mapCtrls keyEnumerator];
+    id mapId;
+    while(mapId = [mapCtrls nextObject]) {
+        [googlemaps.pluginLayer updateViewPosition:mapId];
+    }
+    //[self.mapCtrl updateMapViewLayout];
 }
 
 

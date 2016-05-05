@@ -13,8 +13,9 @@
 #import <GoogleMaps/GoogleMaps.h>
 
 @interface Map : CDVPlugin<MyPlgunProtocol>
+@property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-@property (nonatomic) NSDictionary *embedRect;
+@property (nonatomic) CGRect embedRect;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic, strong) GMSMapView* map;
 
