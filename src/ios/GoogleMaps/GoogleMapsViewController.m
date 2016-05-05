@@ -44,6 +44,8 @@
   [self updateMapViewLayout];
 }
 - (void)updateMapViewLayout {
+    
+
 /*
   if (self.isFullScreen == NO) {
 

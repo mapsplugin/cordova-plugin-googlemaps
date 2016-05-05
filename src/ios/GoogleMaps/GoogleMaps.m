@@ -119,11 +119,11 @@
     //NSLog(@"mapRect=%@", camera);
     mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapRect camera:camera];
 
-    //self.map.delegate = self;
+    mapPlugin.mapCtrl.map.delegate = mapCtrl;
     mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
     //indoor display
-    //self.map.indoorDisplay.delegate = self;
+    mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
     
     [mapCtrl.view addSubview:mapPlugin.mapCtrl.map];
     [self.pluginLayer addMapView:mapPlugin.mapId mapCtrl:mapCtrl];

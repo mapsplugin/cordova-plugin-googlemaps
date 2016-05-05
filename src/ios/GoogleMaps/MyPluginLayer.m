@@ -44,12 +44,19 @@
 
 - (void)putHTMLElement:(NSString *)mapId domId:(NSString *)domId size:(NSDictionary *)size {
     NSMutableDictionary *domDic = [self.HTMLNodes objectForKey:mapId];
-    if (!domDic) {
+    if (domDic == nil) {
         domDic = [[NSMutableDictionary alloc] init];
-        [self.HTMLNodes setObject:domDic forKey:mapId];
     }
     
-    [domDic setObject:size forKey:domId];
+    NSString *rectString = [NSString stringWithFormat:@"{{%@, %@}, {%@, %@}}",
+        [size objectForKey:@"left"],
+        [size objectForKey:@"top"],
+        [size objectForKey:@"width"],
+        [size objectForKey:@"height"],
+        nil
+    ];
+    [domDic setObject:rectString forKey:domId];
+    [self.HTMLNodes setObject:domDic forKey:mapId];
     
     // invite drawRect();
     [self setNeedsDisplay];
@@ -120,12 +127,15 @@
 
     float offsetX = self.webView.scrollView.contentOffset.x;
     float offsetY = self.webView.scrollView.contentOffset.y;
-    CGRect rect;
+    CGRect rect, htmlElementRect;
     NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
     BOOL isMapAction = NO;
+    NSDictionary *elements;
+    NSString *elemSize;
     while(mapId = [mapIDs nextObject]) {
+        // Is the clicked point is in the map rectangle?
         rect = CGRectFromString([self.drawRects objectForKey:mapId]);
         if (point.x >= rect.origin.x && point.x <= (rect.origin.x + rect.size.width) &&
             point.y >= rect.origin.y && point.y <= (rect.origin.y + rect.size.height)) {
@@ -134,28 +144,27 @@
             continue;
         }
 
-        /*
-        NSDictionary *elemSize;
-        for (NSString *domId in self.HTMLNodes) {
-          elemSize = [self.HTMLNodes objectForKey:domId];
-          left = [[elemSize objectForKey:@"left"] floatValue] - offsetX;
-          top = [[elemSize objectForKey:@"top"] floatValue] - offsetY;
-          width = [[elemSize objectForKey:@"width"] floatValue];
-          height = [[elemSize objectForKey:@"height"] floatValue];
+        // Is the clicked point is on the html elements in the map?
+        elements = [self.HTMLNodes objectForKey:mapId];
+        for (NSString *domId in elements) {
+            elemSize = [elements objectForKey:domId];
+            htmlElementRect = CGRectFromString(elemSize);
+            htmlElementRect.origin.x -= offsetX;
+            htmlElementRect.origin.y -= offsetY;
           
-          if (point.x >= left && point.x <= (left + width) &&
-              point.y >= top && point.y <= (top + height)) {
-            isMapAction = NO;
-            break;
-          }
+            if (point.x >= htmlElementRect.origin.x && point.x <= (htmlElementRect.origin.x + htmlElementRect.size.width) &&
+                point.y >= htmlElementRect.origin.y && point.y <= (htmlElementRect.origin.y + htmlElementRect.size.height)) {
+                isMapAction = NO;
+                break;
+            }
           
         }
-        */
 
         if (isMapAction == NO) {
             continue;
         }
-        // The issue #217 is fixed by @YazeedFares. Thank you!
+        
+        // If user clicked on the map, return the mapCtrl.view.
         mapCtrl = [self.mapCtrls objectForKey:mapId];
         offsetX = mapCtrl.view.frame.origin.x - offsetX;
         offsetY = mapCtrl.view.frame.origin.y - offsetY;
@@ -178,64 +187,6 @@
         return hitView;
     }
     return [super hitTest:point withEvent:event];
-  
-  /*
-  float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
-  float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
-  float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
-  float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
-  float width = [[self.embedRect objectForKey:@"width"] floatValue];
-  float height = [[self.embedRect objectForKey:@"height"] floatValue];
-  
-  BOOL isMapAction = NO;
-  if (point.x >= left && point.x <= (left + width) &&
-      point.y >= top && point.y <= (top + height)) {
-    isMapAction = YES;
-  } else {
-    isMapAction = NO;
-  }
-  if (isMapAction == YES) {
-    NSDictionary *elemSize;
-    for (NSString *domId in self.HTMLNodes) {
-      elemSize = [self.HTMLNodes objectForKey:domId];
-      left = [[elemSize objectForKey:@"left"] floatValue] - offsetX;
-      top = [[elemSize objectForKey:@"top"] floatValue] - offsetY;
-      width = [[elemSize objectForKey:@"width"] floatValue];
-      height = [[elemSize objectForKey:@"height"] floatValue];
-      
-      if (point.x >= left && point.x <= (left + width) &&
-          point.y >= top && point.y <= (top + height)) {
-        isMapAction = NO;
-        break;
-      }
-      
-    }
-  }
-  if (isMapAction == YES) {
-    // The issue #217 is fixed by @YazeedFares. Thank you!
-    offsetX = self.mapCtrl.view.frame.origin.x - offsetX;
-    offsetY = self.mapCtrl.view.frame.origin.y - offsetY;
-    point.x -= offsetX;
-    point.y -= offsetY;
-    
-    UIView *hitView =[self.mapCtrl.view hitTest:point withEvent:event];
-    NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
-    if ([PluginUtil isIOS7_OR_OVER] &&
-        [hitClass isEqualToString:@"UIButton"] &&
-        self.mapCtrl.map.isMyLocationEnabled &&
-        (point.x  + offsetX) >= (left + width - 50) &&
-         (point.y + offsetY) >= (top + height - 50)) {
-      
-      BOOL retValue = [self.mapCtrl didTapMyLocationButtonForMapView:self.mapCtrl.map];
-      if (retValue == YES) {
-        return nil;
-      }
-    }
-    return hitView;
-  }
-  
-  return [super hitTest:point withEvent:event];
-  */
 }
 
 - (void)drawRect:(CGRect)rect

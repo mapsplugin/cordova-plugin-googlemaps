@@ -67,16 +67,18 @@
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
     NSInteger argCnt = [command.arguments count];
     NSDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-    self.embedRect = CGRectMake(
+    CGRect rect = CGRectMake(
                         [[embedRect objectForKey:@"left"] floatValue],
                         [[embedRect objectForKey:@"top"] floatValue],
                         [[embedRect objectForKey:@"width"] floatValue],
                         [[embedRect objectForKey:@"height"] floatValue]);
     
+    // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
-    [googlemaps.pluginLayer.drawRects setObject: NSStringFromCGRect(self.embedRect) forKey:self.mapId];
+    // Save the map rectangle.
+    [googlemaps.pluginLayer.drawRects setObject: NSStringFromCGRect(rect) forKey:self.mapId];
   
     //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
     [googlemaps.pluginLayer clearHTMLElement:self.mapId];
