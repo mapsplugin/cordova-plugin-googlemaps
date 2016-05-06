@@ -127,6 +127,11 @@
 
     float offsetX = self.webView.scrollView.contentOffset.x;
     float offsetY = self.webView.scrollView.contentOffset.y;
+    
+    float webviewWidth = self.webView.frame.size.width;
+    float webviewHeight = self.webView.frame.size.height;
+    
+    
     CGRect rect, htmlElementRect;
     NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
     GoogleMapsViewController *mapCtrl;
@@ -134,13 +139,26 @@
     BOOL isMapAction = NO;
     NSDictionary *elements;
     NSString *elemSize;
+    //NSLog(@"--> point = %f, %f", point.x, point.y);
     while(mapId = [mapIDs nextObject]) {
-        // Is the clicked point is in the map rectangle?
         rect = CGRectFromString([self.drawRects objectForKey:mapId]);
-        if (point.x >= rect.origin.x && point.x <= (rect.origin.x + rect.size.width) &&
-            point.y >= rect.origin.y && point.y <= (rect.origin.y + rect.size.height)) {
+        mapCtrl = [self.mapCtrls objectForKey:mapId];
+        
+        // Is the map is displayed?
+        if (rect.origin.y + rect.size.height < offsetY ||
+            rect.origin.x + rect.size.width < offsetX ||
+            rect.origin.y > offsetY + webviewHeight ||
+            rect.origin.x > offsetX + webviewWidth ||
+            mapCtrl.map.hidden == YES) {
+            continue;
+        }
+        
+        // Is the clicked point is in the map rectangle?
+        if ((point.x + offsetX) >= rect.origin.x && (point.x + offsetX) <= (rect.origin.x + rect.size.width) &&
+            (point.y + offsetY) >= rect.origin.y && (point.y + offsetY) <= (rect.origin.y + rect.size.height)) {
             isMapAction = YES;
         } else {
+            //NSLog(@"--> point = %f, %f are not in the map.", point.x, point.y);
             continue;
         }
 
@@ -165,13 +183,13 @@
         }
         
         // If user clicked on the map, return the mapCtrl.view.
-        mapCtrl = [self.mapCtrls objectForKey:mapId];
         offsetX = mapCtrl.view.frame.origin.x - offsetX;
         offsetY = mapCtrl.view.frame.origin.y - offsetY;
         point.x -= offsetX;
         point.y -= offsetY;
 
         UIView *hitView =[mapCtrl.view hitTest:point withEvent:event];
+        //NSLog(@"--> (hit test) point = %f, %f / hit = %@", point.x, point.y,  hitView.class);
         NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
         if ([PluginUtil isIOS7_OR_OVER] &&
             [hitClass isEqualToString:@"UIButton"] &&
