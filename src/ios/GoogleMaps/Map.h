@@ -21,6 +21,7 @@
 - (void)setZoom:(CDVInvokedUrlCommand*)command;
 - (void)setMapTypeId:(CDVInvokedUrlCommand*)command;
 - (void)animateCamera:(CDVInvokedUrlCommand*)command;
+- (void)loadPlugin:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)moveCamera:(CDVInvokedUrlCommand*)command;
 - (void)setMyLocationEnabled:(CDVInvokedUrlCommand*)command;

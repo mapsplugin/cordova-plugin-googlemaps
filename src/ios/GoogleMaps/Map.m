@@ -15,6 +15,11 @@
     self.mapCtrl = viewCtrl;
 }
 
+- (void)loadPlugin:(CDVInvokedUrlCommand*)command {
+  NSLog(@"--->loadPlugin : %@", self.mapId);
+  
+}
+
 - (void)getMap:(CDVInvokedUrlCommand*)command {
     
       

@@ -98,7 +98,20 @@
     [mapPlugin pluginInitialize];
     mapPlugin.mapId = mapId;
     mapPlugin.mapCtrl = mapCtrl;
-    [cdvViewController registerPlugin:mapPlugin withPluginName:mapId];
+  
+    // Hack:
+    // In order to load the plugin instance of the same class but different names,
+    // register the map plugin instance into the pluginObjects directly.
+    if ([mapPlugin respondsToSelector:@selector(setViewController:)]) {
+        [mapPlugin setViewController:cdvViewController];
+    }
+    if ([mapPlugin respondsToSelector:@selector(setCommandDelegate:)]) {
+        [mapPlugin setCommandDelegate:cdvViewController.commandDelegate];
+    }
+    [cdvViewController.pluginObjects setObject:mapPlugin forKey:mapId];
+    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+    [mapPlugin pluginInitialize];
+  
     [self.mapPlugins setObject:mapPlugin forKey:mapId];
   
   
