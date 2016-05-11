@@ -89,9 +89,10 @@
     NSString *mapId = [command.arguments objectAtIndex:0];
     
     // Wrapper view
-    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] init];
+    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
     mapCtrl.webView = self.webView;
     mapCtrl.isFullScreen = YES;
+    mapCtrl.mapId = mapId;
     
     // Create an instance of the Map class everytime.
     Map *mapPlugin = [[Map alloc] init];

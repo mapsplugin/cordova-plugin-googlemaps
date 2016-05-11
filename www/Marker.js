@@ -43,7 +43,7 @@ var Marker = function(map, id, markerOptions) {
 utils.extend(Marker, BaseClass);
 
 Marker.prototype.getPluginName = function() {
-    return this.map.getId() + "::Marker";
+    return this.map.getId() + "-marker";
 };
 
 Marker.prototype.isVisible = function() {

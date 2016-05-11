@@ -16,8 +16,57 @@
 }
 
 - (void)loadPlugin:(CDVInvokedUrlCommand*)command {
-  NSLog(@"--->loadPlugin : %@", self.mapId);
+  NSString *className = [command.arguments objectAtIndex:0];
+  NSLog(@"--->loadPlugin : %@ className : %@", self.mapId, className);
   
+  CDVPluginResult* pluginResult = nil;
+  CDVPlugin<MyPlgunProtocol> *plugin;
+  
+  // Create an instance of the plugin class everytime.
+  //#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
+  //  plugin = [(CDVViewController*)self.viewController getCommandInstance:className];
+  //#else
+    plugin = [[NSClassFromString(className)alloc] init];
+  //#endif
+NSLog(@"--> plugin = %@", plugin);
+  if (plugin) {
+    plugin.commandDelegate = self.commandDelegate;
+    [plugin setGoogleMapsViewController:self.mapCtrl];
+    [self.mapCtrl.plugins setObject:plugin forKey:className];
+    
+    NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, [className lowercaseString]];
+NSLog(@"--> pluginId = %@", pluginId);
+    
+    // Hack:
+    // In order to load the plugin instance of the same class but different names,
+    // register the map plugin instance into the pluginObjects directly.
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    if ([plugin respondsToSelector:@selector(setViewController:)]) {
+        [plugin setViewController:cdvViewController];
+    }
+    if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
+        [plugin setCommandDelegate:cdvViewController.commandDelegate];
+    }
+    [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
+    [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
+    [plugin pluginInitialize];
+  }
+  
+  if (!plugin) {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                     messageAsString:[NSString stringWithFormat:@"Class not found: %@", className]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  }
+  
+  SEL selector = NSSelectorFromString(@"create:");
+  if ([plugin respondsToSelector:selector]){
+      [plugin performSelectorInBackground:selector withObject:command];
+  } else {
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                       messageAsString:[NSString stringWithFormat:@"method not found: %@ in %@ class", @"create", className]];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }
 }
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {

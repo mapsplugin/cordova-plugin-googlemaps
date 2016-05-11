@@ -12,7 +12,6 @@
 #import "NSData+Base64.h"
 
 @interface Map : CDVPlugin<MyPlgunProtocol>
-@property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSString *mapId;
 

@@ -330,7 +330,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   //-----------------------------------
   public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String serviceName = args.getString(0);
-    String pluginName = mapId + "::" + serviceName;
+    String pluginName = mapId + "-" + serviceName.toLowerCase();
     //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
     if (plugins.containsKey(pluginName)) {
@@ -1270,7 +1270,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Enable Indoor map feature if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
@@ -1287,7 +1287,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Enable the traffic layer if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
@@ -1304,7 +1304,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Enable the compass if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
@@ -1322,7 +1322,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Change the map type id of the map
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setMapTypeId(JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
@@ -1338,7 +1338,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       callbackContext.error("Unknown MapTypeID is specified:" + typeStr);
       return;
     }
-    
+
     final int myMapTypeId = mapTypeId;
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -1380,13 +1380,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     });
   }
-  
+
 
   /**
    * Return the current position of the camera
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void getCameraPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -1412,12 +1412,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     });
   }
-  
+
   /**
    * Return the image data encoded with base64
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void toDataURL(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
@@ -1464,7 +1464,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         });
       }
     });
-    
+
   }
   public void fromLatLngToPoint(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     double lat, lng;
@@ -1487,7 +1487,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     });
   }
-  
+
   public void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     int pointX, pointY;
     pointX = args.getInt(0);
@@ -1512,7 +1512,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     });
   }
-  
+
   /**
    * Return the visible region of the map
    * Thanks @fschmidt
@@ -1547,13 +1547,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     });
   }
-  
+
 
   /**
    * Sets the preference for whether all gestures should be enabled or disabled.
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setAllGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
@@ -1571,7 +1571,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Sets padding of the map
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setPadding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject padding = args.getJSONObject(0);

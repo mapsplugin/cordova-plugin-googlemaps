@@ -975,6 +975,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     var markerClick = markerOptions.markerClick;
     var infoClick = markerOptions.infoClick;
 
+console.log("mapId = " + self.id);
     cordova.exec(function(result) {
         markerOptions.hashCode = result.hashCode;
         var marker = new Marker(self, result.id, markerOptions);

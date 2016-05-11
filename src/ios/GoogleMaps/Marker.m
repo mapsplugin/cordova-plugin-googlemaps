@@ -13,33 +13,26 @@
     self.mapCtrl = viewCtrl;
 }
 
+- (void)pluginInitialize
+{
+  // Initialize this plugin
+  [self.mapCtrl.plugins setObject:self forKey:@"Marker"];
+  self.iconCache = [[NSCache alloc]init];
+  self.iconCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
+}
+
 /**
  * @param marker options
  * @return marker key
  */
 -(void)create:(CDVInvokedUrlCommand *)command
 {
-
-    // Initialize this plugin
-    if (self.mapCtrl == nil) {
-      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-      GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-      //self.mapCtrl = googlemaps.mapCtrl;
-      [self.mapCtrl.plugins setObject:self forKey:@"Marker"];
-      
-      if (self.iconCache == nil) {
-          self.iconCache = [[NSCache alloc]init];
-          self.iconCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
-      }
-    }
-  
-    NSDictionary *json = [command.arguments objectAtIndex:0];
+    NSDictionary *json = [command.arguments objectAtIndex:1];
     NSDictionary *latLng = [json objectForKey:@"position"];
     float latitude = [[latLng valueForKey:@"lat"] floatValue];
     float longitude = [[latLng valueForKey:@"lng"] floatValue];
     
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
-  
   
     __block GMSMarker *marker;
     __block NSMutableDictionary *iconProperty = nil;
@@ -77,9 +70,9 @@
             }
           
               
-            NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
-            [self.mapCtrl.overlayManager setObject:marker forKey: id];
-            [result setObject:id forKey:@"id"];
+            NSString *markerKey = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
+            [self.mapCtrl.overlayManager setObject:marker forKey: markerKey];
+            [result setObject:markerKey forKey:@"id"];
             [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
           
             // Custom properties
@@ -144,7 +137,7 @@
               
                     dispatch_sync(dispatch_get_main_queue(), ^{
                         if ([[json valueForKey:@"visible"] boolValue]) {
-                            //marker.map = self.mapCtrl.map;
+                            marker.map = self.mapCtrl.map;
                         }
                         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
                         if (animation) {
@@ -566,7 +559,7 @@
     CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
     CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
     
-    GMSProjection *projection;// = self.mapCtrl.map.projection;
+    GMSProjection *projection = self.mapCtrl.map.projection;
     CGPoint point = [projection pointForCoordinate:marker.position];
     double distance = point.y;
     
@@ -594,10 +587,11 @@
     CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
     group.animations = @[longitudeAnim, latitudeAnim];
     group.duration = duration;
+    NSLog(@"---callbackId = %@", callbackId);
     [group setCompletionBlock:^(void){
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     }];
-    
+  
     [marker.layer addAnimation:group forKey:@"bounceMarkerAnim"];
 }
 

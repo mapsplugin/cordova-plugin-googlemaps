@@ -14,22 +14,12 @@
 
 @implementation GoogleMapsViewController
 
-- (id)init:(NSDictionary *) options {
-    self = [super init];
-    self.plugins = [NSMutableDictionary dictionary];
-    self.isFullScreen = NO;
-    self.screenSize = [[UIScreen mainScreen] bounds];
-    self.overlayManager = [NSMutableDictionary dictionary];
-
-    return self;
-}
-
 - (id)initWithOptions:(NSDictionary *) options {
     self = [super init];
     self.plugins = [NSMutableDictionary dictionary];
     self.isFullScreen = NO;
     self.screenSize = [[UIScreen mainScreen] bounds];
-    self.overlayManager = [NSMutableDictionary dictionary];
+    self.overlayManager = [[NSMutableDictionary alloc] init];
 
     return self;
 }
@@ -351,6 +341,7 @@
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
   [self triggerMarkerEvent:@"click" marker:marker];
 
+NSLog(@"--> didTapMarker : marker.hash = %lu", marker.hash);
   
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
   
@@ -359,7 +350,7 @@
   if ([properties objectForKey:@"disableAutoPan"] != nil) {
     disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
     if (disableAutoPan) {
-      //self.map.selectedMarker = marker;
+      self.map.selectedMarker = marker;
       return YES;
     }
   }
@@ -424,8 +415,13 @@
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMarkerEvent('%@', 'marker_%lu');",
-                                      eventName, (unsigned long)marker.hash];
+
+    //String markerId = "marker_" + marker.getId();
+    //String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s']})",
+    //    mapId, eventName, markerId);
+    //jsCallback(js);
+
+  NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['marker_%lu']});", self.mapId, eventName, (unsigned long)marker.hash];
 	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
 		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
 	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
