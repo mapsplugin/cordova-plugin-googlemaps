@@ -72,7 +72,7 @@ NSLog(@"--> pluginId = %@", pluginId);
 - (void)getMap:(CDVInvokedUrlCommand*)command {
     
       
-        //NSDictionary *options = [command.arguments objectAtIndex:1];
+        NSDictionary *options = [command.arguments objectAtIndex:1];
         
         //if ([options objectForKey:@"backgroundColor"]) {
         //    NSArray *rgbColor = [options objectForKey:@"backgroundColor"];
@@ -110,6 +110,7 @@ NSLog(@"--> pluginId = %@", pluginId);
         }
   
         [self resizeMap:command];
+        [self setOptions:command];
             
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
