@@ -165,7 +165,7 @@
     
     GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:hashCode];
     if (marker) {
-        //self.mapCtrl.map.selectedMarker = marker;
+        self.mapCtrl.map.selectedMarker = marker;
     }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -178,7 +178,7 @@
  */
 -(void)hideInfoWindow:(CDVInvokedUrlCommand *)command
 {
-    //self.mapCtrl.map.selectedMarker = nil;
+    self.mapCtrl.map.selectedMarker = nil;
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -214,9 +214,9 @@
     NSString *markerKey = [command.arguments objectAtIndex:0];
     GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:markerKey];
     Boolean isOpen = false;
-    //if (self.mapCtrl.map.selectedMarker == marker) {
-    //    isOpen = YES;
-    //}
+    if (self.mapCtrl.map.selectedMarker == marker) {
+        isOpen = YES;
+    }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isOpen];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -515,7 +515,7 @@
     CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
     CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
     
-    GMSProjection *projection;//self.mapCtrl.map.projection;
+    GMSProjection *projection;self.mapCtrl.map.projection;
     CGPoint point = [projection pointForCoordinate:marker.position];
     double distance = point.y ;
     
@@ -602,7 +602,7 @@
 -(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
    pluginResult:(CDVPluginResult *)pluginResult
      callbackId:(NSString*)callbackId {
-    
+  
     if (self.mapCtrl.debuggable) {
         NSLog(@"---- setIcon_");
     }
@@ -628,7 +628,6 @@
     __block NSString *animation = animationValue;
     
     if (iconPath) {
-        NSError *error;
         
         if (self.mapCtrl.debuggable) {
             NSLog(@"iconPath = %@", iconPath);
@@ -750,7 +749,7 @@
 
                 // The `visible` property
                 if (iconProperty[@"visible"]) {
-                    //marker.map = self.mapCtrl.map;
+                    marker.map = self.mapCtrl.map;
                 }
 
                 if (animation) {
@@ -780,7 +779,7 @@
                         
                         // The `visible` property
                         if ([[iconProperty valueForKey:@"visible"] boolValue]) {
-                            //marker.map = self.mapCtrl.map;
+                            marker.map = self.mapCtrl.map;
                         }
                         
                         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
@@ -813,7 +812,7 @@
                         
                         // The `visible` property
                         if ([[iconProperty valueForKey:@"visible"] boolValue]) {
-                            //marker.map = self.mapCtrl.map;
+                            marker.map = self.mapCtrl.map;
                         }
                         
                         
@@ -847,7 +846,7 @@
             
             // The `visible` property
             if (iconProperty[@"visible"]) {
-                //marker.map = self.mapCtrl.map;
+                marker.map = self.mapCtrl.map;
             }
             
             if (animation) {
