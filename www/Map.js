@@ -998,19 +998,13 @@ console.log("mapId = " + self.id);
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
-Map.prototype._onMapEvent = function(eventName, params) {
-   var args = [eventName];
-   for (var i = 1; i < arguments.length; i++) {
-       if (typeof(arguments[i]) === "string") {
-           if (["true", "false"].indexOf(arguments[i].toLowerCase()) > -1) {
-               arguments[i] = parseBoolean(arguments[i]);
-           }
-       }
-       args.push(arguments[i]);
-   }
-   args.push(this);
-   this.trigger.apply(this, args);
-};
+ Map.prototype._onMapEvent = function(eventName) {
+    var args = [eventName];
+    for (var i = 1; i < arguments.length; i++) {
+        args.push(arguments[i]);
+    }
+    this.trigger.apply(this, args);
+ };
 
 Map.prototype._onMarkerEvent = function(eventName, markerId) {
     var self = this;

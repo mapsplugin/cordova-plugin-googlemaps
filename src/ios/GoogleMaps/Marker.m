@@ -515,7 +515,7 @@
     CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
     CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
     
-    GMSProjection *projection;self.mapCtrl.map.projection;
+    GMSProjection *projection = self.mapCtrl.map.projection;
     CGPoint point = [projection pointForCoordinate:marker.position];
     double distance = point.y ;
     
@@ -587,7 +587,6 @@
     CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
     group.animations = @[longitudeAnim, latitudeAnim];
     group.duration = duration;
-    NSLog(@"---callbackId = %@", callbackId);
     [group setCompletionBlock:^(void){
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     }];

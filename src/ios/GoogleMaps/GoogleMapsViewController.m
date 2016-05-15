@@ -278,17 +278,9 @@
  */
 - (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
 {
-  dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps.Map._onMapEvent", NULL);
-  dispatch_sync(gueue, ^{
-  
-    NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('will_move', %@);", gesture ? @"true": @"false"];
-	  if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		  [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	  } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		  [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	  }
-  });
-}
+
+	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'will_move', callback: '_onMapEvent', args: [%@]});", self.mapId, gesture ? @"true": @"false"];
+  [self execJS:jsString];}
 
 
 /**
@@ -314,21 +306,21 @@
   [self triggerMarkerEvent:@"info_click" marker:marker];
 }
 /**
- * @callback marker drag_start
+ * @callback plugin.google.maps.event.MARKER_DRAG_START
  */
 - (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
 {
   [self triggerMarkerEvent:@"drag_start" marker:marker];
 }
 /**
- * @callback marker drag_end
+ * @callback plugin.google.maps.event.MARKER_DRAG_END
  */
 - (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
 {
   [self triggerMarkerEvent:@"drag_end" marker:marker];
 }
 /**
- * @callback marker drag
+ * @callback plugin.google.maps.event.MARKER_DRAG
  */
 - (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
 {
@@ -336,12 +328,10 @@
 }
 
 /**
- * @callback marker click
+ * @callback plugin.google.maps.event.MARKER_CLICK
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
   [self triggerMarkerEvent:@"click" marker:marker];
-
-NSLog(@"--> didTapMarker : marker.hash = %lu", marker.hash);
   
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
   
@@ -368,20 +358,16 @@ NSLog(@"--> didTapMarker : marker.hash = %lu", marker.hash);
 }
 
 /**
- * Involve App._onMapEvent
+ * plugin.google.maps.event.MAP_***(new google.maps.LatLng(lat,lng)) events
  */
 - (void)triggerMapEvent: (NSString *)eventName coordinate:(CLLocationCoordinate2D)coordinate
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onMapEvent('%@', new window.plugin.google.maps.LatLng(%f,%f));",
-                                      eventName, coordinate.latitude, coordinate.longitude];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});", self.mapId, eventName, coordinate.latitude, coordinate.longitude];
+  [self execJS:jsString];
 }
+
 /**
- * Involve App._onCameraEvent
+ * plugin.google.maps.event.CAMERA_*** events
  */
 - (void)triggerCameraEvent: (NSString *)eventName position:(GMSCameraPosition *)position
 {
@@ -400,33 +386,26 @@ NSLog(@"--> didTapMarker : marker.hash = %lu", marker.hash);
   
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onCameraEvent('%@', %@);", eventName, sourceArrayString];
-
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});", self.mapId, eventName, sourceArrayString];
+  [self execJS:jsString];
 }
 
+- (void)execJS: (NSString *)jsString {
+
+    if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+        [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+    } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+        [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+    }
+}
 
 /**
- * Involve App._onMarkerEvent
+ * plugin.google.maps.event.MARKER_*** events
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
-
-    //String markerId = "marker_" + marker.getId();
-    //String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s']})",
-    //    mapId, eventName, markerId);
-    //jsCallback(js);
-
   NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['marker_%lu']});", self.mapId, eventName, (unsigned long)marker.hash];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  [self execJS:jsString];
 }
 
 /**
@@ -434,13 +413,8 @@ NSLog(@"--> didTapMarker : marker.hash = %lu", marker.hash);
  */
 - (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
-                                      eventName, id];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@']});", self.mapId, eventName, id];
+  [self execJS:jsString];
 }
 
 //future support: custom info window
@@ -865,7 +839,7 @@ NSLog(@"--> didTapMarker : marker.hash = %lu", marker.hash);
 
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {
-  return [self.overlayManager objectForKey:key];
+    return [self.overlayManager objectForKey:key];
 }
 
 - (GMSMarker *)getMarkerByKey: (NSString *)key {
