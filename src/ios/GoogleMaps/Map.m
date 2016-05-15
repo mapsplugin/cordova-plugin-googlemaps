@@ -678,6 +678,9 @@ NSLog(@"--> pluginId = %@", pluginId);
       self.mapCtrl.map.mapType = mapType;
     }
   }
+  
+  // Redraw the map mandatory
+  [self.mapCtrl.map setNeedsDisplay];
 }
 
 
