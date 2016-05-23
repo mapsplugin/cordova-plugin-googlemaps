@@ -91,6 +91,7 @@ Map.prototype.refreshLayout = function(event) {
     }
 };
 
+
 Map.prototype.getMap = function(mapId, div, params) {
     var self = this,
         args = [mapId];
@@ -145,9 +146,22 @@ Map.prototype.getMap = function(mapId, div, params) {
         args.push(params);
 
         self.set("div", div);
-        args.push(common.getDivRect(div));
         var elements = [];
-        var elemId, clickable;
+        var elemId, clickable, size;
+
+        // TODO: Find more better way to get the 100% width of body.
+        var scrollBarWidth = 16;
+        var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
+
+        // Gets the map div size.
+        // The plugin needs to consider the viewport zoom ratio
+        // for the case window.innerHTML > body.offsetWidth.
+        size = common.getDivRect(div);
+        size.left *= ratio;
+        size.top *= ratio;
+        size.width *= ratio;
+        size.height *= ratio;
+        args.push(size);
 
         for (var i = 0; i < children.length; i++) {
             element = children[i];
@@ -156,9 +170,15 @@ Map.prototype.getMap = function(mapId, div, params) {
                 elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
                 element.setAttribute("__pluginDomId", elemId);
             }
+            size = common.getDivRect(element);
+            size.left *= ratio;
+            size.top *= ratio;
+            size.width *= ratio;
+            size.height *= ratio;
+
             elements.push({
                 id: elemId,
-                size: common.getDivRect(element)
+                size: size
             });
             i++;
         }
@@ -191,7 +211,6 @@ Map.prototype.getMap = function(mapId, div, params) {
     }, self.errorHandler, 'GoogleMaps', 'getMap', args);
     return self;
 };
-
 
 Map.prototype.getLicenseInfo = function(callback) {
     var self = this;
