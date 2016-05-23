@@ -126,6 +126,36 @@ NSLog(@"--> pluginId = %@", pluginId);
 
 
 /**
+ * Clear all markups
+ */
+- (void)clear:(CDVInvokedUrlCommand *)command {
+
+    [self.mapCtrl.map clear];
+
+    for (NSString *key in self.mapCtrl.overlayManager) {
+        if ([key hasPrefix:@"marker_property_"]) {
+          NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
+          properties = nil;
+          [self.mapCtrl.overlayManager removeObjectForKey:key];
+          continue;
+        }
+        if ([key hasPrefix:@"marker_"]) {
+          GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
+          marker = nil;
+          [self.mapCtrl.overlayManager removeObjectForKey:key];
+          continue;
+        }
+    }
+    [self.mapCtrl.overlayManager removeAllObjects];
+    //[self.mapCtrl.plugins removeAllObjects];
+  
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+
+/**
  * Move the center of the map
  */
 - (void)setCenter:(CDVInvokedUrlCommand *)command {

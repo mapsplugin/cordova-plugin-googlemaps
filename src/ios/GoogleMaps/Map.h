@@ -15,6 +15,7 @@
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSString *mapId;
 
+- (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setTilt:(CDVInvokedUrlCommand*)command;
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setZoom:(CDVInvokedUrlCommand*)command;

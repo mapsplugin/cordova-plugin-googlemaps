@@ -663,19 +663,6 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-/**
- * Clear all markups
- */
-- (void)clear:(CDVInvokedUrlCommand *)command {
-/*
-    [self.mapCtrl.overlayManager removeAllObjects];
-    [self.mapCtrl.map clear];
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-*/
-}
-
 - (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand *)command {
     NSString *mapId = [command.arguments objectAtIndex:0];
     NSString *domId = [command.arguments objectAtIndex:1];
