@@ -230,6 +230,13 @@ NSLog(@"--> pluginId = %@", pluginId);
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+- (void)setVisible:(CDVInvokedUrlCommand *)command {
+    BOOL isVisible = [[command.arguments objectAtIndex:0] boolValue];
+    [self.mapCtrl.view setHidden:isVisible];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 - (void)setTilt:(CDVInvokedUrlCommand *)command {
   

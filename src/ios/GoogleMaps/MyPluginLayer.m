@@ -149,7 +149,7 @@
             rect.origin.x + rect.size.width < offsetX ||
             rect.origin.y > offsetY + webviewHeight ||
             rect.origin.x > offsetX + webviewWidth ||
-            mapCtrl.map.hidden == YES) {
+            mapCtrl.view.hidden == YES) {
             continue;
         }
         

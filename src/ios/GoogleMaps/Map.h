@@ -16,6 +16,7 @@
 @property (nonatomic) NSString *mapId;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
+- (void)setVisible:(CDVInvokedUrlCommand*)command;
 - (void)setTilt:(CDVInvokedUrlCommand*)command;
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setZoom:(CDVInvokedUrlCommand*)command;
