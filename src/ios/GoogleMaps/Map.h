@@ -36,4 +36,5 @@
 - (void)setPadding:(CDVInvokedUrlCommand*)command;
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand *)command;
 @end

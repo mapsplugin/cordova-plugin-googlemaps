@@ -36,5 +36,4 @@
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
 - (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand*)command;
 - (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand*)command;
-- (void)remove:(CDVInvokedUrlCommand*)command;
 @end

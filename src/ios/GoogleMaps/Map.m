@@ -124,6 +124,33 @@ NSLog(@"--> pluginId = %@", pluginId);
     //[self.mapCtrl updateMapViewLayout];
 }
 
+/**
+ * Remove the map
+ */
+- (void)remove:(CDVInvokedUrlCommand *)command {
+
+    NSString *mapId = self.mapId;
+    
+    
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+
+    [googlemaps.pluginLayer clearHTMLElement:mapId];
+    //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+    [self clear:nil];
+    [self.mapCtrl.overlayManager removeAllObjects];
+    [self.mapCtrl.map clear];
+    [self.mapCtrl.map removeFromSuperview];
+    [self.mapCtrl.view removeFromSuperview];
+    self.mapCtrl.map = nil;
+    self.mapCtrl = nil;
+    //self.locationCommandQueue = nil;  // issue 437
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
 
 /**
  * Clear all markups
@@ -149,9 +176,10 @@ NSLog(@"--> pluginId = %@", pluginId);
     [self.mapCtrl.overlayManager removeAllObjects];
     //[self.mapCtrl.plugins removeAllObjects];
   
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    if (command != nil) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
 
 }
 
