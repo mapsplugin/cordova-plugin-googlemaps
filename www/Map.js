@@ -63,9 +63,22 @@ Map.prototype.refreshLayout = function(event) {
         var args = [];
         var element, elements = [];
         var children = common.getAllChildren(div);
-        var elemId, clickable;
+        var elemId, clickable, size;
 
-        args.push(common.getDivRect(div));
+        // TODO: Find more better way to get the 100% width of body.
+        var scrollBarWidth = 16;
+        var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
+
+        // Gets the map div size.
+        // The plugin needs to consider the viewport zoom ratio
+        // for the case window.innerHTML > body.offsetWidth.
+        size = common.getDivRect(div);
+        size.left *= ratio;
+        size.top *= ratio;
+        size.width *= ratio;
+        size.height *= ratio;
+        args.push(size);
+
         for (var i = 0; i < children.length; i++) {
             element = children[i];
             if (element.nodeType != 1) {
@@ -80,9 +93,16 @@ Map.prototype.refreshLayout = function(event) {
                 elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
                 element.setAttribute("__pluginDomId", elemId);
             }
+
+            size = common.getDivRect(element);
+            size.left *= ratio;
+            size.top *= ratio;
+            size.width *= ratio;
+            size.height *= ratio;
+
             elements.push({
                 id: elemId,
-                size: common.getDivRect(element)
+                size: size
             });
         }
         args.push(elements);
