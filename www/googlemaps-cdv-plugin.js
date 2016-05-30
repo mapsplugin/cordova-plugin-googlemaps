@@ -584,6 +584,10 @@ App.prototype.setIndoorEnabled = function(enabled) {
     enabled = parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);
 };
+App.prototype.setMapToolbarEnabled = function(enabled) {
+    enabled = parseBoolean(enabled);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMapToolbarEnabled', enabled]);
+};
 App.prototype.setTrafficEnabled = function(enabled) {
     enabled = parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setTrafficEnabled', enabled]);

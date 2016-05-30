@@ -38,12 +38,12 @@ public class PluginMap extends MyPlugin {
   /**
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setOptions(JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-    
+
     UiSettings settings = this.map.getUiSettings();
     JSONObject params = args.getJSONObject(1);
     //controls
@@ -59,11 +59,14 @@ public class PluginMap extends MyPlugin {
       if (controls.has("indoorPicker")) {
         settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
       }
+      if (controls.has("mapToolbar")) {
+        settings.setMapToolbarEnabled(controls.getBoolean("mapToolbar"));
+      }
       if (controls.has("myLocationButton")) {
         settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
       }
     }
-    
+
     //gestures
     if (params.has("gestures")) {
       JSONObject gestures = params.getJSONObject("gestures");
@@ -82,7 +85,7 @@ public class PluginMap extends MyPlugin {
         settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
       }
     }
-    
+
     // map type
     if (params.has("mapType")) {
       String typeStr = params.getString("mapType");
@@ -101,7 +104,7 @@ public class PluginMap extends MyPlugin {
         this.map.setMapType(mapTypeId);
       }
     }
-    
+
     //controls
     Boolean isEnabled = true;
 
@@ -162,12 +165,12 @@ public class PluginMap extends MyPlugin {
       this.sendNoResult(callbackContext);
     }
   }
-  
+
   /**
    * Set center location of the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setCenter(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -185,7 +188,7 @@ public class PluginMap extends MyPlugin {
    * Set angle of the map view
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setTilt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -207,33 +210,33 @@ public class PluginMap extends MyPlugin {
    * Move the camera with animation
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void animateCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.updateCameraPosition("animateCamera", args, callbackContext);
   }
-  
+
   /**
    * Move the camera without animation
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void moveCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
     this.updateCameraPosition("moveCamera", args, callbackContext);
   }
-  
+
   /**
    * move the camera
    * @param action
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   private void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    
+
     int durationMS = 4000;
     CameraPosition.Builder builder = CameraPosition.builder();
     final JSONObject cameraPos = args.getJSONObject(1);
@@ -314,7 +317,7 @@ public class PluginMap extends MyPlugin {
    * Set zoom of the map
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setZoom(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -328,7 +331,7 @@ public class PluginMap extends MyPlugin {
    * Pan by the specified pixel
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -336,11 +339,11 @@ public class PluginMap extends MyPlugin {
     int y = args.getInt(2);
     float xPixel = -x * this.density;
     float yPixel = -y * this.density;
-    
+
     CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
     map.animateCamera(cameraUpdate);
   }
-  
+
   /**
    * Move the camera of the map
    * @param cameraPosition
@@ -365,7 +368,7 @@ public class PluginMap extends MyPlugin {
    * Enable MyLocation feature if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -420,7 +423,7 @@ public class PluginMap extends MyPlugin {
    * Enable Indoor map feature if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -430,10 +433,24 @@ public class PluginMap extends MyPlugin {
   }
 
   /**
+   * Enable the map toolbar if set true
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void setMapToolbarEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Boolean isEnabled = args.getBoolean(1);
+    UiSettings uiSettings = map.getUiSettings();
+    uiSettings.setsetMapToolbarEnabled(isEnabled);
+    this.sendNoResult(callbackContext);
+  }
+
+  /**
    * Enable the traffic layer if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -446,7 +463,7 @@ public class PluginMap extends MyPlugin {
    * Enable the compass if set true
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -460,7 +477,7 @@ public class PluginMap extends MyPlugin {
    * Change the map type id of the map
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setMapTypeId(JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -481,7 +498,7 @@ public class PluginMap extends MyPlugin {
       callbackContext.error("Unknown MapTypeID is specified:" + typeStr);
       return;
     }
-    
+
     final int myMapTypeId = mapTypeId;
     map.setMapType(myMapTypeId);
     this.sendNoResult(callbackContext);
@@ -513,13 +530,13 @@ public class PluginMap extends MyPlugin {
       map.animateCamera(cameraUpdate, callback);
     }
   }
-  
+
 
   /**
    * Return the current position of the camera
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void getCameraPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -533,15 +550,15 @@ public class PluginMap extends MyPlugin {
     json.put("tilt", camera.tilt);
     json.put("bearing", camera.bearing);
     json.put("hashCode", camera.hashCode());
-    
+
     callbackContext.success(json);
   }
-  
+
   /**
    * Return the image data encoded with base64
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void toDataURL(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -555,7 +572,7 @@ public class PluginMap extends MyPlugin {
 
 
     this.map.snapshot(new GoogleMap.SnapshotReadyCallback() {
-      
+
       @Override
       public void onSnapshotReady(Bitmap image) {
         if (!finalUncompress) {
@@ -564,16 +581,16 @@ public class PluginMap extends MyPlugin {
               (int) (image.getWidth() / density),
               (int) (image.getHeight() / density));
         }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
         byte[] byteArray = outputStream.toByteArray();
-        String imageEncoded = "data:image/png;base64," + 
+        String imageEncoded = "data:image/png;base64," +
                 Base64.encodeToString(byteArray, Base64.NO_WRAP);
-        
+
         callbackContext.success(imageEncoded);
       }
     });
-    
+
   }
   @SuppressWarnings({ "unused" })
   private void fromLatLngToPoint(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -587,7 +604,7 @@ public class PluginMap extends MyPlugin {
     pointJSON.put(point.y / this.density);
     callbackContext.success(pointJSON);
   }
-  
+
   @SuppressWarnings("unused")
   private void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     int pointX, pointY;
@@ -602,7 +619,7 @@ public class PluginMap extends MyPlugin {
     pointJSON.put(latlng.longitude);
     callbackContext.success(pointJSON);
   }
-  
+
   /**
    * Return the visible region of the map
    * Thanks @fschmidt
@@ -620,21 +637,21 @@ public class PluginMap extends MyPlugin {
     southwest.put("lng", latLngBounds.southwest.longitude);
     result.put("northeast", northeast);
     result.put("southwest", southwest);
-    
+
     JSONArray latLngArray = new JSONArray();
     latLngArray.put(northeast);
     latLngArray.put(southwest);
     result.put("latLngArray", latLngArray);
-    
+
     callbackContext.success(result);
   }
-  
+
 
   /**
    * Sets the preference for whether all gestures should be enabled or disabled.
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setAllGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -648,7 +665,7 @@ public class PluginMap extends MyPlugin {
    * Sets padding of the map
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   private void setPadding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
