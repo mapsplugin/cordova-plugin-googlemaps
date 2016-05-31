@@ -239,6 +239,16 @@ NSLog(@"--> pluginId = %@", pluginId);
 }
 
 - (void)setTilt:(CDVInvokedUrlCommand *)command {
+  double angle = [[command.arguments objectAtIndex:0] doubleValue];
+  if (angle >=0 && angle < 90) {
+    GMSCameraPosition *camera = self.mapCtrl.map.camera;
+    camera = [GMSCameraPosition cameraWithLatitude:camera.target.latitude
+                                          longitude:camera.target.longitude
+                                          zoom:camera.zoom
+                                          bearing:camera.bearing
+                                          viewingAngle:angle];
+    [self.mapCtrl.map setCamera:camera];
+  }
   
   
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
