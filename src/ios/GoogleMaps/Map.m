@@ -70,8 +70,10 @@ NSLog(@"--> pluginId = %@", pluginId);
 }
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
-    
+  
+    NSLog(@"---> %@ : count = %lu", self.mapId, (unsigned long)[command.arguments count]);
     if ([command.arguments count] != 4) {
+        [self.mapCtrl.view setHidden:true];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
@@ -84,6 +86,34 @@ NSLog(@"--> pluginId = %@", pluginId);
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+
+- (void)setDiv:(CDVInvokedUrlCommand *)command {
+    if ([command.arguments count] == 2) {
+      [self.mapCtrl.view setHidden:false];
+      [self resizeMap:command];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } else {
+      [self.mapCtrl.view setHidden:true];
+    }
+/*
+    if ([command.arguments count] == 2) {
+        //[self.mapCtrl.view removeFromSuperview];
+        [self.mapCtrl.pluginScrollView dettachView];
+        [self.pluginLayer clearHTMLElement];
+        [self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+        self.mapCtrl.isFullScreen = NO;
+        self.pluginLayer.mapCtrl = self.mapCtrl;
+        self.pluginLayer.webView = self.webView;
+
+        [self.mapCtrl.pluginScrollView attachView:self.mapCtrl.view];
+        [self resizeMap:command];
+    } else {
+        //[self.mapCtrl.view removeFromSuperview];
+        [self.mapCtrl.pluginScrollView dettachView];
+    }
+*/
+}
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
     NSInteger argCnt = [command.arguments count];

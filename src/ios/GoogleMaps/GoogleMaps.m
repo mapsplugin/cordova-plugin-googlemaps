@@ -359,25 +359,6 @@
     [self.licenseLayer removeFromSuperview];
 }
 
-- (void)setDiv:(CDVInvokedUrlCommand *)command {
-/*
-    if ([command.arguments count] == 2) {
-        //[self.mapCtrl.view removeFromSuperview];
-        [self.mapCtrl.pluginScrollView dettachView];
-        [self.pluginLayer clearHTMLElement];
-        [self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
-        self.mapCtrl.isFullScreen = NO;
-        self.pluginLayer.mapCtrl = self.mapCtrl;
-        self.pluginLayer.webView = self.webView;
-
-        [self.mapCtrl.pluginScrollView attachView:self.mapCtrl.view];
-        [self resizeMap:command];
-    } else {
-        //[self.mapCtrl.view removeFromSuperview];
-        [self.mapCtrl.pluginScrollView dettachView];
-    }
-*/
-}
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
