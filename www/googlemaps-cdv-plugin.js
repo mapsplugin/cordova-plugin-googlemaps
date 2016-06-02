@@ -247,6 +247,21 @@ window.addEventListener("orientationchange", function() {
 });
 
 document.addEventListener("deviceready", function() {
+    var viewportTag = null;
+    var metaTags = document.getElementsByTagName('meta');
+    for (var i = 0; i < metaTags.length; i++) {
+       if (metaTags[i].getAttribute('name') === "viewport") {
+          viewportTag = metaTags[i];
+          break;
+       }
+    }
+    if (!viewportTag) {
+      viewportTag = document.createElement("meta");
+      viewportTag.setAttribute('name', 'viewport');
+    }
+    viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0; user-scalable=no');
+
+
     document.removeEventListener("deviceready", arguments.callee);
     cordova.exec(null, function(message) {
         alert(error);
