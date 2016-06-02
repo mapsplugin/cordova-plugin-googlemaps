@@ -88,6 +88,7 @@ GroundOverlay.prototype.remove = function() {
  *****************************************************************************/
 
 function onMapResize(event) {
+    //console.log("---> onMapResize");
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
       MAPS[mapId].refreshLayout();
@@ -208,10 +209,7 @@ module.exports = {
       getMap: function() {
         var mapId = "map_" + MAP_CNT;
         var map = new Map(mapId);
-
-        // Catch all events for this map instance, then pass to the instance.
         document.addEventListener(mapId, nativeCallback.bind(map));
-
         map.showDialog = function() {
           showDialog(mapId).bind(map);
         };
@@ -243,10 +241,15 @@ module.exports = {
 };
 
 window.addEventListener("orientationchange", function() {
+    //console.log("---> orientationchange");
     setTimeout(onMapResize, 1000);
 });
 
 document.addEventListener("deviceready", function() {
+    //------------------------------------------------------------------------
+    // To prevent strange things happen,
+    // disable the changing of viewport zoom level by double clicking.
+    //------------------------------------------------------------------------
     var viewportTag = null;
     var metaTags = document.getElementsByTagName('meta');
     for (var i = 0; i < metaTags.length; i++) {
@@ -263,6 +266,11 @@ document.addEventListener("deviceready", function() {
 
 
     document.removeEventListener("deviceready", arguments.callee);
+
+    //------------------------------------------------------------------------
+    // If Google Maps Android API v2 is not available,
+    // display the warning alert.
+    //------------------------------------------------------------------------
     cordova.exec(null, function(message) {
         alert(error);
     }, 'GoogleMaps', 'isAvailable', ['']);

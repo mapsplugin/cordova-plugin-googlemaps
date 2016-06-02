@@ -116,41 +116,52 @@ NSLog(@"--> pluginId = %@", pluginId);
 }
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
-    NSInteger argCnt = [command.arguments count];
-    NSDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-    CGRect rect = CGRectMake(
-                        [[embedRect objectForKey:@"left"] floatValue],
-                        [[embedRect objectForKey:@"top"] floatValue],
-                        [[embedRect objectForKey:@"width"] floatValue],
-                        [[embedRect objectForKey:@"height"] floatValue]);
-    
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+//NSLog(@"---> resizeMap mapId = %@", self.mapId);
 
-    // Save the map rectangle.
-    [googlemaps.pluginLayer.drawRects setObject: NSStringFromCGRect(rect) forKey:self.mapId];
-  
-    //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
-    [googlemaps.pluginLayer clearHTMLElement:self.mapId];
-    //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+    dispatch_async(dispatch_get_main_queue(), ^{
 
-    NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
-    NSString *elemId;
-    NSDictionary *elemSize, *elemInfo;
-    for (int i = 0; i < [HTMLs count]; i++) {
-        elemInfo = [HTMLs objectAtIndex:i];
-        elemSize = [elemInfo objectForKey:@"size"];
-        elemId = [elemInfo objectForKey:@"id"];
-        [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
-        //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
-    }
+        NSInteger argCnt = [command.arguments count];
+        NSDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
+        CGRect rect = CGRectMake(
+                            [[embedRect objectForKey:@"left"] floatValue],
+                            [[embedRect objectForKey:@"top"] floatValue],
+                            [[embedRect objectForKey:@"width"] floatValue],
+                            [[embedRect objectForKey:@"height"] floatValue]);
+        
+        // Load the GoogleMap.m
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+        GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
-    NSEnumerator *mapCtrls = [googlemaps.pluginLayer.mapCtrls keyEnumerator];
-    id mapId;
-    while(mapId = [mapCtrls nextObject]) {
-        [googlemaps.pluginLayer updateViewPosition:mapId];
-    }
+        // Save the map rectangle.
+        [googlemaps.pluginLayer.drawRects setObject: NSStringFromCGRect(rect) forKey:self.mapId];
+      
+        //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
+        [googlemaps.pluginLayer clearHTMLElement:self.mapId];
+        //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+
+        NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
+        NSString *elemId;
+        NSDictionary *elemSize, *elemInfo;
+        for (int i = 0; i < [HTMLs count]; i++) {
+            elemInfo = [HTMLs objectAtIndex:i];
+            elemSize = [elemInfo objectForKey:@"size"];
+            elemId = [elemInfo objectForKey:@"id"];
+            [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
+            //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
+        }
+      
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [googlemaps.pluginLayer updateViewPosition:self.mapId];
+        });
+        
+    });
+
+    //NSEnumerator *mapCtrls = [googlemaps.pluginLayer.mapCtrls keyEnumerator];
+    //id mapId;
+    //while(mapId = [mapCtrls nextObject]) {
+    //    [googlemaps.pluginLayer updateViewPosition:self.mapId];
+    //}
     //[self.mapCtrl updateMapViewLayout];
 }
 

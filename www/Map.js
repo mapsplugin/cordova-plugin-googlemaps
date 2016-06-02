@@ -52,6 +52,7 @@ Map.prototype.getId = function() {
  */
 Map.prototype.refreshLayout = function(event) {
     var self = this;
+    //console.log("---> onMapResize mapId = " + self.id );
     var div = self.get("div");
     if (!div) {
         return;
@@ -63,22 +64,9 @@ Map.prototype.refreshLayout = function(event) {
         var args = [];
         var element, elements = [];
         var children = common.getAllChildren(div);
-        var elemId, clickable, size;
+        var elemId, clickable;
 
-        // TODO: Find more better way to get the 100% width of body.
-        var scrollBarWidth = 16;
-        var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
-
-        // Gets the map div size.
-        // The plugin needs to consider the viewport zoom ratio
-        // for the case window.innerHTML > body.offsetWidth.
-        size = common.getDivRect(div);
-        size.left *= ratio;
-        size.top *= ratio;
-        size.width *= ratio;
-        size.height *= ratio;
-        args.push(size);
-
+        args.push(common.getDivRect(div));
         for (var i = 0; i < children.length; i++) {
             element = children[i];
             if (element.nodeType != 1) {
@@ -93,16 +81,9 @@ Map.prototype.refreshLayout = function(event) {
                 elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
                 element.setAttribute("__pluginDomId", elemId);
             }
-
-            size = common.getDivRect(element);
-            size.left *= ratio;
-            size.top *= ratio;
-            size.width *= ratio;
-            size.height *= ratio;
-
             elements.push({
                 id: elemId,
-                size: size
+                size: common.getDivRect(element)
             });
         }
         args.push(elements);
@@ -110,7 +91,6 @@ Map.prototype.refreshLayout = function(event) {
         cordova.exec(null, null, self.id, 'resizeMap', args);
     }
 };
-
 
 Map.prototype.getMap = function(mapId, div, params) {
     var self = this,
@@ -166,22 +146,9 @@ Map.prototype.getMap = function(mapId, div, params) {
         args.push(params);
 
         self.set("div", div);
+        args.push(common.getDivRect(div));
         var elements = [];
-        var elemId, clickable, size;
-
-        // TODO: Find more better way to get the 100% width of body.
-        var scrollBarWidth = 16;
-        var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
-
-        // Gets the map div size.
-        // The plugin needs to consider the viewport zoom ratio
-        // for the case window.innerHTML > body.offsetWidth.
-        size = common.getDivRect(div);
-        size.left *= ratio;
-        size.top *= ratio;
-        size.width *= ratio;
-        size.height *= ratio;
-        args.push(size);
+        var elemId, clickable;
 
         for (var i = 0; i < children.length; i++) {
             element = children[i];
@@ -190,17 +157,10 @@ Map.prototype.getMap = function(mapId, div, params) {
                 elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
                 element.setAttribute("__pluginDomId", elemId);
             }
-            size = common.getDivRect(element);
-            size.left *= ratio;
-            size.top *= ratio;
-            size.width *= ratio;
-            size.height *= ratio;
-
             elements.push({
                 id: elemId,
-                size: size
+                size: common.getDivRect(element)
             });
-            i++;
         }
         args.push(elements);
 
@@ -231,6 +191,7 @@ Map.prototype.getMap = function(mapId, div, params) {
     }, self.errorHandler, 'GoogleMaps', 'getMap', args);
     return self;
 };
+
 
 Map.prototype.getLicenseInfo = function(callback) {
     var self = this;
@@ -639,6 +600,96 @@ Map.prototype.toDataURL = function(params, callback) {
  */
 Map.prototype.setDiv = function(div) {
     var self = this,
+        args = [];
+
+    if (!common.isDom(div)) {
+      // TODO: detach the map
+    /*
+        params = div;
+        params = params || {};
+        params.backgroundColor = params.backgroundColor || '#ffffff';
+        params.backgroundColor = common.HTMLColor2RGBA(params.backgroundColor);
+        if (params.camera && params.camera.latLng) {
+          params.camera.target = params.camera.latLng;
+          delete params.camera.latLng;
+        }
+        args.push(params);
+    */
+    } else {
+
+        var currentDiv = self.get("div");
+        if (currentDiv !== div && currentDiv) {
+            var children = common.getAllChildren(currentDiv);
+            for (var i = 0; i < children.length; i++) {
+                element = children[i];
+                elemId = element.getAttribute("__pluginDomId");
+                element.removeAttribute("__pluginDomId");
+            }
+            currentDiv.removeEventListener("DOMNodeRemoved", common._remove_child.bind(self));
+
+            while (currentDiv) {
+                if (currentDiv.style) {
+                    currentDiv.style.backgroundColor = '';
+                }
+                if (currentDiv.classList) {
+                    currentDiv.classList.remove('_gmaps_cdv_');
+                } else if (currentDiv.className) {
+                    currentDiv.className = currentDiv.className.replace(/_gmaps_cdv_/g, "");
+                    currentDiv.className = currentDiv.className.replace(/\s+/g, " ");
+                }
+                currentDiv = currentDiv.parentNode;
+            }
+            self.set("div", null);
+            self.set("keepWatching", false);
+        }
+
+
+        var children = common.getAllChildren(div);
+
+        self.set("div", div);
+        args.push(common.getDivRect(div));
+        var elements = [];
+        var elemId, clickable;
+
+        for (var i = 0; i < children.length; i++) {
+            element = children[i];
+            elemId = element.getAttribute("__pluginDomId");
+            if (!elemId) {
+                elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
+                element.setAttribute("__pluginDomId", elemId);
+            }
+            elements.push({
+                id: elemId,
+                size: common.getDivRect(element)
+            });
+        }
+        args.push(elements);
+
+        div.addEventListener("DOMNodeRemoved", common._remove_child.bind(self));
+        div.addEventListener("DOMNodeInserted", common._append_child.bind(self));
+
+        self.set("keepWatching", true);
+        var className;
+        while (div.parentNode) {
+            div.style.backgroundColor = 'rgba(0,0,0,0)';
+            className = div.className;
+
+            // prevent multiple readding the class
+            if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+                div.classList.add('_gmaps_cdv_');
+            } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
+                div.className = div.className + ' _gmaps_cdv_';
+            }
+
+            div = div.parentNode;
+        }
+    }
+    console.log("--->");
+    console.log(self.deleteFromObject(args,'function'));
+    cordova.exec(null, self.errorHandler, self.id, 'setDiv', self.deleteFromObject(args,'function'));
+    return self;
+/*
+    var self = this,
         args = [],
         element;
 
@@ -719,7 +770,10 @@ Map.prototype.setDiv = function(div) {
         }
             self.set("keepWatching", true);
     }
-    cordova.exec(null, self.errorHandler, 'GoogleMaps', 'setDiv', self.deleteFromObject(args,'function'));
+    console.log("--->");
+    console.log(self.deleteFromObject(args,'function'));
+    cordova.exec(null, self.errorHandler, self.id, 'setDiv', self.deleteFromObject(args,'function'));
+*/
 };
 
 /**
@@ -1037,13 +1091,19 @@ console.log("mapId = " + self.id);
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
- Map.prototype._onMapEvent = function(eventName) {
-    var args = [eventName];
-    for (var i = 1; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-    this.trigger.apply(this, args);
- };
+Map.prototype._onMapEvent = function(eventName, params) {
+   var args = [eventName];
+   for (var i = 1; i < arguments.length; i++) {
+       if (typeof(arguments[i]) === "string") {
+           if (["true", "false"].indexOf(arguments[i].toLowerCase()) > -1) {
+               arguments[i] = parseBoolean(arguments[i]);
+           }
+       }
+       args.push(arguments[i]);
+   }
+   args.push(this);
+   this.trigger.apply(this, args);
+};
 
 Map.prototype._onMarkerEvent = function(eventName, markerId) {
     var self = this;

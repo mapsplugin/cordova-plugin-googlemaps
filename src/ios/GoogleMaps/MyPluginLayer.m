@@ -37,8 +37,8 @@
     offset.x = self.webView.scrollView.contentOffset.x;
     offset.y = self.webView.scrollView.contentOffset.y;
     [self.pluginScrollView setContentOffset:offset];
-    [self setNeedsDisplay];
-    [self.pluginScrollView.debugView setNeedsDisplay];
+    //[self setNeedsDisplay];
+    //[self.pluginScrollView.debugView setNeedsDisplay];
 }
 
 
@@ -102,14 +102,16 @@
 
 - (void)updateViewPosition:(NSString *)mapId {
   
-    float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
-    float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
+    CGPoint offset = self.pluginScrollView.contentOffset;
+    offset.x = self.webView.scrollView.contentOffset.x;
+    offset.y = self.webView.scrollView.contentOffset.y;
+    self.pluginScrollView.contentOffset = offset;
   
     CGRect embedRect = CGRectFromString([self.drawRects objectForKey:mapId]);
   
-    embedRect.origin.x -= offsetX;
-    embedRect.origin.y -= offsetY;
-  //NSLog(@"mapId = %@, embedRect = %@", mapId, embedRect);
+    //embedRect.origin.x -= offsetX;
+    //embedRect.origin.y -= offsetY;
+    //NSLog(@"mapId = %@, embedRect = %@", mapId, embedRect);
 
     GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
     [mapCtrl.view setFrame:embedRect];
