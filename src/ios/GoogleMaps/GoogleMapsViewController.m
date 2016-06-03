@@ -20,6 +20,7 @@
     self.isFullScreen = NO;
     self.screenSize = [[UIScreen mainScreen] bounds];
     self.overlayManager = [[NSMutableDictionary alloc] init];
+    self.clickable = YES;
 
     return self;
 }

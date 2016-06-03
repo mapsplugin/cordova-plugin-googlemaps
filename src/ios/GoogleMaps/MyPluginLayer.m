@@ -15,7 +15,6 @@
     self.drawRects = [[NSMutableDictionary alloc] init];
     self.HTMLNodes = [[NSMutableDictionary alloc] init];
     self.mapCtrls = [[NSMutableDictionary alloc] init];
-    self.clickable = YES;
     self.debuggable = NO;
     self.webView = webView;
     [self.webView removeFromSuperview];
@@ -143,6 +142,11 @@
         rect = CGRectFromString([self.drawRects objectForKey:mapId]);
         mapCtrl = [self.mapCtrls objectForKey:mapId];
         
+        // Is the map clickable?
+        if (mapCtrl.clickable == NO) {
+          continue;
+        }
+
         // Is the map is displayed?
         if (rect.origin.y + rect.size.height < offsetY ||
             rect.origin.x + rect.size.width < offsetX ||
@@ -151,7 +155,7 @@
             mapCtrl.view.hidden == YES) {
             continue;
         }
-        
+      
         // Is the clicked point is in the map rectangle?
         if ((point.x + offsetX) >= rect.origin.x && (point.x + offsetX) <= (rect.origin.x + rect.size.width) &&
             (point.y + offsetY) >= rect.origin.y && (point.y + offsetY) <= (rect.origin.y + rect.size.height)) {

@@ -152,6 +152,16 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
     [googlemaps.pluginLayer updateViewPosition:self.mapId];
 }
 
+-(void)setClickable:(CDVInvokedUrlCommand *)command
+{
+    Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
+    self.mapCtrl.clickable = isClickable;
+    //self.debugView.clickable = isClickable;
+    //[self.pluginScrollView.debugView setNeedsDisplay];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 /**
  * Remove the map
  */

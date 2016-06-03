@@ -22,6 +22,7 @@
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic, strong) GMSMapView* map;
+@property (nonatomic) BOOL clickable;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;

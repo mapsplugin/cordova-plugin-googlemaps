@@ -678,17 +678,6 @@
 }
 
 
--(void)pluginLayer_setClickable:(CDVInvokedUrlCommand *)command
-{
-    Boolean isClickable = [[command.arguments objectAtIndex:0] boolValue];
-    self.pluginLayer.clickable = isClickable;
-    self.pluginLayer.pluginScrollView.debugView.clickable = isClickable;
-    [self.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
 /**
  * Set background color
  * @params key

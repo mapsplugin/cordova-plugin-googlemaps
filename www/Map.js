@@ -501,7 +501,7 @@ Map.prototype.setVisible = function(isVisible) {
 Map.prototype.setClickable = function(isClickable) {
     var self = this;
     isClickable = common.parseBoolean(isClickable);
-    cordova.exec(null, self.errorHandler, 'GoogleMaps', 'pluginLayer_setClickable', [isClickable]);
+    cordova.exec(null, self.errorHandler, self.id, 'setClickable', [isClickable]);
 };
 
 Map.prototype.setBackgroundColor = function(color) {
