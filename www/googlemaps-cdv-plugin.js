@@ -209,7 +209,10 @@ module.exports = {
       getMap: function() {
         var mapId = "map_" + MAP_CNT;
         var map = new Map(mapId);
+
+        // Catch all events for this map instance, then pass to the instance.
         document.addEventListener(mapId, nativeCallback.bind(map));
+
         map.showDialog = function() {
           showDialog(mapId).bind(map);
         };

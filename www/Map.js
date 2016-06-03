@@ -64,9 +64,22 @@ Map.prototype.refreshLayout = function(event) {
         var args = [];
         var element, elements = [];
         var children = common.getAllChildren(div);
-        var elemId, clickable;
+        var elemId, clickable, size;
 
-        args.push(common.getDivRect(div));
+        // TODO: Find more better way to get the 100% width of body.
+        var scrollBarWidth = 16;
+        var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
+
+        // Gets the map div size.
+        // The plugin needs to consider the viewport zoom ratio
+        // for the case window.innerHTML > body.offsetWidth.
+        size = common.getDivRect(div);
+        size.left *= ratio;
+        size.top *= ratio;
+        size.width *= ratio;
+        size.height *= ratio;
+        args.push(size);
+
         for (var i = 0; i < children.length; i++) {
             element = children[i];
             if (element.nodeType != 1) {
@@ -81,9 +94,16 @@ Map.prototype.refreshLayout = function(event) {
                 elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
                 element.setAttribute("__pluginDomId", elemId);
             }
+
+            size = common.getDivRect(element);
+            size.left *= ratio;
+            size.top *= ratio;
+            size.width *= ratio;
+            size.height *= ratio;
+
             elements.push({
                 id: elemId,
-                size: common.getDivRect(element)
+                size: size
             });
         }
         args.push(elements);
@@ -146,9 +166,22 @@ Map.prototype.getMap = function(mapId, div, params) {
         args.push(params);
 
         self.set("div", div);
-        args.push(common.getDivRect(div));
         var elements = [];
-        var elemId, clickable;
+        var elemId, clickable, size;
+
+        // TODO: Find more better way to get the 100% width of body.
+        var scrollBarWidth = 16;
+        var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
+
+        // Gets the map div size.
+        // The plugin needs to consider the viewport zoom ratio
+        // for the case window.innerHTML > body.offsetWidth.
+        size = common.getDivRect(div);
+        size.left *= ratio;
+        size.top *= ratio;
+        size.width *= ratio;
+        size.height *= ratio;
+        args.push(size);
 
         for (var i = 0; i < children.length; i++) {
             element = children[i];
@@ -157,10 +190,17 @@ Map.prototype.getMap = function(mapId, div, params) {
                 elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
                 element.setAttribute("__pluginDomId", elemId);
             }
+            size = common.getDivRect(element);
+            size.left *= ratio;
+            size.top *= ratio;
+            size.width *= ratio;
+            size.height *= ratio;
+
             elements.push({
                 id: elemId,
-                size: common.getDivRect(element)
+                size: size
             });
+            i++;
         }
         args.push(elements);
 
@@ -1091,19 +1131,13 @@ console.log("mapId = " + self.id);
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
-Map.prototype._onMapEvent = function(eventName, params) {
-   var args = [eventName];
-   for (var i = 1; i < arguments.length; i++) {
-       if (typeof(arguments[i]) === "string") {
-           if (["true", "false"].indexOf(arguments[i].toLowerCase()) > -1) {
-               arguments[i] = parseBoolean(arguments[i]);
-           }
-       }
-       args.push(arguments[i]);
-   }
-   args.push(this);
-   this.trigger.apply(this, args);
-};
+ Map.prototype._onMapEvent = function(eventName) {
+    var args = [eventName];
+    for (var i = 1; i < arguments.length; i++) {
+        args.push(arguments[i]);
+    }
+    this.trigger.apply(this, args);
+ };
 
 Map.prototype._onMarkerEvent = function(eventName, markerId) {
     var self = this;

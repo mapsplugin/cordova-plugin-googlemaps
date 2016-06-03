@@ -108,9 +108,6 @@
     self.pluginScrollView.contentOffset = offset;
   
     CGRect embedRect = CGRectFromString([self.drawRects objectForKey:mapId]);
-  
-    //embedRect.origin.x -= offsetX;
-    //embedRect.origin.y -= offsetY;
     //NSLog(@"mapId = %@, embedRect = %@", mapId, embedRect);
 
     GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
