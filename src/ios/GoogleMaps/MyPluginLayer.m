@@ -185,7 +185,7 @@
             continue;
         }
         
-        // If user clicked on the map, return the mapCtrl.view.
+        // If user click on the map, return the mapCtrl.view.
         offsetX = mapCtrl.view.frame.origin.x - offsetX;
         offsetY = mapCtrl.view.frame.origin.y - offsetY;
         point.x -= offsetX;
