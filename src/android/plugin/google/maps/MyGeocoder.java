@@ -39,7 +39,7 @@ public class MyGeocoder extends CordovaPlugin {
   }
 
   @SuppressWarnings("unused")
-  private void geocode(final JSONArray args, final CallbackContext callbackContext) {
+  private void geocode(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     final JSONObject opts = args.getJSONObject(0);
 
