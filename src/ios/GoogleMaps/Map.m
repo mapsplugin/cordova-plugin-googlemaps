@@ -179,9 +179,10 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-
     [googlemaps.pluginLayer clearHTMLElement:mapId];
     //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+    [googlemaps.pluginLayer.drawRects removeObjectForKey:mapId];
+  
     [self clear:nil];
     [self.mapCtrl.overlayManager removeAllObjects];
     [self.mapCtrl.map clear];
