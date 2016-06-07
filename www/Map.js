@@ -1064,6 +1064,7 @@ Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, 
 
 Map.prototype._onCameraEvent = function(eventName, params) {
     var cameraPosition = new CameraPosition(params);
+    this.set('camera', CameraPosition)
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;
