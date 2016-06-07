@@ -1,3 +1,4 @@
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
@@ -371,37 +372,12 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
         cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
     }
 
-    // TODO: fix the below shoddy code...
-    if (!cameraPosition.hasOwnProperty('zoom')) {
-        self.getZoom(function(zoom) {
-            cameraPosition.zoom = zoom;
-        });
-    }
-
-    // TODO: fix the below shoddy code...
-    if (!cameraPosition.hasOwnProperty('tilt')) {
-        self.getTilt(function(tilt) {
-            cameraPosition.tilt = tilt;
-        });
-    }
-
-    // TODO: fix the below shoddy code...
-    if (!cameraPosition.hasOwnProperty('bearing')) {
-        self.getBearing(function(bearing) {
-            cameraPosition.bearing = bearing;
-        });
-    }
-
-    // TODO: fix the below shoddy code...
     var self = this;
-    setTimeout(function() {
-        cordova.exec(function() {
-            if (typeof callback === "function") {
-                callback.call(self);
-            }
-        }, self.errorHandler, self.id, 'animateCamera', [self.deleteFromObject(cameraPosition,'function')]);
-    }.bind(self), 10);
-
+    cordova.exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.id, 'animateCamera', [self.deleteFromObject(cameraPosition,'function')]);
 
 };
 /**
@@ -415,36 +391,11 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
         cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
     }
     var self = this;
-
-    // TODO: fix the below shoddy code...
-    if (!cameraPosition.hasOwnProperty('zoom')) {
-        self.getZoom(function(zoom) {
-            cameraPosition.zoom = zoom;
-        });
-    }
-
-    // TODO: fix the below shoddy code...
-    if (!cameraPosition.hasOwnProperty('tilt')) {
-        self.getTilt(function(tilt) {
-            cameraPosition.tilt = tilt;
-        });
-    }
-
-    // TODO: fix the below shoddy code...
-    if (!cameraPosition.hasOwnProperty('bearing')) {
-        self.getBearing(function(bearing) {
-            cameraPosition.bearing = bearing;
-        });
-    }
-
-    // TODO: fix the below shoddy code...
-    setTimeout(function() {
-        cordova.exec(function() {
-            if (typeof callback === "function") {
-                callback.call(self);
-            }
-        }, self.errorHandler, self.id, 'moveCamera', [self.deleteFromObject(cameraPosition,'function')]);
-    }.bind(self), 10);
+    cordova.exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.id, 'moveCamera', [self.deleteFromObject(cameraPosition,'function')]);
 
 };
 
@@ -538,36 +489,6 @@ Map.prototype.getCameraPosition = function(callback) {
         }
     }, self.errorHandler, self.id, 'getCameraPosition', []);
 };
-
-
-Map.prototype.getZoom = function(callback) {
-    var self = this;
-    cordova.exec(function(camera) {
-        if (typeof callback === "function") {
-            callback.call(self, camera.zoom);
-        }
-    }, self.errorHandler, self.id, 'getCameraPosition', []);
-};
-
-Map.prototype.getTilt = function(callback) {
-    var self = this;
-    cordova.exec(function(camera) {
-        if (typeof callback === "function") {
-            callback.call(self, camera.tilt);
-        }
-    }, self.errorHandler, self.id, 'getCameraPosition', []);
-};
-
-Map.prototype.getBearing = function(callback) {
-    var self = this;
-    cordova.exec(function(camera) {
-        if (typeof callback === "function") {
-            callback.call(self, camera.bearing);
-        }
-    }, self.errorHandler, self.id, 'getCameraPosition', []);
-};
-
-
 
 /**
  * Remove the map completely.

@@ -405,9 +405,26 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   NSDictionary *json = [command.arguments objectAtIndex:0];
   
-  int bearing = (int)[[json valueForKey:@"bearing"] integerValue];
-  double angle = [[json valueForKey:@"tilt"] doubleValue];
-  double zoom = [[json valueForKey:@"zoom"] doubleValue];
+  int bearing;
+  if ([json valueForKey:@"bearing"]) {
+    bearing = (int)[[json valueForKey:@"bearing"] integerValue];
+  } else {
+    bearing = self.mapCtrl.map.camera.bearing;
+  }
+  
+  double angle;
+  if ([json valueForKey:@"tilt"]) {
+    angle = [[json valueForKey:@"tilt"] doubleValue];
+  } else {
+    angle = self.mapCtrl.map.camera.viewingAngle;
+  }
+  
+  double zoom;
+  if ([json valueForKey:@"zoom"]) {
+    zoom = [[json valueForKey:@"zoom"] doubleValue];
+  } else {
+    zoom = self.mapCtrl.map.camera.zoom;
+  }
   
   
   NSDictionary *latLng = nil;
@@ -420,6 +437,13 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
   if ([json objectForKey:@"target"]) {
     NSString *targetClsName = [[json objectForKey:@"target"] className];
     if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
+      //--------------------------------------------
+      //  cameraPosition.target = [
+      //    new plugin.google.maps.LatLng(),
+      //    ...
+      //    new plugin.google.maps.LatLng()
+      //  ]
+      //---------------------------------------------
       int i = 0;
       NSArray *latLngList = [json objectForKey:@"target"];
       GMSMutablePath *path = [GMSMutablePath path];
@@ -441,6 +465,10 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
       cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
     
     } else {
+      //------------------------------------------------------------------
+      //  cameraPosition.target = new plugin.google.maps.LatLng();
+      //------------------------------------------------------------------
+
       latLng = [json objectForKey:@"target"];
       latitude = [[latLng valueForKey:@"lat"] floatValue];
       longitude = [[latLng valueForKey:@"lng"] floatValue];
