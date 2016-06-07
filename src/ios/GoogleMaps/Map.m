@@ -71,14 +71,20 @@ NSLog(@"--> pluginId = %@", pluginId);
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
   
-    NSLog(@"---> %@ : count = %lu", self.mapId, (unsigned long)[command.arguments count]);
+    NSLog(@"---> %@ : %@", self.mapId, command.arguments);
     if ([command.arguments count] != 4) {
+        //-----------------------------------------------------------
+        // case: plugin.google.maps.getMap() (no options are given)
+        //-----------------------------------------------------------
         [self.mapCtrl.view setHidden:true];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
+    //---------------------------------------------
+    // case: plugin.google.maps.getMap(div, opt?)
+    //---------------------------------------------
     [self resizeMap:command];
     [self setOptions:command];
         
@@ -631,6 +637,9 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
 */
 
   if ([initOptions valueForKey:@"camera"]) {
+    //------------------------------------------
+    // Case : The camera option is specified.
+    //------------------------------------------
     NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
     [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
@@ -640,8 +649,18 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
     GMSCameraPosition *camera;
     GMSCoordinateBounds *cameraBounds = nil;
 
+    //--------------------------
+    // MapOptions.camera.target
+    //--------------------------
     if ([cameraOpts objectForKey:@"target"]) {
       NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
+      //-----------------------------------
+      // MapOptions.camera.target = [
+      //   new plugin.google.maps.LatLng(...),
+      //   ...,
+      //   new plugin.google.maps.LatLng(...)
+      // ];
+      //-----------------------------------
       if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
         int i = 0;
         NSArray *latLngList = [cameraOpts objectForKey:@"target"];
@@ -669,6 +688,9 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
                                             viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
         
       } else {
+        //------------------------------------------------------------------
+        // MapOptions.camera.target = new plugin.google.maps.LatLng(...)
+        //------------------------------------------------------------------
         latLng = [cameraOpts objectForKey:@"target"];
         latitude = [[latLng valueForKey:@"lat"] floatValue];
         longitude = [[latLng valueForKey:@"lng"] floatValue];
@@ -680,6 +702,15 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
                                             viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
       }
     } else {
+      //------------------------------------------------------------------
+      // MapOptions.camera = {
+      //    lat: ...,
+      //    lng: ...,
+      //    zoom: ...,
+      //    bearing: ...,
+      //    tilt: ...
+      // }
+      //------------------------------------------------------------------
       camera = [GMSCameraPosition
                               cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
                               longitude: [[latLng valueForKey:@"lng"] floatValue]
@@ -705,9 +736,8 @@ NSLog(@"---> resizeMap mapId = %@", self.mapId);
     
       [self.mapCtrl.map setCamera:cameraPosition2];
     }
-
   }
-  
+
   BOOL isEnabled = NO;
   //controls
   NSDictionary *controls = [initOptions objectForKey:@"controls"];
