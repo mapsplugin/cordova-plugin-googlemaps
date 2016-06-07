@@ -774,12 +774,12 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
         cordova.exec(function(result) {
             if (typeof callback === "function") {
                 var latLng = new LatLng(result[0] || 0, result[1] || 0);
-                callback.call(self, result);
+                callback.call(self, latLng);
             }
         }, self.errorHandler, self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
     } else {
         if (typeof callback === "function") {
-            callback.call(self, [undefined, undefined]);
+            callback.call(self, undefined);
         }
     }
 
