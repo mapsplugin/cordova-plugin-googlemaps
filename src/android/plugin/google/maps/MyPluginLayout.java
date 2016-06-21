@@ -89,6 +89,7 @@ public class MyPluginLayout extends FrameLayout  {
     drawRect.top = top;
     drawRect.right = right;
     drawRect.bottom = bottom;
+    this.updateViewPosition(mapId);
   }
   
   public void putHTMLElement(String mapId, String domId, float left, float top, float right, float bottom) {
