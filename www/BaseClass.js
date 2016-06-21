@@ -120,7 +120,7 @@ var BaseClass = function() {
 
    self.errorHandler = function(msg) {
        if (msg) {
-           console.error(msg);
+           console.log(msg);
            self.trigger('error', msg);
        }
        return false;
