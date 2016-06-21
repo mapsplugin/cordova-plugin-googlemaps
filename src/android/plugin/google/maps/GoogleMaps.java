@@ -298,9 +298,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
 
       mPluginLayout.setDrawingRect(
           mapId,
-          rectF.left,
+          rectF.left - view.getScrollX(),
           rectF.top - view.getScrollY(),
-          rectF.left + rectF.width(),
+          rectF.left + rectF.width() - view.getScrollX(),
           rectF.top + rectF.height() - view.getScrollY());
     }
   }
