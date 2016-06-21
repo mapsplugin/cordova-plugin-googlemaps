@@ -187,8 +187,8 @@ function getPageRect() {
 
     var pageWidth = window.innerWidth ||
         document.documentElement.clientWidth ||
-        document.body.clientWidth,
-        pageHeight = window.innerHeight ||
+        document.body.clientWidth;
+    var pageHeight = window.innerHeight ||
         document.documentElement.clientHeight ||
         document.body.clientHeight;
     var pageLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);

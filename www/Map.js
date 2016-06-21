@@ -225,10 +225,8 @@ Map.prototype.getMap = function(mapId, div, params) {
         }
     }
     cordova.exec(function() {
-        setTimeout(function() {
-            //self.refreshLayout();
-            self.trigger(event.MAP_READY, self);
-        }, 100);
+        //self.refreshLayout();
+        self.trigger(event.MAP_READY, self);
     }, self.errorHandler, 'GoogleMaps', 'getMap', args);
     return self;
 };
@@ -1062,7 +1060,8 @@ Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, 
 };
 
 Map.prototype._onCameraEvent = function(eventName, params) {
-    var cameraPosition = new CameraPosition(params);
+    //var cameraPosition = new CameraPosition(params);
+    var cameraPosition = params;
     this.set('camera', CameraPosition)
     this.trigger(eventName, cameraPosition, this);
 };

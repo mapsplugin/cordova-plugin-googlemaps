@@ -151,6 +151,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
         }
         */
 
+        webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView.getView(), activity);
 
         // ------------------------------
@@ -284,7 +285,9 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
       return;
     }
     View view = webView.getView();
-    mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
+    int scrollX = view.getScrollX();
+    int scrollY = view.getScrollY();
+    mPluginLayout.scrollTo(scrollX, scrollY);
 
     Iterator<Map.Entry<String, RectF>> iterator = mapDivLayouts.entrySet().iterator();
     Map.Entry<String, RectF> entry;
@@ -297,10 +300,10 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
 
       mPluginLayout.setDrawingRect(
           mapId,
-          rectF.left - view.getScrollX(),
-          rectF.top - view.getScrollY(),
-          rectF.left + rectF.width() - view.getScrollX(),
-          rectF.top + rectF.height() - view.getScrollY());
+          rectF.left - scrollX,
+          rectF.top - scrollY,
+          rectF.left + rectF.width() - scrollX,
+          rectF.top + rectF.height() - scrollY);
     }
   }
 
@@ -886,6 +889,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
 
       mapPlugins.put(mapId, pluginMap);
 
+      //pluginMap.getMap(args, callbackContext);
       pluginMap.getMap(args, callbackContext);
 
     } catch (Exception e) {
@@ -1108,6 +1112,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
    *
    * @param newConfig		The new device configuration
    */
+  /*
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
 // Checks the orientation of the screen
@@ -1117,5 +1122,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
       Toast.makeText(activity, "portrait", Toast.LENGTH_SHORT).show();
     }
   }
+  */
 
 }

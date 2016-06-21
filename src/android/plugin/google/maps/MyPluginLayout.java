@@ -62,7 +62,7 @@ public class MyPluginLayout extends FrameLayout  {
     backgroundView.setBackgroundColor(Color.WHITE);
     backgroundView.setVerticalScrollBarEnabled(false);
     backgroundView.setHorizontalScrollBarEnabled(false);
-    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 9999));
+    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 999999));
 
     root.removeView(browserView);
     frontLayer.addView(browserView);
