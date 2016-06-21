@@ -581,6 +581,7 @@ Map.prototype.setDiv = function(div) {
         }
         args.push(params);
     */
+        self.set("div", null);
     } else {
 
         var currentDiv = self.get("div");
