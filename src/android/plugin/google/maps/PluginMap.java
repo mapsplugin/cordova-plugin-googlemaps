@@ -199,7 +199,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     mapView = new MapView(activity, options);
     mapCtrl.mapViews.put(mapId, mapView);
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         mapView.onCreate(null);
@@ -359,7 +359,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   public void fitBounds(final LatLngBounds cameraBounds) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         Builder builder = CameraPosition.builder();
@@ -518,22 +518,31 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param args Parameters given from JavaScript side
    * @param callbackContext Callback contect for sending back the result.
    */
-  public void remove(JSONArray args, CallbackContext callbackContext) {
+  public void remove(JSONArray args, final CallbackContext callbackContext) {
     mapCtrl.mPluginLayout.setClickable(false);
     mapCtrl.mPluginLayout.removeMapView(mapId);
     plugins.clear();
     mapCtrl.mapPlugins.remove(mapId);
-    if (map != null) {
-      map.setMyLocationEnabled(false);
-      map.clear();
-    }
-    if (mapView != null) {
-      mapView.onDestroy();
-    }
-    map = null;
-    mapView = null;
-    System.gc();
-    this.sendNoResult(callbackContext);
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (map != null) {
+          try {
+            map.setMyLocationEnabled(false);
+          } catch (SecurityException e) {
+            e.printStackTrace();
+          }
+          map.clear();
+        }
+        if (mapView != null) {
+          mapView.onDestroy();
+        }
+        map = null;
+        mapView = null;
+        System.gc();
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
 
@@ -596,7 +605,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         if (width > 0) {
           layoutParams.width = width;
         }
-      } catch (Exception e) {}
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
 
       try {
         String widthString = styles.getString("maxWidth");
@@ -617,7 +628,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             maxWidth = (int)widthDouble;
           }
         }
-      } catch (Exception e) {}
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
 
     windowLayer.setLayoutParams(layoutParams);
@@ -657,7 +670,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         String[] tmp = title.split(",");
         Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
         image = PluginUtil.scaleBitmapForDevice(image);
-        ImageView imageView = new ImageView(this.cordova.getActivity());
+        ImageView imageView = new ImageView(this.activity);
         imageView.setImageBitmap(image);
 
         if (maxWidth > 0) {
@@ -667,7 +680,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
         windowLayer.addView(imageView);
       } else {
-        TextView textView = new TextView(this.cordova.getActivity());
+        TextView textView = new TextView(this.activity);
         textView.setText(title);
         textView.setSingleLine(false);
 
@@ -717,7 +730,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
     if (snippet != null) {
       //snippet = snippet.replaceAll("\n", "");
-      TextView textView2 = new TextView(this.cordova.getActivity());
+      TextView textView2 = new TextView(this.activity);
       textView2.setText(snippet);
       textView2.setTextColor(Color.GRAY);
       textView2.setTextSize((textView2.getTextSize() / 6 * 5) / density);
@@ -924,13 +937,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   public void getFocusedBuilding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    IndoorBuilding focusedBuilding = map.getFocusedBuilding();
-    if (focusedBuilding != null) {
-      JSONObject result = PluginUtil.convertIndoorBuildingToJson(focusedBuilding);
-      callbackContext.success(result);
-    } else {
-      callbackContext.success(-1);
-    }
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        IndoorBuilding focusedBuilding = map.getFocusedBuilding();
+        if (focusedBuilding != null) {
+          JSONObject result = PluginUtil.convertIndoorBuildingToJson(focusedBuilding);
+          callbackContext.success(result);
+        } else {
+          callbackContext.success(-1);
+        }
+      }
+    });
   }
 
   /**
@@ -939,13 +957,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    * @throws JSONException
    */
-  public void setCenter(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void setCenter(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     double lat = args.getDouble(0);
     double lng = args.getDouble(1);
 
     LatLng latLng = new LatLng(lat, lng);
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
-    this.myMoveCamera(cameraUpdate, callbackContext);
+    final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        myMoveCamera(cameraUpdate, callbackContext);
+      }
+    });
   }
 
   /**
@@ -959,7 +982,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     if (tilt > 0 && tilt <= 90) {
       final float finalTilt = tilt;
-      cordova.getActivity().runOnUiThread(new Runnable() {
+      this.activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
           CameraPosition currentPos = map.getCameraPosition();
@@ -1136,9 +1159,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    * @throws JSONException
    */
-  public void setZoom(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    Long zoom = args.getLong(0);
-    this.myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
+  public void setZoom(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final Long zoom = args.getLong(0);
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        myMoveCamera(CameraUpdateFactory.zoomTo(zoom), callbackContext);
+      }
+    });
   }
 
   /**
@@ -1154,7 +1182,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     float yPixel = -y * this.density;
     final CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         map.animateCamera(cameraUpdate);
@@ -1168,8 +1196,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    */
   public void myMoveCamera(CameraPosition cameraPosition, final CallbackContext callbackContext) {
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
-    this.myMoveCamera(cameraUpdate, callbackContext);
+    final CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        myMoveCamera(cameraUpdate, callbackContext);
+      }
+    });
   }
 
   /**
@@ -1177,14 +1210,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param cameraUpdate
    * @param callbackContext
    */
-  public void myMoveCamera(final CameraUpdate cameraUpdate, final CallbackContext callbackContext) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        map.moveCamera(cameraUpdate);
-        callbackContext.success();
-      }
-    });
+  public void myMoveCamera(CameraUpdate cameraUpdate, CallbackContext callbackContext) {
+    map.moveCamera(cameraUpdate);
+    callbackContext.success();
   }
 
   public void onRequestPermissionResult(int requestCode, String[] permissions,
@@ -1237,10 +1265,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
 
     final Boolean isEnabled = args.getBoolean(0);
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        map.setMyLocationEnabled(isEnabled);
+        try {
+          map.setMyLocationEnabled(isEnabled);
+        } catch (SecurityException e) {
+          e.printStackTrace();
+        }
         map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
         sendNoResult(callbackContext);
       }
@@ -1254,7 +1286,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  public void clear(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void clear(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Set<String> pluginNames = plugins.keySet();
     Iterator<String> iterator = pluginNames.iterator();
     String pluginName;
@@ -1267,8 +1299,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     }
 
-    this.map.clear();
-    this.sendNoResult(callbackContext);
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.clear();
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
@@ -1279,7 +1316,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setIndoorEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         map.setIndoorEnabled(isEnabled);
@@ -1296,7 +1333,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setTrafficEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         map.setTrafficEnabled(isEnabled);
@@ -1313,7 +1350,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setCompassEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         UiSettings uiSettings = map.getUiSettings();
@@ -1345,7 +1382,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
 
     final int myMapTypeId = mapTypeId;
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         map.setMapType(myMapTypeId);
@@ -1374,7 +1411,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     };
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         if (durationMS > 0) {
@@ -1394,7 +1431,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @throws JSONException
    */
   public void getCameraPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         CameraPosition camera = map.getCameraPosition();
@@ -1433,7 +1470,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
     final boolean finalUncompress = uncompress;
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
 
@@ -1476,7 +1513,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     lat = args.getDouble(0);
     lng = args.getDouble(1);
     final LatLng latLng = new LatLng(lat, lng);
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         Point point = map.getProjection().toScreenLocation(latLng);
@@ -1500,7 +1537,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     final Point point = new Point();
     point.x = pointX;
     point.y = pointY;
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
 
@@ -1523,7 +1560,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Thanks @fschmidt
    */
   public void getVisibleRegion(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         try {
@@ -1562,7 +1599,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setAllGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Boolean isEnabled = args.getBoolean(0);
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         UiSettings uiSettings = map.getUiSettings();
@@ -1584,7 +1621,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     final int top = padding.getInt("top");
     final int bottom = padding.getInt("bottom");
     final int right = padding.getInt("right");
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         map.setPadding(left, top, right, bottom);
@@ -1910,7 +1947,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   private void jsCallback(final String js) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         webView.loadUrl(js);
