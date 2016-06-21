@@ -557,6 +557,13 @@ Map.prototype.toDataURL = function(params, callback) {
 /**
  * Show the map into the specified div.
  */
+Map.prototype.getDiv = function() {
+    return this.get("div");
+};
+
+/**
+ * Show the map into the specified div.
+ */
 Map.prototype.setDiv = function(div) {
     var self = this,
         args = [];
