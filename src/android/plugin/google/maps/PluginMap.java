@@ -359,14 +359,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   public void fitBounds(final LatLngBounds cameraBounds) {
-    Builder builder = CameraPosition.builder();
-    builder.tilt(map.getCameraPosition().tilt);
-    builder.bearing(map.getCameraPosition().bearing);
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, (int)density);
-    map.moveCamera(cameraUpdate);
-    builder.zoom(map.getCameraPosition().zoom);
-    builder.target(map.getCameraPosition().target);
-    map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Builder builder = CameraPosition.builder();
+        builder.tilt(map.getCameraPosition().tilt);
+        builder.bearing(map.getCameraPosition().bearing);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, (int)density);
+        map.moveCamera(cameraUpdate);
+        builder.zoom(map.getCameraPosition().zoom);
+        builder.target(map.getCameraPosition().target);
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+      }
+    });
   }
 
   //-----------------------------------
