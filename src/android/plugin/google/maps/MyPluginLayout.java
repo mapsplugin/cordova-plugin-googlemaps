@@ -36,7 +36,6 @@ public class MyPluginLayout extends FrameLayout  {
   private HashMap<String, ViewGroup> mapViews = new HashMap<String, ViewGroup>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
-  private HashMap<String, ViewGroup.LayoutParams> orgLayoutParams = new HashMap<String, ViewGroup.LayoutParams>();
   private boolean isDebug = false;
   private boolean isClickable = true;
   private HashMap<String, HashMap<String, RectF>> MAP_HTMLNodes = new HashMap<String, HashMap<String, RectF>>();
@@ -229,11 +228,6 @@ public class MyPluginLayout extends FrameLayout  {
         mapView.removeView(touchableWrappers.remove(mapId));
         drawRects.remove(mapId);
 
-        removeView(scrollView);
-        if (orgLayoutParams.containsKey(mapId)) {
-          mapView.setLayoutParams(orgLayoutParams.remove(mapId));
-        }
-
         mActivity.getWindow().getDecorView().requestFocus();
       }
     });
@@ -273,10 +267,6 @@ public class MyPluginLayout extends FrameLayout  {
         //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
 
         mapViews.put(mapId, pluginView);
-        ViewGroup.LayoutParams lParams = pluginView.getLayoutParams();
-        if (lParams != null) {
-          orgLayoutParams.put(mapId, new ViewGroup.LayoutParams(lParams));
-        }
 
         TouchableWrapper wrapper = new TouchableWrapper(context);
         touchableWrappers.put(mapId, wrapper);
