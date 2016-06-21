@@ -147,6 +147,8 @@ function closeDialog() {
  *****************************************************************************/
 
 window._watchDogTimer = null;
+/*
+TODO: Think more better way.
 _global.addEventListener("keepWatching_changed", function(oldValue, newValue) {
     if (newValue !== true) {
         return;
@@ -207,6 +209,7 @@ _global.addEventListener("keepWatching_changed", function(oldValue, newValue) {
     }
     window._watchDogTimer = null;
 });
+*/
 
 function nativeCallback(params) {
   var args = params.args || [];
