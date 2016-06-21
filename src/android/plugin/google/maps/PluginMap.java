@@ -485,6 +485,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (args.length() == 0) {
+      Log.d("PluginMap", "--> (setDiv) " + mapId);
+
       mapCtrl.mapDivLayouts.remove(mapId);
       mapCtrl.mPluginLayout.removeMapView(mapId);
       this.sendNoResult(callbackContext);
@@ -497,19 +499,36 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   /**
+   * Set clickable of the map
+   * @param args Parameters given from JavaScript side
+   * @param callbackContext Callback contect for sending back the result.
+   * @throws JSONException
+   */
+  public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    boolean clickable = args.getBoolean(0);
+    mapCtrl.mPluginLayout.setClickable(mapId, clickable);
+    this.sendNoResult(callbackContext);
+  }
+
+  /**
    * Set visibility of the map
    * @param args Parameters given from JavaScript side
    * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
-  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(0);
-    if (visible) {
-      mapView.setVisibility(View.VISIBLE);
-    } else {
-      mapView.setVisibility(View.INVISIBLE);
-    }
-    this.sendNoResult(callbackContext);
+  public void setVisible(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean visible = args.getBoolean(0);
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (visible) {
+          mapView.setVisibility(View.VISIBLE);
+        } else {
+          mapView.setVisibility(View.INVISIBLE);
+        }
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
 
@@ -519,7 +538,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext Callback contect for sending back the result.
    */
   public void remove(JSONArray args, final CallbackContext callbackContext) {
-    mapCtrl.mPluginLayout.setClickable(false);
+    mapCtrl.mPluginLayout.setClickable(mapId, false);
     mapCtrl.mPluginLayout.removeMapView(mapId);
     plugins.clear();
     mapCtrl.mapPlugins.remove(mapId);

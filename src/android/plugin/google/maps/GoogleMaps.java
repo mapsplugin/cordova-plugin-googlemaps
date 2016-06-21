@@ -1052,18 +1052,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     this.sendNoResult(callbackContext);
   }
 
-  /**
-   * Set click-ability of the map
-   * @param args Parameters given from JavaScript side
-   * @param callbackContext Callback contect for sending back the result.
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  public void pluginLayer_setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean clickable = args.getBoolean(0);
-    this.mPluginLayout.setClickable(clickable);
-    this.sendNoResult(callbackContext);
-  }
 
   /**
    * Set the app background

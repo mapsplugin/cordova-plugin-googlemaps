@@ -34,10 +34,10 @@ public class MyPluginLayout extends FrameLayout  {
   private FrameLayout scrollFrameLayout = null;
   private View backgroundView = null;
   private HashMap<String, ViewGroup> mapViews = new HashMap<String, ViewGroup>();
+  private HashMap<String, Boolean> mapClickables = new HashMap<String, Boolean>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   private boolean isDebug = false;
-  private boolean isClickable = true;
   private HashMap<String, HashMap<String, RectF>> MAP_HTMLNodes = new HashMap<String, HashMap<String, RectF>>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
@@ -139,12 +139,6 @@ public class MyPluginLayout extends FrameLayout  {
     }
   }
 
-  public void setClickable(boolean clickable) {
-    this.isClickable = clickable;
-    if (this.isDebug) {
-      this.inValidate();
-    }
-  }
   
   public void updateViewPosition(final String mapId) {
     //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
@@ -218,6 +212,7 @@ public class MyPluginLayout extends FrameLayout  {
     if (!mapViews.containsKey(mapId)) {
       return;
     }
+    mapClickables.remove(mapId);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
@@ -267,6 +262,7 @@ public class MyPluginLayout extends FrameLayout  {
         //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
 
         mapViews.put(mapId, pluginView);
+        mapClickables.put(mapId, true);
 
         TouchableWrapper wrapper = new TouchableWrapper(context);
         touchableWrappers.put(mapId, wrapper);
@@ -292,6 +288,9 @@ public class MyPluginLayout extends FrameLayout  {
     this.scrollView.scrollTo(x, y);
   }
 
+  public void setClickable(String mapId, boolean clickable) {
+    mapClickables.put(mapId, clickable);
+  }
 
   public void setBackgroundColor(int color) {
     this.backgroundView.setBackgroundColor(color);
@@ -311,10 +310,6 @@ public class MyPluginLayout extends FrameLayout  {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (!isClickable) {
-        browserView.requestFocus(View.FOCUS_DOWN);
-        return false;
-      }
 
       int action = event.getAction();
       //Log.d("FrontLayerLayout", "----> action = " + MotionEvent.actionToString(action) + ", isScrolling = " + isScrolling);
@@ -343,7 +338,7 @@ public class MyPluginLayout extends FrameLayout  {
         mapId = entry.getKey();
         //Log.d("FrontLayerLayout", "----> mapId = " + mapId );
         mapView = entry.getValue();
-        if (mapView.getVisibility() != View.VISIBLE) {
+        if (mapView.getVisibility() != View.VISIBLE || !mapClickables.get(mapId)) {
           continue;
         }
 
@@ -400,10 +395,6 @@ public class MyPluginLayout extends FrameLayout  {
       int height = canvas.getHeight();
       int scrollY = browserView.getScrollY();
 
-      if (!isClickable) {
-        canvas.drawRect(0f, 0f, width, height, debugPaint);
-        return;
-      }
       RectF drawRect;
       ViewGroup mapView = null;
       Iterator<Entry<String, HashMap<String, RectF>>> iterator = MAP_HTMLNodes.entrySet().iterator();
