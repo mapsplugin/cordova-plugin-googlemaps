@@ -521,31 +521,37 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
   @SuppressWarnings("unused")
   public void isAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    // ------------------------------
-    // Check of Google Play Services
-    // ------------------------------
-    int checkGooglePlayServices = GooglePlayServicesUtil
-        .isGooglePlayServicesAvailable(activity);
-    if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-      // google play services is missing!!!!
-      callbackContext.error("Google Maps Android API v2 is not available, because this device does not have Google Play Service.");
-      return;
-    }
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        // ------------------------------
+        // Check of Google Play Services
+        // ------------------------------
+        int checkGooglePlayServices = GooglePlayServicesUtil
+          .isGooglePlayServicesAvailable(activity);
+        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
+          // google play services is missing!!!!
+          callbackContext.error("Google Maps Android API v2 is not available, because this device does not have Google Play Service.");
+          return;
+        }
 
 
-    // ------------------------------
-    // Check of Google Maps Android API v2
-    // ------------------------------
-    try {
-      @SuppressWarnings({ "rawtypes" })
-      Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
-    } catch (Exception e) {
-      Log.e("GoogleMaps", "Error", e);
-      callbackContext.error(e.getMessage());
-      return;
-    }
+        // ------------------------------
+        // Check of Google Maps Android API v2
+        // ------------------------------
+        try {
+          @SuppressWarnings({ "rawtypes" })
+          Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
+        } catch (Exception e) {
+          Log.e("GoogleMaps", "Error", e);
+          callbackContext.error(e.getMessage());
+          return;
+        }
 
-    callbackContext.success();
+        callbackContext.success();
+      }
+    });
+
   }
 
 
