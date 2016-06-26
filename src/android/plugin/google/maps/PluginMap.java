@@ -329,8 +329,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   // Create the instance of class
   //-----------------------------------
   public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String serviceName = args.getString(0);
-    String pluginName = mapId + "-" + serviceName.toLowerCase();
+    final String serviceName = args.getString(0);
+    final String pluginName = mapId + "-" + serviceName.toLowerCase();
     //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
     if (plugins.containsKey(pluginName)) {
@@ -338,26 +338,32 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       return;
     }
 
-    try {
-      String className = "plugin.google.maps.Plugin" + serviceName;
-      Class pluginCls = Class.forName(className);
-      //Log.e("PluginMarker", "------> className = " + className);
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
 
-      CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
-      PluginEntry pluginEntry = new PluginEntry(pluginName, plugin);
-      this.plugins.put(pluginName, pluginEntry);
-      mapCtrl.pluginManager.addService(pluginEntry);
+        try {
+          String className = "plugin.google.maps.Plugin" + serviceName;
+          Class pluginCls = Class.forName(className);
+          //Log.e("PluginMarker", "------> className = " + className);
 
-      plugin.privateInitialize(pluginName, this.cordova, webView, null);
+          CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
+          PluginEntry pluginEntry = new PluginEntry(pluginName, plugin);
+          plugins.put(pluginName, pluginEntry);
+          mapCtrl.pluginManager.addService(pluginEntry);
 
-      plugin.initialize(this.cordova, webView);
-      ((MyPluginInterface)plugin).setPluginMap(this);
-      //Log.e("PluginMarker", "------> plugin = " + plugins.get(pluginName));
-      plugin.execute("create", args, callbackContext);
+          plugin.privateInitialize(pluginName, cordova, webView, null);
 
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+          plugin.initialize(cordova, webView);
+          ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
+          //Log.e("PluginMarker", "------> plugin = " + plugins.get(pluginName));
+          plugin.execute("create", args, callbackContext);
+
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    });
   }
 
   public void fitBounds(final LatLngBounds cameraBounds) {
