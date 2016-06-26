@@ -335,19 +335,21 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     final String pluginName = mapId + "-" + serviceName.toLowerCase();
     //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
-    if (plugins.containsKey(pluginName)) {
-      plugins.get(pluginName).plugin.execute("create", args, callbackContext);
-      return;
-    }
-
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
 
         try {
+
+          if (plugins.containsKey(pluginName)) {
+            //Log.d("PluginMap", "--> useCache");
+            plugins.get(pluginName).plugin.execute("create", args, callbackContext);
+            return;
+          }
+
+          //Log.d("PluginMap", "--> create new instance");
           String className = "plugin.google.maps.Plugin" + serviceName;
           Class pluginCls = Class.forName(className);
-          //Log.e("PluginMarker", "------> className = " + className);
 
           CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
           PluginEntry pluginEntry = new PluginEntry(pluginName, plugin);
