@@ -1034,41 +1034,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
   }
 
   /**
-   * Keep the positions of child dom elements of the map div.
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  public void pluginLayer_pushHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String mapId = args.getString(0);
-    String domId = args.getString(1);
-    JSONObject elemSize = args.getJSONObject(2);
-    float left = contentToView(elemSize.getLong("left"));
-    float top = contentToView(elemSize.getLong("top"));
-    float width = contentToView(elemSize.getLong("width"));
-    float height = contentToView(elemSize.getLong("height"));
-    mPluginLayout.putHTMLElement(mapId, domId, left, top, (left + width), (top + height));
-    this.mPluginLayout.inValidate();
-    this.sendNoResult(callbackContext);
-  }
-
-  public void pluginLayer_removeHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String mapId = args.getString(0);
-    String domId = args.getString(1);
-    mPluginLayout.removeHTMLElement(mapId, domId);
-    this.mPluginLayout.inValidate();
-    this.sendNoResult(callbackContext);
-  }
-
-
-  /**
    * Set the app background
    * @param args Parameters given from JavaScript side
    * @param callbackContext Callback contect for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  public void pluginLayer_setBackGroundColor(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void setBackGroundColor(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout != null) {
       JSONArray rgba = args.getJSONArray(0);
       int backgroundColor = Color.WHITE;
@@ -1089,7 +1061,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  public void pluginLayer_setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
     Log.d("GoogleMaps", "pluginLayer_setDebuggable ");
     boolean debuggable = args.getBoolean(0);
     this.mPluginLayout.setDebug(debuggable);
