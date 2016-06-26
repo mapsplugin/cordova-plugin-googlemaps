@@ -1552,12 +1552,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   public void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    int pointX, pointY;
-    pointX = args.getInt(0);
-    pointY = args.getInt(1);
+    double pointX, pointY;
+    pointX = args.getDouble(0);
+    pointY = args.getDouble(1);
     final Point point = new Point();
-    point.x = pointX;
-    point.y = pointY;
+    point.x = (int)(pointX * density);
+    point.y = (int)(pointY * density);
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
