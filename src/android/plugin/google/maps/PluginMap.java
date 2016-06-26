@@ -882,7 +882,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         JSONObject params = null;
         try {
           params = args.getJSONObject(0);
-
+/*
+          //TODO: Provide another better way
           //background color
           if (params.has("backgroundColor")) {
             JSONArray rgba = null;
@@ -903,7 +904,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
             }
           }
-
+*/
           UiSettings settings = map.getUiSettings();
 
           //gestures
