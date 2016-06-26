@@ -314,7 +314,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
               callbackContext.success();
             } catch (Exception e) {
-              Log.d(TAG, "------->error");
               callbackContext.error(e.getMessage());
             }
           }
