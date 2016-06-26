@@ -860,41 +860,49 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    //------------------------------
-    // Initialize Google Maps SDK
-    //------------------------------
-    if (!initialized) {
-      try {
-        MapsInitializer.initialize(cordova.getActivity());
-        initialized = true;
-      } catch (Exception e) {
-        e.printStackTrace();
-        callbackContext.error(e.getMessage());
-        return;
+
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+
+        //------------------------------
+        // Initialize Google Maps SDK
+        //------------------------------
+        if (!initialized) {
+          try {
+            MapsInitializer.initialize(cordova.getActivity());
+            initialized = true;
+          } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error(e.getMessage());
+            return;
+          }
+        }
+
+        //------------------------------------------
+        // Create an instance of PluginMap class.
+        //------------------------------------------
+        try {
+          String mapId = args.getString(0);
+          PluginMap pluginMap = new PluginMap();
+          pluginMap.privateInitialize(mapId, cordova, webView, null);
+          pluginMap.initialize(cordova, webView);
+          pluginMap.mapCtrl = GoogleMaps.this;
+
+          PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
+          pluginManager.addService(pluginEntry);
+
+          mapPlugins.put(mapId, pluginMap);
+
+          //pluginMap.getMap(args, callbackContext);
+          pluginMap.getMap(args, callbackContext);
+
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
       }
-    }
-
-    //------------------------------------------
-    // Create an instance of PluginMap class.
-    //------------------------------------------
-    try {
-      String mapId = args.getString(0);
-      PluginMap pluginMap = new PluginMap();
-      pluginMap.privateInitialize(mapId, this.cordova, webView, null);
-      pluginMap.initialize(this.cordova, webView);
-      pluginMap.mapCtrl = this;
-
-      PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
-      pluginManager.addService(pluginEntry);
-
-      mapPlugins.put(mapId, pluginMap);
-
-      //pluginMap.getMap(args, callbackContext);
-      pluginMap.getMap(args, callbackContext);
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    });
 
   }
 
