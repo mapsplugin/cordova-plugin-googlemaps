@@ -341,6 +341,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     try {
       String className = "plugin.google.maps.Plugin" + serviceName;
       Class pluginCls = Class.forName(className);
+      //Log.e("PluginMarker", "------> className = " + className);
 
       CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
       PluginEntry pluginEntry = new PluginEntry(pluginName, plugin);
@@ -351,7 +352,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
       plugin.initialize(this.cordova, webView);
       ((MyPluginInterface)plugin).setPluginMap(this);
-      plugins.get(pluginName).plugin.execute("create", args, callbackContext);
+      //Log.e("PluginMarker", "------> plugin = " + plugins.get(pluginName));
+      plugin.execute("create", args, callbackContext);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1656,7 +1658,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     JSONObject properties = null;
     String propertyId = "marker_property_" + marker.getId();
-    PluginEntry pluginEntry = plugins.get(mapId + "::Marker");
+    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
