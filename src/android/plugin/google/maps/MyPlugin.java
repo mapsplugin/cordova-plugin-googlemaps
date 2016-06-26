@@ -51,7 +51,8 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     TAG = this.getServiceName();
   }
   @Override
-  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
 
     if (methods.size() == 0) {
       self = this;
@@ -85,19 +86,22 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
           Log.d(TAG, "(debug)action=" + action);
         }
       }
-      Method method = methods.get(action);
-      try {
-        method.invoke(self, args, callbackContext);
-        return true;
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-        callbackContext.error("Cannot access to the '" + action + "' method.");
-        return false;
-      } catch (InvocationTargetException e) {
-        e.printStackTrace();
-        callbackContext.error("Cannot access to the '" + action + "' method.");
-        return false;
-      }
+      cordova.getThreadPool().submit(new Runnable() {
+        @Override
+        public void run() {
+          Method method = methods.get(action);
+          try {
+            method.invoke(self, args, callbackContext);
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            callbackContext.error("Cannot access to the '" + action + "' method.");
+          } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            callbackContext.error("Cannot access to the '" + action + "' method.");
+          }
+        }
+      });
+      return true;
     } else {
       return false;
     }
