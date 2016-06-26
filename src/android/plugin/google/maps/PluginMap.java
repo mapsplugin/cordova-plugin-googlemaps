@@ -493,8 +493,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (args.length() == 0) {
-      Log.d("PluginMap", "--> (setDiv) " + mapId);
-
       mapCtrl.mapDivLayouts.remove(mapId);
       mapCtrl.mPluginLayout.removeMapView(mapId);
       this.sendNoResult(callbackContext);
