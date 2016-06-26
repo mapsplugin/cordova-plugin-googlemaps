@@ -118,92 +118,97 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    GoogleMapOptions options = new GoogleMapOptions();
-    mapId = args.getString(0);
-    final JSONObject params = args.getJSONObject(1);
-
-    //controls
-    if (params.has("controls")) {
-      JSONObject controls = params.getJSONObject("controls");
-
-      if (controls.has("compass")) {
-        options.compassEnabled(controls.getBoolean("compass"));
-      }
-      if (controls.has("zoom")) {
-        options.zoomControlsEnabled(controls.getBoolean("zoom"));
-      }
-    }
-
-    //gestures
-    if (params.has("gestures")) {
-      JSONObject gestures = params.getJSONObject("gestures");
-
-      if (gestures.has("tilt")) {
-        options.tiltGesturesEnabled(gestures.getBoolean("tilt"));
-      }
-      if (gestures.has("scroll")) {
-        options.scrollGesturesEnabled(gestures.getBoolean("scroll"));
-      }
-      if (gestures.has("rotate")) {
-        options.rotateGesturesEnabled(gestures.getBoolean("rotate"));
-      }
-      if (gestures.has("zoom")) {
-        options.zoomGesturesEnabled(gestures.getBoolean("zoom"));
-      }
-    }
-
-    // map type
-    if (params.has("mapType")) {
-      String typeStr = params.getString("mapType");
-      int mapTypeId = -1;
-      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : mapTypeId;
-      if (mapTypeId != -1) {
-        options.mapType(mapTypeId);
-      }
-    }
-
-    // initial camera position
-    if (params.has("camera")) {
-      JSONObject camera = params.getJSONObject("camera");
-      Builder builder = CameraPosition.builder();
-      if (camera.has("bearing")) {
-        builder.bearing((float) camera.getDouble("bearing"));
-      }
-      if (camera.has("target")) {
-        Object target = camera.get("target");
-        @SuppressWarnings("rawtypes")
-        Class targetClass = target.getClass();
-        if ("org.json.JSONArray".equals(targetClass.getName())) {
-          JSONArray points = camera.getJSONArray("target");
-          initCameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
-          builder.target(initCameraBounds.getCenter());
-
-        } else {
-          JSONObject latLng = camera.getJSONObject("target");
-          builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
-        }
-      }
-      if (camera.has("tilt")) {
-        builder.tilt((float) camera.getDouble("tilt"));
-      }
-      if (camera.has("zoom")) {
-        builder.zoom((float) camera.getDouble("zoom"));
-      }
-      options.camera(builder.build());
-    }
-
-    mapView = new MapView(activity, options);
-    mapCtrl.mapViews.put(mapId, mapView);
-
-    this.activity.runOnUiThread(new Runnable() {
+    cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-        mapView.onCreate(null);
-        mapView.onResume();
+        try {
+
+          GoogleMapOptions options = new GoogleMapOptions();
+          mapId = args.getString(0);
+          final JSONObject params = args.getJSONObject(1);
+
+          //controls
+          if (params.has("controls")) {
+            JSONObject controls = params.getJSONObject("controls");
+
+            if (controls.has("compass")) {
+              options.compassEnabled(controls.getBoolean("compass"));
+            }
+            if (controls.has("zoom")) {
+              options.zoomControlsEnabled(controls.getBoolean("zoom"));
+            }
+          }
+
+          //gestures
+          if (params.has("gestures")) {
+            JSONObject gestures = params.getJSONObject("gestures");
+
+            if (gestures.has("tilt")) {
+              options.tiltGesturesEnabled(gestures.getBoolean("tilt"));
+            }
+            if (gestures.has("scroll")) {
+              options.scrollGesturesEnabled(gestures.getBoolean("scroll"));
+            }
+            if (gestures.has("rotate")) {
+              options.rotateGesturesEnabled(gestures.getBoolean("rotate"));
+            }
+            if (gestures.has("zoom")) {
+              options.zoomGesturesEnabled(gestures.getBoolean("zoom"));
+            }
+          }
+
+          // map type
+          if (params.has("mapType")) {
+            String typeStr = params.getString("mapType");
+            int mapTypeId = -1;
+            mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : mapTypeId;
+            mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : mapTypeId;
+            mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : mapTypeId;
+            mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : mapTypeId;
+            mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : mapTypeId;
+            if (mapTypeId != -1) {
+              options.mapType(mapTypeId);
+            }
+          }
+
+          // initial camera position
+          if (params.has("camera")) {
+            JSONObject camera = params.getJSONObject("camera");
+            Builder builder = CameraPosition.builder();
+            if (camera.has("bearing")) {
+              builder.bearing((float) camera.getDouble("bearing"));
+            }
+            if (camera.has("target")) {
+              Object target = camera.get("target");
+              @SuppressWarnings("rawtypes")
+              Class targetClass = target.getClass();
+              if ("org.json.JSONArray".equals(targetClass.getName())) {
+                JSONArray points = camera.getJSONArray("target");
+                initCameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
+                builder.target(initCameraBounds.getCenter());
+
+              } else {
+                JSONObject latLng = camera.getJSONObject("target");
+                builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+              }
+            }
+            if (camera.has("tilt")) {
+              builder.tilt((float) camera.getDouble("tilt"));
+            }
+            if (camera.has("zoom")) {
+              builder.zoom((float) camera.getDouble("zoom"));
+            }
+            options.camera(builder.build());
+          }
+
+          mapView = new MapView(activity, options);
+          mapCtrl.mapViews.put(mapId, mapView);
+
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              mapView.onCreate(null);
+              mapView.onResume();
 /*
         //TODO: provide another better way.
         //background color
@@ -228,100 +233,105 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         }
 */
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
-          @Override
-          public void onMapReady(GoogleMap googleMap) {
+              mapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
 
-            map = googleMap;
+                  map = googleMap;
 
-            try {
-              //controls
-              if (params.has("controls")) {
-                JSONObject controls = params.getJSONObject("controls");
+                  try {
+                    //controls
+                    if (params.has("controls")) {
+                      JSONObject controls = params.getJSONObject("controls");
 
-                if (controls.has("indoorPicker")) {
-                  Boolean isEnabled = controls.getBoolean("indoorPicker");
-                  map.setIndoorEnabled(isEnabled);
-                }
-              }
-
-              // Set event listener
-              map.setOnCameraChangeListener(PluginMap.this);
-              map.setOnInfoWindowClickListener(PluginMap.this);
-              map.setOnMapClickListener(PluginMap.this);
-              map.setOnMapLoadedCallback(PluginMap.this);
-              map.setOnMapLongClickListener(PluginMap.this);
-              map.setOnMarkerClickListener(PluginMap.this);
-              map.setOnMarkerDragListener(PluginMap.this);
-              map.setOnMyLocationButtonClickListener(PluginMap.this);
-              map.setOnIndoorStateChangeListener(PluginMap.this);
-
-              //Custom info window
-              map.setInfoWindowAdapter(PluginMap.this);
-              // ------------------------------
-              // Embed the map if a container is specified.
-              // ------------------------------
-              if (args.length() == 4) {
-                JSONObject mapDivLayoutJSON = args.getJSONObject(2);
-                float divW = mapCtrl.contentToView(mapDivLayoutJSON.getLong("width"));
-                float divH = mapCtrl.contentToView(mapDivLayoutJSON.getLong("height"));
-                float divLeft = mapCtrl.contentToView(mapDivLayoutJSON.getLong("left"));
-                float divTop = mapCtrl.contentToView(mapDivLayoutJSON.getLong("top"));
-
-                RectF rect = new RectF(divLeft, divTop, divLeft + divW, divTop + divH);
-                mapCtrl.mapDivLayouts.put(mapId, rect);
-
-                mapCtrl.mPluginLayout.addMapView(mapId, mapView);
-                PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
-                  @Override
-                  public void onResult(PluginResult pluginResult) {}
-                });
-              } else {
-                if (initCameraBounds != null) {
-                  Handler handler = new Handler();
-                  handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                      fitBounds(initCameraBounds);
+                      if (controls.has("indoorPicker")) {
+                        Boolean isEnabled = controls.getBoolean("indoorPicker");
+                        map.setIndoorEnabled(isEnabled);
+                      }
                     }
-                  }, 300);
-                }
-              }
-              if (params.has("controls")) {
-                JSONObject controls = params.getJSONObject("controls");
 
-                if (controls.has("myLocationButton")) {
-                  final Boolean isEnabled = controls.getBoolean("myLocationButton");
-                  cordova.getThreadPool().submit(new Runnable() {
-                    @Override
-                    public void run() {
-                      if (isEnabled) {
-                        try {
-                          JSONArray args = new JSONArray();
-                          args.put(isEnabled);
-                          PluginMap.this.setMyLocationEnabled(args, callbackContext);
-                        } catch (JSONException e) {
-                          e.printStackTrace();
-                          callbackContext.error(e.getMessage() + "");
-                        }
+                    // Set event listener
+                    map.setOnCameraChangeListener(PluginMap.this);
+                    map.setOnInfoWindowClickListener(PluginMap.this);
+                    map.setOnMapClickListener(PluginMap.this);
+                    map.setOnMapLoadedCallback(PluginMap.this);
+                    map.setOnMapLongClickListener(PluginMap.this);
+                    map.setOnMarkerClickListener(PluginMap.this);
+                    map.setOnMarkerDragListener(PluginMap.this);
+                    map.setOnMyLocationButtonClickListener(PluginMap.this);
+                    map.setOnIndoorStateChangeListener(PluginMap.this);
+
+                    //Custom info window
+                    map.setInfoWindowAdapter(PluginMap.this);
+                    // ------------------------------
+                    // Embed the map if a container is specified.
+                    // ------------------------------
+                    if (args.length() == 4) {
+                      JSONObject mapDivLayoutJSON = args.getJSONObject(2);
+                      float divW = mapCtrl.contentToView(mapDivLayoutJSON.getLong("width"));
+                      float divH = mapCtrl.contentToView(mapDivLayoutJSON.getLong("height"));
+                      float divLeft = mapCtrl.contentToView(mapDivLayoutJSON.getLong("left"));
+                      float divTop = mapCtrl.contentToView(mapDivLayoutJSON.getLong("top"));
+
+                      RectF rect = new RectF(divLeft, divTop, divLeft + divW, divTop + divH);
+                      mapCtrl.mapDivLayouts.put(mapId, rect);
+
+                      mapCtrl.mPluginLayout.addMapView(mapId, mapView);
+                      PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
+                        @Override
+                        public void onResult(PluginResult pluginResult) {}
+                      });
+                    } else {
+                      if (initCameraBounds != null) {
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                          @Override
+                          public void run() {
+                            fitBounds(initCameraBounds);
+                          }
+                        }, 300);
+                      }
+                    }
+                    if (params.has("controls")) {
+                      JSONObject controls = params.getJSONObject("controls");
+
+                      if (controls.has("myLocationButton")) {
+                        final Boolean isEnabled = controls.getBoolean("myLocationButton");
+                        cordova.getThreadPool().submit(new Runnable() {
+                          @Override
+                          public void run() {
+                            if (isEnabled) {
+                              try {
+                                JSONArray args = new JSONArray();
+                                args.put(isEnabled);
+                                PluginMap.this.setMyLocationEnabled(args, callbackContext);
+                              } catch (JSONException e) {
+                                e.printStackTrace();
+                                callbackContext.error(e.getMessage() + "");
+                              }
+                            } else {
+                              callbackContext.success();
+                            }
+                          }
+                        });
+
                       } else {
                         callbackContext.success();
                       }
+                    } else {
+                      callbackContext.success();
                     }
-                  });
-
-                } else {
-                  callbackContext.success();
+                  } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                  }
                 }
-              } else {
-                callbackContext.success();
-              }
-            } catch (Exception e) {
-              callbackContext.error(e.getMessage());
-            }
-          }
-        });
+              });
 
+            }
+          });
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
       }
     });
 
