@@ -272,7 +272,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 mapCtrl.mapDivLayouts.put(mapId, rect);
 
                 mapCtrl.mPluginLayout.addMapView(mapId, mapView);
-                PluginMap.this.resizeMap(args, callbackContext);
+                PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
+                  @Override
+                  public void onResult(PluginResult pluginResult) {}
+                });
               } else {
                 if (initCameraBounds != null) {
                   Handler handler = new Handler();
@@ -289,10 +292,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
                 if (controls.has("myLocationButton")) {
                   final Boolean isEnabled = controls.getBoolean("myLocationButton");
-                  Thread thread = new Thread(new Runnable() {
+                  cordova.getThreadPool().submit(new Runnable() {
                     @Override
                     public void run() {
-
                       if (isEnabled) {
                         try {
                           JSONArray args = new JSONArray();
@@ -307,13 +309,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       }
                     }
                   });
-                  thread.start();
 
                 } else {
                   callbackContext.success();
                 }
+              } else {
+                callbackContext.success();
               }
-              callbackContext.success();
             } catch (Exception e) {
               callbackContext.error(e.getMessage());
             }
@@ -356,7 +358,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
           plugin.initialize(cordova, webView);
           ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
-          //Log.e("PluginMarker", "------> plugin = " + plugins.get(pluginName));
           plugin.execute("create", args, callbackContext);
 
         } catch (Exception e) {
@@ -389,16 +390,17 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String className = args.getString(0);
 
-    if (plugins.containsKey(className)) {
-      PluginEntry pluginEntry = plugins.get(className);
-      pluginEntry.plugin.execute("create", args, callbackContext);
-      return;
-    }
 
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
         try {
+          if (plugins.containsKey(className)) {
+            PluginEntry pluginEntry = plugins.get(className);
+            pluginEntry.plugin.execute("create", args, callbackContext);
+            return;
+          }
+
           Class pluginCls = Class.forName("plugin.google.maps.Plugin" + className);
 
           CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
@@ -464,6 +466,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           }
         }, 400);
       }
+      callbackContext.success();
       return;
     }
     mapCtrl.mPluginLayout.clearHTMLElement(mapId);
@@ -494,7 +497,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         }
       }, 400);
     }
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
