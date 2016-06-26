@@ -279,6 +279,6 @@ document.addEventListener("deviceready", function() {
     // display the warning alert.
     //------------------------------------------------------------------------
     cordova.exec(null, function(message) {
-        alert(error);
+        alert(message);
     }, 'GoogleMaps', 'isAvailable', ['']);
 });
