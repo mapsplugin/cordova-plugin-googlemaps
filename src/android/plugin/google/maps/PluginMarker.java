@@ -752,9 +752,14 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     }
     
     String iconUrl = iconProperty.getString("url");
-    if (iconUrl.indexOf("://") == -1 && 
-        iconUrl.startsWith("/") == false && 
-        iconUrl.startsWith("www/") == false &&
+    if (iconUrl == null) {
+      callback.onPostExecute(marker);
+      return;
+    }
+
+    if (!iconUrl.contains("://") &&
+      !iconUrl.startsWith("/") &&
+      !iconUrl.startsWith("www/") &&
         iconUrl.startsWith("data:image") == false) {
       iconUrl = "./" + iconUrl;
     }
@@ -785,7 +790,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             CordovaResourceApi resourceApi = webView.getResourceApi();
             iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
           }
-          
+
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
@@ -824,7 +829,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
           
           Boolean isResized = false;
-          if (iconProperty.containsKey("size") == true) {
+          if (iconProperty.containsKey("size")) {
             Object size = iconProperty.get("size");
             
             if (Bundle.class.isInstance(size)) {
@@ -868,7 +873,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
               
     
               // The `anchor` of the `icon` property
-              if (iconProperty.containsKey("anchor") == true) {
+              if (iconProperty.containsKey("anchor")) {
                 double[] anchor = iconProperty.getDoubleArray("anchor");
                 if (anchor.length == 2) {
                   _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
@@ -877,7 +882,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
               
     
               // The `anchor` property for the infoWindow
-              if (iconProperty.containsKey("infoWindowAnchor") == true) {
+              if (iconProperty.containsKey("infoWindowAnchor")) {
                 double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
                 if (anchor.length == 2) {
                   _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
@@ -905,7 +910,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       //----------------------------------
       int width = -1;
       int height = -1;
-      if (iconProperty.containsKey("size") == true) {
+      if (iconProperty.containsKey("size")) {
           
         Bundle sizeInfo = (Bundle) iconProperty.get("size");
         width = sizeInfo.getInt("width", width);
@@ -931,7 +936,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           self.objects.put("imageSize", imageSize);
 
           // The `anchor` of the `icon` property
-          if (iconProperty.containsKey("anchor") == true) {
+          if (iconProperty.containsKey("anchor")) {
             double[] anchor = iconProperty.getDoubleArray("anchor");
             if (anchor.length == 2) {
               _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
@@ -939,7 +944,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
 
           // The `anchor` property for the infoWindow
-          if (iconProperty.containsKey("infoWindowAnchor") == true) {
+          if (iconProperty.containsKey("infoWindowAnchor")) {
             double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
             if (anchor.length == 2) {
               _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));

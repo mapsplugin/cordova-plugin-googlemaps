@@ -462,7 +462,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           public void run() {
             fitBounds(initCameraBounds);
           }
-        }, 100);
+        }, 400);
       }
       return;
     }
@@ -486,7 +486,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     mapCtrl.updateMapViewLayout();
     //mapCtrl.mPluginLayout.inValidate();
     if (initCameraBounds != null) {
-      fitBounds(initCameraBounds);
+      Handler handler = new Handler();
+      handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          fitBounds(initCameraBounds);
+        }
+      }, 400);
     }
     this.sendNoResult(callbackContext);
   }
