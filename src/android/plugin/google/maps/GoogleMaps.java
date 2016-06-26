@@ -587,73 +587,80 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     // enableHighAccuracy = false -> PRIORITY_BALANCED_POWER_ACCURACY
 
     JSONObject params = args.getJSONObject(0);
-    boolean isHigh = false;
+    boolean isHighLocal = false;
     if (params.has("enableHighAccuracy")) {
-      isHigh = params.getBoolean("enableHighAccuracy");
+      isHighLocal = params.getBoolean("enableHighAccuracy");
     }
+    final boolean isHigh = isHighLocal;
 
-    // Request geolocation permission.
-    boolean locationPermission;
-    try {
-      Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
 
-      String permission = "android.permission.ACCESS_COARSE_LOCATION";
-      locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
-    } catch (Exception e) {
-      PluginResult result;
-      result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-      callbackContext.sendPluginResult(result);
-      return;
-    }
+        // Request geolocation permission.
+        boolean locationPermission;
+        try {
+          Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
 
-    if (!locationPermission) {
-      _saveArgs = args;
-      _saveCallbackContext = callbackContext;
-      this.requestPermissions(GoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
-      return;
-    }
+          String permission = "android.permission.ACCESS_COARSE_LOCATION";
+          locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
+        } catch (Exception e) {
+          PluginResult result;
+          result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+          callbackContext.sendPluginResult(result);
+          return;
+        }
+
+        if (!locationPermission) {
+          _saveArgs = args;
+          _saveCallbackContext = callbackContext;
+          requestPermissions(GoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+          return;
+        }
 
 
-    final boolean enableHighAccuracy = isHigh;
+        final boolean enableHighAccuracy = isHigh;
 
-    if (googleApiClient == null) {
-      googleApiClient = new GoogleApiClient.Builder(this.activity)
-        .addApi(LocationServices.API)
-        .addConnectionCallbacks(new com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks() {
+        if (googleApiClient == null) {
+          googleApiClient = new GoogleApiClient.Builder(activity)
+            .addApi(LocationServices.API)
+            .addConnectionCallbacks(new com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks() {
 
-          @Override
-          public void onConnected(Bundle connectionHint) {
-            Log.e(TAG, "===> onConnected");
-            GoogleMaps.this.sendNoResult(callbackContext);
+              @Override
+              public void onConnected(Bundle connectionHint) {
+                Log.e(TAG, "===> onConnected");
+                GoogleMaps.this.sendNoResult(callbackContext);
 
-            _checkLocationSettings(enableHighAccuracy, callbackContext);
-          }
+                _checkLocationSettings(enableHighAccuracy, callbackContext);
+              }
 
-          @Override
-          public void onConnectionSuspended(int cause) {
-            Log.e(TAG, "===> onConnectionSuspended");
-           }
+              @Override
+              public void onConnectionSuspended(int cause) {
+                Log.e(TAG, "===> onConnectionSuspended");
+              }
 
-        })
-        .addOnConnectionFailedListener(new com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener() {
+            })
+            .addOnConnectionFailedListener(new com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener() {
 
-          @Override
-          public void onConnectionFailed(ConnectionResult result) {
-            Log.e(TAG, "===> onConnectionFailed");
+              @Override
+              public void onConnectionFailed(ConnectionResult result) {
+                Log.e(TAG, "===> onConnectionFailed");
 
-            PluginResult tmpResult = new PluginResult(PluginResult.Status.ERROR, result.toString());
-            tmpResult.setKeepCallback(false);
-            callbackContext.sendPluginResult(tmpResult);
+                PluginResult tmpResult = new PluginResult(PluginResult.Status.ERROR, result.toString());
+                tmpResult.setKeepCallback(false);
+                callbackContext.sendPluginResult(tmpResult);
 
-            googleApiClient.disconnect();
-          }
+                googleApiClient.disconnect();
+              }
 
-        })
-        .build();
-      googleApiClient.connect();
-    } else if (googleApiClient.isConnected()) {
-      _checkLocationSettings(enableHighAccuracy, callbackContext);
-    }
+            })
+            .build();
+          googleApiClient.connect();
+        } else if (googleApiClient.isConnected()) {
+          _checkLocationSettings(enableHighAccuracy, callbackContext);
+        }
+      }
+    });
 
   }
 
