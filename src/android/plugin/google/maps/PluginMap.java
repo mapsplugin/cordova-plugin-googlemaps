@@ -204,7 +204,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
         mapView.onCreate(null);
         mapView.onResume();
-
+/*
+        //TODO: provide another better way.
         //background color
         if (params.has("backgroundColor")) {
           JSONArray rgba = null;
@@ -225,7 +226,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           }
 
         }
-
+*/
 
         mapView.getMapAsync(new OnMapReadyCallback() {
           @Override
