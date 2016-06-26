@@ -386,7 +386,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   // Create the instance of class
   //-----------------------------------
   @SuppressWarnings("rawtypes")
-  public void create(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String className = args.getString(0);
 
     if (plugins.containsKey(className)) {
@@ -395,23 +395,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       return;
     }
 
-    try {
-      Class pluginCls = Class.forName("plugin.google.maps.Plugin" + className);
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Class pluginCls = Class.forName("plugin.google.maps.Plugin" + className);
 
-      CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
-      PluginEntry pluginEntry = new PluginEntry(mapId + "-" + className, plugin);
-      this.plugins.put(className, pluginEntry);
-      pluginMap.mapCtrl.pluginManager.addService(pluginEntry);
+          CordovaPlugin plugin = (CordovaPlugin) pluginCls.newInstance();
+          PluginEntry pluginEntry = new PluginEntry(mapId + "-" + className, plugin);
+          plugins.put(className, pluginEntry);
+          pluginMap.mapCtrl.pluginManager.addService(pluginEntry);
 
-      plugin.privateInitialize(className, this.cordova, webView, null);
-      plugin.initialize(this.cordova, webView);
-      ((MyPluginInterface)plugin).setPluginMap(this);
-      pluginEntry.plugin.execute("create", args, callbackContext);
+          plugin.privateInitialize(className, cordova, webView, null);
+          plugin.initialize(cordova, webView);
+          ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
+          pluginEntry.plugin.execute("create", args, callbackContext);
 
 
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    });
+
   }
 
   public void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -480,13 +486,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     mapCtrl.updateMapViewLayout();
     //mapCtrl.mPluginLayout.inValidate();
     if (initCameraBounds != null) {
-      Handler handler = new Handler();
-      handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          fitBounds(initCameraBounds);
-        }
-      }, 100);
+      fitBounds(initCameraBounds);
     }
     this.sendNoResult(callbackContext);
   }
