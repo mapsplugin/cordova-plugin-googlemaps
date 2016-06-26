@@ -1610,29 +1610,34 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        try {
-          VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
-          LatLngBounds latLngBounds = visibleRegion.latLngBounds;
-          JSONObject result = new JSONObject();
-          JSONObject northeast = new JSONObject();
-          JSONObject southwest = new JSONObject();
-          northeast.put("lat", latLngBounds.northeast.latitude);
-          northeast.put("lng", latLngBounds.northeast.longitude);
-          southwest.put("lat", latLngBounds.southwest.latitude);
-          southwest.put("lng", latLngBounds.southwest.longitude);
-          result.put("northeast", northeast);
-          result.put("southwest", southwest);
+        final VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
+        cordova.getThreadPool().submit(new Runnable() {
+          @Override
+          public void run() {
+            try {
+              LatLngBounds latLngBounds = visibleRegion.latLngBounds;
+              JSONObject result = new JSONObject();
+              JSONObject northeast = new JSONObject();
+              JSONObject southwest = new JSONObject();
+              northeast.put("lat", latLngBounds.northeast.latitude);
+              northeast.put("lng", latLngBounds.northeast.longitude);
+              southwest.put("lat", latLngBounds.southwest.latitude);
+              southwest.put("lng", latLngBounds.southwest.longitude);
+              result.put("northeast", northeast);
+              result.put("southwest", southwest);
 
-          JSONArray latLngArray = new JSONArray();
-          latLngArray.put(northeast);
-          latLngArray.put(southwest);
-          result.put("latLngArray", latLngArray);
+              JSONArray latLngArray = new JSONArray();
+              latLngArray.put(northeast);
+              latLngArray.put(southwest);
+              result.put("latLngArray", latLngArray);
 
-          callbackContext.success(result);
-        } catch (JSONException e) {
-          e.printStackTrace();
-          callbackContext.error(e.getMessage() + "");
-        }
+              callbackContext.success(result);
+            } catch (JSONException e) {
+              e.printStackTrace();
+              callbackContext.error(e.getMessage() + "");
+            }
+          }
+        });
       }
     });
   }
