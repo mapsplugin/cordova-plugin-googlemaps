@@ -651,8 +651,6 @@ Map.prototype.setDiv = function(div) {
             div = div.parentNode;
         }
     }
-    console.log("--->");
-    console.log(self.deleteFromObject(args,'function'));
     cordova.exec(null, self.errorHandler, self.id, 'setDiv', self.deleteFromObject(args,'function'));
     return self;
 };
