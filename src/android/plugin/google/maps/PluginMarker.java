@@ -263,33 +263,38 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   }
   
   private void setDropAnimation_(final Marker marker, final PluginAsyncInterface callback) {
-    final Handler handler = new Handler();
     final long startTime = SystemClock.uptimeMillis();
     final long duration = 100;
-    
-    final Projection proj = this.map.getProjection();
-    final LatLng markerLatLng = marker.getPosition();
-    final Point markerPoint = proj.toScreenLocation(markerLatLng);
-    final Point startPoint = new Point(markerPoint.x, 0);
-    
-    final Interpolator interpolator = new LinearInterpolator();
 
-    handler.post(new Runnable() {
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        long elapsed = SystemClock.uptimeMillis() - startTime;
-        float t = interpolator.getInterpolation((float) elapsed / duration);
-        double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
-        double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
-        marker.setPosition(new LatLng(lat, lng));
-        if (t < 1.0) {
-          // Post again 16ms later.
-          handler.postDelayed(this, 16);
-        } else {
-          marker.setPosition(markerLatLng);
-          callback.onPostExecute(marker);
-        }
+        final Handler handler = new Handler();
+        final Projection proj = map.getProjection();
+        final LatLng markerLatLng = marker.getPosition();
+        final Point markerPoint = proj.toScreenLocation(markerLatLng);
+        final Point startPoint = new Point(markerPoint.x, 0);
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            LatLng startLatLng = proj.fromScreenLocation(startPoint);
+            long elapsed = SystemClock.uptimeMillis() - startTime;
+            float t = interpolator.getInterpolation((float) elapsed / duration);
+            double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+            double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
+            marker.setPosition(new LatLng(lat, lng));
+            if (t < 1.0) {
+              // Post again 16ms later.
+              handler.postDelayed(this, 16);
+            } else {
+              marker.setPosition(markerLatLng);
+              callback.onPostExecute(marker);
+            }
+          }
+        });
       }
     });
   }
