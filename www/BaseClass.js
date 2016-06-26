@@ -12,6 +12,9 @@ var BaseClass = function() {
 
    self.deleteFromObject = function(object, type) {
        if (object === null) return object;
+       if (typeof object !== "object") {
+         return object;
+       }
        for(var index in Object.keys(object)) {
            var key = Object.keys(object)[index];
            if (typeof object[key] === 'object') {
