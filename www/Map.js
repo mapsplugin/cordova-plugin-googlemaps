@@ -113,6 +113,52 @@ Map.prototype.refreshLayout = function(event) {
     }
 };
 
+
+function _append_child(event) {
+    event = event || window.event;
+    event = event || {};
+    var target = event.srcElement;
+    if (!target || "nodeType" in target == false) {
+        return;
+    }
+    if (target.nodeType != 1) {
+        return;
+    }
+    // TODO: Find more better way to get the 100% width of body.
+    var scrollBarWidth = 16;
+    var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
+
+    size = common.getDivRect(target);
+    size.left *= ratio;
+    size.top *= ratio;
+    size.width *= ratio;
+    size.height *= ratio;
+
+    var elemId = "pgm" + Math.floor(Math.random() * Date.now());
+    target.setAttribute("__pluginDomId", elemId);
+
+    cordova.exec(null, null, this.id, 'pushHtmlElement', [elemId, size]);
+};
+
+function _remove_child (event) {
+    event = event || window.event;
+    event = event || {};
+    var target = event.srcElement;
+    if (!target || "nodeType" in target == false) {
+        return;
+    }
+    if (target.nodeType != 1) {
+        return;
+    }
+    var elemId = target.getAttribute("__pluginDomId");
+    if (!elemId) {
+        return;
+    }
+    target.removeAttribute("__pluginDomId");
+    cordova.exec(null, null, this.id, 'removeHtmlElement', [elemId]);
+};
+
+
 Map.prototype.getMap = function(mapId, div, params) {
     var self = this,
         args = [mapId];
@@ -137,7 +183,7 @@ Map.prototype.getMap = function(mapId, div, params) {
                 elemId = element.getAttribute("__pluginDomId");
                 element.removeAttribute("__pluginDomId");
             }
-            currentDiv.removeEventListener("DOMNodeRemoved", common._remove_child.bind(self));
+            currentDiv.removeEventListener("DOMNodeRemoved", _remove_child.bind(self));
 
             while (currentDiv) {
                 if (currentDiv.style) {
@@ -205,8 +251,8 @@ Map.prototype.getMap = function(mapId, div, params) {
         }
         args.push(elements);
 
-        div.addEventListener("DOMNodeRemoved", common._remove_child.bind(self));
-        div.addEventListener("DOMNodeInserted", common._append_child.bind(self));
+        div.addEventListener("DOMNodeRemoved", _remove_child.bind(self));
+        div.addEventListener("DOMNodeInserted", _append_child.bind(self));
 
         self.set("keepWatching", true);
         var className;
@@ -592,7 +638,7 @@ Map.prototype.setDiv = function(div) {
                 elemId = element.getAttribute("__pluginDomId");
                 element.removeAttribute("__pluginDomId");
             }
-            currentDiv.removeEventListener("DOMNodeRemoved", common._remove_child.bind(self));
+            currentDiv.removeEventListener("DOMNodeRemoved", _remove_child.bind(self));
 
             while (currentDiv) {
                 if (currentDiv.style) {
@@ -632,8 +678,8 @@ Map.prototype.setDiv = function(div) {
         }
         args.push(elements);
 
-        div.addEventListener("DOMNodeRemoved", common._remove_child.bind(self));
-        div.addEventListener("DOMNodeInserted", common._append_child.bind(self));
+        div.addEventListener("DOMNodeRemoved", _remove_child.bind(self));
+        div.addEventListener("DOMNodeInserted", _append_child.bind(self));
 
         self.set("keepWatching", true);
         var className;

@@ -434,6 +434,31 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   }
 
+  /*
+  * Keep the positions of child dom elements of the map div.
+  * @param args
+  * @param callbackContext
+  * @throws JSONException
+  */
+  public void pushHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String elemId = args.getString(0);
+    JSONObject elemSize = args.getJSONObject(1);
+    float left = mapCtrl.contentToView(elemSize.getLong("left"));
+    float top = mapCtrl.contentToView(elemSize.getLong("top"));
+    float width = mapCtrl.contentToView(elemSize.getLong("width"));
+    float height = mapCtrl.contentToView(elemSize.getLong("height"));
+    Log.e("PluginMap", "----> elemeId = "+ elemId + ", size = " + left + "," + top + " - " + (left + width)  + "," + (top + height));
+
+    mapCtrl.mPluginLayout.putHTMLElement(mapId, elemId, left, top, (left + width), (top + height));
+    this.sendNoResult(callbackContext);
+  }
+
+  public void removeHtmlElement(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String elemId = args.getString(0);
+    mapCtrl.mPluginLayout.removeHTMLElement(mapId, elemId);
+    this.sendNoResult(callbackContext);
+  }
+
   public void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (mapCtrl.mPluginLayout == null) {
       //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");

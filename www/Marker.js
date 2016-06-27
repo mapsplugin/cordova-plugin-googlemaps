@@ -5,8 +5,6 @@ var argscheck = require('cordova/argscheck'),
     LatLng = require('./LatLng'),
     BaseClass = require('./BaseClass');
 
-var PLUGIN_NAME = "Marker";
-
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
@@ -57,7 +55,7 @@ Marker.prototype.getPosition = function(callback) {
         if (typeof callback === "function") {
             callback.call(self, new LatLng(latlng.lat, latlng.lng));
         }
-    }, self.errorHandler, PLUGIN_NAME, 'getPosition', [this.getId()]);
+    }, self.errorHandler, self.getPluginName(), 'getPosition', [this.getId()]);
 };
 Marker.prototype.getId = function() {
     return this.id;

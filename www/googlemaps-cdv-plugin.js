@@ -23,6 +23,7 @@ var encoding = require('./encoding');
 var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var MapTypeId = require('./MapTypeId');
+var Config = require('./Config');
 
 var _global = new BaseClass();
 var MAPS = {};
@@ -263,7 +264,8 @@ module.exports = {
     Geocoder: Geocoder,
     geometry: {
         encoding: encoding
-    }
+    },
+    Config: Config
 };
 
 window.addEventListener("orientationchange", function() {

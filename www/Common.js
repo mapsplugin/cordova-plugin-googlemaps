@@ -403,41 +403,6 @@ var HTML_COLORS = {
 };
 
 
-var _append_child = function(event) {
-    event = event || window.event;
-    event = event || {};
-    var target = event.srcElement;
-    if (!target || "nodeType" in target == false) {
-        return;
-    }
-    if (target.nodeType != 1) {
-        return;
-    }
-    var size = common.getDivRect(target);
-    var elemId = "pgm" + Math.floor(Math.random() * Date.now());
-    target.setAttribute("__pluginDomId", elemId);
-
-    cordova.exec(null, null, 'GoogleMaps', 'pluginLayer_pushHtmlElement', [this.getId(), elemId, size]);
-};
-
-var _remove_child = function(event) {
-    event = event || window.event;
-    event = event || {};
-    var target = event.srcElement;
-    if (!target || "nodeType" in target == false) {
-        return;
-    }
-    if (target.nodeType != 1) {
-        return;
-    }
-    var elemId = target.getAttribute("__pluginDomId");
-    if (!elemId) {
-        return;
-    }
-    target.removeAttribute("__pluginDomId");
-    cordova.exec(null, null, 'GoogleMaps', 'pluginLayer_removeHtmlElement', [this.getId(), elemId]);
-};
-
 module.exports = {
   getDivRect: getDivRect,
   getPageRect: getPageRect,
@@ -446,7 +411,5 @@ module.exports = {
   parseBoolean: parseBoolean,
   HLStoRGB: HLStoRGB,
   HTMLColor2RGBA: HTMLColor2RGBA,
-  isHTMLColorString: isHTMLColorString,
-  _append_child: _append_child,
-  _remove_child: _remove_child
+  isHTMLColorString: isHTMLColorString
 };
