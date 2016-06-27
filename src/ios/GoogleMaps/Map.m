@@ -71,7 +71,7 @@ NSLog(@"--> pluginId = %@", pluginId);
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
   
-    NSLog(@"---> %@ : %@", self.mapId, command.arguments);
+    //NSLog(@"---> %@ : %@", self.mapId, command.arguments);
     if ([command.arguments count] != 4) {
         //-----------------------------------------------------------
         // case: plugin.google.maps.getMap() (no options are given)

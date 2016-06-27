@@ -85,65 +85,70 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    NSString *mapId = [command.arguments objectAtIndex:0];
-    
-    // Wrapper view
-    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
-    mapCtrl.webView = self.webView;
-    mapCtrl.isFullScreen = YES;
-    mapCtrl.mapId = mapId;
-    
-    // Create an instance of the Map class everytime.
-    Map *mapPlugin = [[Map alloc] init];
-    [mapPlugin pluginInitialize];
-    mapPlugin.mapId = mapId;
-    mapPlugin.mapCtrl = mapCtrl;
   
-    // Hack:
-    // In order to load the plugin instance of the same class but different names,
-    // register the map plugin instance into the pluginObjects directly.
-    if ([mapPlugin respondsToSelector:@selector(setViewController:)]) {
-        [mapPlugin setViewController:cdvViewController];
-    }
-    if ([mapPlugin respondsToSelector:@selector(setCommandDelegate:)]) {
-        [mapPlugin setCommandDelegate:cdvViewController.commandDelegate];
-    }
-    [cdvViewController.pluginObjects setObject:mapPlugin forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-    [mapPlugin pluginInitialize];
-  
-    [self.mapPlugins setObject:mapPlugin forKey:mapId];
-  
-  
-    // Generate an instance of GMSMapView;
-    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
-                                        longitude:0
-                                        zoom:0
-                                        bearing:0
-                                        viewingAngle:0];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+        NSString *mapId = [command.arguments objectAtIndex:0];
+        
+        // Wrapper view
+        GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
+        mapCtrl.webView = self.webView;
+        mapCtrl.isFullScreen = YES;
+        mapCtrl.mapId = mapId;
+        
+        // Create an instance of the Map class everytime.
+        Map *mapPlugin = [[Map alloc] init];
+        [mapPlugin pluginInitialize];
+        mapPlugin.mapId = mapId;
+        mapPlugin.mapCtrl = mapCtrl;
+        
+        // Hack:
+        // In order to load the plugin instance of the same class but different names,
+        // register the map plugin instance into the pluginObjects directly.
+        if ([mapPlugin respondsToSelector:@selector(setViewController:)]) {
+            [mapPlugin setViewController:cdvViewController];
+        }
+        if ([mapPlugin respondsToSelector:@selector(setCommandDelegate:)]) {
+            [mapPlugin setCommandDelegate:cdvViewController.commandDelegate];
+        }
+        [cdvViewController.pluginObjects setObject:mapPlugin forKey:mapId];
+        [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+        [mapPlugin pluginInitialize];
+      
+        [self.mapPlugins setObject:mapPlugin forKey:mapId];
+      
+        // Generate an instance of GMSMapView;
+        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
+                                            longitude:0
+                                            zoom:0
+                                            bearing:0
+                                            viewingAngle:0];
 
-    CGRect pluginRect = mapCtrl.view.frame;
-    int marginBottom = 0;
-    //if ([PluginUtil isIOS7] == false) {
-    //  marginBottom = 20;
-    //}
-    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
-    //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
-    //NSLog(@"mapRect=%@", camera);
-    mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapRect camera:camera];
+        CGRect pluginRect = mapCtrl.view.frame;
+        int marginBottom = 0;
+        //if ([PluginUtil isIOS7] == false) {
+        //  marginBottom = 20;
+        //}
+        CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
+        //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
+        //NSLog(@"mapRect=%@", camera);
+        mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapRect camera:camera];
 
-    mapPlugin.mapCtrl.map.delegate = mapCtrl;
-    mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  
-    //indoor display
-    mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
+        mapPlugin.mapCtrl.map.delegate = mapCtrl;
+        mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+      
+        //indoor display
+        mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
+        [mapCtrl.view addSubview:mapPlugin.mapCtrl.map];
+      
+        [self.pluginLayer addMapView:mapPlugin.mapId mapCtrl:mapCtrl];
     
-    [mapCtrl.view addSubview:mapPlugin.mapCtrl.map];
-    [self.pluginLayer addMapView:mapPlugin.mapId mapCtrl:mapCtrl];
-
-  
-    [mapPlugin getMap:command];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [mapPlugin getMap:command];
+        });
+      
+    });
 }
 
 
@@ -519,7 +524,6 @@
 {
     // Obtain the authorizationStatus
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-
     if (status == kCLAuthorizationStatusDenied ||
         status == kCLAuthorizationStatusRestricted) {
         //----------------------------------------------------
