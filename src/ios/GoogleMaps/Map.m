@@ -121,6 +121,33 @@ NSLog(@"--> pluginId = %@", pluginId);
 */
 }
 
+- (void)pushHtmlElement:(CDVInvokedUrlCommand *)command {
+    NSString *elemId = [command.arguments objectAtIndex:0];
+    NSDictionary *elemSize = [command.arguments objectAtIndex:1];
+  
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+  
+    [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
+    //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize]
+}
+
+- (void)removeHtmlElement:(CDVInvokedUrlCommand *)command {
+    NSString *elemId = [command.arguments objectAtIndex:0];
+  
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+  
+    [googlemaps.pluginLayer removeHTMLElement:self.mapId domId:elemId];
+    //[self.mapCtrl.pluginScrollView.debugView removeHTMLElement]
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
 NSLog(@"---> resizeMap mapId = %@", self.mapId);
 
