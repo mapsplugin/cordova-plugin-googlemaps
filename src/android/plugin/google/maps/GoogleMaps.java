@@ -73,7 +73,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
   private final String TAG = "GoogleMapsPlugin";
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
-  private FrameLayout mapFrame = null;
 
   private final int ACTIVITY_LOCATION_DIALOG = 0x7f999900; // Invite the location dialog using Google Play Services
   private final int ACTIVITY_LOCATION_PAGE = 0x7f999901;   // Open the location settings page
@@ -353,140 +352,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     return true;
   }
 
-  public void closeWindow() {
-    if (DIALOG_MAP_ID == null) {
-      return;
-    }
-
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        MapView mapView = mapViews.get(DIALOG_MAP_ID);
-        if (mapView != null) {
-          mapFrame.removeView(mapView);
-        }
-        mPluginLayout.addMapView(DIALOG_MAP_ID, mapView);
-        mPluginLayout.updateViewPosition(DIALOG_MAP_ID);
-        root.removeView(windowLayer);
-        mapFrame.destroyDrawingCache();
-        mapFrame = null;
-        windowLayer.destroyDrawingCache();
-        windowLayer = null;
-
-        PluginMap pluginMap = mapPlugins.get(DIALOG_MAP_ID);
-        pluginMap.onMapEvent("map_close");
-      }
-    });
-  }
-  @SuppressWarnings("unused")
-  public void showDialog(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (DIALOG_MAP_ID != null) {
-      return;
-    }
-    DIALOG_MAP_ID = args.getString(0);
-
-    // window layout
-    windowLayer = new LinearLayout(activity);
-    windowLayer.setPadding(0, 0, 0, 0);
-    LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-    layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
-    windowLayer.setLayoutParams(layoutParams);
-
-
-    // dialog window layer
-    final FrameLayout dialogLayer = new FrameLayout(activity);
-    dialogLayer.setLayoutParams(layoutParams);
-    //dialogLayer.setPadding(15, 15, 15, 0);
-    dialogLayer.setBackgroundColor(Color.LTGRAY);
-    windowLayer.addView(dialogLayer);
-
-    // map frame
-    mapFrame = new FrameLayout(activity);
-    mapFrame.setPadding(0, 0, 0, (int)(40 * density));
-    dialogLayer.addView(mapFrame);
-
-    this.mPluginLayout.removeMapView(DIALOG_MAP_ID);
-
-    ViewGroup.LayoutParams lParams = mapViews.get(DIALOG_MAP_ID).getLayoutParams();
-    if (lParams == null) {
-      lParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    }
-    lParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-    lParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-
-    final ViewGroup.LayoutParams fLParams = lParams;
-
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        MapView mapView = mapViews.get(DIALOG_MAP_ID);
-
-        if (fLParams instanceof AbsoluteLayout.LayoutParams) {
-          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) fLParams;
-          params.x = 0;
-          params.y = 0;
-          mapView.setLayoutParams(params);
-        } else if (fLParams instanceof LinearLayout.LayoutParams) {
-          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) fLParams;
-          params.topMargin = 0;
-          params.leftMargin = 0;
-          mapView.setLayoutParams(params);
-        } else if (fLParams instanceof FrameLayout.LayoutParams) {
-          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) fLParams;
-          params.topMargin = 0;
-          params.leftMargin = 0;
-          mapView.setLayoutParams(params);
-        }
-
-        if (mapView.getParent() != null) {
-          ((ViewGroup)(mapView.getParent())).removeView(mapView);
-        }
-        mapFrame.addView(mapView);
-
-        // button frame
-        LinearLayout buttonFrame = new LinearLayout(activity);
-        buttonFrame.setOrientation(LinearLayout.HORIZONTAL);
-        buttonFrame.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
-        LinearLayout.LayoutParams buttonFrameParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        buttonFrame.setLayoutParams(buttonFrameParams);
-        dialogLayer.addView(buttonFrame);
-
-        //close button
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-            LayoutParams.WRAP_CONTENT,
-            LayoutParams.WRAP_CONTENT, 1.0f);
-        TextView closeLink = new TextView(activity);
-        closeLink.setText("Close");
-        closeLink.setLayoutParams(buttonParams);
-        closeLink.setTextColor(Color.BLUE);
-        closeLink.setTextSize(20);
-        closeLink.setGravity(Gravity.LEFT);
-        closeLink.setPadding((int)(10 * density), 0, 0, (int)(10 * density));
-        closeLink.setOnClickListener(GoogleMaps.this);
-        closeLink.setId(CLOSE_LINK_ID);
-        buttonFrame.addView(closeLink);
-
-        //license button
-        TextView licenseLink = new TextView(activity);
-        licenseLink.setText("Legal Notices");
-        licenseLink.setTextColor(Color.BLUE);
-        licenseLink.setLayoutParams(buttonParams);
-        licenseLink.setTextSize(20);
-        licenseLink.setGravity(Gravity.RIGHT);
-        licenseLink.setPadding((int)(10 * density), (int)(20 * density), (int)(10 * density), (int)(10 * density));
-        licenseLink.setOnClickListener(GoogleMaps.this);
-        licenseLink.setId(LICENSE_LINK_ID);
-        buttonFrame.addView(licenseLink);
-
-        //webView.getView().setVisibility(View.INVISIBLE);
-        root.addView(windowLayer);
-
-        callbackContext.success();
-      }
-    });
-  }
-
 
   public void updateMapViewLayout() {
     View view = webView.getView();
@@ -510,12 +375,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
           rectF.top + rectF.height() - webView.getView().getScrollY());
       mPluginLayout.updateViewPosition(mapId);
     }
-  }
-
-  @SuppressWarnings("unused")
-  public void closeDialog(final JSONArray args, final CallbackContext callbackContext) {
-    this.closeWindow();
-    this.sendNoResult(callbackContext);
   }
 
   @SuppressWarnings("unused")

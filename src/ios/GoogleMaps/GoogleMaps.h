@@ -17,20 +17,13 @@
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 
 @property (nonatomic) MyPluginLayer *pluginLayer;
-@property (nonatomic) UIView *licenseLayer;
-@property (nonatomic) UIView *footer;
-@property (nonatomic) UIButton *closeButton;
-@property (nonatomic) UIButton *licenseButton;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 @property (nonatomic) NSMutableDictionary *mapPlugins;
 
 - (void)exec:(CDVInvokedUrlCommand*)command;
-- (void)showDialog:(CDVInvokedUrlCommand*)command;
-- (void)closeDialog:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
-- (void)resizeMap:(CDVInvokedUrlCommand *)command;
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
 @end

@@ -117,32 +117,6 @@ function onMapResize(event) {
 }
 
 
-
-
-
-function onBackbutton() {
-    closeDialog();
-}
-
-/**
- * @desc Open the map dialog
- */
- function showDialog(mapId) {
-     document.addEventListener("backbutton", onBackbutton, false);
-     document.addEventListener('map_close', function() {
-         document.removeEventListener("backbutton", onBackbutton, false);
-         document.removeEventListener('map_close', arguments.callee, false);
-     }, false);
-     cordova.exec(null, this.errorHandler, 'GoogleMaps', 'showDialog', [mapId]);
- }
-
-/**
- * @desc Close the map dialog
- */
-function closeDialog() {
-    cordova.exec(null, this.errorHandler, 'GoogleMaps', 'closeDialog', []);
-};
-
 /*****************************************************************************
  * Watch dog timer for child elements
  *****************************************************************************/

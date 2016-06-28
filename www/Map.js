@@ -394,18 +394,6 @@ Map.prototype.setTilt = function(tilt) {
 
 
 /**
- * @desc Open the map dialog
- */
-Map.prototype.showDialog = function() {
-    document.addEventListener("backbutton", common._onBackbutton, false);
-    document.addEventListener('map_close', function() {
-        document.removeEventListener("backbutton", onBackbutton, false);
-        document.removeEventListener('map_close', arguments.callee, false);
-    }, false);
-    cordova.exec(null, this.errorHandler, 'GoogleMaps', 'showDialog', []);
-};
-
-/**
  * @desc   Move the map camera with animation
  * @params {CameraPosition} cameraPosition New camera position
  * @params {Function} [callback] This callback is involved when the animation is completed.
