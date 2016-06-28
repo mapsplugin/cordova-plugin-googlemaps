@@ -86,10 +86,13 @@ NSLog(@"--> pluginId = %@", pluginId);
     // case: plugin.google.maps.getMap(div, opt?)
     //---------------------------------------------
     [self resizeMap:command];
-    [self setOptions:command];
-        
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self setOptions:command];
+          
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
 }
 
 
