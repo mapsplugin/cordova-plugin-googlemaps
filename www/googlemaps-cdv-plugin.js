@@ -23,7 +23,7 @@ var encoding = require('./encoding');
 var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var MapTypeId = require('./MapTypeId');
-var Config = require('./Config');
+var Environment = require('./Environment');
 
 var _global = new BaseClass();
 var MAPS = {};

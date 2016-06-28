@@ -277,15 +277,6 @@ Map.prototype.getMap = function(mapId, div, params) {
     return self;
 };
 
-
-Map.prototype.getLicenseInfo = function(callback) {
-    var self = this;
-    cordova.exec(function(txt) {
-        callback.call(self, txt);
-    }, self.errorHandler, 'GoogleMaps', 'getLicenseInfo', []);
-};
-
-
 /**
  * @desc get watchDogTimer value for map positioning changes
  */
@@ -487,17 +478,6 @@ Map.prototype.setClickable = function(isClickable) {
     cordova.exec(null, self.errorHandler, self.id, 'setClickable', [isClickable]);
 };
 
-Map.prototype.setBackgroundColor = function(color) {
-    this.set('strokeColor', color);
-    cordova.exec(null, this.errorHandler, 'GoogleMaps', 'pluginLayer_setBackGroundColor', [common.HTMLColor2RGBA(color)]);
-};
-
-
-Map.prototype.setDebuggable = function(debug) {
-    var self = this;
-    debug = common.parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, 'GoogleMaps', 'pluginLayer_setDebuggable', [debug]);
-};
 
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.
@@ -555,20 +535,6 @@ Map.prototype.remove = function(callback) {
     }, self.errorHandler, self.id, 'remove', []);
 };
 
-
-Map.prototype.isAvailable = function(callback) {
-    var self = this;
-
-    cordova.exec(function() {
-        if (typeof callback === "function") {
-            callback.call(self, true);
-        }
-    }, function(message) {
-        if (typeof callback === "function") {
-            callback.call(self, false, message);
-        }
-    }, 'GoogleMaps', 'isAvailable', ['']);
-};
 
 Map.prototype.toDataURL = function(params, callback) {
     var args = [params || {}, callback];
