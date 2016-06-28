@@ -192,7 +192,7 @@ public class PluginMap extends MyPlugin {
     float tilt = -1;
     tilt = (float) args.getDouble(1);
 
-    if (tilt > 0 && tilt <= 90) {
+    if (tilt >= 0 && tilt <= 90) {
       CameraPosition currentPos = map.getCameraPosition();
       CameraPosition newPosition = new CameraPosition.Builder()
           .target(currentPos.target).bearing(currentPos.bearing)
