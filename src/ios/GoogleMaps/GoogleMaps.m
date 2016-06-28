@@ -648,25 +648,6 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *mapId = [command.arguments objectAtIndex:0];
-    NSString *domId = [command.arguments objectAtIndex:1];
-    NSDictionary *size = [command.arguments objectAtIndex:2];
-    [self.pluginLayer putHTMLElement:mapId domId:domId size:size];
-    //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:domId size:size];
-}
-
-- (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *mapId = [command.arguments objectAtIndex:0];
-    NSString *domId = [command.arguments objectAtIndex:1];
-    [self.pluginLayer removeHTMLElement:mapId domId:domId];
-    //[self.mapCtrl.pluginScrollView.debugView removeHTMLElement:domId];
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-
 -(void)pluginLayer_setDebuggable:(CDVInvokedUrlCommand *)command
 {
 /*

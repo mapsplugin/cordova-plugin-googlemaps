@@ -33,6 +33,4 @@
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
 - (void)resizeMap:(CDVInvokedUrlCommand *)command;
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
-- (void)pluginLayer_pushHtmlElement:(CDVInvokedUrlCommand*)command;
-- (void)pluginLayer_removeHtmlElement:(CDVInvokedUrlCommand*)command;
 @end
