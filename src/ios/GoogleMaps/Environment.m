@@ -1,14 +1,14 @@
 //
-//  Config.m
+//  Environment.m
 //  SimpleMap
 //
 //  Created by masashi on 06/26/16.
 //
 //
 
-#import "Config.h"
+#import "Environment.h"
 
-@implementation Config
+@implementation Environment
 
 - (void)exec:(CDVInvokedUrlCommand *)command {
 

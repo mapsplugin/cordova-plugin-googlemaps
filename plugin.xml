@@ -58,7 +58,7 @@
     <js-module name="KmlOverlay" src="www/KmlOverlay.js">
       <runs />
     </js-module>
-    <js-module name="Config" src="www/Config.js">
+    <js-module name="Environment" src="www/Environment.js">
       <runs />
     </js-module>
     <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
@@ -131,8 +131,8 @@
             <feature name="Geocoder">
                 <param name="android-package" value="plugin.google.maps.MyGeocoder" />
             </feature>
-            <feature name="Config">
-                <param name="android-package" value="plugin.google.maps.Config" />
+            <feature name="Environment">
+                <param name="android-package" value="plugin.google.maps.Environment" />
             </feature>
         </config-file>
 
@@ -144,7 +144,7 @@
         <source-file src="src/android/plugin/google/maps/AsyncKmlParser.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/Config.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/Environment.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/GoogleMaps.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps" />
@@ -201,8 +201,8 @@
             <feature name="GoogleMaps">
                 <param name="ios-package" value="GoogleMaps" />
             </feature>
-            <feature name="GoogleMaps">
-                <param name="ios-package" value="Config" />
+            <feature name="Environment">
+                <param name="ios-package" value="Environment" />
             </feature>
             <feature name="External">
                 <param name="ios-package" value="External" />
@@ -245,8 +245,8 @@
         <source-file src="src/ios/GoogleMaps/External.m" />
         <header-file src="src/ios/GoogleMaps/Geocoder.h" />
         <source-file src="src/ios/GoogleMaps/Geocoder.m" />
-        <header-file src="src/ios/GoogleMaps/Config.h" />
-        <source-file src="src/ios/GoogleMaps/Config.m" />
+        <header-file src="src/ios/GoogleMaps/Environment.h" />
+        <source-file src="src/ios/GoogleMaps/Environment.m" />
         <header-file src="src/ios/GoogleMaps/GoogleMaps.h" />
         <source-file src="src/ios/GoogleMaps/GoogleMaps.m" />
         <header-file src="src/ios/GoogleMaps/GoogleMapsViewController.h" />
