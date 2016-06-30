@@ -58,7 +58,6 @@ public class MyPluginLayout extends FrameLayout  {
     scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
     backgroundView = new View(this.context);
-    backgroundView.setBackgroundColor(Color.WHITE);
     backgroundView.setVerticalScrollBarEnabled(false);
     backgroundView.setHorizontalScrollBarEnabled(false);
     backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 999999));

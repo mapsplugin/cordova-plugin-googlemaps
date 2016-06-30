@@ -166,8 +166,6 @@ Map.prototype.getMap = function(mapId, div, params) {
     if (!common.isDom(div)) {
         params = div;
         params = params || {};
-        params.backgroundColor = params.backgroundColor || '#ffffff';
-        params.backgroundColor = common.HTMLColor2RGBA(params.backgroundColor);
         if (params.camera && params.camera.latLng) {
           params.camera.target = params.camera.latLng;
           delete params.camera.latLng;
@@ -204,8 +202,6 @@ Map.prototype.getMap = function(mapId, div, params) {
 
         var children = common.getAllChildren(div);
         params = params || {};
-        params.backgroundColor = params.backgroundColor || '#ffffff';
-        params.backgroundColor = common.HTMLColor2RGBA(params.backgroundColor);
         if (params.camera && params.camera.latLng) {
           params.camera.target = params.camera.latLng;
           delete params.camera.latLng;
@@ -303,9 +299,6 @@ Map.prototype.setWatchDogTimer = function(time) {
 
 Map.prototype.setOptions = function(options) {
     options = options || {};
-    if (options.hasOwnProperty('backgroundColor')) {
-        options.backgroundColor = common.HTMLColor2RGBA(options.backgroundColor);
-    }
     if (options.camera && options.camera.latLng) {
       options.camera.target = options.camera.latLng;
       delete options.camera.latLng;
@@ -573,8 +566,6 @@ Map.prototype.setDiv = function(div) {
     /*
         params = div;
         params = params || {};
-        params.backgroundColor = params.backgroundColor || '#ffffff';
-        params.backgroundColor = common.HTMLColor2RGBA(params.backgroundColor);
         if (params.camera && params.camera.latLng) {
           params.camera.target = params.camera.latLng;
           delete params.camera.latLng;

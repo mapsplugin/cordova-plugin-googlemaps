@@ -68,8 +68,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("deprecation")
-public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
-      ViewTreeObserver.OnScrollChangedListener{
+public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
   private final String TAG = "GoogleMapsPlugin";
   private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
@@ -79,10 +78,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
 
   public HashMap<String, RectF> mapDivLayouts = new HashMap<String, RectF>();
   private Activity activity;
-  private LinearLayout windowLayer = null;
   private ViewGroup root;
-  private final int CLOSE_LINK_ID = 0x7f999990;  //random
-  private final int LICENSE_LINK_ID = 0x7f99991; //random
   public MyPluginLayout mPluginLayout = null;
   public boolean isDebug = true;
   private GoogleApiClient googleApiClient = null;
@@ -91,7 +87,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
   public final HashMap<String, Method> methods = new HashMap<String, Method>();
   protected HashMap<String, MapView> mapViews = new HashMap<String, MapView>();
   protected HashMap<String, PluginMap> mapPlugins = new HashMap<String, PluginMap>();
-  private String DIALOG_MAP_ID = null;
   private boolean initialized = false;
   public PluginManager pluginManager;
 
@@ -131,7 +126,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
           view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         }
 
-        root.setBackgroundColor(Color.WHITE);
         /*
          * Deprecated the below code for old Android versions.
          *
@@ -150,6 +144,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
         }
         */
 
+        root.setBackgroundColor(Color.WHITE);
+        webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView.getView(), activity);
 
@@ -344,15 +340,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     return d * this.density;
   }
 
-
-  @SuppressWarnings("unused")
-  private Boolean getLicenseInfo(JSONArray args, CallbackContext callbackContext) {
-    String msg = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity);
-    callbackContext.success(msg);
-    return true;
-  }
-
-
   public void updateMapViewLayout() {
     View view = webView.getView();
     mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
@@ -375,42 +362,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
           rectF.top + rectF.height() - webView.getView().getScrollY());
       mPluginLayout.updateViewPosition(mapId);
     }
-  }
-
-  @SuppressWarnings("unused")
-  public void isAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-        // ------------------------------
-        // Check of Google Play Services
-        // ------------------------------
-        int checkGooglePlayServices = GooglePlayServicesUtil
-          .isGooglePlayServicesAvailable(activity);
-        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-          // google play services is missing!!!!
-          callbackContext.error("Google Maps Android API v2 is not available, because this device does not have Google Play Service.");
-          return;
-        }
-
-
-        // ------------------------------
-        // Check of Google Maps Android API v2
-        // ------------------------------
-        try {
-          @SuppressWarnings({ "rawtypes" })
-          Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
-        } catch (Exception e) {
-          Log.e("GoogleMaps", "Error", e);
-          callbackContext.error(e.getMessage());
-          return;
-        }
-
-        callbackContext.success();
-      }
-    });
-
   }
 
 
@@ -724,11 +675,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
     });
   }
 
-  public void showLicenseText() {
-    AsyncLicenseInfo showLicense = new AsyncLicenseInfo(activity);
-    showLicense.execute();
-  }
-
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -890,55 +836,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener,
       (stringMapViewEntry).getValue().onDestroy();
     }
     super.onDestroy();
-  }
-
-
-  @Override
-  public void onClick(View view) {
-    int viewId = view.getId();
-    if (viewId == CLOSE_LINK_ID) {
-      closeWindow();
-      return;
-    }
-    if (viewId == LICENSE_LINK_ID) {
-      showLicenseText();
-    }
-  }
-
-  /**
-   * Set the app background
-   * @param args Parameters given from JavaScript side
-   * @param callbackContext Callback contect for sending back the result.
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  public void setBackGroundColor(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout != null) {
-      JSONArray rgba = args.getJSONArray(0);
-      int backgroundColor = Color.WHITE;
-      if (rgba != null && rgba.length() == 4) {
-        try {
-          backgroundColor = PluginUtil.parsePluginColor(rgba);
-          this.mPluginLayout.setBackgroundColor(backgroundColor);
-        } catch (JSONException e) {}
-      }
-    }
-    this.sendNoResult(callbackContext);
-  }
-
-  /**
-   * Set the debug flag of myPluginLayer
-   * @param args Parameters given from JavaScript side
-   * @param callbackContext Callback contect for sending back the result.
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  public void setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    Log.d("GoogleMaps", "pluginLayer_setDebuggable ");
-    boolean debuggable = args.getBoolean(0);
-    this.mPluginLayout.setDebug(debuggable);
-    this.isDebug = debuggable;
-    this.sendNoResult(callbackContext);
   }
 
   protected void sendNoResult(CallbackContext callbackContext) {

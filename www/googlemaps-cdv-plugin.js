@@ -22,8 +22,8 @@ var KmlOverlay = require('./KmlOverlay');
 var encoding = require('./encoding');
 var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
-var MapTypeId = require('./MapTypeId');
 var Environment = require('./Environment');
+var MapTypeId = require('./MapTypeId');
 
 var _global = new BaseClass();
 var MAPS = {};
@@ -235,11 +235,11 @@ module.exports = {
     Marker: Marker,
     MapTypeId: MapTypeId,
     external: ExternalService,
+    environment: Environment,
     Geocoder: Geocoder,
     geometry: {
         encoding: encoding
-    },
-    Config: Config
+    }
 };
 
 window.addEventListener("orientationchange", function() {
@@ -256,5 +256,5 @@ document.addEventListener("deviceready", function() {
     //------------------------------------------------------------------------
     cordova.exec(null, function(message) {
         alert(message);
-    }, 'GoogleMaps', 'isAvailable', ['']);
+    }, 'Environment', 'isAvailable', ['']);
 });

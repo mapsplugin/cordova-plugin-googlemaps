@@ -1,49 +1,39 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
-    common = require('./Common'),
-    BaseClass = require('./BaseClass');
+    common = require('./Common');
 
 /*****************************************************************************
  * Config Class
  *****************************************************************************/
-var Environment = function() {
-    BaseClass.apply(this);
+var Environment = {};
+
+Environment.setBackgroundColor = function(color) {
+    cordova.exec(null, null, 'Environment', 'setBackGroundColor', [common.HTMLColor2RGBA(color)]);
 };
 
-utils.extend(Environment, BaseClass);
-
-Environment.prototype.setBackgroundColor = function(color) {
-    this.set('strokeColor', color);
-    cordova.exec(null, this.errorHandler, 'Environment', 'setBackGroundColor', [common.HTMLColor2RGBA(color)]);
-};
-
-Environment.prototype.setDebuggable = function(debug) {
-    var self = this;
+Environment.setDebuggable = function(debug) {
     debug = common.parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, 'Environment', 'setDebuggable', [debug]);
+    cordova.exec(null, null, 'Environment', 'setDebuggable', [debug]);
 };
 
-Environment.prototype.isAvailable = function(callback) {
-    var self = this;
-
+Environment.isAvailable = function(callback) {
     cordova.exec(function() {
         if (typeof callback === "function") {
-            callback.call(self, true);
+            callback(true);
         }
     }, function(message) {
         if (typeof callback === "function") {
-            callback.call(self, false, message);
+            callback(false, message);
         }
     }, 'Environment', 'isAvailable', ['']);
 };
 
 
-Environment.prototype.getLicenseInfo = function(callback) {
-    var self = this;
+Environment.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
-        callback.call(self, txt);
-    }, self.errorHandler, 'Environment', 'getLicenseInfo', []);
+        callback(txt);
+    }, null, 'Environment', 'getLicenseInfo', []);
 };
 
 

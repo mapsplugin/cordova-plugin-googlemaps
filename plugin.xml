@@ -125,9 +125,6 @@
             <feature name="Geocoder">
                 <param name="android-package" value="plugin.google.maps.MyGeocoder" />
             </feature>
-            <feature name="External">
-                <param name="android-package" value="plugin.google.maps.External" />
-            </feature>
             <feature name="Geocoder">
                 <param name="android-package" value="plugin.google.maps.MyGeocoder" />
             </feature>
