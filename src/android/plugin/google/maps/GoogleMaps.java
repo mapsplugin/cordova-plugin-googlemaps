@@ -78,7 +78,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
   public HashMap<String, RectF> mapDivLayouts = new HashMap<String, RectF>();
   private Activity activity;
-  private ViewGroup root;
+  public ViewGroup root;
   public MyPluginLayout mPluginLayout = null;
   public boolean isDebug = true;
   private GoogleApiClient googleApiClient = null;
@@ -87,7 +87,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   public final HashMap<String, Method> methods = new HashMap<String, Method>();
   protected HashMap<String, MapView> mapViews = new HashMap<String, MapView>();
   protected HashMap<String, PluginMap> mapPlugins = new HashMap<String, PluginMap>();
-  private boolean initialized = false;
+  public boolean initialized = false;
   public PluginManager pluginManager;
 
   @SuppressLint("NewApi") @Override
@@ -106,6 +106,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     for (int i = 0; i < classMethods.length; i++) {
       methods.put(classMethods[i].getName(), classMethods[i]);
     }
+
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
@@ -143,11 +144,11 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
             }
         }
         */
-
         root.setBackgroundColor(Color.WHITE);
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView.getView(), activity);
+
 
         // ------------------------------
         // Check of Google Play Services
@@ -266,6 +267,21 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
           // show it
           alertDialog.show();
+        }
+
+
+
+
+        //------------------------------
+        // Initialize Google Maps SDK
+        //------------------------------
+        if (!initialized) {
+          try {
+            MapsInitializer.initialize(cordova.getActivity());
+            initialized = true;
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
 
       }
@@ -682,20 +698,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-
-        //------------------------------
-        // Initialize Google Maps SDK
-        //------------------------------
-        if (!initialized) {
-          try {
-            MapsInitializer.initialize(cordova.getActivity());
-            initialized = true;
-          } catch (Exception e) {
-            e.printStackTrace();
-            callbackContext.error(e.getMessage());
-            return;
-          }
-        }
 
         //------------------------------------------
         // Create an instance of PluginMap class.

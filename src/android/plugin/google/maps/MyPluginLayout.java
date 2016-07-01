@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build.VERSION;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +33,6 @@ public class MyPluginLayout extends FrameLayout  {
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
   private FrameLayout scrollFrameLayout = null;
-  private View backgroundView = null;
   private HashMap<String, ViewGroup> mapViews = new HashMap<String, ViewGroup>();
   private HashMap<String, Boolean> mapClickables = new HashMap<String, Boolean>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
@@ -49,24 +49,19 @@ public class MyPluginLayout extends FrameLayout  {
     this.browserView = browserView;
     this.root = (ViewGroup) browserView.getParent();
     this.context = browserView.getContext();
-    if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
-      browserView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-    }
+    //if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
+    //  browserView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+    //}
+
     frontLayer = new FrontLayerLayout(this.context);
-    
+
     scrollView = new ScrollView(this.context);
     scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-    backgroundView = new View(this.context);
-    backgroundView.setVerticalScrollBarEnabled(false);
-    backgroundView.setHorizontalScrollBarEnabled(false);
-    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 999999));
 
     root.removeView(browserView);
     frontLayer.addView(browserView);
 
     scrollFrameLayout = new FrameLayout(this.context);
-    scrollFrameLayout.addView(backgroundView);
     scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
     scrollView.setHorizontalScrollBarEnabled(true);
@@ -78,6 +73,29 @@ public class MyPluginLayout extends FrameLayout  {
     this.addView(scrollView);
     this.addView(frontLayer);
     root.addView(this);
+
+
+
+    browserView.setBackgroundColor(Color.TRANSPARENT);
+    if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
+      || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
+      try {
+    /* view.setZOrderOnTop(true)
+     * Called just in time as with root.setBackground(...) the color
+     * come in front and take the whole screen */
+        browserView.getClass().getMethod("setZOrderOnTop", boolean.class)
+          .invoke(browserView, true);
+      }
+      catch(Exception e) {
+        e.printStackTrace();
+      }
+    }
+    scrollView.setHorizontalScrollBarEnabled(false);
+    scrollView.setVerticalScrollBarEnabled(false);
+
+    //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
+
+
     mActivity.getWindow().getDecorView().requestFocus();
   }
   
@@ -239,22 +257,6 @@ public class MyPluginLayout extends FrameLayout  {
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        browserView.setBackgroundColor(Color.TRANSPARENT);
-        if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
-            || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
-          try {
-        /* view.setZOrderOnTop(true)
-         * Called just in time as with root.setBackground(...) the color
-         * come in front and take the whole screen */
-            browserView.getClass().getMethod("setZOrderOnTop", boolean.class)
-                .invoke(browserView, true);
-          }
-          catch(Exception e) {
-            e.printStackTrace();
-          }
-        }
-        scrollView.setHorizontalScrollBarEnabled(false);
-        scrollView.setVerticalScrollBarEnabled(false);
 
         scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
 
@@ -270,19 +272,10 @@ public class MyPluginLayout extends FrameLayout  {
 
         mActivity.getWindow().getDecorView().requestFocus();
 
-        scrollView.setHorizontalScrollBarEnabled(true);
-        scrollView.setVerticalScrollBarEnabled(true);
       }
     });
   }
-  
-  public void setPageSize(int width, int height) {
-    android.view.ViewGroup.LayoutParams lParams = backgroundView.getLayoutParams();
-    lParams.width = width;
-    lParams.height = height;
-    backgroundView.setLayoutParams(lParams);
-  }
-  
+
   public void scrollTo(int x, int y) {
     this.scrollView.scrollTo(x, y);
   }
@@ -292,7 +285,8 @@ public class MyPluginLayout extends FrameLayout  {
   }
 
   public void setBackgroundColor(int color) {
-    this.backgroundView.setBackgroundColor(color);
+    Log.d("MyPluginLayout", "----> setBackgroundColor color = " + color);
+    this.root.setBackgroundColor(color);
   }
   
   public void inValidate() {

@@ -2,6 +2,7 @@ package plugin.google.maps;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.lang.reflect.Method;
+import java.sql.Time;
 
 public class Environment extends CordovaPlugin {
   public PluginManager pluginManager;
@@ -97,21 +99,24 @@ public class Environment extends CordovaPlugin {
   public void setBackGroundColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     final JSONArray rgba = args.getJSONArray(0);
+    final GoogleMaps googleMaps = (GoogleMaps) pluginManager.getPlugin("GoogleMaps");
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    Handler handler = new Handler(cordova.getActivity().getMainLooper());
+    handler.postDelayed(new Runnable() {
       public void run() {
-        GoogleMaps googleMaps = (GoogleMaps) pluginManager.getPlugin("GoogleMaps");
 
         int backgroundColor = Color.WHITE;
         if (rgba != null && rgba.length() == 4) {
           try {
             backgroundColor = PluginUtil.parsePluginColor(rgba);
-            googleMaps.mPluginLayout.setBackgroundColor(backgroundColor);
-          } catch (JSONException e) {}
+            googleMaps.root.setBackgroundColor(backgroundColor);
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
         }
         sendNoResult(callbackContext);
       }
-    });
+    }, googleMaps.initialized ? 0 : 250);
   }
 
   @SuppressWarnings("unused")
