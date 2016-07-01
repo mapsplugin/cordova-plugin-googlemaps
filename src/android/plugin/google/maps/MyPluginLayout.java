@@ -7,8 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.Build.VERSION;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -284,11 +282,6 @@ public class MyPluginLayout extends FrameLayout  {
     mapClickables.put(mapId, clickable);
   }
 
-  public void setBackgroundColor(int color) {
-    Log.d("MyPluginLayout", "----> setBackgroundColor color = " + color);
-    this.root.setBackgroundColor(color);
-  }
-  
   public void inValidate() {
     this.frontLayer.invalidate();
   }
