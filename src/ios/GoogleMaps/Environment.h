@@ -7,8 +7,12 @@
 //
 
 #import <Cordova/CDV.h>
+#import "GoogleMaps.h"
 
 @interface Environment : CDVPlugin
 
-- (void)exec:(CDVInvokedUrlCommand*)command;
+- (void)isAvailable:(CDVInvokedUrlCommand*)command;
+- (void)setBackGroundColor:(CDVInvokedUrlCommand*)command;
+- (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
+- (void)setDebuggable:(CDVInvokedUrlCommand*)command;
 @end
