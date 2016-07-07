@@ -31,15 +31,24 @@
 }
 
 - (void)getLicenseInfo:(CDVInvokedUrlCommand *)command {
-
-
-  // TODO: stub
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"stub"];
+  NSString *txt = [GMSServices openSourceLicenseInfo];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:txt];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setDebuggable:(CDVInvokedUrlCommand *)command {
 
+/*
+
+    Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
+    self.pluginLayer.debuggable = isDebuggable;
+    self.pluginLayer.pluginScrollView.debugView.debuggable = isDebuggable;
+    self.mapCtrl.debuggable = isDebuggable;
+    [self.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
   // TODO: stub
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

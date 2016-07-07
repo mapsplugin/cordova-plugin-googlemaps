@@ -21,9 +21,6 @@
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 @property (nonatomic) NSMutableDictionary *mapPlugins;
 
-- (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
-- (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
-- (void)isAvailable:(CDVInvokedUrlCommand *)command;
 @end
