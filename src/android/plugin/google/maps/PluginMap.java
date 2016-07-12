@@ -192,7 +192,7 @@ public class PluginMap extends MyPlugin {
     float tilt = -1;
     tilt = (float) args.getDouble(1);
 
-    if (tilt > 0 && tilt <= 90) {
+    if (tilt >= 0 && tilt <= 90) {
       CameraPosition currentPos = map.getCameraPosition();
       CameraPosition newPosition = new CameraPosition.Builder()
           .target(currentPos.target).bearing(currentPos.bearing)
@@ -590,12 +590,12 @@ public class PluginMap extends MyPlugin {
   
   @SuppressWarnings("unused")
   private void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    int pointX, pointY;
-    pointX = args.getInt(1);
-    pointY = args.getInt(2);
-    Point point = new Point();
-    point.x = pointX;
-    point.y = pointY;
+    double pointX, pointY;
+    pointX = args.getDouble(0);
+    pointY = args.getDouble(1);
+    final Point point = new Point();
+    point.x = (int)(pointX * density);
+    point.y = (int)(pointY * density);
     LatLng latlng = map.getProjection().fromScreenLocation(point);
     JSONArray pointJSON = new JSONArray();
     pointJSON.put(latlng.latitude);
