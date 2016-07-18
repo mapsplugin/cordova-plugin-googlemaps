@@ -149,12 +149,11 @@
     float webviewHeight = self.webView.frame.size.height;
   
     // Is the map is displayed?
-    if (mapCtrl.isPositionInitialized == NO && (
-        rect.origin.y + rect.size.height < offset.y ||
+    if (rect.origin.y + rect.size.height < offset.y ||
         rect.origin.x + rect.size.width < offset.x ||
         rect.origin.y > offset.y + webviewHeight ||
         rect.origin.x > offset.x + webviewWidth ||
-        mapCtrl.view.hidden == YES)) {
+        mapCtrl.view.hidden == YES) {
       
         // Detach from the parent view
         [mapCtrl.view removeFromSuperview];
