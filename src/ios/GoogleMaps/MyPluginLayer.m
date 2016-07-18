@@ -36,8 +36,43 @@
     offset.x = self.webView.scrollView.contentOffset.x;
     offset.y = self.webView.scrollView.contentOffset.y;
     [self.pluginScrollView setContentOffset:offset];
-    //[self setNeedsDisplay];
-    //[self.pluginScrollView.debugView setNeedsDisplay];
+    
+
+    float offsetX = self.webView.scrollView.contentOffset.x;
+    float offsetY = self.webView.scrollView.contentOffset.y;
+    
+    float webviewWidth = self.webView.frame.size.width;
+    float webviewHeight = self.webView.frame.size.height;
+    
+    
+    CGRect rect;
+    NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
+    GoogleMapsViewController *mapCtrl;
+    id mapId;
+    //NSLog(@"--> point = %f, %f", point.x, point.y);
+    while(mapId = [mapIDs nextObject]) {
+        rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+        mapCtrl = [self.mapCtrls objectForKey:mapId];
+      
+        // Is the map is displayed?
+        if (rect.origin.y + rect.size.height < offsetY ||
+            rect.origin.x + rect.size.width < offsetX ||
+            rect.origin.y > offsetY + webviewHeight ||
+            rect.origin.x > offsetX + webviewWidth ||
+            mapCtrl.view.hidden == YES) {
+          
+            // Detach from the parent view
+            [mapCtrl.view removeFromSuperview];
+          
+        } else {
+            // Attach the map view to the parent.
+            [mapCtrl.map layoutIfNeeded];
+            [mapCtrl.map updateFocusIfNeeded];
+            [mapCtrl.map updateConstraintsIfNeeded];
+            [self.pluginScrollView addSubview:mapCtrl.view];
+        }
+    }
+
 }
 
 
@@ -104,24 +139,39 @@
     CGPoint offset = self.pluginScrollView.contentOffset;
     offset.x = self.webView.scrollView.contentOffset.x;
     offset.y = self.webView.scrollView.contentOffset.y;
-    self.pluginScrollView.contentOffset = offset;
+    [self.pluginScrollView setContentOffset:offset];
   
-    CGRect embedRect = CGRectFromString([self.drawRects objectForKey:mapId]);
-    //NSLog(@"mapId = %@, embedRect = %@", mapId, embedRect);
-
     GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
-    [mapCtrl.view setFrame:embedRect];
+  
+    CGRect rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+  
+    float webviewWidth = self.webView.frame.size.width;
+    float webviewHeight = self.webView.frame.size.height;
+  
+    // Is the map is displayed?
+    if (mapCtrl.isPositionInitialized == NO && (
+        rect.origin.y + rect.size.height < offset.y ||
+        rect.origin.x + rect.size.width < offset.x ||
+        rect.origin.y > offset.y + webviewHeight ||
+        rect.origin.x > offset.x + webviewWidth ||
+        mapCtrl.view.hidden == YES)) {
+      
+        // Detach from the parent view
+        [mapCtrl.view removeFromSuperview];
+      
+    } else {
+        // Attach the map view to the parent.
+        // invite drawRect();
+        [mapCtrl.map layoutIfNeeded];
+        [mapCtrl.map updateFocusIfNeeded];
+        [mapCtrl.map updateConstraintsIfNeeded];
+        [self.pluginScrollView addSubview:mapCtrl.view];
+    }
+
+    [mapCtrl.view setFrame:rect];
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-
-/*
-  if (self.clickable == NO ||
-      self.mapCtrl.map == nil ||
-      self.mapCtrl.map.hidden == YES) {
-    return [super hitTest:point withEvent:event];
-  }
-  */
 
     float offsetX = self.webView.scrollView.contentOffset.x;
     float offsetY = self.webView.scrollView.contentOffset.y;
