@@ -21,36 +21,9 @@
     self.screenSize = [[UIScreen mainScreen] bounds];
     self.overlayManager = [[NSMutableDictionary alloc] init];
     self.clickable = YES;
+    self.isRenderedAtOnce = NO;
 
     return self;
-}
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-{
-    // TODO: refreshlayout
-    [self updateMapViewLayout];
-}
-
-- (void)loadView {
-  [super loadView];
-  [self updateMapViewLayout];
-}
-- (void)updateMapViewLayout {
-    
-
-/*
-  if (self.isFullScreen == NO) {
-
-    NSEnumerator *mapIDs = [self.pluginLayer.drawRects keyEnumerator];
-    CGRect rect;
-    GMSMapView *mapView;
-    id mapId = nil;
-    while (mapId = [mapIDs nextObject]) {
-        NSLog(@"mapId = %@, rect = %@", mapId, [self.pluginLayer.drawRects objectForKey:mapId]);
-        rect = CGRectFromString([self.pluginLayer.drawRects objectForKey:mapId]);
-        [mapView setFrame:rect];
-    }
-  }
-*/
 }
 
 - (void)viewDidLoad

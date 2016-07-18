@@ -23,6 +23,7 @@
 @property (nonatomic) NSString *mapId;
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic) BOOL clickable;
+@property (nonatomic) BOOL isRenderedAtOnce;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
@@ -35,11 +36,9 @@
 - (GMSTileLayer *)getTileLayerByKey: (NSString *)key;
 - (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key;
 - (UIImage *)getUIImageByKey: (NSString *)key;
-- (void)updateMapViewLayout;
 
 - (void)removeObjectForKey: (NSString *)key;
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)level;

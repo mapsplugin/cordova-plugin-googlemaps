@@ -10,7 +10,6 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import "GoogleMapsViewController.h"
 #import "PluginUtil.h"
-#import "MyReachability.h"
 #import "Map.h"
 #import "MyPluginLayer.h"
 

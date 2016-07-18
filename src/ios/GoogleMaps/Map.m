@@ -28,14 +28,14 @@
   //#else
     plugin = [[NSClassFromString(className)alloc] init];
   //#endif
-NSLog(@"--> plugin = %@", plugin);
+//NSLog(@"--> plugin = %@", plugin);
   if (plugin) {
     plugin.commandDelegate = self.commandDelegate;
     [plugin setGoogleMapsViewController:self.mapCtrl];
     [self.mapCtrl.plugins setObject:plugin forKey:className];
     
     NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, [className lowercaseString]];
-NSLog(@"--> pluginId = %@", pluginId);
+//NSLog(@"--> pluginId = %@", pluginId);
     
     // Hack:
     // In order to load the plugin instance of the same class but different names,
@@ -82,13 +82,11 @@ NSLog(@"--> pluginId = %@", pluginId);
         return;
     }
 
-    //---------------------------------------------
-    // case: plugin.google.maps.getMap(div, opt?)
-    //---------------------------------------------
-    [self resizeMap:command];
     
     dispatch_async(dispatch_get_main_queue(), ^{
       [self setOptions:command];
+      
+      [self resizeMap:command];
           
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -152,8 +150,6 @@ NSLog(@"--> pluginId = %@", pluginId);
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
-NSLog(@"---> resizeMap mapId = %@", self.mapId);
-
 
     NSInteger argCnt = [command.arguments count];
     NSDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];

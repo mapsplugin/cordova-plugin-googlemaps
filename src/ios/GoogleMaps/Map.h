@@ -8,7 +8,6 @@
 
 #import "GoogleMaps.h"
 #import "MyPlgunProtocol.h"
-//#import "NSData-Base64/NSData+Base64.h"
 #import "NSData+Base64.h"
 
 @interface Map : CDVPlugin<MyPlgunProtocol>
