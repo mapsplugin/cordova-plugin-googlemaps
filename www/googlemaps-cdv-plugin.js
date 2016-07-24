@@ -242,6 +242,13 @@ module.exports = {
     }
 };
 
+window.addEventListener("beforeunload", function() {
+    var mapIDs = Object.keys(MAPS);
+    mapIDs.forEach(function(mapId) {
+      MAPS[mapId].remove();
+    });
+});
+
 window.addEventListener("orientationchange", function() {
     //console.log("---> orientationchange");
     setTimeout(onMapResize, 1000);

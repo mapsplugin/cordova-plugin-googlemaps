@@ -570,7 +570,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext Callback contect for sending back the result.
    */
   public void remove(JSONArray args, final CallbackContext callbackContext) {
-    pluginMap.isClickable = false;
+    this.isClickable = false;
     mapCtrl.mPluginLayout.removePluginMap(mapId);
     plugins.clear();
     mapCtrl.mapPlugins.remove(mapId);
