@@ -714,7 +714,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
           mapPlugins.put(mapId, pluginMap);
 
-          //pluginMap.getMap(args, callbackContext);
           pluginMap.getMap(args, callbackContext);
 
         } catch (Exception e) {

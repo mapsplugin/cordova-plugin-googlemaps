@@ -83,6 +83,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public GoogleMap map;
   public MapView mapView;
   public String mapId;
+  public boolean isVisible = true;
+  public boolean isClickable = true;
   public final String TAG = mapId;
   public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
 
@@ -103,7 +105,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   private class AsyncSetOptionsResult {
-    boolean myLocationButtonEnabled;
     int MAP_TYPE_ID;
     CameraPosition cameraPosition;
     LatLngBounds cameraBounds;
@@ -209,29 +210,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             public void run() {
               mapView.onCreate(null);
               mapView.onResume();
-/*
-        //TODO: provide another better way.
-        //background color
-        if (params.has("backgroundColor")) {
-          JSONArray rgba = null;
-          try {
-            rgba = params.getJSONArray("backgroundColor");
-          } catch (JSONException e) {
-            e.printStackTrace();
-            callbackContext.error(e.getMessage() + "");
-          }
-
-          if (rgba != null && rgba.length() == 4) {
-            try {
-              int backgroundColor = PluginUtil.parsePluginColor(rgba);
-              mapCtrl.mPluginLayout.setBackgroundColor(backgroundColor);
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }
-          }
-
-        }
-*/
 
               mapView.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -276,7 +254,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       RectF rect = new RectF(divLeft, divTop, divLeft + divW, divTop + divH);
                       mapCtrl.mapDivLayouts.put(mapId, rect);
 
-                      mapCtrl.mPluginLayout.addMapView(mapId, mapView);
+                      mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
                       PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
                         @Override
                         public void onResult(PluginResult pluginResult) {}
@@ -540,12 +518,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (args.length() == 0) {
       mapCtrl.mapDivLayouts.remove(mapId);
-      mapCtrl.mPluginLayout.removeMapView(mapId);
+      mapCtrl.mPluginLayout.removePluginMap(mapId);
       this.sendNoResult(callbackContext);
       return;
     }
     if (args.length() == 2) {
-      mapCtrl.mPluginLayout.addMapView(mapId, mapView);
+      mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
       this.resizeMap(args, callbackContext);
     }
   }
@@ -558,7 +536,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean clickable = args.getBoolean(0);
-    mapCtrl.mPluginLayout.setClickable(mapId, clickable);
+    this.isClickable = clickable;
+    //mapCtrl.mPluginLayout.setClickable(mapId, clickable);
     this.sendNoResult(callbackContext);
   }
 
@@ -570,6 +549,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setVisible(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final boolean visible = args.getBoolean(0);
+    this.isVisible = visible;
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -590,8 +570,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext Callback contect for sending back the result.
    */
   public void remove(JSONArray args, final CallbackContext callbackContext) {
-    mapCtrl.mPluginLayout.setClickable(mapId, false);
-    mapCtrl.mPluginLayout.removeMapView(mapId);
+    pluginMap.isClickable = false;
+    mapCtrl.mPluginLayout.removePluginMap(mapId);
     plugins.clear();
     mapCtrl.mapPlugins.remove(mapId);
     this.activity.runOnUiThread(new Runnable() {
@@ -928,29 +908,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         JSONObject params = null;
         try {
           params = args.getJSONObject(0);
-/*
-          //TODO: Provide another better way
-          //background color
-          if (params.has("backgroundColor")) {
-            JSONArray rgba = null;
-            try {
-              rgba = params.getJSONArray("backgroundColor");
-            } catch (JSONException e) {
-              e.printStackTrace();
-              callbackContext.error(e.getMessage() + "");
-            }
-
-            int backgroundColor = Color.WHITE;
-            if (rgba != null && rgba.length() == 4) {
-              try {
-                backgroundColor = PluginUtil.parsePluginColor(rgba);
-                mapCtrl.mPluginLayout.setBackgroundColor(backgroundColor);
-              } catch (JSONException e) {
-                e.printStackTrace();
-              }
-            }
-          }
-*/
           UiSettings settings = map.getUiSettings();
 
           //gestures

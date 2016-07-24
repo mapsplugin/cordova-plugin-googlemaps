@@ -16,6 +16,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+import com.google.android.gms.maps.MapView;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,9 +32,8 @@ public class MyPluginLayout extends FrameLayout  {
   private Context context;
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
-  private FrameLayout scrollFrameLayout = null;
-  private HashMap<String, ViewGroup> mapViews = new HashMap<String, ViewGroup>();
-  private HashMap<String, Boolean> mapClickables = new HashMap<String, Boolean>();
+  public FrameLayout scrollFrameLayout = null;
+  private HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   private boolean isDebug = false;
@@ -61,6 +62,11 @@ public class MyPluginLayout extends FrameLayout  {
 
     scrollFrameLayout = new FrameLayout(this.context);
     scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
+
+    View dummyView = new View(this.context);
+    dummyView.setLayoutParams(new LayoutParams(1, 99999));
+    scrollFrameLayout.addView(dummyView);
 
     scrollView.setHorizontalScrollBarEnabled(true);
     scrollView.setVerticalScrollBarEnabled(true);
@@ -158,16 +164,20 @@ public class MyPluginLayout extends FrameLayout  {
   public void updateViewPosition(final String mapId) {
     //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
 
-    if (!mapViews.containsKey(mapId)) {
+    if (!pluginMaps.containsKey(mapId)) {
       return;
     }
+
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        ViewGroup mapView = mapViews.get(mapId);
-        ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+        PluginMap pluginMap = pluginMaps.get(mapId);
+        ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
+        //int scrollX = browserView.getScrollX();
         int scrollY = browserView.getScrollY();
+        int webviewWidth = browserView.getWidth();
+        int webviewHeight = browserView.getHeight();
         RectF drawRect = drawRects.get(mapId);
 
         if (lParams instanceof AbsoluteLayout.LayoutParams) {
@@ -176,14 +186,14 @@ public class MyPluginLayout extends FrameLayout  {
           params.height = (int) drawRect.height();
           params.x = (int) drawRect.left;
           params.y = (int) drawRect.top + scrollY;
-          mapView.setLayoutParams(params);
+          pluginMap.mapView.setLayoutParams(params);
         } else if (lParams instanceof LinearLayout.LayoutParams) {
           LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
           params.width = (int) drawRect.width();
           params.height = (int) drawRect.height();
           params.topMargin = (int) drawRect.top + scrollY;
           params.leftMargin = (int) drawRect.left;
-          mapView.setLayoutParams(params);
+          pluginMap.mapView.setLayoutParams(params);
         } else if (lParams instanceof FrameLayout.LayoutParams) {
           FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
           params.width = (int) drawRect.width();
@@ -191,26 +201,24 @@ public class MyPluginLayout extends FrameLayout  {
           params.topMargin = (int) drawRect.top + scrollY;
           params.leftMargin = (int) drawRect.left;
           params.gravity = Gravity.TOP;
-          mapView.setLayoutParams(params);
+          pluginMap.mapView.setLayoutParams(params);
         }
-        if (android.os.Build.VERSION.SDK_INT < 11) {
-          // Force redraw
-          mapView.requestLayout();
-        }
-        //Log.d("MyPluginLayout", "---> drawRect =" +drawRect.left + "," + drawRect.top + scrollY + " / " + drawRect.width() + ", " + drawRect.height());
 
+        if ((drawRect.top + drawRect.height() < 0) ||
+          (drawRect.top >  webviewHeight) ||
+          (drawRect.left + drawRect.width() < 0) ||
+          (drawRect.left > webviewWidth))  {
+
+          pluginMap.mapView.setVisibility(View.INVISIBLE);
+        } else {
+          pluginMap.mapView.setVisibility(View.VISIBLE);
+        }
         frontLayer.invalidate();
       }
     });
   }
 
-  public View getmapView(String mapId) {
-    if (!mapViews.containsKey(mapId)) {
-      return null;
-    }
 
-    return mapViews.get(mapId);
-  }
   public void setDebug(final boolean debug) {
     this.isDebug = debug;
     mActivity.runOnUiThread(new Runnable() {
@@ -223,19 +231,18 @@ public class MyPluginLayout extends FrameLayout  {
     });
   }
 
-  public void removeMapView(final String mapId) {
-    if (!mapViews.containsKey(mapId)) {
+  public void removePluginMap(final String mapId) {
+    if (!pluginMaps.containsKey(mapId)) {
       return;
     }
-    mapClickables.remove(mapId);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        ViewGroup mapView = mapViews.remove(mapId);
+        PluginMap pluginMap = pluginMaps.remove(mapId);
 
-        scrollFrameLayout.removeView(mapView);
-        mapView.removeView(touchableWrappers.remove(mapId));
+        scrollFrameLayout.removeView(pluginMap.mapView);
+        pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
         drawRects.remove(mapId);
 
         mActivity.getWindow().getDecorView().requestFocus();
@@ -243,14 +250,14 @@ public class MyPluginLayout extends FrameLayout  {
     });
   }
   
-  public void addMapView(final String mapId, final ViewGroup pluginView) {
-    if (mapViews.containsKey(mapId)) {
+  public void addPluginMap(final PluginMap pluginMap) {
+    if (pluginMaps.containsKey(pluginMap.mapId)) {
       return;
     } else {
-      removeMapView(mapId);
+      removePluginMap(pluginMap.mapId);
     }
-    MAP_HTMLNodes.put(mapId, new HashMap<String, RectF>());
-    drawRects.put(mapId, new RectF());
+    MAP_HTMLNodes.put(pluginMap.mapId, new HashMap<String, RectF>());
+    drawRects.put(pluginMap.mapId, new RectF());
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
@@ -258,15 +265,12 @@ public class MyPluginLayout extends FrameLayout  {
 
         scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
 
-        //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
-
-        mapViews.put(mapId, pluginView);
-        mapClickables.put(mapId, true);
+        pluginMaps.put(pluginMap.mapId, pluginMap);
 
         TouchableWrapper wrapper = new TouchableWrapper(context);
-        touchableWrappers.put(mapId, wrapper);
-        pluginView.addView(wrapper);
-        scrollFrameLayout.addView(pluginView);
+        touchableWrappers.put(pluginMap.mapId, wrapper);
+        pluginMap.mapView.addView(wrapper);
+        scrollFrameLayout.addView(pluginMap.mapView);
 
         mActivity.getWindow().getDecorView().requestFocus();
 
@@ -276,10 +280,6 @@ public class MyPluginLayout extends FrameLayout  {
 
   public void scrollTo(int x, int y) {
     this.scrollView.scrollTo(x, y);
-  }
-
-  public void setClickable(String mapId, boolean clickable) {
-    mapClickables.put(mapId, clickable);
   }
 
   public void inValidate() {
@@ -306,9 +306,9 @@ public class MyPluginLayout extends FrameLayout  {
         return false;
       }
 
-      ViewGroup mapView;
-      Iterator<Map.Entry<String, ViewGroup>> iterator =  mapViews.entrySet().iterator();
-      Entry<String, ViewGroup> entry;
+      PluginMap pluginMap;
+      Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
+      Entry<String, PluginMap> entry;
       HashMap<String, RectF> HTMLNodes;
       String mapId;
       int x = (int)event.getX();
@@ -318,21 +318,17 @@ public class MyPluginLayout extends FrameLayout  {
       boolean contains = false;
 
 
-      //Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / mouseTouch x = " + x + ", " + y);
       while(iterator.hasNext()) {
         entry = iterator.next();
         mapId = entry.getKey();
-        //Log.d("FrontLayerLayout", "----> mapId = " + mapId );
-        mapView = entry.getValue();
-        if (mapView.getVisibility() != View.VISIBLE || !mapClickables.get(mapId)) {
+        pluginMap = entry.getValue();
+        if (!pluginMap.isVisible || !pluginMap.isClickable) {
           continue;
         }
 
         drawRect = drawRects.get(mapId);
         contains = drawRect.contains(x, y);
 
-        //Log.d("FrontLayerLayout", "----> drawRect = " + drawRect.left + "," + drawRect.top + " - " + drawRect.width() + "," + drawRect.height() );
-        //Log.d("FrontLayerLayout", "----> contains = " + contains + ", isScrolling = " + isScrolling);
 
         if (contains && MAP_HTMLNodes.containsKey(mapId)) {
           // Is the touch point on any HTML elements?
@@ -341,13 +337,11 @@ public class MyPluginLayout extends FrameLayout  {
           Iterator<Entry<String, RectF>> iterator2 = elements.iterator();
           Entry <String, RectF> entry2;
           RectF rect;
-          //Log.d("FrontLayerLayout", "----> elements.size() = " + elements.size() );
           while(iterator2.hasNext() && contains) {
             entry2 = iterator2.next();
             rect = entry2.getValue();
             rect.top -= scrollY;
             rect.bottom -= scrollY;
-            //Log.d("FrontLayerLayout", "----> rect = " + rect.left + "," + rect.top + " - " + rect.width() + "," + rect.height() );
 
 
             if (entry2.getValue().contains(x, y)) {
@@ -369,7 +363,6 @@ public class MyPluginLayout extends FrameLayout  {
       }
 
 
-      //Log.d("FrontLayerLayout", "----> onInterceptTouchEvent / contains = " + contains+ ", isScrolling = " + isScrolling);
       return contains;
     }
     @Override
@@ -382,7 +375,6 @@ public class MyPluginLayout extends FrameLayout  {
       int scrollY = browserView.getScrollY();
 
       RectF drawRect;
-      ViewGroup mapView = null;
       Iterator<Entry<String, HashMap<String, RectF>>> iterator = MAP_HTMLNodes.entrySet().iterator();
       Entry<String, HashMap<String, RectF>> entry;
       HashMap<String, RectF> HTMLNodes;
