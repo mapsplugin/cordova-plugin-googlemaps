@@ -106,7 +106,10 @@ public class MyPluginLayout extends FrameLayout  {
   
   public void setDrawingRect(String mapId, float left, float top, float right, float bottom) {
     RectF drawRect = drawRects.get(mapId);
-    Log.d("MyPluginLayout", "--> setDrawingRect / mapId = " + mapId + ", drawRect = " + drawRect);
+    if (drawRect == null) {
+      // The map is already removed. Just ignore.
+      return;
+    }
     drawRect.left = left;
     drawRect.top = top;
     drawRect.right = right;
@@ -248,7 +251,7 @@ public class MyPluginLayout extends FrameLayout  {
           scrollFrameLayout.removeView(pluginMap.mapView);
           pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
           drawRects.remove(mapId);
-          Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
+          //Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
           MAP_HTMLNodes.remove(mapId);
 
           mActivity.getWindow().getDecorView().requestFocus();
