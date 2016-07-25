@@ -22,4 +22,5 @@
 
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
+- (void)unload:(CDVInvokedUrlCommand*)command;
 @end

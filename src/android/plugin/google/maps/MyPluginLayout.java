@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -105,6 +106,7 @@ public class MyPluginLayout extends FrameLayout  {
   
   public void setDrawingRect(String mapId, float left, float top, float right, float bottom) {
     RectF drawRect = drawRects.get(mapId);
+    Log.d("MyPluginLayout", "--> setDrawingRect / mapId = " + mapId + ", drawRect = " + drawRect);
     drawRect.left = left;
     drawRect.top = top;
     drawRect.right = right;
@@ -203,6 +205,7 @@ public class MyPluginLayout extends FrameLayout  {
           params.gravity = Gravity.TOP;
           pluginMap.mapView.setLayoutParams(params);
         }
+        Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top);
 
         if ((drawRect.top + drawRect.height() < 0) ||
           (drawRect.top >  webviewHeight) ||
@@ -239,13 +242,20 @@ public class MyPluginLayout extends FrameLayout  {
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        PluginMap pluginMap = pluginMaps.remove(mapId);
+        try {
+          PluginMap pluginMap = pluginMaps.remove(mapId);
 
-        scrollFrameLayout.removeView(pluginMap.mapView);
-        pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
-        drawRects.remove(mapId);
+          scrollFrameLayout.removeView(pluginMap.mapView);
+          pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
+          drawRects.remove(mapId);
+          Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
+          MAP_HTMLNodes.remove(mapId);
 
-        mActivity.getWindow().getDecorView().requestFocus();
+          mActivity.getWindow().getDecorView().requestFocus();
+        } catch (Exception e) {
+          // ignore
+          //e.printStackTrace();
+        }
       }
     });
   }

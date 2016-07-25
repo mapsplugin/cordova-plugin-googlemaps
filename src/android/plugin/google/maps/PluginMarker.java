@@ -32,7 +32,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
 public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   
@@ -44,6 +46,36 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
+
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Set<String> keySet = objects.keySet();
+        String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+
+        for (String objectId : objectIdArray) {
+          if (objects.containsKey(objectId)) {
+            if (objectId.startsWith("marker_") &&
+              !objectId.startsWith("marker_property_")) {
+              Marker marker = (Marker) objects.remove(objectId);
+              marker.remove();
+            } else {
+              Object object = objects.remove(objectId);
+              object = null;
+            }
+          }
+        }
+
+        objects.clear();
+        objects = null;
+      }
+    });
+
 
   }
 

@@ -200,7 +200,7 @@
 - (void)remove:(CDVInvokedUrlCommand *)command {
 
     NSString *mapId = self.mapId;
-    
+    self.isRemoved = YES;
     
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
@@ -218,8 +218,10 @@
     self.mapCtrl = nil;
     //self.locationCommandQueue = nil;  // issue 437
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    if (command != nil) {
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
 
 }
 
@@ -528,6 +530,9 @@
       [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
       
       [CATransaction setCompletionBlock:^{
+        if (self.isRemoved) {
+          return;
+        }
         if (cameraBounds != nil){
         
           GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
@@ -556,6 +561,9 @@
                                           bearing:[[json objectForKey:@"bearing"] doubleValue]
                                           viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
     
+      if (self.isRemoved) {
+        return;
+      }
       [self.mapCtrl.map setCamera:cameraPosition2];
     }
 

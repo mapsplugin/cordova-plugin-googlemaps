@@ -13,6 +13,7 @@
 @interface Map : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSString *mapId;
+@property (nonatomic) BOOL isRemoved;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;

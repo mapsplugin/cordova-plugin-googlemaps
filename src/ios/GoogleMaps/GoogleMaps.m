@@ -78,6 +78,28 @@
 }
 
 /**
+ * Remove maps
+ */
+- (void)unload:(CDVInvokedUrlCommand *)command {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      
+        NSString *mapId;
+        NSArray*keys=[self.mapPlugins allKeys];
+        for (int i = 0; i < [keys count]; i++) {
+          mapId = [keys objectAtIndex:i];
+          Map *mapPlugin = [self.mapPlugins objectForKey:mapId];
+          [mapPlugin remove:nil];
+          [self.mapPlugins removeObjectForKey:mapId];
+          [cdvViewController.pluginObjects removeObjectForKey:mapId];
+          [cdvViewController.pluginsMap setValue:nil forKey:mapId];
+          mapPlugin = nil;
+        }
+        [self.mapPlugins removeAllObjects];
+    });
+}
+
+/**
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {

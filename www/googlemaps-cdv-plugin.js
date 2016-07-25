@@ -27,7 +27,7 @@ var MapTypeId = require('./MapTypeId');
 
 var _global = new BaseClass();
 var MAPS = {};
-
+var saltHash = Math.floor(Math.random() * Date.now());
 
 /*****************************************************************************
  * To prevent strange things happen,
@@ -205,15 +205,16 @@ module.exports = {
     //BaseClass: BaseClass,
     Map: {
       getMap: function() {
-        var mapId = "map_" + MAP_CNT;
+        var mapId = "map_" + MAP_CNT + "_" + saltHash;
         var map = new Map(mapId);
 
         // Catch all events for this map instance, then pass to the instance.
         document.addEventListener(mapId, nativeCallback.bind(map));
-
+/*
         map.showDialog = function() {
           showDialog(mapId).bind(map);
         };
+*/
         map.one('remove', function() {
           document.removeEventListener(mapId, nativeCallback);
           MAPS[mapId].clear();
@@ -242,11 +243,14 @@ module.exports = {
     }
 };
 
+// for Android
 window.addEventListener("beforeunload", function() {
-    var mapIDs = Object.keys(MAPS);
-    mapIDs.forEach(function(mapId) {
-      MAPS[mapId].remove();
-    });
+    cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
+});
+
+// for iOS
+window.addEventListener("pagehide", function() {
+    cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
 });
 
 window.addEventListener("orientationchange", function() {

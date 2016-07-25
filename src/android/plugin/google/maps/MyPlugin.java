@@ -34,6 +34,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   public GoogleMaps mapCtrl = null;
   public GoogleMap map = null;
   public PluginMap pluginMap = null;
+  protected boolean isRemoved = false;
   public float density = Resources.getSystem().getDisplayMetrics().density;
 
   public void setPluginMap(PluginMap pluginMap) {
@@ -53,6 +54,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
+    if (isRemoved) {
+      // Ignore every execute calls.
+      return false;
+    }
 
     if (methods.size() == 0) {
       self = this;
@@ -91,6 +96,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
         public void run() {
           Method method = methods.get(action);
           try {
+            if (isRemoved) {
+              // Ignore every execute calls.
+              return;
+            }
             method.invoke(self, args, callbackContext);
           } catch (IllegalAccessException e) {
             e.printStackTrace();

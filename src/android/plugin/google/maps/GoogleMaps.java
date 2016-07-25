@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -62,10 +63,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
@@ -444,9 +447,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
           return;
         }
 
-
-        final boolean enableHighAccuracy = isHigh;
-
         if (googleApiClient == null) {
           googleApiClient = new GoogleApiClient.Builder(activity)
             .addApi(LocationServices.API)
@@ -457,7 +457,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
                 Log.e(TAG, "===> onConnected");
                 GoogleMaps.this.sendNoResult(callbackContext);
 
-                _checkLocationSettings(enableHighAccuracy, callbackContext);
+                _checkLocationSettings(isHigh, callbackContext);
               }
 
               @Override
@@ -483,7 +483,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
             .build();
           googleApiClient.connect();
         } else if (googleApiClient.isConnected()) {
-          _checkLocationSettings(enableHighAccuracy, callbackContext);
+          _checkLocationSettings(isHigh, callbackContext);
         }
       }
     });
@@ -551,7 +551,9 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
               jsResult.put("status", false);
               jsResult.put("error_code", "service_not_available");
               jsResult.put("error_message", "This app has been rejected to use Location Services.");
-            } catch (JSONException e) {}
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
             callbackContext.error(jsResult);
             break;
         }
@@ -597,12 +599,13 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
             result.put("status", false);
             result.put("error_code", "service_denied");
             result.put("error_message", "This app has been rejected to use Location Services.");
-          } catch (JSONException e) {}
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
           callbackContext.error(result);
         }
     });
     builder.create().show();
-    return;
   }
 
   public void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
@@ -635,7 +638,9 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
               result = PluginUtil.location2Json(location);
               result.put("status", true);
               callbackContext.success(result);
-            } catch (JSONException e) {}
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
 
             googleApiClient.disconnect();
           }
@@ -660,9 +665,8 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
             } catch (JSONException e) {
               e.printStackTrace();
             }
-            return;
           } else {
-            if (isRetry == false) {
+            if (!isRetry) {
               Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
 
               GoogleMaps.this.sendNoResult(callbackContext);
@@ -682,13 +686,35 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
                 result.put("status", false);
                 result.put("error_code", "cannot_detect");
                 result.put("error_message", "Can not detect your location. Try again.");
-              } catch (JSONException e) {}
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
               callbackContext.error(result);
             }
           }
         }
       }
     });
+  }
+
+  public void unload(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    Set<String> mapIds = mapPlugins.keySet();
+    PluginMap pluginMap;
+
+    // prevent the ConcurrentModificationException error.
+    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+    for (String mapId : mapIdArray) {
+      if (mapPlugins.containsKey(mapId)) {
+        pluginMap = mapPlugins.remove(mapId);
+        pluginMap.remove(null, null);
+        pluginMap.onDestroy();
+        mapDivLayouts.remove(mapId);
+      }
+    }
+    mapDivLayouts.clear();
+    mapPlugins.clear();
+
+    System.gc();
   }
 
 

@@ -563,6 +563,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     });
   }
 
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    Log.d(TAG, "---> remove " + mapId);
+    this.remove(null, null);
+  }
 
   /**
    * Destroy the map completely
@@ -571,6 +577,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void remove(JSONArray args, final CallbackContext callbackContext) {
     this.isClickable = false;
+    this.isRemoved = true;
     mapCtrl.mPluginLayout.removePluginMap(mapId);
     plugins.clear();
     mapCtrl.mapPlugins.remove(mapId);
@@ -586,12 +593,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           map.clear();
         }
         if (mapView != null) {
-          mapView.onDestroy();
+          try {
+            mapView.onDestroy();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
         map = null;
         mapView = null;
         System.gc();
-        sendNoResult(callbackContext);
+        if (callbackContext != null) {
+          sendNoResult(callbackContext);
+        }
       }
     });
   }
@@ -1055,6 +1068,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @throws JSONException
    */
   public void updateCameraPosition(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    if (this.isRemoved) {
+      return;
+    }
 
     final CameraPosition.Builder builder = CameraPosition.builder();
     final JSONObject cameraPos = args.getJSONObject(0);
@@ -1065,6 +1081,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       protected AsyncUpdateCameraPositionResult doInBackground(Void... voids) {
         AsyncUpdateCameraPositionResult result = new AsyncUpdateCameraPositionResult();
+        if (isRemoved) {
+          this.cancel(true);
+          return null;
+        }
         try {
           result.durationMS = 4000;
           if (cameraPos.has("tilt")) {
@@ -1131,6 +1151,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
       @Override
       public void onPostExecute(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
+        if (isRemoved) {
+          return;
+        }
         if (AsyncUpdateCameraPositionResult.cameraUpdate == null) {
           builder.target(map.getCameraPosition().target);
           AsyncUpdateCameraPositionResult.cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
