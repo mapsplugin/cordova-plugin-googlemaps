@@ -110,11 +110,11 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
       methods.put(classMethods[i].getName(), classMethods[i]);
     }
 
+    pluginManager = webView.getPluginManager();
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-        pluginManager = webView.getPluginManager();
 
       /*
           try {
