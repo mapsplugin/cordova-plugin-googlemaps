@@ -208,7 +208,7 @@ public class MyPluginLayout extends FrameLayout  {
           params.gravity = Gravity.TOP;
           pluginMap.mapView.setLayoutParams(params);
         }
-        Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top);
+        //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top);
 
         if ((drawRect.top + drawRect.height() < 0) ||
           (drawRect.top >  webviewHeight) ||

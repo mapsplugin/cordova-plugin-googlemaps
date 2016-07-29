@@ -206,18 +206,22 @@ function getDivRect(div) {
     if (!div) {
         return;
     }
+    // The number "8" indicates the default marginTop in pixel of the <body> tag.
+    // If you specify "document.body.style.margin=0;",
+    // div.getBoundingClientRect() returns incorrect top position.
+    // In order to fix it, the code needs to consider the body offset.
 
+    var bodyOffsets = document.body.getBoundingClientRect();
     var pageRect = getPageRect();
-
     var rect = div.getBoundingClientRect();
     var divRect = {
         'left': rect.left + pageRect.left,
-        'top': rect.top + pageRect.top,
+        'top': rect.top + pageRect.top + (bodyOffsets.top - 8),
         'width': rect.width,
         'height': rect.height
     };
 
-    return divRect;
+    return rect;
 }
 
 function getAllChildren(root) {
