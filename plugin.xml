@@ -21,8 +21,6 @@
 
     <!-- android -->
     <platform name="android">
-        <preference name="API_KEY_FOR_ANDROID" />
-
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for Android.
              Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
@@ -72,7 +70,7 @@
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.maps.v2.API_KEY"
-              android:value="$API_KEY_FOR_ANDROID" />
+              android:value="AIzaSyDahYFvGOogxZjtgkYTwlDK3X9htCbbOOY" />
             <!-- Google Play Services SDK -->
             <meta-data android:name="com.google.android.gms.version"
                        android:value="@integer/google_play_services_version" />
@@ -93,8 +91,6 @@
 
     <!-- ios -->
     <platform name="ios">
-        <preference name="API_KEY_FOR_IOS" />
-
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for iOS.
              Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
@@ -186,7 +182,7 @@
         <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
-            <string>$API_KEY_FOR_IOS</string>
+            <string>AIzaSyAEfxeBQw4ewSbwkJcAl0pzbSnjOtipNLY</string>
         </config-file>
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
             <string>Show your location on the map</string>
