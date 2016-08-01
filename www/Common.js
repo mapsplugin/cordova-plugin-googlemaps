@@ -206,6 +206,9 @@ function getDivRect(div) {
     if (!div) {
         return;
     }
+    var scrollBarWidth = 16;
+    var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
+
     // The number "8" indicates the default marginTop in pixel of the <body> tag.
     // If you specify "document.body.style.margin=0;",
     // div.getBoundingClientRect() returns incorrect top position.
@@ -221,7 +224,12 @@ function getDivRect(div) {
         'height': rect.height
     };
 
-    return rect;
+    return {
+          left : divRect.left * ratio,
+          top : divRect.top * ratio,
+          width : divRect.width * ratio,
+          height : divRect.height * ratio
+        };
 }
 
 function getAllChildren(root) {
