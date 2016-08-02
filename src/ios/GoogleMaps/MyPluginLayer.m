@@ -139,6 +139,7 @@
 
 
 - (void)updateViewPosition:(NSString *)mapId {
+    CGFloat zoomScale = self.webView.scrollView.zoomScale;
   
     CGPoint offset = self.pluginScrollView.contentOffset;
     offset.x = self.webView.scrollView.contentOffset.x;
@@ -148,6 +149,10 @@
     GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
   
     CGRect rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+    rect.origin.x *= zoomScale;
+    rect.origin.y *= zoomScale;
+    rect.size.width *= zoomScale;
+    rect.size.height *= zoomScale;
   
     float webviewWidth = self.webView.frame.size.width;
     float webviewHeight = self.webView.frame.size.height;
