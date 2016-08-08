@@ -12,9 +12,6 @@
 
 - (id)initWithWebView:(UIWebView *)webView {
     self = [super initWithFrame:webView.frame];
-    self.drawRects = [[NSMutableDictionary alloc] init];
-    self.HTMLNodes = [[NSMutableDictionary alloc] init];
-    self.mapCtrls = [[NSMutableDictionary alloc] init];
     self.webView = webView;
     self.opaque = NO;
     [self.webView removeFromSuperview];
@@ -46,17 +43,17 @@
     CGFloat zoomScale = self.webView.scrollView.zoomScale;
     
     CGRect rect;
-    NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
+    NSEnumerator *mapIDs = [self.pluginScrollView.debugView.drawRects keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
     //NSLog(@"--> point = %f, %f", point.x, point.y);
     while(mapId = [mapIDs nextObject]) {
-        rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+        rect = CGRectFromString([self.pluginScrollView.debugView.drawRects objectForKey:mapId]);
         rect.origin.x *= zoomScale;
         rect.origin.y *= zoomScale;
         rect.size.width *= zoomScale;
         rect.size.height *= zoomScale;
-        mapCtrl = [self.mapCtrls objectForKey:mapId];
+        mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
       
           
         // Is the map is displayed?
@@ -92,7 +89,7 @@
 
 
 - (void)putHTMLElement:(NSString *)mapId domId:(NSString *)domId size:(NSDictionary *)size {
-    NSMutableDictionary *domDic = [self.HTMLNodes objectForKey:mapId];
+    NSMutableDictionary *domDic = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapId];
     if (domDic == nil) {
         domDic = [[NSMutableDictionary alloc] init];
     }
@@ -105,13 +102,13 @@
         nil
     ];
     [domDic setObject:rectString forKey:domId];
-    [self.HTMLNodes setObject:domDic forKey:mapId];
+    [self.pluginScrollView.debugView.HTMLNodes setObject:domDic forKey:mapId];
     
     // invite drawRect();
     [self setNeedsDisplay];
 }
 - (void)removeHTMLElement:(NSString *)mapId domId:(NSString *)domId {
-    NSMutableDictionary *domDic = [self.HTMLNodes objectForKey:mapId];
+    NSMutableDictionary *domDic = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapId];
     if (!domDic) {
         return;
     }
@@ -122,12 +119,12 @@
     [self setNeedsDisplay];
 }
 - (void)clearHTMLElement:(NSString *)mapId {
-    NSMutableDictionary *domDic = [self.HTMLNodes objectForKey:mapId];
+    NSMutableDictionary *domDic = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapId];
     if (!domDic) {
         return;
     }
     [domDic removeAllObjects];
-    [self.HTMLNodes removeObjectForKey:mapId];
+    [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:mapId];
     domDic = nil;
     
     // invite drawRect();
@@ -138,11 +135,11 @@
   
   
   // Hold mapCtrl instance with mapId.
-  [self.mapCtrls setObject:mapCtrl forKey:mapId];
+  [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapId];
   
   // Hold the size and position information of the mapView.
   NSString *rectStr = NSStringFromCGRect(mapCtrl.view.frame);
-  [self.drawRects setObject:rectStr forKey:mapId];
+  [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
   [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
   
   // Add the mapView under this view.
@@ -160,9 +157,9 @@
     offset.y = self.webView.scrollView.contentOffset.y;
     [self.pluginScrollView setContentOffset:offset];
   
-    GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
+    GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
   
-    NSString *rectStr = [self.drawRects objectForKey:mapId];
+    NSString *rectStr = [self.pluginScrollView.debugView.drawRects objectForKey:mapId];
     [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
   
     CGRect rect = CGRectFromString(rectStr);
@@ -220,8 +217,8 @@
     float webviewHeight = self.webView.frame.size.height;
   
     
-    CGRect rect, rect2, htmlElementRect;
-    NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
+    CGRect rect, htmlElementRect;
+    NSEnumerator *mapIDs = [self.pluginScrollView.debugView.drawRects keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
     BOOL isMapAction = NO;
@@ -235,13 +232,12 @@
     webviewHeight *= zoomScale;
   
     while(mapId = [mapIDs nextObject]) {
-        rect2 = CGRectFromString([self.drawRects objectForKey:mapId]);
-        rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+        rect = CGRectFromString([self.pluginScrollView.debugView.drawRects objectForKey:mapId]);
         rect.origin.x *= zoomScale;
         rect.origin.y *= zoomScale;
         rect.size.width *= zoomScale;
         rect.size.height *= zoomScale;
-        mapCtrl = [self.mapCtrls objectForKey:mapId];
+        mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
         //NSLog(@"--> rect = %f, %f - %f, %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         
         // Is the map clickable?
@@ -268,7 +264,7 @@
         }
 
         // Is the clicked point is on the html elements in the map?
-        elements = [self.HTMLNodes objectForKey:mapId];
+        elements = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapId];
         for (NSString *domId in elements) {
             elemSize = [elements objectForKey:domId];
             htmlElementRect = CGRectFromString(elemSize);

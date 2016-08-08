@@ -13,9 +13,6 @@
 @interface MyPluginLayer : UIView<UIScrollViewDelegate>
 
 @property (nonatomic) UIWebView *webView;
-@property (nonatomic) NSMutableDictionary *drawRects;
-@property (nonatomic) NSMutableDictionary *HTMLNodes;
-@property (nonatomic) NSMutableDictionary *mapCtrls;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 
 - (id)initWithWebView:(UIWebView *)webView;

@@ -10,7 +10,9 @@
 #import "MyPluginLayerDebugView.h"
 
 @interface MyPluginScrollView : UIScrollView
+
 @property (nonatomic) MyPluginLayerDebugView *debugView;
+
 - (void)attachView:(UIView *)view;
 - (void)dettachView;
 @end

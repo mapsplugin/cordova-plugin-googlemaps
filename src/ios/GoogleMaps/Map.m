@@ -165,7 +165,6 @@
 
     // Save the map rectangle.
     NSString *rectStr = NSStringFromCGRect(rect);
-    [googlemaps.pluginLayer.drawRects setObject: rectStr forKey:self.mapId];
     [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
   
     [googlemaps.pluginLayer clearHTMLElement:self.mapId];
@@ -208,8 +207,7 @@
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
     [googlemaps.pluginLayer clearHTMLElement:mapId];
-    //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
-    [googlemaps.pluginLayer.drawRects removeObjectForKey:mapId];
+    [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects removeObjectForKey:mapId];
   
     [self clear:nil];
     [self.mapCtrl.overlayManager removeAllObjects];

@@ -23,19 +23,6 @@
   return self;
 }
 
-- (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size {
-  [self.HTMLNodes setObject:size forKey:domId];
-  [self setNeedsDisplay];
-}
-- (void)removeHTMLElement:(NSString *)domId {
-  [self.HTMLNodes removeObjectForKey:domId];
-  [self setNeedsDisplay];
-}
-- (void)clearHTMLElement {
-  [self.HTMLNodes removeAllObjects];
-  [self setNeedsDisplay];
-}
-
 - (void)drawRect:(CGRect)rect
 {
     if (!self.debuggable) {

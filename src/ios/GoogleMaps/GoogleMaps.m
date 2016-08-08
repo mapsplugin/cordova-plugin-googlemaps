@@ -97,11 +97,8 @@
         }
         [self.mapPlugins removeAllObjects];
       
-        [self.pluginLayer.drawRects removeAllObjects];
         [self.pluginLayer.pluginScrollView.debugView.drawRects removeAllObjects];
-        [self.pluginLayer.HTMLNodes removeAllObjects];
         [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
-        [self.pluginLayer.mapCtrls removeAllObjects];
         [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
 
     });

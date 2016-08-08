@@ -11,11 +11,8 @@
 
 @interface MyPluginLayerDebugView : UIView
 @property (nonatomic) UIWebView *webView;
-@property (nonatomic) NSMutableDictionary *drawRects;
 @property (nonatomic) BOOL debuggable;
+@property (nonatomic) NSMutableDictionary *drawRects;
 @property (nonatomic) NSMutableDictionary *mapCtrls;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
-- (void)putHTMLElement:(NSString *)domId size:(NSDictionary *)size;
-- (void)removeHTMLElement:(NSString *)domId;
-- (void)clearHTMLElement;
 @end
