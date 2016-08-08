@@ -164,11 +164,13 @@
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
     // Save the map rectangle.
-    [googlemaps.pluginLayer.drawRects setObject: NSStringFromCGRect(rect) forKey:self.mapId];
+    NSString *rectStr = NSStringFromCGRect(rect);
+    [googlemaps.pluginLayer.drawRects setObject: rectStr forKey:self.mapId];
+    [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
   
-    //self.mapCtrl.pluginScrollView.debugView.drawRects = self.mapCtrl.embedRect;
     [googlemaps.pluginLayer clearHTMLElement:self.mapId];
-    //[self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
+    //[googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
+  
 
     NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
     NSString *elemId;

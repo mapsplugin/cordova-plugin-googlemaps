@@ -37,21 +37,17 @@
 }
 
 - (void)setDebuggable:(CDVInvokedUrlCommand *)command {
-
-/*
-
     Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
-    self.pluginLayer.debuggable = isDebuggable;
-    self.pluginLayer.pluginScrollView.debugView.debuggable = isDebuggable;
-    self.mapCtrl.debuggable = isDebuggable;
-    [self.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
+  
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+  
+    googlemaps.pluginLayer.pluginScrollView.debugView.debuggable = isDebuggable;
+    [googlemaps.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-*/
-  // TODO: stub
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end

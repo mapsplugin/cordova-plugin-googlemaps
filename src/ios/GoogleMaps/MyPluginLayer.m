@@ -15,16 +15,19 @@
     self.drawRects = [[NSMutableDictionary alloc] init];
     self.HTMLNodes = [[NSMutableDictionary alloc] init];
     self.mapCtrls = [[NSMutableDictionary alloc] init];
-    self.debuggable = NO;
     self.webView = webView;
+    self.opaque = NO;
     [self.webView removeFromSuperview];
 
     self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
+  
     self.pluginScrollView.debugView.webView = self.webView;
+    self.pluginScrollView.debugView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  
     self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.webView.scrollView.delegate = self;
     [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
-    
+  
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
 
@@ -40,6 +43,7 @@
     float webviewWidth = self.webView.frame.size.width;
     float webviewHeight = self.webView.frame.size.height;
     
+    CGFloat zoomScale = self.webView.scrollView.zoomScale;
     
     CGRect rect;
     NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
@@ -48,6 +52,10 @@
     //NSLog(@"--> point = %f, %f", point.x, point.y);
     while(mapId = [mapIDs nextObject]) {
         rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+        rect.origin.x *= zoomScale;
+        rect.origin.y *= zoomScale;
+        rect.size.width *= zoomScale;
+        rect.size.height *= zoomScale;
         mapCtrl = [self.mapCtrls objectForKey:mapId];
       
           
@@ -62,7 +70,7 @@
             if (mapCtrl.isRenderedAtOnce == YES ||
                 (mapCtrl.map.mapType != kGMSTypeSatellite &&
                 mapCtrl.map.mapType != kGMSTypeHybrid)) {
-                [self.pluginScrollView addSubview:mapCtrl.view];
+                [self.pluginScrollView attachView:mapCtrl.view];
             }
           
         } else {
@@ -71,11 +79,14 @@
                 (mapCtrl.map.mapType != kGMSTypeSatellite &&
                 mapCtrl.map.mapType != kGMSTypeHybrid)) {
                 
-                [self.pluginScrollView addSubview:mapCtrl.view];
+                //[self.pluginScrollView addSubview:mapCtrl.view];
                 [mapCtrl.view removeFromSuperview];
             }
         }
       
+    }
+    if (self.pluginScrollView.debugView.debuggable) {
+        [self.pluginScrollView.debugView setNeedsDisplay];
     }
 }
 
@@ -130,10 +141,13 @@
   [self.mapCtrls setObject:mapCtrl forKey:mapId];
   
   // Hold the size and position information of the mapView.
-  [self.drawRects setObject:NSStringFromCGRect(mapCtrl.view.frame) forKey:mapId];
+  NSString *rectStr = NSStringFromCGRect(mapCtrl.view.frame);
+  [self.drawRects setObject:rectStr forKey:mapId];
+  [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
   
   // Add the mapView under this view.
-  [self.pluginScrollView addSubview: mapCtrl.view];
+  //[self.pluginScrollView addSubview: mapCtrl.view];
+  [self.pluginScrollView attachView:mapCtrl.view];
   
 }
 
@@ -148,7 +162,10 @@
   
     GoogleMapsViewController *mapCtrl = [self.mapCtrls objectForKey:mapId];
   
-    CGRect rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+    NSString *rectStr = [self.drawRects objectForKey:mapId];
+    [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
+  
+    CGRect rect = CGRectFromString(rectStr);
     rect.origin.x *= zoomScale;
     rect.origin.y *= zoomScale;
     rect.size.width *= zoomScale;
@@ -169,7 +186,7 @@
             (mapCtrl.map.mapType != kGMSTypeSatellite &&
             mapCtrl.map.mapType != kGMSTypeHybrid)) {
             
-            [self.pluginScrollView addSubview:mapCtrl.view];
+            [self.pluginScrollView attachView:mapCtrl.view];
         }
       
     } else {
@@ -178,7 +195,7 @@
             (mapCtrl.map.mapType != kGMSTypeSatellite &&
             mapCtrl.map.mapType != kGMSTypeHybrid)) {
             
-            [self.pluginScrollView addSubview:mapCtrl.view];
+            //[self.pluginScrollView addSubview:mapCtrl.view];
             [mapCtrl.view removeFromSuperview];
         }
     }
@@ -186,28 +203,46 @@
     mapCtrl.isRenderedAtOnce = YES;
 
     [mapCtrl.view setFrame:rect];
+    
+    if (self.pluginScrollView.debugView.debuggable) {
+        [self.pluginScrollView.debugView setNeedsDisplay];
+    }
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
 
     float offsetX = self.webView.scrollView.contentOffset.x;
     float offsetY = self.webView.scrollView.contentOffset.y;
-    
+    float offsetX2 = self.webView.scrollView.contentOffset.x;
+    float offsetY2 = self.webView.scrollView.contentOffset.y;
+  
     float webviewWidth = self.webView.frame.size.width;
     float webviewHeight = self.webView.frame.size.height;
+  
     
-    
-    CGRect rect, htmlElementRect;
+    CGRect rect, rect2, htmlElementRect;
     NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
     BOOL isMapAction = NO;
     NSDictionary *elements;
     NSString *elemSize;
-    //NSLog(@"--> point = %f, %f", point.x, point.y);
+  
+    CGFloat zoomScale = self.webView.scrollView.zoomScale;
+    offsetY *= zoomScale;
+    offsetX *= zoomScale;
+    webviewWidth *= zoomScale;
+    webviewHeight *= zoomScale;
+  
     while(mapId = [mapIDs nextObject]) {
+        rect2 = CGRectFromString([self.drawRects objectForKey:mapId]);
         rect = CGRectFromString([self.drawRects objectForKey:mapId]);
+        rect.origin.x *= zoomScale;
+        rect.origin.y *= zoomScale;
+        rect.size.width *= zoomScale;
+        rect.size.height *= zoomScale;
         mapCtrl = [self.mapCtrls objectForKey:mapId];
+        //NSLog(@"--> rect = %f, %f - %f, %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         
         // Is the map clickable?
         if (mapCtrl.clickable == NO) {
@@ -224,8 +259,8 @@
         }
       
         // Is the clicked point is in the map rectangle?
-        if ((point.x + offsetX) >= rect.origin.x && (point.x + offsetX) <= (rect.origin.x + rect.size.width) &&
-            (point.y + offsetY) >= rect.origin.y && (point.y + offsetY) <= (rect.origin.y + rect.size.height)) {
+        if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
+            (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
             isMapAction = YES;
         } else {
             //NSLog(@"--> point = %f, %f are not in the map.", point.x, point.y);
@@ -237,8 +272,12 @@
         for (NSString *domId in elements) {
             elemSize = [elements objectForKey:domId];
             htmlElementRect = CGRectFromString(elemSize);
-            htmlElementRect.origin.x -= offsetX;
-            htmlElementRect.origin.y -= offsetY;
+            htmlElementRect.origin.x *= zoomScale;
+            htmlElementRect.origin.y *= zoomScale;
+            htmlElementRect.size.width *= zoomScale;
+            htmlElementRect.size.height *= zoomScale;
+            htmlElementRect.origin.x -= offsetX2;
+            htmlElementRect.origin.y -= offsetY2;
           
             if (point.x >= htmlElementRect.origin.x && point.x <= (htmlElementRect.origin.x + htmlElementRect.size.width) &&
                 point.y >= htmlElementRect.origin.y && point.y <= (htmlElementRect.origin.y + htmlElementRect.size.height)) {
@@ -253,19 +292,20 @@
         }
         
         // If user click on the map, return the mapCtrl.view.
-        offsetX = mapCtrl.view.frame.origin.x - offsetX;
-        offsetY = mapCtrl.view.frame.origin.y - offsetY;
-        point.x -= offsetX;
-        point.y -= offsetY;
+        offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
+        offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
+        CGPoint point2 = CGPointMake(point.x * zoomScale, point.y * zoomScale);
+        point2.x -= offsetX;
+        point2.y -= offsetY;
 
-        UIView *hitView =[mapCtrl.view hitTest:point withEvent:event];
-        //NSLog(@"--> (hit test) point = %f, %f / hit = %@", point.x, point.y,  hitView.class);
+        UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
+        //NSLog(@"--> (hit test) point = %f, %f / hit = %@", point2.x, point2.y,  hitView.class);
         NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
         if ([PluginUtil isIOS7_OR_OVER] &&
             [hitClass isEqualToString:@"UIButton"] &&
             mapCtrl.map.isMyLocationEnabled &&
-            (point.x  + offsetX) >= (rect.origin.x + rect.size.width - 50) &&
-            (point.y + offsetY) >= (rect.origin.y + rect.size.height - 50)) {
+            (point.x  + offsetX2) >= (rect.origin.x + rect.size.width - 50) &&
+            (point.y + offsetY2) >= (rect.origin.y + rect.size.height - 50)) {
 
             BOOL retValue = [mapCtrl didTapMyLocationButtonForMapView:mapCtrl.map];
             if (retValue == YES) {
@@ -275,49 +315,6 @@
         return hitView;
     }
     return [super hitTest:point withEvent:event];
-}
-
-- (void)drawRect:(CGRect)rect
-{
-/*
-  if (self.debuggable == NO) {
-    return;
-  }
-  float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
-  float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
-  
-  float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
-  float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
-  float width = [[self.embedRect objectForKey:@"width"] floatValue];
-  float height = [[self.embedRect objectForKey:@"height"] floatValue];
-  
-  //-----------------------
-  // Draw the HTML region
-  //-----------------------
-  CGContextRef context = UIGraphicsGetCurrentContext();
-  CGContextSetRGBFillColor(context, 0, 1.0, 0, 0.4);
-  
-  CGRect rectangle = CGRectMake(0, 0, rect.size.width, top);
-  CGContextFillRect(context, rectangle);
-  
-  rectangle.origin.x = 0;
-  rectangle.origin.y = top;
-  rectangle.size.width = left;
-  rectangle.size.height = height;
-  CGContextFillRect(context, rectangle);
-  
-  rectangle.origin.x = left + width;
-  rectangle.origin.y = top;
-  rectangle.size.width = self.webView.scrollView.contentSize.width;
-  rectangle.size.height = height;
-  CGContextFillRect(context, rectangle);
-  
-  rectangle.origin.x = 0;
-  rectangle.origin.y = top + height;
-  rectangle.size.width = self.webView.scrollView.contentSize.width;
-  rectangle.size.height = self.webView.scrollView.contentSize.height;
-  CGContextFillRect(context, rectangle);
-*/
 }
 
 

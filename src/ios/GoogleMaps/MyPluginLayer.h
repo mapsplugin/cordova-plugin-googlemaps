@@ -14,7 +14,6 @@
 
 @property (nonatomic) UIWebView *webView;
 @property (nonatomic) NSMutableDictionary *drawRects;
-@property (nonatomic) BOOL debuggable;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;
 @property (nonatomic) NSMutableDictionary *mapCtrls;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;

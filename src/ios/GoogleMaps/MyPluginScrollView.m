@@ -15,17 +15,18 @@ UIView *myView = nil;
 -  (id)initWithFrame:(CGRect)aRect
 {
   self = [super initWithFrame:aRect];
-  self.debugView = [[MyPluginLayerDebugView alloc] initWithFrame:aRect];
+  self.debugView = [[MyPluginLayerDebugView alloc] initWithFrame:CGRectMake(0, 0, aRect.size.width, 5000)];
+  
   return self;
 }
 
 - (void)attachView:(UIView *)view {
-  myView = view;
+  [self.debugView removeFromSuperview];
   [self addSubview:view];
-  //[self addSubview:self.debugView];
+  [self addSubview:self.debugView];
 }
 - (void)dettachView {
   [myView removeFromSuperview];
-  //[self.debugView removeFromSuperview];
+  [self.debugView removeFromSuperview];
 }
 @end
