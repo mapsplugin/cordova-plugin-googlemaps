@@ -85,10 +85,22 @@
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
       
         NSString *mapId;
-        NSArray*keys=[self.mapPlugins allKeys];
+        NSArray *keys=[self.mapPlugins allKeys];
+        NSString *pluginName;
+        CDVPlugin<MyPlgunProtocol> *plugin;
+      
         for (int i = 0; i < [keys count]; i++) {
           mapId = [keys objectAtIndex:i];
           Map *mapPlugin = [self.mapPlugins objectForKey:mapId];
+          
+          NSArray *keys2 = [mapPlugin.mapCtrl.plugins allKeys];
+          for (int j = 0; j < [keys2 count]; j++) {
+            pluginName = [keys2 objectAtIndex:j];
+            plugin = [mapPlugin.mapCtrl.plugins objectForKey:pluginName];
+            [plugin pluginUnload];
+            plugin = nil;
+          }
+          
           [mapPlugin remove:nil];
           [self.mapPlugins removeObjectForKey:mapId];
           [cdvViewController.pluginObjects removeObjectForKey:mapId];

@@ -10,6 +10,9 @@
 
 @implementation Environment
 
+- (void)pluginUnload
+{
+}
 - (void)isAvailable:(CDVInvokedUrlCommand *)command {
   // Return true always in iOS.
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

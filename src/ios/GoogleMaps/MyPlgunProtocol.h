@@ -11,4 +11,5 @@
 
 @protocol MyPlgunProtocol <NSObject>
 - (void)setGoogleMapsViewController: (GoogleMapsViewController*)viewCtrl;
+- (void)pluginUnload;
 @end

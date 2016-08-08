@@ -21,6 +21,22 @@
   self.iconCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
 }
 
+- (void)pluginUnload
+{
+  // Plugin destroy
+  NSArray *keys = [self.mapCtrl.overlayManager allKeys];
+  NSString *key;
+  for (int i = 0; i < [keys count]; i++) {
+      key = [keys objectAtIndex:i];
+      if ([key hasPrefix:@"marker_"] &&
+        ![key hasPrefix:@"marker_property"]) {
+          GMSMarker *marker = (GMSMarker *)[self.mapCtrl.overlayManager objectForKey:key];
+          [marker.layer removeAllAnimations];
+      }
+  }
+  self.iconCache = nil;
+}
+
 /**
  * @param marker options
  * @return marker key

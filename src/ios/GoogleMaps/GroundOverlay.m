@@ -14,6 +14,9 @@
 {
     self.mapCtrl = viewCtrl;
 }
+- (void)pluginUnload
+{
+}
 
 -(void)create:(CDVInvokedUrlCommand *)command
 {

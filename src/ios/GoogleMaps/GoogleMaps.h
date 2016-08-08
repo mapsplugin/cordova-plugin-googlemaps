@@ -12,6 +12,7 @@
 #import "PluginUtil.h"
 #import "Map.h"
 #import "MyPluginLayer.h"
+#import "MyPlgunProtocol.h"
 
 @interface GoogleMaps : CDVPlugin<CLLocationManagerDelegate>
 

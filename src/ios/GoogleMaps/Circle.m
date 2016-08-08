@@ -10,6 +10,9 @@
 
 @implementation Circle
 
+- (void)pluginUnload
+{
+}
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;

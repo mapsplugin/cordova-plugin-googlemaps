@@ -10,6 +10,9 @@
 
 @implementation Geocoder
 
+- (void)pluginUnload
+{
+}
 - (void)pluginInitialize
 {
   NSArray *countryCodes = [NSLocale ISOCountryCodes];

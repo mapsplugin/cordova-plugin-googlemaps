@@ -15,6 +15,9 @@
 {
     self.mapCtrl = viewCtrl;
 }
+- (void)pluginUnload
+{
+}
 
 -(void)createKmlOverlay:(CDVInvokedUrlCommand *)command
 {
