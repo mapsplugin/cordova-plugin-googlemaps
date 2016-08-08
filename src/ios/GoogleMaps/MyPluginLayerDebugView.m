@@ -18,7 +18,7 @@
   self.HTMLNodes = [[NSMutableDictionary alloc] init];
   self.mapCtrls = [[NSMutableDictionary alloc] init];
   self.opaque = NO;
-  self.debuggable = YES;
+  self.debuggable = NO;
 
   return self;
 }
