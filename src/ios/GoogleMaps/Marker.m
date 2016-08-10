@@ -32,8 +32,12 @@
         ![key hasPrefix:@"marker_property"]) {
           GMSMarker *marker = (GMSMarker *)[self.mapCtrl.overlayManager objectForKey:key];
           [marker.layer removeAllAnimations];
+          marker = nil;
       }
+      [self.mapCtrl.overlayManager removeObjectForKey:key];
   }
+  key = nil;
+  keys = nil;
   self.iconCache = nil;
 }
 
