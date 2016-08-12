@@ -591,8 +591,8 @@ public class PluginMap extends MyPlugin {
   @SuppressWarnings("unused")
   private void fromPointToLatLng(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     double pointX, pointY;
-    pointX = args.getDouble(0);
-    pointY = args.getDouble(1);
+    pointX = args.getDouble(1);
+    pointY = args.getDouble(2);
     final Point point = new Point();
     point.x = (int)(pointX * density);
     point.y = (int)(pointY * density);
