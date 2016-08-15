@@ -160,18 +160,14 @@
                                             bearing:0
                                             viewingAngle:0];
 
-        CGRect pluginRect = mapCtrl.view.frame;
-        int marginBottom = 0;
-        //if ([PluginUtil isIOS7] == false) {
-        //  marginBottom = 20;
-        //}
-        CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
-        //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
-        //NSLog(@"mapRect=%@", camera);
-        mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapRect camera:camera];
-
+        mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapCtrl.view.frame camera:camera];
         mapPlugin.mapCtrl.map.delegate = mapCtrl;
         mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+      
+        // Sets the map div id.
+        if ([command.arguments count] == 3) {
+          mapPlugin.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
+        }
       
         //indoor display
         mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
@@ -307,6 +303,38 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 
+}
+
+- (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *elements = [command.arguments objectAtIndex:0];
+        [self.pluginLayer putHTMLElements:elements];
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
+}
+
+- (void)putHtmlElement:(CDVInvokedUrlCommand *)command {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *domId = [command.arguments objectAtIndex:0];
+        NSDictionary *domInfo = [command.arguments objectAtIndex:1];
+        [self.pluginLayer putHTMLElement:domId domInfo:domInfo];
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
+}
+
+- (void)removeHtmlElement:(CDVInvokedUrlCommand *)command {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *domId = [command.arguments objectAtIndex:0];
+      
+        [self.pluginLayer removeHTMLElement:domId];
+
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
 }
 
 @end

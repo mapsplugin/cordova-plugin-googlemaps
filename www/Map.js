@@ -1,4 +1,3 @@
-
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
@@ -52,6 +51,7 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
+return;
     var self = this;
     //console.log("---> onMapResize mapId = " + self.id );
     var div = self.get("div");
@@ -64,7 +64,7 @@ Map.prototype.refreshLayout = function(event) {
     } else {
         var args = [];
         var element, elements = [];
-        var children = common.getAllChildren(div);
+        //var children = common.getAllChildren(div);
         var elemId, clickable, size;
 
         size = common.getDivRect(div);
@@ -151,6 +151,7 @@ Map.prototype.getMap = function(mapId, div, params) {
     } else {
 
         var currentDiv = self.get("div");
+        /*
         if (currentDiv !== div && currentDiv) {
             var children = common.getAllChildren(currentDiv);
             for (var i = 0; i < children.length; i++) {
@@ -178,6 +179,7 @@ Map.prototype.getMap = function(mapId, div, params) {
 
 
         var children = common.getAllChildren(div);
+        */
         params = params || {};
         if (params.camera && params.camera.latLng) {
           params.camera.target = params.camera.latLng;
@@ -193,9 +195,9 @@ Map.prototype.getMap = function(mapId, div, params) {
         // Gets the map div size.
         // The plugin needs to consider the viewport zoom ratio
         // for the case window.innerHTML > body.offsetWidth.
-        size = common.getDivRect(div);
-        args.push(size);
-
+        //size = common.getDivRect(div);
+        args.push(div.getAttribute("__pluginDomId"));
+/*
         for (var i = 0; i < children.length; i++) {
             element = children[i];
             elemId = element.getAttribute("__pluginDomId");
@@ -231,11 +233,8 @@ Map.prototype.getMap = function(mapId, div, params) {
 
             div = div.parentNode;
         }
+*/
     }
-
-
-console.log("---->");
-    console.log(JSON.stringify(args, null, 2));
 
     cordova.exec(function() {
         //self.refreshLayout();
@@ -547,6 +546,7 @@ Map.prototype.setDiv = function(div) {
     } else {
 
         var currentDiv = self.get("div");
+        /*
         if (currentDiv !== div && currentDiv) {
             var children = common.getAllChildren(currentDiv);
             for (var i = 0; i < children.length; i++) {
@@ -574,9 +574,11 @@ Map.prototype.setDiv = function(div) {
 
 
         var children = common.getAllChildren(div);
+        */
 
         self.set("div", div);
-        args.push(common.getDivRect(div));
+        args.push(div.getAttribute("__pluginDomId"));
+        /*
         var elements = [];
         var elemId, clickable;
 
@@ -612,6 +614,7 @@ Map.prototype.setDiv = function(div) {
 
             div = div.parentNode;
         }
+        */
     }
     cordova.exec(null, self.errorHandler, self.id, 'setDiv', self.deleteFromObject(args,'function'));
     return self;

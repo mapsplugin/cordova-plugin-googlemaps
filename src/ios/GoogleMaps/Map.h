@@ -40,7 +40,5 @@
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand *)command;
-- (void)pushHtmlElement:(CDVInvokedUrlCommand *)command;
-- (void)removeHtmlElement:(CDVInvokedUrlCommand *)command;
 
 @end

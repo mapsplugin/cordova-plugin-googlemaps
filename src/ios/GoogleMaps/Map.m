@@ -72,10 +72,11 @@
 - (void)getMap:(CDVInvokedUrlCommand*)command {
   
     //NSLog(@"---> %@ : %@", self.mapId, command.arguments);
-    if ([command.arguments count] != 4) {
-        //-----------------------------------------------------------
-        // case: plugin.google.maps.getMap() (no options are given)
-        //-----------------------------------------------------------
+    if ([command.arguments count] == 1) {
+        //-----------------------------------------------------------------------
+        // case: plugin.google.maps.getMap([options]) (no the mapDiv is given)
+        //-----------------------------------------------------------------------
+        [self setOptions:command];
         [self.mapCtrl.view setHidden:true];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -122,55 +123,23 @@
 */
 }
 
-- (void)pushHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *elemId = [command.arguments objectAtIndex:0];
-    NSDictionary *elemSize = [command.arguments objectAtIndex:1];
-  
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-  
-    [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
-    //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize]
-}
-
-- (void)removeHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *elemId = [command.arguments objectAtIndex:0];
-  
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-  
-    [googlemaps.pluginLayer removeHTMLElement:self.mapId domId:elemId];
-    //[self.mapCtrl.pluginScrollView.debugView removeHTMLElement]
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
 
-    NSInteger argCnt = [command.arguments count];
-    NSDictionary *embedRect = [command.arguments objectAtIndex:(argCnt - 2)];
-    CGRect rect = CGRectMake(
-                        [[embedRect objectForKey:@"left"] floatValue],
-                        [[embedRect objectForKey:@"top"] floatValue],
-                        [[embedRect objectForKey:@"width"] floatValue],
-                        [[embedRect objectForKey:@"height"] floatValue]);
-    
+    NSString *mapDivId = self.mapCtrl.mapDivId;
+  
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
     // Save the map rectangle.
-    NSString *rectStr = NSStringFromCGRect(rect);
-    [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
-  
-    [googlemaps.pluginLayer clearHTMLElement:self.mapId];
+    //NSString *rectStr = NSStringFromCGRect(rect);
     //[googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
   
-
+    NSString *rectStr = [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:mapDivId];
+    [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
+  
+/*
     NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
     NSString *elemId;
     NSDictionary *elemSize, *elemInfo;
@@ -181,7 +150,7 @@
         [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
         //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
     }
-
+*/
     [googlemaps.pluginLayer updateViewPosition:self.mapId];
 }
 
@@ -206,7 +175,7 @@
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-    [googlemaps.pluginLayer clearHTMLElement:mapId];
+    //[googlemaps.pluginLayer clearHTMLElement:mapId];
     [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects removeObjectForKey:mapId];
   
     [self clear:nil];
@@ -666,12 +635,12 @@
 
 - (void)setOptions:(CDVInvokedUrlCommand *)command {
   NSDictionary *initOptions;
-  if ([command.arguments count] == 4) {
+  if ([command.arguments count] == 1) {
+    // case of setOptions(options); and getMap(options)
+    initOptions = [command.arguments objectAtIndex:0];
+  } else {
     // case of getMap(div, options);
     initOptions = [command.arguments objectAtIndex:1];
-  } else {
-    // case of setOptions(options);
-    initOptions = [command.arguments objectAtIndex:0];
   }
   
   

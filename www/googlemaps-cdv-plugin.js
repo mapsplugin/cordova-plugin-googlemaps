@@ -34,19 +34,51 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * disable the changing of viewport zoom level by double clicking.
  * This code has to run before the device ready event.
 *****************************************************************************/
-var viewportTag = null;
-var metaTags = document.getElementsByTagName('meta');
-for (var i = 0; i < metaTags.length; i++) {
-   if (metaTags[i].getAttribute('name') === "viewport") {
-      viewportTag = metaTags[i];
-      break;
-   }
-}
-if (!viewportTag) {
-  viewportTag = document.createElement("meta");
-  viewportTag.setAttribute('name', 'viewport');
-}
-viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
+(function() {
+  var viewportTag = null;
+  var metaTags = document.getElementsByTagName('meta');
+  for (var i = 0; i < metaTags.length; i++) {
+     if (metaTags[i].getAttribute('name') === "viewport") {
+        viewportTag = metaTags[i];
+        break;
+     }
+  }
+  if (!viewportTag) {
+    viewportTag = document.createElement("meta");
+    viewportTag.setAttribute('name', 'viewport');
+  }
+  viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
+})();
+
+/*****************************************************************************
+ * Add event lister to all html nodes under the <body> tag.
+*****************************************************************************/
+(function() {
+  var children = common.getAllChildren(document.body);
+  if (children.length === 0) {
+    return
+  }
+
+  var domPositions = {};
+  var size, elemId, i, child, parentNode;
+
+  children.unshift(document.body);
+  for (i = 0; i < children.length; i++) {
+    child = children[i];
+    elemId = "pgm" + Math.floor(Math.random() * Date.now());
+    child.setAttribute("__pluginDomId", elemId);
+    domPositions[elemId] = _plugin_domInit(child);
+  }
+
+
+  for (i = 0; i < children.length; i++) {
+    child = children[i];
+    parentNode = child.parentNode;
+
+    domPositions[elemId].parentNode = parentNode.getAttribute("__pluginDomId");
+  }
+  cordova.exec(null, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
+})();
 
 /*****************************************************************************
  * KmlOverlay class method
@@ -268,4 +300,87 @@ document.addEventListener("deviceready", function() {
     cordova.exec(null, function(message) {
         alert(message);
     }, 'Environment', 'isAvailable', ['']);
+
 });
+
+function getDomDepth(dom) {
+  var depth = 1;
+  if (dom == document.body) {
+    return 0;
+  }
+
+
+  while (dom.parentNode != null && dom.parentNode != document.body) {
+    dom = dom.parentNode;
+    depth++;
+  }
+  return depth;
+}
+
+function _plugin_domInit(dom) {
+    var style = window.getComputedStyle(dom);
+    var zIndexCSS = style.getPropertyValue('zIndex');
+    var position = style.getPropertyValue('position');
+    var depth;
+
+    if (zIndexCSS && zIndexCSS > 0 || position == "fixed") {
+        depth = 999999;
+    } else {
+        depth = getDomDepth(dom);
+    }
+
+    dom.addEventListener("DOMNodeRemoved", _remove_child);
+    dom.addEventListener("DOMNodeInserted", _append_child);
+    return {
+        size: common.getDivRect(dom),
+        depth: depth,
+        position: position,
+        zIndexCSS: zIndexCSS,
+        tagName: dom.tagName
+    };
+}
+
+function _append_child(event) {
+    event = event || window.event;
+    event = event || {};
+    var target = event.srcElement;
+    if (!target || "nodeType" in target == false) {
+        return;
+    }
+    if (target.nodeType != 1) {
+        return;
+    }
+    if (target.hasAttribute("__pluginDomId")) {
+        return;
+    }
+
+    size = common.getDivRect(target);
+    var elemId = "pgm" + Math.floor(Math.random() * Date.now());
+    target.setAttribute("__pluginDomId", elemId);
+
+    var domInfo = _plugin_domInit(target);
+    domInfo.parentNode = target.parentNode.getAttribute("__pluginDomId");
+
+    cordova.exec(null, null, "GoogleMaps", 'putHtmlElement', [elemId, domInfo]);
+};
+
+function _remove_child (event) {
+    event = event || window.event;
+    event = event || {};
+    var target = event.srcElement;
+    if (!target || "nodeType" in target == false) {
+        return;
+    }
+    if (target.nodeType != 1) {
+        return;
+    }
+    if (!target.parentNode.hasAttribute("__pluginDomId")) {
+        return;
+    }
+    var elemId = target.getAttribute("__pluginDomId");
+    if (!elemId) {
+        return;
+    }
+    target.removeAttribute("__pluginDomId");
+    cordova.exec(null, null, "GoogleMaps", 'removeHtmlElement', [elemId]);
+};

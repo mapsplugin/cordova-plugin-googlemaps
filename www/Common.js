@@ -1,3 +1,4 @@
+
 //---------------------------
 // Convert HTML color to RGB
 //---------------------------
@@ -206,6 +207,12 @@ function getDivRect(div) {
     if (!div) {
         return;
     }
+    var rect = div.getBoundingClientRect();
+    //console.log("---->");
+    //console.log(JSON.stringify(rect, null, 2));
+
+    return rect;
+
     var scrollBarWidth = 16;
     var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
     ratio = 1;
@@ -216,11 +223,13 @@ function getDivRect(div) {
     // In order to fix it, the code needs to consider the body offset.
 
     var bodyOffsets = document.body.getBoundingClientRect();
+    console.log("---->");
     var pageRect = getPageRect();
     var rect = div.getBoundingClientRect();
+    console.log(JSON.stringify(rect, null, 2));
     var divRect = {
         'left': rect.left + pageRect.left,
-        'top': rect.top + pageRect.top, // + (bodyOffsets.top - 8),
+        'top': rect.top + pageRect.top + (bodyOffsets.top - 8),
         'width': rect.width,
         'height': rect.height
     };
@@ -235,32 +244,37 @@ function getDivRect(div) {
 
 function getAllChildren(root) {
     var list = [];
-    var clickable;
-    var style, displayCSS, opacityCSS, visibilityCSS;
-    var search = function(node) {
-        while (node != null) {
-            if (node.nodeType == 1) {
-                style = window.getComputedStyle(node);
-                visibilityCSS = style.getPropertyValue('visibility');
-                displayCSS = style.getPropertyValue('display');
-                opacityCSS = style.getPropertyValue('opacity');
-                if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden") {
-                    clickable = node.getAttribute("data-clickable");
-                    if (clickable &&
-                        clickable.toLowerCase() === "false" &&
-                        node.hasChildNodes()) {
-                        Array.prototype.push.apply(list, getAllChildren(node));
-                    } else {
-                        list.push(node);
-                    }
-                }
-            }
-            node = node.nextSibling;
-        }
-    };
-    for (var i = 0; i < root.childNodes.length; i++) {
-        search(root.childNodes[i]);
+    var clickableElements = [];
+
+    if (window.document.querySelectorAll) {
+      // Android: v4.3 and over
+      // iOS safari: v9.2 and over
+      var clickable;
+      var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
+      //var childNodes = root.querySelectorAll(':not([data-clickable="false"])');
+      var childNodes = root.querySelectorAll("*");
+      var allClickableElements = Array.prototype.slice.call(childNodes);
+      clickableElements =  allClickableElements.filter(function(i) {return i != root;});
+    } else {
+      clickableElements = root.getElementsByTagName("*");
     }
+
+    for (var i = 0; i < clickableElements.length; i++) {
+        node = clickableElements[i];
+        if (node.nodeType == 1){
+          style = window.getComputedStyle(node);
+          visibilityCSS = style.getPropertyValue('visibility');
+          displayCSS = style.getPropertyValue('display');
+          opacityCSS = style.getPropertyValue('opacity');
+          heightCSS = style.getPropertyValue('height')
+          widthCSS = style.getPropertyValue('width')
+          clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
+          if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
+            list.push(node);
+          }
+        }
+    }
+
     return list;
 }
 

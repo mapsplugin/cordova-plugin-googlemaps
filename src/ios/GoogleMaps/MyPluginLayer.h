@@ -16,9 +16,10 @@
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 
 - (id)initWithWebView:(UIWebView *)webView;
-- (void)putHTMLElement:(NSString *)mapId domId:(NSString *)domId size:(NSDictionary *)size;
-- (void)removeHTMLElement:(NSString *)mapId domId:(NSString *)domId;
-- (void)clearHTMLElement:(NSString *)mapId;
+- (void)putHTMLElements:(NSDictionary *)elementsDic;
+- (void)putHTMLElement:(NSString *)domId domInfo:(NSDictionary *)domInfo;
+- (void)removeHTMLElement:(NSString *)domId;
+- (void)clearHTMLElements;
 - (void)updateViewPosition:(NSString *)mapId;
 - (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
 
