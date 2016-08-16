@@ -285,25 +285,35 @@
       
         for (NSString *domId in self.pluginScrollView.debugView.HTMLNodes) {
             if ([mapCtrl.mapDivId isEqualToString:domId]) {
-              //NSLog(@"--> skip (%@) ", mapCtrl.mapId);
-              continue;
+                NSLog(@"--> skip (%@) ", mapCtrl.mapId);
+                continue;
             }
-
+          
             domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
             domDepth = [[domInfo objectForKey:@"depth"] intValue];
             if (domDepth < mapDivDepth) {
-              //NSLog(@"--> skip (domId: %@, depth: %d) < (mapId: %@, depth: %d)", domId, domDepth, mapCtrl.mapId, mapDivDepth);
-              continue;
+                NSLog(@"--> skip (domId: %@, depth: %d) < (mapId: %@, depth: %d)", domId, domDepth, mapCtrl.mapId, mapDivDepth);
+                continue;
             }
             elementRect = [domInfo objectForKey:@"size"];
             htmlElementRect = CGRectFromString(elementRect);
+            if (htmlElementRect.size.width == 0 || htmlElementRect.size.height == 0) {
+                continue;
+            }
+          
+            if (![[domInfo objectForKey:@"position"] isEqualToString:@"fixed"]) {
+                htmlElementRect.origin.x -= offsetX;
+                htmlElementRect.origin.y -= offsetY;
+            }
+
+
 
           
-            //NSLog(@"----> domId = %@, %f, %f - %f, %f", domId, htmlElementRect.origin.x, htmlElementRect.origin.y, htmlElementRect.size.width, htmlElementRect.size.height);
+            NSLog(@"----> domId = %@, %f, %f - %f, %f", domId, htmlElementRect.origin.x, htmlElementRect.origin.y, htmlElementRect.size.width, htmlElementRect.size.height);
             if (clickPointAsHtml.x >= htmlElementRect.origin.x && clickPointAsHtml.x <= (htmlElementRect.origin.x + htmlElementRect.size.width) &&
                 clickPointAsHtml.y >= htmlElementRect.origin.y && clickPointAsHtml.y <= (htmlElementRect.origin.y + htmlElementRect.size.height)) {
                 isMapAction = NO;
-                //NSLog(@"--> hit (%@) : (domId: %@, depth: %d) ", mapCtrl.mapId, domId, domDepth);
+                NSLog(@"--> hit (%@) : (domId: %@, depth: %d) ", mapCtrl.mapId, domId, domDepth);
                 break;
             }
           
