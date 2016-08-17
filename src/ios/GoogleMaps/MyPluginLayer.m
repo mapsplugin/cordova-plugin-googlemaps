@@ -36,15 +36,16 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        CGPoint offset = self.pluginScrollView.contentOffset;
-        offset.x = self.webView.scrollView.contentOffset.x;
-        offset.y = self.webView.scrollView.contentOffset.y;
+        CGFloat zoomScale = self.webView.scrollView.zoomScale;
+ 
+        CGPoint offset = self.webView.scrollView.contentOffset;
+        offset.x *= zoomScale;
+        offset.y *= zoomScale;
         [self.pluginScrollView setContentOffset:offset];
 
         float webviewWidth = self.webView.frame.size.width;
         float webviewHeight = self.webView.frame.size.height;
-        
-        CGFloat zoomScale = self.webView.scrollView.zoomScale;
+      
         
         CGRect rect;
         NSEnumerator *mapIDs = [self.pluginScrollView.debugView.drawRects keyEnumerator];
@@ -156,10 +157,11 @@
 
   CGFloat zoomScale = self.webView.scrollView.zoomScale;
 
-  CGPoint offset = self.pluginScrollView.contentOffset;
-  offset.x = self.webView.scrollView.contentOffset.x;
-  offset.y = self.webView.scrollView.contentOffset.y;
+  CGPoint offset = self.webView.scrollView.contentOffset;
+  offset.x *= zoomScale;
+  offset.y *= zoomScale;
   [self.pluginScrollView setContentOffset:offset];
+  
 
   GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
 
@@ -169,18 +171,18 @@
     return;
   }
   NSString *rectStr = [domInfo objectForKey:@"size"];
-  [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
   
   CGRect rect = CGRectFromString(rectStr);
-  rect.origin.x += offset.x;
-  rect.origin.y += offset.y;
   rect.origin.x *= zoomScale;
   rect.origin.y *= zoomScale;
   rect.size.width *= zoomScale;
   rect.size.height *= zoomScale;
+  rect.origin.x += offset.x;
+  rect.origin.y += offset.y;
 
   float webviewWidth = self.webView.frame.size.width;
   float webviewHeight = self.webView.frame.size.height;
+  
 
   // Is the map is displayed?
   if (rect.origin.y + rect.size.height >= offset.y &&
