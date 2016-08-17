@@ -306,39 +306,31 @@
 }
 
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
-    NSDictionary *elements = [command.arguments objectAtIndex:0];
-    [self.pluginLayer putHTMLElements:elements];
-    
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    pluginResult = nil;
-    elements = nil;
-    command = nil;
-}
-
-- (void)putHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *domId = [command.arguments objectAtIndex:0];
-    NSDictionary *domInfo = [command.arguments objectAtIndex:1];
-    [self.pluginLayer putHTMLElement:domId domInfo:domInfo];
-    
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    pluginResult = nil;
-    domId = nil;
-    domInfo = nil;
-    command = nil;
-}
-
-- (void)removeHtmlElement:(CDVInvokedUrlCommand *)command {
-    NSString *domId = [command.arguments objectAtIndex:0];
-  
-    [self.pluginLayer removeHTMLElement:domId];
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    pluginResult = nil;
-    domId = nil;
-    command = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *elements = [command.arguments objectAtIndex:0];
+        
+        CDVPluginResult* pluginResult;
+        if (self.pluginLayer.stopFlag == NO) {
+          [self.pluginLayer putHTMLElements:elements];
+          
+          if (self.pluginLayer.needUpdatePosition) {
+              NSArray *keys=[self.mapPlugins allKeys];
+              NSString *mapId;
+            
+              for (int i = 0; i < [keys count]; i++) {
+                mapId = [keys objectAtIndex:i];
+                [self.pluginLayer updateViewPosition:mapId];
+              }
+          }
+          
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        } else {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        }
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        pluginResult = nil;
+        elements = nil;
+    });
 }
 
 @end

@@ -25,6 +25,4 @@
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
 - (void)unload:(CDVInvokedUrlCommand*)command;
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command;
-- (void)removeHtmlElement:(CDVInvokedUrlCommand *)command;
-- (void)putHtmlElement:(CDVInvokedUrlCommand *)command;
 @end

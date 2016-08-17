@@ -133,23 +133,16 @@
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
     // Save the map rectangle.
-    //NSString *rectStr = NSStringFromCGRect(rect);
-    //[googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
-  
+    if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.mapDivId]) {
+        NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];
+        [dummyInfo setObject:@"{{1,1} - {1,1}}" forKey:@"size"];
+        [dummyInfo setObject:[NSNumber numberWithInt:1] forKey:@"depth"];
+        [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];
+        googlemaps.pluginLayer.needUpdatePosition = YES;
+    }
+ 
     [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: mapDivId forKey:self.mapId];
   
-/*
-    NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];
-    NSString *elemId;
-    NSDictionary *elemSize, *elemInfo;
-    for (int i = 0; i < [HTMLs count]; i++) {
-        elemInfo = [HTMLs objectAtIndex:i];
-        elemSize = [elemInfo objectForKey:@"size"];
-        elemId = [elemInfo objectForKey:@"id"];
-        [googlemaps.pluginLayer putHTMLElement:self.mapId domId:elemId size:elemSize];
-        //[self.mapCtrl.pluginScrollView.debugView putHTMLElement:elemId size:elemSize];
-    }
-*/
     [googlemaps.pluginLayer updateViewPosition:self.mapId];
 }
 
