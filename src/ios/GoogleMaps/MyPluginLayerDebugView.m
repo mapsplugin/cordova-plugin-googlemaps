@@ -18,7 +18,7 @@
     self.HTMLNodes = [[NSMutableDictionary alloc] init];
     self.mapCtrls = [[NSMutableDictionary alloc] init];
     self.opaque = NO;
-    self.debuggable = YES;
+    self.debuggable = NO;
 
     return self;
 }
@@ -50,17 +50,20 @@
     NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
-    NSString *rectStr;
+  
+    NSDictionary *domInfo;
     //NSLog(@"--> point = %f, %f", point.x, point.y);
     while(mapId = [mapIDs nextObject]) {
-        rectStr = [self.drawRects objectForKey:mapId];
+        mapCtrl = [self.mapCtrls objectForKey:mapId];
+        domInfo = [self.HTMLNodes objectForKey:mapCtrl.mapDivId];
         //NSLog(@"%@ = %@", mapId, rectStr);
-        rect = CGRectFromString(rectStr);
+        rect = CGRectFromString([domInfo objectForKey:@"size"]);
         rect.origin.x *= zoomScale;
         rect.origin.y *= zoomScale;
         rect.size.width *= zoomScale;
         rect.size.height *= zoomScale;
-        mapCtrl = [self.mapCtrls objectForKey:mapId];
+        rect.origin.x += offsetX;
+        rect.origin.y += offsetY;
       
         // Is the map is displayed?
         if (rect.origin.y + rect.size.height < offsetY ||

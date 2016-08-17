@@ -306,35 +306,39 @@
 }
 
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSDictionary *elements = [command.arguments objectAtIndex:0];
-        [self.pluginLayer putHTMLElements:elements];
-        
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+    NSDictionary *elements = [command.arguments objectAtIndex:0];
+    [self.pluginLayer putHTMLElements:elements];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    pluginResult = nil;
+    elements = nil;
+    command = nil;
 }
 
 - (void)putHtmlElement:(CDVInvokedUrlCommand *)command {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *domId = [command.arguments objectAtIndex:0];
-        NSDictionary *domInfo = [command.arguments objectAtIndex:1];
-        [self.pluginLayer putHTMLElement:domId domInfo:domInfo];
-        
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+    NSString *domId = [command.arguments objectAtIndex:0];
+    NSDictionary *domInfo = [command.arguments objectAtIndex:1];
+    [self.pluginLayer putHTMLElement:domId domInfo:domInfo];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    pluginResult = nil;
+    domId = nil;
+    domInfo = nil;
+    command = nil;
 }
 
 - (void)removeHtmlElement:(CDVInvokedUrlCommand *)command {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *domId = [command.arguments objectAtIndex:0];
-      
-        [self.pluginLayer removeHTMLElement:domId];
+    NSString *domId = [command.arguments objectAtIndex:0];
+  
+    [self.pluginLayer removeHTMLElement:domId];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    pluginResult = nil;
+    domId = nil;
+    command = nil;
 }
 
 @end

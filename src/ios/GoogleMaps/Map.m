@@ -136,8 +136,7 @@
     //NSString *rectStr = NSStringFromCGRect(rect);
     //[googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
   
-    NSString *rectStr = [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:mapDivId];
-    [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: rectStr forKey:self.mapId];
+    [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: mapDivId forKey:self.mapId];
   
 /*
     NSArray *HTMLs = [command.arguments objectAtIndex:(argCnt - 1)];

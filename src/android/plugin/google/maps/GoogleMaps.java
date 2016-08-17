@@ -843,26 +843,47 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
   @Override
   public void onPause(boolean multitasking) {
-    for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
-      (stringMapViewEntry).getValue().onPause();
-    }
     super.onPause(multitasking);
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
+          if (stringMapViewEntry.getValue() != null) {
+            stringMapViewEntry.getValue().onPause();
+          }
+        }
+      }
+    });
   }
 
   @Override
   public void onResume(boolean multitasking) {
-    for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
-      (stringMapViewEntry).getValue().onResume();
-    }
     super.onResume(multitasking);
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
+          if (stringMapViewEntry.getValue() != null) {
+            stringMapViewEntry.getValue().onResume();
+          }
+        }
+      }
+    });
   }
 
   @Override
   public void onDestroy() {
-    for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
-      (stringMapViewEntry).getValue().onDestroy();
-    }
     super.onDestroy();
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
+          if (stringMapViewEntry.getValue() != null) {
+            stringMapViewEntry.getValue().onDestroy();
+          }
+        }
+      }
+    });
   }
 
   protected void sendNoResult(CallbackContext callbackContext) {

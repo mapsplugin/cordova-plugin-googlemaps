@@ -1,4 +1,3 @@
-
 //---------------------------
 // Convert HTML color to RGB
 //---------------------------
@@ -21,7 +20,7 @@ function isHTMLColorString(inputValue) {
 
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
-    if(colorValue instanceof Array) {
+    if (colorValue instanceof Array) {
         return colorValue;
     }
     if (colorValue === "transparent" || !colorValue) {
@@ -183,63 +182,11 @@ function isDom(element) {
         "getBoundingClientRect" in element;
 }
 
-function getPageRect() {
-    var doc = document.documentElement;
-
-    var pageWidth = window.innerWidth ||
-        document.documentElement.clientWidth ||
-        document.body.clientWidth;
-    var pageHeight = window.innerHeight ||
-        document.documentElement.clientHeight ||
-        document.body.clientHeight;
-    var pageLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-    var pageTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-
-    return {
-        'width': pageWidth,
-        'height': pageHeight,
-        'left': pageLeft,
-        'top': pageTop
-    };
-}
-
 function getDivRect(div) {
     if (!div) {
         return;
     }
-    var rect = div.getBoundingClientRect();
-    //console.log("---->");
-    //console.log(JSON.stringify(rect, null, 2));
-
-    return rect;
-
-    var scrollBarWidth = 16;
-    var ratio = ((document.body.clientWidth + scrollBarWidth) / window.innerWidth);
-    ratio = 1;
-
-    // The number "8" indicates the default marginTop in pixel of the <body> tag.
-    // If you specify "document.body.style.margin=0;",
-    // div.getBoundingClientRect() returns incorrect top position.
-    // In order to fix it, the code needs to consider the body offset.
-
-    var bodyOffsets = document.body.getBoundingClientRect();
-    console.log("---->");
-    var pageRect = getPageRect();
-    var rect = div.getBoundingClientRect();
-    console.log(JSON.stringify(rect, null, 2));
-    var divRect = {
-        'left': rect.left + pageRect.left,
-        'top': rect.top + pageRect.top + (bodyOffsets.top - 8),
-        'width': rect.width,
-        'height': rect.height
-    };
-
-    return {
-          left : divRect.left * ratio,
-          top : divRect.top * ratio,
-          width : divRect.width * ratio,
-          height : divRect.height * ratio
-        };
+    return div.getBoundingClientRect();
 }
 
 function getAllChildren(root) {
@@ -247,35 +194,71 @@ function getAllChildren(root) {
     var clickableElements = [];
 
     if (window.document.querySelectorAll) {
-      // Android: v4.3 and over
-      // iOS safari: v9.2 and over
-      var clickable;
-      var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
-      //var childNodes = root.querySelectorAll(':not([data-clickable="false"])');
-      var childNodes = root.querySelectorAll("*");
-      var allClickableElements = Array.prototype.slice.call(childNodes);
-      clickableElements =  allClickableElements.filter(function(i) {return i != root;});
+        // Android: v4.3 and over
+        // iOS safari: v9.2 and over
+        var clickable;
+        var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
+        //var childNodes = root.querySelectorAll(':not([data-clickable="false"])');
+        var childNodes = root.querySelectorAll("*");
+        var allClickableElements = Array.prototype.slice.call(childNodes);
+        clickableElements = allClickableElements.filter(function(i) {
+            return i != root;
+        });
     } else {
-      clickableElements = root.getElementsByTagName("*");
+        clickableElements = root.getElementsByTagName("*");
     }
 
     for (var i = 0; i < clickableElements.length; i++) {
         node = clickableElements[i];
-        if (node.nodeType == 1){
-          style = window.getComputedStyle(node);
-          visibilityCSS = style.getPropertyValue('visibility');
-          displayCSS = style.getPropertyValue('display');
-          opacityCSS = style.getPropertyValue('opacity');
-          heightCSS = style.getPropertyValue('height')
-          widthCSS = style.getPropertyValue('width')
-          clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
-          if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
-            list.push(node);
-          }
+        if (node.nodeType == 1) {
+            style = window.getComputedStyle(node);
+            visibilityCSS = style.getPropertyValue('visibility');
+            displayCSS = style.getPropertyValue('display');
+            opacityCSS = style.getPropertyValue('opacity');
+            heightCSS = style.getPropertyValue('height')
+            widthCSS = style.getPropertyValue('width')
+            clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
+            if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
+                list.push(node);
+            }
         }
     }
 
     return list;
+}
+
+
+
+function getDomDepth(dom) {
+    var depth = 1;
+    if (dom == document.body) {
+        return 0;
+    }
+
+
+    while (dom.parentNode != null && dom.parentNode != document.body) {
+        dom = dom.parentNode;
+        depth++;
+    }
+    return depth;
+}
+
+function getDomInfo(dom) {
+    var style = window.getComputedStyle(dom);
+    var zIndexCSS = style.getPropertyValue('zIndex');
+    var position = style.getPropertyValue('position');
+    var depth;
+
+    if (zIndexCSS && zIndexCSS > 0 || position == "fixed") {
+        depth = 999999;
+    } else {
+        depth = getDomDepth(dom);
+    }
+
+    return {
+        size: getDivRect(dom),
+        depth: depth
+    };
 }
 
 var HTML_COLORS = {
@@ -431,12 +414,12 @@ var HTML_COLORS = {
 
 
 module.exports = {
-  getDivRect: getDivRect,
-  getPageRect: getPageRect,
-  getAllChildren: getAllChildren,
-  isDom: isDom,
-  parseBoolean: parseBoolean,
-  HLStoRGB: HLStoRGB,
-  HTMLColor2RGBA: HTMLColor2RGBA,
-  isHTMLColorString: isHTMLColorString
+    getDivRect: getDivRect,
+    getDomInfo: getDomInfo,
+    getAllChildren: getAllChildren,
+    isDom: isDom,
+    parseBoolean: parseBoolean,
+    HLStoRGB: HLStoRGB,
+    HTMLColor2RGBA: HTMLColor2RGBA,
+    isHTMLColorString: isHTMLColorString
 };

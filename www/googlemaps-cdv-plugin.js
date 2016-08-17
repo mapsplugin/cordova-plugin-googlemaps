@@ -33,56 +33,89 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * To prevent strange things happen,
  * disable the changing of viewport zoom level by double clicking.
  * This code has to run before the device ready event.
-*****************************************************************************/
+ *****************************************************************************/
 (function() {
-  var viewportTag = null;
-  var metaTags = document.getElementsByTagName('meta');
-  for (var i = 0; i < metaTags.length; i++) {
-     if (metaTags[i].getAttribute('name') === "viewport") {
-        viewportTag = metaTags[i];
-        break;
-     }
-  }
-  if (!viewportTag) {
-    viewportTag = document.createElement("meta");
-    viewportTag.setAttribute('name', 'viewport');
-  }
-  viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
+    var viewportTag = null;
+    var metaTags = document.getElementsByTagName('meta');
+    for (var i = 0; i < metaTags.length; i++) {
+        if (metaTags[i].getAttribute('name') === "viewport") {
+            viewportTag = metaTags[i];
+            break;
+        }
+    }
+    if (!viewportTag) {
+        viewportTag = document.createElement("meta");
+        viewportTag.setAttribute('name', 'viewport');
+    }
+    viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
 })();
 
 /*****************************************************************************
  * Add event lister to all html nodes under the <body> tag.
-*****************************************************************************/
+ *****************************************************************************/
 (function() {
-  var children = common.getAllChildren(document.body);
-  if (children.length === 0) {
-    return
-  }
+    var prevDomPositions = {};
 
-  var domPositions = {};
-  var size, elemId, i, child, parentNode;
+    function putHtmlElements() {
+        var children = common.getAllChildren(document.body);
+        if (children.length === 0) {
+            children = null;
+            return;
+        }
 
-  children.unshift(document.body);
-  for (i = 0; i < children.length; i++) {
-    child = children[i];
-    elemId = "pgm" + Math.floor(Math.random() * Date.now());
-    child.setAttribute("__pluginDomId", elemId);
-    domPositions[elemId] = _plugin_domInit(child);
-  }
+        var shouldUpdate = false;
+        var domPositions = {};
+        var size, elemId, i, child, parentNode;
 
 
-  for (i = 0; i < children.length; i++) {
-    child = children[i];
-    parentNode = child.parentNode;
+        children.unshift(document.body);
+        for (i = 0; i < children.length; i++) {
+            child = children[i];
+            elemId = child.getAttribute("__pluginDomId");
+            if (!elemId) {
+                elemId = "pgm" + Math.floor(Math.random() * Date.now());
+                child.setAttribute("__pluginDomId", elemId);
+            }
+            domPositions[elemId] = common.getDomInfo(child);
+            if (!shouldUpdate) {
+                if (elemId in prevDomPositions) {
+                    if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
+                        domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
+                        domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
+                        domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
+                        shouldUpdate = true;
+                    }
+                } else {
+                    shouldUpdate = true;
+                }
+            }
+        }
+        if (!shouldUpdate) {
+            return;
+        }
 
-    domPositions[elemId].parentNode = parentNode.getAttribute("__pluginDomId");
-  }
-  cordova.exec(null, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
-})();
+
+        for (i = 0; i < children.length; i++) {
+            child = children[i];
+            parentNode = child.parentNode;
+
+            domPositions[elemId].parentNode = parentNode.getAttribute("__pluginDomId");
+        }
+        cordova.exec(function() {
+            prevDomPositions = domPositions;
+        }, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
+        child = null;
+        parentNode = null;
+        elemId = null;
+        children = null;
+    }
+    putHtmlElements();
+    setInterval(putHtmlElements, 50);
+}());
 
 /*****************************************************************************
  * KmlOverlay class method
-*****************************************************************************/
+ *****************************************************************************/
 
 KmlOverlay.prototype.remove = function() {
     var layerId = this.id,
@@ -144,84 +177,14 @@ function onMapResize(event) {
     //console.log("---> onMapResize");
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
-      MAPS[mapId].refreshLayout();
+        MAPS[mapId].refreshLayout();
     });
 }
 
-
-/*****************************************************************************
- * Watch dog timer for child elements
- *****************************************************************************/
-
-window._watchDogTimer = null;
-/*
-TODO: Think more better way.
-_global.addEventListener("keepWatching_changed", function(oldValue, newValue) {
-    if (newValue !== true) {
-        return;
-    }
-    var prevSize = null;
-    var children;
-    var prevChildrenCnt = 0;
-    var divSize, childCnt = 0;
-    if (window._watchDogTimer) {
-        clearInterval(window._watchDogTimer);
-    }
-
-    function init() {
-        window._watchDogTimer = window.setInterval(function() {
-            myFunc();
-        }, _global.getWatchDogTimer());
-    }
-
-    function myFunc() {
-        var div = module.exports.Map.get("div");
-        if (div) {
-            children = common.getAllChildren(div);
-            childCnt = children.length;
-            if (childCnt != prevChildrenCnt) {
-                onMapResize();
-                prevChildrenCnt = childCnt;
-                watchDogTimer = setTimeout(myFunc, 100);
-                return;
-            }
-            prevChildrenCnt = childCnt;
-            divSize = common.getDivRect(div);
-            if (prevSize) {
-                if (divSize.left != prevSize.left ||
-                    divSize.top != prevSize.top ||
-                    divSize.width != prevSize.width ||
-                    divSize.height != prevSize.height) {
-                    onMapResize();
-                }
-            }
-            prevSize = divSize;
-        }
-        div = null;
-        divSize = null;
-        childCnt = null;
-        children = null;
-        clearInterval(window._watchDogTimer);
-        init();
-    }
-    init();
-});
-
-_global.addEventListener("keepWatching_changed", function(oldValue, newValue) {
-    if (newValue !== false) {
-        return;
-    }
-    if (window._watchDogTimer) {
-        clearInterval(window._watchDogTimer);
-    }
-    window._watchDogTimer = null;
-});
-*/
-
 function nativeCallback(params) {
-  var args = params.args || [];
-  args.unshift(params.evtName);
-  this[params.callback].apply(this, args);
+    var args = params.args || [];
+    args.unshift(params.evtName);
+    this[params.callback].apply(this, args);
 }
 
 /*****************************************************************************
@@ -236,32 +199,32 @@ module.exports = {
 
     //BaseClass: BaseClass,
     Map: {
-      getMap: function() {
-        var mapId = "map_" + MAP_CNT + "_" + saltHash;
-        var map = new Map(mapId);
+        getMap: function() {
+            var mapId = "map_" + MAP_CNT + "_" + saltHash;
+            var map = new Map(mapId);
 
-        // Catch all events for this map instance, then pass to the instance.
-        document.addEventListener(mapId, nativeCallback.bind(map));
-/*
-        map.showDialog = function() {
-          showDialog(mapId).bind(map);
-        };
-*/
-        map.one('remove', function() {
-          document.removeEventListener(mapId, nativeCallback);
-          MAPS[mapId].clear();
-          delete MAPS[mapId];
-          map = null;
-        });
-        MAP_CNT++;
-        MAPS[mapId] = map;
-        var args = [mapId];
-        for (var i = 0; i < arguments.length; i++) {
-          args.push(arguments[i]);
+            // Catch all events for this map instance, then pass to the instance.
+            document.addEventListener(mapId, nativeCallback.bind(map));
+            /*
+                    map.showDialog = function() {
+                      showDialog(mapId).bind(map);
+                    };
+            */
+            map.one('remove', function() {
+                document.removeEventListener(mapId, nativeCallback);
+                MAPS[mapId].clear();
+                delete MAPS[mapId];
+                map = null;
+            });
+            MAP_CNT++;
+            MAPS[mapId] = map;
+            var args = [mapId];
+            for (var i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            map.getMap.apply(map, args);
+            return map;
         }
-        map.getMap.apply(map, args);
-        return map;
-      }
     },
     LatLng: LatLng,
     LatLngBounds: LatLngBounds,
@@ -300,87 +263,4 @@ document.addEventListener("deviceready", function() {
     cordova.exec(null, function(message) {
         alert(message);
     }, 'Environment', 'isAvailable', ['']);
-
 });
-
-function getDomDepth(dom) {
-  var depth = 1;
-  if (dom == document.body) {
-    return 0;
-  }
-
-
-  while (dom.parentNode != null && dom.parentNode != document.body) {
-    dom = dom.parentNode;
-    depth++;
-  }
-  return depth;
-}
-
-function _plugin_domInit(dom) {
-    var style = window.getComputedStyle(dom);
-    var zIndexCSS = style.getPropertyValue('zIndex');
-    var position = style.getPropertyValue('position');
-    var depth;
-
-    if (zIndexCSS && zIndexCSS > 0 || position == "fixed") {
-        depth = 999999;
-    } else {
-        depth = getDomDepth(dom);
-    }
-
-    dom.addEventListener("DOMNodeRemoved", _remove_child);
-    dom.addEventListener("DOMNodeInserted", _append_child);
-    return {
-        size: common.getDivRect(dom),
-        depth: depth,
-        position: position,
-        zIndexCSS: zIndexCSS,
-        tagName: dom.tagName
-    };
-}
-
-function _append_child(event) {
-    event = event || window.event;
-    event = event || {};
-    var target = event.srcElement;
-    if (!target || "nodeType" in target == false) {
-        return;
-    }
-    if (target.nodeType != 1) {
-        return;
-    }
-    if (target.hasAttribute("__pluginDomId")) {
-        return;
-    }
-
-    size = common.getDivRect(target);
-    var elemId = "pgm" + Math.floor(Math.random() * Date.now());
-    target.setAttribute("__pluginDomId", elemId);
-
-    var domInfo = _plugin_domInit(target);
-    domInfo.parentNode = target.parentNode.getAttribute("__pluginDomId");
-
-    cordova.exec(null, null, "GoogleMaps", 'putHtmlElement', [elemId, domInfo]);
-};
-
-function _remove_child (event) {
-    event = event || window.event;
-    event = event || {};
-    var target = event.srcElement;
-    if (!target || "nodeType" in target == false) {
-        return;
-    }
-    if (target.nodeType != 1) {
-        return;
-    }
-    if (!target.parentNode.hasAttribute("__pluginDomId")) {
-        return;
-    }
-    var elemId = target.getAttribute("__pluginDomId");
-    if (!elemId) {
-        return;
-    }
-    target.removeAttribute("__pluginDomId");
-    cordova.exec(null, null, "GoogleMaps", 'removeHtmlElement', [elemId]);
-};
