@@ -34,82 +34,91 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * disable the changing of viewport zoom level by double clicking.
  * This code has to run before the device ready event.
  *****************************************************************************/
+/*
 (function() {
-    var viewportTag = null;
-    var metaTags = document.getElementsByTagName('meta');
-    for (var i = 0; i < metaTags.length; i++) {
-        if (metaTags[i].getAttribute('name') === "viewport") {
-            viewportTag = metaTags[i];
-            break;
-        }
-    }
-    if (!viewportTag) {
-        viewportTag = document.createElement("meta");
-        viewportTag.setAttribute('name', 'viewport');
-    }
-    viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
+   var viewportTag = null;
+   var metaTags = document.getElementsByTagName('meta');
+   for (var i = 0; i < metaTags.length; i++) {
+       if (metaTags[i].getAttribute('name') === "viewport") {
+           viewportTag = metaTags[i];
+           break;
+       }
+   }
+   if (!viewportTag) {
+       viewportTag = document.createElement("meta");
+       viewportTag.setAttribute('name', 'viewport');
+   }
+   viewportTag.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
 })();
+*/
 
 /*****************************************************************************
  * Add event lister to all html nodes under the <body> tag.
  *****************************************************************************/
 (function() {
-    var prevDomPositions = {};
+   var prevDomPositions = {};
 
-    function putHtmlElements() {
-        var children = common.getAllChildren(document.body);
-        if (children.length === 0) {
-            children = null;
-            return;
-        }
+   function putHtmlElements() {
+       var children = common.getAllChildren(document.body);
+       if (children.length === 0) {
+           children = null;
+           return;
+       }
 
-        var shouldUpdate = false;
-        var domPositions = {};
-        var size, elemId, i, child, parentNode;
-
-
-        children.unshift(document.body);
-        for (i = 0; i < children.length; i++) {
-            child = children[i];
-            elemId = child.getAttribute("__pluginDomId");
-            if (!elemId) {
-                elemId = "pgm" + Math.floor(Math.random() * Date.now());
-                child.setAttribute("__pluginDomId", elemId);
-            }
-            domPositions[elemId] = common.getDomInfo(child);
-            if (!shouldUpdate) {
-                if (elemId in prevDomPositions) {
-                    if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
-                        domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
-                        domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
-                        domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
-                        shouldUpdate = true;
-                    }
-                } else {
-                    shouldUpdate = true;
-                }
-            }
-        }
-        if (!shouldUpdate) {
-            return;
-        }
+       var shouldUpdate = false;
+       var domPositions = {};
+       var size, elemId, i, child, parentNode;
 
 
-        for (i = 0; i < children.length; i++) {
-            child = children[i];
-            parentNode = child.parentNode;
+       children.unshift(document.body);
+       for (i = 0; i < children.length; i++) {
+           child = children[i];
+           elemId = child.getAttribute("__pluginDomId");
+           if (!elemId) {
+               elemId = "pgm" + Math.floor(Math.random() * Date.now());
+               child.setAttribute("__pluginDomId", elemId);
+           }
+           domPositions[elemId] = common.getDomInfo(child);
+           if (!shouldUpdate) {
+               if (elemId in prevDomPositions) {
+                   if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
+                       domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
+                       domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
+                       domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
+                       shouldUpdate = true;
+                   }
+               } else {
+                   shouldUpdate = true;
+               }
+           }
+       }
+       if (!shouldUpdate) {
+           return;
+       }
 
-            domPositions[elemId].parentNode = parentNode.getAttribute("__pluginDomId");
-        }
-        cordova.exec(function() {
-            prevDomPositions = domPositions;
-        }, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
-        child = null;
-        parentNode = null;
-        elemId = null;
-        children = null;
-    }
-    setInterval(putHtmlElements, 50);
+
+       var bodyRect = document.body.getBoundingClientRect();
+       for (i = 0; i < children.length; i++) {
+           child = children[i];
+           parentNode = child.parentNode;
+           elemId = child.getAttribute("__pluginDomId");
+
+           domPositions[elemId].parentNode = parentNode.getAttribute("__pluginDomId");
+
+           domPositions[elemId].bodyOffset = {
+             "left":  -1 * (domPositions[elemId].size.left - bodyRect.left),
+             "top":  -1 * (domPositions[elemId].size.top - bodyRect.top)
+           };
+       }
+       cordova.exec(function() {
+           prevDomPositions = domPositions;
+       }, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
+       child = null;
+       parentNode = null;
+       elemId = null;
+       children = null;
+   }
+   setInterval(putHtmlElements, 50);
 }());
 
 /*****************************************************************************
