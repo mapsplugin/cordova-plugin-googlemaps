@@ -129,7 +129,12 @@ Map.prototype.getMap = function(mapId, div, params) {
         // The plugin needs to consider the viewport zoom ratio
         // for the case window.innerHTML > body.offsetWidth.
         //size = common.getDivRect(div);
-        args.push(div.getAttribute("__pluginDomId"));
+        elemId = div.getAttribute("__pluginDomId");
+        if (!elemId) {
+            elemId = "pgm" + Math.floor(Math.random() * Date.now());
+            div.setAttribute("__pluginDomId", elemId);
+        }
+        args.push(elemId);
         /*
                 for (var i = 0; i < children.length; i++) {
                     element = children[i];

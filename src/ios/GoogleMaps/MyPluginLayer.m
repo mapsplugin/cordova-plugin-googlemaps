@@ -164,6 +164,10 @@
   GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
 
   NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+  if (domInfo == nil) {
+    self.needUpdatePosition = YES;
+    return;
+  }
   NSString *rectStr = [domInfo objectForKey:@"size"];
   [self.pluginScrollView.debugView.drawRects setObject:rectStr forKey:mapId];
   

@@ -109,7 +109,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
         elemId = null;
         children = null;
     }
-    putHtmlElements();
     setInterval(putHtmlElements, 50);
 }());
 
