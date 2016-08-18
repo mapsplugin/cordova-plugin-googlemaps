@@ -128,50 +128,25 @@ Map.prototype.getMap = function(mapId, div, params) {
         // Gets the map div size.
         // The plugin needs to consider the viewport zoom ratio
         // for the case window.innerHTML > body.offsetWidth.
-        //size = common.getDivRect(div);
         elemId = div.getAttribute("__pluginDomId");
         if (!elemId) {
             elemId = "pgm" + Math.floor(Math.random() * Date.now());
             div.setAttribute("__pluginDomId", elemId);
         }
         args.push(elemId);
-        /*
-                for (var i = 0; i < children.length; i++) {
-                    element = children[i];
-                    elemId = element.getAttribute("__pluginDomId");
-                    if (!elemId) {
-                        elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
-                        element.setAttribute("__pluginDomId", elemId);
-                    }
-                    size = common.getDivRect(element);
 
-                    elements.push({
-                        id: elemId,
-                        size: size
-                    });
-                    i++;
-                }
-                args.push(elements);
+        while (div.parentNode) {
+            div.style.backgroundColor = 'rgba(0,0,0,0)';
 
-                div.addEventListener("DOMNodeRemoved", _remove_child.bind(self));
-                div.addEventListener("DOMNodeInserted", _append_child.bind(self));
+            // prevent multiple readding the class
+            if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+                div.classList.add('_gmaps_cdv_');
+            } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
+                div.className = div.className + ' _gmaps_cdv_';
+            }
 
-                self.set("keepWatching", true);
-                var className;
-                while (div.parentNode) {
-                    div.style.backgroundColor = 'rgba(0,0,0,0)';
-                    className = div.className;
-
-                    // prevent multiple readding the class
-                    if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-                        div.classList.add('_gmaps_cdv_');
-                    } else if (div.className && !div.className.indexOf('_gmaps_cdv_') == -1) {
-                        div.className = div.className + ' _gmaps_cdv_';
-                    }
-
-                    div = div.parentNode;
-                }
-        */
+            div = div.parentNode;
+        }
     }
 
     cordova.exec(function() {
@@ -445,78 +420,19 @@ Map.prototype.setDiv = function(div) {
         args = [];
 
     if (!common.isDom(div)) {
-        // TODO: detach the map
-        /*
-            params = div;
-            params = params || {};
-            if (params.camera && params.camera.latLng) {
-              params.camera.target = params.camera.latLng;
-              delete params.camera.latLng;
-            }
-            args.push(params);
-        */
         self.set("div", null);
     } else {
-
         var currentDiv = self.get("div");
-        /*
-        if (currentDiv !== div && currentDiv) {
-            var children = common.getAllChildren(currentDiv);
-            for (var i = 0; i < children.length; i++) {
-                element = children[i];
-                elemId = element.getAttribute("__pluginDomId");
-                element.removeAttribute("__pluginDomId");
-            }
-            currentDiv.removeEventListener("DOMNodeRemoved", _remove_child.bind(self));
-
-            while (currentDiv) {
-                if (currentDiv.style) {
-                    currentDiv.style.backgroundColor = '';
-                }
-                if (currentDiv.classList) {
-                    currentDiv.classList.remove('_gmaps_cdv_');
-                } else if (currentDiv.className) {
-                    currentDiv.className = currentDiv.className.replace(/_gmaps_cdv_/g, "");
-                    currentDiv.className = currentDiv.className.replace(/\s+/g, " ");
-                }
-                currentDiv = currentDiv.parentNode;
-            }
-            self.set("div", null);
-            self.set("keepWatching", false);
-        }
-
-
-        var children = common.getAllChildren(div);
-        */
 
         self.set("div", div);
-        args.push(div.getAttribute("__pluginDomId"));
-        /*
-        var elements = [];
-        var elemId, clickable;
-
-        for (var i = 0; i < children.length; i++) {
-            element = children[i];
-            elemId = element.getAttribute("__pluginDomId");
-            if (!elemId) {
-                elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
-                element.setAttribute("__pluginDomId", elemId);
-            }
-            elements.push({
-                id: elemId,
-                size: common.getDivRect(element)
-            });
+        var elemId = div.getAttribute("__pluginDomId");
+        if (!elemId) {
+            elemId = "pgm" + Math.floor(Math.random() * Date.now());
+            div.setAttribute("__pluginDomId", elemId);
         }
-        args.push(elements);
-
-        div.addEventListener("DOMNodeRemoved", _remove_child.bind(self));
-        div.addEventListener("DOMNodeInserted", _append_child.bind(self));
-
-        self.set("keepWatching", true);
-        var className;
+        args.push(elemId);
         while (div.parentNode) {
             div.style.backgroundColor = 'rgba(0,0,0,0)';
-            className = div.className;
 
             // prevent multiple readding the class
             if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
@@ -527,9 +443,8 @@ Map.prototype.setDiv = function(div) {
 
             div = div.parentNode;
         }
-        */
     }
-    cordova.exec(null, self.errorHandler, self.id, 'setDiv', self.deleteFromObject(args, 'function'));
+    cordova.exec(null, self.errorHandler, self.id, 'setDiv', args);
     return self;
 };
 

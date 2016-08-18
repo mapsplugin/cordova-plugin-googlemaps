@@ -71,7 +71,6 @@
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
   
-    //NSLog(@"---> %@ : %@", self.mapId, command.arguments);
     if ([command.arguments count] == 1) {
         //-----------------------------------------------------------------------
         // case: plugin.google.maps.getMap([options]) (no the mapDiv is given)
@@ -96,49 +95,52 @@
 
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-    if ([command.arguments count] == 2) {
-      [self.mapCtrl.view setHidden:false];
-      [self resizeMap:command];
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    } else {
-      [self.mapCtrl.view setHidden:true];
+  
+    // Detach the map view
+    if (self.mapCtrl.mapDivId) {
+        [self.mapCtrl.view removeFromSuperview];
+        self.mapCtrl.mapDivId = nil;
     }
-/*
-    if ([command.arguments count] == 2) {
-        //[self.mapCtrl.view removeFromSuperview];
-        [self.mapCtrl.pluginScrollView dettachView];
-        [self.pluginLayer clearHTMLElement];
-        [self.mapCtrl.pluginScrollView.debugView clearHTMLElement];
-        self.mapCtrl.isFullScreen = NO;
-        self.pluginLayer.mapCtrl = self.mapCtrl;
-        self.pluginLayer.webView = self.webView;
-
-        [self.mapCtrl.pluginScrollView attachView:self.mapCtrl.view];
+  
+    if ([command.arguments count] == 1) {
+        NSString *mapDivId = [command.arguments objectAtIndex:0];
+        self.mapCtrl.mapDivId = mapDivId;
+        NSLog(@"---> setDiv : %@", mapDivId);
+    
+        // Load the GoogleMap.m
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+        GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+        
+        [googlemaps.pluginLayer addMapView:self.mapId mapCtrl:self.mapCtrl];
+      
         [self resizeMap:command];
-    } else {
-        //[self.mapCtrl.view removeFromSuperview];
-        [self.mapCtrl.pluginScrollView dettachView];
     }
-*/
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
 
     NSString *mapDivId = self.mapCtrl.mapDivId;
+    if (!mapDivId) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
   
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    googlemaps.pluginLayer.needUpdatePosition = YES;
+  
 
     // Save the map rectangle.
     if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.mapDivId]) {
         NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];
-        [dummyInfo setObject:@"{{1,1} - {1,1}}" forKey:@"size"];
+        [dummyInfo setObject:@"{{0,-100} - {50,50}}" forKey:@"size"];
         [dummyInfo setObject:[NSNumber numberWithInt:1] forKey:@"depth"];
         [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];
-        googlemaps.pluginLayer.needUpdatePosition = YES;
     }
  
     [googlemaps.pluginLayer.pluginScrollView.debugView.drawRects setObject: mapDivId forKey:self.mapId];

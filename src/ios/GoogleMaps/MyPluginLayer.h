@@ -20,8 +20,5 @@
 - (id)initWithWebView:(UIWebView *)webView;
 - (void)updateViewPosition:(NSString *)mapId;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
-- (void)clearHTMLElements:(NSString *)mapId;
 - (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
-
-- (void)_updateViewPosition:(NSString *)mapId;
 @end

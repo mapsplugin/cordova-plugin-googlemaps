@@ -55,6 +55,9 @@
     //NSLog(@"--> point = %f, %f", point.x, point.y);
     while(mapId = [mapIDs nextObject]) {
         mapCtrl = [self.mapCtrls objectForKey:mapId];
+        if (!mapCtrl.mapDivId) {
+            continue;
+        }
         domInfo = [self.HTMLNodes objectForKey:mapCtrl.mapDivId];
         //NSLog(@"%@ = %@", mapId, rectStr);
         rect = CGRectFromString([domInfo objectForKey:@"size"]);

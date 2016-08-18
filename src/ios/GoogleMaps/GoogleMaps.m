@@ -314,6 +314,7 @@
           [self.pluginLayer putHTMLElements:elements];
           
           if (self.pluginLayer.needUpdatePosition) {
+              self.pluginLayer.needUpdatePosition = NO;
               NSArray *keys=[self.mapPlugins allKeys];
               NSString *mapId;
             
@@ -321,7 +322,6 @@
                 mapId = [keys objectAtIndex:i];
                 [self.pluginLayer updateViewPosition:mapId];
               }
-              self.pluginLayer.needUpdatePosition = NO;
           }
           
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
