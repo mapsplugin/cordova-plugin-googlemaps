@@ -321,6 +321,7 @@
                 mapId = [keys objectAtIndex:i];
                 [self.pluginLayer updateViewPosition:mapId];
               }
+              self.pluginLayer.needUpdatePosition = NO;
           }
           
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

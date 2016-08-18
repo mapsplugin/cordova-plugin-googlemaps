@@ -23,7 +23,7 @@
   
     self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.webView.scrollView.delegate = self;
-    [self.pluginScrollView setContentSize:CGSizeMake(320, 960) ];
+    [self.pluginScrollView setContentSize:self.webView.scrollView.frame.size ];
   
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
@@ -39,14 +39,13 @@
         CGFloat zoomScale = self.webView.scrollView.zoomScale;
  
         CGPoint offset = self.webView.scrollView.contentOffset;
+        [self.pluginScrollView setContentOffset:offset];
         offset.x *= zoomScale;
         offset.y *= zoomScale;
-        [self.pluginScrollView setContentOffset:offset];
-
+      
         float webviewWidth = self.webView.frame.size.width;
         float webviewHeight = self.webView.frame.size.height;
       
-        
         CGRect rect;
         NSEnumerator *mapIDs = [self.pluginScrollView.debugView.drawRects keyEnumerator];
         GoogleMapsViewController *mapCtrl;
@@ -57,6 +56,8 @@
             rect.origin.y *= zoomScale;
             rect.size.width *= zoomScale;
             rect.size.height *= zoomScale;
+            rect.origin.x += offset.x;
+            rect.origin.y += offset.y;
             mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
           
               
@@ -172,7 +173,7 @@
         return;
       }
       NSString *rectStr = [domInfo objectForKey:@"size"];
-      NSLog(@"mapId = %@, rect = %@", mapId, domInfo);
+      //NSLog(@"mapId = %@, rect = %@", mapId, domInfo);
       
       
       CGRect rect = CGRectFromString(rectStr);
