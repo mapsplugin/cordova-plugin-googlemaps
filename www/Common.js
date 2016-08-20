@@ -186,7 +186,13 @@ function getDivRect(div) {
     if (!div) {
         return;
     }
-    return div.getBoundingClientRect();
+    var rect = div.getBoundingClientRect();
+    return {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height
+    };
 }
 
 function getAllChildren(root) {
