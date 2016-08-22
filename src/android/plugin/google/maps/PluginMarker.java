@@ -735,13 +735,12 @@ public class PluginMarker extends MyPlugin {
               inputStream = assetManager.open(iconUrl);
               image = BitmapFactory.decodeStream(inputStream);
             } catch (IOException e) {
+              Log.w("GoogleMaps", "Unable to decode bitmap stream for icon " + iconUrl + ")");
               e.printStackTrace();
-              callback.onPostExecute(marker);
               return null;
             }
           }
           if (image == null) {
-            callback.onPostExecute(marker);
             return null;
           }
           
