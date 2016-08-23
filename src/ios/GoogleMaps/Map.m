@@ -23,7 +23,6 @@
   // Load the GoogleMap.m
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-  //[googlemaps.pluginLayer clearHTMLElement:mapId];
   [googlemaps.pluginLayer.pluginScrollView dettachView];
 
   [self clear:nil];

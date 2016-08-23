@@ -246,12 +246,6 @@ window.addEventListener("beforeunload", function() {
     cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
 });
 
-// for iOS
-window.addEventListener("pagehide", function() {
-    clearInterval(INTERVAL_TIMER);
-    cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
-});
-
 window.addEventListener("orientationchange", function() {
     setTimeout(onMapResize, 1000);
 });

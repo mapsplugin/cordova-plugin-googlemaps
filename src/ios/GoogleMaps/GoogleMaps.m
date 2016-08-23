@@ -40,7 +40,6 @@
                                                    name:UIDeviceOrientationDidChangeNotification object:nil];
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-  
     
     //-------------------------------
     // Plugin initialization
@@ -63,13 +62,6 @@
         [self.pluginLayer addSubview: view];
     }
     [self.viewController.view addSubview:self.pluginLayer];
-
-    
-    //[self.mapCtrl.view removeFromSuperview];
-    //self.mapCtrl.isFullScreen = NO;
-    
-    //[self.pluginLayer.pluginScrollView attachView:self.mapCtrl.view];
- 
 
 }
 
@@ -99,12 +91,6 @@
 -(void)pageDidLoad {
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
-}
-
-/**
- * Remove maps
- */
-- (void)unload:(CDVInvokedUrlCommand *)command {
     dispatch_async(dispatch_get_main_queue(), ^{
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
       
@@ -176,7 +162,7 @@
       
         [self.mapPlugins setObject:mapPlugin forKey:mapId];
       
-        CGRect rect = mapPlugin.mapCtrl.view.frame;
+        CGRect rect = CGRectZero;
         // Sets the map div id.
         if ([command.arguments count] == 3) {
           mapPlugin.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];

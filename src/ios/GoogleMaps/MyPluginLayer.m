@@ -257,7 +257,7 @@
           return;
       }
       NSString *rectStr = [domInfo objectForKey:@"size"];
-      //NSLog(@"mapId = %@, rect = %@", mapId, domInfo);
+      //NSLog(@"mapId = %@, rect = %@", mapId, rectStr);
       
       
       CGRect rect = CGRectFromString(rectStr);
@@ -309,6 +309,10 @@
     
       //NSLog(@"mapId = %@, rect = %@", mapId, NSStringFromCGRect(rect));
       [mapCtrl.view setFrame:rect];
+    
+      rect.origin.x = 0;
+      rect.origin.y = 0;
+      [mapCtrl.map setFrame:rect];
     
       if (rect.size.width == 0 || rect.size.height == 0) {
           self.needUpdatePosition = YES;
