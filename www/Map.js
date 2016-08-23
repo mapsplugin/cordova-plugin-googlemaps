@@ -51,8 +51,9 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
-    return;
     var self = this;
+    cordova.exec(null, null, self.id, 'resizeMap', []);
+    return;
     //console.log("---> onMapResize mapId = " + self.id );
     var div = self.get("div");
     if (!div) {
@@ -150,7 +151,10 @@ Map.prototype.getMap = function(mapId, div, params) {
     }
 
     cordova.exec(function() {
-        self.trigger(event.MAP_READY, self);
+        setTimeout(function() {
+          self.refreshLayout();
+          self.trigger(event.MAP_READY, self);
+        }, 1000);
     }, self.errorHandler, 'GoogleMaps', 'getMap', args);
     return self;
 };
@@ -425,7 +429,7 @@ Map.prototype.setDiv = function(div) {
         var currentDiv = self.get("div");
 
         self.set("div", div);
-        var elemId = div.getAttribute("__pluginDomId");
+        elemId = div.getAttribute("__pluginDomId");
         if (!elemId) {
             elemId = "pgm" + Math.floor(Math.random() * Date.now());
             div.setAttribute("__pluginDomId", elemId);

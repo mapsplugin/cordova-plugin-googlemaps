@@ -14,7 +14,6 @@
 -  (id)initWithFrame:(CGRect)aRect
 {
     self = [super initWithFrame:aRect];
-    self.drawRects = [[NSMutableDictionary alloc] init];
     self.HTMLNodes = [[NSMutableDictionary alloc] init];
     self.mapCtrls = [[NSMutableDictionary alloc] init];
     self.opaque = NO;
@@ -47,7 +46,7 @@
     webviewWidth *= zoomScale;
     webviewHeight *= zoomScale;
   
-    NSEnumerator *mapIDs = [self.drawRects keyEnumerator];
+    NSEnumerator *mapIDs = [self.mapCtrls keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
   

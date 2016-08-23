@@ -25,10 +25,9 @@ var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
 
-var _global = new BaseClass();
+var INTERVAL_TIMER = null;
 var MAPS = {};
 var saltHash = Math.floor(Math.random() * Date.now());
-
 
 /*****************************************************************************
  * To prevent strange things happen,
@@ -59,6 +58,8 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
     function putHtmlElements() {
         var children = common.getAllChildren(document.body);
+        var bodyRect = common.getDivRect(document.body);;
+
         if (children.length === 0) {
             children = null;
             return;
@@ -98,9 +99,9 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
         for (i = 0; i < children.length; i++) {
             child = children[i];
-            parentNode = child.parentNode;
-
-            domPositions[elemId].parentNode = parentNode.getAttribute("__pluginDomId");
+            elemId = child.getAttribute("__pluginDomId");
+            domPositions[elemId].offsetX = domPositions[elemId].size.left - bodyRect.left;
+            domPositions[elemId].offsetY = domPositions[elemId].size.top - bodyRect.top;
         }
         cordova.exec(function() {
             prevDomPositions = domPositions;
@@ -110,7 +111,8 @@ var saltHash = Math.floor(Math.random() * Date.now());
         elemId = null;
         children = null;
     }
-    setInterval(putHtmlElements, 50);
+    putHtmlElements();
+    INTERVAL_TIMER = setInterval(putHtmlElements, 50);
 }());
 
 /*****************************************************************************
@@ -240,16 +242,17 @@ module.exports = {
 
 // for Android
 window.addEventListener("beforeunload", function() {
+    clearInterval(INTERVAL_TIMER);
     cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
 });
 
 // for iOS
 window.addEventListener("pagehide", function() {
+    clearInterval(INTERVAL_TIMER);
     cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
 });
 
 window.addEventListener("orientationchange", function() {
-    //console.log("---> orientationchange");
     setTimeout(onMapResize, 1000);
 });
 

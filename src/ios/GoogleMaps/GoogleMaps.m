@@ -35,6 +35,13 @@
         return;
     }
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                               selector:@selector(didRotate:)
+                                                   name:UIDeviceOrientationDidChangeNotification object:nil];
+
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+  
+    
     //-------------------------------
     // Plugin initialization
     //-------------------------------
@@ -45,7 +52,7 @@
     self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:(UIWebView *)self.webView];
     self.pluginLayer.backgroundColor = [UIColor whiteColor];
     self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
+  
 
     NSArray *subViews = self.viewController.view.subviews;
     UIView *view;
@@ -66,6 +73,23 @@
 
 }
 
+- (void) didRotate:(id)sender
+{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
+      
+      NSArray *keys=[self.mapPlugins allKeys];
+      NSString *mapId;
+    
+      for (int i = 0; i < [keys count]; i++) {
+        mapId = [keys objectAtIndex:i];
+        [self.pluginLayer updateViewPosition:mapId];
+      }
+
+      if (self.pluginLayer.pluginScrollView.debugView.debuggable == YES) {
+          [self.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
+      }
+  });
+}
 -(void)viewDidLayoutSubviews {
 //TODO
     //[mapCtrl.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
@@ -109,7 +133,6 @@
         }
         [self.mapPlugins removeAllObjects];
       
-        [self.pluginLayer.pluginScrollView.debugView.drawRects removeAllObjects];
         [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
         [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
 
@@ -153,6 +176,19 @@
       
         [self.mapPlugins setObject:mapPlugin forKey:mapId];
       
+        CGRect rect = mapPlugin.mapCtrl.view.frame;
+        // Sets the map div id.
+        if ([command.arguments count] == 3) {
+          mapPlugin.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
+          if (mapPlugin.mapCtrl.mapDivId != nil) {
+            NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:mapPlugin.mapCtrl.mapDivId];
+            if (domInfo != nil) {
+              rect = CGRectFromString([domInfo objectForKey:@"size"]);
+            }
+          }
+        }
+      
+      
         // Generate an instance of GMSMapView;
         GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
                                             longitude:0
@@ -160,14 +196,10 @@
                                             bearing:0
                                             viewingAngle:0];
 
-        mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:mapCtrl.view.frame camera:camera];
+        mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
         mapPlugin.mapCtrl.map.delegate = mapCtrl;
         mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
       
-        // Sets the map div id.
-        if ([command.arguments count] == 3) {
-          mapPlugin.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
-        }
       
         //indoor display
         mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
@@ -310,11 +342,13 @@
         NSDictionary *elements = [command.arguments objectAtIndex:0];
         
         CDVPluginResult* pluginResult;
-        if (self.pluginLayer.stopFlag == NO) {
+        if (self.pluginLayer.stopFlag == NO || self.pluginLayer.needUpdatePosition == YES) {
           [self.pluginLayer putHTMLElements:elements];
           
           if (self.pluginLayer.needUpdatePosition) {
               self.pluginLayer.needUpdatePosition = NO;
+              //NSLog(@"---->putHtmlElements  needUpdatePosition = NO");
+              //NSLog(@"%@", elements);
               NSArray *keys=[self.mapPlugins allKeys];
               NSString *mapId;
             
