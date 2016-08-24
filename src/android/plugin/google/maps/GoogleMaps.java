@@ -409,6 +409,23 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     }
     GoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
   }
+
+
+  public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final JSONObject elements = args.getJSONObject(0);
+
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+          mPluginLayout.putHTMLElements(elements);
+        }
+
+        callbackContext.success();
+      }
+    });
+  }
+
   @SuppressWarnings("unused")
   public void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 

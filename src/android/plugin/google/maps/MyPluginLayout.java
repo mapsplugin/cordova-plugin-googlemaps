@@ -19,6 +19,8 @@ import android.widget.ScrollView;
 
 import com.google.android.gms.maps.MapView;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,6 +43,8 @@ public class MyPluginLayout extends FrameLayout  {
   private HashMap<String, HashMap<String, RectF>> MAP_HTMLNodes = new HashMap<String, HashMap<String, RectF>>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
+  public boolean stopFlag = false;
+  public boolean needUpdatePosition = false;
   
   @SuppressLint("NewApi")
   public MyPluginLayout(View browserView, Activity activity) {
@@ -117,7 +121,8 @@ public class MyPluginLayout extends FrameLayout  {
     this.updateViewPosition(mapId);
   }
   
-  public void putHTMLElement(String mapId, String domId, float left, float top, float right, float bottom) {
+  public void putHTMLElements(JSONObject elements) {
+    /*
     //Log.d("MyPluginLayout", "--> putHTMLElement / mapId = " + mapId + ", domId = " + domId);
     //Log.d("MyPluginLayout", "--> putHTMLElement / " + left + ", " + top + " - " + right + ", " + bottom);
     HashMap<String, RectF> HTMLNodes;
@@ -142,6 +147,7 @@ public class MyPluginLayout extends FrameLayout  {
     if (this.isDebug) {
       this.inValidate();
     }
+    */
   }
   public void removeHTMLElement(String mapId, String domId) {
     if (!MAP_HTMLNodes.containsKey(mapId)) {
