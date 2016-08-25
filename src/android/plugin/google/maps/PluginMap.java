@@ -12,6 +12,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
@@ -86,6 +87,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public boolean isVisible = true;
   public boolean isClickable = true;
   public final String TAG = mapId;
+  public String mapDivId;
   public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -203,7 +205,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           }
 
           mapView = new MapView(activity, options);
-          mapCtrl.mapViews.put(mapId, mapView);
 
           activity.runOnUiThread(new Runnable() {
             @Override
@@ -244,8 +245,21 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     // ------------------------------
                     // Embed the map if a container is specified.
                     // ------------------------------
-                    if (args.length() == 4) {
-                      JSONObject mapDivLayoutJSON = args.getJSONObject(2);
+                    if (args.length() == 3) {
+                      mapDivId = args.getString(2);
+                      RectF rectF;
+                      if (!mapCtrl.mPluginLayout.HTMLNodes.containsKey(mapDivId)) {
+                        Bundle dummyInfo = new Bundle();
+                        dummyInfo.putDouble("offsetX", 0);
+                        dummyInfo.putDouble("offsetY", 0);
+                        dummyInfo.putBoolean("isDummy", true);
+                        mapCtrl.mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
+                        rectF = new RectF(0, 3000, 50, 50);
+                        mapCtrl.mPluginLayout.setMapRect(mapId, rectF);
+                      } else {
+
+                      }
+
                       float divW = mapCtrl.contentToView(mapDivLayoutJSON.getLong("width"));
                       float divH = mapCtrl.contentToView(mapDivLayoutJSON.getLong("height"));
                       float divLeft = mapCtrl.contentToView(mapDivLayoutJSON.getLong("left"));
@@ -438,7 +452,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   public void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    if (mapCtrl.mPluginLayout == null) {
+    if (mapCtrl.mPluginLayout == null || mapDivId == null) {
       //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
       callbackContext.success();
       if (initCameraBounds != null) {
@@ -452,56 +466,27 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       return;
     }
-    final JSONObject mapDivLayoutJSON = args.getJSONObject(args.length() - 2);
-    RectF rectF;
-    if (mapCtrl.mapDivLayouts.containsKey(mapId)) {
-      rectF = mapCtrl.mapDivLayouts.get(mapId);
-    } else {
-      rectF = new RectF();
-    }
-    rectF.left = mapCtrl.contentToView(mapDivLayoutJSON.getLong("left"));
-    rectF.top = mapCtrl.contentToView(mapDivLayoutJSON.getLong("top"));
-    rectF.right = rectF.left + mapCtrl.contentToView(mapDivLayoutJSON.getLong("width"));
-    rectF.bottom = rectF.top + mapCtrl.contentToView(mapDivLayoutJSON.getLong("height"));
-    mapCtrl.mapDivLayouts.put(mapId, rectF);
-    //Log.d("PluginMap", "---> resizeMap / rectF = " + rectF.left + "," + rectF.top + "," + rectF.width() + "," + rectF.height());
 
-    JSONArray HTMLs = args.getJSONArray(args.length() - 1);
-    JSONObject elemInfo, elemSize;
-    String elemId;
-    float divW, divH, divLeft, divTop;
-    if (mapCtrl.mPluginLayout == null) {
-      this.sendNoResult(callbackContext);
-      if (initCameraBounds != null) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-          @Override
-          public void run() {
-            fitBounds(initCameraBounds);
-          }
-        }, 400);
-      }
-      callbackContext.success();
-      return;
-    }
-    mapCtrl.mPluginLayout.clearHTMLElement(mapId);
+    mapCtrl.mPluginLayout.needUpdatePosition = true;
 
-    for (int i = 0; i < HTMLs.length(); i++) {
-      elemInfo = HTMLs.getJSONObject(i);
-      try {
-        elemId = elemInfo.getString("id");
-        elemSize = elemInfo.getJSONObject("size");
+    if (!mapCtrl.mPluginLayout.HTMLNodes.containsKey(mapDivId)) {
+      Bundle dummyInfo = new Bundle();
+      dummyInfo.putBoolean("isDummy", true);
+      dummyInfo.putDouble("offsetX", 0);
+      dummyInfo.putDouble("offsetY", 3000);
 
-        divW = mapCtrl.contentToView(elemSize.getLong("width"));
-        divH = mapCtrl.contentToView(elemSize.getLong("height"));
-        divLeft = mapCtrl.contentToView(elemSize.getLong("left"));
-        divTop = mapCtrl.contentToView(elemSize.getLong("top"));
-        mapCtrl.mPluginLayout.putHTMLElement(mapId, elemId, divLeft, divTop, divLeft + divW, divTop + divH);
-      } catch (Exception e){
-        e.printStackTrace();
-      }
+      Bundle dummySize = new Bundle();
+      dummySize.putDouble("left", 0);
+      dummySize.putDouble("top", 3000);
+      dummySize.putDouble("width", 50);
+      dummySize.putDouble("height", 50);
+      dummyInfo.putBundle("size", dummySize);
+      dummySize.putDouble("depth", -999);
+      mapCtrl.mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
     }
-    mapCtrl.updateMapViewLayout();
+
+    mapCtrl.mPluginLayout.updateViewPosition(mapId);
+
     //mapCtrl.mPluginLayout.inValidate();
     if (initCameraBounds != null) {
       Handler handler = new Handler();
@@ -580,7 +565,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.isRemoved = true;
     mapCtrl.mPluginLayout.removePluginMap(mapId);
     plugins.clear();
-    mapCtrl.mapPlugins.remove(mapId);
+    mapCtrl.mPluginLayout.mapPlugins.remove(mapId);
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {

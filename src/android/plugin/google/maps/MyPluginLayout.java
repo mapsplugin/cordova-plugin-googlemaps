@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -31,16 +32,16 @@ import java.util.Set;
 public class MyPluginLayout extends FrameLayout  {
   private View browserView;
   private ViewGroup root;
-  private HashMap<String, RectF> drawRects = new HashMap<String, RectF>();
   private Context context;
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
   public FrameLayout scrollFrameLayout = null;
-  private HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
+  private HashMap<String, RectF> drawRects = new HashMap<String, RectF>();
+  public HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   private boolean isDebug = false;
-  private HashMap<String, HashMap<String, RectF>> MAP_HTMLNodes = new HashMap<String, HashMap<String, RectF>>();
+  public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
   public boolean stopFlag = false;
@@ -107,30 +108,27 @@ public class MyPluginLayout extends FrameLayout  {
 
     mActivity.getWindow().getDecorView().requestFocus();
   }
+  public RectF getMapRect(String mapId) {
+    return drawRects.get(mapId);
+  }
   
-  public void setDrawingRect(String mapId, float left, float top, float right, float bottom) {
-    RectF drawRect = drawRects.get(mapId);
-    if (drawRect == null) {
-      // The map is already removed. Just ignore.
-      return;
-    }
-    drawRect.left = left;
-    drawRect.top = top;
-    drawRect.right = right;
-    drawRect.bottom = bottom;
+  public void setMapRect(String mapId, RectF rectF) {
+    drawRects.put(mapId, rectF);
     this.updateViewPosition(mapId);
   }
   
   public void putHTMLElements(JSONObject elements) {
+    Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
+
     /*
     //Log.d("MyPluginLayout", "--> putHTMLElement / mapId = " + mapId + ", domId = " + domId);
     //Log.d("MyPluginLayout", "--> putHTMLElement / " + left + ", " + top + " - " + right + ", " + bottom);
     HashMap<String, RectF> HTMLNodes;
-    if (MAP_HTMLNodes.containsKey(mapId)) {
-      HTMLNodes = MAP_HTMLNodes.get(mapId);
+    if (HTMLNodes.containsKey(mapId)) {
+      HTMLNodes = HTMLNodes.get(mapId);
     } else {
       HTMLNodes = new HashMap<String, RectF>();
-      MAP_HTMLNodes.put(mapId, HTMLNodes);
+      HTMLNodes.put(mapId, HTMLNodes);
     }
 
     RectF rect;
@@ -150,25 +148,29 @@ public class MyPluginLayout extends FrameLayout  {
     */
   }
   public void removeHTMLElement(String mapId, String domId) {
-    if (!MAP_HTMLNodes.containsKey(mapId)) {
+    /*
+    if (!HTMLNodes.containsKey(mapId)) {
       return;
     }
-    HashMap<String, RectF> HTMLNodes = MAP_HTMLNodes.get(mapId);
+    HashMap<String, RectF> HTMLNodes = HTMLNodes.get(mapId);
     HTMLNodes.remove(domId);
     if (this.isDebug) {
       this.inValidate();
     }
+    */
   }
   public void clearHTMLElement(String mapId) {
-    if (!MAP_HTMLNodes.containsKey(mapId)) {
+    /*
+    if (!HTMLNodes.containsKey(mapId)) {
       return;
     }
-    HashMap<String, RectF> HTMLNodes = MAP_HTMLNodes.get(mapId);
+    HashMap<String, RectF> HTMLNodes = HTMLNodes.get(mapId);
     HTMLNodes.clear();
-    MAP_HTMLNodes.remove(mapId);
+    HTMLNodes.remove(mapId);
     if (this.isDebug) {
       this.inValidate();
     }
+    */
   }
 
   
@@ -258,7 +260,7 @@ public class MyPluginLayout extends FrameLayout  {
           pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
           drawRects.remove(mapId);
           //Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
-          MAP_HTMLNodes.remove(mapId);
+          HTMLNodes.remove(mapId);
 
           mActivity.getWindow().getDecorView().requestFocus();
         } catch (Exception e) {
@@ -270,12 +272,13 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void addPluginMap(final PluginMap pluginMap) {
+    /*
     if (pluginMaps.containsKey(pluginMap.mapId)) {
       return;
     } else {
       removePluginMap(pluginMap.mapId);
     }
-    MAP_HTMLNodes.put(pluginMap.mapId, new HashMap<String, RectF>());
+    HTMLNodes.put(pluginMap.mapId, new HashMap<String, RectF>());
     drawRects.put(pluginMap.mapId, new RectF());
 
     mActivity.runOnUiThread(new Runnable() {
@@ -295,6 +298,7 @@ public class MyPluginLayout extends FrameLayout  {
 
       }
     });
+    */
   }
 
   public void scrollTo(int x, int y) {
@@ -349,9 +353,9 @@ public class MyPluginLayout extends FrameLayout  {
         contains = drawRect.contains(x, y);
 
 
-        if (contains && MAP_HTMLNodes.containsKey(mapId)) {
+        if (contains && HTMLNodes.containsKey(mapId)) {
           // Is the touch point on any HTML elements?
-          HTMLNodes = MAP_HTMLNodes.get(mapId);
+          HTMLNodes = HTMLNodes.get(mapId);
           Set<Entry<String, RectF>> elements = HTMLNodes.entrySet();
           Iterator<Entry<String, RectF>> iterator2 = elements.iterator();
           Entry <String, RectF> entry2;
@@ -394,7 +398,7 @@ public class MyPluginLayout extends FrameLayout  {
       int scrollY = browserView.getScrollY();
 
       RectF drawRect;
-      Iterator<Entry<String, HashMap<String, RectF>>> iterator = MAP_HTMLNodes.entrySet().iterator();
+      Iterator<Entry<String, HashMap<String, RectF>>> iterator = HTMLNodes.entrySet().iterator();
       Entry<String, HashMap<String, RectF>> entry;
       HashMap<String, RectF> HTMLNodes;
       String mapId;
@@ -415,7 +419,7 @@ public class MyPluginLayout extends FrameLayout  {
 
 
         debugPaint.setColor(Color.argb(100, 255, 0, 0));
-        HTMLNodes = MAP_HTMLNodes.get(mapId);
+        HTMLNodes = HTMLNodes.get(mapId);
 
         elements = HTMLNodes.entrySet();
         iterator2 = elements.iterator();

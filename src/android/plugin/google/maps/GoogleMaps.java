@@ -79,7 +79,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   private final int ACTIVITY_LOCATION_DIALOG = 0x7f999900; // Invite the location dialog using Google Play Services
   private final int ACTIVITY_LOCATION_PAGE = 0x7f999901;   // Open the location settings page
 
-  public HashMap<String, RectF> mapDivLayouts = new HashMap<String, RectF>();
   private Activity activity;
   public ViewGroup root;
   public MyPluginLayout mPluginLayout = null;
@@ -88,8 +87,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
   public final HashMap<String, Method> methods = new HashMap<String, Method>();
-  protected HashMap<String, MapView> mapViews = new HashMap<String, MapView>();
-  protected HashMap<String, PluginMap> mapPlugins = new HashMap<String, PluginMap>();
   public boolean initialized = false;
   public PluginManager pluginManager;
 
@@ -303,21 +300,17 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     int scrollY = view.getScrollY();
     mPluginLayout.scrollTo(scrollX, scrollY);
 
-    Iterator<Map.Entry<String, RectF>> iterator = mapDivLayouts.entrySet().iterator();
-    Map.Entry<String, RectF> entry;
-    String mapId;
+    Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
     RectF rectF;
-    while (iterator.hasNext()) {
-      entry = iterator.next();
-      mapId = entry.getKey();
-      rectF = entry.getValue();
+    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+    for (String mapId : mapIdArray) {
+      rectF = mPluginLayout.getMapRect(mapId);
+      rectF.left -= scrollX;
+      rectF.top -= scrollY;
+      rectF.right = rectF.left + rectF.width() - scrollX;
+      rectF.bottom = rectF.top + rectF.height() - scrollY;
 
-      mPluginLayout.setDrawingRect(
-          mapId,
-          rectF.left - scrollX,
-          rectF.top - scrollY,
-          rectF.left + rectF.width() - scrollX,
-          rectF.top + rectF.height() - scrollY);
+      mPluginLayout.setMapRect(mapId, rectF);
     }
   }
 
@@ -363,23 +356,21 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     View view = webView.getView();
     mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
 
-    Iterator<Map.Entry<String, RectF>> iterator = mapDivLayouts.entrySet().iterator();
-    Map.Entry<String, RectF> entry;
-    String mapId;
+    Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
     RectF rectF;
-    while (iterator.hasNext()) {
-      entry = iterator.next();
-      mapId = entry.getKey();
-      rectF = entry.getValue();
+    int scrollX = webView.getView().getScrollX();
+    int scrollY = webView.getView().getScrollY();
+    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+    for (String mapId : mapIdArray) {
+      rectF = mPluginLayout.getMapRect(mapId);
       //Log.d(TAG, "---> updateMapViewLayout / " + mapId + " / " + rectF.left + ", " + rectF.top + " - " + rectF.width() + ", " + rectF.height());
 
-      mPluginLayout.setDrawingRect(
-          mapId,
-          rectF.left,
-          rectF.top - webView.getView().getScrollY(),
-          rectF.left + rectF.width(),
-          rectF.top + rectF.height() - webView.getView().getScrollY());
-      mPluginLayout.updateViewPosition(mapId);
+      rectF.left -= scrollX;
+      rectF.top -= scrollY;
+      rectF.right = rectF.left + rectF.width() - scrollX;
+      rectF.bottom = rectF.top + rectF.height() - scrollY;
+
+      mPluginLayout.setMapRect(mapId, rectF);
     }
   }
 
@@ -715,21 +706,21 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   }
 
   public void unload(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Set<String> mapIds = mapPlugins.keySet();
+    Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
     PluginMap pluginMap;
 
     // prevent the ConcurrentModificationException error.
     String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
     for (String mapId : mapIdArray) {
-      if (mapPlugins.containsKey(mapId)) {
-        pluginMap = mapPlugins.remove(mapId);
+      if (mPluginLayout.pluginMaps.containsKey(mapId)) {
+        pluginMap = mPluginLayout.pluginMaps.remove(mapId);
         pluginMap.remove(null, null);
         pluginMap.onDestroy();
-        mapDivLayouts.remove(mapId);
+        mPluginLayout.HTMLNodes.remove(mapId);
       }
     }
-    mapDivLayouts.clear();
-    mapPlugins.clear();
+    mPluginLayout.HTMLNodes.clear();
+    mPluginLayout.pluginMaps.clear();
 
     System.gc();
   }
@@ -864,9 +855,16 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-        for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
-          if (stringMapViewEntry.getValue() != null) {
-            stringMapViewEntry.getValue().onPause();
+
+        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
+        PluginMap pluginMap;
+
+        // prevent the ConcurrentModificationException error.
+        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+        for (String mapId : mapIdArray) {
+          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
+            pluginMap = mPluginLayout.pluginMaps.get(mapId);
+            pluginMap.mapView.onPause();
           }
         }
       }
@@ -876,12 +874,20 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   @Override
   public void onResume(boolean multitasking) {
     super.onResume(multitasking);
+
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-        for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
-          if (stringMapViewEntry.getValue() != null) {
-            stringMapViewEntry.getValue().onResume();
+
+        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
+        PluginMap pluginMap;
+
+        // prevent the ConcurrentModificationException error.
+        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+        for (String mapId : mapIdArray) {
+          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
+            pluginMap = mPluginLayout.pluginMaps.get(mapId);
+            pluginMap.mapView.onResume();
           }
         }
       }
@@ -891,12 +897,20 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   @Override
   public void onDestroy() {
     super.onDestroy();
+
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-        for (Map.Entry<String, MapView> stringMapViewEntry : mapViews.entrySet()) {
-          if (stringMapViewEntry.getValue() != null) {
-            stringMapViewEntry.getValue().onDestroy();
+
+        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
+        PluginMap pluginMap;
+
+        // prevent the ConcurrentModificationException error.
+        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+        for (String mapId : mapIdArray) {
+          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
+            pluginMap = mPluginLayout.pluginMaps.get(mapId);
+            pluginMap.mapView.onDestroy();
           }
         }
       }
