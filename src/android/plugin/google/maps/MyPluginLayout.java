@@ -3,6 +3,7 @@ package plugin.google.maps;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -36,16 +37,17 @@ public class MyPluginLayout extends FrameLayout  {
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
   public FrameLayout scrollFrameLayout = null;
-  private HashMap<String, RectF> drawRects = new HashMap<String, RectF>();
   public HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   private boolean isDebug = false;
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
+  private HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
   public boolean stopFlag = false;
   public boolean needUpdatePosition = false;
+  private float zoomScale;
   
   @SuppressLint("NewApi")
   public MyPluginLayout(View browserView, Activity activity) {
@@ -58,6 +60,7 @@ public class MyPluginLayout extends FrameLayout  {
     //  browserView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
     //}
 
+    zoomScale = Resources.getSystem().getDisplayMetrics().density;
     frontLayer = new FrontLayerLayout(this.context);
 
     scrollView = new ScrollView(this.context);
@@ -118,34 +121,85 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void putHTMLElements(JSONObject elements) {
+
+    HashMap<String, Bundle> newBuffer = new HashMap<String, Bundle>();
+    HashMap<String, RectF> newBufferRectFs = new HashMap<String, RectF>();
+
     Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
 
-    /*
-    //Log.d("MyPluginLayout", "--> putHTMLElement / mapId = " + mapId + ", domId = " + domId);
-    //Log.d("MyPluginLayout", "--> putHTMLElement / " + left + ", " + top + " - " + right + ", " + bottom);
-    HashMap<String, RectF> HTMLNodes;
-    if (HTMLNodes.containsKey(mapId)) {
-      HTMLNodes = HTMLNodes.get(mapId);
-    } else {
-      HTMLNodes = new HashMap<String, RectF>();
-      HTMLNodes.put(mapId, HTMLNodes);
+    Iterator<String> domIDs = elementsBundle.keySet().iterator();
+    RectF rectF;
+    String domId;
+    Bundle domInfo, size;
+    while (domIDs.hasNext()) {
+      domId = domIDs.next();
+      domInfo = elementsBundle.getBundle(domId);
+
+      rectF = new RectF();
+      size = domInfo.getBundle("size");
+
+      rectF = new RectF();
+      rectF.left = (float)(size.getDouble("left") * zoomScale);
+      rectF.top = (float)(size.getDouble("top") * zoomScale);
+      rectF.right = rectF.left  + (float)(size.getDouble("width") * zoomScale);
+      rectF.bottom = rectF.top  + (float)(size.getDouble("height") * zoomScale);
+      newBufferRectFs.put(domId, rectF);
+
+      domInfo.remove("size");
+      domInfo.putBoolean("isDummy", false);
+      newBuffer.put(domId, domInfo);
     }
 
-    RectF rect;
-    if (HTMLNodes.containsKey(domId)) {
-      rect = HTMLNodes.get(domId);
-    } else {
-      rect = new RectF();
+    HashMap<String, Bundle> oldBuffer = HTMLNodes;
+    HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
+    HTMLNodes = newBuffer;
+    HTMLNodeRectFs = newBufferRectFs;
+
+    if (needUpdatePosition) {
+      return;
     }
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
-    HTMLNodes.put(domId, rect);
-    if (this.isDebug) {
-      this.inValidate();
+
+    double prevOffsetX, prevOffsetY, newOffsetX, newOffsetY;
+    Iterator<String> mapIDs = pluginMaps.keySet().iterator();
+    String mapId, mapDivId;
+    PluginMap pluginMap;
+    Bundle prevDomInfo;
+    while(mapIDs.hasNext()) {
+      mapId = mapIDs.next();
+      pluginMap = pluginMaps.get(mapId);
+      if (pluginMap.mapDivId == null) {
+        needUpdatePosition = true;
+        stopFlag = false;
+        break;
+      }
+
+      prevDomInfo = oldBuffer.get(pluginMap.mapDivId);
+      if (prevDomInfo == null) {
+        needUpdatePosition = true;
+        stopFlag = false;
+        break;
+      }
+
+      domInfo = newBuffer.get(pluginMap.mapDivId);
+      if (domInfo == null) {
+        needUpdatePosition = true;
+        stopFlag = false;
+        break;
+      }
+
+      prevOffsetX = prevDomInfo.getDouble("offsetX");
+      prevOffsetY = prevDomInfo.getDouble("offsetY");
+      newOffsetX = domInfo.getDouble("offsetX");
+      newOffsetY = domInfo.getDouble("offsetY");
+      if (prevOffsetX != newOffsetX || prevOffsetY != newOffsetY ) {
+        needUpdatePosition = true;
+        stopFlag = false;
+        break;
+      }
+
     }
-    */
+    newBuffer = null;
+    oldBuffer = null;
   }
   public void removeHTMLElement(String mapId, String domId) {
     /*
@@ -272,22 +326,25 @@ public class MyPluginLayout extends FrameLayout  {
   }
   
   public void addPluginMap(final PluginMap pluginMap) {
-    /*
-    if (pluginMaps.containsKey(pluginMap.mapId)) {
+    if (pluginMap.mapDivId == null) {
       return;
-    } else {
-      removePluginMap(pluginMap.mapId);
     }
-    HTMLNodes.put(pluginMap.mapId, new HashMap<String, RectF>());
-    drawRects.put(pluginMap.mapId, new RectF());
+
+    if (!HTMLNodes.containsKey(pluginMap.mapDivId)) {
+      Bundle dummyInfo = new Bundle();
+      dummyInfo.putDouble("offsetX", 0);
+      dummyInfo.putDouble("offsetY", 3000);
+      dummyInfo.putBoolean("isDummy", true);
+      HTMLNodes.put(pluginMap.mapDivId, dummyInfo);
+      HTMLNodeRectFs.put(pluginMap.mapId, new RectF(0, 3000, 50, 50));
+    } else {
+      Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
+    }
+    pluginMaps.put(pluginMap.mapId, pluginMap);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-
-        scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
-
-        pluginMaps.put(pluginMap.mapId, pluginMap);
 
         TouchableWrapper wrapper = new TouchableWrapper(context);
         touchableWrappers.put(pluginMap.mapId, wrapper);
@@ -296,9 +353,10 @@ public class MyPluginLayout extends FrameLayout  {
 
         mActivity.getWindow().getDecorView().requestFocus();
 
+        updateViewPosition(pluginMap.mapId);
+
       }
     });
-    */
   }
 
   public void scrollTo(int x, int y) {
@@ -353,9 +411,9 @@ public class MyPluginLayout extends FrameLayout  {
         contains = drawRect.contains(x, y);
 
 
-        if (contains && HTMLNodes.containsKey(mapId)) {
+        if (contains && MyPluginLayout.this.HTMLNodes.containsKey(mapId)) {
           // Is the touch point on any HTML elements?
-          HTMLNodes = HTMLNodes.get(mapId);
+          Bundle domInfo = MyPluginLayout.this.HTMLNodes.get(mapId);
           Set<Entry<String, RectF>> elements = HTMLNodes.entrySet();
           Iterator<Entry<String, RectF>> iterator2 = elements.iterator();
           Entry <String, RectF> entry2;

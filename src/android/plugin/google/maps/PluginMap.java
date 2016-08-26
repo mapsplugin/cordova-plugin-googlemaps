@@ -248,25 +248,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     if (args.length() == 3) {
                       mapDivId = args.getString(2);
                       RectF rectF;
-                      if (!mapCtrl.mPluginLayout.HTMLNodes.containsKey(mapDivId)) {
-                        Bundle dummyInfo = new Bundle();
-                        dummyInfo.putDouble("offsetX", 0);
-                        dummyInfo.putDouble("offsetY", 0);
-                        dummyInfo.putBoolean("isDummy", true);
-                        mapCtrl.mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
-                        rectF = new RectF(0, 3000, 50, 50);
-                        mapCtrl.mPluginLayout.setMapRect(mapId, rectF);
-                      } else {
-
-                      }
-
-                      float divW = mapCtrl.contentToView(mapDivLayoutJSON.getLong("width"));
-                      float divH = mapCtrl.contentToView(mapDivLayoutJSON.getLong("height"));
-                      float divLeft = mapCtrl.contentToView(mapDivLayoutJSON.getLong("left"));
-                      float divTop = mapCtrl.contentToView(mapDivLayoutJSON.getLong("top"));
-
-                      RectF rect = new RectF(divLeft, divTop, divLeft + divW, divTop + divH);
-                      mapCtrl.mapDivLayouts.put(mapId, rect);
 
                       mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
                       PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {

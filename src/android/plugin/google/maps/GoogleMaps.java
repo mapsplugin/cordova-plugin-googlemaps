@@ -73,7 +73,6 @@ import java.util.Set;
 @SuppressWarnings("deprecation")
 public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
   private final String TAG = "GoogleMapsPlugin";
-  private float density;
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
 
   private final int ACTIVITY_LOCATION_DIALOG = 0x7f999900; // Invite the location dialog using Google Play Services
@@ -97,7 +96,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
       return;
     }
     activity = cordova.getActivity();
-    density = Resources.getSystem().getDisplayMetrics().density;
     final View view = webView.getView();
     view.getViewTreeObserver().addOnScrollChangedListener(GoogleMaps.this);
     root = (ViewGroup) view.getParent();
@@ -348,9 +346,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   }
 
 
-  public float contentToView(long d) {
-    return d * this.density;
-  }
 
   public void updateMapViewLayout() {
     View view = webView.getView();
@@ -477,7 +472,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
             .addOnConnectionFailedListener(new com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener() {
 
               @Override
-              public void onConnectionFailed(ConnectionResult result) {
+              public void onConnectionFailed(@NonNull ConnectionResult result) {
                 Log.e(TAG, "===> onConnectionFailed");
 
                 PluginResult tmpResult = new PluginResult(PluginResult.Status.ERROR, result.toString());
@@ -498,7 +493,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
   }
 
-  public void _checkLocationSettings(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
+  private void _checkLocationSettings(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
     LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
 
@@ -519,7 +514,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     locationSettingsResult.setResultCallback(new ResultCallback<LocationSettingsResult>() {
 
       @Override
-      public void onResult(LocationSettingsResult result) {
+      public void onResult(@NonNull LocationSettingsResult result) {
         final Status status = result.getStatus();
         switch (status.getStatusCode()) {
           case LocationSettingsStatusCodes.SUCCESS:
@@ -570,7 +565,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     });
   }
 
-  public void _showLocationSettingsPage(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
+  private void _showLocationSettingsPage(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
     //Ask the user to turn on the location services.
     AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
     builder.setTitle("Improve location accuracy");
@@ -616,7 +611,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     builder.create().show();
   }
 
-  public void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
+  private void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     if (enableHighAccuracy) {
@@ -746,8 +741,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
           PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
           pluginManager.addService(pluginEntry);
 
-          mapPlugins.put(mapId, pluginMap);
-
           pluginMap.getMap(args, callbackContext);
 
         } catch (Exception e) {
@@ -791,7 +784,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
         break;
     }
   }
-  public void _onActivityResultLocationPage(Bundle bundle) {
+  private void _onActivityResultLocationPage(Bundle bundle) {
     String callbackId = bundle.getString("callbackId");
     CallbackContext callbackContext = new CallbackContext(callbackId, this.webView);
 
@@ -803,7 +796,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     }
     Iterator<String> iterator = providers.iterator();
     String provider;
-    boolean isAvailable = false;
+    boolean isAvailable;
     while(iterator.hasNext()) {
       provider = iterator.next();
       isAvailable = locationManager.isProviderEnabled(provider);
@@ -820,7 +813,9 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
         result.put("status", false);
         result.put("error_code", "not_available");
         result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
-      } catch (JSONException e) {}
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
       callbackContext.error(result);
       return;
     }
@@ -828,14 +823,14 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     _inviteLocationUpdateAfterActivityResult(bundle);
   }
 
-  public void _inviteLocationUpdateAfterActivityResult(Bundle bundle) {
+  private void _inviteLocationUpdateAfterActivityResult(Bundle bundle) {
     boolean enableHighAccuracy = bundle.getBoolean("enableHighAccuracy");
     String callbackId = bundle.getString("callbackId");
     CallbackContext callbackContext = new CallbackContext(callbackId, this.webView);
     this._requestLocationUpdate(false, enableHighAccuracy, callbackContext);
   }
 
-  public void _userRefusedToUseLocationAfterActivityResult(Bundle bundle) {
+  private void _userRefusedToUseLocationAfterActivityResult(Bundle bundle) {
     String callbackId = bundle.getString("callbackId");
     CallbackContext callbackContext = new CallbackContext(callbackId, this.webView);
     JSONObject result = new JSONObject();
