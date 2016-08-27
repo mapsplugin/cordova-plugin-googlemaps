@@ -298,18 +298,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     int scrollY = view.getScrollY();
     mPluginLayout.scrollTo(scrollX, scrollY);
 
-    Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-    RectF rectF;
-    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-    for (String mapId : mapIdArray) {
-      rectF = mPluginLayout.getMapRect(mapId);
-      rectF.left -= scrollX;
-      rectF.top -= scrollY;
-      rectF.right = rectF.left + rectF.width() - scrollX;
-      rectF.bottom = rectF.top + rectF.height() - scrollY;
-
-      mPluginLayout.setMapRect(mapId, rectF);
-    }
   }
 
   @Override
@@ -348,6 +336,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
 
   public void updateMapViewLayout() {
+    /*
     View view = webView.getView();
     mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
 
@@ -367,6 +356,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
       mPluginLayout.setMapRect(mapId, rectF);
     }
+    */
   }
 
 

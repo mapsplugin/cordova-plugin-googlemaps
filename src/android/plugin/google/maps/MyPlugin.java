@@ -64,7 +64,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
       TAG = this.getServiceName();
       //Log.d("MyPlugin", "TAG = " + TAG);
       if (!TAG.contains("-")) {
-        mapCtrl.mapPlugins.put(TAG, (PluginMap) this);
+        mapCtrl.mPluginLayout.pluginMaps.put(TAG, (PluginMap) this);
       } else {
         PluginEntry pluginEntry = new PluginEntry(TAG, this);
         pluginMap.plugins.put(TAG, pluginEntry);

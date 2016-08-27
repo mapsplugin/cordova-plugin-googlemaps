@@ -188,10 +188,10 @@ function getDivRect(div) {
     }
     var rect = div.getBoundingClientRect();
     return {
-      left: rect.left,
-      top: rect.top,
-      width: rect.width,
-      height: rect.height
+      left: parseFloat(rect.left.toFixed(1), 10),
+      top: parseFloat(rect.top.toFixed(1), 10),
+      width: parseFloat(rect.width.toFixed(1), 10),
+      height: parseFloat(rect.height.toFixed(1), 10)
     };
 }
 
