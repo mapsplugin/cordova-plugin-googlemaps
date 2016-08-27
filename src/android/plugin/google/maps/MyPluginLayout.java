@@ -136,10 +136,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       size = domInfo.getBundle("size");
 
       rectF = new RectF();
-      rectF.left = (float)(size.getDouble("left") * zoomScale);
-      rectF.top = (float)(size.getDouble("top") * zoomScale);
-      rectF.right = rectF.left  + (float)(size.getDouble("width") * zoomScale);
-      rectF.bottom = rectF.top  + (float)(size.getDouble("height") * zoomScale);
+      rectF.left = (float)(size.getDouble("left", 0.0) * zoomScale);
+      rectF.top = (float)(size.getDouble("top", 0.0) * zoomScale);
+      rectF.right = rectF.left  + (float)(size.getDouble("width", 0.0) * zoomScale);
+      rectF.bottom = rectF.top  + (float)(size.getDouble("height", 0.0) * zoomScale);
       newBufferRectFs.put(domId, rectF);
 
       domInfo.remove("size");
