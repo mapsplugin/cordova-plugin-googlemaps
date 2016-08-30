@@ -24,6 +24,7 @@ import android.widget.ScrollView;
 
 import com.google.android.gms.maps.MapView;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -117,7 +118,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     mActivity.getWindow().getDecorView().requestFocus();
   }
 
-  public void putHTMLElements(JSONObject elements) {
+  public void putHTMLElements(JSONObject elements)  {
+
 
     HashMap<String, Bundle> newBuffer = new HashMap<String, Bundle>();
     HashMap<String, RectF> newBufferRectFs = new HashMap<String, RectF>();
@@ -136,10 +138,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       size = domInfo.getBundle("size");
 
       rectF = new RectF();
-      rectF.left = (float)(size.getDouble("left", 0.0) * zoomScale);
-      rectF.top = (float)(size.getDouble("top", 0.0) * zoomScale);
-      rectF.right = rectF.left  + (float)(size.getDouble("width", 0.0) * zoomScale);
-      rectF.bottom = rectF.top  + (float)(size.getDouble("height", 0.0) * zoomScale);
+      rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
+      rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
+      rectF.right = rectF.left  + (float)(Double.parseDouble(size.get("width") + "") * zoomScale);
+      rectF.bottom = rectF.top  + (float)(Double.parseDouble(size.get("height") + "") * zoomScale);
       newBufferRectFs.put(domId, rectF);
 
       domInfo.remove("size");
@@ -148,7 +150,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     HashMap<String, Bundle> oldBuffer = HTMLNodes;
-    HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
     HTMLNodes = newBuffer;
     HTMLNodeRectFs = newBufferRectFs;
 
@@ -274,16 +275,16 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     });
   }
 
-  public void removePluginMap(final String mapId) {
+  public PluginMap removePluginMap(final String mapId) {
     if (!pluginMaps.containsKey(mapId)) {
-      return;
+      return null;
     }
+    final PluginMap pluginMap = pluginMaps.remove(mapId);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         try {
-          PluginMap pluginMap = pluginMaps.remove(mapId);
           scrollFrameLayout.removeView(pluginMap.mapView);
           pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
 
@@ -297,6 +298,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
       }
     });
+    return pluginMap;
   }
   
   public void addPluginMap(final PluginMap pluginMap) {

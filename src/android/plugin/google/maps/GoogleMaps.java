@@ -698,7 +698,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
     for (String mapId : mapIdArray) {
       if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-        pluginMap = mPluginLayout.pluginMaps.remove(mapId);
+        pluginMap = mPluginLayout.removePluginMap(mapId);
         pluginMap.remove(null, null);
         pluginMap.onDestroy();
         mPluginLayout.HTMLNodes.remove(mapId);
