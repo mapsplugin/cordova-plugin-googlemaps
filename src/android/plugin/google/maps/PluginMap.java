@@ -252,7 +252,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
                       PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
                         @Override
-                        public void onResult(PluginResult pluginResult) {}
+                        public void onResult(PluginResult pluginResult) {
+
+                          if (initCameraBounds != null) {
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                              @Override
+                              public void run() {
+                                fitBounds(initCameraBounds);
+                              }
+                            }, 400);
+                          }
+                        }
                       });
                     } else {
                       if (initCameraBounds != null) {
@@ -445,15 +456,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     mapCtrl.mPluginLayout.updateViewPosition(mapId);
 
     //mapCtrl.mPluginLayout.inValidate();
-    if (initCameraBounds != null) {
-      Handler handler = new Handler();
-      handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          fitBounds(initCameraBounds);
-        }
-      }, 400);
-    }
     callbackContext.success();
   }
 

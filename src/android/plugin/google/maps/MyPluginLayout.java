@@ -27,11 +27,14 @@ import com.google.android.gms.maps.MapView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener {
@@ -44,7 +47,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
-  private boolean isDebug = false;
+  private boolean isDebug = true;
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
   private HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
@@ -70,7 +73,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     scrollView = new ScrollView(this.context);
     scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-    scrollView.getViewTreeObserver().addOnScrollChangedListener(MyPluginLayout.this);
+    //
+    // scrollView.getViewTreeObserver().addOnScrollChangedListener(MyPluginLayout.this);
 
     root.removeView(browserView);
     frontLayer.addView(browserView);
@@ -127,17 +131,14 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
 
     Iterator<String> domIDs = elementsBundle.keySet().iterator();
-    RectF rectF;
     String domId;
     Bundle domInfo, size;
     while (domIDs.hasNext()) {
       domId = domIDs.next();
       domInfo = elementsBundle.getBundle(domId);
 
-      rectF = new RectF();
       size = domInfo.getBundle("size");
-
-      rectF = new RectF();
+      RectF rectF = new RectF();
       rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
       rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
       rectF.right = rectF.left  + (float)(Double.parseDouble(size.get("width") + "") * zoomScale);
@@ -150,6 +151,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     HashMap<String, Bundle> oldBuffer = HTMLNodes;
+    HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
     HTMLNodes = newBuffer;
     HTMLNodeRectFs = newBufferRectFs;
 
@@ -159,13 +161,26 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     double prevOffsetX, prevOffsetY, newOffsetX, newOffsetY;
     Iterator<String> mapIDs = pluginMaps.keySet().iterator();
-    String mapId, mapDivId;
+    String mapId;
     PluginMap pluginMap;
     Bundle prevDomInfo;
+    RectF oldRectF, newRectF;
     while(mapIDs.hasNext()) {
       mapId = mapIDs.next();
       pluginMap = pluginMaps.get(mapId);
       if (pluginMap.mapDivId == null) {
+        needUpdatePosition = true;
+        stopFlag = false;
+        break;
+      }
+
+      oldRectF = oldBufferRectFs.get(pluginMap.mapDivId);
+      newRectF = newBufferRectFs.get(pluginMap.mapDivId);
+
+      if (oldRectF.left != newRectF.left ||
+        oldRectF.top != newRectF.top ||
+        oldRectF.width() != newRectF.width() ||
+        oldRectF.height() != newRectF.height() ) {
         needUpdatePosition = true;
         stopFlag = false;
         break;
@@ -185,10 +200,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         break;
       }
 
-      prevOffsetX = prevDomInfo.getDouble("offsetX");
-      prevOffsetY = prevDomInfo.getDouble("offsetY");
-      newOffsetX = domInfo.getDouble("offsetX");
-      newOffsetY = domInfo.getDouble("offsetY");
+      prevOffsetX = Double.parseDouble(prevDomInfo.get("offsetX") + "");
+      prevOffsetY = Double.parseDouble(prevDomInfo.get("offsetY") + "");
+      newOffsetX = Double.parseDouble(domInfo.get("offsetX") + "");
+      newOffsetY = Double.parseDouble(domInfo.get("offsetY") + "");
+
       if (prevOffsetX != newOffsetX || prevOffsetY != newOffsetY ) {
         needUpdatePosition = true;
         stopFlag = false;
@@ -207,7 +223,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     if (!pluginMaps.containsKey(mapId)) {
       return;
     }
-
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
@@ -247,7 +262,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           pluginMap.mapView.setLayoutParams(params);
         }
         //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top);
-
+/*
         if ((drawRect.top + drawRect.height() < 0) ||
           (drawRect.top >  webviewHeight) ||
           (drawRect.left + drawRect.width() < 0) ||
@@ -258,6 +273,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           pluginMap.mapView.setVisibility(View.VISIBLE);
         }
         frontLayer.invalidate();
+        */
       }
     });
   }
@@ -346,9 +362,14 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     int scrollX = scrollView.getScrollX();
     int scrollY = scrollView.getScrollY();
+    int webviewWidth = browserView.getWidth();
+    int webviewHeight = browserView.getHeight();
+    Rect browserRect = new Rect();
+    browserView.getWindowVisibleDisplayFrame(browserRect);
 
     Set<String> mapIds = pluginMaps.keySet();
     RectF rectF;
+    Rect drawRect = new Rect();
     PluginMap pluginMap;
     String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
     for (String mapId : mapIdArray) {
@@ -356,16 +377,26 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       if (pluginMap.mapDivId == null) {
         continue;
       }
-      updateViewPosition(mapId);
-      /*
-      rectF = HTMLNodeRectFs.get(pluginMap.mapDivId);
-      rectF.left -= scrollX;
-      rectF.top -= scrollY;
-      rectF.right = rectF.left + rectF.width() - scrollX;
-      rectF.bottom = rectF.top + rectF.height() - scrollY;
+      //updateViewPosition(mapId);
 
-      pluginMap.mapView.set
-      */
+      rectF = HTMLNodeRectFs.get(pluginMap.mapDivId);
+
+      drawRect.left =(int)( rectF.left + scrollX);
+      drawRect.top = (int)( rectF.top + scrollY);
+      drawRect.right = (int)( drawRect.left + rectF.width());
+      drawRect.bottom = (int)( drawRect.top + rectF.height());
+
+      // Is the map displayed?
+      if (browserRect.intersect(drawRect) &&
+        pluginMap.isVisible)  {
+
+        updateViewPosition(mapId);
+        Log.d("onScrollChanged", "mapId = " + mapId + " -> visible");
+        pluginMap.mapView.setVisibility(View.VISIBLE);
+      } else {
+        Log.d("onScrollChanged", "mapId = " + mapId + " -> hidden");
+        pluginMap.mapView.setVisibility(View.INVISIBLE);
+      }
     }
   }
 
@@ -498,18 +529,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       if (HTMLNodes.isEmpty() || !isDebug) {
         return;
       }
-      int width = canvas.getWidth();
-      int height = canvas.getHeight();
-      int scrollY = browserView.getScrollY();
 
       PluginMap pluginMap;
       Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
       Entry<String, PluginMap> entry;
-      String mapId;
       RectF mapRect;
       while(iterator.hasNext()) {
         entry = iterator.next();
-        mapId = entry.getKey();
         pluginMap = entry.getValue();
         if (pluginMap.mapDivId == null) {
           continue;
@@ -518,7 +544,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
         debugPaint.setColor(Color.argb(100, 0, 255, 0));
         canvas.drawRect(mapRect, debugPaint);
-
       }
 
 

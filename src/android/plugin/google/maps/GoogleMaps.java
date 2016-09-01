@@ -81,7 +81,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   private Activity activity;
   public ViewGroup root;
   public MyPluginLayout mPluginLayout = null;
-  public boolean isDebug = true;
+  public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
@@ -389,17 +389,25 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final JSONObject elements = args.getJSONObject(0);
+    if (mPluginLayout == null) {
+      callbackContext.success();
+      return;
+    }
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-        if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-          mPluginLayout.putHTMLElements(elements);
-        }
+    if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+      mPluginLayout.putHTMLElements(elements);
+    }
 
-        callbackContext.success();
+    if (mPluginLayout.needUpdatePosition) {
+      mPluginLayout.needUpdatePosition = false;
+
+      for (String s : mPluginLayout.pluginMaps.keySet()) {
+        mPluginLayout.updateViewPosition(s);
       }
-    });
+    }
+
+
+    callbackContext.success();
   }
 
   @SuppressWarnings("unused")
