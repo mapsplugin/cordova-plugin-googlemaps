@@ -55,6 +55,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
  *****************************************************************************/
 (function() {
     var prevDomPositions = {};
+    var prevChildrenCnt = 0;
 
     function putHtmlElements() {
         var children = common.getAllChildren(document.body);
@@ -71,6 +72,9 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
 
         children.unshift(document.body);
+        if (children.length !== prevChildrenCnt) {
+            shouldUpdate = true;
+        }
         for (i = 0; i < children.length; i++) {
             child = children[i];
             elemId = child.getAttribute("__pluginDomId");

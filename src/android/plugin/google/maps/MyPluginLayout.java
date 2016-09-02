@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 @SuppressWarnings("deprecation")
-public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener {
+public class MyPluginLayout extends FrameLayout {
   private View browserView;
   private ViewGroup root;
   private Context context;
@@ -47,7 +47,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
-  private boolean isDebug = true;
+  public boolean isDebug = false;
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
   private HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
@@ -72,9 +72,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     scrollView = new ScrollView(this.context);
     scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-    //
-    // scrollView.getViewTreeObserver().addOnScrollChangedListener(MyPluginLayout.this);
 
     root.removeView(browserView);
     frontLayer.addView(browserView);
@@ -357,48 +354,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     this.frontLayer.invalidate();
   }
 
-  @Override
-  public void onScrollChanged() {
-
-    int scrollX = scrollView.getScrollX();
-    int scrollY = scrollView.getScrollY();
-    int webviewWidth = browserView.getWidth();
-    int webviewHeight = browserView.getHeight();
-    Rect browserRect = new Rect();
-    browserView.getWindowVisibleDisplayFrame(browserRect);
-
-    Set<String> mapIds = pluginMaps.keySet();
-    RectF rectF;
-    Rect drawRect = new Rect();
-    PluginMap pluginMap;
-    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-    for (String mapId : mapIdArray) {
-      pluginMap = pluginMaps.get(mapId);
-      if (pluginMap.mapDivId == null) {
-        continue;
-      }
-      //updateViewPosition(mapId);
-
-      rectF = HTMLNodeRectFs.get(pluginMap.mapDivId);
-
-      drawRect.left =(int)( rectF.left + scrollX);
-      drawRect.top = (int)( rectF.top + scrollY);
-      drawRect.right = (int)( drawRect.left + rectF.width());
-      drawRect.bottom = (int)( drawRect.top + rectF.height());
-
-      // Is the map displayed?
-      if (browserRect.intersect(drawRect) &&
-        pluginMap.isVisible)  {
-
-        updateViewPosition(mapId);
-        Log.d("onScrollChanged", "mapId = " + mapId + " -> visible");
-        pluginMap.mapView.setVisibility(View.VISIBLE);
-      } else {
-        Log.d("onScrollChanged", "mapId = " + mapId + " -> hidden");
-        pluginMap.mapView.setVisibility(View.INVISIBLE);
-      }
-    }
-  }
 
 
   private class FrontLayerLayout extends FrameLayout {
@@ -473,39 +428,37 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         //-----------------------------------------------------------
         // Is the clicked point is on the html elements in the map?
         //-----------------------------------------------------------
-        if (MyPluginLayout.this.HTMLNodes.containsKey(mapId)) {
-          String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
-          Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
-          RectF htmlElementRect;
-          int mapDivDepth = domInfo.getInt("depth");
+        String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
+        Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
+        RectF htmlElementRect;
+        int mapDivDepth = domInfo.getInt("depth");
 
-          for (String domId : domIDs) {
-            if (pluginMap.mapDivId.equals(domId)) {
-              continue;
-            }
-            if (!HTMLNodes.containsKey(domId)) {
-              continue;
-            }
-            domInfo = HTMLNodes.get(domId);
-            if (domInfo == null) {
-              continue;
-            }
-            if (domInfo.getInt("depth") < mapDivDepth) {
-              continue;
-            }
+        for (String domId : domIDs) {
+          if (pluginMap.mapDivId.equals(domId)) {
+            continue;
+          }
+          if (!HTMLNodes.containsKey(domId)) {
+            continue;
+          }
+          domInfo = HTMLNodes.get(domId);
+          if (domInfo == null) {
+            continue;
+          }
+          if (domInfo.getInt("depth") <= mapDivDepth) {
+            continue;
+          }
 
-            htmlElementRect = HTMLNodeRectFs.get(domId);
-            if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {
-              continue;
-            }
+          htmlElementRect = HTMLNodeRectFs.get(domId);
+          if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {
+            continue;
+          }
 
-            if (clickPoint.x >= htmlElementRect.left &&
-                clickPoint.x <= (htmlElementRect.right) &&
-                clickPoint.y >= htmlElementRect.top &&
-                clickPoint.y <= htmlElementRect.bottom) {
-              isMapAction = false;
-              break;
-            }
+          if (clickPoint.x >= htmlElementRect.left &&
+              clickPoint.x <= (htmlElementRect.right) &&
+              clickPoint.y >= htmlElementRect.top &&
+              clickPoint.y <= htmlElementRect.bottom) {
+            isMapAction = false;
+            break;
           }
 
         }

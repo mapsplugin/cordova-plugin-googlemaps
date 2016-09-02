@@ -81,7 +81,6 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
   private Activity activity;
   public ViewGroup root;
   public MyPluginLayout mPluginLayout = null;
-  public boolean isDebug = false;
   private GoogleApiClient googleApiClient = null;
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
@@ -302,7 +301,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (isDebug) {
+    if (mPluginLayout.isDebug) {
       if (args != null && args.length() > 0) {
         Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
       } else {
@@ -311,7 +310,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     }
 
     if (methods.containsKey(action)) {
-      if (isDebug) {
+      if (mPluginLayout.isDebug) {
         if (args != null && args.length() > 0) {
           Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
         } else {
@@ -789,7 +788,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
     List<String> providers = locationManager.getAllProviders();
     int availableProviders = 0;
-    if (isDebug) {
+    if (mPluginLayout.isDebug) {
       Log.d(TAG, "---debug at getMyLocation(available providers)--");
     }
     Iterator<String> iterator = providers.iterator();
@@ -801,7 +800,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
       if (isAvailable) {
         availableProviders++;
       }
-      if (isDebug) {
+      if (mPluginLayout.isDebug) {
         Log.d(TAG, "   " + provider + " = " + (isAvailable ? "" : "not ") + "available");
       }
     }

@@ -833,7 +833,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             if (tmp.exists()) {
               image = BitmapFactory.decodeFile(iconUrl);
             } else {
-              if (PluginMarker.this.mapCtrl.isDebug) {
+              if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
                 Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
               }
             }

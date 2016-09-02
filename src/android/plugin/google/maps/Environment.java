@@ -139,14 +139,22 @@ public class Environment extends CordovaPlugin {
    * @throws JSONException
    */
   @SuppressWarnings("unused")
-  public void setDebuggable(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    /*
-    Log.d("GoogleMaps", "pluginLayer_setDebuggable ");
-    boolean debuggable = args.getBoolean(0);
-    this.mPluginLayout.setDebug(debuggable);
-    this.isDebug = debuggable;
-    this.sendNoResult(callbackContext);
-    */
+  public void setDebuggable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          boolean debuggable = args.getBoolean(0);
+          GoogleMaps googleMaps = (GoogleMaps) pluginManager.getPlugin("GoogleMaps");
+          googleMaps.mPluginLayout.isDebug = debuggable;
+        } catch (JSONException e) {
+          e.printStackTrace();
+        } finally {
+          callbackContext.success();
+        }
+      }
+    });
   }
 
   protected void sendNoResult(CallbackContext callbackContext) {
