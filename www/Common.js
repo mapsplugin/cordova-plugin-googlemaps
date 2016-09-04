@@ -198,6 +198,9 @@ function getDivRect(div) {
 function getAllChildren(root) {
     var list = [];
     var clickableElements = [];
+    if (!root) {
+      return [];
+    }
 
     if (window.document.querySelectorAll) {
         // Android: v4.3 and over
