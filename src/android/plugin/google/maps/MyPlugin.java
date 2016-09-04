@@ -179,6 +179,12 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
   }
   public void clear() {
+    String[] keys = objects.keySet().toArray(new String[objects.size()]);
+    Object object;
+    for (String key : keys) {
+      object = objects.remove(key);
+      object = null;
+    }
     this.objects.clear();
   }
 
