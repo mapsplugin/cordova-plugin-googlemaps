@@ -32,7 +32,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 
@@ -42,6 +42,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     DROP,
     BOUNCE
   }
+
+  private ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -76,7 +78,16 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
 
+  }
 
+  @Override
+  protected void clear() {
+    AsyncLoadImage[] tasks = iconLoadingTasks.toArray(new AsyncLoadImage[iconLoadingTasks.size()]);
+    for (int i = 0; i < tasks.length; i++) {
+      tasks[i].cancel(true);
+    }
+    iconLoadingTasks.clear();
+    super.clear();
   }
 
   /**
@@ -931,6 +942,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         }
       };
       task.execute();
+      iconLoadingTasks.add(task);
           
           
       return;
@@ -953,6 +965,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
         @Override
         public void onPostExecute(Bitmap image) {
+
           if (image == null) {
             callback.onPostExecute(marker);
             return;
@@ -985,15 +998,22 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             }
 
             image.recycle();
+            callback.onPostExecute(marker);
           } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            try {
+              marker.remove();
+            } catch (Exception ignore) {
+              ignore = null;
+            }
+            callback.onError(e.getMessage() + "");
           }
 
-          callback.onPostExecute(marker);
         }
 
       });
       task.execute(iconUrl);
+      iconLoadingTasks.add(task);
 
 
     }

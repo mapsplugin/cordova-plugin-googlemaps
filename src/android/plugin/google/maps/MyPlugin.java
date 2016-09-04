@@ -178,7 +178,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
       callbackContext.error(e.getMessage());
     }
   }
-  public void clear() {
+  protected void clear() {
     String[] keys = objects.keySet().toArray(new String[objects.size()]);
     Object object;
     for (String key : keys) {

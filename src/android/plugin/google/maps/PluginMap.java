@@ -1283,23 +1283,39 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   @SuppressWarnings("unused")
   public void clear(JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Set<String> pluginNames = plugins.keySet();
-    Iterator<String> iterator = pluginNames.iterator();
-    String pluginName;
-    PluginEntry pluginEntry;
-    while(iterator.hasNext()) {
-      pluginName = iterator.next();
-      if (!"Map".equals(pluginName)) {
-        pluginEntry = plugins.get(pluginName);
-        ((MyPlugin) pluginEntry.plugin).clear();
-      }
-    }
 
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        map.clear();
-        sendNoResult(callbackContext);
+        boolean isSuccess = false;
+        while (!isSuccess) {
+          try {
+            map.clear();
+            isSuccess = true;
+          } catch (Exception e) {
+            //e.printStackTrace();
+            isSuccess = false;
+          }
+        }
+
+        cordova.getThreadPool().submit(new Runnable() {
+          @Override
+          public void run() {
+
+            Set<String> pluginNames = plugins.keySet();
+            Iterator<String> iterator = pluginNames.iterator();
+            String pluginName;
+            PluginEntry pluginEntry;
+            while(iterator.hasNext()) {
+              pluginName = iterator.next();
+              if (!"Map".equals(pluginName)) {
+                pluginEntry = plugins.get(pluginName);
+                ((MyPlugin) pluginEntry.plugin).clear();
+              }
+            }
+            sendNoResult(callbackContext);
+          }
+        });
       }
     });
   }

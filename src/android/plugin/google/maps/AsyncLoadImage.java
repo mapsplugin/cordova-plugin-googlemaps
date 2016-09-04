@@ -21,8 +21,9 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private AsyncLoadImageInterface targetPlugin;
   private int mWidth = -1;
   private int mHeight = -1;
+  private float density = Resources.getSystem().getDisplayMetrics().density;
 
-  public static LruCache<String, Bitmap> mIconCache;
+  public static BitmapCache mIconCache;
 
   public AsyncLoadImage(AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
@@ -49,14 +50,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     // Use 1/8th of the available memory for this memory cache.
     int cacheSize = maxMemory / 8;
 
-    mIconCache = new LruCache<String, Bitmap>(cacheSize) {
-      @Override
-      protected int sizeOf(String key, Bitmap bitmap) {
-        // The cache size will be measured in kilobytes rather than
-        // number of items.
-        return bitmap.getByteCount() / 1024;
-      }
-    };
+    mIconCache = new BitmapCache(cacheSize);
   }
   private void addBitmapToMemoryCache(String key, Bitmap image) {
     if (getBitmapFromMemCache(key) == null) {
@@ -71,6 +65,17 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     }
 
     return image.copy(image.getConfig(), true);
+  }
+
+
+  @Override
+  protected void onCancelled(Bitmap bitmap) {
+    super.onCancelled(bitmap);
+
+    if (bitmap != null && !bitmap.isRecycled()) {
+      bitmap.recycle();
+    }
+    bitmap = null;
   }
 
 
@@ -139,7 +144,6 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       }
       
       // Resize
-      float density = Resources.getSystem().getDisplayMetrics().density;
       int newWidth = (int)(mWidth * density);
       int newHeight = (int)(mHeight * density);
 
@@ -183,5 +187,27 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   protected void onPostExecute(Bitmap image) {
     System.gc();
     this.targetPlugin.onPostExecute(image);
+  }
+
+  class BitmapCache extends LruCache<String, Bitmap> {
+
+    public BitmapCache(int maxSize) {
+      super(maxSize);
+    }
+
+    @Override
+    protected int sizeOf(String key, Bitmap bitmap) {
+      // The cache size will be measured in kilobytes rather than
+      // number of items.
+      return bitmap.getByteCount() / 1024;
+    }
+
+    @Override
+    protected void entryRemoved(boolean evicted, String key, Bitmap oldBitmap, Bitmap newBitmap) {
+      if (!oldBitmap.isRecycled()) {
+        oldBitmap.recycle();
+        oldBitmap = null;
+      }
+    }
   }
 }
