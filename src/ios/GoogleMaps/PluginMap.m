@@ -37,14 +37,14 @@
 - (void)loadPlugin:(CDVInvokedUrlCommand*)command {
   NSString *className = [command.arguments objectAtIndex:0];
   className = [NSString stringWithFormat:@"Plugin%@", className];
-  NSLog(@"--->loadPlugin : %@ className : %@", self.mapId, className);
+  //NSLog(@"--->loadPlugin : %@ className : %@", self.mapId, className);
 
   if (!self.loadPluginQueue) {
-      self.loadPluginQueue =  dispatch_queue_create("loadPlugin", NULL);
+      self.loadPluginQueue =  [NSOperationQueue new];
   }
 
-  dispatch_async(self.loadPluginQueue, ^{
-
+  [self.loadPluginQueue addOperationWithBlock: ^{
+  
       CDVPluginResult* pluginResult = nil;
       CDVPlugin<MyPlgunProtocol> *plugin;
 
@@ -54,14 +54,14 @@
       //#else
         plugin = [[NSClassFromString(className)alloc] init];
       //#endif
-    NSLog(@"--> plugin = %@", plugin);
+    //NSLog(@"--> plugin = %@", plugin);
       if (plugin) {
         plugin.commandDelegate = self.commandDelegate;
         [plugin setGoogleMapsViewController:self.mapCtrl];
         [self.mapCtrl.plugins setObject:plugin forKey:className];
 
         NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, [className lowercaseString]];
-    NSLog(@"--> pluginId = %@", pluginId);
+    //NSLog(@"--> pluginId = %@", pluginId);
 
         // Hack:
         // In order to load the plugin instance of the same class but different names,

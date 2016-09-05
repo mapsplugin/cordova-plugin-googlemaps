@@ -14,7 +14,7 @@
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic) BOOL isRemoved;
-@property (nonatomic) dispatch_queue_t loadPluginQueue;
+@property (nonatomic) NSOperationQueue *loadPluginQueue;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;
