@@ -93,7 +93,7 @@
                                            messageAsString:[NSString stringWithFormat:@"method not found: %@ in %@ class", @"create", className]];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }
-  });
+  }];
 }
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
@@ -220,19 +220,28 @@
 - (void)clear:(CDVInvokedUrlCommand *)command {
 
     [self.mapCtrl.map clear];
-
-    for (NSString *key in self.mapCtrl.overlayManager) {
+    if (self.loadPluginQueue != nil){
+        self.loadPluginQueue.suspended = YES;
+        [self.loadPluginQueue cancelAllOperations];
+        self.loadPluginQueue.suspended = NO;
+        self.loadPluginQueue = nil;
+    }
+  
+    NSArray *keys = [self.mapCtrl.overlayManager allKeys];
+    NSString *key;
+    for (int i = 0; i < keys.count; i++) {
+        key = keys[i];
         if ([key hasPrefix:@"marker_property_"]) {
-          NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
-          properties = nil;
-          [self.mapCtrl.overlayManager removeObjectForKey:key];
-          continue;
+            NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
+            properties = nil;
+            [self.mapCtrl.overlayManager removeObjectForKey:key];
+            continue;
         }
         if ([key hasPrefix:@"marker_"]) {
-          GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
-          marker = nil;
-          [self.mapCtrl.overlayManager removeObjectForKey:key];
-          continue;
+            GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
+            marker = nil;
+            [self.mapCtrl.overlayManager removeObjectForKey:key];
+            continue;
         }
     }
     [self.mapCtrl.overlayManager removeAllObjects];
