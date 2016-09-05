@@ -39,9 +39,6 @@
   className = [NSString stringWithFormat:@"Plugin%@", className];
   //NSLog(@"--->loadPlugin : %@ className : %@", self.mapId, className);
 
-  if (!self.loadPluginQueue) {
-      self.loadPluginQueue =  [NSOperationQueue new];
-  }
 
   [self.loadPluginQueue addOperationWithBlock: ^{
   
@@ -97,6 +94,8 @@
 }
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
+
+    self.loadPluginQueue =  [NSOperationQueue new];
 
     if ([command.arguments count] == 1) {
         //-----------------------------------------------------------------------
@@ -218,39 +217,37 @@
  * Clear all markups
  */
 - (void)clear:(CDVInvokedUrlCommand *)command {
-
     [self.mapCtrl.map clear];
     if (self.loadPluginQueue != nil){
         self.loadPluginQueue.suspended = YES;
         [self.loadPluginQueue cancelAllOperations];
         self.loadPluginQueue.suspended = NO;
-        self.loadPluginQueue = nil;
     }
-  
-    NSArray *keys = [self.mapCtrl.overlayManager allKeys];
-    NSString *key;
-    for (int i = 0; i < keys.count; i++) {
-        key = keys[i];
-        if ([key hasPrefix:@"marker_property_"]) {
-            NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
-            properties = nil;
-            [self.mapCtrl.overlayManager removeObjectForKey:key];
-            continue;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        NSArray *keys = [self.mapCtrl.overlayManager allKeys];
+        NSString *key;
+        for (int i = 0; i < keys.count; i++) {
+            key = keys[i];
+            if ([key hasPrefix:@"marker_property_"]) {
+                NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
+                properties = nil;
+                [self.mapCtrl.overlayManager removeObjectForKey:key];
+            }
+            if ([key hasPrefix:@"marker_"]) {
+                GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
+                marker = nil;
+                [self.mapCtrl.overlayManager removeObjectForKey:key];
+            }
         }
-        if ([key hasPrefix:@"marker_"]) {
-            GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
-            marker = nil;
-            [self.mapCtrl.overlayManager removeObjectForKey:key];
-            continue;
-        }
-    }
-    [self.mapCtrl.overlayManager removeAllObjects];
-    //[self.mapCtrl.plugins removeAllObjects];
+        [self.mapCtrl.overlayManager removeAllObjects];
+        //[self.mapCtrl.plugins removeAllObjects];
 
-    if (command != nil) {
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }
+        if (command != nil) {
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          
+        }
+    });
 
 }
 
@@ -665,7 +662,7 @@
 
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        });
+                  });
   });
 }
 
