@@ -258,17 +258,17 @@
 
 
 /**
- * @callback map camera_change
+ * @callback map camera_change (Camera moving is still moving).
  */
-- (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
-  [self triggerCameraEvent:@"camera_change" position:position];
-}
+//- (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
+//  [self triggerCameraEvent:@"camera_change" position:position];
+//}
 /**
- * @callback map camera_idle
+ * @callback map camera_idle (Camera moving is just finished).
  */
 - (void) mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position
 {
-  [self triggerCameraEvent:@"camera_idle" position:position];
+  [self triggerCameraEvent:@"camera_change" position:position];
 }
 
 
