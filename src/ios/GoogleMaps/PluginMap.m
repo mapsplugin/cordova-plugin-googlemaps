@@ -640,26 +640,33 @@
  * Thanks @fschmidt
  */
 - (void)getVisibleRegion:(CDVInvokedUrlCommand*)command {
-  GMSVisibleRegion visibleRegion = self.mapCtrl.map.projection.visibleRegion;
-  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
 
-  NSMutableDictionary *json = [NSMutableDictionary dictionary];
-  NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
-  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.latitude] forKey:@"lat"];
-  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.longitude] forKey:@"lng"];
-  [json setObject:northeast forKey:@"northeast"];
-  NSMutableDictionary *southwest = [NSMutableDictionary dictionary];
-  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.latitude] forKey:@"lat"];
-  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.longitude] forKey:@"lng"];
-  [json setObject:southwest forKey:@"southwest"];
+    dispatch_queue_t gueue = dispatch_queue_create("getVisibleRegion", NULL);
 
-  NSMutableArray *latLngArray = [NSMutableArray array];
-  [latLngArray addObject:northeast];
-  [latLngArray addObject:southwest];
-  [json setObject:latLngArray forKey:@"latLngArray"];
+    dispatch_sync(gueue, ^{
+        GMSVisibleRegion visibleRegion = self.mapCtrl.map.projection.visibleRegion;
+        GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        dispatch_async(gueue, ^{
+            NSMutableDictionary *json = [NSMutableDictionary dictionary];
+            NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
+            [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.latitude] forKey:@"lat"];
+            [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.longitude] forKey:@"lng"];
+            [json setObject:northeast forKey:@"northeast"];
+            NSMutableDictionary *southwest = [NSMutableDictionary dictionary];
+            [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.latitude] forKey:@"lat"];
+            [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.longitude] forKey:@"lng"];
+            [json setObject:southwest forKey:@"southwest"];
+
+            NSMutableArray *latLngArray = [NSMutableArray array];
+            [latLngArray addObject:northeast];
+            [latLngArray addObject:southwest];
+            [json setObject:latLngArray forKey:@"latLngArray"];
+
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        });
+  });
 }
 
 - (void)setOptions:(CDVInvokedUrlCommand *)command {
