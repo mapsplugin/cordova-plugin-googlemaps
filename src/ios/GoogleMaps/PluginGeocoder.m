@@ -6,9 +6,9 @@
 //
 //
 
-#import "Geocoder.h"
+#import "PluginGeocoder.h"
 
-@implementation Geocoder
+@implementation PluginGeocoder
 
 - (void)pluginUnload
 {
@@ -40,9 +40,9 @@
   }
 
   if (address && position == nil) {
-  
+
     NSArray *points = [json objectForKey:@"bounds"];
-  
+
     if (points) {
       //center
       int i = 0;
@@ -50,12 +50,12 @@
       GMSMutablePath *path = [GMSMutablePath path];
       GMSCoordinateBounds *bounds;
       for (i = 0; i < points.count; i++) {
-        latLng = [points objectAtIndex:i];  
+        latLng = [points objectAtIndex:i];
         [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
       }
       bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-  
-      
+
+
       CLLocationCoordinate2D southWest = bounds.southWest;
       CLLocationCoordinate2D northEast = bounds.northEast;
       float latitude = (southWest.latitude + northEast.latitude) / 2.0;
@@ -66,10 +66,10 @@
       CLLocation *locA = [[CLLocation alloc] initWithLatitude:center.latitude longitude:center.latitude];
       CLLocation *locB = [[CLLocation alloc] initWithLatitude:southWest.latitude longitude:southWest.longitude];
       CLLocationDistance distance = [locA distanceFromLocation:locB];
-      
+
       CLCircularRegion *region =  [[CLCircularRegion alloc] initWithCenter:center radius:distance/2 identifier:@"geocoder"];
-      
-      
+
+
       [self.geocoder geocodeAddressString:address inRegion:region completionHandler:^(NSArray *placemarks, NSError *error) {
         CDVPluginResult* pluginResult;
         if (error) {
@@ -84,7 +84,7 @@
         }
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
-      
+
     } else {
       //No region specified.
       [self.geocoder geocodeAddressString:address completionHandler:^(NSArray *placemarks, NSError *error) {
@@ -104,16 +104,16 @@
     }
     return;
   }
-  
+
   // Reverse geocoding
   if (position && address == nil) {
     if (!self.reverseGeocoder) {
       self.reverseGeocoder = [GMSGeocoder geocoder];
     }
-    
+
     NSDictionary *latLng = [json objectForKey:@"position"];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
-    
+
     [self.reverseGeocoder reverseGeocodeCoordinate:position completionHandler:^(GMSReverseGeocodeResponse *response, NSError *error) {
       CDVPluginResult* pluginResult;
       if (error) {
@@ -123,23 +123,23 @@
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.description];
         }
       } else {
-      
+
         NSMutableArray *results = [NSMutableArray array];
         GMSAddress *address;
         NSString *countryCode;
         int i;
         for (i = 0; i < [response.results count]; i++) {
           address = [response.results objectAtIndex:i];
-          
+
           NSMutableDictionary *result = [NSMutableDictionary dictionary];
           [result setObject:[NSNumber numberWithDouble:address.coordinate.latitude] forKey:@"lat"];
           [result setObject:[NSNumber numberWithDouble:address.coordinate.longitude] forKey:@"lng"];
-          
+
           NSMutableDictionary *position = [NSMutableDictionary dictionary];
           [position setObject:[NSNumber numberWithDouble:address.coordinate.latitude] forKey:@"lat"];
           [position setObject:[NSNumber numberWithDouble:address.coordinate.longitude] forKey:@"lng"];
           [result setObject:position forKey:@"position"];
-          
+
           [result setObject:[NSString stringWithFormat:@"%@", address.locality] forKey:@"locality"];
           [result setObject:[NSString stringWithFormat:@"%@", address.administrativeArea] forKey:@"adminArea"];
           [result setObject:[NSString stringWithFormat:@"%@", address.country] forKey:@"country"];
@@ -151,19 +151,19 @@
           [result setObject:[NSString stringWithFormat:@"%@", address.subLocality] forKey:@"subLocality"];
           [result setObject:@"" forKey:@"subThoroughfare"];
           [result setObject:[NSString stringWithFormat:@"%@", address.thoroughfare] forKey:@"thoroughfare"];
-          
-          
+
+
           NSMutableDictionary *extra = [NSMutableDictionary dictionary];
           [extra setObject:address.lines forKey:@"lines"];
           [result setObject:extra forKey:@"extra"];
-          
+
           [results addObject:result];
         }
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:results];
       };
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-      
+
     }];
     /*
     [self.geocoder reverseGeocodeLocation:position completionHandler:^(NSArray *placemarks, NSError *error) {
@@ -188,13 +188,13 @@
 {
   NSMutableArray *results = [[NSMutableArray alloc] init];
   if ([placemarks count] > 0) {
-        
+
     CLPlacemark *placemark;
     CLLocation *location;
     CLLocationCoordinate2D coordinate;
     for (int i = 0; i < placemarks.count; i++) {
       NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-      
+
       NSMutableDictionary *position = [[NSMutableDictionary alloc] init];
       placemark = [placemarks objectAtIndex:i];
       location = placemark.location;
@@ -202,8 +202,8 @@
       [position setObject:[NSNumber numberWithDouble:coordinate.latitude] forKey:@"lat"];
       [position setObject:[NSNumber numberWithDouble:coordinate.longitude] forKey:@"lng"];
       [result setObject:position forKey:@"position"];
-      
-      
+
+
       if (placemark.administrativeArea) {
         [result setObject:placemark.administrativeArea forKey:@"adminArea"];
       }
@@ -230,7 +230,7 @@
       if (placemark.thoroughfare) {
         [result setObject:placemark.thoroughfare forKey:@"thoroughfare"];
       }
-      
+
       NSMutableDictionary *extra = [[NSMutableDictionary alloc] init];
       if (placemark.ocean) {
         [extra setObject:placemark.ocean forKey:@"ocean"];
@@ -254,8 +254,8 @@
         #else
           [extra setObject:[NSString stringWithFormat:@"%f", placemark.region.radius] forKey:@"radius"];
         #endif
-        
-        
+
+
         [extra setObject:placemark.region.identifier forKey:@"identifier"];
       }
       if (placemark.name) {
@@ -267,7 +267,7 @@
     }
   }
   return results;
-  
+
 }
 
 @end

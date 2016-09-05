@@ -6,10 +6,10 @@
 //
 //
 
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
 
-@interface Polyline : CDVPlugin<MyPlgunProtocol>
+@interface PluginPolyline : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
 

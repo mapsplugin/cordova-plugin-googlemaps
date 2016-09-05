@@ -6,9 +6,9 @@
 //
 //
 
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 
-@implementation GoogleMaps
+@implementation CordovaGoogleMaps
 
 - (void)pluginInitialize
 {
@@ -34,13 +34,13 @@
         [alert show];
         return;
     }
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(didRotate:)
                                                    name:UIDeviceOrientationDidChangeNotification object:nil];
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    
+
     //-------------------------------
     // Plugin initialization
     //-------------------------------
@@ -51,7 +51,7 @@
     self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:(UIWebView *)self.webView];
     self.pluginLayer.backgroundColor = [UIColor whiteColor];
     self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  
+
 
     NSArray *subViews = self.viewController.view.subviews;
     UIView *view;
@@ -68,10 +68,10 @@
 - (void) didRotate:(id)sender
 {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
-      
+
       NSArray *keys=[self.mapPlugins allKeys];
       NSString *mapId;
-    
+
       for (int i = 0; i < [keys count]; i++) {
         mapId = [keys objectAtIndex:i];
         [self.pluginLayer updateViewPosition:mapId];
@@ -93,16 +93,16 @@
     self.webView.opaque = NO;
     dispatch_async(dispatch_get_main_queue(), ^{
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-      
+
         NSString *mapId;
         NSArray *keys=[self.mapPlugins allKeys];
         NSString *pluginName;
         CDVPlugin<MyPlgunProtocol> *plugin;
-      
+
         for (int i = 0; i < [keys count]; i++) {
           mapId = [keys objectAtIndex:i];
-          Map *mapPlugin = [self.mapPlugins objectForKey:mapId];
-          
+          PluginMap *mapPlugin = [self.mapPlugins objectForKey:mapId];
+
           NSArray *keys2 = [mapPlugin.mapCtrl.plugins allKeys];
           for (int j = 0; j < [keys2 count]; j++) {
             pluginName = [keys2 objectAtIndex:j];
@@ -110,7 +110,7 @@
             [plugin pluginUnload];
             plugin = nil;
           }
-          
+
           [mapPlugin remove:nil];
           [self.mapPlugins removeObjectForKey:mapId];
           [cdvViewController.pluginObjects removeObjectForKey:mapId];
@@ -118,7 +118,7 @@
           mapPlugin = nil;
         }
         [self.mapPlugins removeAllObjects];
-      
+
         [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
         [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
 
@@ -129,24 +129,24 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
-  
+
     dispatch_async(dispatch_get_main_queue(), ^{
-      
+
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         NSString *mapId = [command.arguments objectAtIndex:0];
-        
+
         // Wrapper view
         GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
         mapCtrl.webView = self.webView;
         mapCtrl.isFullScreen = YES;
         mapCtrl.mapId = mapId;
-        
+
         // Create an instance of the Map class everytime.
-        Map *mapPlugin = [[Map alloc] init];
+        PluginMap *mapPlugin = [[PluginMap alloc] init];
         [mapPlugin pluginInitialize];
         mapPlugin.mapId = mapId;
         mapPlugin.mapCtrl = mapCtrl;
-        
+
         // Hack:
         // In order to load the plugin instance of the same class but different names,
         // register the map plugin instance into the pluginObjects directly.
@@ -159,9 +159,9 @@
         [cdvViewController.pluginObjects setObject:mapPlugin forKey:mapId];
         [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
         [mapPlugin pluginInitialize];
-      
+
         [self.mapPlugins setObject:mapPlugin forKey:mapId];
-      
+
         CGRect rect = CGRectZero;
         // Sets the map div id.
         if ([command.arguments count] == 3) {
@@ -173,8 +173,8 @@
             }
           }
         }
-      
-      
+
+
         // Generate an instance of GMSMapView;
         GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
                                             longitude:0
@@ -185,18 +185,18 @@
         mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
         mapPlugin.mapCtrl.map.delegate = mapCtrl;
         mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-      
-      
+
+
         //indoor display
         mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
         [mapCtrl.view addSubview:mapPlugin.mapCtrl.map];
-      
+
         [self.pluginLayer addMapView:mapPlugin.mapId mapCtrl:mapCtrl];
-    
+
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [mapPlugin getMap:command];
         });
-      
+
     });
 }
 
@@ -326,24 +326,24 @@
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSDictionary *elements = [command.arguments objectAtIndex:0];
-        
+
         CDVPluginResult* pluginResult;
         if (self.pluginLayer.stopFlag == NO || self.pluginLayer.needUpdatePosition == YES) {
           [self.pluginLayer putHTMLElements:elements];
-          
+
           if (self.pluginLayer.needUpdatePosition) {
               self.pluginLayer.needUpdatePosition = NO;
               //NSLog(@"---->putHtmlElements  needUpdatePosition = NO");
               //NSLog(@"%@", elements);
               NSArray *keys=[self.mapPlugins allKeys];
               NSString *mapId;
-            
+
               for (int i = 0; i < [keys count]; i++) {
                 mapId = [keys objectAtIndex:i];
                 [self.pluginLayer updateViewPosition:mapId];
               }
           }
-          
+
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];

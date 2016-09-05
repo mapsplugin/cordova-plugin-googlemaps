@@ -7,7 +7,7 @@
 //
 
 #import <Cordova/CDV.h>
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 
 @interface Environment : CDVPlugin
 

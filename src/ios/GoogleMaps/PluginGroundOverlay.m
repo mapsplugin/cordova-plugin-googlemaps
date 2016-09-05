@@ -6,9 +6,9 @@
 //
 //
 
-#import "GroundOverlay.h"
+#import "PluginGroundOverlay.h"
 
-@implementation GroundOverlay
+@implementation PluginGroundOverlay
 
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -23,21 +23,21 @@
     // Initialize this plugin
     if (self.mapCtrl == nil) {
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-        GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+        CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
         //self.mapCtrl = googlemaps.mapCtrl;
         [self.mapCtrl.plugins setObject:self forKey:@"GroundOverlay"];
     }
-  
+
     __block GMSGroundOverlay *layer;
-    __block GroundOverlay *self_ = self;
-  
+    __block PluginGroundOverlay *self_ = self;
+
     dispatch_queue_t gueue = dispatch_queue_create("createGroundOverlay", NULL);
     dispatch_async(gueue, ^{
         NSDictionary *json = [command.arguments objectAtIndex:0];
 
         NSArray *points = [json objectForKey:@"bounds"];
 
-      
+
         GMSMutablePath *path = [GMSMutablePath path];
         GMSCoordinateBounds *bounds;
 
@@ -51,7 +51,7 @@
             }
         }
         bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-        
+
         dispatch_sync(dispatch_get_main_queue(), ^{
             layer = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
@@ -63,7 +63,7 @@
             }
 
             dispatch_async(gueue, ^{
-            
+
                 MYCompletionHandler callback = ^(NSError *error) {
                     if (error) {
                         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
@@ -176,15 +176,15 @@
 
 
         if ([urlStrStatic hasPrefix:@"http://"] || [urlStrStatic hasPrefix:@"https://"]) {
-            
+
             NSURL *url = [NSURL URLWithString:urlStrStatic];
             [self downloadImageWithURL:url  completionBlock:^(NSError *error, UIImage *image) {
-            
+
                 if (error) {
                   completionHandler(error);
                   return;
                 }
-              
+
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     NSURL *url = [NSURL URLWithString:urlStrStatic];
                     NSData *data = [NSData dataWithContentsOfURL:url];
@@ -193,7 +193,7 @@
                     [self.mapCtrl.overlayManager setObject:layerImg forKey: id];
                     completionHandler(nil);
                 });
-              
+
             }];
 
         } else {
@@ -258,7 +258,7 @@
 
     NSString *urlStr = [command.arguments objectAtIndex:1];
     if (urlStr) {
-        __block GroundOverlay *self_ = self;
+        __block PluginGroundOverlay *self_ = self;
         [self _setImage:layer urlStr:urlStr completionHandler:^(NSError *error) {
             CDVPluginResult* pluginResult;
             if (error) {
@@ -266,7 +266,7 @@
             } else {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             }
-          
+
             [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }];
     } else {
@@ -362,7 +362,7 @@
       completionBlock(nil, image);
       return;
     }
-  
+
     [NSURLConnection sendAsynchronousRequest:req
           queue:[NSOperationQueue mainQueue]
           completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
@@ -372,7 +372,7 @@
             } else {
               completionBlock(error, nil);
             }
-        
+
     }];
 }
 

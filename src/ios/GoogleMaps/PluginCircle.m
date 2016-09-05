@@ -6,9 +6,9 @@
 //
 //
 
-#import "Circle.h"
+#import "PluginCircle.h"
 
-@implementation Circle
+@implementation PluginCircle
 
 - (void)pluginUnload
 {
@@ -23,15 +23,15 @@
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
     self.mapCtrl = googlemaps.mapCtrl;
     [self.mapCtrl.plugins setObject:self forKey:@"Circle"];
   }
-  
+
   NSDictionary *json = [command.arguments objectAtIndex:0];
   NSDictionary *latLng = [json objectForKey:@"center"];
   __block GMSCircle *circle;
-  
+
   dispatch_queue_t gueue = dispatch_queue_create("createCircle", NULL);
   dispatch_async(gueue, ^{
 
@@ -40,15 +40,15 @@
 
       float radius = [[json valueForKey:@"radius"] floatValue];
       CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
-      
-      
+
+
       dispatch_sync(dispatch_get_main_queue(), ^{
           circle = [GMSCircle circleWithPosition:position radius:radius];
-        
+
           //if ([[json valueForKey:@"visible"] boolValue]) {
           //    circle.map = self.mapCtrl.map;
           //}
-        
+
           NSArray *rgbColor = [json valueForKey:@"fillColor"];
           circle.fillColor = [rgbColor parsePluginColor];
 
@@ -59,11 +59,11 @@
           circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
           circle.tappable = YES;
-      
+
           NSString *id = [NSString stringWithFormat:@"circle_%lu", (unsigned long)circle.hash];
           [self.mapCtrl.overlayManager setObject:circle forKey: id];
           circle.title = id;
-        
+
           dispatch_async(gueue, ^{
               NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
               [result setObject:id forKey:@"id"];
@@ -74,9 +74,9 @@
           });
       });
   });
-  
+
   */
-  
+
 }
 /**
  * Set center
@@ -210,4 +210,3 @@
 }
 
 @end
-

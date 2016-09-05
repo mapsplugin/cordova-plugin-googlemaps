@@ -24,7 +24,7 @@
 
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
   
     NSArray *rgbColor = [command.arguments objectAtIndex:0];
     googlemaps.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
@@ -44,7 +44,7 @@
   
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
   
     googlemaps.pluginLayer.pluginScrollView.debugView.debuggable = isDebuggable;
     [googlemaps.pluginLayer.pluginScrollView.debugView setNeedsDisplay];

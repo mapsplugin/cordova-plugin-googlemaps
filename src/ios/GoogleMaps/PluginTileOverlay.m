@@ -6,9 +6,9 @@
 //
 //
 
-#import "TileOverlay.h"
+#import "PluginTileOverlay.h"
 
-@implementation TileOverlay
+@implementation PluginTileOverlay
 
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -24,7 +24,7 @@
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
     //self.mapCtrl = googlemaps.mapCtrl;
     [self.mapCtrl.plugins setObject:self forKey:@"TileOverlay"];
   }
@@ -42,7 +42,7 @@
             NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)x]];
             urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<y>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)y]];
             urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<zoom>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)zoom]];
-            
+
             if (self.mapCtrl.debuggable) {
               NSLog(@"%@", urlStr);
             }
@@ -62,8 +62,8 @@
           if ([json valueForKey:@"opacity"]) {
             layer.opacity = [[json valueForKey:@"opacity"] floatValue];
           }
-        
-          
+
+
           dispatch_async(gueue, ^{
 
               NSString *id = [NSString stringWithFormat:@"tileOverlay_%lu", (unsigned long)layer.hash];
@@ -144,7 +144,7 @@
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
   [layer setZIndex:(int)zIndex];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -174,7 +174,7 @@
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   double opacity = [[command.arguments objectAtIndex:1] doubleValue];
   [layer setOpacity:opacity];
-  
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }

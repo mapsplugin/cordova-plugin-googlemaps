@@ -6,12 +6,12 @@
 //
 //
 
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
 
-@interface Marker : CDVPlugin<MyPlgunProtocol>
+@interface PluginMarker : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) NSCache* iconCache;
 

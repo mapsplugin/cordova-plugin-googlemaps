@@ -19,7 +19,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
-public class MyGeocoder extends CordovaPlugin {
+public class PluginGeocoder extends CordovaPlugin {
 
   @Override
   public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {

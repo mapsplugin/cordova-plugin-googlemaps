@@ -123,10 +123,7 @@
                 <param name="android-package" value="plugin.google.maps.External" />
             </feature>
             <feature name="Geocoder">
-                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
-            </feature>
-            <feature name="Geocoder">
-                <param name="android-package" value="plugin.google.maps.MyGeocoder" />
+                <param name="android-package" value="plugin.google.maps.PluginGeocoder" />
             </feature>
             <feature name="Environment">
                 <param name="android-package" value="plugin.google.maps.Environment" />
@@ -142,13 +139,13 @@
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/Environment.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/GoogleMaps.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/CordovaGoogleMaps.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/External.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/MyGeocoder.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps" />
@@ -196,7 +193,7 @@
 
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
-                <param name="ios-package" value="GoogleMaps" />
+                <param name="ios-package" value="CordovaGoogleMaps" />
             </feature>
             <feature name="Environment">
                 <param name="ios-package" value="Environment" />
@@ -205,68 +202,65 @@
                 <param name="ios-package" value="External" />
             </feature>
             <feature name="Geocoder">
-                <param name="ios-package" value="Geocoder" />
+                <param name="ios-package" value="PluginGeocoder" />
             </feature>
             <feature name="Map">
-                <param name="ios-package" value="Map" />
+                <param name="ios-package" value="PluginMap" />
             </feature>
             <feature name="Circle">
-                <param name="ios-package" value="Circle" />
-            </feature>
-            <feature name="Geocoder">
-                <param name="ios-package" value="Geocoder" />
+                <param name="ios-package" value="PluginCircle" />
             </feature>
             <feature name="GroundOverlay">
-                <param name="ios-package" value="GroundOverlay" />
+                <param name="ios-package" value="PluginGroundOverlay" />
             </feature>
             <feature name="KmlOverlay">
-                <param name="ios-package" value="KmlOverlay" />
+                <param name="ios-package" value="PluginKmlOverlay" />
             </feature>
             <feature name="Marker">
-                <param name="ios-package" value="Marker" />
+                <param name="ios-package" value="PluginMarker" />
             </feature>
             <feature name="Polygon">
-                <param name="ios-package" value="Polygon" />
+                <param name="ios-package" value="PluginPolygon" />
             </feature>
             <feature name="Polyline">
-                <param name="ios-package" value="Polyline" />
+                <param name="ios-package" value="PluginPolyline" />
             </feature>
             <feature name="TileOverlay">
-                <param name="ios-package" value="TileOverlay" />
+                <param name="ios-package" value="PluginTileOverlay" />
             </feature>
         </config-file>
 
-        <header-file src="src/ios/GoogleMaps/Circle.h" />
-        <source-file src="src/ios/GoogleMaps/Circle.m" />
+        <header-file src="src/ios/GoogleMaps/PluginCircle.h" />
+        <source-file src="src/ios/GoogleMaps/PluginCircle.m" />
         <header-file src="src/ios/GoogleMaps/External.h" />
         <source-file src="src/ios/GoogleMaps/External.m" />
-        <header-file src="src/ios/GoogleMaps/Geocoder.h" />
-        <source-file src="src/ios/GoogleMaps/Geocoder.m" />
+        <header-file src="src/ios/GoogleMaps/PluginGeocoder.h" />
+        <source-file src="src/ios/GoogleMaps/PluginGeocoder.m" />
         <header-file src="src/ios/GoogleMaps/Environment.h" />
         <source-file src="src/ios/GoogleMaps/Environment.m" />
-        <header-file src="src/ios/GoogleMaps/GoogleMaps.h" />
-        <source-file src="src/ios/GoogleMaps/GoogleMaps.m" />
+        <header-file src="src/ios/GoogleMaps/CordovaGoogleMaps.h" />
+        <source-file src="src/ios/GoogleMaps/CordovaGoogleMaps.m" />
         <header-file src="src/ios/GoogleMaps/GoogleMapsViewController.h" />
         <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
-        <header-file src="src/ios/GoogleMaps/GroundOverlay.h" />
-        <source-file src="src/ios/GoogleMaps/GroundOverlay.m" />
-        <header-file src="src/ios/GoogleMaps/KmlOverlay.h" />
-        <source-file src="src/ios/GoogleMaps/KmlOverlay.m" />
-        <header-file src="src/ios/GoogleMaps/Map.h" />
-        <source-file src="src/ios/GoogleMaps/Map.m" />
-        <header-file src="src/ios/GoogleMaps/Marker.h" />
-        <source-file src="src/ios/GoogleMaps/Marker.m" />
+        <header-file src="src/ios/GoogleMaps/PluginGroundOverlay.h" />
+        <source-file src="src/ios/GoogleMaps/PluginGroundOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/PluginKmlOverlay.h" />
+        <source-file src="src/ios/GoogleMaps/PluginKmlOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/PluginMap.h" />
+        <source-file src="src/ios/GoogleMaps/PluginMap.m" />
+        <header-file src="src/ios/GoogleMaps/PluginMarker.h" />
+        <source-file src="src/ios/GoogleMaps/PluginMarker.m" />
         <header-file src="src/ios/GoogleMaps/MyPlgunProtocol.h" />
         <header-file src="src/ios/GoogleMaps/PluginUtil.h" />
         <source-file src="src/ios/GoogleMaps/PluginUtil.m" />
-        <header-file src="src/ios/GoogleMaps/Polygon.h" />
-        <source-file src="src/ios/GoogleMaps/Polygon.m" />
-        <header-file src="src/ios/GoogleMaps/Polyline.h" />
-        <source-file src="src/ios/GoogleMaps/Polyline.m" />
+        <header-file src="src/ios/GoogleMaps/PluginPolygon.h" />
+        <source-file src="src/ios/GoogleMaps/PluginPolygon.m" />
+        <header-file src="src/ios/GoogleMaps/PluginPolyline.h" />
+        <source-file src="src/ios/GoogleMaps/PluginPolyline.m" />
         <header-file src="src/ios/GoogleMaps/TBXML.h" />
         <source-file src="src/ios/GoogleMaps/TBXML.m" />
-        <header-file src="src/ios/GoogleMaps/TileOverlay.h" />
-        <source-file src="src/ios/GoogleMaps/TileOverlay.m" />
+        <header-file src="src/ios/GoogleMaps/PluginTileOverlay.h" />
+        <source-file src="src/ios/GoogleMaps/PluginTileOverlay.m" />
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.h" />
         <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.podspec" />
         <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />

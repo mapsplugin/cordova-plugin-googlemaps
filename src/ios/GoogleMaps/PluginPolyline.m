@@ -6,9 +6,9 @@
 //
 //
 
-#import "Polyline.h"
+#import "PluginPolyline.h"
 
-@implementation Polyline
+@implementation PluginPolyline
 
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -23,7 +23,7 @@
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
     //self.mapCtrl = googlemaps.mapCtrl;
     [self.mapCtrl.plugins setObject:self forKey:@"Polyline"];
   }
@@ -39,7 +39,7 @@
     [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
 
-  
+
   dispatch_queue_t gueue = dispatch_queue_create("createPolyline", NULL);
   dispatch_async(gueue, ^{
 
@@ -61,12 +61,12 @@
           polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
           polyline.tappable = YES;
-        
+
           NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
           [self.mapCtrl.overlayManager setObject:polyline forKey: id];
           polyline.title = id;
-        
-          
+
+
           dispatch_async(gueue, ^{
 
               NSMutableDictionary *result = [[NSMutableDictionary alloc] init];

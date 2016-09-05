@@ -6,13 +6,13 @@
 //
 //
 
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
 #import "PluginUtil.h"
 #import "TBXML.h"
 #import "MyPlgunProtocol.h"
 
-@interface KmlOverlay : CDVPlugin<MyPlgunProtocol>
+@interface PluginKmlOverlay : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic, strong) NSString* kmlId;

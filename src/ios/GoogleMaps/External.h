@@ -6,7 +6,7 @@
 //
 //
 
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
 
 @interface External : CDVPlugin

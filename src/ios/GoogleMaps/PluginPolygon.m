@@ -6,9 +6,9 @@
 //
 //
 
-#import "Polygon.h"
+#import "PluginPolygon.h"
 
-@implementation Polygon
+@implementation PluginPolygon
 
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -23,7 +23,7 @@
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    GoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
     //self.mapCtrl = googlemaps.mapCtrl;
     [self.mapCtrl.plugins setObject:self forKey:@"Polygon"];
   }
@@ -41,7 +41,7 @@
       latLng = [points objectAtIndex:i];
       [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
     }
-    
+
     // Create paths of the hole property if specified.
     NSMutableArray *holePaths = nil;
     if ([json valueForKey:@"holes"]) {
@@ -50,8 +50,8 @@
       NSDictionary *latLng;
       int j;
       holePaths = [NSMutableArray array];
-      
-      
+
+
       for (i = 0; i < holes.count; i++) {
         latLngArray = [holes objectAtIndex:i];
         GMSMutablePath *holePath = [GMSMutablePath path];
@@ -64,11 +64,11 @@
     }
 
     dispatch_sync(dispatch_get_main_queue(), ^{
-      
+
       // Create the polygon, and assign it to the map on UI thread.
       GMSPolygon *polygon = [GMSPolygon polygonWithPath:path];
       polygon.title = @"polygon";
-      
+
       if (holePaths != nil) {
         polygon.holes = holePaths;
       }
@@ -87,10 +87,10 @@
 
       polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
       polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
-        
+
       polygon.tappable = YES;
-      
-      
+
+
       // Register polygon to the overlayManager.
       dispatch_async(dispatch_get_main_queue(), ^{
         NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
@@ -105,9 +105,9 @@
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       });
-      
+
     });
-    
+
   }];
 }
 
@@ -119,18 +119,18 @@
 -(void)setHoles:(CDVInvokedUrlCommand *)command
 {
   [self.commandDelegate runInBackground:^{
-  
+
     // Obtain the polygon matched with the id.
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
-    
+
     // Create holes.
     NSArray *holes = [command.arguments objectAtIndex:1];
     NSArray *latLngArray;
     NSDictionary *latLng;
     int i, j;
     NSMutableArray *holePaths = [NSMutableArray array];
-    
+
     for (i = 0; i < holes.count; i++) {
       latLngArray = [holes objectAtIndex:i];
       GMSMutablePath *holePath = [GMSMutablePath path];
@@ -140,7 +140,7 @@
       }
       [holePaths addObject:holePath];
     }
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       polygon.holes = holePaths;
@@ -148,7 +148,7 @@
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
-    
+
   }];
 
 }
@@ -173,7 +173,7 @@
       latLng = [points objectAtIndex:i];
       [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
     }
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       [polygon setPath:path];
@@ -197,7 +197,7 @@
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
 
     NSArray *rgbColor = [command.arguments objectAtIndex:1];
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       [polygon setFillColor:[rgbColor parsePluginColor]];
@@ -220,7 +220,7 @@
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
 
     NSArray *rgbColor = [command.arguments objectAtIndex:1];
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       [polygon setStrokeColor:[rgbColor parsePluginColor]];
@@ -229,7 +229,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
-  
+
 }
 
 /**
@@ -242,7 +242,7 @@
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
     float width = [[command.arguments objectAtIndex:1] floatValue];
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       [polygon setStrokeWidth:width];
@@ -263,7 +263,7 @@
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
     NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       [polygon setZIndex:(int)zIndex];
@@ -285,7 +285,7 @@
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
     Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
-  
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       if (isVisible) {
@@ -293,7 +293,7 @@
       } else {
         polygon.map = nil;
       }
-      
+
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
@@ -310,7 +310,7 @@
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
     Boolean isGeodisic = [[command.arguments objectAtIndex:1] boolValue];
-  
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       [polygon setGeodesic:isGeodisic];
@@ -331,7 +331,7 @@
 
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     [self.mapCtrl removeObjectForKey:polygonKey];
-    
+
     // Apply to the polygon on UI thread.
     dispatch_sync(dispatch_get_main_queue(), ^{
       GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];

@@ -6,11 +6,11 @@
 //
 //
 
-#import "GoogleMaps.h"
+#import "CordovaGoogleMaps.h"
 #import "PluginUtil.h"
 #import <CoreLocation/CoreLocation.h>
 
-@interface Geocoder : CDVPlugin
+@interface PluginGeocoder : CDVPlugin
 
 @property (nonatomic, strong) CLGeocoder *geocoder;
 @property (nonatomic, strong) GMSGeocoder *reverseGeocoder;
