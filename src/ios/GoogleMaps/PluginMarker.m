@@ -36,9 +36,11 @@
       }
       [self.mapCtrl.overlayManager removeObjectForKey:key];
   }
+  
+  [self.iconCache removeAllObjects];
+  self.iconCache = nil;
   key = nil;
   keys = nil;
-  self.iconCache = nil;
 }
 
 /**

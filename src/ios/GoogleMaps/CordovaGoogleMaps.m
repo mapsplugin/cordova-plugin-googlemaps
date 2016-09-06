@@ -91,6 +91,11 @@
 -(void)pageDidLoad {
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
+  
+    // Remove all url caches
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+  
+    // Remove old plugins that are used in the previous html.
     dispatch_async(dispatch_get_main_queue(), ^{
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
