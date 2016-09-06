@@ -244,7 +244,8 @@ module.exports = {
     }
 };
 
-// for Android
+// For Android, the plugin needs to release the caches.
+// For iOS, the removing cache process runs in the initalize process.
 window.addEventListener("beforeunload", function() {
     clearInterval(INTERVAL_TIMER);
     cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
