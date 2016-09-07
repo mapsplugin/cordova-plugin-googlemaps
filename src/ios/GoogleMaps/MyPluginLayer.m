@@ -223,7 +223,6 @@
   // Remove the mapView from the scroll view.
   [mapCtrl.view removeFromSuperview];
   
-  NSLog(@"---> remove : %@", mapId);
   [self updateViewPosition:mapId];
   self.needUpdatePosition = NO;
   mapCtrl.mapDivId = nil;
@@ -253,8 +252,8 @@
       GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
       NSLog(@"---> mapCtlId.mapDivId = %@", mapCtrl.mapDivId);
       if (!mapCtrl.mapDivId) {
-          self.needUpdatePosition = YES;
-          NSLog(@"---> needUpdatePosition = YES(!mapCtrl.mapDivId / updateViewPosition)");
+          //self.needUpdatePosition = YES;
+          //NSLog(@"---> needUpdatePosition = YES(!mapCtrl.mapDivId / updateViewPosition)");
           self.stopFlag = NO;
           return;
       }
@@ -263,15 +262,15 @@
       NSLog(@"---> domInfo = %@", domInfo);
       if (domInfo == nil) {
           //NSLog(@"---> needUpdatePosition = YES (domInfo == nil / updateViewPosition)");
-          self.needUpdatePosition = YES;
+          //self.needUpdatePosition = YES;
           self.stopFlag = NO;
           return;
       }
     
       int isDummy = [[domInfo objectForKey:@"isDummy"] intValue];
       if (isDummy == 1) {
-          NSLog(@"---> needUpdatePosition = YES (isDummy = 1/ updateViewPosition)");
-          self.needUpdatePosition = YES;
+          //NSLog(@"---> needUpdatePosition = YES (isDummy = 1/ updateViewPosition)");
+          //self.needUpdatePosition = YES;
           self.stopFlag = NO;
           return;
       }

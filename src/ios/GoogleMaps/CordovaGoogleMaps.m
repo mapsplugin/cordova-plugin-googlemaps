@@ -87,6 +87,11 @@
     //[mapCtrl.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
     //[mapCtrl.pluginLayer.pluginScrollView flashScrollIndicators];
 }
+- (void)unload:(CDVInvokedUrlCommand*)command {
+    // Stub
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 -(void)pageDidLoad {
     self.webView.backgroundColor = [UIColor clearColor];
@@ -98,7 +103,6 @@
     // Remove old plugins that are used in the previous html.
     dispatch_async(dispatch_get_main_queue(), ^{
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
         NSString *mapId;
         NSArray *keys=[self.mapPlugins allKeys];
         NSString *pluginName;
