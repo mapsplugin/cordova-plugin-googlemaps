@@ -21,4 +21,5 @@
 - (void)updateViewPosition:(NSString *)mapId;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
 - (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
+- (void)removeMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
 @end

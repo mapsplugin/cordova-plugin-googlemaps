@@ -21,9 +21,8 @@
   self.isRemoved = YES;
 
   // Load the GoogleMap.m
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-  [googlemaps.pluginLayer.pluginScrollView dettachView];
+  //CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+  //CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
   [self clear:nil];
   [self.mapCtrl.overlayManager removeAllObjects];
@@ -84,7 +83,7 @@
 
       SEL selector = NSSelectorFromString(@"create:");
       if ([plugin respondsToSelector:selector]){
-          [plugin performSelectorInBackground:selector withObject:command];
+          [plugin performSelectorOnMainThread:selector withObject:command waitUntilDone:NO];
       } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                            messageAsString:[NSString stringWithFormat:@"method not found: %@ in %@ class", @"create", className]];
@@ -96,53 +95,54 @@
 - (void)getMap:(CDVInvokedUrlCommand*)command {
 
     self.loadPluginQueue =  [NSOperationQueue new];
+    self.executeQueue =  [NSOperationQueue new];
 
     if ([command.arguments count] == 1) {
         //-----------------------------------------------------------------------
         // case: plugin.google.maps.getMap([options]) (no the mapDiv is given)
         //-----------------------------------------------------------------------
         [self setOptions:command];
-        [self.mapCtrl.view setHidden:true];
+        //[self.mapCtrl.view setHidden:true];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
-
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.executeQueue addOperationWithBlock: ^{
       [self setOptions:command];
 
       [self resizeMap:command];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+    }];
 }
 
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-
-    // Detach the map view
-    if (self.mapCtrl.mapDivId) {
-        [self.mapCtrl.view removeFromSuperview];
-        self.mapCtrl.mapDivId = nil;
-    }
-
-    if ([command.arguments count] == 1) {
-        NSString *mapDivId = [command.arguments objectAtIndex:0];
-        self.mapCtrl.mapDivId = mapDivId;
-        //NSLog(@"---> setDiv : %@", mapDivId);
-
+    [self.executeQueue addOperationWithBlock:^{
+    
         // Load the GoogleMap.m
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+  
+        NSLog(@"====> [command.arguments count] = %d", [command.arguments count]);
+        // Detach the map view
+        if ([command.arguments count] == 0 && self.mapCtrl.mapDivId) {
+        NSLog(@"====> remove");
+            [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
+        }
 
-        [googlemaps.pluginLayer addMapView:self.mapId mapCtrl:self.mapCtrl];
-
+        if ([command.arguments count] == 1) {
+            NSString *mapDivId = [command.arguments objectAtIndex:0];
+            self.mapCtrl.mapDivId = mapDivId;
+            NSLog(@"---> setDiv : %@", mapDivId);
+            [googlemaps.pluginLayer addMapView:self.mapId mapCtrl:self.mapCtrl];
         [self resizeMap:command];
-    }
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 
@@ -193,14 +193,12 @@
     self.isRemoved = YES;
 
     // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    //CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    //CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
     //[googlemaps.pluginLayer clearHTMLElement:mapId];
-    [googlemaps.pluginLayer.pluginScrollView dettachView];
-
+    //[googlemaps.pluginLayer.pluginScrollView dettachView];
+  
     [self clear:nil];
-    [self.mapCtrl.overlayManager removeAllObjects];
-    [self.mapCtrl.map clear];
     [self.mapCtrl.map removeFromSuperview];
     [self.mapCtrl.view removeFromSuperview];
     self.mapCtrl.map = nil;
@@ -217,13 +215,13 @@
  * Clear all markups
  */
 - (void)clear:(CDVInvokedUrlCommand *)command {
-    [self.mapCtrl.map clear];
-    if (self.loadPluginQueue != nil){
-        self.loadPluginQueue.suspended = YES;
-        [self.loadPluginQueue cancelAllOperations];
-        self.loadPluginQueue.suspended = NO;
-    }
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    [self.executeQueue addOperationWithBlock:^{
+        [self.mapCtrl.map clear];
+        if (self.loadPluginQueue != nil){
+            self.loadPluginQueue.suspended = YES;
+            [self.loadPluginQueue cancelAllOperations];
+            self.loadPluginQueue.suspended = NO;
+        }
         NSArray *keys = [self.mapCtrl.overlayManager allKeys];
         NSString *key;
         for (int i = 0; i < keys.count; i++) {
@@ -247,8 +245,8 @@
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
           
         }
-    });
 
+    }];
 }
 
 /**

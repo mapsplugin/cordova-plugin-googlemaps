@@ -203,19 +203,38 @@
       
   self.stopFlag = YES;
 
-  // Hold mapCtrl instance with mapId.
+  // Hold the mapCtrl instance with mapId.
   [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapId];
   
-  // Add the mapView under this view.
+  // Add the mapView under the scroll view.
   [self.pluginScrollView attachView:mapCtrl.view];
 
   self.stopFlag = NO;
   
 }
 
+- (void)removeMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl {
+      
+  self.stopFlag = YES;
+
+  // Remove the mapCtrl instance with mapId.
+  [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapId];
+  
+  // Remove the mapView from the scroll view.
+  [mapCtrl.view removeFromSuperview];
+  
+  NSLog(@"---> remove : %@", mapId);
+  [self updateViewPosition:mapId];
+  self.needUpdatePosition = NO;
+  mapCtrl.mapDivId = nil;
+  self.stopFlag = NO;
+  
+}
+
+
 - (void)updateViewPosition:(NSString *)mapId {
 
-  dispatch_async(dispatch_get_main_queue(), ^{
+  //dispatch_async(dispatch_get_main_queue(), ^{
   
       if (self.pluginScrollView.debugView.debuggable) {
           [self.pluginScrollView.debugView setNeedsDisplay];
@@ -232,16 +251,16 @@
       
 
       GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-      //NSLog(@"---> mapCtlId.mapDivId = %@", mapCtrl.mapDivId);
+      NSLog(@"---> mapCtlId.mapDivId = %@", mapCtrl.mapDivId);
       if (!mapCtrl.mapDivId) {
           self.needUpdatePosition = YES;
-          //NSLog(@"---> needUpdatePosition = YES(!mapCtrl.mapDivId / updateViewPosition)");
+          NSLog(@"---> needUpdatePosition = YES(!mapCtrl.mapDivId / updateViewPosition)");
           self.stopFlag = NO;
           return;
       }
 
       NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-      //NSLog(@"---> domInfo = %@", domInfo);
+      NSLog(@"---> domInfo = %@", domInfo);
       if (domInfo == nil) {
           //NSLog(@"---> needUpdatePosition = YES (domInfo == nil / updateViewPosition)");
           self.needUpdatePosition = YES;
@@ -251,7 +270,7 @@
     
       int isDummy = [[domInfo objectForKey:@"isDummy"] intValue];
       if (isDummy == 1) {
-          //NSLog(@"---> needUpdatePosition = YES (isDummy = 1/ updateViewPosition)");
+          NSLog(@"---> needUpdatePosition = YES (isDummy = 1/ updateViewPosition)");
           self.needUpdatePosition = YES;
           self.stopFlag = NO;
           return;
@@ -318,7 +337,7 @@
           self.needUpdatePosition = YES;
           //NSLog(@"---> needUpdatePosition = YES (width || height == 0)");
       }
-  });
+  //});
   
 }
 

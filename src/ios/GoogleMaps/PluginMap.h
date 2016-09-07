@@ -15,6 +15,7 @@
 @property (nonatomic) NSString *mapId;
 @property (nonatomic) BOOL isRemoved;
 @property (nonatomic) NSOperationQueue *loadPluginQueue;
+@property (nonatomic) NSOperationQueue *executeQueue;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;

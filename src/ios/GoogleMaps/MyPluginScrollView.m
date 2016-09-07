@@ -10,7 +10,6 @@
 
 @implementation MyPluginScrollView
 
-UIView *myView = nil;
 
 -  (id)initWithFrame:(CGRect)aRect
 {
@@ -24,9 +23,5 @@ UIView *myView = nil;
   [self.debugView removeFromSuperview];
   [self addSubview:view];
   [self addSubview:self.debugView];
-}
-- (void)dettachView {
-  [myView removeFromSuperview];
-  [self.debugView removeFromSuperview];
 }
 @end
