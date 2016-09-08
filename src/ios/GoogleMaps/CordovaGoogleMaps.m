@@ -83,12 +83,12 @@
   });
 }
 -(void)viewDidLayoutSubviews {
-//TODO
-    //[mapCtrl.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
-    //[mapCtrl.pluginLayer.pluginScrollView flashScrollIndicators];
+    [self.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
+    [self.pluginLayer.pluginScrollView flashScrollIndicators];
 }
 - (void)unload:(CDVInvokedUrlCommand*)command {
-    // Stub
+    //stub
+  
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -97,11 +97,15 @@
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
   
-    // Remove all url caches
-    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    // Reset the background color
+    self.pluginLayer.backgroundColor = [UIColor whiteColor];
   
-    // Remove old plugins that are used in the previous html.
     dispatch_async(dispatch_get_main_queue(), ^{
+      
+        // Remove all url caches
+        [[NSURLCache sharedURLCache] removeAllCachedResponses];
+      
+        // Remove old plugins that are used in the previous html.
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         NSString *mapId;
         NSArray *keys=[self.mapPlugins allKeys];

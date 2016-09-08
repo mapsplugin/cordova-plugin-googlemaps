@@ -32,11 +32,16 @@
   //CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
   [self clear:nil];
-  [self.mapCtrl.overlayManager removeAllObjects];
-  [self.mapCtrl.map removeFromSuperview];
-  [self.mapCtrl.view removeFromSuperview];
-  self.mapCtrl.map = nil;
-  self.mapCtrl = nil;
+  
+  dispatch_async(dispatch_get_main_queue(), ^{
+      [self.mapCtrl.overlayManager removeAllObjects];
+      [self.mapCtrl.map removeFromSuperview];
+      [self.mapCtrl.view removeFromSuperview];
+      [self.mapCtrl.view setFrame:CGRectMake(0, -1000, 100, 100)];
+      [self.mapCtrl.view setNeedsDisplay];
+      self.mapCtrl.map = nil;
+      self.mapCtrl = nil;
+  });
 
 }
 - (void)loadPlugin:(CDVInvokedUrlCommand*)command {
@@ -134,14 +139,12 @@
   
         // Detach the map view
         if ([command.arguments count] == 0 && self.mapCtrl.mapDivId) {
-        NSLog(@"====> remove");
             [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
         }
 
         if ([command.arguments count] == 1) {
             NSString *mapDivId = [command.arguments objectAtIndex:0];
             self.mapCtrl.mapDivId = mapDivId;
-            NSLog(@"---> setDiv : %@", mapDivId);
             [googlemaps.pluginLayer addMapView:self.mapId mapCtrl:self.mapCtrl];
         [self resizeMap:command];
         }
@@ -200,24 +203,23 @@
 - (void)remove:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
 
-    self.isRemoved = YES;
+        self.isRemoved = YES;
 
-    // Load the GoogleMap.m
-    //CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    //CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-    //[googlemaps.pluginLayer clearHTMLElement:mapId];
-    //[googlemaps.pluginLayer.pluginScrollView dettachView];
-  
-    [self clear:nil];
-    [self.mapCtrl.map removeFromSuperview];
-    [self.mapCtrl.view removeFromSuperview];
-    self.mapCtrl.map = nil;
-    self.mapCtrl = nil;
+        [self clear:nil];
+        
+        // Load the GoogleMap.m
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+        CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+        [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
+        
+      
+        self.mapCtrl.map = nil;
+        self.mapCtrl = nil;
 
-    if (command != nil) {
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }
+        if (command != nil) {
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
     }];
 
 }
@@ -226,40 +228,38 @@
  * Clear all markups
  */
 - (void)clear:(CDVInvokedUrlCommand *)command {
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    dispatch_async(dispatch_get_main_queue(), ^{
       [self.mapCtrl.map clear];
-    }];
-    [self.executeQueue addOperationWithBlock:^{
-        if (self.loadPluginQueue != nil){
-            self.loadPluginQueue.suspended = YES;
-            [self.loadPluginQueue cancelAllOperations];
-            self.loadPluginQueue.suspended = NO;
+    });
+  
+    if (self.loadPluginQueue != nil){
+        self.loadPluginQueue.suspended = YES;
+        [self.loadPluginQueue cancelAllOperations];
+        self.loadPluginQueue.suspended = NO;
+    }
+    NSArray *keys = [self.mapCtrl.overlayManager allKeys];
+    NSString *key;
+    for (int i = 0; i < keys.count; i++) {
+        key = keys[i];
+        if ([key hasPrefix:@"marker_property_"]) {
+            NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
+            properties = nil;
+            [self.mapCtrl.overlayManager removeObjectForKey:key];
         }
-        NSArray *keys = [self.mapCtrl.overlayManager allKeys];
-        NSString *key;
-        for (int i = 0; i < keys.count; i++) {
-            key = keys[i];
-            if ([key hasPrefix:@"marker_property_"]) {
-                NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
-                properties = nil;
-                [self.mapCtrl.overlayManager removeObjectForKey:key];
-            }
-            if ([key hasPrefix:@"marker_"]) {
-                GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
-                marker = nil;
-                [self.mapCtrl.overlayManager removeObjectForKey:key];
-            }
+        if ([key hasPrefix:@"marker_"]) {
+            GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
+            marker = nil;
+            [self.mapCtrl.overlayManager removeObjectForKey:key];
         }
-        [self.mapCtrl.overlayManager removeAllObjects];
-        //[self.mapCtrl.plugins removeAllObjects];
+    }
+    [self.mapCtrl.overlayManager removeAllObjects];
+    //[self.mapCtrl.plugins removeAllObjects];
 
-        if (command != nil) {
-            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-          
-        }
-
-    }];
+    if (command != nil) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      
+    }
 }
 
 /**

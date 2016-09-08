@@ -75,6 +75,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
         if (children.length !== prevChildrenCnt) {
             shouldUpdate = true;
         }
+        prevChildrenCnt = children.length;
         for (i = 0; i < children.length; i++) {
             child = children[i];
             elemId = child.getAttribute("__pluginDomId");
@@ -244,12 +245,17 @@ module.exports = {
     }
 };
 
-// For Android, the plugin needs to release the caches.
-// For iOS, the removing cache process runs in the initalize process.
+// For Android
 window.addEventListener("beforeunload", function() {
     clearInterval(INTERVAL_TIMER);
     cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
 });
+// For iOS (it doesn't work though...)
+window.addEventListener("pagehide", function() {
+    clearInterval(INTERVAL_TIMER);
+    cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
+});
+
 
 window.addEventListener("orientationchange", function() {
     setTimeout(onMapResize, 1000);
