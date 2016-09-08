@@ -19,6 +19,7 @@
   [self.mapCtrl.plugins setObject:self forKey:@"Marker"];
   self.iconCache = [[NSCache alloc]init];
   self.iconCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
+  self.executeQueue =  [NSOperationQueue new];
 }
 
 - (void)pluginUnload
@@ -62,6 +63,7 @@
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
 
 
+    
     // Create a marker
     marker = [GMSMarker markerWithPosition:position];
 
@@ -111,58 +113,57 @@
     [self.mapCtrl.overlayManager setObject:properties forKey: markerPropertyId];
 
 
-        // Create icon
-        NSObject *icon = [json valueForKey:@"icon"];
-        if ([icon isKindOfClass:[NSString class]]) {
-            iconProperty = [NSMutableDictionary dictionary];
-            [iconProperty setObject:icon forKey:@"url"];
+    // Create icon
+    NSObject *icon = [json valueForKey:@"icon"];
+    if ([icon isKindOfClass:[NSString class]]) {
+        iconProperty = [NSMutableDictionary dictionary];
+        [iconProperty setObject:icon forKey:@"url"];
 
-        } else if ([icon isKindOfClass:[NSDictionary class]]) {
-            iconProperty = [json valueForKey:@"icon"];
+    } else if ([icon isKindOfClass:[NSDictionary class]]) {
+        iconProperty = [json valueForKey:@"icon"];
 
-        } else if ([icon isKindOfClass:[NSArray class]]) {
-            NSArray *rgbColor = [json valueForKey:@"icon"];
-            iconProperty = [NSMutableDictionary dictionary];
-            [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
-        }
+    } else if ([icon isKindOfClass:[NSArray class]]) {
+        NSArray *rgbColor = [json valueForKey:@"icon"];
+        iconProperty = [NSMutableDictionary dictionary];
+        [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+    }
 
-        // Visible property
+    // Visible property
+    if (iconProperty) {
+        [iconProperty setObject:[NSNumber numberWithBool:[[json valueForKey:@"visible"] boolValue]] forKey:@"visible"];
+    }
+
+    // Animation
+    if ([json valueForKey:@"animation"]) {
+        animation = [json valueForKey:@"animation"];
         if (iconProperty) {
-            [iconProperty setObject:[NSNumber numberWithBool:[[json valueForKey:@"visible"] boolValue]] forKey:@"visible"];
+            [iconProperty setObject:animation forKey:@"animation"];
+        }
+    }
+
+    if (iconProperty) {
+        if ([json valueForKey:@"infoWindowAnchor"]) {
+            [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
         }
 
-        // Animation
-        if ([json valueForKey:@"animation"]) {
-            animation = [json valueForKey:@"animation"];
-            if (iconProperty) {
-                [iconProperty setObject:animation forKey:@"animation"];
+        // Load icon in asynchronise
+        CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+        [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+
+    } else {
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            if ([[json valueForKey:@"visible"] boolValue]) {
+                marker.map = self.mapCtrl.map;
             }
-        }
-
-        if (iconProperty) {
-            if ([json valueForKey:@"infoWindowAnchor"]) {
-                [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+            if (animation) {
+                [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
+            } else {
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }
-
-            // Load icon in asynchronise
-            CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-            [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
-
-        } else {
-
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                if ([[json valueForKey:@"visible"] boolValue]) {
-                    marker.map = self.mapCtrl.map;
-                }
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-                if (animation) {
-                    [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
-                } else {
-                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                }
-            });
-        }
-
+        });
+    }
 
 }
 

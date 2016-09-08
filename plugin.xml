@@ -89,7 +89,7 @@
              Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
 
              Check our release notes.
-             https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
+             https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Release-Notes
         </info>
 
         <config-file target="res/xml/config.xml" parent="/*">

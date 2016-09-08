@@ -14,6 +14,7 @@
 @interface PluginMarker : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) NSCache* iconCache;
+@property (nonatomic) NSOperationQueue *executeQueue;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
