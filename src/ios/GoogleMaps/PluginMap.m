@@ -46,6 +46,7 @@
 }
 - (void)loadPlugin:(CDVInvokedUrlCommand*)command {
   NSString *className = [command.arguments objectAtIndex:0];
+  NSString *pluginName = [NSString stringWithFormat:@"%@", className];
   className = [NSString stringWithFormat:@"Plugin%@", className];
   //NSLog(@"--->loadPlugin : %@ className : %@", self.mapId, className);
 
@@ -61,14 +62,14 @@
       //#else
         plugin = [[NSClassFromString(className)alloc] init];
       //#endif
-    //NSLog(@"--> plugin = %@", plugin);
+      //NSLog(@"--> plugin = %@", plugin);
       if (plugin) {
         plugin.commandDelegate = self.commandDelegate;
         [plugin setGoogleMapsViewController:self.mapCtrl];
         [self.mapCtrl.plugins setObject:plugin forKey:className];
 
-        NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, [className lowercaseString]];
-    //NSLog(@"--> pluginId = %@", pluginId);
+        NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, [pluginName lowercaseString]];
+        //NSLog(@"--> pluginId = %@", pluginId);
 
         // Hack:
         // In order to load the plugin instance of the same class but different names,
