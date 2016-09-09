@@ -54,70 +54,78 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * Add event lister to all html nodes under the <body> tag.
  *****************************************************************************/
 (function() {
-    var prevDomPositions = {};
-    var prevChildrenCnt = 0;
+  var prevDomPositions = {};
+  var prevChildrenCnt = 0;
+  var shouldUpdate = false;
+  var forceUpdateCnt = 0;
 
-    function putHtmlElements() {
-        var children = common.getAllChildren(document.body);
-        var bodyRect = common.getDivRect(document.body);;
+  function putHtmlElements() {
+      var children = common.getAllChildren(document.body);
+      var bodyRect = common.getDivRect(document.body);;
 
-        if (children.length === 0) {
-            children = null;
-            return;
-        }
-
-        var shouldUpdate = false;
-        var domPositions = {};
-        var size, elemId, i, child, parentNode;
+      if (children.length === 0) {
+          children = null;
+          return;
+      }
 
 
-        children.unshift(document.body);
-        if (children.length !== prevChildrenCnt) {
-            shouldUpdate = true;
-        }
-        prevChildrenCnt = children.length;
-        for (i = 0; i < children.length; i++) {
-            child = children[i];
-            elemId = child.getAttribute("__pluginDomId");
-            if (!elemId) {
-                elemId = "pgm" + Math.floor(Math.random() * Date.now());
-                child.setAttribute("__pluginDomId", elemId);
-            }
-            domPositions[elemId] = common.getDomInfo(child);
-            if (!shouldUpdate) {
-                if (elemId in prevDomPositions) {
-                    if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
-                        domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
-                        domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
-                        domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
-                        shouldUpdate = true;
-                    }
-                } else {
-                    shouldUpdate = true;
-                }
-            }
-        }
-        if (!shouldUpdate) {
-            return;
-        }
+      var domPositions = {};
+      var size, elemId, i, child, parentNode;
 
 
-        for (i = 0; i < children.length; i++) {
-            child = children[i];
-            elemId = child.getAttribute("__pluginDomId");
-            domPositions[elemId].offsetX = domPositions[elemId].size.left - bodyRect.left;
-            domPositions[elemId].offsetY = domPositions[elemId].size.top - bodyRect.top;
-        }
-        cordova.exec(function() {
-            prevDomPositions = domPositions;
-        }, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
-        child = null;
-        parentNode = null;
-        elemId = null;
-        children = null;
-    }
-    putHtmlElements();
-    INTERVAL_TIMER = setInterval(putHtmlElements, 50);
+      children.unshift(document.body);
+      if (children.length !== prevChildrenCnt) {
+          shouldUpdate = true;
+      }
+      prevChildrenCnt = children.length;
+      for (i = 0; i < children.length; i++) {
+          child = children[i];
+          elemId = child.getAttribute("__pluginDomId");
+          if (!elemId) {
+              elemId = "pgm" + Math.floor(Math.random() * Date.now());
+              child.setAttribute("__pluginDomId", elemId);
+          }
+          domPositions[elemId] = common.getDomInfo(child);
+          if (!shouldUpdate) {
+              if (elemId in prevDomPositions) {
+                  if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
+                      domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
+                      domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
+                      domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
+                      shouldUpdate = true;
+                  }
+              } else {
+                  shouldUpdate = true;
+              }
+          }
+      }
+      if (!shouldUpdate && forceUpdateCnt < 1) {
+          return;
+      }
+
+      for (i = 0; i < children.length; i++) {
+          child = children[i];
+          elemId = child.getAttribute("__pluginDomId");
+          domPositions[elemId].offsetX = domPositions[elemId].size.left - bodyRect.left;
+          domPositions[elemId].offsetY = domPositions[elemId].size.top - bodyRect.top;
+      }
+      cordova.exec(function() {
+          shouldUpdate = false;
+          forceUpdateCnt--;
+          prevDomPositions = domPositions;
+      }, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
+      child = null;
+      parentNode = null;
+      elemId = null;
+      children = null;
+  }
+  putHtmlElements();
+  INTERVAL_TIMER = setInterval(putHtmlElements, 30);
+
+  window.addEventListener("scroll", function() {
+    shouldUpdate = true;
+    forceUpdateCnt = 5;
+  });
 }());
 
 /*****************************************************************************

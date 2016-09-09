@@ -19,6 +19,7 @@ NSOperationQueue *executeQueue;
     self.webView = webView;
     self.opaque = NO;
     [self.webView removeFromSuperview];
+    self.webView.scrollView.bounces = NO;
 
     self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
   
@@ -40,6 +41,8 @@ NSOperationQueue *executeQueue;
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
   self.needUpdatePosition = YES;
+  CGPoint offset = self.webView.scrollView.contentOffset;
+  self.pluginScrollView.contentOffset = offset;
   
   if (self.pluginScrollView.debugView.debuggable) {
       [self.pluginScrollView.debugView setNeedsDisplay];
@@ -48,92 +51,29 @@ NSOperationQueue *executeQueue;
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
   self.needUpdatePosition = YES;
+  CGPoint offset = self.webView.scrollView.contentOffset;
+  self.pluginScrollView.contentOffset = offset;
   
   if (self.pluginScrollView.debugView.debuggable) {
       [self.pluginScrollView.debugView setNeedsDisplay];
   }
 }
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-
-
-    dispatch_async(dispatch_get_main_queue(), ^{
+  CGPoint offset = self.webView.scrollView.contentOffset;
+  self.pluginScrollView.contentOffset = offset;
   
-        CGFloat zoomScale = self.webView.scrollView.zoomScale;
-        CGPoint offset = self.webView.scrollView.contentOffset;
-        [self.pluginScrollView setContentOffset:offset];
-        offset.x *= zoomScale;
-        offset.y *= zoomScale;
-      
-        float webviewWidth = self.webView.frame.size.width;
-        float webviewHeight = self.webView.frame.size.height;
-      
-        CGRect rect;
-        NSEnumerator *mapIDs = [self.pluginScrollView.debugView.mapCtrls keyEnumerator];
-        GoogleMapsViewController *mapCtrl;
-        id mapId;
-        NSDictionary *domInfo;
-        while(mapId = [mapIDs nextObject]) {
-            mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-            if (!mapCtrl) {
-                continue;
-            }
-            
-            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-            rect = CGRectFromString([domInfo objectForKey:@"size"]);
-            rect.origin.x *= zoomScale;
-            rect.origin.y *= zoomScale;
-            rect.size.width *= zoomScale;
-            rect.size.height *= zoomScale;
-            rect.origin.x += offset.x;
-            rect.origin.y += offset.y;
-          
-              
-            // Is the map is displayed?
-            if (rect.origin.y + rect.size.height >= offset.y &&
-                rect.origin.x + rect.size.width >= offset.x &&
-                rect.origin.y < offset.y + webviewHeight &&
-                rect.origin.x < offset.x + webviewWidth &&
-                mapCtrl.view.hidden == NO) {
-              
-                // Attach the map view to the parent.
-                if (mapCtrl.isRenderedAtOnce == YES ||
-                    (mapCtrl.map.mapType != kGMSTypeSatellite &&
-                    mapCtrl.map.mapType != kGMSTypeHybrid)) {
-                    [self.pluginScrollView attachView:mapCtrl.view];
-                }
-              
-            } else {
-                // Detach from the parent view
-                if (mapCtrl.isRenderedAtOnce == YES ||
-                    (mapCtrl.map.mapType != kGMSTypeSatellite &&
-                    mapCtrl.map.mapType != kGMSTypeHybrid)) {
-                    [mapCtrl.view removeFromSuperview];
-                }
-            }
-          
-            
-            if (mapCtrl.isRenderedAtOnce == NO) {
-              self.needUpdatePosition = YES;
-              //NSLog(@"---> needUpdatePosition = YES (isRenderedAtOnce = NO)");
-            }
-          
-        }
-      
-        if (self.pluginScrollView.debugView.debuggable) {
-            [self.pluginScrollView.debugView setNeedsDisplay];
-        }
-        
-  
-    });
+  if (self.pluginScrollView.debugView.debuggable) {
+      [self.pluginScrollView.debugView setNeedsDisplay];
+  }
 }
 
 - (void)putHTMLElements:(NSDictionary *)elementsDic {
 
+  self.stopFlag = YES;
     [executeQueue addOperationWithBlock:^{
 
         CGRect rect = CGRectMake(0, 0, 0, 0);
         NSMutableDictionary *domInfo, *size;
-        NSDictionary *prevDomInfo;
         NSMutableDictionary *newBuffer = [[NSMutableDictionary alloc] init];
       
         for (NSString *domId in elementsDic) {
@@ -151,60 +91,10 @@ NSOperationQueue *executeQueue;
             size = nil;
         }
       
-        NSDictionary *oldBuffer = self.pluginScrollView.debugView.HTMLNodes;
+        self.pluginScrollView.debugView.HTMLNodes = nil;
         self.pluginScrollView.debugView.HTMLNodes = newBuffer;
-        if (self.needUpdatePosition == YES) {
-            return;
-        }
-      
-        GoogleMapsViewController *mapCtrl;
-        double prevOffsetX, prevOffsetY, newOffsetX, newOffsetY;
-        NSString *mapId;
-      
-        NSEnumerator *mapIDs = [self.pluginScrollView.debugView.mapCtrls keyEnumerator];
-        while(mapId = [mapIDs nextObject]) {
-          mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-          if (!mapCtrl.mapDivId) {
-              //NSLog(@"---> needUpdatePosition = YES (!mapDivId)");
-              //self.needUpdatePosition = YES;
-              //self.stopFlag = NO;
-              continue;
-          }
-
-          prevDomInfo = [oldBuffer objectForKey:mapCtrl.mapDivId];
-          if (prevDomInfo == nil) {
-              //NSLog(@"---> needUpdatePosition = YES (prevDomInfo == nil)");
-              self.needUpdatePosition = YES;
-              self.stopFlag = NO;
-              break;
-          }
-          
-          domInfo = [newBuffer objectForKey:mapCtrl.mapDivId];
-          if (domInfo == nil) {
-              //NSLog(@"---> needUpdatePosition = YES (domInfo == nil)");
-              self.needUpdatePosition = YES;
-              self.stopFlag = NO;
-              break;
-          }
-          
-          prevOffsetX = [[prevDomInfo objectForKey:@"offsetX"] doubleValue];
-          prevOffsetY = [[prevDomInfo objectForKey:@"offsetY"] doubleValue];
-          newOffsetX = [[domInfo objectForKey:@"offsetX"] doubleValue];
-          newOffsetY = [[domInfo objectForKey:@"offsetY"] doubleValue];
-          //NSLog(@"mapId = %@, prevOffsetY = %f, newOffsetY = %f", mapId, prevOffsetY, newOffsetY);
-          
-          if (prevOffsetX != newOffsetX || prevOffsetY != newOffsetY || mapCtrl.isRenderedAtOnce == NO) {
-              //NSLog(@"---> needUpdatePosition = YES (The mapDiv is moved)");
-              self.needUpdatePosition = YES;
-              self.stopFlag = NO;
-              break;
-          }
-          
-        }
-      
-        newBuffer = nil;
-        oldBuffer = nil;
-        
+        self.needUpdatePosition = YES;
+        self.stopFlag = NO;
     }];
   
 }
@@ -218,6 +108,8 @@ NSOperationQueue *executeQueue;
   
   // Add the mapView under the scroll view.
   [self.pluginScrollView attachView:mapCtrl.view];
+  
+  [self updateViewPosition:mapId];
 
   self.stopFlag = NO;
   
@@ -268,29 +160,23 @@ NSOperationQueue *executeQueue;
 
       GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
       if (!mapCtrl.mapDivId) {
-          //self.needUpdatePosition = YES;
-          //NSLog(@"---> needUpdatePosition = YES(!mapCtrl.mapDivId / updateViewPosition)");
           self.stopFlag = NO;
           return;
       }
 
       NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
       if (domInfo == nil) {
-          //NSLog(@"---> needUpdatePosition = YES (domInfo == nil / updateViewPosition)");
-          //self.needUpdatePosition = YES;
           self.stopFlag = NO;
           return;
       }
     
       int isDummy = [[domInfo objectForKey:@"isDummy"] intValue];
       if (isDummy == 1) {
-          //NSLog(@"---> needUpdatePosition = YES (isDummy = 1/ updateViewPosition)");
-          //self.needUpdatePosition = YES;
           self.stopFlag = NO;
           return;
       }
       NSString *rectStr = [domInfo objectForKey:@"size"];
-      //NSLog(@"mapId = %@, rect = %@", mapId, rectStr);
+      NSLog(@"mapId = %@, rect = %@", mapId, rectStr);
       
       
       CGRect rect = CGRectFromString(rectStr);
@@ -300,7 +186,7 @@ NSOperationQueue *executeQueue;
       rect.size.height *= zoomScale;
       rect.origin.x += offset.x;
       rect.origin.y += offset.y;
-
+/*
       float webviewWidth = self.webView.frame.size.width;
       float webviewHeight = self.webView.frame.size.height;
       
@@ -327,7 +213,7 @@ NSOperationQueue *executeQueue;
               [mapCtrl.view removeFromSuperview];
           }
       }
-
+*/
       mapCtrl.isRenderedAtOnce = YES;
 
       self.stopFlag = NO;
@@ -344,10 +230,6 @@ NSOperationQueue *executeQueue;
       rect.origin.y = 0;
       [mapCtrl.map setFrame:rect];
     
-      if (rect.size.width == 0 || rect.size.height == 0) {
-          self.needUpdatePosition = YES;
-          //NSLog(@"---> needUpdatePosition = YES (width || height == 0)");
-      }
   });
   
 }
