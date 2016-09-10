@@ -87,9 +87,6 @@ Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
     disableAutoPan = common.parseBoolean(disableAutoPan);
     this.set('disableAutoPan', disableAutoPan);
     cordova.exec(null, this.errorHandler, this.getPluginName(), 'setDisableAutoPan', [this.getId(), disableAutoPan]);
-};
-Marker.prototype.getParams = function() {
-    return this.get('params');
     return this;
 };
 Marker.prototype.setOpacity = function(opacity) {
