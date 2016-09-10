@@ -53,50 +53,6 @@ Map.prototype.getId = function() {
 Map.prototype.refreshLayout = function(event) {
     var self = this;
     cordova.exec(null, null, self.id, 'resizeMap', []);
-    return;
-    //console.log("---> onMapResize mapId = " + self.id );
-    var div = self.get("div");
-    if (!div) {
-        return;
-    }
-    if (common.isDom(div) === false) {
-        self.set("div", null);
-        cordova.exec(null, self.errorHandler, self.id, 'setDiv', []);
-    } else {
-        var args = [];
-        var element, elements = [];
-        //var children = common.getAllChildren(div);
-        var elemId, clickable, size;
-
-        size = common.getDivRect(div);
-        args.push(size);
-
-        for (var i = 0; i < children.length; i++) {
-            element = children[i];
-            if (element.nodeType != 1) {
-                continue;
-            }
-            clickable = element.getAttribute("data-clickable");
-            if (clickable && common.parseBoolean(clickable) == false) {
-                continue;
-            }
-            elemId = element.getAttribute("__pluginDomId");
-            if (!elemId) {
-                elemId = "pgm" + Math.floor(Math.random() * Date.now()) + i;
-                element.setAttribute("__pluginDomId", elemId);
-            }
-
-            size = common.getDivRect(element);
-
-            elements.push({
-                id: elemId,
-                size: size
-            });
-        }
-        args.push(elements);
-        //console.log("----> mapId = " + self.getId() + " / " + JSON.stringify(common.getDivRect(div), null, 4));
-        cordova.exec(null, null, self.id, 'resizeMap', args);
-    }
 };
 
 Map.prototype.getMap = function(mapId, div, params) {
