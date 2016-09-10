@@ -261,7 +261,7 @@
  * @callback map camera_change (Camera moving is still moving).
  */
 //- (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
-//  [self triggerCameraEvent:@"camera_change" position:position];
+//  [self triggerCameraEvent:@"camera_moving" position:position];
 //}
 /**
  * @callback map camera_idle (Camera moving is just finished).
@@ -378,7 +378,11 @@
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
-  NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['marker_%lu']});", self.mapId, eventName, (unsigned long)marker.hash];
+  NSString* jsString = [NSString
+                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['marker_%lu', {lat: %f, lng: %f}]});",
+                              self.mapId, eventName, (unsigned long)marker.hash,
+                              marker.position.latitude,
+                              marker.position.longitude];
   [self execJS:jsString];
 }
 

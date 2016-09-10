@@ -777,11 +777,12 @@ Map.prototype._onMapEvent = function(eventName) {
     this.trigger.apply(this, args);
 };
 
-Map.prototype._onMarkerEvent = function(eventName, markerId) {
+Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
     var self = this;
     var marker = self.MARKERS[markerId] || null;
     if (marker) {
-        marker.trigger(eventName, marker);
+        marker.set('position', position);
+        marker.trigger(eventName, position);
     }
 };
 
