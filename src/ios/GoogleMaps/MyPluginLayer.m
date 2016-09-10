@@ -176,7 +176,7 @@ NSOperationQueue *executeQueue;
           return;
       }
       NSString *rectStr = [domInfo objectForKey:@"size"];
-      NSLog(@"mapId = %@, rect = %@", mapId, rectStr);
+      //NSLog(@"mapId = %@, rect = %@", mapId, rectStr);
       
       
       CGRect rect = CGRectFromString(rectStr);
