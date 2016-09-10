@@ -166,21 +166,25 @@ Map.prototype.setOptions = function(options) {
         delete options.camera.latLng;
     }
     cordova.exec(null, this.errorHandler, this.id, 'setOptions', [this.deleteFromObject(options, 'function')]);
+    return this;
 };
 
 Map.prototype.setCenter = function(latLng) {
     this.set('center', latLng);
     cordova.exec(null, this.errorHandler, this.id, 'setCenter', [latLng.lat, latLng.lng]);
+    return this;
 };
 
 Map.prototype.setZoom = function(zoom) {
     this.set('zoom', zoom);
     cordova.exec(null, this.errorHandler, this.id, 'setZoom', [zoom]);
+    return this;
 };
 Map.prototype.panBy = function(x, y) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
     cordova.exec(null, this.errorHandler, this.id, 'panBy', [x, y]);
+    return this;
 };
 
 /**
@@ -227,6 +231,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
     }
     this.set('mapTypeId', mapTypeId);
     cordova.exec(null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
+    return this;
 };
 
 /**
@@ -236,6 +241,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
 Map.prototype.setTilt = function(tilt) {
     this.set('tilt', tilt);
     cordova.exec(null, this.errorHandler, this.id, 'setTilt', [tilt]);
+    return this;
 };
 
 
@@ -280,19 +286,23 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, self.id, 'setMyLocationEnabled', [enabled]);
+    return this;
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, self.id, 'setIndoorEnabled', [enabled]);
+    return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, self.id, 'setTrafficEnabled', [enabled]);
+    return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
     cordova.exec(null, self.errorHandler, self.id, 'setCompassEnabled', [enabled]);
+    return this;
 };
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
     var args = [params || {}, success_callback || null, error_callback];
@@ -326,11 +336,13 @@ Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
     cordova.exec(null, self.errorHandler, self.id, 'setVisible', [isVisible]);
+    return this;
 };
 Map.prototype.setClickable = function(isClickable) {
     var self = this;
     isClickable = common.parseBoolean(isClickable);
     cordova.exec(null, self.errorHandler, self.id, 'setClickable', [isClickable]);
+    return this;
 };
 
 
@@ -341,6 +353,7 @@ Map.prototype.setAllGesturesEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
     cordova.exec(null, self.errorHandler, self.id, 'setAllGesturesEnabled', [enabled]);
+    return this;
 };
 
 /**
@@ -509,7 +522,7 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
 
 Map.prototype.setPadding = function(p1, p2, p3, p4) {
     if (arguments.length === 0 || arguments.length > 4) {
-        return;
+        return this;
     }
     var padding = {};
     padding.top = parseInt(p1, 10);
@@ -548,6 +561,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
             callback.call(self, result);
         }
     }, self.errorHandler, this.id, 'setPadding', [padding]);
+    return this;
 };
 
 
