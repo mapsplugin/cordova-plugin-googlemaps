@@ -30,6 +30,10 @@ var Marker = function(map, id, markerOptions) {
         writable: false
     });
 
+    if (markerOptions && markerOptions.position) {
+      this.set('position', markerOptions.position);
+    }
+
     var ignores = ["hashCode", "id", "hashCode", "type"];
     for (var key in markerOptions) {
         if (ignores.indexOf(key) === -1) {
@@ -49,13 +53,8 @@ Marker.prototype.isVisible = function() {
 };
 
 
-Marker.prototype.getPosition = function(callback) {
-    var self = this;
-    cordova.exec(function(latlng) {
-        if (typeof callback === "function") {
-            callback.call(self, new LatLng(latlng.lat, latlng.lng));
-        }
-    }, self.errorHandler, self.getPluginName(), 'getPosition', [this.getId()]);
+Marker.prototype.getPosition = function() {
+    return this.get('position');
 };
 Marker.prototype.getId = function() {
     return this.id;

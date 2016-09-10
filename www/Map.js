@@ -842,4 +842,28 @@ Map.prototype._onCameraEvent = function(eventName, params) {
     this.set('camera', CameraPosition)
     this.trigger(eventName, cameraPosition, this);
 };
+
+Map.prototype.getCenter = function() {
+    return this.get("center");
+};
+
+Map.prototype.getZoom = function() {
+    return this.get("center");
+};
+Map.prototype.getTilt = function() {
+    return this.get("tilt");
+};
+Map.prototype.getBearing = function() {
+    return this.get("bearing");
+};
+Map.prototype._onCameraEvent = function(eventName, params) {
+    //var cameraPosition = new CameraPosition(params);
+    var cameraPosition = params;
+    this.set('camera', cameraPosition)
+    this.set('center', cameraPosition.target);
+    this.set('zoom', cameraPosition.zoom);
+    this.set('bearing', cameraPosition.bearing);
+    this.set('tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+    this.trigger(eventName, cameraPosition, this);
+};
 module.exports = Map;
