@@ -160,7 +160,7 @@
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
-              android:name="com.google.android.maps.v2.API_KEY"
+              android:name="com.google.android.geo.API_KEY"
               android:value="$API_KEY_FOR_ANDROID" />
             <!-- Google Play Services SDK -->
             <meta-data android:name="com.google.android.gms.version"
