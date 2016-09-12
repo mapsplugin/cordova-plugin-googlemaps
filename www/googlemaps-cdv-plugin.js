@@ -120,7 +120,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
       children = null;
   }
   putHtmlElements();
-  INTERVAL_TIMER = setInterval(putHtmlElements, 30);
+  INTERVAL_TIMER = setInterval(putHtmlElements, 100);
 
   window.addEventListener("scroll", function() {
     shouldUpdate = true;

@@ -102,24 +102,25 @@ NSOperationQueue *executeQueue;
   
   self.stopFlag = YES;
 
+  dispatch_async(dispatch_get_main_queue(), ^{
 
-  // Hold the mapCtrl instance with mapId.
-  [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapId];
-  
-  // Add the mapView under the scroll view.
-  [self.pluginScrollView attachView:mapCtrl.view];
-  
-  [self updateViewPosition:mapId];
+      // Hold the mapCtrl instance with mapId.
+      [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapId];
+      
+      // Add the mapView under the scroll view.
+      [self.pluginScrollView attachView:mapCtrl.view];
+      
+      [self updateViewPosition:mapId];
 
-  self.stopFlag = NO;
-  
+      self.stopFlag = NO;
+  });
 }
 
 - (void)removeMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl {
       
   self.stopFlag = YES;
 
-  dispatch_sync(dispatch_get_main_queue(), ^{
+  dispatch_async(dispatch_get_main_queue(), ^{
 
   
       // Remove the mapCtrl instance with mapId.
@@ -159,13 +160,13 @@ NSOperationQueue *executeQueue;
       
 
       GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-      if (!mapCtrl.mapDivId) {
+      if (!mapCtrl.mapDivId && !self.needUpdatePosition) {
           self.stopFlag = NO;
           return;
       }
 
       NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-      if (domInfo == nil) {
+      if (domInfo == nil && !self.needUpdatePosition) {
           self.stopFlag = NO;
           return;
       }
@@ -217,7 +218,8 @@ NSOperationQueue *executeQueue;
       mapCtrl.isRenderedAtOnce = YES;
 
       self.stopFlag = NO;
-      if (rect.origin.x == mapCtrl.view.frame.origin.x &&
+      if (!self.needUpdatePosition &&
+          rect.origin.x == mapCtrl.view.frame.origin.x &&
           rect.origin.y == mapCtrl.view.frame.origin.y &&
           rect.size.width == mapCtrl.view.frame.size.width &&
           rect.size.height == mapCtrl.view.frame.size.height) {

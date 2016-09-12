@@ -147,7 +147,7 @@
             NSString *mapDivId = [command.arguments objectAtIndex:0];
             self.mapCtrl.mapDivId = mapDivId;
             [googlemaps.pluginLayer addMapView:self.mapId mapCtrl:self.mapCtrl];
-        [self resizeMap:command];
+            [self resizeMap:command];
         }
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -182,6 +182,7 @@
             [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];
         }
 
+        googlemaps.pluginLayer.needUpdatePosition = YES;
         [googlemaps.pluginLayer updateViewPosition:self.mapId];
     }];
 }
