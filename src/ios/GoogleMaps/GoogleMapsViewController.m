@@ -223,12 +223,10 @@
  *         camera to move such that it is centered on the user location.
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
-	NSString *jsString = @"plugin.google.maps.Map._onMapEvent('my_location_button_click');";
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+  
+	NSString* jsString = [NSString
+      stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});", self.mapId, @"my_location_button_click"];
+  [self execJS:jsString];
 	return NO;
 }
 
