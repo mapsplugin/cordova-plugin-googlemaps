@@ -248,11 +248,12 @@
 /**
  * @callback map will_move
  */
-- (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
-{
-
-	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'will_move', callback: '_onMapEvent', args: [%@]});", self.mapId, gesture ? @"true": @"false"];
-  [self execJS:jsString];}
+//- (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
+//{
+//
+//	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'will_move', callback: '_onMapEvent', args: [%@]});", self.mapId, gesture ? //@"true": @"false"];
+//  [self execJS:jsString];
+//}
 
 
 /**
