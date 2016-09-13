@@ -51,8 +51,7 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
-    var self = this;
-    cordova.exec(null, null, self.id, 'resizeMap', []);
+    cordova.exec(null, null, this.id, 'resizeMap', []);
 };
 
 Map.prototype.getMap = function(mapId, div, params) {
@@ -250,23 +249,23 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, self.id, 'setMyLocationEnabled', [enabled]);
+    cordova.exec(null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled]);
     return this;
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, self.id, 'setIndoorEnabled', [enabled]);
+    cordova.exec(null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
     return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, self.id, 'setTrafficEnabled', [enabled]);
+    cordova.exec(null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
     return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, self.id, 'setCompassEnabled', [enabled]);
+    cordova.exec(null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
     return this;
 };
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
@@ -294,19 +293,17 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
     cordova.exec(successHandler, errorHandler, 'GoogleMaps', 'getMyLocation', [self.deleteFromObject(params, 'function')]);
 };
 Map.prototype.getFocusedBuilding = function(callback) {
-    var self = this;
-    cordova.exec(callback, this.errorHandler, self.id, 'getFocusedBuilding', []);
+    cordova.exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
 };
 Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
-    cordova.exec(null, self.errorHandler, self.id, 'setVisible', [isVisible]);
+    cordova.exec(null, self.errorHandler, this.id, 'setVisible', [isVisible]);
     return this;
 };
 Map.prototype.setClickable = function(isClickable) {
-    var self = this;
     isClickable = common.parseBoolean(isClickable);
-    cordova.exec(null, self.errorHandler, self.id, 'setClickable', [isClickable]);
+    cordova.exec(null, self.errorHandler, this.id, 'setClickable', [isClickable]);
     return this;
 };
 
@@ -315,9 +312,8 @@ Map.prototype.setClickable = function(isClickable) {
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
 Map.prototype.setAllGesturesEnabled = function(enabled) {
-    var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, self.id, 'setAllGesturesEnabled', [enabled]);
+    cordova.exec(null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
     return this;
 };
 
