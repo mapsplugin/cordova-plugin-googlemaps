@@ -486,17 +486,7 @@
     
     isTextMode = false;
     NSArray *tmp = [title componentsSeparatedByString:@","];
-    NSData *decodedData;
-    #ifdef __IPHONE_7_0
-      if ([PluginUtil isIOS7_OR_OVER]) {
-        decodedData = [[NSData alloc] initWithBase64Encoding:(NSString *)tmp[1]];
-      } else {
-        decodedData = [NSData dataFromBase64String:tmp[1]];
-      }
-    #else
-      decodedData = [NSData dataFromBase64String:tmp[1]];
-    #endif
-    
+    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];    
     base64Image = [[UIImage alloc] initWithData:decodedData];
     rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
     
