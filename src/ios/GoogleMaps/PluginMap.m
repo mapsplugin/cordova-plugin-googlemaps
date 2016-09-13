@@ -325,7 +325,7 @@
 - (void)setVisible:(CDVInvokedUrlCommand *)command {
   BOOL isVisible = [[command.arguments objectAtIndex:0] boolValue];
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      [self.mapCtrl.view setHidden:isVisible];
+      [self.mapCtrl.view setHidden:!isVisible];
   }];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
