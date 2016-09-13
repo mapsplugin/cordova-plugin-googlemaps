@@ -200,6 +200,15 @@ Map.prototype.setTilt = function(tilt) {
     return this;
 };
 
+/**
+ * @desc Change the map view bearing
+ * @param {Number} bearing  The bearing
+ */
+Map.prototype.setBearing = function(bearing) {
+    this.set('bearing', bearing);
+    cordova.exec(null, this.errorHandler, this.id, 'setBearing', [bearing]);
+    return this;
+};
 
 /**
  * @desc   Move the map camera with animation

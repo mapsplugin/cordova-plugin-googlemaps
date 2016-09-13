@@ -334,7 +334,7 @@
 
 - (void)setTilt:(CDVInvokedUrlCommand *)command {
   double angle = [[command.arguments objectAtIndex:0] doubleValue];
-  if (angle >=0 && angle < 90) {
+  if (angle >=0 && angle <= 90) {
       GMSCameraPosition *camera = self.mapCtrl.map.camera;
       camera = [GMSCameraPosition cameraWithLatitude:camera.target.latitude
                                             longitude:camera.target.longitude
@@ -352,6 +352,25 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)setBearing:(CDVInvokedUrlCommand *)command {
+  double bearing = [[command.arguments objectAtIndex:0] doubleValue];
+  if (angle >=0 && angle <= 360) {
+      GMSCameraPosition *camera = self.mapCtrl.map.camera;
+      camera = [GMSCameraPosition cameraWithLatitude:camera.target.latitude
+                                            longitude:camera.target.longitude
+                                            zoom:camera.zoom
+                                            bearing:bearing
+                                            viewingAngle:camera.viewingAngle];
+      
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [self.mapCtrl.map setCamera:camera];
+      }];
+  }
+
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{

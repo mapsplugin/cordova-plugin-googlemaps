@@ -24,6 +24,7 @@
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setZoom:(CDVInvokedUrlCommand*)command;
 - (void)setDiv:(CDVInvokedUrlCommand *)command;
+- (void)setBearing:(CDVInvokedUrlCommand *)command;
 - (void)setMapTypeId:(CDVInvokedUrlCommand*)command;
 - (void)animateCamera:(CDVInvokedUrlCommand*)command;
 - (void)loadPlugin:(CDVInvokedUrlCommand*)command;
