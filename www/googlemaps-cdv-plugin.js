@@ -113,7 +113,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
           shouldUpdate = false;
           forceUpdateCnt--;
           prevDomPositions = domPositions;
-      }, null, 'GoogleMaps', 'putHtmlElements', [domPositions]);
+      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
       parentNode = null;
       elemId = null;

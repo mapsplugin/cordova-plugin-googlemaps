@@ -344,6 +344,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
       plugin.initialize(cordova, webView);
       ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
+      ((MyPlugin)plugin).self = (MyPlugin)plugin;
       plugin.execute("create", args, callbackContext);
 
     } catch (Exception e) {
@@ -439,12 +440,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (args.length() == 0) {
-      pluginMap.mapDivId = null;
+      PluginMap.this.mapDivId = null;
       mapCtrl.mPluginLayout.removePluginMap(mapId);
       this.sendNoResult(callbackContext);
       return;
     }
-    pluginMap.mapDivId = args.getString(0);
+    PluginMap.this.mapDivId = args.getString(0);
     mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
     this.resizeMap(args, callbackContext);
   }

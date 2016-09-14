@@ -60,7 +60,6 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
 
     if (methods.size() == 0) {
-      self = this;
       TAG = this.getServiceName();
       //Log.d("MyPlugin", "TAG = " + TAG);
       if (!TAG.contains("-")) {
