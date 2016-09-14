@@ -191,6 +191,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           JSONObject latLng = camera.getJSONObject("target");
           builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
         }
+      } else {
+        builder.target(new LatLng(0, 0));
       }
       if (camera.has("tilt")) {
         builder.tilt((float) camera.getDouble("tilt"));
@@ -939,7 +941,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @throws JSONException
    */
   public void setTilt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    float tilt = (float) args.getDouble(1);
+    float tilt = (float) args.getDouble(0);
 
     if (tilt > 0 && tilt <= 90) {
       final float finalTilt = tilt;
@@ -959,7 +961,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
   public void setBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final float bearing = (float) args.getDouble(1);
+    final float bearing = (float) args.getDouble(0);
 
     this.activity.runOnUiThread(new Runnable() {
       @Override
@@ -1237,6 +1239,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       String permission = "android.permission.ACCESS_COARSE_LOCATION";
       locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
     } catch (Exception e) {
+      e.printStackTrace();
       PluginResult result;
       result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
       callbackContext.sendPluginResult(result);
@@ -1260,7 +1263,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           e.printStackTrace();
         }
         map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1691,16 +1694,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
 
-  /**
-   * Notify map event to JS
-   * @param eventName
-   */
-  public void onMapEvent(final String eventName) {
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', callback:'_onMapEvent', {evtName: '%s'})",
-        mapId, eventName);
-    jsCallback(js);
-  }
-
 
   /********************************************************
    * Callbacks
@@ -1713,8 +1706,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void onMarkerEvent(String eventName, Marker marker) {
     String markerId = "marker_" + marker.getId();
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s']})",
-        mapId, eventName, markerId);
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', {'lat':%s,'lng':%s}]})",
+        mapId, eventName, markerId, marker.getPosition().latitude, marker.getPosition().longitude);
     jsCallback(js);
   }
   public void onOverlayEvent(String eventName, String overlayId, LatLng point) {
@@ -1916,7 +1909,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   /**
    * Notify the myLocationChange event to JS
    */
-  private void triggerCameraEvent(final String eventName) {
+  private void onCameraEvent(final String eventName) {
     final CameraPosition position = map.getCameraPosition();
     cordova.getThreadPool().submit(new Runnable() {
       @Override
@@ -1950,23 +1943,22 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onCameraIdle() {
-    triggerCameraEvent("camera_change");
+    onCameraEvent("camera_change");
   }
 
   @Override
   public void onCameraMoveCanceled() {
-    triggerCameraEvent("camera_moving");
+    onCameraEvent("camera_moving");
   }
 
   @Override
   public void onCameraMove() {
-    triggerCameraEvent("camera_moving");
+    onCameraEvent("camera_moving");
   }
 
   @Override
   public void onCameraMoveStarted(int i) {
-
-    triggerCameraEvent("camera_will_move");
+    onCameraEvent("camera_will_move");
   }
 
   @Override

@@ -321,7 +321,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         @Override
         public void run() {
           Method method = methods.get(action);
-          Log.d(TAG, "----> method = " + action);
           try {
             method.invoke(CordovaGoogleMaps.this, args, callbackContext);
           } catch (Exception e) {
