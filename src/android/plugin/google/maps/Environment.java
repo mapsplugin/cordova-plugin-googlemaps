@@ -99,7 +99,7 @@ public class Environment extends CordovaPlugin {
   public void setBackGroundColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     final JSONArray rgba = args.getJSONArray(0);
-    final GoogleMaps googleMaps = (GoogleMaps) pluginManager.getPlugin("GoogleMaps");
+    final CordovaGoogleMaps googleMaps = (CordovaGoogleMaps) pluginManager.getPlugin("GoogleMaps");
 
     Handler handler = new Handler(cordova.getActivity().getMainLooper());
     handler.postDelayed(new Runnable() {
@@ -146,7 +146,7 @@ public class Environment extends CordovaPlugin {
       public void run() {
         try {
           boolean debuggable = args.getBoolean(0);
-          GoogleMaps googleMaps = (GoogleMaps) pluginManager.getPlugin("GoogleMaps");
+          CordovaGoogleMaps googleMaps = (CordovaGoogleMaps) pluginManager.getPlugin("GoogleMaps");
           googleMaps.mPluginLayout.isDebug = debuggable;
         } catch (JSONException e) {
           e.printStackTrace();

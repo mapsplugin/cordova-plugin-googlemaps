@@ -124,7 +124,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
   window.addEventListener("scroll", function() {
     shouldUpdate = true;
-    forceUpdateCnt = 5;
+    forceUpdateCnt = 10;
   });
 }());
 
@@ -256,12 +256,12 @@ module.exports = {
 // For Android
 window.addEventListener("beforeunload", function() {
     clearInterval(INTERVAL_TIMER);
-    cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
+    cordova.exec(null, null, 'CordovaGoogleMaps', 'unload', ['']);
 });
 // For iOS (it doesn't work though...)
 window.addEventListener("pagehide", function() {
     clearInterval(INTERVAL_TIMER);
-    cordova.exec(null, null, 'GoogleMaps', 'unload', ['']);
+    cordova.exec(null, null, 'CordovaGoogleMaps', 'unload', ['']);
 });
 
 

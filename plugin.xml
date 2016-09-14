@@ -61,7 +61,7 @@
     <js-module name="Environment" src="www/Environment.js">
       <runs />
     </js-module>
-    <js-module name="GoogleMaps" src="www/googlemaps-cdv-plugin.js">
+    <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
       <clobbers target="plugin.google.maps" />
     </js-module>
 
@@ -93,8 +93,8 @@
         </info>
 
         <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="GoogleMaps">
-                <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+            <feature name="CordovaGoogleMaps">
+                <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps" />
             </feature>
             <feature name="Map">
                 <param name="android-package" value="plugin.google.maps.PluginMap" />
@@ -193,7 +193,7 @@
         </info>
 
         <config-file target="config.xml" parent="/*">
-            <feature name="GoogleMaps">
+            <feature name="CordovaGoogleMaps">
                 <param name="ios-package" value="CordovaGoogleMaps" />
             </feature>
             <feature name="Environment">

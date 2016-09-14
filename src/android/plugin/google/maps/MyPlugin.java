@@ -31,7 +31,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   public MyPlugin self = null;
   public final HashMap<String, Method> methods = new HashMap<String, Method>();
 
-  public GoogleMaps mapCtrl = null;
+  public CordovaGoogleMaps mapCtrl = null;
   public GoogleMap map = null;
   public PluginMap pluginMap = null;
   protected boolean isRemoved = false;

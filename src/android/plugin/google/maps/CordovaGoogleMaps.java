@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("deprecation")
-public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
+public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
   private final String TAG = "GoogleMapsPlugin";
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
 
@@ -96,7 +96,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     }
     activity = cordova.getActivity();
     final View view = webView.getView();
-    view.getViewTreeObserver().addOnScrollChangedListener(GoogleMaps.this);
+    view.getViewTreeObserver().addOnScrollChangedListener(CordovaGoogleMaps.this);
     root = (ViewGroup) view.getParent();
 
     Method[] classMethods = this.getClass().getMethods();
@@ -317,15 +317,19 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
           Log.d(TAG, "(debug)action=" + action);
         }
       }
-      Method method = methods.get(action);
-      try {
-        method.invoke(this, args, callbackContext);
-        return true;
-      } catch (Exception e) {
-        e.printStackTrace();
-        callbackContext.error("" + e.getMessage());
-        return false;
-      }
+      cordova.getThreadPool().submit(new Runnable() {
+        @Override
+        public void run() {
+          Method method = methods.get(action);
+          try {
+            method.invoke(this, args, callbackContext);
+          } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error("" + e.getMessage());
+          }
+        }
+      });
+      return true;
     } else {
       return false;
     }
@@ -382,7 +386,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
         return;
       }
     }
-    GoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
+    CordovaGoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
   }
 
 
@@ -443,7 +447,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
         if (!locationPermission) {
           _saveArgs = args;
           _saveCallbackContext = callbackContext;
-          requestPermissions(GoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+          requestPermissions(CordovaGoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
           return;
         }
 
@@ -455,7 +459,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
               @Override
               public void onConnected(Bundle connectionHint) {
                 Log.e(TAG, "===> onConnected");
-                GoogleMaps.this.sendNoResult(callbackContext);
+                CordovaGoogleMaps.this.sendNoResult(callbackContext);
 
                 _checkLocationSettings(isHigh, callbackContext);
               }
@@ -530,11 +534,11 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
               int hashCode = bundle.hashCode();
 
               bufferForLocationDialog.put("bundle_" + hashCode, bundle);
-              GoogleMaps.this.sendNoResult(callbackContext);
+              CordovaGoogleMaps.this.sendNoResult(callbackContext);
 
               // Show the dialog by calling startResolutionForResult(),
               // and check the result in onActivityResult().
-              cordova.setActivityResultCallback(GoogleMaps.this);
+              cordova.setActivityResultCallback(CordovaGoogleMaps.this);
               status.startResolutionForResult(cordova.getActivity(), hashCode);
             } catch (SendIntentException e) {
               // Show the dialog that is original version of this plugin.
@@ -580,10 +584,10 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
           int hashCode = bundle.hashCode();
 
           bufferForLocationDialog.put("bundle_" + hashCode, bundle);
-          GoogleMaps.this.sendNoResult(callbackContext);
+          CordovaGoogleMaps.this.sendNoResult(callbackContext);
 
           //Launch settings, allowing user to make a change
-          cordova.setActivityResultCallback(GoogleMaps.this);
+          cordova.setActivityResultCallback(CordovaGoogleMaps.this);
           Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
           activity.startActivityForResult(intent, hashCode);
         }
@@ -608,6 +612,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
     builder.create().show();
   }
 
+  @SuppressWarnings("MissingPermission")
   private void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
@@ -669,7 +674,7 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
             if (!isRetry) {
               Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
 
-              GoogleMaps.this.sendNoResult(callbackContext);
+              CordovaGoogleMaps.this.sendNoResult(callbackContext);
 
               // Retry
               Handler handler = new Handler();
@@ -720,33 +725,19 @@ public class GoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScro
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    //------------------------------------------
+    // Create an instance of PluginMap class.
+    //------------------------------------------
+    String mapId = args.getString(0);
+    PluginMap pluginMap = new PluginMap();
+    pluginMap.privateInitialize(mapId, cordova, webView, null);
+    pluginMap.initialize(cordova, webView);
+    pluginMap.mapCtrl = CordovaGoogleMaps.this;
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
+    PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
+    pluginManager.addService(pluginEntry);
 
-        //------------------------------------------
-        // Create an instance of PluginMap class.
-        //------------------------------------------
-        try {
-          String mapId = args.getString(0);
-          PluginMap pluginMap = new PluginMap();
-          pluginMap.privateInitialize(mapId, cordova, webView, null);
-          pluginMap.initialize(cordova, webView);
-          pluginMap.mapCtrl = GoogleMaps.this;
-
-          PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
-          pluginManager.addService(pluginEntry);
-
-          pluginMap.getMap(args, callbackContext);
-
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-
-      }
-    });
-
+    pluginMap.getMap(args, callbackContext);
   }
 
   @Override

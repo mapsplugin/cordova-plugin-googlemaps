@@ -110,7 +110,7 @@ Map.prototype.getMap = function(mapId, div, params) {
           self.refreshLayout();
           self.trigger(event.MAP_READY, self);
         }, 1000);
-    }, self.errorHandler, 'GoogleMaps', 'getMap', args);
+    }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
     return self;
 };
 
@@ -290,7 +290,7 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    cordova.exec(successHandler, errorHandler, 'GoogleMaps', 'getMyLocation', [self.deleteFromObject(params, 'function')]);
+    cordova.exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [self.deleteFromObject(params, 'function')]);
 };
 Map.prototype.getFocusedBuilding = function(callback) {
     cordova.exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);

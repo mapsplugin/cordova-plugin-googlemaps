@@ -30,7 +30,7 @@ import java.util.Locale;
 
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
-  private GoogleMaps mMapCtrl;
+  private CordovaGoogleMaps mMapCtrl;
   private Activity mActivity;
   private CallbackContext mCallback;
   private String kmlId = null;
@@ -68,7 +68,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private boolean animation = true;
   private Bundle mOption = null;
   
-  public AsyncKmlParser(Activity activity, GoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext, Bundle option) {
+  public AsyncKmlParser(Activity activity, CordovaGoogleMaps mapCtrl, String kmlId, CallbackContext callbackContext, Bundle option) {
     this.kmlId = kmlId;
     mCallback = callbackContext;
     mMapCtrl = mapCtrl;
