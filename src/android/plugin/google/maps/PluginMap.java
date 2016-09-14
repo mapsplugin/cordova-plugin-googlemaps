@@ -920,7 +920,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    * @throws JSONException
    */
-  public void setCenter(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void setCameraTarget(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     double lat = args.getDouble(0);
     double lng = args.getDouble(1);
 
@@ -940,7 +940,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    * @throws JSONException
    */
-  public void setTilt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void setCameraTilt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float tilt = (float) args.getDouble(0);
 
     if (tilt > 0 && tilt <= 90) {
@@ -960,7 +960,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
   }
 
-  public void setBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void setCameraBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final float bearing = (float) args.getDouble(0);
 
     this.activity.runOnUiThread(new Runnable() {
@@ -1147,7 +1147,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    * @throws JSONException
    */
-  public void setZoom(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void setCameraZoom(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final Long zoom = args.getLong(0);
     this.activity.runOnUiThread(new Runnable() {
       @Override

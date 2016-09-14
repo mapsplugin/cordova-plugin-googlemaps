@@ -54,27 +54,39 @@ Map.prototype.refreshLayout = function(event) {
     cordova.exec(null, null, this.id, 'resizeMap', []);
 };
 
-Map.prototype.getMap = function(mapId, div, params) {
+Map.prototype.getMap = function(mapId, div, options) {
     var self = this,
         args = [mapId];
 
     if (!common.isDom(div)) {
-        params = div;
-        params = params || {};
-        if (params.camera && params.camera.latLng) {
-            params.camera.target = params.camera.latLng;
-            delete params.camera.latLng;
+        options = div;
+        options = options || {};
+        if (options.camera && options.camera.latLng) {
+            options.camera.target = options.camera.latLng;
+            delete options.camera.latLng;
         }
         args.push(params);
     } else {
 
         var currentDiv = self.get("div");
-        params = params || {};
-        if (params.camera && params.camera.latLng) {
-            params.camera.target = params.camera.latLng;
-            delete params.camera.latLng;
+        options = options || {};
+        if (options.camera && options.camera.latLng) {
+            options.camera.target = options.camera.latLng;
+            delete options.camera.latLng;
         }
-        args.push(params);
+        if (options.camera.target) {
+          this.set('camera_target', options.camera.target);
+        }
+        if (options.camera.bearing) {
+          this.set('camera_bearing', options.camera.bearing);
+        }
+        if (options.camera.zoom) {
+          this.set('camera_zoom', options.camera.zoom);
+        }
+        if (options.camera.tilt) {
+          this.set('camera_tilt', options.camera.tilt);
+        }
+        args.push(options);
 
         self.set("div", div);
         var elements = [];
@@ -120,19 +132,31 @@ Map.prototype.setOptions = function(options) {
         options.camera.target = options.camera.latLng;
         delete options.camera.latLng;
     }
+    if (options.camera.target) {
+      this.set('camera_target', options.camera.target);
+    }
+    if (options.camera.bearing) {
+      this.set('camera_bearing', options.camera.bearing);
+    }
+    if (options.camera.zoom) {
+      this.set('camera_zoom', options.camera.zoom);
+    }
+    if (options.camera.tilt) {
+      this.set('camera_tilt', options.camera.tilt);
+    }
     cordova.exec(null, this.errorHandler, this.id, 'setOptions', [this.deleteFromObject(options, 'function')]);
     return this;
 };
 
-Map.prototype.setCenter = function(latLng) {
-    this.set('center', latLng);
-    cordova.exec(null, this.errorHandler, this.id, 'setCenter', [latLng.lat, latLng.lng]);
+Map.prototype.setCameraTarget = function(latLng) {
+    this.set('camera_target', latLng);
+    cordova.exec(null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
     return this;
 };
 
-Map.prototype.setZoom = function(zoom) {
-    this.set('zoom', zoom);
-    cordova.exec(null, this.errorHandler, this.id, 'setZoom', [zoom]);
+Map.prototype.setCameraZoom = function(zoom) {
+    this.set('camera_zoom', zoom);
+    cordova.exec(null, this.errorHandler, this.id, 'setCameraZoom', [zoom]);
     return this;
 };
 Map.prototype.panBy = function(x, y) {
@@ -193,9 +217,9 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  * @desc Change the map view angle
  * @param {Number} tilt  The angle
  */
-Map.prototype.setTilt = function(tilt) {
-    this.set('tilt', tilt);
-    cordova.exec(null, this.errorHandler, this.id, 'setTilt', [tilt]);
+Map.prototype.setCameraTilt = function(tilt) {
+    this.set('camera_tilt', tilt);
+    cordova.exec(null, this.errorHandler, this.id, 'setCameraTilt', [tilt]);
     return this;
 };
 
@@ -203,9 +227,9 @@ Map.prototype.setTilt = function(tilt) {
  * @desc Change the map view bearing
  * @param {Number} bearing  The bearing
  */
-Map.prototype.setBearing = function(bearing) {
-    this.set('bearing', bearing);
-    cordova.exec(null, this.errorHandler, this.id, 'setBearing', [bearing]);
+Map.prototype.setCameraBearing = function(bearing) {
+    this.set('camera_bearing', bearing);
+    cordova.exec(null, this.errorHandler, this.id, 'setCameraBearing', [bearing]);
     return this;
 };
 
@@ -322,13 +346,7 @@ Map.prototype.setAllGesturesEnabled = function(enabled) {
  * @return {CameraPosition}
  */
 Map.prototype.getCameraPosition = function(callback) {
-    var self = this;
-    cordova.exec(function(camera) {
-        if (typeof callback === "function") {
-            camera.target = new LatLng(camera.target.lat, camera.target.lng);
-            callback.call(self, camera);
-        }
-    }, self.errorHandler, self.id, 'getCameraPosition', []);
+    return this.get("camera");
 };
 
 /**
@@ -841,34 +859,28 @@ Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, 
     //kmlLayer.trigger.apply(kmlLayer, args);
 };
 
-Map.prototype._onCameraEvent = function(eventName, params) {
-    //var cameraPosition = new CameraPosition(params);
-    var cameraPosition = params;
-    this.set('camera', CameraPosition)
-    this.trigger(eventName, cameraPosition, this);
+
+Map.prototype.getCameraTarget = function() {
+    return this.get("camera_target");
 };
 
-Map.prototype.getCenter = function() {
-    return this.get("center");
+Map.prototype.getCameraZoom = function() {
+    return this.get("camera_zoom");
 };
-
-Map.prototype.getZoom = function() {
-    return this.get("center");
+Map.prototype.getCameraTilt = function() {
+    return this.get("camera_tilt");
 };
-Map.prototype.getTilt = function() {
-    return this.get("tilt");
-};
-Map.prototype.getBearing = function() {
-    return this.get("bearing");
+Map.prototype.getCameraBearing = function() {
+    return this.get("camera_bearing");
 };
 Map.prototype._onCameraEvent = function(eventName, params) {
     //var cameraPosition = new CameraPosition(params);
     var cameraPosition = params;
-    this.set('camera', cameraPosition)
-    this.set('center', cameraPosition.target);
-    this.set('zoom', cameraPosition.zoom);
-    this.set('bearing', cameraPosition.bearing);
-    this.set('tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+    this.set('camera', cameraPosition);
+    this.set('camera_target', cameraPosition.target);
+    this.set('camera_zoom', cameraPosition.zoom);
+    this.set('camera_bearing', cameraPosition.bearing);
+    this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;

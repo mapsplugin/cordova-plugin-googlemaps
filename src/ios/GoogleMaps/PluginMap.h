@@ -20,11 +20,11 @@
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
-- (void)setTilt:(CDVInvokedUrlCommand*)command;
-- (void)setCenter:(CDVInvokedUrlCommand*)command;
-- (void)setZoom:(CDVInvokedUrlCommand*)command;
+- (void)setCameraTilt:(CDVInvokedUrlCommand*)command;
+- (void)setCameraTarget:(CDVInvokedUrlCommand*)command;
+- (void)setCameraBearing:(CDVInvokedUrlCommand *)command;
+- (void)setCameraZoom:(CDVInvokedUrlCommand*)command;
 - (void)setDiv:(CDVInvokedUrlCommand *)command;
-- (void)setBearing:(CDVInvokedUrlCommand *)command;
 - (void)setMapTypeId:(CDVInvokedUrlCommand*)command;
 - (void)animateCamera:(CDVInvokedUrlCommand*)command;
 - (void)loadPlugin:(CDVInvokedUrlCommand*)command;

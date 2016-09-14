@@ -267,7 +267,7 @@
 /**
  * Move the center of the map
  */
-- (void)setCenter:(CDVInvokedUrlCommand *)command {
+- (void)setCameraTarget:(CDVInvokedUrlCommand *)command {
 
   float latitude = [[command.arguments objectAtIndex:0] floatValue];
   float longitude = [[command.arguments objectAtIndex:1] floatValue];
@@ -332,7 +332,7 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void)setTilt:(CDVInvokedUrlCommand *)command {
+- (void)setCameraTilt:(CDVInvokedUrlCommand *)command {
   double angle = [[command.arguments objectAtIndex:0] doubleValue];
   if (angle >=0 && angle <= 90) {
       GMSCameraPosition *camera = self.mapCtrl.map.camera;
@@ -352,7 +352,7 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void)setBearing:(CDVInvokedUrlCommand *)command {
+- (void)setCameraBearing:(CDVInvokedUrlCommand *)command {
   double bearing = [[command.arguments objectAtIndex:0] doubleValue];
   GMSCameraPosition *camera = self.mapCtrl.map.camera;
   camera = [GMSCameraPosition cameraWithLatitude:camera.target.latitude
@@ -383,7 +383,7 @@
 /**
  * Change the zoom level
  */
-- (void)setZoom:(CDVInvokedUrlCommand *)command {
+- (void)setCameraZoom:(CDVInvokedUrlCommand *)command {
   float zoom = [[command.arguments objectAtIndex:0] floatValue];
   CLLocationCoordinate2D center = [self.mapCtrl.map.projection coordinateForPoint:self.mapCtrl.map.center];
 
