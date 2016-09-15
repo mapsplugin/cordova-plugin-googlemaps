@@ -61,30 +61,46 @@ Map.prototype.getMap = function(mapId, div, options) {
     if (!common.isDom(div)) {
         options = div;
         options = options || {};
-        if (options.camera && options.camera.latLng) {
-            options.camera.target = options.camera.latLng;
-            delete options.camera.latLng;
+        if (options.camera) {
+          if (options.camera.latLng) {
+              options.camera.target = options.camera.latLng;
+              delete options.camera.latLng;
+          }
+          if (options.camera.target) {
+            this.set('camera_target', options.camera.target);
+          }
+          if (options.camera.bearing) {
+            this.set('camera_bearing', options.camera.bearing);
+          }
+          if (options.camera.zoom) {
+            this.set('camera_zoom', options.camera.zoom);
+          }
+          if (options.camera.tilt) {
+            this.set('camera_tilt', options.camera.tilt);
+          }
         }
         args.push(params);
     } else {
 
         var currentDiv = self.get("div");
         options = options || {};
-        if (options.camera && options.camera.latLng) {
-            options.camera.target = options.camera.latLng;
-            delete options.camera.latLng;
-        }
-        if (options.camera.target) {
-          this.set('camera_target', options.camera.target);
-        }
-        if (options.camera.bearing) {
-          this.set('camera_bearing', options.camera.bearing);
-        }
-        if (options.camera.zoom) {
-          this.set('camera_zoom', options.camera.zoom);
-        }
-        if (options.camera.tilt) {
-          this.set('camera_tilt', options.camera.tilt);
+        if (options.camera) {
+          if (options.camera.latLng) {
+              options.camera.target = options.camera.latLng;
+              delete options.camera.latLng;
+          }
+          if (options.camera.target) {
+            this.set('camera_target', options.camera.target);
+          }
+          if (options.camera.bearing) {
+            this.set('camera_bearing', options.camera.bearing);
+          }
+          if (options.camera.zoom) {
+            this.set('camera_zoom', options.camera.zoom);
+          }
+          if (options.camera.tilt) {
+            this.set('camera_tilt', options.camera.tilt);
+          }
         }
         args.push(options);
 
@@ -128,21 +144,24 @@ Map.prototype.getMap = function(mapId, div, options) {
 
 Map.prototype.setOptions = function(options) {
     options = options || {};
-    if (options.camera && options.camera.latLng) {
-        options.camera.target = options.camera.latLng;
-        delete options.camera.latLng;
-    }
-    if (options.camera.target) {
-      this.set('camera_target', options.camera.target);
-    }
-    if (options.camera.bearing) {
-      this.set('camera_bearing', options.camera.bearing);
-    }
-    if (options.camera.zoom) {
-      this.set('camera_zoom', options.camera.zoom);
-    }
-    if (options.camera.tilt) {
-      this.set('camera_tilt', options.camera.tilt);
+
+    if (options.camera) {
+      if (options.camera.latLng) {
+          options.camera.target = options.camera.latLng;
+          delete options.camera.latLng;
+      }
+      if (options.camera.target) {
+        this.set('camera_target', options.camera.target);
+      }
+      if (options.camera.bearing) {
+        this.set('camera_bearing', options.camera.bearing);
+      }
+      if (options.camera.zoom) {
+        this.set('camera_zoom', options.camera.zoom);
+      }
+      if (options.camera.tilt) {
+        this.set('camera_tilt', options.camera.tilt);
+      }
     }
     cordova.exec(null, this.errorHandler, this.id, 'setOptions', [this.deleteFromObject(options, 'function')]);
     return this;
