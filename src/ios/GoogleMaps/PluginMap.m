@@ -32,7 +32,7 @@
   //CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
 
   [self clear:nil];
-  
+
   dispatch_async(dispatch_get_main_queue(), ^{
       [self.mapCtrl.overlayManager removeAllObjects];
       [self.mapCtrl.map removeFromSuperview];
@@ -52,7 +52,7 @@
 
 
   [self.loadPluginQueue addOperationWithBlock: ^{
-  
+
       CDVPluginResult* pluginResult = nil;
       CDVPlugin<MyPlgunProtocol> *plugin;
 
@@ -133,11 +133,11 @@
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
-    
+
         // Load the GoogleMap.m
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
-  
+
         // Detach the map view
         if ([command.arguments count] == 0 && self.mapCtrl.mapDivId) {
             [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
@@ -208,13 +208,13 @@
         self.isRemoved = YES;
 
         [self clear:nil];
-        
+
         // Load the GoogleMap.m
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
         [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
-        
-      
+
+
         self.mapCtrl.map = nil;
         self.mapCtrl = nil;
 
@@ -233,7 +233,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
       [self.mapCtrl.map clear];
     });
-  
+
     if (self.loadPluginQueue != nil){
         self.loadPluginQueue.suspended = YES;
         [self.loadPluginQueue cancelAllOperations];
@@ -260,7 +260,7 @@
     if (command != nil) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      
+
     }
 }
 
@@ -314,7 +314,7 @@
 
 - (void)setCompassEnabled:(CDVInvokedUrlCommand *)command {
   Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
-  
+
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       self.mapCtrl.map.settings.compassButton = isEnabled;
   }];
@@ -341,7 +341,7 @@
                                             zoom:camera.zoom
                                             bearing:camera.bearing
                                             viewingAngle:angle];
-      
+
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.mapCtrl.map setCamera:camera];
       }];
@@ -360,7 +360,7 @@
                                         zoom:camera.zoom
                                         bearing:bearing
                                         viewingAngle:camera.viewingAngle];
-  
+
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       [self.mapCtrl.map setCamera:camera];
   }];
@@ -483,7 +483,7 @@
       }];
   }];
 
-  
+
 }
 
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
@@ -674,7 +674,7 @@
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       CGPoint point = [self.mapCtrl.map.projection
                           pointForCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
-                          
+
       [self.executeQueue addOperationWithBlock:^{
           NSMutableArray *pointJSON = [[NSMutableArray alloc] init];
           [pointJSON addObject:[NSNumber numberWithDouble:point.x]];
@@ -698,7 +698,7 @@
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       CLLocationCoordinate2D latLng = [self.mapCtrl.map.projection
                           coordinateForPoint:CGPointMake(pointX, pointY)];
-                          
+
       [self.executeQueue addOperationWithBlock:^{
           NSMutableArray *latLngJSON = [[NSMutableArray alloc] init];
           [latLngJSON addObject:[NSNumber numberWithDouble:latLng.latitude]];
@@ -719,9 +719,9 @@
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       GMSVisibleRegion visibleRegion = self.mapCtrl.map.projection.visibleRegion;
       GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
-    
+
       [self.executeQueue addOperationWithBlock:^{
-        
+
 
           NSMutableDictionary *json = [NSMutableDictionary dictionary];
           NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
@@ -746,7 +746,7 @@
 
 - (void)setOptions:(CDVInvokedUrlCommand *)command {
   [self.executeQueue addOperationWithBlock:^{
-    
+
       NSDictionary *initOptions;
       if ([command.arguments count] == 1) {
         // case of setOptions(options); and getMap(options)
@@ -957,7 +957,7 @@
         //zoom
         if ([gestures valueForKey:@"zoom"] != nil) {
           isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
-          
+
           [[NSOperationQueue mainQueue] addOperationWithBlock:^{
               self.mapCtrl.map.settings.zoomGestures = isEnabled;
           }];
@@ -982,7 +982,7 @@
         if (caseBlock) {
           // Change the map type
           mapType = caseBlock();
-          
+
           [[NSOperationQueue mainQueue] addOperationWithBlock:^{
               self.mapCtrl.map.mapType = mapType;
           }];
