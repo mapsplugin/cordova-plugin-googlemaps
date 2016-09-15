@@ -66,18 +66,27 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
     OnMapLoadedCallback, OnMarkerDragListener,
-    OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter, GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveCanceledListener, GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener {
+    OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter,
+    GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveCanceledListener,
+    GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
+    GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener {
+
+
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
   private LatLngBounds initCameraBounds;
@@ -233,7 +242,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map.setOnCameraMoveCanceledListener(PluginMap.this);
               map.setOnCameraMoveListener(PluginMap.this);
               map.setOnCameraMoveStartedListener(PluginMap.this);
-              map.setOnInfoWindowClickListener(PluginMap.this);
               map.setOnMapClickListener(PluginMap.this);
               map.setOnMapLoadedCallback(PluginMap.this);
               map.setOnMapLongClickListener(PluginMap.this);
@@ -241,6 +249,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map.setOnMarkerDragListener(PluginMap.this);
               map.setOnMyLocationButtonClickListener(PluginMap.this);
               map.setOnIndoorStateChangeListener(PluginMap.this);
+              map.setOnInfoWindowClickListener(PluginMap.this);
+              map.setOnInfoWindowLongClickListener(PluginMap.this);
+              map.setOnInfoWindowCloseListener(PluginMap.this);
 
               //Custom info window
               map.setInfoWindowAdapter(PluginMap.this);
@@ -1680,17 +1691,27 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onMarkerDrag(Marker marker) {
-    this.onMarkerEvent("drag", marker);
+    this.onMarkerEvent("marker_drag", marker);
   }
 
   @Override
   public void onMarkerDragEnd(Marker marker) {
-    this.onMarkerEvent("drag_end", marker);
+    this.onMarkerEvent("marker_drag_end", marker);
   }
 
   @Override
   public void onMarkerDragStart(Marker marker) {
-    this.onMarkerEvent("drag_start", marker);
+    this.onMarkerEvent("marker_drag_start", marker);
+  }
+
+  @Override
+  public void onInfoWindowLongClick(Marker marker) {
+    this.onMarkerEvent("info_long_click", marker);
+  }
+
+  @Override
+  public void onInfoWindowClose(Marker marker) {
+    this.onMarkerEvent("info_close", marker);
   }
 
 
@@ -1710,6 +1731,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         mapId, eventName, markerId, marker.getPosition().latitude, marker.getPosition().longitude);
     jsCallback(js);
   }
+
   public void onOverlayEvent(String eventName, String overlayId, LatLng point) {
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onOverlayEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
         mapId, eventName, overlayId, point.latitude, point.longitude);
@@ -1746,7 +1768,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onMapLongClick(LatLng point) {
-    this.onMapEvent("long_click", point);
+    this.onMapEvent("map_long_click", point);
   }
 
   private double calculateDistance(LatLng pt1, LatLng pt2){
@@ -1903,7 +1925,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onMapLoaded() {
-    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'map_loaded', callback:'_onMapEvent'})", mapId));
+  //  jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'map_loaded', callback:'_onMapEvent'})", mapId));
   }
 
   /**
@@ -1942,7 +1964,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onCameraIdle() {
-    onCameraEvent("camera_change");
+    onCameraEvent("camera_move_end");
   }
 
   @Override
@@ -1952,12 +1974,21 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onCameraMove() {
-    onCameraEvent("camera_moving");
+    onCameraEvent("camera_move");
   }
 
   @Override
-  public void onCameraMoveStarted(int i) {
-    onCameraEvent("camera_will_move");
+  public void onCameraMoveStarted(final int reason) {
+
+    // In order to pass the gesture parameter to the callbacks,
+    // use the _onMapEvent callback instead of the _onCameraEvent callback.
+    boolean gesture = reason == REASON_GESTURE;
+    jsCallback(
+      String.format(
+        Locale.ENGLISH,
+        "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onMapEvent', args: [%s]})",
+        mapId, "camera_move_start", gesture ? "true": "false"));
+
   }
 
   @Override
@@ -1989,7 +2020,34 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param point
    */
   public void onMapClick(final LatLng point) {
+    /*
+
+    ExecutorService executor = Executors.newFixedThreadPool(4);
+    List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
+    for (final Bundle imgParams : IMAGE_CONVERT_LIST) {
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          generateWebp(imgParams);
+
+          _currentProgress++;
+          Intent intent2 = new Intent("CREATE_CACHE_PROGRESS");
+          intent2.putExtra("progress", _currentProgress);
+          mBroadcast.sendBroadcast(intent2);
+
+          return null;
+        }
+      };
+      tasks.add(callable);
+    }
+    executor.invokeAll(tasks);
+
+*/
+
+
+
     final PluginManager pluginManager = this.webView.getPluginManager();
+
 
     AsyncTask<Void, Void, HashMap<String, Object>> task = new AsyncTask<Void, Void, HashMap<String, Object>>() {
       @Override
@@ -2094,7 +2152,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         }
         if (!hitPoly) {
           // Only emit click event if no overlays hit
-          onMapEvent("click", point);
+          onMapEvent("map_click", point);
         }
 
       }

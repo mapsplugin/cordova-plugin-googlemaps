@@ -246,28 +246,32 @@
 }
 
 /**
- * @callback map will_move
+ * @callback plugin.google.maps.event.CAMERA_MOVE_START
  */
-//- (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
-//{
-//
-//	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'will_move', callback: '_onMapEvent', args: [%@]});", self.mapId, gesture ? //@"true": @"false"];
-//  [self execJS:jsString];
-//}
+- (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
+{
+  // In order to pass the gesture parameter to the callbacks,
+  // use the _onMapEvent callback instead of the _onCameraEvent callback.
+	NSString* jsString = [NSString
+    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [%@]});",
+    self.mapId, @"camera_move_start", gesture ? @"true": @"false"];
+  [self execJS:jsString];
+}
 
 
 /**
- * @callback map camera_change (Camera moving is still moving).
+ * @callback plugin.google.maps.event.CAMERA_MOVE
  */
-//- (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
-//  [self triggerCameraEvent:@"camera_moving" position:position];
-//}
+- (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
+  [self triggerCameraEvent:@"camera_move" position:position];
+}
+
 /**
- * @callback map camera_idle (Camera moving is just finished).
+ * @callback plugin.google.maps.event.CAMERA_MOVE_END
  */
 - (void) mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position
 {
-  [self triggerCameraEvent:@"camera_change" position:position];
+  [self triggerCameraEvent:@"camera_move_end" position:position];
 }
 
 
@@ -279,25 +283,32 @@
   [self triggerMarkerEvent:@"info_click" marker:marker];
 }
 /**
+ * Called after a marker's info window has been long pressed.
+ */
+- (void)mapView:(GMSMapView *)mapView didLongPressInfoWindowOfMarker:(GMSMarker *)marker {
+
+  [self triggerMarkerEvent:@"info_long_click" marker:marker];
+}
+/**
  * @callback plugin.google.maps.event.MARKER_DRAG_START
  */
 - (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"drag_start" marker:marker];
+  [self triggerMarkerEvent:@"marker_drag_start" marker:marker];
 }
 /**
  * @callback plugin.google.maps.event.MARKER_DRAG_END
  */
 - (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"drag_end" marker:marker];
+  [self triggerMarkerEvent:@"marker_drag_end" marker:marker];
 }
 /**
  * @callback plugin.google.maps.event.MARKER_DRAG
  */
 - (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"drag" marker:marker];
+  [self triggerMarkerEvent:@"marker_drag" marker:marker];
 }
 
 /**
@@ -319,6 +330,7 @@
   }
 	return NO;
 }
+
 
 - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
   NSString *overlayClass = NSStringFromClass([overlay class]);
