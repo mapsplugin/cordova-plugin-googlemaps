@@ -103,11 +103,10 @@ public class Environment extends CordovaPlugin {
     Handler handler = new Handler(cordova.getActivity().getMainLooper());
     handler.postDelayed(new Runnable() {
       public void run() {
-        Log.d("Environment", "----->setBackGroundColor : final = " + finalBackgroundColor);
-        googleMaps.root.setBackgroundColor(finalBackgroundColor);
+        googleMaps.mPluginLayout.setBackgroundColor(finalBackgroundColor);
         sendNoResult(callbackContext);
       }
-    }, googleMaps.initialized ? 250 : 1000);
+    }, googleMaps.initialized ? 0 : 250);
   }
 
   @SuppressWarnings("unused")

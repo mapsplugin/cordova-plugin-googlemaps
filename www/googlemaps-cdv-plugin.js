@@ -271,6 +271,11 @@ window.addEventListener("orientationchange", function() {
 
 document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);
+    
+    document.body.style.backgroundColor="rgba(0,0,0,0.1)";
+    document.getElementsByTagName("html")[0].style.backgroundColor="rgba(0,0,0,0.1)";
+    document.body.style.backgroundColor="rgba(0,0,0,0)";
+    document.getElementsByTagName("html")[0].style.backgroundColor="rgba(0,0,0,0)";
 
     //------------------------------------------------------------------------
     // If Google Maps Android API v2 is not available,
