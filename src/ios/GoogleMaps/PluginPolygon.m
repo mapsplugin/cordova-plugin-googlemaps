@@ -23,7 +23,7 @@
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"GoogleMaps"];
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
     //self.mapCtrl = googlemaps.mapCtrl;
     [self.mapCtrl.plugins setObject:self forKey:@"Polygon"];
   }
