@@ -80,12 +80,11 @@ import java.util.concurrent.Executors;
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
-    OnMapLoadedCallback, OnMarkerDragListener,
+    OnMarkerDragListener,
     OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter,
     GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveCanceledListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
     GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener {
-
 
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
@@ -243,7 +242,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map.setOnCameraMoveListener(PluginMap.this);
               map.setOnCameraMoveStartedListener(PluginMap.this);
               map.setOnMapClickListener(PluginMap.this);
-              map.setOnMapLoadedCallback(PluginMap.this);
               map.setOnMapLongClickListener(PluginMap.this);
               map.setOnMarkerClickListener(PluginMap.this);
               map.setOnMarkerDragListener(PluginMap.this);
@@ -1922,11 +1920,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     return false;
   }
 
-
-  @Override
-  public void onMapLoaded() {
-  //  jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'map_loaded', callback:'_onMapEvent'})", mapId));
-  }
 
   /**
    * Notify the myLocationChange event to JS
