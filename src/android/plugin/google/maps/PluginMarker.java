@@ -132,7 +132,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       markerOptions.alpha((float) opts.getDouble("opacity"));
     }
     if (opts.has("zIndex")) {
-      // do nothing, API v2 has no zIndex :(
+      markerOptions.zIndex((float) opts.getDouble("zIndex"));
     }
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -488,8 +488,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException
    */
   public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-      // nothing to do :(    <-- Don't create a feature if Android API does not have itself!!
-      // it's a shame google...
+    float alpha = (float)args.getDouble(1);
+    String id = args.getString(0);
+    this.setFloat("setZIndex", id, alpha, callbackContext);
   }
 
   /**
