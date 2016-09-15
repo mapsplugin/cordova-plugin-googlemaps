@@ -706,7 +706,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
     PluginMap pluginMap;
 
-    mPluginLayout.setBackgroundColor(Color.WHITE);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mPluginLayout.setBackgroundColor(Color.WHITE);
+      }
+    });
 
     // prevent the ConcurrentModificationException error.
     String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);

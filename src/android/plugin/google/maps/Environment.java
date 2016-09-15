@@ -30,61 +30,52 @@ public class Environment extends CordovaPlugin {
   }
 
   @Override
-  public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {
-    try {
-      Method method = this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
-      if (!method.isAccessible()) {
-        method.setAccessible(true);
+  public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) {
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Method method = Environment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+          if (!method.isAccessible()) {
+            method.setAccessible(true);
+          }
+          method.invoke(Environment.this, args, callbackContext);
+        } catch (Exception e) {
+          Log.e("CordovaLog", "An error occurred", e);
+          callbackContext.error(e.toString());
+        }
       }
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      Log.e("CordovaLog", "An error occurred", e);
-      callbackContext.error(e.toString());
-      return false;
-    }
+    });
+
+    return true;
   }
 
   @SuppressWarnings("unused")
   public void isAvailable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Log.d("Environment", "--->isAvailable");
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-        // ------------------------------
-        // Check of Google Play Services
-        // ------------------------------
-        int checkGooglePlayServices =
-          GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(cordova.getActivity());
-        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-          String errorMsg = GoogleApiAvailability.getInstance().getErrorString(checkGooglePlayServices);
-          callbackContext.error(errorMsg);
-          return;
-        }
+    // ------------------------------
+    // Check of Google Play Services
+    // ------------------------------
+    int checkGooglePlayServices =
+      GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(cordova.getActivity());
+    if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
+      String errorMsg = GoogleApiAvailability.getInstance().getErrorString(checkGooglePlayServices);
+      callbackContext.error(errorMsg);
+      return;
+    }
 
-
-        cordova.getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            // ------------------------------
-            // Check of Google Maps Android API v2
-            // ------------------------------
-            try {
-              @SuppressWarnings({ "rawtypes" })
-              Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
-            } catch (Exception e) {
-              Log.e("GoogleMaps", "Error", e);
-              callbackContext.error(e.getMessage());
-              return;
-            }
-
-            callbackContext.success();
-          }
-        });
-      }
-    });
-
+    // ------------------------------
+    // Check of Google Maps Android API v2
+    // ------------------------------
+    try {
+      @SuppressWarnings({ "rawtypes" })
+      Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
+    } catch (Exception e) {
+      Log.e("GoogleMaps", "Error", e);
+      callbackContext.error(e.getMessage());
+      return;
+    }
+    callbackContext.success();
   }
 
 
@@ -112,21 +103,17 @@ public class Environment extends CordovaPlugin {
     Handler handler = new Handler(cordova.getActivity().getMainLooper());
     handler.postDelayed(new Runnable() {
       public void run() {
+        Log.d("Environment", "----->setBackGroundColor : final = " + finalBackgroundColor);
         googleMaps.root.setBackgroundColor(finalBackgroundColor);
         sendNoResult(callbackContext);
       }
-    }, googleMaps.initialized ? 0 : 250);
+    }, googleMaps.initialized ? 250 : 1000);
   }
 
   @SuppressWarnings("unused")
   public Boolean getLicenseInfo(JSONArray args, final CallbackContext callbackContext) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        String msg = GoogleApiAvailability.getInstance().getOpenSourceSoftwareLicenseInfo(cordova.getActivity());
-        callbackContext.success(msg);
-      }
-    });
+    String msg = GoogleApiAvailability.getInstance().getOpenSourceSoftwareLicenseInfo(cordova.getActivity());
+    callbackContext.success(msg);
     return true;
   }
 
@@ -134,7 +121,7 @@ public class Environment extends CordovaPlugin {
   /**
    * Set the debug flag of myPluginLayer
    * @param args Parameters given from JavaScript side
-   * @param callbackContext Callback contect for sending back the result.
+   * @param callbackContext Callback context for sending back the result.
    * @throws JSONException
    */
   @SuppressWarnings("unused")
@@ -145,7 +132,7 @@ public class Environment extends CordovaPlugin {
       public void run() {
         try {
           boolean debuggable = args.getBoolean(0);
-          CordovaGoogleMaps googleMaps = (CordovaGoogleMaps) pluginManager.getPlugin("GoogleMaps");
+          CordovaGoogleMaps googleMaps = (CordovaGoogleMaps) pluginManager.getPlugin("CordovaGoogleMaps");
           googleMaps.mPluginLayout.isDebug = debuggable;
         } catch (JSONException e) {
           e.printStackTrace();

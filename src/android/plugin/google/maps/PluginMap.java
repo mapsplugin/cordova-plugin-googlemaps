@@ -1910,15 +1910,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * Notify the myLocationChange event to JS
    */
   private void onCameraEvent(final String eventName) {
-    final CameraPosition position = map.getCameraPosition();
-    cordova.getThreadPool().submit(new Runnable() {
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
 
+        CameraPosition position = map.getCameraPosition();
         JSONObject params = new JSONObject();
         String jsonStr = "";
         try {
-          params.put("hashCode", position.hashCode());
           params.put("bearing", position.bearing);
           params.put("tilt", position.tilt);
           params.put("zoom", position.zoom);
@@ -1933,10 +1932,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         }
 
         jsCallback(
-          String.format(
-            Locale.ENGLISH,
-            "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onCameraEvent', args: [%s]})",
-            mapId, eventName, jsonStr));
+            String.format(
+                Locale.ENGLISH,
+                "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onCameraEvent', args: [%s]})",
+                mapId, eventName, jsonStr));
       }
     });
   }
