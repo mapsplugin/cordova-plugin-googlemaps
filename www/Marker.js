@@ -54,7 +54,11 @@ Marker.prototype.isVisible = function() {
 
 
 Marker.prototype.getPosition = function() {
-    return this.get('position');
+    var position = this.get('position');
+    if (!(position instanceof LatLng)) {
+      return new LatLng(position.lat, position.lng);
+    }
+    return position;
 };
 Marker.prototype.getId = function() {
     return this.id;

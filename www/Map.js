@@ -661,7 +661,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
         polygonOptions.fillColor = common.HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
-    polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
+    polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible === true;
     polygonOptions.zIndex = polygonOptions.zIndex || 2;
     polygonOptions.geodesic = polygonOptions.geodesic === true;
 
@@ -802,11 +802,11 @@ Map.prototype._onOverlayEvent = function(eventName, hashCode) {
     var self = this;
     var overlay = self.OVERLAYS[hashCode] || null;
     if (overlay) {
-        var args = [eventName, overlay];
+        var args = [eventName];
         for (var i = 2; i < arguments.length; i++) {
             args.push(arguments[i]);
         }
-        overlay.trigger.apply(this, args);
+        overlay.trigger.apply(overlay, args);
     }
 };
 

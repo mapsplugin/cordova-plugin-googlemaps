@@ -592,41 +592,15 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException 
    */
   public void hideInfoWindow(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    Marker marker = this.getMarker(id);
-    if (marker != null) {
-      marker.hideInfoWindow();
-    }
-    this.sendNoResult(callbackContext);
-  }
-
-  /**
-   * Return the position of the marker
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  public void getPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final Marker marker = this.getMarker(id);
-    if (marker == null) {
-      callbackContext.error("undefined");
-      return;
-    }
+    final String id = args.getString(0);
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        LatLng position = marker.getPosition();
-
-        try {
-          JSONObject result = new JSONObject();
-          result.put("lat", position.latitude);
-          result.put("lng", position.longitude);
-          callbackContext.success(result);
-        } catch (JSONException e) {
-          e.printStackTrace();
-          callbackContext.error(e.getMessage() + "");
+        Marker marker = getMarker(id);
+        if (marker != null) {
+          marker.hideInfoWindow();
         }
+        sendNoResult(callbackContext);
       }
     });
   }
@@ -804,7 +778,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     if (!iconUrl.contains("://") &&
       !iconUrl.startsWith("/") &&
       !iconUrl.startsWith("www/") &&
-        iconUrl.startsWith("data:image") == false) {
+      !iconUrl.startsWith("data:image")) {
       iconUrl = "./" + iconUrl;
     }
     if (iconUrl.indexOf("./") == 0) {

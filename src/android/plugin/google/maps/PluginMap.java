@@ -1651,7 +1651,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMarkerClick(Marker marker) {
-    this.onMarkerEvent("click", marker);
+    this.onMarkerEvent("marker_click", marker);
 
     JSONObject properties = null;
     String propertyId = "marker_property_" + marker.getId();
@@ -1724,7 +1724,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void onMarkerEvent(String eventName, Marker marker) {
     String markerId = "marker_" + marker.getId();
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', {'lat':%s,'lng':%s}]})",
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
         mapId, eventName, markerId, marker.getPosition().latitude, marker.getPosition().longitude);
     jsCallback(js);
   }
@@ -2012,60 +2012,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param point
    */
   public void onMapClick(final LatLng point) {
-
-/*
-    PluginEntry[] pluginEntries = plugins.values().toArray(new PluginEntry[plugins.size()]);
-
-    for (final PluginEntry pluginEntry : pluginEntries) {
-      Callable<Object> callable = new Callable<Object>() {
-        @Override
-        public Object call() throws Exception {
-          ((MyPlugin)pluginEntry.plugin).hitTest(point);
-        }
-      };
-      tasks.add(callable);
-    }
-    try {
-      List<Future<Object>> results = executor.invokeAll(tasks);
-      Object[] hitOverlays = results.toArray(new Object[plugins.size()]);
-      Object hitOverlay = null;
-      float zIndex = -1, maxZIndex = -1;
-
-      for (Object overlay: hitOverlays) {
-        if (overlay == null) {
-          continue;
-        }
-        if (overlay instanceof Polygon) {
-          zIndex = ((Polygon) overlay).getZIndex();
-        } else if (overlay instanceof Polyline) {
-          zIndex = ((Polyline) overlay).getZIndex();
-        } else if (overlay instanceof Circle) {
-          zIndex = ((Circle) overlay).getZIndex();
-        } else if (overlay instanceof GroundOverlay) {
-          zIndex = ((GroundOverlay) overlay).getZIndex();
-        }
-        if (zIndex > maxZIndex) {
-          maxZIndex = zIndex;
-          hitOverlay = overlay;
-        }
-      }
-      Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
-      if (hitOverlay instanceof Polygon) {
-        onPolygonClick((Polygon)hitOverlay, point);
-      } else if (hitOverlay instanceof Polyline) {
-        onPolylineClick((Polyline)hitOverlay, point);
-      } else if (hitOverlay instanceof Circle) {
-        onCircleClick((Circle)hitOverlay, point);
-      } else if (hitOverlay instanceof GroundOverlay) {
-        onGroundOverlayClick((GroundOverlay)hitOverlay, point);
-      } else {
-        // Only emit click event if no overlays hit
-        onMapEvent("map_click", point);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-*/
 
     AsyncTask<Void, Void, HashMap<String, Object>> task = new AsyncTask<Void, Void, HashMap<String, Object>>() {
       @Override
