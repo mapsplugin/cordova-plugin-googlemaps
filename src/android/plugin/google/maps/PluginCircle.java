@@ -21,7 +21,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     final CircleOptions circleOptions = new CircleOptions();
     int color;
     
-    JSONObject opts = args.getJSONObject(0);
+    JSONObject opts = args.getJSONObject(1);
     if (opts.has("center")) {
       JSONObject center = opts.getJSONObject("center");
       circleOptions.center(new LatLng(center.getDouble("lat"), center.getDouble("lng")));

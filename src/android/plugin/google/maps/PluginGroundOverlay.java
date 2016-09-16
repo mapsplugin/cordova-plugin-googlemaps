@@ -30,7 +30,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    * @throws JSONException
    */
   public void create(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    JSONObject opts = args.getJSONObject(0);
+    JSONObject opts = args.getJSONObject(1);
     _createGroundOverlay(opts, callbackContext);
   }
   
@@ -54,7 +54,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       options.visible(opts.getBoolean("visible"));
     }
 
-    if (opts.has("bounds") == true) {
+    if (opts.has("bounds")) {
       JSONArray points = opts.getJSONArray("bounds");
       LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
       options.positionFromBounds(bounds);

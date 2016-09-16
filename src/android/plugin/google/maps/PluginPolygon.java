@@ -1,11 +1,15 @@
 package plugin.google.maps;
 
+import android.graphics.Point;
 import android.util.Log;
 
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -17,9 +21,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
@@ -31,13 +37,13 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
      */
     @Override
     public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        self = this;
+        //self = this;
 
         final PolygonOptions polygonOptions = new PolygonOptions();
         int color;
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        JSONObject opts = args.getJSONObject(0);
+        JSONObject opts = args.getJSONObject(1);
         if (opts.has("points")) {
             JSONArray points = opts.getJSONArray("points");
             List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
@@ -78,6 +84,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             polygonOptions.zIndex(opts.getInt("zIndex"));
         }
 
+        // Since this plugin uses own detecting process,
+        // set false to the clickable property.
+        polygonOptions.clickable(false);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -102,6 +111,35 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     }
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Set<String> keySet = objects.keySet();
+                String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+
+                for (String objectId : objectIdArray) {
+                    if (objects.containsKey(objectId)) {
+                        if (objectId.startsWith("polygon_") &&
+                            !objectId.contains("bounds")) {
+                            Polygon polygon = (Polygon) objects.remove(objectId);
+                            polygon.remove();
+                        } else {
+                            Object object = objects.remove(objectId);
+                            object = null;
+                        }
+                    }
+                }
+
+                objects.clear();
+                objects = null;
+            }
+        });
+
+    }
+    
     /**
      * set fill color
      * @param args

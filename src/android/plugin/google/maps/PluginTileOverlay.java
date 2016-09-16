@@ -20,7 +20,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
   public void create(final JSONArray args,
     final CallbackContext callbackContext) throws JSONException {
 
-    JSONObject opts = args.getJSONObject(0);
+    JSONObject opts = args.getJSONObject(1);
     int tileSize = opts.getInt("tileSize");
     final String tileUrlFormat = opts.getString("tileUrlFormat");
     

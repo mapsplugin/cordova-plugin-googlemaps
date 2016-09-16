@@ -27,11 +27,9 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnIndoorStateChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
@@ -76,6 +74,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
@@ -332,7 +331,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String serviceName = args.getString(0);
     final String pluginName = mapId + "-" + serviceName.toLowerCase();
-    //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
+    Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
     try {
 
@@ -1737,19 +1736,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
   public void onPolylineClick(Polyline polyline, LatLng point) {
     String overlayId = "polyline_" + polyline.getId();
-    this.onOverlayEvent("overlay_click", overlayId, point);
+    this.onOverlayEvent("polyline_click", overlayId, point);
   }
   public void onPolygonClick(Polygon polygon, LatLng point) {
     String overlayId = "polygon_" + polygon.getId();
-    this.onOverlayEvent("overlay_click", overlayId, point);
+    this.onOverlayEvent("polygon_click", overlayId, point);
   }
   public void onCircleClick(Circle circle, LatLng point) {
     String overlayId = "circle_" + circle.getId();
-    this.onOverlayEvent("overlay_click", overlayId, point);
+    this.onOverlayEvent("circle_click", overlayId, point);
   }
   public void onGroundOverlayClick(GroundOverlay groundOverlay, LatLng point) {
     String overlayId = "groundOverlay_" + groundOverlay.getId();
-    this.onOverlayEvent("overlay_click", overlayId, point);
+    this.onOverlayEvent("groundoverlay_click", overlayId, point);
   }
 
 
@@ -2013,75 +2012,108 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param point
    */
   public void onMapClick(final LatLng point) {
-    /*
 
-    ExecutorService executor = Executors.newFixedThreadPool(4);
-    List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
-    for (final Bundle imgParams : IMAGE_CONVERT_LIST) {
-      Callable<Void> callable = new Callable<Void>() {
+/*
+    PluginEntry[] pluginEntries = plugins.values().toArray(new PluginEntry[plugins.size()]);
+
+    for (final PluginEntry pluginEntry : pluginEntries) {
+      Callable<Object> callable = new Callable<Object>() {
         @Override
-        public Void call() throws Exception {
-          generateWebp(imgParams);
-
-          _currentProgress++;
-          Intent intent2 = new Intent("CREATE_CACHE_PROGRESS");
-          intent2.putExtra("progress", _currentProgress);
-          mBroadcast.sendBroadcast(intent2);
-
-          return null;
+        public Object call() throws Exception {
+          ((MyPlugin)pluginEntry.plugin).hitTest(point);
         }
       };
       tasks.add(callable);
     }
-    executor.invokeAll(tasks);
+    try {
+      List<Future<Object>> results = executor.invokeAll(tasks);
+      Object[] hitOverlays = results.toArray(new Object[plugins.size()]);
+      Object hitOverlay = null;
+      float zIndex = -1, maxZIndex = -1;
 
+      for (Object overlay: hitOverlays) {
+        if (overlay == null) {
+          continue;
+        }
+        if (overlay instanceof Polygon) {
+          zIndex = ((Polygon) overlay).getZIndex();
+        } else if (overlay instanceof Polyline) {
+          zIndex = ((Polyline) overlay).getZIndex();
+        } else if (overlay instanceof Circle) {
+          zIndex = ((Circle) overlay).getZIndex();
+        } else if (overlay instanceof GroundOverlay) {
+          zIndex = ((GroundOverlay) overlay).getZIndex();
+        }
+        if (zIndex > maxZIndex) {
+          maxZIndex = zIndex;
+          hitOverlay = overlay;
+        }
+      }
+      Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
+      if (hitOverlay instanceof Polygon) {
+        onPolygonClick((Polygon)hitOverlay, point);
+      } else if (hitOverlay instanceof Polyline) {
+        onPolylineClick((Polyline)hitOverlay, point);
+      } else if (hitOverlay instanceof Circle) {
+        onCircleClick((Circle)hitOverlay, point);
+      } else if (hitOverlay instanceof GroundOverlay) {
+        onGroundOverlayClick((GroundOverlay)hitOverlay, point);
+      } else {
+        // Only emit click event if no overlays hit
+        onMapEvent("map_click", point);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 */
-
-
-
-    final PluginManager pluginManager = this.webView.getPluginManager();
-
 
     AsyncTask<Void, Void, HashMap<String, Object>> task = new AsyncTask<Void, Void, HashMap<String, Object>>() {
       @Override
       protected HashMap<String, Object> doInBackground(Void... voids) {
+        //----------------------------------------------------------------------
+        // Pick up overlays that contains the touchpoint in the hit area bounds
+        //----------------------------------------------------------------------
         String key;
         LatLngBounds bounds;
         HashMap<String, Object> results = new HashMap<String, Object>();
 
         // Polyline
-        PluginPolyline polylineClass = (PluginPolyline) pluginManager.getPlugin("Polyline");
-        Log.d(TAG, "Polyline = " + polylineClass);
-        if (polylineClass != null) {
-          for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
-            key = entry.getKey();
-            Log.d(TAG, "key = " + key);
-            if (key.contains("polyline_bounds_")) {
-              bounds = (LatLngBounds) entry.getValue();
-              if (bounds.contains(point)) {
-                key = key.replace("bounds_", "");
-                results.put(key, polylineClass.getPolyline(key));
+        PluginEntry pluginEntry = plugins.get(mapId + "-polyline");
+        if (pluginEntry != null) {
+          PluginPolyline polylineClass = (PluginPolyline)pluginEntry.plugin;
+          if (polylineClass != null) {
+            for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
+              key = entry.getKey();
+              if (key.contains("polyline_bounds_")) {
+                bounds = (LatLngBounds) entry.getValue();
+                if (bounds.contains(point)) {
+                  key = key.replace("bounds_", "");
+                  results.put(key, polylineClass.getPolyline(key));
+                }
               }
             }
           }
         }
 
         // Loop through all polygons to check if within the touch point
-        PluginPolygon polygonPlugin = (PluginPolygon) pluginManager.getPlugin("Polygon");
-        if (polygonPlugin != null) {
-          for (HashMap.Entry<String, Object> entry : polygonPlugin.objects.entrySet()) {
-            key = entry.getKey();
-            Log.d("Polygon", "--key = " + key);
-            if (key.contains("polygon_bounds_")) {
-              bounds = (LatLngBounds) entry.getValue();
-              if (bounds.contains(point)) {
-                key = key.replace("_bounds", "");
-                results.put(key, polygonPlugin.getPolygon(key));
+        pluginEntry = plugins.get(mapId + "-polygon");
+        if (pluginEntry != null) {
+          PluginPolygon polygonPlugin = (PluginPolygon) pluginEntry.plugin;
+          if (polygonPlugin != null) {
+            for (HashMap.Entry<String, Object> entry : polygonPlugin.objects.entrySet()) {
+              key = entry.getKey();
+              if (key.contains("polygon_bounds_")) {
+                bounds = (LatLngBounds) entry.getValue();
+                if (bounds.contains(point)) {
+                  key = key.replace("_bounds", "");
+                  results.put(key, polygonPlugin.getPolygon(key));
+                }
               }
             }
           }
         }
 
+        Log.d("PluginMap", "-----> results = " + results.size());
         return results;
       }
 
@@ -2098,6 +2130,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         List<LatLng> points ;
         Polyline polyline;
         Polygon polygon;
+        Circle circle;
         Point origin = new Point();
         Point hitArea = new Point();
         hitArea.x = 1;
@@ -2107,28 +2140,36 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             projection.fromScreenLocation(origin),
             projection.fromScreenLocation(hitArea));
 
+        float zIndex = -1;
+        float maxZIndex = -1;
+        Object hitOverlay = null;
+
 
         while(iterator.hasNext()) {
           entry = iterator.next();
           key = entry.getKey();
-          Log.d(TAG, key);
+          Log.d("PluginMap", "-----> key = " + key);
 
           if (key.startsWith("polyline")) {
 
             polyline = ((Polyline)entry.getValue());
+            zIndex = polyline.getZIndex();
+            if (zIndex < maxZIndex) {
+              continue;
+            }
             points = polyline.getPoints();
 
             if (polyline.isGeodesic()) {
               if (isPointOnTheGeodesicLine(points, point, threshold)) {
-                hitPoly = true;
-                onPolylineClick(polyline, point);
-                break;
+                hitOverlay = polyline;
+                maxZIndex = zIndex;
+                continue;
               }
             } else {
               if (isPointOnTheLine(points, point)) {
-                hitPoly = true;
-                onPolylineClick(polyline, point);
-                break;
+                hitOverlay = polyline;
+                maxZIndex = zIndex;
+                continue;
               }
             }
 
@@ -2136,15 +2177,42 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
           if (key.startsWith("polygon")) {
             polygon = ((Polygon)entry.getValue());
+            zIndex = polygon.getZIndex();
+            if (zIndex < maxZIndex) {
+              continue;
+            }
             if (isPolygonContains(polygon.getPoints(), point)) {
-              hitPoly = true;
-              onPolygonClick(polygon, point);
-              break;
+              hitOverlay = polygon;
+              maxZIndex = zIndex;
+              continue;
+            }
+          }
+
+
+          if (key.startsWith("circle")) {
+            circle = ((Circle)entry.getValue());
+            zIndex = circle.getZIndex();
+            if (zIndex < maxZIndex) {
+              continue;
+            }
+            if (isCircleContains(circle, point)) {
+              hitOverlay = circle;
+              maxZIndex = zIndex;
+              continue;
             }
           }
         }
-        if (!hitPoly) {
-          // Only emit click event if no overlays hit
+        Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
+        if (hitOverlay instanceof Polygon) {
+          onPolygonClick((Polygon)hitOverlay, point);
+        } else if (hitOverlay instanceof Polyline) {
+          onPolylineClick((Polyline)hitOverlay, point);
+        } else if (hitOverlay instanceof Circle) {
+          onCircleClick((Circle)hitOverlay, point);
+        } else if (hitOverlay instanceof GroundOverlay) {
+          onGroundOverlayClick((GroundOverlay)hitOverlay, point);
+        } else {
+          // Only emit click event if no overlays are hit
           onMapEvent("map_click", point);
         }
 

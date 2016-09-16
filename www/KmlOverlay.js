@@ -4,8 +4,6 @@ var argscheck = require('cordova/argscheck'),
     common = require('./Common'),
     BaseClass = require('./BaseClass');
 
-var PLUGIN_NAME = "KmlOverlay";
-
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
@@ -30,7 +28,11 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
         value: map,
         writable: false
     });
-    var ignores = ["map", "id", "type"];
+    Object.defineProperty(self, "hashCode", {
+        value: kmlOverlayOptions.hashCode,
+        writable: false
+    });
+    var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {
         if (ignores.indexOf(key) === -1) {
             self.set(key, kmlOverlayOptions[key]);
@@ -39,6 +41,14 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
 };
 
 utils.extend(KmlOverlay, BaseClass);
+
+KmlOverlay.prototype.getPluginName = function() {
+    return this.map.getId() + "-kmloverlay";
+};
+
+KmlOverlay.prototype.getHashCode = function() {
+    return this.hashCode;
+};
 
 KmlOverlay.prototype.getOverlays = function() {
     return this._overlays;

@@ -30,7 +30,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     int color;
     final LatLngBounds.Builder builder = new LatLngBounds.Builder();
     
-    JSONObject opts = args.getJSONObject(0);
+    JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
       List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
@@ -96,7 +96,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
     
-    JSONObject opts = args.getJSONObject(0);
+    JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
       List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
