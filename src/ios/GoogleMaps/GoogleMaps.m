@@ -532,10 +532,13 @@
     // iOS8 or above
     direction = [UIDevice currentDevice].orientation;
 #endif
-
-
-    if (direction == UIInterfaceOrientationLandscapeLeft ||
-        direction == UIInterfaceOrientationLandscapeRight) {
+   
+   // On at least iOS 9.3.5, the screenSize.size changes on-orientation-change,
+   // so we need to check if we really need to use the height as width and vice versa,
+   // when in landscape mode.
+   if ((direction == UIInterfaceOrientationLandscapeLeft ||
+        direction == UIInterfaceOrientationLandscapeRight)
+       && screenSize.size.height > screenSize.size.width) {
         pluginRect.size.width = screenSize.size.height;
         pluginRect.size.height = screenSize.size.width - footerHeight - footerAdjustment;
     } else {
