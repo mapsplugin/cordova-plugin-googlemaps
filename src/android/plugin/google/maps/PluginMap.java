@@ -1635,10 +1635,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setPadding(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject padding = args.getJSONObject(0);
-    final int left = padding.getInt("left");
-    final int top = padding.getInt("top");
-    final int bottom = padding.getInt("bottom");
-    final int right = padding.getInt("right");
+    final int left = (int)(padding.getInt("left") * density);
+    final int top = (int)(padding.getInt("top") * density);
+    final int bottom = (int)(padding.getInt("bottom") * density);
+    final int right = (int)(padding.getInt("right") * density);
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
