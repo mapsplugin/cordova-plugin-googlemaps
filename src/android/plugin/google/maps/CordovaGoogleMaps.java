@@ -703,6 +703,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   }
 
   public void unload(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    if (mPluginLayout == null || mPluginLayout.pluginMaps == null) {
+      return;
+    }
     Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
     PluginMap pluginMap;
 

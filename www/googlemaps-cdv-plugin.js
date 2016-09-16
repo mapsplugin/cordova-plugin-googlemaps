@@ -60,8 +60,11 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var forceUpdateCnt = 0;
 
   function putHtmlElements() {
+      if (Object.keys(MAPS).length === 0) {
+        return;
+      }
       var children = common.getAllChildren(document.body);
-      var bodyRect = common.getDivRect(document.body);;
+      var bodyRect = common.getDivRect(document.body);
 
       if (children.length === 0) {
           children = null;
@@ -271,7 +274,7 @@ window.addEventListener("orientationchange", function() {
 
 document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);
-    
+
     document.body.style.backgroundColor="rgba(0,0,0,0.1)";
     document.getElementsByTagName("html")[0].style.backgroundColor="rgba(0,0,0,0.1)";
     document.body.style.backgroundColor="rgba(0,0,0,0)";

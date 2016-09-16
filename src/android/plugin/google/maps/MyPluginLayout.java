@@ -365,6 +365,9 @@ public class MyPluginLayout extends FrameLayout {
     
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+      if (pluginMaps == null || pluginMaps.size() == 0) {
+        return false;
+      }
       MyPluginLayout.this.stopFlag = true;
 
       int action = event.getAction();
