@@ -134,10 +134,8 @@ Map.prototype.getMap = function(mapId, div, options) {
     }
 
     cordova.exec(function() {
-        setTimeout(function() {
-          self.refreshLayout();
-          self.trigger(event.MAP_READY, self);
-        }, 1000);
+      self.refreshLayout();
+      self.trigger(event.MAP_READY, self);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
     return self;
 };
