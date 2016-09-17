@@ -118,6 +118,9 @@ Map.prototype.getMap = function(mapId, div, options) {
             div.setAttribute("__pluginDomId", elemId);
         }
         args.push(elemId);
+        div.style.display='none';
+        div.offsetHeight;
+        div.style.display='';
 
         while (div.parentNode) {
             div.style.backgroundColor = 'rgba(0,0,0,0)';
@@ -132,12 +135,12 @@ Map.prototype.getMap = function(mapId, div, options) {
             div = div.parentNode;
         }
     }
-
     cordova.exec(function() {
-      self.refreshLayout();
-      self.trigger(event.MAP_READY, self);
+      setTimeout(function() {
+          self.refreshLayout();
+          self.trigger(event.MAP_READY, self);
+      }, 100);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
-    return self;
 };
 
 Map.prototype.setOptions = function(options) {
