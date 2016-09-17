@@ -118,6 +118,9 @@ Map.prototype.getMap = function(mapId, div, options) {
             div.setAttribute("__pluginDomId", elemId);
         }
         args.push(elemId);
+
+        // Webkit redraw mandatory
+        // http://stackoverflow.com/a/3485654/697856
         div.style.display='none';
         div.offsetHeight;
         div.style.display='';
@@ -439,6 +442,12 @@ Map.prototype.setDiv = function(div) {
     } else {
         var currentDiv = self.get("div");
 
+        // Webkit redraw mandatory
+        // http://stackoverflow.com/a/3485654/697856
+        div.style.display='none';
+        div.offsetHeight;
+        div.style.display='';
+        
         self.set("div", div);
         elemId = div.getAttribute("__pluginDomId");
         if (!elemId) {
