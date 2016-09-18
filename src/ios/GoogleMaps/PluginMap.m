@@ -996,9 +996,10 @@
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command {
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       GMSIndoorBuilding *building = self.mapCtrl.map.indoorDisplay.activeBuilding;
-      if (building != nil) {
+      if (building != nil || [building.levels count] == 0) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
       }
       GMSIndoorLevel *activeLevel = self.mapCtrl.map.indoorDisplay.activeLevel;
       

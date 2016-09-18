@@ -2020,7 +2020,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onIndoorBuildingFocused() {
-    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_building_focused', callback:'_onMapEvent'})", mapId));
+    IndoorBuilding building = map.getFocusedBuilding();
+    String jsonStr = "undefined";
+    if (building != null) {
+      JSONObject result = PluginUtil.convertIndoorBuildingToJson(building);
+      if (result != null) {
+        jsonStr = result.toString();
+      }
+    }
+    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_building_focused', callback:'_onMapEvent', args: [%s]})", mapId, jsonStr));
   }
 
   @Override

@@ -585,6 +585,9 @@
 
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building {
+  if (building == nil) {
+      return;
+  }
   //Notify to the JS
 	NSString* jsString = [NSString
     stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_building_focused', callback: '_onMapEvent'});",
@@ -593,7 +596,10 @@
 }
 
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
-  /*
+  
+  if (activeLevel == nil) {
+      return;
+  }
   GMSIndoorBuilding *building = self.map.indoorDisplay.activeBuilding;
   
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
@@ -617,16 +623,16 @@
   NSError *error;
   NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:&error];
   
+  
   NSString *JSONstring = [[NSString alloc] initWithData:data
                                            encoding:NSUTF8StringEncoding];
-  NSString *jsString = [NSString stringWithFormat:@"javascript:plugin.google.maps.Map._onMapEvent('indoor_level_activated', %@)", JSONstring];
+
+  //Notify to the JS
+	NSString* jsString = [NSString
+    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});",
+    self.mapId, JSONstring];
   
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
-    */
+  [self execJS:jsString];
 }
 
 @end
