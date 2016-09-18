@@ -10,30 +10,21 @@ var BaseClass = function() {
        }
    };
 
-   self.deleteFromObject = function(object, type) {
-       if (object === null) return object;
-       if (typeof object !== "object") {
-         return object;
-       }
-       for(var index in Object.keys(object)) {
-           var key = Object.keys(object)[index];
-           if (typeof object[key] === 'object') {
-              object[key] = self.deleteFromObject(object[key], type);
-           } else if (typeof object[key] === type) {
-              delete object[key];
-           }
-       }
-       return object;
-   };
-
    self.get = function(key) {
        return key in _vars ? _vars[key] : null;
    };
-   self.set = function(key, value) {
-       if (_vars[key] !== value) {
-           self.trigger(key + "_changed", _vars[key], value);
-       }
+   self.set = function(key, value, noNotify) {
+       var prev = _vars[key];
        _vars[key] = value;
+       if (!noNotify && prev !== value) {
+           self.trigger(key + "_changed", prev, value);
+       }
+   };
+   self.bindTo = function(key, target, targetKey, noNotify) {
+       targetKey = targetKey === undefined || targetKey === null ? key : targetKey;
+       self.on(key + "_changed", function(prevValue, newValue) {
+           target.set(targetKey, newValue, noNotify === true);
+       });
    };
 
    self.trigger = function(eventName) {
@@ -85,16 +76,14 @@ var BaseClass = function() {
                }
            }
        } else {
-           //Remove all event listeners except 'keepWatching_changed'
+           //Remove all event listeners
            var eventNames = Object.keys(_listeners);
            for (i = 0; i < eventNames.length; i++) {
                eventName = eventNames[i];
-               if ( eventName !== 'keepWatching_changed' ) {
-                   for (var j = 0; j < _listeners[eventName].length; j++) {
-                       document.removeEventListener(eventName, _listeners[eventName][j].listener);
-                   }
-                   delete _listeners[eventName];
+               for (var j = 0; j < _listeners[eventName].length; j++) {
+                   document.removeEventListener(eventName, _listeners[eventName][j].listener);
                }
+               delete _listeners[eventName];
            }
            _listeners = {};
        }

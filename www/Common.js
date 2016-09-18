@@ -18,6 +18,21 @@ function isHTMLColorString(inputValue) {
     return inputValue in HTML_COLORS;
 }
 
+function deleteFromObject(object, type) {
+    if (object === null) return object;
+    if (typeof object !== "object") {
+      return object;
+    }
+    for(var index in Object.keys(object)) {
+        var key = Object.keys(object)[index];
+        if (typeof object[key] === 'object') {
+           object[key] = deleteFromObject(object[key], type);
+        } else if (typeof object[key] === type) {
+           delete object[key];
+        }
+    }
+    return object;
+}
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
     if (colorValue instanceof Array) {
@@ -423,6 +438,7 @@ var HTML_COLORS = {
 
 
 module.exports = {
+    deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
     getAllChildren: getAllChildren,

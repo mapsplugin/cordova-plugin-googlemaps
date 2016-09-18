@@ -123,7 +123,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
       children = null;
   }
   putHtmlElements();
-  INTERVAL_TIMER = setInterval(putHtmlElements, 100);
+  INTERVAL_TIMER = setInterval(putHtmlElements, 50);
 
   window.addEventListener("scroll", function() {
     shouldUpdate = true;
@@ -148,7 +148,6 @@ KmlOverlay.prototype.remove = function() {
 
 Marker.prototype.remove = function(callback) {
     var self = this;
-    self.set("keepWatching", false);
     delete MARKERS[this.id];
     cordova.exec(function() {
         if (typeof callback === "function") {

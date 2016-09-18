@@ -48,11 +48,6 @@ Marker.prototype.getPluginName = function() {
     return this.map.getId() + "-marker";
 };
 
-Marker.prototype.isVisible = function() {
-    return this.get('visible');
-};
-
-
 Marker.prototype.getPosition = function() {
     var position = this.get('position');
     if (!(position instanceof LatLng)) {
@@ -83,7 +78,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, this.errorHandler, self.getPluginName(), 'setAnimation', [this.getId(), self.deleteFromObject(animation,'function')]);
+    }, this.errorHandler, self.getPluginName(), 'setAnimation', [this.getId(), common.deleteFromObject(animation,'function')]);
     return this;
 };
 

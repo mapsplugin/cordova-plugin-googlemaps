@@ -19,7 +19,16 @@ NSOperationQueue *executeQueue;
     self.webView = webView;
     self.opaque = NO;
     [self.webView removeFromSuperview];
-    self.webView.scrollView.bounces = NO;
+    // prevent webView from bouncing
+    if ([self.webView respondsToSelector:@selector(scrollView)]) {
+        ((UIScrollView*)[self.webView scrollView]).bounces = NO;
+    } else {
+        for (id subview in self.webView.subviews) {
+            if ([[subview class] isSubclassOfClass:[UIScrollView class]]) {
+                ((UIScrollView*)subview).bounces = NO;
+            }
+        }
+    }
 
     self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
   
@@ -189,7 +198,9 @@ NSOperationQueue *executeQueue;
           return;
       }
       NSString *rectStr = [domInfo objectForKey:@"size"];
-      //NSLog(@"mapId = %@, rect = %@", mapId, rectStr);
+      if (rectStr == nil || [rectStr  isEqual: @"null"]) {
+        return;
+      }
       
       
       CGRect rect = CGRectFromString(rectStr);
