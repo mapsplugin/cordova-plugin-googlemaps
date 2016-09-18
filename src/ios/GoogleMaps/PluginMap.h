@@ -12,7 +12,6 @@
 
 @interface PluginMap : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-@property (nonatomic) NSString *mapId;
 @property (nonatomic) BOOL isRemoved;
 @property (nonatomic) NSOperationQueue *loadPluginQueue;
 @property (nonatomic) NSOperationQueue *executeQueue;
@@ -42,6 +41,5 @@
 - (void)setPadding:(CDVInvokedUrlCommand*)command;
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
-- (void)remove:(CDVInvokedUrlCommand *)command;
 
 @end

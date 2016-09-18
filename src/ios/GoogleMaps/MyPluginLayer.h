@@ -18,8 +18,8 @@
 @property (nonatomic) BOOL needUpdatePosition;
 
 - (id)initWithWebView:(UIWebView *)webView;
-- (void)updateViewPosition:(NSString *)mapId;
+- (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
-- (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
-- (void)removeMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl;
+- (void)addMapView:(GoogleMapsViewController *)mapCtrl;
+- (void)removeMapView:(GoogleMapsViewController *)mapCtrl;
 @end

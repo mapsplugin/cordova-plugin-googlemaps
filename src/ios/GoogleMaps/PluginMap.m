@@ -34,11 +34,11 @@
   [self clear:nil];
 
   dispatch_async(dispatch_get_main_queue(), ^{
-      [self.mapCtrl.overlayManager removeAllObjects];
       [self.mapCtrl.map removeFromSuperview];
       [self.mapCtrl.view removeFromSuperview];
       [self.mapCtrl.view setFrame:CGRectMake(0, -1000, 100, 100)];
       [self.mapCtrl.view setNeedsDisplay];
+      [self.mapCtrl.plugins removeAllObjects];
       self.mapCtrl.map = nil;
       self.mapCtrl = nil;
   });
@@ -55,43 +55,48 @@
 
       CDVPluginResult* pluginResult = nil;
       CDVPlugin<MyPlgunProtocol> *plugin;
-
-      // Create an instance of the plugin class everytime.
-      //#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
-      //  plugin = [(CDVViewController*)self.viewController getCommandInstance:className];
-      //#else
-        plugin = [[NSClassFromString(className)alloc] init];
-      //#endif
-      //NSLog(@"--> plugin = %@", plugin);
-      if (plugin) {
-        plugin.commandDelegate = self.commandDelegate;
-        [plugin setGoogleMapsViewController:self.mapCtrl];
-        [self.mapCtrl.plugins setObject:plugin forKey:className];
-
-        NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, [pluginName lowercaseString]];
-        //NSLog(@"--> pluginId = %@", pluginId);
-
-        // Hack:
-        // In order to load the plugin instance of the same class but different names,
-        // register the map plugin instance into the pluginObjects directly.
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-        if ([plugin respondsToSelector:@selector(setViewController:)]) {
-            [plugin setViewController:cdvViewController];
-        }
-        if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
-            [plugin setCommandDelegate:cdvViewController.commandDelegate];
-        }
-        [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
-        [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
-        [plugin pluginInitialize];
-      }
-
+      NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapCtrl.mapId, [pluginName lowercaseString]];
+    
+      plugin = [self.mapCtrl.plugins objectForKey:pluginId];
       if (!plugin) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                         messageAsString:[NSString stringWithFormat:@"Class not found: %@", className]];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
+          plugin = [[NSClassFromString(className)alloc] init];
+        
+          if (!plugin) {
+              pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                               messageAsString:[NSString stringWithFormat:@"Class not found: %@", className]];
+              [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+              return;
+          }
+        
+          // Hack:
+          // In order to load the plugin instance of the same class but different names,
+          // register the map plugin instance into the pluginObjects directly.
+          //
+          // Don't use the registerPlugin() method of the CDVViewController.
+          // Problem is at
+          // https://github.com/apache/cordova-ios/blob/582e35776f01ee03f32f0986de181bcf5eb4d232/CordovaLib/Classes/Public/CDVViewController.m#L577
+          //
+          CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+          if ([plugin respondsToSelector:@selector(setViewController:)]) {
+              [plugin setViewController:cdvViewController];
+          }
+          if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
+              [plugin setCommandDelegate:cdvViewController.commandDelegate];
+          }
+          [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
+          [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
+          [plugin pluginInitialize];
+        
+          [self.mapCtrl.plugins setObject:plugin forKey:pluginId];
+          [plugin setGoogleMapsViewController:self.mapCtrl];
+          
       }
+    
+      //plugin.commandDelegate = self.commandDelegate;
+
+      //NSLog(@"--> pluginId = %@", pluginId);
+
+        
 
       SEL selector = NSSelectorFromString(@"create:");
       if ([plugin respondsToSelector:selector]){
@@ -140,13 +145,13 @@
 
         // Detach the map view
         if ([command.arguments count] == 0 && self.mapCtrl.mapDivId) {
-            [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
+            [googlemaps.pluginLayer removeMapView:self.mapCtrl];
         }
 
         if ([command.arguments count] == 1) {
             NSString *mapDivId = [command.arguments objectAtIndex:0];
             self.mapCtrl.mapDivId = mapDivId;
-            [googlemaps.pluginLayer addMapView:self.mapId mapCtrl:self.mapCtrl];
+            [googlemaps.pluginLayer addMapView:self.mapCtrl];
             [self resizeMap:command];
         }
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -183,7 +188,7 @@
         }
 
         googlemaps.pluginLayer.needUpdatePosition = YES;
-        [googlemaps.pluginLayer updateViewPosition:self.mapId];
+        [googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
     }];
 }
 
@@ -199,32 +204,6 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
-/**
- * Remove the map
- */
-- (void)remove:(CDVInvokedUrlCommand *)command {
-    [self.executeQueue addOperationWithBlock:^{
-
-        self.isRemoved = YES;
-
-        [self clear:nil];
-
-        // Load the GoogleMap.m
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-        CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-        [googlemaps.pluginLayer removeMapView:self.mapId mapCtrl:self.mapCtrl];
-
-
-        self.mapCtrl.map = nil;
-        self.mapCtrl = nil;
-
-        if (command != nil) {
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }
-    }];
-
-}
 
 /**
  * Clear all markups
@@ -239,23 +218,23 @@
         [self.loadPluginQueue cancelAllOperations];
         self.loadPluginQueue.suspended = NO;
     }
-    NSArray *keys = [self.mapCtrl.overlayManager allKeys];
-    NSString *key;
-    for (int i = 0; i < keys.count; i++) {
-        key = keys[i];
-        if ([key hasPrefix:@"marker_property_"]) {
-            NSMutableDictionary *properties = [self.mapCtrl.overlayManager objectForKey:key];
-            properties = nil;
-            [self.mapCtrl.overlayManager removeObjectForKey:key];
-        }
-        if ([key hasPrefix:@"marker_"]) {
-            GMSMarker *marker = [self.mapCtrl.overlayManager objectForKey:key];
-            marker = nil;
-            [self.mapCtrl.overlayManager removeObjectForKey:key];
-        }
+
+  
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CDVPlugin<MyPlgunProtocol> *plugin;
+    NSString *pluginName;
+    NSArray *keys = [self.mapCtrl.plugins allKeys];
+    for (int j = 0; j < [keys count]; j++) {
+      pluginName = [keys objectAtIndex:j];
+      plugin = [self.mapCtrl.plugins objectForKey:pluginName];
+      [plugin pluginUnload];
+                        
+      [cdvViewController.pluginObjects removeObjectForKey:pluginName];
+      [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
+      plugin = nil;
     }
-    [self.mapCtrl.overlayManager removeAllObjects];
-    //[self.mapCtrl.plugins removeAllObjects];
+
+    [self.mapCtrl.plugins removeAllObjects];
 
     if (command != nil) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -1015,35 +994,38 @@
 }
 
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command {
-  [self.executeQueue addOperationWithBlock:^{
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       GMSIndoorBuilding *building = self.mapCtrl.map.indoorDisplay.activeBuilding;
       if (building != nil) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }
       GMSIndoorLevel *activeLevel = self.mapCtrl.map.indoorDisplay.activeLevel;
+      
+      [self.executeQueue addOperationWithBlock:^{
+        
+          NSMutableDictionary *result = [NSMutableDictionary dictionary];
 
-      NSMutableDictionary *result = [NSMutableDictionary dictionary];
+          NSUInteger activeLevelIndex = [building.levels indexOfObject:activeLevel];
+          [result setObject:[NSNumber numberWithInteger:activeLevelIndex] forKey:@"activeLevelIndex"];
+          [result setObject:[NSNumber numberWithInteger:building.defaultLevelIndex] forKey:@"defaultLevelIndex"];
 
-      NSUInteger activeLevelIndex = [building.levels indexOfObject:activeLevel];
-      [result setObject:[NSNumber numberWithInteger:activeLevelIndex] forKey:@"activeLevelIndex"];
-      [result setObject:[NSNumber numberWithInteger:building.defaultLevelIndex] forKey:@"defaultLevelIndex"];
+          GMSIndoorLevel *level;
+          NSMutableDictionary *levelInfo;
+          NSMutableArray *levels = [NSMutableArray array];
+          for (level in building.levels) {
+            levelInfo = [NSMutableDictionary dictionary];
 
-      GMSIndoorLevel *level;
-      NSMutableDictionary *levelInfo;
-      NSMutableArray *levels = [NSMutableArray array];
-      for (level in building.levels) {
-        levelInfo = [NSMutableDictionary dictionary];
-
-        [levelInfo setObject:[NSString stringWithString:level.name] forKey:@"name"];
-        [levelInfo setObject:[NSString stringWithString:level.shortName] forKey:@"shortName"];
-        [levels addObject:levelInfo];
-      }
-      [result setObject:levels forKey:@"levels"];
+            [levelInfo setObject:[NSString stringWithString:level.name] forKey:@"name"];
+            [levelInfo setObject:[NSString stringWithString:level.shortName] forKey:@"shortName"];
+            [levels addObject:levelInfo];
+          }
+          [result setObject:levels forKey:@"levels"];
 
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 }
 @end

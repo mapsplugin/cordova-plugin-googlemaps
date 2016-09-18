@@ -401,7 +401,7 @@ Map.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'remove', []);
+    }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id]);
 };
 
 
@@ -447,7 +447,7 @@ Map.prototype.setDiv = function(div) {
         div.style.display='none';
         div.offsetHeight;
         div.style.display='';
-        
+
         self.set("div", div);
         elemId = div.getAttribute("__pluginDomId");
         if (!elemId) {

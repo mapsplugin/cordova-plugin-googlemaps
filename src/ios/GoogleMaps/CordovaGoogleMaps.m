@@ -45,7 +45,7 @@
     // Plugin initialization
     //-------------------------------
     [GMSServices provideAPIKey:APIKey];
-    self.mapPlugins = [[NSMutableDictionary alloc] init];
+    self.pluginMaps = [[NSMutableDictionary alloc] init];
     self.locationCommandQueue = [[NSMutableArray alloc] init];
 
     self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:(UIWebView *)self.webView];
@@ -69,12 +69,14 @@
 {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
 
-      NSArray *keys=[self.mapPlugins allKeys];
+      NSArray *keys=[self.pluginMaps allKeys];
       NSString *mapId;
+      PluginMap *pluginMap;
 
       for (int i = 0; i < [keys count]; i++) {
         mapId = [keys objectAtIndex:i];
-        [self.pluginLayer updateViewPosition:mapId];
+        pluginMap = [self.pluginMaps objectForKey:mapId];
+        [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
       }
 
       if (self.pluginLayer.pluginScrollView.debugView.debuggable == YES) {
@@ -106,36 +108,59 @@
         [[NSURLCache sharedURLCache] removeAllCachedResponses];
       
         // Remove old plugins that are used in the previous html.
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         NSString *mapId;
-        NSArray *keys=[self.mapPlugins allKeys];
-        NSString *pluginName;
-        CDVPlugin<MyPlgunProtocol> *plugin;
-
+        NSArray *keys=[self.pluginMaps allKeys];
         for (int i = 0; i < [keys count]; i++) {
           mapId = [keys objectAtIndex:i];
-          PluginMap *mapPlugin = [self.mapPlugins objectForKey:mapId];
-
-          NSArray *keys2 = [mapPlugin.mapCtrl.plugins allKeys];
-          for (int j = 0; j < [keys2 count]; j++) {
-            pluginName = [keys2 objectAtIndex:j];
-            plugin = [mapPlugin.mapCtrl.plugins objectForKey:pluginName];
-            [plugin pluginUnload];
-            plugin = nil;
-          }
-
-          [mapPlugin remove:nil];
-          [self.mapPlugins removeObjectForKey:mapId];
-          [cdvViewController.pluginObjects removeObjectForKey:mapId];
-          [cdvViewController.pluginsMap setValue:nil forKey:mapId];
-          mapPlugin = nil;
+          [self _destroyMap:mapId];
         }
-        [self.mapPlugins removeAllObjects];
+        [self.pluginMaps removeAllObjects];
 
         [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
+        self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
         [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
+      
+      
 
     });
+}
+
+- (void)_destroyMap:(NSString *)mapId {
+    PluginMap *pluginMap = [self.pluginMaps objectForKey:mapId];
+    if (pluginMap == nil) {
+        return;
+    }
+
+    pluginMap.isRemoved = YES;
+    [pluginMap clear:nil];
+
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
+    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+  
+    [self.pluginLayer removeMapView:pluginMap.mapCtrl];
+
+    pluginMap.mapCtrl.view = nil;
+    [pluginMap.mapCtrl.plugins removeAllObjects];
+    pluginMap.mapCtrl.plugins = nil;
+    pluginMap.mapCtrl.map.delegate = nil;
+    pluginMap.mapCtrl.map = nil;
+    pluginMap.mapCtrl = nil;
+    [self.pluginMaps removeObjectForKey:mapId];
+    pluginMap = nil;
+}
+/**
+ * Remove the map
+ */
+- (void)removeMap:(CDVInvokedUrlCommand *)command {
+    NSString *mapId = [command.arguments objectAtIndex:0];
+    [self _destroyMap:mapId];
+  
+    if (command != nil) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+
 }
 
 /**
@@ -153,34 +178,34 @@
         mapCtrl.webView = self.webView;
         mapCtrl.isFullScreen = YES;
         mapCtrl.mapId = mapId;
+        mapCtrl.mapDivId = nil;
 
         // Create an instance of the Map class everytime.
-        PluginMap *mapPlugin = [[PluginMap alloc] init];
-        [mapPlugin pluginInitialize];
-        mapPlugin.mapId = mapId;
-        mapPlugin.mapCtrl = mapCtrl;
+        PluginMap *pluginMap = [[PluginMap alloc] init];
+        [pluginMap pluginInitialize];
+        pluginMap.mapCtrl = mapCtrl;
 
         // Hack:
         // In order to load the plugin instance of the same class but different names,
         // register the map plugin instance into the pluginObjects directly.
-        if ([mapPlugin respondsToSelector:@selector(setViewController:)]) {
-            [mapPlugin setViewController:cdvViewController];
+        if ([pluginMap respondsToSelector:@selector(setViewController:)]) {
+            [pluginMap setViewController:cdvViewController];
         }
-        if ([mapPlugin respondsToSelector:@selector(setCommandDelegate:)]) {
-            [mapPlugin setCommandDelegate:cdvViewController.commandDelegate];
+        if ([pluginMap respondsToSelector:@selector(setCommandDelegate:)]) {
+            [pluginMap setCommandDelegate:cdvViewController.commandDelegate];
         }
-        [cdvViewController.pluginObjects setObject:mapPlugin forKey:mapId];
+        [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
         [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-        [mapPlugin pluginInitialize];
+        [pluginMap pluginInitialize];
 
-        [self.mapPlugins setObject:mapPlugin forKey:mapId];
+        [self.pluginMaps setObject:pluginMap forKey:mapId];
 
         CGRect rect = CGRectZero;
         // Sets the map div id.
         if ([command.arguments count] == 3) {
-          mapPlugin.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
-          if (mapPlugin.mapCtrl.mapDivId != nil) {
-            NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:mapPlugin.mapCtrl.mapDivId];
+          pluginMap.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
+          if (pluginMap.mapCtrl.mapDivId != nil) {
+            NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginMap.mapCtrl.mapDivId];
             if (domInfo != nil) {
               rect = CGRectFromString([domInfo objectForKey:@"size"]);
             }
@@ -195,19 +220,19 @@
                                             bearing:0
                                             viewingAngle:0];
 
-        mapPlugin.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
-        mapPlugin.mapCtrl.map.delegate = mapCtrl;
-        mapPlugin.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+        pluginMap.mapCtrl.map.delegate = mapCtrl;
+        pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
 
         //indoor display
-        mapPlugin.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
-        [mapCtrl.view addSubview:mapPlugin.mapCtrl.map];
+        pluginMap.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
+        [mapCtrl.view addSubview:pluginMap.mapCtrl.map];
 
-        [self.pluginLayer addMapView:mapPlugin.mapId mapCtrl:mapCtrl];
+        [self.pluginLayer addMapView:mapCtrl];
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [mapPlugin getMap:command];
+            [pluginMap getMap:command];
         });
 
     });
@@ -348,12 +373,14 @@
               self.pluginLayer.needUpdatePosition = NO;
               //NSLog(@"---->putHtmlElements  needUpdatePosition = NO");
               //NSLog(@"%@", elements);
-              NSArray *keys=[self.mapPlugins allKeys];
+              NSArray *keys=[self.pluginMaps allKeys];
               NSString *mapId;
+              PluginMap *pluginMap;
 
               for (int i = 0; i < [keys count]; i++) {
                 mapId = [keys objectAtIndex:i];
-                [self.pluginLayer updateViewPosition:mapId];
+                pluginMap = [self.pluginMaps objectForKey:mapId];
+                [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
               }
           }
 

@@ -19,9 +19,9 @@
     self.plugins = [NSMutableDictionary dictionary];
     self.isFullScreen = NO;
     self.screenSize = [[UIScreen mainScreen] bounds];
-    self.overlayManager = [[NSMutableDictionary alloc] init];
     self.clickable = YES;
     self.isRenderedAtOnce = NO;
+    self.mapDivId = nil;
 
     return self;
 }
@@ -29,184 +29,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.view.backgroundColor = [[NSArray arrayWithObjects:[NSNumber numberWithInt:128],
-                                                            [NSNumber numberWithInt:128],
-                                                            [NSNumber numberWithInt:128],
-                                                            [NSNumber numberWithInt:128], nil] parsePluginColor];
   
-  
-    //------------------
-    // Create a map view
-    //------------------
-/*
-    NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-    NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
-    [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
-    float latitude;
-    float longitude;
-    GMSCameraPosition *camera;
-    GMSCoordinateBounds *cameraBounds = nil;
-  
-    if ([cameraOpts objectForKey:@"target"]) {
-      NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
-      if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
-        int i = 0;
-        NSArray *latLngList = [cameraOpts objectForKey:@"target"];
-        GMSMutablePath *path = [GMSMutablePath path];
-        for (i = 0; i < [latLngList count]; i++) {
-          latLng = [latLngList objectAtIndex:i];
-          latitude = [[latLng valueForKey:@"lat"] floatValue];
-          longitude = [[latLng valueForKey:@"lng"] floatValue];
-          [path addLatitude:latitude longitude:longitude];
-        }
-        float scale = 1;
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-          scale = [[UIScreen mainScreen] scale];
-        }
-        [[UIScreen mainScreen] scale];
-        
-        cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-        
-        CLLocationCoordinate2D center = cameraBounds.center;
-        
-        camera = [GMSCameraPosition cameraWithLatitude:center.latitude
-                                            longitude:center.longitude
-                                            zoom:0
-                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-        
-      } else {
-        latLng = [cameraOpts objectForKey:@"target"];
-        latitude = [[latLng valueForKey:@"lat"] floatValue];
-        longitude = [[latLng valueForKey:@"lng"] floatValue];
-        
-        camera = [GMSCameraPosition cameraWithLatitude:latitude
-                                            longitude:longitude
-                                            zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
-                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-      }
-    } else {
-      camera = [GMSCameraPosition
-                              cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
-                              longitude: [[latLng valueForKey:@"lng"] floatValue]
-                              zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
-                              bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                              viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-    }
-  
-    CGRect pluginRect = self.view.frame;
-    int marginBottom = 0;
-    //if ([PluginUtil isIOS7] == false) {
-    //  marginBottom = 20;
-    //}
-    CGRect mapRect = CGRectMake(0, 0, pluginRect.size.width, pluginRect.size.height  - marginBottom);
-    //NSLog(@"mapRect=%f,%f - %f,%f", mapRect.origin.x, mapRect.origin.y, mapRect.size.width, mapRect.size.height);
-    //NSLog(@"mapRect=%@", camera);
-    self.map = [GMSMapView mapWithFrame:mapRect camera:camera];
-    self.map.delegate = self;
-    //self.map.autoresizingMask = UIViewAutoresizingNone;
-    self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  
-    //indoor display
-    self.map.indoorDisplay.delegate = self;
-  
-  
-    BOOL isEnabled = NO;
-    //controls
-    NSDictionary *controls = [initOptions objectForKey:@"controls"];
-    if (controls) {
-      //compass
-      if ([controls valueForKey:@"compass"] != nil) {
-        isEnabled = [[controls valueForKey:@"compass"] boolValue];
-        self.map.settings.compassButton = isEnabled;
-      }
-      //myLocationButton
-      if ([controls valueForKey:@"myLocationButton"] != nil) {
-        isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
-        self.map.settings.myLocationButton = isEnabled;
-        self.map.myLocationEnabled = isEnabled;
-      }
-      //indoorPicker
-      if ([controls valueForKey:@"indoorPicker"] != nil) {
-        isEnabled = [[controls valueForKey:@"indoorPicker"] boolValue];
-        self.map.settings.indoorPicker = isEnabled;
-      }
-    } else {
-      self.map.settings.compassButton = TRUE;
-    }
-
-  
-    //gestures
-    NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
-    if (gestures) {
-      //rotate
-      if ([gestures valueForKey:@"rotate"] != nil) {
-        isEnabled = [[gestures valueForKey:@"rotate"] boolValue];
-        self.map.settings.rotateGestures = isEnabled;
-      }
-      //scroll
-      if ([gestures valueForKey:@"scroll"] != nil) {
-        isEnabled = [[gestures valueForKey:@"scroll"] boolValue];
-        self.map.settings.scrollGestures = isEnabled;
-      }
-      //tilt
-      if ([gestures valueForKey:@"tilt"] != nil) {
-        isEnabled = [[gestures valueForKey:@"tilt"] boolValue];
-        self.map.settings.tiltGestures = isEnabled;
-      }
-      //zoom
-      if ([gestures valueForKey:@"zoom"] != nil) {
-        isEnabled = [[gestures valueForKey:@"zoom"] boolValue];
-        self.map.settings.zoomGestures = isEnabled;
-      }
-    }
-  
-    //mapType
-    NSString *typeStr = [initOptions valueForKey:@"mapType"];
-    if (typeStr) {
-      
-      NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
-                                ^() {return kGMSTypeSatellite; }, @"MAP_TYPE_SATELLITE",
-                                ^() {return kGMSTypeTerrain; }, @"MAP_TYPE_TERRAIN",
-                                ^() {return kGMSTypeNormal; }, @"MAP_TYPE_NORMAL",
-                                ^() {return kGMSTypeNone; }, @"MAP_TYPE_NONE",
-                                nil];
-      
-      typedef GMSMapViewType (^CaseBlock)();
-      GMSMapViewType mapType;
-      CaseBlock caseBlock = mapTypes[typeStr];
-      if (caseBlock) {
-        // Change the map type
-        mapType = caseBlock();
-        self.map.mapType = mapType;
-      }
-    }
-  
-    [self.view addSubview: self.map];
-  
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (cameraBounds != nil) {
-        float scale = 1;
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-          scale = [[UIScreen mainScreen] scale];
-        }
-        [[UIScreen mainScreen] scale];
-        [self.map moveCamera:[GMSCameraUpdate fitBounds:cameraBounds withPadding:10 * scale]];
-        
-        GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
-                                            longitude:cameraBounds.center.longitude
-                                            zoom:self.map.camera.zoom
-                                            bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                            viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-      
-        [self.map setCamera:cameraPosition2];
-
-      }
-    });
-*/
 }
 
 
@@ -225,7 +48,8 @@
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
   
 	NSString* jsString = [NSString
-      stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});", self.mapId, @"my_location_button_click"];
+      stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});",
+      self.mapId, @"my_location_button_click"];
   [self execJS:jsString];
 	return NO;
 }
@@ -236,13 +60,13 @@
  * @callback the my location button is clicked.
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
-  [self triggerMapEvent:@"click" coordinate:coordinate];
+  [self triggerMapEvent:@"map_click" coordinate:coordinate];
 }
 /**
  * @callback map long_click
  */
 - (void) mapView:(GMSMapView *)mapView didLongPressAtCoordinate:(CLLocationCoordinate2D)coordinate {
-  [self triggerMapEvent:@"long_click" coordinate:coordinate];
+  [self triggerMapEvent:@"map_long_click" coordinate:coordinate];
 }
 
 /**
@@ -315,11 +139,16 @@
  * @callback plugin.google.maps.event.MARKER_CLICK
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
-  [self triggerMarkerEvent:@"click" marker:marker];
+  [self triggerMarkerEvent:@"marker_click" marker:marker];
   
+  // Get the marker plugin
+  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  
+  // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  
-  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+
   BOOL disableAutoPan = false;
   if ([properties objectForKey:@"disableAutoPan"] != nil) {
     disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
@@ -347,7 +176,10 @@
  */
 - (void)triggerMapEvent: (NSString *)eventName coordinate:(CLLocationCoordinate2D)coordinate
 {
-	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});", self.mapId, eventName, coordinate.latitude, coordinate.longitude];
+
+	NSString* jsString = [NSString
+      stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});",
+      self.mapId, eventName, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -371,12 +203,13 @@
   
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-  NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});", self.mapId, eventName, sourceArrayString];
+  NSString* jsString = [NSString
+    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});",
+    self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
 }
 
 - (void)execJS: (NSString *)jsString {
-
     if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
         [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
     } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
@@ -402,7 +235,9 @@
  */
 - (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id
 {
-	NSString* jsString = [NSString stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@']});", self.mapId, eventName, id];
+	NSString* jsString = [NSString
+    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@']});",
+    self.mapId, eventName, id];
   [self execJS:jsString];
 }
 
@@ -424,9 +259,16 @@
     return NULL;
   }
   
-  // Load styles
+    
+  // Get the marker plugin
+  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  
+  // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+
+  // Load styles
   NSDictionary *styles = nil;
   if ([properties objectForKey:@"styles"]) {
     styles = [properties objectForKey:@"styles"];
@@ -496,58 +338,54 @@
   if ([title rangeOfString:@"data:image/"].location != NSNotFound &&
       [title rangeOfString:@";base64,"].location != NSNotFound) {
     
-    isTextMode = false;
-    NSArray *tmp = [title componentsSeparatedByString:@","];
-    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];    
-    base64Image = [[UIImage alloc] initWithData:decodedData];
-    rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
+      isTextMode = false;
+      NSArray *tmp = [title componentsSeparatedByString:@","];
+      NSData *decodedData = [NSData dataFromBase64String:tmp[1]];    
+      base64Image = [[UIImage alloc] initWithData:decodedData];
+      rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
     
   } else {
   
-    isTextMode = true;
-    
-    BOOL isBold = FALSE;
-    BOOL isItalic = FALSE;
-    if (styles) {
-      if ([[styles objectForKey:@"font-style"] isEqualToString:@"italic"]) {
-        isItalic = TRUE;
+      isTextMode = true;
+      
+      BOOL isBold = FALSE;
+      BOOL isItalic = FALSE;
+      if (styles) {
+          if ([[styles objectForKey:@"font-style"] isEqualToString:@"italic"]) {
+              isItalic = TRUE;
+          }
+          if ([[styles objectForKey:@"font-weight"] isEqualToString:@"bold"]) {
+              isBold = TRUE;
+          }
       }
-      if ([[styles objectForKey:@"font-weight"] isEqualToString:@"bold"]) {
-        isBold = TRUE;
-      }
-    }
-    if (isBold == TRUE && isItalic == TRUE) {
-      if ([PluginUtil isIOS7_OR_OVER] == true) {
-        // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
-        titleFont = [UIFont systemFontOfSize:17.0f];
-        UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
-                                                fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
-        titleFont = [UIFont fontWithDescriptor:fontDescriptor size:0];
+      if (isBold == TRUE && isItalic == TRUE) {
+          // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
+          titleFont = [UIFont systemFontOfSize:17.0f];
+          UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
+                                                  fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
+          titleFont = [UIFont fontWithDescriptor:fontDescriptor size:0];
+      } else if (isBold == TRUE && isItalic == FALSE) {
+          titleFont = [UIFont boldSystemFontOfSize:17.0f];
+      } else if (isBold == TRUE && isItalic == FALSE) {
+          titleFont = [UIFont italicSystemFontOfSize:17.0f];
       } else {
-        titleFont = [UIFont fontWithName:@"Helvetica-BoldOblique" size:17.0];
+          titleFont = [UIFont systemFontOfSize:17.0f];
       }
-    } else if (isBold == TRUE && isItalic == FALSE) {
-      titleFont = [UIFont boldSystemFontOfSize:17.0f];
-    } else if (isBold == TRUE && isItalic == FALSE) {
-      titleFont = [UIFont italicSystemFontOfSize:17.0f];
-    } else {
-      titleFont = [UIFont systemFontOfSize:17.0f];
-    }
-    
-    // Calculate the size for the title strings
-    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
-    rectSize = CGSizeMake(textSize.width + 10, textSize.height + 22);
-    
-    // Calculate the size for the snippet strings
-    if (snippet) {
-      snippetFont = [UIFont systemFontOfSize:12.0f];
-      snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
-      rectSize.height += snippetSize.height + 4;
-      if (rectSize.width < snippetSize.width + leftImg.size.width) {
-        rectSize.width = snippetSize.width + leftImg.size.width;
+      
+      // Calculate the size for the title strings
+      textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
+      rectSize = CGSizeMake(textSize.width + 10, textSize.height + 22);
+      
+      // Calculate the size for the snippet strings
+      if (snippet) {
+          snippetFont = [UIFont systemFontOfSize:12.0f];
+          snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+          snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
+          rectSize.height += snippetSize.height + 4;
+          if (rectSize.width < snippetSize.width + leftImg.size.width) {
+              rectSize.width = snippetSize.width + leftImg.size.width;
+          }
       }
-    }
   }
   if (rectSize.width < leftImg.size.width * scale) {
     rectSize.width = leftImg.size.width * scale;
@@ -688,29 +526,17 @@
       }
       
       CGRect textRect = CGRectMake(5, 5 , rectSize.width - 10, textSize.height );
-      if ([PluginUtil isIOS7_OR_OVER] == true) {
-        // iOS7 and above
-        NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-        style.lineBreakMode = NSLineBreakByWordWrapping;
-        style.alignment = textAlignment;
-        
-        NSDictionary *attributes = @{
-            NSForegroundColorAttributeName : titleColor,
-            NSFontAttributeName : titleFont,
-            NSParagraphStyleAttributeName : style
-        };
-        [title drawInRect:textRect
+      NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+      style.lineBreakMode = NSLineBreakByWordWrapping;
+      style.alignment = textAlignment;
+      
+      NSDictionary *attributes = @{
+          NSForegroundColorAttributeName : titleColor,
+          NSFontAttributeName : titleFont,
+          NSParagraphStyleAttributeName : style
+      };
+      [title drawInRect:textRect
                withAttributes:attributes];
-        
-        
-      } else {
-        // iOS6
-        [titleColor set];
-        [title drawInRect:textRect
-                withFont:titleFont
-                lineBreakMode:NSLineBreakByWordWrapping
-                alignment:textAlignment];
-      }
       //CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 0.5);
       //CGContextStrokeRect(context, textRect);
     }
@@ -718,26 +544,16 @@
     //Draw the snippet
     if (snippet) {
       CGRect textRect = CGRectMake(5, textSize.height + 10 , rectSize.width - 10, snippetSize.height );
-      if ([PluginUtil isIOS7_OR_OVER] == true) {
-          // iOS7 and above
-          NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-          style.lineBreakMode = NSLineBreakByWordWrapping;
-          style.alignment = textAlignment;
-          
-          NSDictionary *attributes = @{
-              NSForegroundColorAttributeName : [UIColor grayColor],
-              NSFontAttributeName : snippetFont,
-              NSParagraphStyleAttributeName : style
-          };
-          [snippet drawInRect:textRect withAttributes:attributes];
-        } else {
-          // iOS6
-          [[UIColor grayColor] set];
-          [snippet drawInRect:textRect
-                  withFont:snippetFont
-                  lineBreakMode:NSLineBreakByWordWrapping
-                  alignment:textAlignment];
-        }
+      NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+      style.lineBreakMode = NSLineBreakByWordWrapping;
+      style.alignment = textAlignment;
+      
+      NSDictionary *attributes = @{
+          NSForegroundColorAttributeName : [UIColor grayColor],
+          NSFontAttributeName : snippetFont,
+          NSParagraphStyleAttributeName : style
+      };
+      [snippet drawInRect:textRect withAttributes:attributes];
     }
   } else {
     //Draw the content image
@@ -770,12 +586,10 @@
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building {
   //Notify to the JS
-  NSString* jsString = @"javascript:plugin.google.maps.Map._onMapEvent('indoor_building_focused')";
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+	NSString* jsString = [NSString
+    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_building_focused', callback: '_onMapEvent'});",
+    self.mapId];
+  [self execJS:jsString];
 }
 
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
@@ -815,34 +629,4 @@
     */
 }
 
-
-
-- (GMSCircle *)getCircleByKey: (NSString *)key {
-    return [self.overlayManager objectForKey:key];
-}
-
-- (GMSMarker *)getMarkerByKey: (NSString *)key {
-  return [self.overlayManager objectForKey:key];
-}
-
-- (GMSPolygon *)getPolygonByKey: (NSString *)key {
-  return [self.overlayManager objectForKey:key];
-}
-
-- (GMSPolyline *)getPolylineByKey: (NSString *)key {
-  return [self.overlayManager objectForKey:key];
-}
-- (GMSTileLayer *)getTileLayerByKey: (NSString *)key {
-  return [self.overlayManager objectForKey:key];
-}
-- (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key {
-  return [self.overlayManager objectForKey:key];
-}
-- (UIImage *)getUIImageByKey:(NSString *)key {
-  return [self.overlayManager objectForKey:key];
-}
-
-- (void)removeObjectForKey: (NSString *)key {
-  [self.overlayManager removeObjectForKey:key];
-}
 @end

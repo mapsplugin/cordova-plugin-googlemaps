@@ -63,6 +63,7 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 - (void)setCompletionBlock:(TIFAnimationGroupCompletionBlock)handler;
 @end
 
+
 @interface PluginUtil : NSObject
 + (BOOL)isIOS7_OR_OVER;
 + (BOOL)isIOS8_OR_OVER;

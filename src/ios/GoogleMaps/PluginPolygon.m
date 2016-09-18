@@ -20,12 +20,12 @@
 
 -(void)create:(CDVInvokedUrlCommand *)command
 {
+/*
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
     //self.mapCtrl = googlemaps.mapCtrl;
-    [self.mapCtrl.plugins setObject:self forKey:@"Polygon"];
   }
 
 
@@ -109,6 +109,7 @@
     });
 
   }];
+*/
 }
 
 
@@ -118,6 +119,7 @@
  */
 -(void)setHoles:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
 
     // Obtain the polygon matched with the id.
@@ -150,7 +152,7 @@
     });
 
   }];
-
+*/
 }
 
 
@@ -160,6 +162,7 @@
  */
 -(void)setPoints:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
@@ -184,6 +187,7 @@
 
 
   }];
+*/
 }
 /**
  * Set fill color
@@ -191,6 +195,7 @@
  */
 -(void)setFillColor:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
 
     NSString *polygonKey = [command.arguments objectAtIndex:0];
@@ -206,6 +211,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
+*/
 }
 
 
@@ -215,6 +221,7 @@
  */
 -(void)setStrokeColor:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
@@ -229,7 +236,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
-
+*/
 }
 
 /**
@@ -238,6 +245,7 @@
  */
 -(void)setStrokeWidth:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
     NSString *polygonKey = [command.arguments objectAtIndex:0];
     GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
@@ -250,6 +258,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
+*/
 }
 
 /**
@@ -258,6 +267,7 @@
  */
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
 
     NSString *polygonKey = [command.arguments objectAtIndex:0];
@@ -272,6 +282,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
+*/
 }
 
 /**
@@ -280,6 +291,7 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
 
     NSString *polygonKey = [command.arguments objectAtIndex:0];
@@ -298,6 +310,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
+*/
 }
 /**
  * Set geodesic
@@ -305,6 +318,7 @@
  */
 -(void)setGeodesic:(CDVInvokedUrlCommand *)command
 {
+/*
   [self.commandDelegate runInBackground:^{
 
     NSString *polygonKey = [command.arguments objectAtIndex:0];
@@ -319,6 +333,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
+*/
 }
 
 /**
@@ -327,6 +342,7 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
+/*
     [self.commandDelegate runInBackground:^{
 
     NSString *polygonKey = [command.arguments objectAtIndex:0];
@@ -342,6 +358,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     });
   }];
+  */
 }
 
 @end

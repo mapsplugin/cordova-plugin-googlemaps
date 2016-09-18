@@ -10,8 +10,34 @@
 
 @implementation PluginCircle
 
+- (void)pluginInitialize
+{
+  // Initialize this plugin
+  self.objects = [[NSMutableDictionary alloc] init];
+}
+
 - (void)pluginUnload
 {
+  // Plugin destroy
+  NSArray *keys = [self.objects allKeys];
+  NSString *key;
+  for (int i = 0; i < [keys count]; i++) {
+      key = [keys objectAtIndex:i];
+      GMSCircle *circle = (GMSCircle *)[self.objects objectForKey:key];
+      circle.map = nil;
+      circle = nil;
+      [self.objects removeObjectForKey:key];
+  }
+  self.objects = nil;
+  
+  key = nil;
+  keys = nil;
+
+  NSString *pluginId = [NSString stringWithFormat:@"%@-circle", self.mapCtrl.mapId];
+  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+  [cdvViewController.pluginObjects removeObjectForKey:pluginId];
+  [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+  pluginId = nil;
 }
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -19,64 +45,53 @@
 }
 -(void)create:(CDVInvokedUrlCommand *)command
 {
-/*
-  // Initialize this plugin
-  if (self.mapCtrl == nil) {
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    self.mapCtrl = googlemaps.mapCtrl;
-    [self.mapCtrl.plugins setObject:self forKey:@"Circle"];
-  }
 
-  NSDictionary *json = [command.arguments objectAtIndex:0];
-  NSDictionary *latLng = [json objectForKey:@"center"];
-  __block GMSCircle *circle;
+    NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSDictionary *latLng = [json objectForKey:@"center"];
+    float latitude = [[latLng valueForKey:@"lat"] floatValue];
+    float longitude = [[latLng valueForKey:@"lng"] floatValue];
+    CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
+    
+    float radius = [[json valueForKey:@"radius"] floatValue];
 
-  dispatch_queue_t gueue = dispatch_queue_create("createCircle", NULL);
-  dispatch_async(gueue, ^{
+    GMSCircle *circle = [GMSCircle circleWithPosition:position radius:radius];
+    if ([json valueForKey:@"fillColor"]) {
+        circle.fillColor = [[json valueForKey:@"fillColor"] parsePluginColor];
+    }
+    if ([json valueForKey:@"strokeColor"]) {
+        circle.strokeColor = [[json valueForKey:@"strokeColor"] parsePluginColor];
+    }
+    if ([json valueForKey:@"strokeWidth"]) {
+        circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
+    }
+    if ([json valueForKey:@"zIndex"]) {
+        circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
+    }
+  
+    // Since this plugin uses own touch-detection,
+    // set NO to the tappable property.
+    circle.tappable = NO;
 
-      float latitude = [[latLng valueForKey:@"lat"] floatValue];
-      float longitude = [[latLng valueForKey:@"lng"] floatValue];
+    // Store the circle instance into self.objects
+    NSString *circleId = [NSString stringWithFormat:@"circle_%lu", (unsigned long)circle.hash];
+    circle.title = circleId;
+    [self.objects setObject:circle forKey: circleId];
 
-      float radius = [[json valueForKey:@"radius"] floatValue];
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      
 
+        if ([[json valueForKey:@"visible"] boolValue]) {
+            circle.map = self.mapCtrl.map;
+        }
+      
+        NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+        [result setObject:circleId forKey:@"id"];
+        [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)circle.hash] forKey:@"hashCode"];
 
-      dispatch_sync(dispatch_get_main_queue(), ^{
-          circle = [GMSCircle circleWithPosition:position radius:radius];
-
-          //if ([[json valueForKey:@"visible"] boolValue]) {
-          //    circle.map = self.mapCtrl.map;
-          //}
-
-          NSArray *rgbColor = [json valueForKey:@"fillColor"];
-          circle.fillColor = [rgbColor parsePluginColor];
-
-          rgbColor = [json valueForKey:@"strokeColor"];
-          circle.strokeColor = [rgbColor parsePluginColor];
-
-          circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
-          circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
-
-          circle.tappable = YES;
-
-          NSString *id = [NSString stringWithFormat:@"circle_%lu", (unsigned long)circle.hash];
-          [self.mapCtrl.overlayManager setObject:circle forKey: id];
-          circle.title = id;
-
-          dispatch_async(gueue, ^{
-              NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-              [result setObject:id forKey:@"id"];
-              [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)circle.hash] forKey:@"hashCode"];
-
-              CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-              [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-          });
-      });
-  });
-
-  */
-
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      
+    });
 }
 /**
  * Set center
@@ -84,31 +99,37 @@
  */
 -(void)setCenter:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
 
-  float latitude = [[command.arguments objectAtIndex:1] floatValue];
-  float longitude = [[command.arguments objectAtIndex:2] floatValue];
-  CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
-  [circle setPosition:center];
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        float latitude = [[command.arguments objectAtIndex:1] floatValue];
+        float longitude = [[command.arguments objectAtIndex:2] floatValue];
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
+        [circle setPosition:center];
+
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
+
 /**
  * Set fill color
  * @params key
  */
 -(void)setFillColor:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
 
-  NSArray *rgbColor = [command.arguments objectAtIndex:1];
-  [circle setFillColor:[rgbColor parsePluginColor]];
+        NSArray *rgbColor = [command.arguments objectAtIndex:1];
+        [circle setFillColor:[rgbColor parsePluginColor]];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 
@@ -118,14 +139,16 @@
  */
 -(void)setStrokeColor:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
+      
+        NSArray *rgbColor = [command.arguments objectAtIndex:1];
+        [circle setStrokeColor:[rgbColor parsePluginColor]];
 
-  NSArray *rgbColor = [command.arguments objectAtIndex:1];
-  [circle setStrokeColor:[rgbColor parsePluginColor]];
-
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 /**
@@ -134,13 +157,16 @@
  */
 -(void)setStrokeWidth:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
-  float width = [[command.arguments objectAtIndex:1] floatValue];
-  [circle setStrokeWidth:width];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
+      
+        float width = [[command.arguments objectAtIndex:1] floatValue];
+        [circle setStrokeWidth:width];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 /**
@@ -149,13 +175,15 @@
  */
 -(void)setRadius:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
-  float radius = [[command.arguments objectAtIndex:1] floatValue];
-  [circle setRadius:radius];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
+        float radius = [[command.arguments objectAtIndex:1] floatValue];
+        [circle setRadius:radius];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 /**
  * Set z-index
@@ -163,13 +191,15 @@
  */
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
-  NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
-  [circle setZIndex:(int)zIndex];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
+        NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
+        [circle setZIndex:(int)zIndex];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 /**
@@ -178,19 +208,20 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
-  Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
-  if (isVisible) {
-    circle.map = self.mapCtrl.map;
-  } else {
-    circle.map = nil;
-  }
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-*/
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
+        Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
+        if (isVisible) {
+          circle.map = self.mapCtrl.map;
+        } else {
+          circle.map = nil;
+        }
+
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 /**
@@ -199,14 +230,16 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
-  NSString *circleKey = [command.arguments objectAtIndex:0];
-  GMSCircle *circle = [self.mapCtrl getCircleByKey: circleKey];
-  circle.map = nil;
-  [self.mapCtrl removeObjectForKey:circleKey];
-  circle = nil;
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *circleId = [command.arguments objectAtIndex:0];
+        GMSCircle *circle = [self.objects objectForKey:circleId];
+        circle.map = nil;
+        [self.objects removeObjectForKey:circleId];
+      
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end

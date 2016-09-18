@@ -71,12 +71,28 @@ NSOperationQueue *executeQueue;
 
   self.stopFlag = YES;
     [executeQueue addOperationWithBlock:^{
-
         CGRect rect = CGRectMake(0, 0, 0, 0);
         NSMutableDictionary *domInfo, *size;
+        NSString *domId;
+        NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
+        NSArray *keys2;
+        int i, j;
+        for (i = 0; i < [keys count]; i++) {
+            domId = [keys objectAtIndex:i];
+            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+            if (domInfo) {
+                keys2 = [domInfo allKeys];
+                for (j = 0; j < [keys2 count]; j++) {
+                    [domInfo removeObjectForKey:[keys2 objectAtIndex:j]];
+                }
+                domInfo = nil;
+            }
+            [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
+        }
+        self.pluginScrollView.debugView.HTMLNodes = nil;
+
         NSMutableDictionary *newBuffer = [[NSMutableDictionary alloc] init];
-      
-        for (NSString *domId in elementsDic) {
+        for (domId in elementsDic) {
             domInfo = [elementsDic objectForKey:domId];
             size = [domInfo objectForKey:@"size"];
             rect.origin.x = [[size objectForKey:@"left"] doubleValue];
@@ -90,41 +106,39 @@ NSOperationQueue *executeQueue;
             domInfo = nil;
             size = nil;
         }
-      
-        self.pluginScrollView.debugView.HTMLNodes = nil;
+     
         self.pluginScrollView.debugView.HTMLNodes = newBuffer;
         self.needUpdatePosition = YES;
         self.stopFlag = NO;
     }];
   
 }
-- (void)addMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl {
+- (void)addMapView:(GoogleMapsViewController *)mapCtrl {
   
   self.stopFlag = YES;
 
   dispatch_async(dispatch_get_main_queue(), ^{
 
       // Hold the mapCtrl instance with mapId.
-      [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapId];
+      [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapCtrl.mapId];
       
       // Add the mapView under the scroll view.
       [self.pluginScrollView attachView:mapCtrl.view];
       
-      [self updateViewPosition:mapId];
+      [self updateViewPosition:mapCtrl];
 
       self.stopFlag = NO;
   });
 }
 
-- (void)removeMapView:(NSString *)mapId mapCtrl:(GoogleMapsViewController *)mapCtrl {
+- (void)removeMapView:(GoogleMapsViewController *)mapCtrl {
       
   self.stopFlag = YES;
 
   dispatch_async(dispatch_get_main_queue(), ^{
-
   
       // Remove the mapCtrl instance with mapId.
-      [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapId];
+      [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl];
       
       // Remove the mapView from the scroll view.
       [mapCtrl.view removeFromSuperview];
@@ -141,7 +155,7 @@ NSOperationQueue *executeQueue;
 }
 
 
-- (void)updateViewPosition:(NSString *)mapId {
+- (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
 
   dispatch_async(dispatch_get_main_queue(), ^{
   
@@ -157,9 +171,7 @@ NSOperationQueue *executeQueue;
       offset.x *= zoomScale;
       offset.y *= zoomScale;
       [self.pluginScrollView setContentOffset:offset];
-      
-
-      GoogleMapsViewController *mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
+    
       if (!mapCtrl.mapDivId && !self.needUpdatePosition) {
           self.stopFlag = NO;
           return;

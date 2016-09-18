@@ -10,12 +10,12 @@
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
+#import "MyPlgunProtocol.h"
 #import <GoogleMaps/GoogleMaps.h>
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
 @property (nonatomic, strong) UIView* webView;
-@property (nonatomic, strong) NSMutableDictionary* overlayManager;
 @property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) CGRect screenSize;
@@ -24,23 +24,19 @@
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) BOOL isRenderedAtOnce;
-@property (nonatomic) NSString *mapDivId;
+@property (nonatomic, readwrite, strong) NSString *mapDivId;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
 - (id)initWithOptions:(NSDictionary *) options;
 
-- (GMSCircle *)getCircleByKey: (NSString *)key;
-- (GMSMarker *)getMarkerByKey: (NSString *)key;
-- (GMSPolygon *)getPolygonByKey: (NSString *)key;
-- (GMSPolyline *)getPolylineByKey: (NSString *)key;
-- (GMSTileLayer *)getTileLayerByKey: (NSString *)key;
-- (GMSGroundOverlay *)getGroundOverlayByKey: (NSString *)key;
-- (UIImage *)getUIImageByKey: (NSString *)key;
-
-- (void)removeObjectForKey: (NSString *)key;
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)level;
+@end
+
+
+@interface CDVPlugin (GoogleMapsPlugin)
+- (void)setGoogleMapsViewController: (GoogleMapsViewController*)viewCtrl;
 @end

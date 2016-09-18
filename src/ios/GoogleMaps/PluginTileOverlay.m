@@ -20,13 +20,12 @@
 
 -(void)create:(CDVInvokedUrlCommand *)command
 {
-
+/*
   // Initialize this plugin
   if (self.mapCtrl == nil) {
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
     //self.mapCtrl = googlemaps.mapCtrl;
-    [self.mapCtrl.plugins setObject:self forKey:@"TileOverlay"];
   }
 
   NSDictionary *json = [command.arguments objectAtIndex:0];
@@ -79,6 +78,7 @@
           });
       });
   });
+*/
 }
 
 
@@ -88,6 +88,7 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *tileLayerKey = [command.arguments objectAtIndex:0];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
@@ -99,6 +100,7 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 
@@ -108,6 +110,7 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *tileLayerKey = [command.arguments objectAtIndex:0];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   layer.map = nil;
@@ -117,6 +120,7 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 
@@ -126,12 +130,14 @@
  */
 -(void)clearTileCache:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *tileLayerKey = [command.arguments objectAtIndex:0];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   [layer clearTileCache];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 /**
@@ -140,6 +146,7 @@
  */
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *tileLayerKey = [command.arguments objectAtIndex:0];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
@@ -147,6 +154,7 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 /**
  * Set fadeIn
@@ -154,6 +162,7 @@
  */
 -(void)setFadeIn:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *tileLayerKey = [command.arguments objectAtIndex:0];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
@@ -161,6 +170,7 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 
 
@@ -170,6 +180,7 @@
  */
 -(void)setOpacity:(CDVInvokedUrlCommand *)command
 {
+/*
   NSString *tileLayerKey = [command.arguments objectAtIndex:0];
   GMSTileLayer *layer = [self.mapCtrl getTileLayerByKey:tileLayerKey];
   double opacity = [[command.arguments objectAtIndex:1] doubleValue];
@@ -177,5 +188,6 @@
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+*/
 }
 @end
