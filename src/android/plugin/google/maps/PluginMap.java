@@ -498,7 +498,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onDestroy() {
     super.onDestroy();
-    this.remove(null, null);
+    //this.remove(null, null);
   }
 
   /**
@@ -509,33 +509,66 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void remove(JSONArray args, final CallbackContext callbackContext) {
     this.isClickable = false;
     this.isRemoved = true;
-    mapCtrl.mPluginLayout.removePluginMap(mapId);
-    this.activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (map != null) {
-          try {
-            map.setMyLocationEnabled(false);
-          } catch (SecurityException e) {
-            e.printStackTrace();
-          }
-          map.clear();
+
+    try {
+      PluginMap.this.clear(null, new PluginUtil.MyCallbackContext(mapId + "_remove", webView) {
+
+        @Override
+        public void onResult(PluginResult pluginResult) {
+          cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              mapCtrl.mPluginLayout.removePluginMap(mapId);
+
+              Log.d("pluginMap", "--> map = " + map);
+              if (map != null) {
+                try {
+                  map.setIndoorEnabled(false);
+                  map.setMyLocationEnabled(false);
+                  map.setOnPolylineClickListener(null);
+                  map.setOnPolygonClickListener(null);
+                  map.setOnIndoorStateChangeListener(null);
+                  map.setOnCircleClickListener(null);
+                  map.setOnGroundOverlayClickListener(null);
+                  map.setOnCameraIdleListener(null);
+                  map.setOnCameraMoveCanceledListener(null);
+                  map.setOnCameraMoveListener(null);
+                  map.setOnInfoWindowClickListener(null);
+                  map.setOnInfoWindowCloseListener(null);
+                  map.setOnMapClickListener(null);
+                  map.setOnMapLongClickListener(null);
+                  map.setOnMarkerClickListener(null);
+                  map.setOnMyLocationButtonClickListener(null);
+                  map.setOnMarkerDragListener(null);
+                } catch (SecurityException e) {
+                  e.printStackTrace();
+                }
+              }
+              if (mapView != null) {
+                try {
+                  mapView.clearAnimation();
+                  mapView.onCancelPendingInputEvents();
+                  mapView.onPause();
+                  mapView.onDestroy();
+                  Log.d("pluginMap", "--> mapView.onDestroy()");
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }
+              Log.d("pluginMap", "--> mapView = " + mapView);
+              map = null;
+              mapView = null;
+              System.gc();
+              if (callbackContext != null) {
+                sendNoResult(callbackContext);
+              }
+            }
+          });
         }
-        if (mapView != null) {
-          try {
-            mapView.onDestroy();
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-        map = null;
-        mapView = null;
-        System.gc();
-        if (callbackContext != null) {
-          sendNoResult(callbackContext);
-        }
-      }
-    });
+      });
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -1298,25 +1331,27 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             isSuccess = false;
           }
         }
+      }
+    });
 
-        cordova.getThreadPool().submit(new Runnable() {
-          @Override
-          public void run() {
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
 
-            Set<String> pluginNames = plugins.keySet();
-            Iterator<String> iterator = pluginNames.iterator();
-            String pluginName;
-            PluginEntry pluginEntry;
-            while(iterator.hasNext()) {
-              pluginName = iterator.next();
-              if (!"Map".equals(pluginName)) {
-                pluginEntry = plugins.get(pluginName);
-                ((MyPlugin) pluginEntry.plugin).clear();
-              }
-            }
-            sendNoResult(callbackContext);
+        Set<String> pluginNames = plugins.keySet();
+        Iterator<String> iterator = pluginNames.iterator();
+        String pluginName;
+        PluginEntry pluginEntry;
+        while(iterator.hasNext()) {
+          pluginName = iterator.next();
+          if (!"Map".equals(pluginName)) {
+            pluginEntry = plugins.get(pluginName);
+            ((MyPlugin) pluginEntry.plugin).clear();
           }
-        });
+        }
+        if (callbackContext != null) {
+          sendNoResult(callbackContext);
+        }
       }
     });
   }
@@ -1991,9 +2026,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onIndoorLevelActivated(IndoorBuilding building) {
     String jsonStr = "null";
-    JSONObject result = PluginUtil.convertIndoorBuildingToJson(building);
-    if (result != null) {
-      jsonStr = result.toString();
+    if (building != null) {
+      JSONObject result = PluginUtil.convertIndoorBuildingToJson(building);
+      if (result != null) {
+        jsonStr = result.toString();
+      }
     }
     jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_level_activated', callback:'_onMapEvent', args: [%s]})", mapId, jsonStr));
   }

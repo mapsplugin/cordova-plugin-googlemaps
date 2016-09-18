@@ -706,34 +706,46 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     if (mPluginLayout == null || mPluginLayout.pluginMaps == null) {
       return;
     }
-    Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-    PluginMap pluginMap;
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         mPluginLayout.setBackgroundColor(Color.WHITE);
+
+
+        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
+        PluginMap pluginMap;
+
+        // prevent the ConcurrentModificationException error.
+        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+        for (String mapId : mapIdArray) {
+          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
+            pluginMap = mPluginLayout.removePluginMap(mapId);
+            pluginMap.remove(null, null);
+            pluginMap.onDestroy();
+            mPluginLayout.HTMLNodes.remove(mapId);
+          }
+        }
+        mPluginLayout.HTMLNodes.clear();
+        mPluginLayout.pluginMaps.clear();
+
+        System.gc();
       }
     });
 
-    // prevent the ConcurrentModificationException error.
-    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-    for (String mapId : mapIdArray) {
-      if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-        pluginMap = mPluginLayout.removePluginMap(mapId);
-        pluginMap.remove(null, null);
-        pluginMap.onDestroy();
-        mPluginLayout.HTMLNodes.remove(mapId);
-      }
-    }
-    mPluginLayout.HTMLNodes.clear();
-    mPluginLayout.pluginMaps.clear();
-
-    System.gc();
   }
 
-
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  public void removeMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String mapId = args.getString(0);
+    if (mPluginLayout.pluginMaps.containsKey(mapId)) {
+      PluginMap pluginMap = mPluginLayout.removePluginMap(mapId);
+      pluginMap.remove(null, null);
+      pluginMap.onDestroy();
+      mPluginLayout.HTMLNodes.remove(mapId);
+    }
+    callbackContext.success();
+  }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     //------------------------------------------
     // Create an instance of PluginMap class.
