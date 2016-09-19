@@ -178,9 +178,7 @@
 
         // Save the map rectangle.
         if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.mapDivId]) {
-            NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];
-            [dummyInfo setObject:[NSNumber numberWithDouble:0] forKey:@"offsetX"];
-            [dummyInfo setObject:[NSNumber numberWithDouble:-100] forKey:@"offsetY"];
+            NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];;
             [dummyInfo setObject:@"{{0,-3000} - {50,50}}" forKey:@"size"];
             [dummyInfo setObject:[NSNumber numberWithDouble:-999] forKey:@"depth"];
             [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];

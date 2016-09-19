@@ -274,7 +274,11 @@ function getDomInfo(dom) {
     var depth;
 
     if (zIndexCSS && zIndexCSS > 0 || position == "fixed") {
-        depth = 999999;
+        if (dom !== document.body) {
+            depth = 999999;
+        } else {
+            depth = 0;
+        }
     } else {
         depth = getDomDepth(dom);
     }

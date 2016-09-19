@@ -247,8 +247,6 @@ NSOperationQueue *executeQueue;
     
   dispatch_async(dispatch_get_main_queue(), ^{
       [mapCtrl.view setFrame:rect];
-      prevY = rect.origin.y;
-      prevX = rect.origin.x;
     
       rect.origin.x = 0;
       rect.origin.y = 0;

@@ -764,9 +764,9 @@
                     iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
                     NSFileManager *fileManager = [NSFileManager defaultManager];
                     if (![fileManager fileExistsAtPath:iconPath]) {
-                        if (self.mapCtrl.debuggable) {
-                            NSLog(@"(debug)There is no file at '%@'.", iconPath);
-                        }
+                        //if (self.mapCtrl.debuggable) {
+                            NSLog(@"(error)There is no file at '%@'.", iconPath);
+                        //}
                         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
                         return;
                     }
