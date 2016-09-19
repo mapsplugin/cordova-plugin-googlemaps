@@ -133,7 +133,7 @@ function HLStoRGB(h, l, s) {
     h = h % 360;
 
     // In case of saturation = 0
-    if (s == 0) {
+    if (s === 0) {
         // RGB are the same as V
         l = Math.round(l * 255);
         return [l, l, l];
@@ -217,11 +217,12 @@ function getAllChildren(root) {
       return [];
     }
 
+    var clickable;
+    var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
+    var heightCSS, widthCSS;
     if (window.document.querySelectorAll) {
         // Android: v4.3 and over
         // iOS safari: v9.2 and over
-        var clickable;
-        var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
         //var childNodes = root.querySelectorAll(':not([data-clickable="false"])');
         var childNodes = root.querySelectorAll("*");
         var allClickableElements = Array.prototype.slice.call(childNodes);
@@ -239,8 +240,8 @@ function getAllChildren(root) {
             visibilityCSS = style.getPropertyValue('visibility');
             displayCSS = style.getPropertyValue('display');
             opacityCSS = style.getPropertyValue('opacity');
-            heightCSS = style.getPropertyValue('height')
-            widthCSS = style.getPropertyValue('width')
+            heightCSS = style.getPropertyValue('height');
+            widthCSS = style.getPropertyValue('width');
             clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
             if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
                 list.push(node);
@@ -260,7 +261,7 @@ function getDomDepth(dom) {
     }
 
 
-    while (dom.parentNode != null && dom.parentNode != document.body) {
+    while (dom.parentNode !== null && dom.parentNode != document.body) {
         dom = dom.parentNode;
         depth++;
     }
