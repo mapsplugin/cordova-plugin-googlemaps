@@ -37,6 +37,10 @@ var Polygon = function(map, polygonId, polygonOptions) {
 
 utils.extend(Polygon, BaseClass);
 
+Polygon.prototype.remove = function() {
+    this.trigger(this.id + "_remove");
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+};
 Polygon.prototype.getPluginName = function() {
     return this.map.getId() + "-polygon";
 };

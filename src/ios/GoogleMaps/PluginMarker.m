@@ -293,8 +293,8 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:1];
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      NSString *markerId = [command.arguments objectAtIndex:0];
       GMSMarker *marker = [self.objects objectForKey:markerId];
       NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
       marker.map = nil;

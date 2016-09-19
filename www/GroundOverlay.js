@@ -115,4 +115,10 @@ GroundOverlay.prototype.setZIndex = function(zIndex) {
     cordova.exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
 };
 
+GroundOverlay.prototype.remove = function() {
+    this.trigger(this.id + "_remove");
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+};
+
+
 module.exports = GroundOverlay;

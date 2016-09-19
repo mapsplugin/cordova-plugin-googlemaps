@@ -154,60 +154,6 @@ setTimeout(function() {
   document.body.style.backgroundColor = "rgba(0,0,0,0)";
 }, 0);
 
-/*****************************************************************************
- * KmlOverlay class method
- *****************************************************************************/
-
-KmlOverlay.prototype.remove = function() {
-    var layerId = this.id,
-        self = this;
-
-    this.trigger("_REMOVE");
-    setTimeout(function() {
-        delete KML_LAYERS[layerId];
-        self.off();
-    }, 1000);
-};
-
-Marker.prototype.remove = function(callback) {
-    var self = this;
-    delete MARKERS[this.id];
-    cordova.exec(function() {
-        if (typeof callback === "function") {
-            callback.call(self);
-        }
-    }, self.errorHandler, 'Marker', 'remove', [this.getId()]);
-    self.off();
-};
-
-Circle.prototype.remove = function() {
-    delete OVERLAYS[this.getId()];
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
-Polyline.prototype.remove = function() {
-    delete OVERLAYS[this.getId()];
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
-Polygon.prototype.remove = function() {
-    delete OVERLAYS[this.getId()];
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
-
-TileOverlay.prototype.remove = function() {
-    delete OVERLAYS[this.getId()];
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
-
-GroundOverlay.prototype.remove = function() {
-    delete OVERLAYS[result.id];
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
-    this.off();
-};
-
 
 /*****************************************************************************
  * Private functions

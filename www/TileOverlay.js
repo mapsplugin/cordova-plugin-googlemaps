@@ -93,4 +93,9 @@ TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
 };
 
+TileOverlay.prototype.remove = function() {
+    this.trigger(this.id + "_remove");
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+};
+
 module.exports = TileOverlay;

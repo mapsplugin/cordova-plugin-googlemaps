@@ -100,4 +100,9 @@ Circle.prototype.setRadius = function(radius) {
     cordova.exec(null, this.errorHandler, this.getPluginName(), 'setRadius', [this.getId(), radius]);
 };
 
+Circle.prototype.remove = function() {
+    this.trigger(this.id + "_remove");
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+};
+
 module.exports = Circle;

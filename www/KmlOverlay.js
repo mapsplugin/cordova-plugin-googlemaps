@@ -60,4 +60,14 @@ KmlOverlay.prototype.getId = function() {
     return this.id;
 };
 
+KmlOverlay.prototype.remove = function() {
+    var layerId = this.id,
+        self = this;
+
+    //this.trigger("_REMOVE");
+    setTimeout(function() {
+        self.trigger(self.id + "_remove");
+    }, 1000);
+};
+
 module.exports = KmlOverlay;

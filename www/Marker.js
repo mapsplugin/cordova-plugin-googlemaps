@@ -48,6 +48,16 @@ Marker.prototype.getPluginName = function() {
     return this.map.getId() + "-marker";
 };
 
+Marker.prototype.remove = function(callback) {
+    var self = this;
+    self.trigger(self.id + "_remove");
+    cordova.exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+};
+
 Marker.prototype.getPosition = function() {
     var position = this.get('position');
     if (!(position instanceof LatLng)) {
