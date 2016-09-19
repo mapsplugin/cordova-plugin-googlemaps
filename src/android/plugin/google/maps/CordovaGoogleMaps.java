@@ -141,17 +141,14 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             }
         }
         */
-        root.setBackgroundColor(Color.WHITE);
-        webView.getView().setBackgroundColor(Color.TRANSPARENT);
-        webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
-        mPluginLayout = new MyPluginLayout(webView.getView(), activity);
-
 
         // ------------------------------
         // Check of Google Play Services
         // ------------------------------
         int checkGooglePlayServices = GooglePlayServicesUtil
             .isGooglePlayServicesAvailable(activity);
+
+        Log.d(TAG, "----> checkGooglePlayServices = " + (ConnectionResult.SUCCESS == checkGooglePlayServices));
 
         if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
           // google play services is missing!!!!
@@ -162,16 +159,18 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
            */
           Log.e(TAG, "---Google Play Services is not available: " + GooglePlayServicesUtil.getErrorString(checkGooglePlayServices));
 
-          Dialog errorDialog = null;
-          try {
-            //errorDialog = GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 1);
-            Method getErrorDialogMethod = GooglePlayServicesUtil.class.getMethod("getErrorDialog", int.class, Activity.class, int.class);
-            errorDialog = (Dialog)getErrorDialogMethod.invoke(null, checkGooglePlayServices, activity, 1);
-          } catch (Exception e) {};
+          //Dialog errorDialog = null;
+          //try {
+          //  //errorDialog = GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 1);
+          //  Method getErrorDialogMethod = GooglePlayServicesUtil.class.getMethod("getErrorDialog", int.class, Activity.class, int.class);
+          //  errorDialog = (Dialog)getErrorDialogMethod.invoke(null, checkGooglePlayServices, activity, 1);
+          //} catch (Exception e) {
+          //  e.printStackTrace();
+          //};
 
-          if (errorDialog != null) {
-            errorDialog.show();
-          } else {
+          //if (errorDialog != null) {
+          //  errorDialog.show();
+          //} else {
             boolean isNeedToUpdate = false;
 
             String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
@@ -235,11 +234,17 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
             // show it
             alertDialog.show();
-          }
+          //}
 
           Log.e(TAG, "Google Play Services is not available.");
           return;
         }
+
+        root.setBackgroundColor(Color.WHITE);
+        webView.getView().setBackgroundColor(Color.TRANSPARENT);
+        webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
+        mPluginLayout = new MyPluginLayout(webView.getView(), activity);
+
 
         // Check the API key
         ApplicationInfo appliInfo = null;

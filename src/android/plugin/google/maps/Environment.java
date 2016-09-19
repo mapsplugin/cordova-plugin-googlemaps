@@ -1,7 +1,9 @@
 package plugin.google.maps;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
@@ -61,6 +63,14 @@ public class Environment extends CordovaPlugin {
     if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
       String errorMsg = GoogleApiAvailability.getInstance().getErrorString(checkGooglePlayServices);
       callbackContext.error(errorMsg);
+
+      try {
+        cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+      } catch (android.content.ActivityNotFoundException anfe) {
+        cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
+      }
+
+
       return;
     }
 
