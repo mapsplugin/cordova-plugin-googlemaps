@@ -69,7 +69,16 @@ public class PluginUtil {
     //CordovaResourceApi resourceApi = webView.getResourceApi();
     Uri fileURL = resourceApi.remapUri(Uri.parse(cdvFilePath));
     File file = resourceApi.mapUriToFile(fileURL);
-    return file.getAbsolutePath();
+    if (file == null) {
+      return null;
+    }
+
+    try {
+      return file.getCanonicalPath();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
