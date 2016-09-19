@@ -743,17 +743,16 @@
 
                 range = [iconPath rangeOfString:@"://"];
                 if (range.location == NSNotFound) {
-                    range = [iconPath rangeOfString:@"www/"];
-                    if (range.location == NSNotFound) {
-                        iconPath = [NSString stringWithFormat:@"www/%@", iconPath];
-                    }
 
                     range = [iconPath rangeOfString:@"/"];
                     if (range.location != 0) {
-                      // Get the absolute path of the www folder.
-                      // https://github.com/apache/cordova-plugin-file/blob/1e2593f42455aa78d7fff7400a834beb37a0683c/src/ios/CDVFile.m#L506
-                      NSString *applicationDirectory = [[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]] absoluteString];
-                      iconPath = [NSString stringWithFormat:@"%@%@", applicationDirectory, iconPath];
+                      // Get the current URL, then calculate the relative path.
+                      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+                      NSString *currentURL = ((UIWebView *)(cdvViewController.webView)).request.URL.absoluteString;
+                      currentURL = [currentURL stringByDeletingLastPathComponent];
+                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+                      iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
                     } else {
                       iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
                     }
