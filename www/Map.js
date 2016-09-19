@@ -119,12 +119,6 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
         args.push(elemId);
 
-        // Webkit redraw mandatory
-        // http://stackoverflow.com/a/3485654/697856
-        div.style.display='none';
-        div.offsetHeight;
-        div.style.display='';
-
         while (div.parentNode) {
             div.style.backgroundColor = 'rgba(0,0,0,0)';
 

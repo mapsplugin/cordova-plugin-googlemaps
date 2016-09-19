@@ -109,7 +109,6 @@ NSOperationQueue *executeQueue;
             rect.size.width = [[size objectForKey:@"width"] doubleValue];
             rect.size.height = [[size objectForKey:@"height"] doubleValue];
             [domInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
-            [domInfo setValue:[NSNumber numberWithInt:0] forKey:@"isDummy"];
             [newBuffer setObject:domInfo forKey:domId];
           
             domInfo = nil;
@@ -166,7 +165,9 @@ NSOperationQueue *executeQueue;
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
 
-  dispatch_async(dispatch_get_main_queue(), ^{
+      if (self.stopFlag) {
+          return;
+      }
   
       if (self.pluginScrollView.debugView.debuggable) {
           [self.pluginScrollView.debugView setNeedsDisplay];
@@ -191,19 +192,14 @@ NSOperationQueue *executeQueue;
           self.stopFlag = NO;
           return;
       }
-    
-      int isDummy = [[domInfo objectForKey:@"isDummy"] intValue];
-      if (isDummy == 1) {
-          self.stopFlag = NO;
-          return;
-      }
+  
       NSString *rectStr = [domInfo objectForKey:@"size"];
       if (rectStr == nil || [rectStr  isEqual: @"null"]) {
         return;
       }
       
       
-      CGRect rect = CGRectFromString(rectStr);
+      __block CGRect rect = CGRectFromString(rectStr);
       rect.origin.x *= zoomScale;
       rect.origin.y *= zoomScale;
       rect.size.width *= zoomScale;
@@ -249,7 +245,10 @@ NSOperationQueue *executeQueue;
           return;
       }
     
+  dispatch_async(dispatch_get_main_queue(), ^{
       [mapCtrl.view setFrame:rect];
+      prevY = rect.origin.y;
+      prevX = rect.origin.x;
     
       rect.origin.x = 0;
       rect.origin.y = 0;
@@ -396,8 +395,8 @@ NSOperationQueue *executeQueue;
         return hitView;
     }
     self.stopFlag = NO;
+  
     return [super hitTest:point withEvent:event];
 }
-
 
 @end

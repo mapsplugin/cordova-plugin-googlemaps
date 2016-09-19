@@ -56,13 +56,23 @@ var saltHash = Math.floor(Math.random() * Date.now());
 (function() {
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
-  var shouldUpdate = false;
-  var forceUpdateCnt = 0;
+  var idlingCnt = 0;
+  /*
+  var baseDom = document.createElement("div");
+  baseDom.style.width = "1px";
+  baseDom.style.height = "1px";
+  baseDom.style.position = "absolute";
+  baseDom.style.zIndex = 9999;
+  baseDom.style.visibility = "hidden";
+  document.body.insertBefore(baseDom, document.body.firstChild);
+  var baseRect;
+  */
 
   function putHtmlElements() {
       if (Object.keys(MAPS).length === 0) {
         return;
       }
+      //baseRect = common.getDivRect(baseDom);
       var children = common.getAllChildren(document.body);
       var bodyRect = common.getDivRect(document.body);
 
@@ -71,10 +81,9 @@ var saltHash = Math.floor(Math.random() * Date.now());
           return;
       }
 
-
       var domPositions = {};
       var size, elemId, i, child, parentNode;
-
+      var shouldUpdate = false;
 
       children.unshift(document.body);
       if (children.length !== prevChildrenCnt) {
@@ -102,20 +111,30 @@ var saltHash = Math.floor(Math.random() * Date.now());
               }
           }
       }
-      if (!shouldUpdate && forceUpdateCnt < 1) {
+      if (!shouldUpdate) {
+          idlingCnt++;
+          if (idlingCnt === 2) {
+              var mapIDs = Object.keys(MAPS);
+              mapIDs.forEach(function(mapId) {
+                  MAPS[mapId].refreshLayout();
+              });
+          }
           return;
       }
-
-      for (i = 0; i < children.length; i++) {
-          child = children[i];
-          elemId = child.getAttribute("__pluginDomId");
-          domPositions[elemId].offsetX = domPositions[elemId].size.left - bodyRect.left;
-          domPositions[elemId].offsetY = domPositions[elemId].size.top - bodyRect.top;
-      }
+      idlingCnt = 0;
+      //for (i = 0; i < children.length; i++) {
+      //    child = children[i];
+      //    elemId = child.getAttribute("__pluginDomId");
+      //    domPositions[elemId].offsetX = domPositions[elemId].size.left - baseRect.left;
+      //    domPositions[elemId].offsetY = domPositions[elemId].size.top - baseRect.top;
+      //}
       cordova.exec(function() {
-          shouldUpdate = false;
-          forceUpdateCnt--;
           prevDomPositions = domPositions;
+
+              var mapIDs = Object.keys(MAPS);
+              mapIDs.forEach(function(mapId) {
+                  MAPS[mapId].refreshLayout();
+              });
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
       parentNode = null;
@@ -124,12 +143,16 @@ var saltHash = Math.floor(Math.random() * Date.now());
   }
   putHtmlElements();
   INTERVAL_TIMER = setInterval(putHtmlElements, 50);
-
-  window.addEventListener("scroll", function() {
-    shouldUpdate = true;
-    forceUpdateCnt = 10;
-  });
 }());
+
+setTimeout(function() {
+  // Webkit redraw mandatory
+  // http://stackoverflow.com/a/3485654/697856
+  document.body.style.display='none';
+  document.body.offsetHeight;
+  document.body.style.display='';
+  document.body.style.backgroundColor = "rgba(0,0,0,0)";
+}, 0);
 
 /*****************************************************************************
  * KmlOverlay class method
