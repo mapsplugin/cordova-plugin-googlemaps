@@ -34,6 +34,13 @@ var Marker = function(map, id, markerOptions) {
       this.set('position', markerOptions.position);
     }
 
+    this.on('info_open', function() {
+      map.set('active_marker_id', id);
+    });
+    this.on('info_close', function() {
+      map.set('active_marker_id', undefined);
+    });
+
     var ignores = ["hashCode", "id", "hashCode", "type"];
     for (var key in markerOptions) {
         if (ignores.indexOf(key) === -1) {
@@ -55,7 +62,7 @@ Marker.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    }, self.errorHandler, self.getPluginName(), 'remove', [this.getId()]);
 };
 
 Marker.prototype.getPosition = function() {
@@ -197,17 +204,12 @@ Marker.prototype.hideInfoWindow = function() {
     cordova.exec(null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()]);
     return this;
 };
-Marker.prototype.isInfoWindowShown = function(callback) {
-    var self = this;
-    cordova.exec(function(isVisible) {
-        isVisible = common.parseBoolean(isVisible);
-        if (typeof callback === "function") {
-            callback.call(self, isVisible);
-        }
-    }, self.errorHandler, this.getPluginName(), 'isInfoWindowShown', [this.getId()]);
+Marker.prototype.isInfoWindowShown = function() {
+    var map = this.getMap();
+    return map && map.get('active_marker_id') === this.id;
 };
 Marker.prototype.isVisible = function() {
-    return this.get("visible");
+    return this.get("visible") === true;
 };
 
 Marker.prototype.setPosition = function(position) {

@@ -237,25 +237,6 @@
 }
 
 /**
- * @params markerId
- * @return boolean
- */
--(void)isInfoWindowShown:(CDVInvokedUrlCommand *)command
-{
-  [self.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      Boolean isOpen = false;
-      if (self.mapCtrl.map.selectedMarker == marker) {
-          isOpen = YES;
-      }
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isOpen];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  }];
-}
-
-/**
  * Set title to the specified marker
  * @params markerId
  */

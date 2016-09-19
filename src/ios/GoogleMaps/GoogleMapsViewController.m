@@ -160,6 +160,10 @@
 	return NO;
 }
 
+- (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
+  [self triggerMarkerEvent:@"info_close" marker:marker];
+}
+
 
 - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
   NSString *overlayClass = NSStringFromClass([overlay class]);
@@ -259,7 +263,8 @@
     return NULL;
   }
   
-    
+  [self triggerMarkerEvent:@"info_open" marker:marker];
+  
   // Get the marker plugin
   NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
   CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
