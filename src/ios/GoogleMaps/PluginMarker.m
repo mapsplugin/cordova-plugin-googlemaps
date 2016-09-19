@@ -325,16 +325,18 @@
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           float anchorX = [[command.arguments objectAtIndex:1] floatValue];
           float anchorY = [[command.arguments objectAtIndex:2] floatValue];
+          CDVPluginResult* pluginResult;
           if (marker.icon) {
               anchorX = anchorX / marker.icon.size.width;
               anchorY = anchorY / marker.icon.size.height;
-              [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
+              [marker setInfoWindowAnchor:CGPointMake(anchorX, anchorY)];
+              pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          } else {
+              pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
           }
-          [marker setInfoWindowAnchor:CGPointMake(anchorX, anchorY)];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
