@@ -581,6 +581,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       return null;
     }
 
+    this.onMarkerEvent("info_open", marker);
+
     PluginManager pluginManager = this.webView.getPluginManager();
     PluginMarker pluginMarker = (PluginMarker)pluginManager.getPlugin("Marker");
 
