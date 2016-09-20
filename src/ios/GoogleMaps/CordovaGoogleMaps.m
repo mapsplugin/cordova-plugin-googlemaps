@@ -88,41 +88,39 @@
     [self.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
     [self.pluginLayer.pluginScrollView flashScrollIndicators];
 }
-- (void)unload:(CDVInvokedUrlCommand*)command {
-    //stub
-  
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
 
+- (void)onReset
+{
+  [super onReset];
+
+  // Reset the background color
+  self.pluginLayer.backgroundColor = [UIColor whiteColor];
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    
+      // Remove all url caches
+      [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    
+      // Remove old plugins that are used in the previous html.
+      NSString *mapId;
+      NSArray *keys=[self.pluginMaps allKeys];
+      for (int i = 0; i < [keys count]; i++) {
+        mapId = [keys objectAtIndex:i];
+        [self _destroyMap:mapId];
+      }
+      [self.pluginMaps removeAllObjects];
+
+      [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
+      self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
+      [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
+    
+  });
+
+}
 -(void)pageDidLoad {
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
   
-    // Reset the background color
-    self.pluginLayer.backgroundColor = [UIColor whiteColor];
-  
-    dispatch_async(dispatch_get_main_queue(), ^{
-      
-        // Remove all url caches
-        [[NSURLCache sharedURLCache] removeAllCachedResponses];
-      
-        // Remove old plugins that are used in the previous html.
-        NSString *mapId;
-        NSArray *keys=[self.pluginMaps allKeys];
-        for (int i = 0; i < [keys count]; i++) {
-          mapId = [keys objectAtIndex:i];
-          [self _destroyMap:mapId];
-        }
-        [self.pluginMaps removeAllObjects];
-
-        [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
-        self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
-        [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
-      
-      
-
-    });
 }
 
 - (void)_destroyMap:(NSString *)mapId {
@@ -168,6 +166,7 @@
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
 
+NSLog(@"---->getMap");
     dispatch_async(dispatch_get_main_queue(), ^{
 
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
@@ -221,6 +220,7 @@
                                             viewingAngle:0];
 
         pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+NSLog(@"---->map = %@", pluginMap.mapCtrl.map);
         pluginMap.mapCtrl.map.delegate = mapCtrl;
         pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 

@@ -461,7 +461,9 @@ Map.prototype.setDiv = function(div) {
             div = div.parentNode;
         }
     }
-    cordova.exec(null, self.errorHandler, self.id, 'setDiv', args);
+    cordova.exec(function() {
+        self.refreshLayout();
+    }, self.errorHandler, self.id, 'setDiv', args);
     return self;
 };
 

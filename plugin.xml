@@ -95,6 +95,8 @@
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
                 <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps" />
+                <param name="onload" value="true" />
+                <param name="onreset" value="true" />
             </feature>
             <feature name="Map">
                 <param name="android-package" value="plugin.google.maps.PluginMap" />
@@ -195,6 +197,8 @@
         <config-file target="config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
                 <param name="ios-package" value="CordovaGoogleMaps" />
+                <param name="onload" value="true" />
+                <param name="onreset" value="true" />
             </feature>
             <feature name="Environment">
                 <param name="ios-package" value="Environment" />

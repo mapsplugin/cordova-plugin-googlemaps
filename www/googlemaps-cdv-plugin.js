@@ -229,12 +229,6 @@ window.addEventListener("beforeunload", function() {
     clearInterval(INTERVAL_TIMER);
     cordova.exec(null, null, 'CordovaGoogleMaps', 'unload', ['']);
 });
-// For iOS (it doesn't work though...)
-window.addEventListener("pagehide", function() {
-    clearInterval(INTERVAL_TIMER);
-    cordova.exec(null, null, 'CordovaGoogleMaps', 'unload', ['']);
-});
-
 
 window.addEventListener("orientationchange", function() {
     setTimeout(onMapResize, 1000);
