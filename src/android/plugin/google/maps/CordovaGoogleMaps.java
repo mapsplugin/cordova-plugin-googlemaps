@@ -707,7 +707,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     });
   }
 
-  public void unload(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  @Override
+  public void onReset() {
+    super.onReset();
     if (mPluginLayout == null || mPluginLayout.pluginMaps == null) {
       return;
     }

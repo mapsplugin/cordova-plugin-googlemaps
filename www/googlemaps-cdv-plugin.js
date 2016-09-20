@@ -57,7 +57,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
   var idlingCnt = 0;
-  
+
   var baseDom = document.createElement("div");
   baseDom.style.width = "1px";
   baseDom.style.height = "1px";
@@ -224,23 +224,12 @@ module.exports = {
     }
 };
 
-// For Android
-window.addEventListener("beforeunload", function() {
-    clearInterval(INTERVAL_TIMER);
-    cordova.exec(null, null, 'CordovaGoogleMaps', 'unload', ['']);
-});
-
 window.addEventListener("orientationchange", function() {
     setTimeout(onMapResize, 1000);
 });
 
 document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);
-
-    document.body.style.backgroundColor="rgba(0,0,0,0.1)";
-    document.getElementsByTagName("html")[0].style.backgroundColor="rgba(0,0,0,0.1)";
-    document.body.style.backgroundColor="rgba(0,0,0,0)";
-    document.getElementsByTagName("html")[0].style.backgroundColor="rgba(0,0,0,0)";
 
     //------------------------------------------------------------------------
     // If Google Maps Android API v2 is not available,
