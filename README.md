@@ -3,6 +3,8 @@ Cordova GoogleMaps plugin for iOS and Android
 This plugin is a thin wrapper for [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
 
+-----
+
 ###Quick install
 
 **Plugin is finally available on npm**<br>
@@ -32,6 +34,8 @@ The SDK-Plugin won't be uninstalled automatically and you will stuck on an old v
 ###Information
 Cordova-iOS 4.X and WKWebView are supported from version 1.4+. There is currently no npm package of 1.4 (work in progress) but if you need this feature, you can grab our master, which is currently considered stable. (We're still fixing bugs, so you might wait until we push 1.4.0 to npm)
 
+-----
+
 ###Last release information
 
 **v.1.3.9 - 04/Jan/2016**
@@ -51,8 +55,9 @@ I recommend to set settings for Crosswalk to 15+ and remove android-platform (`c
  - with BITCODE support
  - fixed blank map problems
 
-
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
+
+-----
 
 ###Quick demo
 ![](https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/demo.gif)
@@ -110,6 +115,8 @@ function onBtnClicked() {
 }
 </script>
 ```
+
+-----
 
 ###Documentation
 
@@ -204,7 +211,7 @@ function onBtnClicked() {
 ### Join the official community
 New versions will be announced through the official community. Stay tuned!
 
-<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
+<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/Red-signin_Google_base_44dp.png" height="40"></a>
 
 ###Chat
 Join our online chat at<br>
