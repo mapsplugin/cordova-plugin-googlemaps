@@ -145,14 +145,14 @@ var saltHash = Math.floor(Math.random() * Date.now());
   INTERVAL_TIMER = setInterval(putHtmlElements, 50);
 }());
 
-setTimeout(function() {
+//setTimeout(function() {
   // Webkit redraw mandatory
   // http://stackoverflow.com/a/3485654/697856
-  document.body.style.display='none';
-  document.body.offsetHeight;
-  document.body.style.display='';
   document.body.style.backgroundColor = "rgba(0,0,0,0)";
-}, 0);
+  //document.body.style.display='none';
+  document.body.offsetHeight;
+  //document.body.style.display='';
+//}, 0);
 
 
 /*****************************************************************************
