@@ -484,19 +484,19 @@
       GMSMarker *marker = [self.objects objectForKey:markerId];
 
       // Create icon
-      NSDictionary *iconProperty;
+      NSMutableDictionary *iconProperty;
       id icon = [command.arguments objectAtIndex:1];
       if ([icon isKindOfClass:[NSString class]]) {
-          NSMutableDictionary *iconDic = [[NSMutableDictionary alloc] init];
-          [iconDic setObject:icon forKey:@"url"];
-          iconProperty = iconDic;
+          iconProperty = [[NSMutableDictionary alloc] init];
+          [iconProperty setObject:icon forKey:@"url"];
       } else if ([icon isKindOfClass:[NSDictionary class]]) {
           iconProperty = [command.arguments objectAtIndex:1];
       } else if ([icon isKindOfClass:[NSArray class]]) {
           NSArray *rgbColor = icon;
-          NSMutableDictionary *iconDic = [[NSMutableDictionary alloc] init];
-          [iconDic setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+          iconProperty = [[NSMutableDictionary alloc] init];
+          [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
       }
+    
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
