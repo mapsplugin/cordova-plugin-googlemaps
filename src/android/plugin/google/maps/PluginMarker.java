@@ -838,26 +838,26 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                     if (tmp.exists()) {
                       image = BitmapFactory.decodeFile(iconUrl);
                     } else {
-                      if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
+                      //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
                         Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
-                      }
+                      //}
                     }
                   } else {
-                    Log.d(TAG, "iconUrl = " + iconUrl);
+                    //Log.d(TAG, "iconUrl = " + iconUrl);
                     if (iconUrl.indexOf("file:///android_asset/") == 0) {
                       iconUrl = iconUrl.replace("file:///android_asset/", "");
                     }
-                    Log.d(TAG, "iconUrl = " + iconUrl);
-                    if (iconUrl.contains("../")) {
+                    //Log.d(TAG, "iconUrl = " + iconUrl);
+                    if (iconUrl.contains("./")) {
                       try {
                         boolean isAbsolutePath = iconUrl.startsWith("/");
                         File relativePath = new File(iconUrl);
                         iconUrl = relativePath.getCanonicalPath();
-                        Log.d(TAG, "iconUrl = " + iconUrl);
+                        //Log.d(TAG, "iconUrl = " + iconUrl);
                         if (!isAbsolutePath) {
                           iconUrl = iconUrl.substring(1);
                         }
-                        Log.d(TAG, "iconUrl = " + iconUrl);
+                        //Log.d(TAG, "iconUrl = " + iconUrl);
                       } catch (Exception e) {
                         e.printStackTrace();
                       }
