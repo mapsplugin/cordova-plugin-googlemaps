@@ -298,12 +298,8 @@ NSLog(@"---->map = %@", pluginMap.mapCtrl.map);
         self.locationManager.desiredAccuracy = locationAccuracy;
 
         //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
-#ifdef __IPHONE_8_0
-        if ([PluginUtil isIOS8_OR_OVER]) {
-            // iOS8
-            [self.locationManager requestWhenInUseAuthorization];
-        }
-#endif
+        [self.locationManager requestWhenInUseAuthorization];
+        
         [self.locationManager stopUpdatingLocation];
         [self.locationManager startUpdatingLocation];
         [self.locationCommandQueue addObject:command];

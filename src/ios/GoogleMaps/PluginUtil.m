@@ -142,29 +142,6 @@ static char CAAnimationGroupBlockKey;
 #endif
 @end
 @implementation PluginUtil
-+ (BOOL)isIOS7_OR_OVER
-{
-    NSArray  *aOsVersions = [[[UIDevice currentDevice]systemVersion] componentsSeparatedByString:@"."];
-    NSInteger iOsVersionMajor  = [[aOsVersions objectAtIndex:0] intValue];
-    if (iOsVersionMajor > 6)
-    {
-        return YES;
-    }
-
-    return NO;
-}
-
-+ (BOOL)isIOS8_OR_OVER
-{
-    NSArray  *aOsVersions = [[[UIDevice currentDevice]systemVersion] componentsSeparatedByString:@"."];
-    NSInteger iOsVersionMajor  = [[aOsVersions objectAtIndex:0] intValue];
-    if (iOsVersionMajor > 7)
-    {
-        return YES;
-    }
-
-    return NO;
-}
 + (BOOL) isInDebugMode
 {
     #ifndef __OPTIMIZE__   // Debug Mode

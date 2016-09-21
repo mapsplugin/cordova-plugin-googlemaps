@@ -60,7 +60,57 @@
  * @callback the my location button is clicked.
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
-  [self triggerMapEvent:@"map_click" coordinate:coordinate];
+  
+  NSArray *pluginNames =[self.plugins allKeys];
+  NSString *pluginName, *key;
+  NSDictionary *properties;
+  CDVPlugin<MyPlgunProtocol> *plugin;
+  GMSCoordinateBounds *bounds;
+  NSArray *keys;
+  NSNumber *isVisible;
+  NSMutableArray *boundsHitList = [NSMutableArray array];
+  int i,j;
+  
+  for (i = 0; i < [pluginNames count]; i++) {
+    pluginName = [pluginNames objectAtIndex:i];
+    NSLog(@"---> pluginName = %@", pluginName);
+    
+    // Skip marker class
+    if ([pluginName hasSuffix:@"-marker"]) {
+      continue;
+    }
+    
+    // Get the plugin (marker, polyline, polygon, circle, groundOverlay)
+    plugin = [self.plugins objectForKey:pluginName];
+    
+    
+    keys = [plugin.objects allKeys];
+    for (j = 0; j < [keys count]; j++) {
+      key = [keys objectAtIndex:j];
+        NSLog(@"--->key = %@", key);
+      if ([key hasPrefix:@"polyline_property"]) {
+        properties = [plugin.objects objectForKey:key];
+        isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
+        
+        // Skip invisible polyline
+        if ([isVisible boolValue] == NO) {
+          continue;
+        }
+        
+        // Skip if the click point is out of the polyline bounds.
+        bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
+        if ([bounds containsCoordinate:coordinate] == YES) {
+          [boundsHitList addObject:[key stringByReplacingOccurrencesOfString:@"_property" withString:@""]];
+        }
+        
+      
+      }
+      
+    }
+    
+  }
+  
+  //[self triggerMapEvent:@"map_click" coordinate:coordinate];
 }
 /**
  * @callback map long_click
@@ -165,6 +215,7 @@
 }
 
 
+/*
 - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
   NSString *overlayClass = NSStringFromClass([overlay class]);
   if ([overlayClass isEqualToString:@"GMSPolygon"] ||
@@ -174,6 +225,7 @@
     [self triggerOverlayEvent:@"overlay_click" id:overlay.title];
   }
 }
+*/
 
 /**
  * plugin.google.maps.event.MAP_***(new google.maps.LatLng(lat,lng)) events

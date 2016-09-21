@@ -17,6 +17,9 @@
 
 - (void)setColor:(CDVInvokedUrlCommand*)command;
 - (void)setWidth:(CDVInvokedUrlCommand*)command;
+- (void)removePointAt:(CDVInvokedUrlCommand*)command;
+- (void)setPointAt:(CDVInvokedUrlCommand*)command;
+- (void)insertPointAt:(CDVInvokedUrlCommand*)command;
 - (void)setPoints:(CDVInvokedUrlCommand*)command;
 - (void)setZIndex:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
