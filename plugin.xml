@@ -194,7 +194,7 @@
         </config-file>
 
         <preference name="NSLocationWhenInUseUsageDescription" default="Show your location on the map" />
-        <config-file target="*-Info.plist" parent="">
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
             <string>$NSLocationWhenInUseUsageDescription</string>
         </config-file>
 
