@@ -24,6 +24,7 @@ import android.widget.ScrollView;
 
 import com.google.android.gms.maps.MapView;
 
+import org.apache.cordova.CordovaWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +39,7 @@ import java.util.concurrent.Callable;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout {
+  private CordovaWebView webView;
   private View browserView;
   private ViewGroup root;
   private Context context;
@@ -57,10 +59,11 @@ public class MyPluginLayout extends FrameLayout {
   private float zoomScale;
   
   @SuppressLint("NewApi")
-  public MyPluginLayout(View browserView, Activity activity) {
-    super(browserView.getContext());
+  public MyPluginLayout(CordovaWebView webView, Activity activity) {
+    super(webView.getView().getContext());
+    this.browserView = webView.getView();
     mActivity = activity;
-    this.browserView = browserView;
+    this.webView = webView;
     this.root = (ViewGroup) browserView.getParent();
     this.context = browserView.getContext();
     //if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
@@ -474,6 +477,7 @@ public class MyPluginLayout extends FrameLayout {
 
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
+        webView.loadUrl("javascript:cordova.fireDocumentEvent('touch_start', {});");
       }
 
       MyPluginLayout.this.stopFlag = false;

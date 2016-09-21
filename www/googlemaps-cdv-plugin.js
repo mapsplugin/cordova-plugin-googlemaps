@@ -67,18 +67,20 @@ var saltHash = Math.floor(Math.random() * Date.now());
   baseDom.style.visibility = "hidden";
   document.body.insertBefore(baseDom, document.body.firstChild);
   var baseRect;
-
+  var isChecking = false;
 
   function putHtmlElements() {
-      if (Object.keys(MAPS).length === 0) {
+      if (isChecking || Object.keys(MAPS).length === 0) {
         return;
       }
+      isChecking = true;
       baseRect = common.getDivRect(baseDom);
       var children = common.getAllChildren(document.body);
       var bodyRect = common.getDivRect(document.body);
 
       if (children.length === 0) {
           children = null;
+          isChecking = false;
           return;
       }
 
@@ -120,6 +122,12 @@ var saltHash = Math.floor(Math.random() * Date.now());
                   MAPS[mapId].refreshLayout();
               });
           }
+          // Stop timer when user does not touch the app and no changes are occurred 1500ms (50ms * 30times).
+          // This save really the battery life significantly.
+          if (idlingCnt < 30) {
+            setTimeout(putHtmlElements, 50);
+          }
+          isChecking = false;
           return;
       }
       idlingCnt = 0;
@@ -132,18 +140,29 @@ var saltHash = Math.floor(Math.random() * Date.now());
       cordova.exec(function() {
           prevDomPositions = domPositions;
 
-              var mapIDs = Object.keys(MAPS);
-              mapIDs.forEach(function(mapId) {
-                  MAPS[mapId].refreshLayout();
-              });
+          var mapIDs = Object.keys(MAPS);
+          mapIDs.forEach(function(mapId) {
+              MAPS[mapId].refreshLayout();
+          });
+          setTimeout(putHtmlElements, 50);
+          isChecking = false;
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
       parentNode = null;
       elemId = null;
       children = null;
   }
-  putHtmlElements();
-  INTERVAL_TIMER = setInterval(putHtmlElements, 50);
+  setTimeout(putHtmlElements, 50);
+
+  // This is the special event that is fired by the google maps plugin
+  // (Not generic plugin)
+  function resetTimer() {
+    idlingCnt = 0;
+    setTimeout(putHtmlElements, 0);
+  }
+  document.addEventListener("touch_start", resetTimer);
+  window.addEventListener("orientationchange", resetTimer);
+
 }());
 
 //setTimeout(function() {
@@ -225,10 +244,6 @@ module.exports = {
         encoding: encoding
     }
 };
-
-window.addEventListener("orientationchange", function() {
-    setTimeout(onMapResize, 1000);
-});
 
 document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);

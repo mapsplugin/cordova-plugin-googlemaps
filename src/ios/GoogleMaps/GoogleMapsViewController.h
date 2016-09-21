@@ -32,6 +32,7 @@
 
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
 
+- (void)execJS: (NSString *)jsString;
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)level;
 @end

@@ -389,11 +389,17 @@ NSOperationQueue *executeQueue;
             }
         }
         */
+        if (isMapAction == NO) {
+            [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
+        }
         self.stopFlag = NO;
         return hitView;
     }
     self.stopFlag = NO;
   
+    if (isMapAction == NO) {
+        [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
+    }
     return [super hitTest:point withEvent:event];
 }
 
