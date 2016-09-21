@@ -108,12 +108,14 @@
       // points
       NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
       [properties setObject:mutablePath forKey:@"mutablePath"];
-    
       // bounds (pre-calculate for click detection)
       [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
-
       // isVisible
       [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
+      // geodesic
+      [properties setObject:[NSNumber numberWithBool:polyline.geodesic] forKey:@"geodesic"];
+      // zIndex
+      [properties setObject:[NSNumber numberWithFloat:polyline.zIndex] forKey:@"zIndex"];;
       [self.objects setObject:properties forKey:propertyId];
     
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];

@@ -142,6 +142,66 @@ static char CAAnimationGroupBlockKey;
 #endif
 @end
 @implementation PluginUtil
+
++ (BOOL)isPointOnTheLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
+  //-------------------------------------------------------------------
+  // Intersection for non-geodesic line
+  // http://movingahead.seesaa.net/article/299962216.html
+  // http://www.softsurfer.com/Archive/algorithm_0104/algorithm_0104B.htm#Line-Plane
+  //-------------------------------------------------------------------
+  double Sx, Sy;
+  CGPoint touchPoint = [projection pointForCoordinate:coordinate];
+  CGPoint p0, p1;
+  
+  p0 = [projection pointForCoordinate:[path coordinateAtIndex:0]];
+  for (int i = 1; i < [path count]; i++) {
+    p1 = [projection pointForCoordinate:[path coordinateAtIndex:i]];
+    Sx = (touchPoint.x - p0.x) / (p1.x - p0.x);
+    Sy = (touchPoint.y - p0.y) / (p1.y - p0.y);
+    if (fabs(Sx - Sy) < 0.05 && Sx < 1 && Sy > 0) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
++ (BOOL)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)point threshold:(double)threshold {
+  //-------------------------------------------------------------------
+  // Intersection for geodesic line
+  // http://my-clip-devdiary.blogspot.com/2014/01/html5canvas.html
+  //-------------------------------------------------------------------
+  double trueDistance, testDistance1, testDistance2;
+  CGPoint p0, p1;
+  NSValue *value;
+  //CGPoint touchPoint = CGPointMake(point.latitude * 100000, point.longitude * 100000);
+  CLLocationCoordinate2D position1, position2;
+  NSMutableArray *points = [[NSMutableArray alloc] init];
+  
+  for (int i = 0; i < [path count]; i++) {
+    position1 = [path coordinateAtIndex:i];
+    p0 = CGPointMake(position1.latitude * 100000, position1.longitude * 100000);
+    [points addObject:[NSValue valueWithCGPoint:p0]];
+  }
+  for (int i = 0; i < [path count] - 1; i++) {
+    value = (NSValue *)[points objectAtIndex:i];
+    p0 = [value CGPointValue];
+    
+    value = (NSValue *)[points objectAtIndex:(i+1)];
+    p1 = [value CGPointValue];
+    
+    position1 = [path coordinateAtIndex:i];
+    position2 = [path coordinateAtIndex:(i + 1)];
+    
+    trueDistance = GMSGeometryDistance(position1, position2);
+    testDistance1 = GMSGeometryDistance(position1, point);
+    testDistance2 = GMSGeometryDistance(point, position2);
+    // the distance is exactly same if the point is on the straight line
+    if (fabs(trueDistance - (testDistance1 + testDistance2)) < threshold) {
+      return YES;
+    }
+  }
+  return NO;
+}
 + (BOOL) isInDebugMode
 {
     #ifndef __OPTIMIZE__   // Debug Mode

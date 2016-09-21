@@ -66,14 +66,16 @@
   NSDictionary *properties;
   CDVPlugin<MyPlgunProtocol> *plugin;
   GMSCoordinateBounds *bounds;
+  GMSPath *path;
   NSArray *keys;
-  NSNumber *isVisible;
+  NSNumber *isVisible, *geodesic;
   NSMutableArray *boundsHitList = [NSMutableArray array];
   int i,j;
+  float zIndex, maxZIndex;
+  NSString* hitKey = nil;
   
   for (i = 0; i < [pluginNames count]; i++) {
     pluginName = [pluginNames objectAtIndex:i];
-    NSLog(@"---> pluginName = %@", pluginName);
     
     // Skip marker class
     if ([pluginName hasSuffix:@"-marker"]) {
@@ -87,8 +89,7 @@
     keys = [plugin.objects allKeys];
     for (j = 0; j < [keys count]; j++) {
       key = [keys objectAtIndex:j];
-        NSLog(@"--->key = %@", key);
-      if ([key hasPrefix:@"polyline_property"]) {
+      if ([key containsString:@"polyline_property"]) {
         properties = [plugin.objects objectForKey:key];
         isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
         
@@ -100,17 +101,57 @@
         // Skip if the click point is out of the polyline bounds.
         bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
         if ([bounds containsCoordinate:coordinate] == YES) {
-          [boundsHitList addObject:[key stringByReplacingOccurrencesOfString:@"_property" withString:@""]];
+          [boundsHitList addObject:key];
         }
-        
-      
       }
-      
     }
-    
   }
   
-  //[self triggerMapEvent:@"map_click" coordinate:coordinate];
+  
+  
+  CLLocationCoordinate2D origin = [self.map.projection coordinateForPoint:CGPointMake(0, 0)];
+  CLLocationCoordinate2D hitArea = [self.map.projection coordinateForPoint:CGPointMake(1, 1)];
+  CLLocationDistance threshold = GMSGeometryDistance(origin, hitArea);
+  
+  
+
+  //
+  maxZIndex = -1;
+  for (i = 0; i < [boundsHitList count]; i++) {
+    key = [boundsHitList objectAtIndex:i];
+    properties = [plugin.objects objectForKey:key];
+    zIndex = [[properties objectForKey:key] floatValue];
+    if (zIndex < maxZIndex) {
+      continue;
+    }
+    
+    if ([key hasPrefix:@"polyline_"]) {
+      geodesic = (NSNumber *)[properties objectForKey:@"geodesic"];
+      path = (GMSPath *)[properties objectForKey:@"mutablePath"];
+      if ([geodesic boolValue] == YES) {
+        if ([PluginUtil isPointOnTheGeodesicLine:path coordinate:coordinate threshold:threshold]) {
+        
+          maxZIndex = zIndex;
+          hitKey = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
+          continue;
+        }
+      } else {
+        if ([PluginUtil isPointOnTheLine:path coordinate:coordinate projection:self.map.projection]) {
+          maxZIndex = zIndex;
+          hitKey = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
+          continue;
+        }
+      }
+    }
+  }
+  
+  if ([hitKey hasPrefix:@"polyline_"]) {
+    NSLog(@"---> polyline_click");
+    [self triggerOverlayEvent:@"polyline_click" overlayId:hitKey coordinate:coordinate];
+  } else {
+    NSLog(@"---> map_click");
+    [self triggerMapEvent:@"map_click" coordinate:coordinate];
+  }
 }
 /**
  * @callback map long_click
@@ -289,11 +330,11 @@
 /**
  * Involve App._onOverlayEvent
  */
-- (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id
+- (void)triggerOverlayEvent: (NSString *)eventName overlayId:(NSString*)overlayId coordinate:(CLLocationCoordinate2D)coordinate
 {
 	NSString* jsString = [NSString
-    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@']});",
-    self.mapId, eventName, id];
+    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+    self.mapId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 

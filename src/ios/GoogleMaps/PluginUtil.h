@@ -16,6 +16,7 @@
 #import <objc/runtime.h>
 //#import "MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h"
 #import "GMSCoordinateBounds+Geometry.h"
+#import <math.h>
 
 typedef void (^MYCompletionHandler)(NSError *error);
 
@@ -65,6 +66,8 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 
 
 @interface PluginUtil : NSObject
++ (BOOL)isPointOnTheLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection;
++ (BOOL)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate threshold:(double)threshold;
 + (BOOL)isInDebugMode;
 + (NSString *)getAbsolutePathFromCDVFilePath:(UIView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
 @end

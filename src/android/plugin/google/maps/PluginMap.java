@@ -1854,9 +1854,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private boolean isPointOnTheGeodesicLine(List<LatLng> points, LatLng point, double threshold) {
     double trueDistance, testDistance1, testDistance2;
     Point p0, p1, touchPoint;
-    touchPoint = new Point();
-    touchPoint.x = (int) (point.latitude * 100000);
-    touchPoint.y = (int) (point.longitude * 100000);
+    //touchPoint = new Point();
+    //touchPoint.x = (int) (point.latitude * 100000);
+    //touchPoint.y = (int) (point.longitude * 100000);
 
     for (int i = 0; i < points.size() - 1; i++) {
       p0 = new Point();
