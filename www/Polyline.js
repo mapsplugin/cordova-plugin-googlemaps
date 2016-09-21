@@ -105,7 +105,7 @@ Polyline.prototype.setPoints = function(points) {
         mvcArray.push({
             "lat": points[i].lat,
             "lng": points[i].lng
-        });
+        }, true);
     }
     cordova.exec(null, this.errorHandler, this.getPluginName(), 'setPoints', [this.getId(), mvcArray.getArray()]);
 };

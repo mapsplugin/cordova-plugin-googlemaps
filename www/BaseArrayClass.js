@@ -23,9 +23,11 @@ var BaseArrayClass = function(array) {
         _array = [];
     };
 
-    self.push = function(value) {
+    self.push = function(value, noNotify) {
         _array.push(value);
-        self.trigger("insert_at", _array.length);
+        if (noNotify !== true) {
+          self.trigger("insert_at", _array.length);
+        }
         return _array.length;
     };
 
