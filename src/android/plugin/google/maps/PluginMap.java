@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -109,6 +110,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
   private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
 
+  private Handler mainHandler;
+
   private class AsyncUpdateCameraPositionResult {
     CameraUpdate cameraUpdate;
     int durationMS;
@@ -125,6 +128,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
+    mainHandler = new Handler(Looper.getMainLooper());
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -413,11 +417,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
       callbackContext.success();
       if (initCameraBounds != null) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        mainHandler.postDelayed(new Runnable() {
           @Override
           public void run() {
-            fitBounds(initCameraBounds);
           }
         }, 100);
       }

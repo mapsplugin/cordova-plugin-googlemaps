@@ -6,7 +6,8 @@ var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec'),
     event = require('./event'),
     common = require('./Common'),
-    BaseClass = require('./BaseClass');
+    BaseClass = require('./BaseClass'),
+    BaseArrayClass = require('./BaseArrayClass');
 
 var Map = require('./Map');
 var LatLng = require('./LatLng');
@@ -183,7 +184,8 @@ module.exports = {
         DROP: 'DROP'
     },
 
-    //BaseClass: BaseClass,
+    BaseClass: BaseClass,
+    BaseArrayClass: BaseArrayClass,
     Map: {
         getMap: function() {
             var mapId = "map_" + MAP_CNT + "_" + saltHash;

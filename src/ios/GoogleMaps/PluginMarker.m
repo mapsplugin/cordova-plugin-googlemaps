@@ -113,7 +113,7 @@
 
     // Custom properties
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+    NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
 
     if ([json valueForKey:@"styles"]) {
         NSDictionary *styles = [json valueForKey:@"styles"];
@@ -125,7 +125,7 @@
         disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
     }
     [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
-    [self.objects setObject:properties forKey: markerPropertyId];
+    [self.objects setObject:properties forKey: propertyId];
 
     // Create icon
     NSObject *icon = [json valueForKey:@"icon"];
@@ -401,11 +401,11 @@
       GMSMarker *marker = [self.objects objectForKey:markerId];
       BOOL disableAutoPan = [[command.arguments objectAtIndex:1] boolValue];
 
-      NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:markerPropertyId]];
+                                         [self.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
-      [self.objects setObject:properties forKey:markerPropertyId];
+      [self.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -429,6 +429,12 @@
       } else {
           marker.map = nil;
       }
+      
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+      [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
+      [self.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

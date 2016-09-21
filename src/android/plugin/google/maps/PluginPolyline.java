@@ -245,6 +245,58 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
+  public void removePointAt(final JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+    String id = args.getString(0);
+    final int index = args.getInt(1);
+
+    final Polyline polyline = this.getPolyline(id);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        List<LatLng> path = polyline.getPoints();
+        path.remove(index);
+        polyline.setPoints(path);
+      }
+    });
+    this.sendNoResult(callbackContext);
+  }
+  public void insertPointAt(final JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+    String id = args.getString(0);
+    final int index = args.getInt(1);
+    JSONObject position = args.getJSONObject(2);
+    final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
+
+    final Polyline polyline = this.getPolyline(id);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        List<LatLng> path = polyline.getPoints();
+        path.add(index, latLng);
+        polyline.setPoints(path);
+      }
+    });
+    this.sendNoResult(callbackContext);
+  }
+  public void setPointAt(final JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+    String id = args.getString(0);
+    final int index = args.getInt(1);
+    JSONObject position = args.getJSONObject(2);
+    final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
+
+    final Polyline polyline = this.getPolyline(id);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        List<LatLng> path = polyline.getPoints();
+        path.set(index, latLng);
+        polyline.setPoints(path);
+      }
+    });
+    this.sendNoResult(callbackContext);
+  }
 
   /**
    * Set points
@@ -254,11 +306,16 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    */
   public void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    Polyline polyline = this.getPolyline(id);
+    final Polyline polyline = this.getPolyline(id);
     
     JSONArray points = args.getJSONArray(1);
-    List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-    polyline.setPoints(path);
+    final List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        polyline.setPoints(path);
+      }
+    });
 
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
     for (int i = 0; i < path.size(); i++) {

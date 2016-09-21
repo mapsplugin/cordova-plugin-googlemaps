@@ -4,6 +4,9 @@
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
     </js-module>
+    <js-module name="BaseArrayClass" src="www/BaseArrayClass.js">
+      <runs />
+    </js-module>
     <js-module name="LatLng" src="www/LatLng.js">
       <runs />
     </js-module>

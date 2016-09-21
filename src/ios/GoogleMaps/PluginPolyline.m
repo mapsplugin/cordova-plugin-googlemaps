@@ -14,21 +14,53 @@
 {
   self.mapCtrl = viewCtrl;
 }
+
+- (void)pluginInitialize
+{
+  // Initialize this plugin
+  self.objects = [[NSMutableDictionary alloc] init];
+  self.executeQueue =  [NSOperationQueue new];
+}
+
 - (void)pluginUnload
 {
+  if (self.executeQueue != nil){
+      self.executeQueue.suspended = YES;
+      [self.executeQueue cancelAllOperations];
+      self.executeQueue.suspended = NO;
+      self.executeQueue = nil;
+  }
+
+  // Plugin destroy
+  NSArray *keys = [self.objects allKeys];
+  NSString *key;
+  for (int i = 0; i < [keys count]; i++) {
+      key = [keys objectAtIndex:i];
+      if ([key hasPrefix:@"polyline_"] &&
+        ![key hasPrefix:@"polyline_property"]) {
+        GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:key];
+        polyline.map = nil;
+        polyline = nil;
+      }
+      [self.objects removeObjectForKey:key];
+  }
+  self.objects = nil;
+  
+  key = nil;
+  keys = nil;
+  
+  NSString *pluginId = [NSString stringWithFormat:@"%@-polyline", self.mapCtrl.mapId];
+  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+  [cdvViewController.pluginObjects removeObjectForKey:pluginId];
+  [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+  pluginId = nil;
 }
 
 -(void)create:(CDVInvokedUrlCommand *)command
 {
-/*
-  // Initialize this plugin
-  if (self.mapCtrl == nil) {
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    //self.mapCtrl = googlemaps.mapCtrl;
-  }
 
-  NSDictionary *json = [command.arguments objectAtIndex:0];
+
+  NSDictionary *json = [command.arguments objectAtIndex:1];
   GMSMutablePath *path = [GMSMutablePath path];
 
   NSArray *points = [json objectForKey:@"points"];
@@ -39,46 +71,48 @@
     [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
 
+  dispatch_async(dispatch_get_main_queue(), ^{
 
-  dispatch_queue_t gueue = dispatch_queue_create("createPolyline", NULL);
-  dispatch_async(gueue, ^{
+      // Create the Polyline, and assign it to the map.
+      GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
 
-      dispatch_sync(dispatch_get_main_queue(), ^{
+      BOOL isVisible = NO;
+      if ([[json valueForKey:@"visible"] boolValue]) {
+        polyline.map = self.mapCtrl.map;
+        isVisible = YES;
+      }
+      if ([[json valueForKey:@"geodesic"] boolValue]) {
+        polyline.geodesic = YES;
+      }
+      NSArray *rgbColor = [json valueForKey:@"color"];
+      polyline.strokeColor = [rgbColor parsePluginColor];
 
-          // Create the Polyline, and assign it to the map.
-          GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
+      polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
+      polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
-          if ([[json valueForKey:@"visible"] boolValue]) {
-            //polyline.map = self.mapCtrl.map;
-          }
-          if ([[json valueForKey:@"geodesic"] boolValue]) {
-            polyline.geodesic = YES;
-          }
-          NSArray *rgbColor = [json valueForKey:@"color"];
-          polyline.strokeColor = [rgbColor parsePluginColor];
+      polyline.tappable = YES;
 
-          polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
-          polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
+      NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
+      [self.objects setObject:polyline forKey: id];
+      polyline.title = id;
 
-          polyline.tappable = YES;
+      NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+      [result setObject:id forKey:@"id"];
+      [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)polyline.hash] forKey:@"hashCode"];
+    
+      // Keep the properties
+      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      [self.objects setObject:json forKey:propertyId];
+    
+      NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+      [properties setObject:points forKey:@"points"];
+      [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
+      [self.objects setObject:properties forKey:propertyId];
 
-          NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
-          [self.mapCtrl.overlayManager setObject:polyline forKey: id];
-          polyline.title = id;
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-
-          dispatch_async(gueue, ^{
-
-              NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-              [result setObject:id forKey:@"id"];
-              [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)polyline.hash] forKey:@"hashCode"];
-
-              CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-              [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-          });
-      });
   });
-  */
 }
 
 
@@ -89,24 +123,37 @@
  */
 -(void)setPoints:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  GMSMutablePath *path = [GMSMutablePath path];
 
-  NSArray *points = [command.arguments objectAtIndex:1];
-  int i = 0;
-  NSDictionary *latLng;
-  for (i = 0; i < points.count; i++) {
-    latLng = [points objectAtIndex:i];
-    [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
-  }
-  [polyline setPath:path];
+  [self.executeQueue addOperationWithBlock:^{
+  
+      NSString *polylineKey = [command.arguments objectAtIndex:0];
+      GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+      GMSMutablePath *path = [GMSMutablePath path];
+    
+      NSArray *points = [command.arguments objectAtIndex:1];
+      int i = 0;
+      NSDictionary *latLng;
+      for (i = 0; i < points.count; i++) {
+        latLng = [points objectAtIndex:i];
+        [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+      }
+    
+      
+      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+      [properties setObject:points forKey:@"points"];
+      [self.objects setObject:properties forKey:propertyId];
+    
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polyline setPath:path];
 
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-*/
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+  }];
+
 }
 
 /**
@@ -115,16 +162,19 @@
  */
 -(void)setColor:(CDVInvokedUrlCommand *)command
 {
-/*
+
   NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
 
   NSArray *rgbColor = [command.arguments objectAtIndex:1];
-  [polyline setStrokeColor:[rgbColor parsePluginColor]];
+  
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      [polyline setStrokeColor:[rgbColor parsePluginColor]];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  */
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+  
 }
 
 /**
@@ -133,15 +183,17 @@
  */
 -(void)setWidth:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  float width = [[command.arguments objectAtIndex:1] floatValue];
-  [polyline setStrokeWidth:width];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-*/
+  NSString *polylineKey = [command.arguments objectAtIndex:0];
+  GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+  float width = [[command.arguments objectAtIndex:1] floatValue];
+  
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      [polyline setStrokeWidth:width];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 
 /**
@@ -150,15 +202,17 @@
  */
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
-  [polyline setZIndex:(int)zIndex];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  */
+  NSString *polylineKey = [command.arguments objectAtIndex:0];
+  GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+  NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
+  
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      [polyline setZIndex:(int)zIndex];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 
 /**
@@ -167,19 +221,27 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
-  if (isVisible) {
-    //polyline.map = self.mapCtrl.map;
-  } else {
-    polyline.map = nil;
-  }
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  */
+  NSString *polylineKey = [command.arguments objectAtIndex:0];
+  GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+  Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
+  
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      if (isVisible) {
+        polyline.map = self.mapCtrl.map;
+      } else {
+        polyline.map = nil;
+      }
+      
+      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+      [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
+      [self.objects setObject:properties forKey:propertyId];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 /**
  * Set geodesic
@@ -187,15 +249,17 @@
  */
 -(void)setGeodesic:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  Boolean isGeodisic = [[command.arguments objectAtIndex:1] boolValue];
-  [polyline setGeodesic:isGeodisic];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  */
+  NSString *polylineKey = [command.arguments objectAtIndex:0];
+  GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+  Boolean isGeodisic = [[command.arguments objectAtIndex:1] boolValue];
+  
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      [polyline setGeodesic:isGeodisic];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 
 /**
@@ -204,16 +268,21 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
-/*
-  NSString *polylineKey = [command.arguments objectAtIndex:0];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
-  polyline.map = nil;
-  [self.mapCtrl removeObjectForKey:polylineKey];
-  polyline = nil;
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  */
+  NSString *polylineKey = [command.arguments objectAtIndex:0];
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+    [self.objects removeObjectForKey:polylineKey];
+    
+    NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+    [self.objects removeObjectForKey:propertyId];
+    polyline.map = nil;
+    polyline = nil;
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
 }
 
 @end
