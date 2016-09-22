@@ -28,6 +28,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
     final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    final JSONObject properties = new JSONObject();
     
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
@@ -55,6 +56,16 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     if (opts.has("zIndex")) {
       polylineOptions.zIndex(opts.getInt("zIndex"));
     }
+    if (opts.has("clickable")) {
+      properties.put("isClickable", opts.getBoolean("clickable"));
+    } else {
+      properties.put("isClickable", true);
+    }
+    properties.put("isVisible", polylineOptions.isVisible());
+
+    // Since this plugin provide own click detection,
+    // disable default clickable feature.
+    polylineOptions.clickable(false);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -66,6 +77,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
         String boundsId = "polyline_bounds_" + polyline.getId();
         self.objects.put(boundsId, builder.build());
+
+        String propertyId = "polyline_property_" + polyline.getId();
+        self.objects.put(propertyId, properties);
 
         try {
           JSONObject result = new JSONObject();
@@ -343,8 +357,37 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException 
    */
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(1);
     String id = args.getString(0);
-    this.setBoolean("setVisible", id, visible, callbackContext);
+    final boolean isVisible = args.getBoolean(1);
+
+    final Polyline polyline = this.getPolyline(id);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        polyline.setVisible(isVisible);
+      }
+    });
+    String propertyId = "polyline_property_" + polyline.getId();
+    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    properties.put("isVisible", isVisible);
+    self.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
+  }
+
+  /**
+   * Set clickable for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    final boolean clickable = args.getBoolean(1);
+    String propertyId = id.replace("polyline_", "polyline_property_");
+    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    properties.put("isClickable", clickable);
+    self.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
   }
 }

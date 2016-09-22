@@ -24,11 +24,12 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
      */
     @Override
     public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        //self = this;
+        self = this;
 
         final PolygonOptions polygonOptions = new PolygonOptions();
         int color;
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        final JSONObject properties = new JSONObject();
 
         JSONObject opts = args.getJSONObject(1);
         if (opts.has("points")) {
@@ -70,6 +71,14 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         if (opts.has("zIndex")) {
             polygonOptions.zIndex(opts.getInt("zIndex"));
         }
+        if (opts.has("clickable")) {
+            properties.put("isClickable", opts.getBoolean("clickable"));
+        } else {
+            properties.put("isClickable", true);
+        }
+        properties.put("isVisible", polygonOptions.isVisible());
+        properties.put("zIndex", polygonOptions.getZIndex());
+        properties.put("isGeodesic", polygonOptions.isGeodesic());
 
         // Since this plugin uses own detecting process,
         // set false to the clickable property.
@@ -84,6 +93,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
                 String boundsId = "polygon_bounds_" + polygon.getId();
                 self.objects.put(boundsId, builder.build());
+
+                String propertyId = "polygon_property_" + polygon.getId();
+                self.objects.put(propertyId, properties);
 
                 JSONObject result = new JSONObject();
                 try {
@@ -173,7 +185,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     @SuppressWarnings("unused")
     public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
-        float zIndex = (float) args.getDouble(1);
+        final float zIndex = (float) args.getDouble(1);
         this.setFloat("setZIndex", id, zIndex, callbackContext);
     }
 
@@ -281,8 +293,37 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
      * @throws JSONException
      */
     public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        boolean visible = args.getBoolean(1);
+        final boolean isVisible = args.getBoolean(1);
         String id = args.getString(0);
-        this.setBoolean("setVisible", id, visible, callbackContext);
+
+        final Polygon polygon = this.getPolygon(id);
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                polygon.setVisible(isVisible);
+            }
+        });
+        String propertyId = "polygon_property_" + polygon.getId();
+        JSONObject properties = (JSONObject)self.objects.get(propertyId);
+        properties.put("isVisible", isVisible);
+        self.objects.put(propertyId, properties);
+        this.sendNoResult(callbackContext);
+    }
+
+    /**
+     * Set clickable for the object
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final boolean clickable = args.getBoolean(1);
+        String propertyId = id.replace("polygon_", "polygon_property_");
+        JSONObject properties = (JSONObject)self.objects.get(propertyId);
+        properties.put("isClickable", clickable);
+        self.objects.put(propertyId, properties);
+        this.sendNoResult(callbackContext);
     }
 }

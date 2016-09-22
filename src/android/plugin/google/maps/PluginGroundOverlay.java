@@ -36,6 +36,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   
   public void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
     GroundOverlayOptions options = new GroundOverlayOptions();
+    final JSONObject properties = new JSONObject();
 
     if (opts.has("anchor")) {
       JSONArray anchor = opts.getJSONArray("anchor");
@@ -59,6 +60,16 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
       options.positionFromBounds(bounds);
     }
+    if (opts.has("clickable")) {
+      properties.put("isClickable", opts.getBoolean("clickable"));
+    } else {
+      properties.put("isClickable", true);
+    }
+    properties.put("isVisible", options.isVisible());
+
+    // Since this plugin provide own click detection,
+    // disable default clickable feature.
+    options.clickable(false);
 
     // Load image
     String url = opts.getString("url");
@@ -68,15 +79,21 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       public void onPostExecute(Object object) {
         GroundOverlay groundOverlay = (GroundOverlay)object;
 
-        String id = "groundOverlay_" + groundOverlay.getId();
+        String id = "groundoverlay_" + groundOverlay.getId();
         self.objects.put(id, groundOverlay);
+
+        String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
+        self.objects.put(boundsId, groundOverlay.getBounds());
+
+        String propertyId = "groundoverlay_property_" + groundOverlay.getId();
+        self.objects.put(propertyId, properties);
 
         JSONObject result = new JSONObject();
         try {
           result.put("hashCode", groundOverlay.hashCode());
           result.put("id", id);
           
-          self.objects.put("gOverlay_property_" + groundOverlay.getId(), opts);
+          self.objects.put("groundoverlay_property_" + groundOverlay.getId(), opts);
         } catch (Exception e) {}
         callbackContext.success(result);
       }
@@ -97,9 +114,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     }
 
     String filePath = url;
-    if (filePath.indexOf("://") == -1 && 
-        filePath.startsWith("/") == false && 
-        filePath.startsWith("www/") == false) {
+    if (!filePath.contains("://") &&
+        !filePath.startsWith("/") &&
+        !filePath.startsWith("www/")) {
       filePath = "./" + filePath;
     }
     if (filePath.indexOf("./") == 0) {
@@ -139,7 +156,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     
     InputStream inputStream;
     if (filePath.indexOf("/") == 0 ||
-        (filePath.indexOf("file://") == 0 && filePath.indexOf("file:///android_asset/") == -1) ||
+        (filePath.indexOf("file://") == 0 && !filePath.contains("file:///android_asset/")) ||
         filePath.indexOf("cdvfile://") == 0) {
       if (filePath.indexOf("cdvfile://") == 0) {
         filePath = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), filePath);
@@ -209,31 +226,12 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       return;
     }
 
-    String propertyId = "gOverlay_property_" + id;
+    String propertyId = "groundoverlay_property_" + id;
     self.objects.remove(propertyId);
     groundOverlay.remove();
     this.sendNoResult(callbackContext);
   }
 
-  /**
-   * Set visibility for the object
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(1);
-    
-    String id = args.getString(0);
-    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
-    if (groundOverlay == null) {
-      this.sendNoResult(callbackContext);
-      return;
-    }
-    groundOverlay.setVisible(visible);
-    this.sendNoResult(callbackContext);
-  }
-  
 
   /**
    * Set image of the ground-overlay
@@ -267,6 +265,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     JSONArray points = args.getJSONArray(1);
     LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
     groundOverlay.setPositionFromBounds(bounds);
+
+    String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
+    self.objects.put(boundsId, groundOverlay.getBounds());
 
     this.sendNoResult(callbackContext);
   }
@@ -303,5 +304,47 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     String id = args.getString(0);
     float zIndex = (float) args.getDouble(1);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
+  }
+
+
+  /**
+   * Set visibility for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    final boolean isVisible = args.getBoolean(1);
+
+    final GroundOverlay groundOverlay = this.getGroundOverlay(id);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        groundOverlay.setVisible(isVisible);
+      }
+    });
+    String propertyId = "groundoverlay_property_" + groundOverlay.getId();
+    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    properties.put("isVisible", isVisible);
+    self.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
+  }
+
+  /**
+   * Set clickable for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    final boolean clickable = args.getBoolean(1);
+    String propertyId = id.replace("groundoverlay_", "groundoverlay_property_");
+    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    properties.put("isClickable", clickable);
+    self.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
   }
 }
