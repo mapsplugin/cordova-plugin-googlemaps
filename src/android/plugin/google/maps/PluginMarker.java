@@ -101,6 +101,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
     // Create an instance of Marker class
     final MarkerOptions markerOptions = new MarkerOptions();
+    final JSONObject properties = new JSONObject();
+
     final JSONObject opts = args.getJSONObject(1);
     if (opts.has("position")) {
         JSONObject position = opts.getJSONObject("position");
@@ -115,8 +117,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     if (opts.has("visible")) {
       if (opts.has("icon") && !"".equals(opts.getString("icon"))) {
         markerOptions.visible(false);
+        properties.put("isVisible", false);
       } else {
         markerOptions.visible(opts.getBoolean("visible"));
+        properties.put("isVisible", markerOptions.isVisible());
       }
     }
     if (opts.has("draggable")) {
@@ -134,6 +138,16 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     if (opts.has("zIndex")) {
       markerOptions.zIndex((float) opts.getDouble("zIndex"));
     }
+
+    if (opts.has("styles")) {
+      properties.put("styles", opts.getJSONObject("styles"));
+    }
+    if (opts.has("disableAutoPan")) {
+      properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
+    } else {
+      properties.put("disableAutoPan", false);
+    }
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -148,15 +162,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
               String id = "marker_" + marker.getId();
               self.objects.put(id, marker);
 
-              JSONObject properties = new JSONObject();
-              if (opts.has("styles")) {
-                properties.put("styles", opts.getJSONObject("styles"));
-              }
-              if (opts.has("disableAutoPan")) {
-                properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
-              } else {
-                properties.put("disableAutoPan", false);
-              }
               self.objects.put("marker_property_" + marker.getId(), properties);
 
               // Prepare the result
@@ -539,9 +544,25 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException 
    */
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(1);
+    boolean isVisible = args.getBoolean(1);
     String id = args.getString(0);
-    this.setBoolean("setVisible", id, visible, callbackContext);
+
+    Marker marker = this.getMarker(id);
+    if (marker == null) {
+      this.sendNoResult(callbackContext);
+      return;
+    }
+    String propertyId = "marker_property_" + marker.getId();
+    JSONObject properties = null;
+    if (self.objects.containsKey(propertyId)) {
+      properties = (JSONObject)self.objects.get(propertyId);
+    } else {
+      properties = new JSONObject();
+    }
+    properties.put("isVisible", isVisible);
+    self.objects.put(propertyId, properties);
+
+    this.setBoolean("setVisible", id, isVisible, callbackContext);
   }
   /**
    * @param args
