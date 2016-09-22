@@ -709,6 +709,10 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
 Map.prototype.addPolyline = function(polylineOptions, callback) {
     var self = this;
     polylineOptions.points = polylineOptions.points || [];
+    var _orgs = polylineOptions.points;
+    if (polylineOptions.points && typeof polylineOptions.points.getArray === "function") {
+      polylineOptions.points = polylineOptions.points.getArray();
+    }
     polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
     polylineOptions.width = polylineOptions.width || 10;
     polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
@@ -716,6 +720,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.geodesic = polylineOptions.geodesic === true;
 
     cordova.exec(function(result) {
+        polylineOptions.points = _orgs;
         var polyline = new Polyline(self, result.id, polylineOptions);
         self.OVERLAYS[result.id] = polyline;
         polyline.one(result.id + "_remove", function() {

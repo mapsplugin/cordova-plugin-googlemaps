@@ -26,14 +26,14 @@ var BaseArrayClass = function(array) {
     self.push = function(value, noNotify) {
         _array.push(value);
         if (noNotify !== true) {
-          self.trigger("insert_at", _array.length);
+          self.trigger("insert_at", _array.length - 1);
         }
         return _array.length;
     };
 
     self.insertAt = function(index, value) {
         _array.splice(index, 0, value);
-        self.trigger("insert_at", _array.length);
+        self.trigger("insert_at", index);
     };
 
     self.getArray = function() {

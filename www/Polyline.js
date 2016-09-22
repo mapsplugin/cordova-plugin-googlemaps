@@ -40,7 +40,7 @@ var Polyline = function(map, polylineId, polylineOptions) {
             };
             mvcArray.setAt(index, value);
         });
-        points.on('insert_at', function(index) {
+        polylineOptions.points.on('insert_at', function(index) {
             var position = polylineOptions.points.getAt(index);
             var value = {
               lat: position.lat,
@@ -48,7 +48,7 @@ var Polyline = function(map, polylineId, polylineOptions) {
             };
             mvcArray.insertAt(index, value);
         });
-        points.on('remove_at', function(index) {
+        polylineOptions.points.on('remove_at', function(index) {
             mvcArray.removeAt(index);
         });
 
