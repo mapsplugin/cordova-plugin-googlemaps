@@ -365,7 +365,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     Builder builder = CameraPosition.builder();
     builder.tilt(map.getCameraPosition().tilt);
     builder.bearing(map.getCameraPosition().bearing);
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, (int)density);
+
+    // Fit the camera to the cameraBounds with 20px padding.
+    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, 20 * (int)density);
     map.moveCamera(cameraUpdate);
     builder.zoom(map.getCameraPosition().zoom);
     builder.target(map.getCameraPosition().target);
