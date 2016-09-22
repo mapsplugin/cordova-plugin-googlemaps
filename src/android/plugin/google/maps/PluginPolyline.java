@@ -1,20 +1,19 @@
 package plugin.google.maps;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.graphics.Color;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.Color;
-import android.util.Log;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   /**

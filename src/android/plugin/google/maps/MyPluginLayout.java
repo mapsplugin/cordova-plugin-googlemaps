@@ -99,6 +99,7 @@ public class MyPluginLayout extends FrameLayout {
 
 
 
+
     browserView.setBackgroundColor(Color.TRANSPARENT);
     if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
       || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
@@ -115,9 +116,6 @@ public class MyPluginLayout extends FrameLayout {
     }
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
-
-    //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
-
 
     mActivity.getWindow().getDecorView().requestFocus();
   }
@@ -410,17 +408,6 @@ public class MyPluginLayout extends FrameLayout {
         if (pluginMap.mapDivId == null) {
           continue;
         }
-        //-----------------------
-        // TODO: Is the map displayed?
-        //-----------------------
-        //if (rect.origin.y + rect.size.height < offsetY ||
-        //    rect.origin.x + rect.size.width < offsetX ||
-        //    rect.origin.y > offsetY + webviewHeight ||
-        //    rect.origin.x > offsetX + webviewWidth ||
-        //    mapCtrl.view.hidden == YES) {
-        //  //NSLog(@"--> map (%@) is not displayed.", mapCtrl.mapId);
-        //  continue;
-        //}
 
         //------------------------------------------------
         // Is the clicked point is in the map rectangle?
