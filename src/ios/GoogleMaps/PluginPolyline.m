@@ -90,7 +90,7 @@
       polyline.strokeWidth = [[json valueForKey:@"width"] floatValue];
       polyline.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
-      polyline.tappable = YES;
+      polyline.tappable = NO;
 
       NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
       [self.objects setObject:polyline forKey: id];

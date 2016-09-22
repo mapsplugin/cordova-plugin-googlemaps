@@ -88,7 +88,7 @@
       polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
       polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
-      polygon.tappable = YES;
+      polygon.tappable = NO;
 
 
       // Register polygon to the overlayManager.
