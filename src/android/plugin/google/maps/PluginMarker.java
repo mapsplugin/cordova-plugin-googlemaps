@@ -610,24 +610,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
-  
-  /**
-   * Return 1 if the InfoWindow of the marker is shown
-   * @param args
-   * @param callbackContext
-   * @throws JSONException 
-   */
-  public void isInfoWindowShown(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final Marker marker = this.getMarker(id);
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Boolean isInfoWndShown = marker.isInfoWindowShown();
-        callbackContext.success(isInfoWndShown ? 1 : 0);
-      }
-    });
-  }
 
   /**
    * Remove the marker
