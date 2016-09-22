@@ -14,51 +14,116 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.util.LruCache;
 
 public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   private AsyncLoadImageInterface targetPlugin;
   private int mWidth = -1;
   private int mHeight = -1;
 
+  public static BitmapCache mIconCache;
+
+  class BitmapCache extends LruCache<String, Bitmap> {
+
+    public BitmapCache(int maxSize) {
+      super(maxSize);
+    }
+
+    @Override
+    protected int sizeOf(String key, Bitmap bitmap) {
+      // The cache size will be measured in kilobytes rather than
+      // number of items.
+      return bitmap.getByteCount() / 1024;
+    }
+
+    @Override
+    protected void entryRemoved(boolean evicted, String key,
+                                Bitmap oldValue, Bitmap newValue) {
+      if (!oldValue.isRecycled()) {
+        oldValue.recycle();
+        oldValue = null;
+      }
+    }
+  }
+
   public AsyncLoadImage(AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
+    privateInit();
   }
 
   public AsyncLoadImage(int width, int height, AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
     mWidth = width;
     mHeight = height;
+    privateInit();
   }
-  
+
+  private void privateInit() {
+    if (mIconCache != null) {
+      return;
+    }
+
+    // Get max available VM memory, exceeding this amount will throw an
+    // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+    // int in its constructor.
+    int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+    // Use 1/8th of the available memory for this memory cache.
+    int cacheSize = maxMemory / 8;
+
+    mIconCache = new BitmapCache(cacheSize);
+  }
+  private void addBitmapToMemoryCache(String key, Bitmap image) {
+    if (getBitmapFromMemCache(key) == null) {
+      mIconCache.put(key, image.copy(image.getConfig(), true));
+    }
+  }
+
+  private Bitmap getBitmapFromMemCache(String key) {
+    Bitmap image = mIconCache.get(key);
+    if (image == null || image.isRecycled()) {
+      return null;
+    }
+
+    return image.copy(image.getConfig(), true);
+  }
+
+
   @SuppressLint("NewApi")
   protected Bitmap doInBackground(String... urls) {
     try {
       URL url= new URL(urls[0]);
-      HttpURLConnection http = (HttpURLConnection)url.openConnection(); 
+      String cacheKey = url.hashCode() + "/" + mWidth + "x" + mHeight;
+      Bitmap image = getBitmapFromMemCache(cacheKey);
+      if (image != null) {
+        return image;
+      }
+      HttpURLConnection http = (HttpURLConnection)url.openConnection();
       http.setRequestMethod("GET");
       http.setUseCaches(true);
       http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
       http.addRequestProperty("User-Agent", "Mozilla");
       http.setInstanceFollowRedirects(true);
       HttpURLConnection.setFollowRedirects(true);
-      
+
       boolean redirect = false;
       // normally, 3xx is redirect
       int status = http.getResponseCode();
       if (status != HttpURLConnection.HTTP_OK) {
         if (status == HttpURLConnection.HTTP_MOVED_TEMP
           || status == HttpURLConnection.HTTP_MOVED_PERM
-            || status == HttpURLConnection.HTTP_SEE_OTHER)
-        redirect = true;
+          || status == HttpURLConnection.HTTP_SEE_OTHER)
+          redirect = true;
       }
       if (redirect) {
-        
+
         // get redirect URL from "location" header field
         String newUrl = http.getHeaderField("Location");
-     
+
         // get the cookie if need, for login
         String cookies = http.getHeaderField("Set-Cookie");
-     
+
         // open the new connection again
         http = (HttpURLConnection) new URL(newUrl).openConnection();
         http.setUseCaches(true);
@@ -66,10 +131,10 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
         http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
         http.addRequestProperty("User-Agent", "Mozilla");
       }
-      
+
       Bitmap myBitmap = null;
       InputStream inputStream = http.getInputStream();
-      
+
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       int nRead;
       byte[] data = new byte[16384];
@@ -79,22 +144,22 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       buffer.flush();
       inputStream.close();
       byte[] imageBytes = buffer.toByteArray();
-      
+
       BitmapFactory.Options options = new BitmapFactory.Options();
       options.inJustDecodeBounds = true;
       myBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
-      
+
       if (mWidth < 1 && mHeight < 1) {
         mWidth = options.outWidth;
         mHeight = options.outHeight;
       }
-      
+
       // Resize
       float density = Resources.getSystem().getDisplayMetrics().density;
       int newWidth = (int)(mWidth * density);
       int newHeight = (int)(mHeight * density);
 
-      
+
       /**
        * http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap#7468636
        */
@@ -104,7 +169,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       float ratioY = newHeight / (float) options.outHeight;
       float middleX = newWidth / 2.0f;
       float middleY = newHeight / 2.0f;
-      
+
       options.inJustDecodeBounds = false;
       //options.inSampleSize = (int) Math.max(ratioX, ratioY);
       options.outWidth = newWidth;
@@ -121,7 +186,9 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       myBitmap.recycle();
       canvas = null;
       imageBytes = null;
-      
+
+      addBitmapToMemoryCache(cacheKey, scaledBitmap);
+
       return scaledBitmap;
     } catch (Exception e) {
       e.printStackTrace();

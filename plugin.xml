@@ -34,6 +34,8 @@
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="GoogleMaps">
                 <param name="android-package" value="plugin.google.maps.GoogleMaps" />
+                <param name="onload" value="true" />
+                <param name="onreset" value="true" />
             </feature>
             <feature name="External">
                 <param name="android-package" value="plugin.google.maps.External" />
@@ -71,7 +73,7 @@
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
-              android:name="com.google.android.maps.v2.API_KEY"
+              android:name="com.google.android.geo.API_KEY"
               android:value="$API_KEY_FOR_ANDROID" />
             <!-- Google Play Services SDK -->
             <meta-data android:name="com.google.android.gms.version"
@@ -106,6 +108,8 @@
         <config-file target="config.xml" parent="/*">
             <feature name="GoogleMaps">
                 <param name="ios-package" value="GoogleMaps" />
+                <param name="onload" value="true" />
+                <param name="onreset" value="true" />
             </feature>
             <feature name="External">
                 <param name="ios-package" value="External" />
@@ -188,11 +192,15 @@
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
+
+        <preference name="NSLocationWhenInUseUsageDescription" default="Show your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
-            <string>Show your location on the map</string>
+            <string>$NSLocationWhenInUseUsageDescription</string>
         </config-file>
+
+        <preference name="NSLocationAlwaysUsageDescription" default="Trace your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-            <string>Trace your location on the map</string>
+            <string>$NSLocationAlwaysUsageDescription</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
@@ -210,6 +218,6 @@
           </array>
         </config-file>
 
-        <dependency id="com.googlemaps.ios" url="https://bitbucket.org/nightstomp/cordova-plugin-googlemaps-sdk.git" commit="master" />
+        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk" branch="master"  />
     </platform>
 </plugin>

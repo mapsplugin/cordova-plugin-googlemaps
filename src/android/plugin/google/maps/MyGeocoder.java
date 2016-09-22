@@ -22,19 +22,29 @@ import com.google.android.gms.maps.model.LatLngBounds;
 public class MyGeocoder extends CordovaPlugin {
 
   @Override
-  public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {
+  public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) {
     try {
-      Method method = this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
-      if (method.isAccessible() == false) {
+      final Method method = this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+      if (!method.isAccessible()) {
         method.setAccessible(true);
       }
-      method.invoke(this, args, callbackContext);
+      cordova.getThreadPool().submit(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            method.invoke(MyGeocoder.this, args, callbackContext);
+          } catch (Exception e) {
+            Log.e("CordovaLog", "An error occurred", e);
+            callbackContext.error(e.toString());
+          }
+        }
+      });
       return true;
-    } catch (Exception e) {
-      Log.e("CordovaLog", "An error occurred", e);
-      callbackContext.error(e.toString());
-      return false;
-    }
+  } catch (Exception e) {
+    Log.e("CordovaLog", "An error occurred", e);
+    callbackContext.error(e.toString());
+    return false;
+  }
   }
   
   @SuppressWarnings("unused")
@@ -48,10 +58,10 @@ public class MyGeocoder extends CordovaPlugin {
     Iterator<Address> iterator = null;
 
     // Geocoding
-    if (opts.has("position") == false && opts.has("address")) {
+    if (!opts.has("position") && opts.has("address")) {
       String address = opts.getString("address");
       if (opts.has("bounds")) {
-        if (opts.has("bounds") == true) {
+        if (opts.has("bounds")) {
           JSONArray points = opts.getJSONArray("bounds");
           LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
           try {
@@ -84,7 +94,7 @@ public class MyGeocoder extends CordovaPlugin {
     }
 
     // Reverse geocoding
-    if (opts.has("position") && opts.has("address") == false) {
+    if (opts.has("position") && !opts.has("address")) {
       JSONObject position = opts.getJSONObject("position");
       try {
         geoResults = geocoder.getFromLocation(

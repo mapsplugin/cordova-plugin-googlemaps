@@ -3,11 +3,7 @@ Cordova GoogleMaps plugin for iOS and Android
 This plugin is a thin wrapper for [Google Maps Android SDK v2](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
 
-###Chat
-Join our online chat at<br> 
-[![Gitter](https://badges.gitter.im/cordova-plugin-googlemaps.svg)](https://gitter.im/nightstomp/cordova-plugin-googlemaps)
-
-
+-----
 
 ###Quick install
 
@@ -38,6 +34,8 @@ The SDK-Plugin won't be uninstalled automatically and you will stuck on an old v
 ###Information
 Cordova-iOS 4.X and WKWebView are supported from version 1.4+. There is currently no npm package of 1.4 (work in progress) but if you need this feature, you can grab our master, which is currently considered stable. (We're still fixing bugs, so you might wait until we push 1.4.0 to npm)
 
+-----
+
 ###Last release information
 
 **v.1.3.9 - 04/Jan/2016**
@@ -57,8 +55,68 @@ I recommend to set settings for Crosswalk to 15+ and remove android-platform (`c
  - with BITCODE support
  - fixed blank map problems
 
-
 Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes).
+
+-----
+
+###Quick demo
+![](https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/demo.gif)
+
+```html
+<script type="text/javascript">
+var map;
+document.addEventListener("deviceready", function() {
+  var div = document.getElementById("map_canvas");
+
+  // Initialize the map view
+  map = plugin.google.maps.Map.getMap(div);
+
+  // Wait until the map is ready status.
+  map.addEventListener(plugin.google.maps.event.MAP_READY, onMapReady);
+}, false);
+
+function onMapReady() {
+  var button = document.getElementById("button");
+  button.addEventListener("click", onBtnClicked);
+}
+
+function onBtnClicked() {
+
+  // Move to the position with animation
+  map.animateCamera({
+    target: {lat: 37.422359, lng: -122.084344},
+    zoom: 17,
+    tilt: 60,
+    bearing: 140,
+    duration: 5000
+  }, function() {
+
+    // Add a maker
+    map.addMarker({
+      position: {lat: 37.422359, lng: -122.084344},
+      title: "Welecome to \n" +
+             "Cordova GoogleMaps plugin for iOS and Android",
+      snippet: "This plugin is awesome!",
+      animation: plugin.google.maps.Animation.BOUNCE
+    }, function(marker) {
+
+      // Show the info window
+      marker.showInfoWindow();
+
+      // Catch the click event
+      marker.on(plugin.google.maps.event.INFO_CLICK, function() {
+
+        // To do something...
+        alert("Hello world!");
+
+      });
+    });
+  });
+}
+</script>
+```
+
+-----
 
 ###Documentation
 
@@ -80,7 +138,6 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
     * Just re-install this plugin
 * [Terms of Services](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Terms-of-Services)
 * [Map](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Map)
-  * ![img](https://raw.github.com/wf9a5m75/phonegap-googlemaps-plugin/Images/screencapture/animateCamera.gif)
   * Create a map
   * Create a map with initialize options
   * Change the map type
@@ -90,7 +147,6 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
   * Get my location
   * Map Class Reference
 * [Marker](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Marker)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8LUxUWmhsQmgxVVU/marker5.gif)
   * Add a Marker
   * Show InfoWindow
   * Add a marker with multiple line
@@ -107,34 +163,28 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
   * Create a flat marker
   * Marker Class Reference
 * [Circle](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Circle)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/circle.png)
   * Add a circle
   * callback
   * Remove the circle
   * Circle Class Reference
 * [Polyline](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polyline)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/polyline.png)
   * Add a polyline
   * callback
   * Remove the polyline
   * Polyline Class Reference
 * [Polygon](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Polygon)
-  * ![img](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/polygon.png)
   * Add a polygon
   * Click a polygon
   * callback
   * Remove the polygon
   * Polygon Class Reference
 * [Tile Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/TileOverlay)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/tileOverlay.gif" height="250">
   * Add a tile overlay
   * TileOverlay Class Reference
 * [Ground Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/GroundOverlay)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/ground_overlay.gif" height="250">
   * Add a ground overlay
   * GroundOverlay Class Reference
 * [Kml Overlay](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/KmlOverlay)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/kml-polygon.gif" height="250">
   * Add a kml overlay
   * KmlOverlay Class Reference
 * [LatLng](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/LatLng)
@@ -148,34 +198,40 @@ Check out the [release notes](https://github.com/wf9a5m75/phonegap-googlemaps-pl
 * [Location](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Location)
   * Location Class Reference
 * [Geocoder](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Geocoder)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/geocoding.gif" height="250">
   * Geocoding
   * Reverse geocoding
   * Geocoder Class Reference
 * [BaseClass](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/BaseClass)
   * BaseClass Reference
 * [External Service](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/External-Service)
-  * <img src="https://googledrive.com/host/0B1ECfqTCcLE8MU1CbUtNVUs3TEE/direction.gif" height="250">
   * Launch the navigation application
 
 -----
 
-##Crosswalk
-If you want to use crosswalk (highly recommended), just follow this easy documentation. 
-[Install Plugin with Crosswalk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
-
-
 ### Join the official community
 New versions will be announced through the official community. Stay tuned!
 
-<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://googledrive.com/host/0B1ECfqTCcLE8Yng5OUZIY3djUzg/Red-signin_Google_base_44dp.png" height="40"></a>
+<a href="https://plus.google.com/u/0/communities/117427728522929652853"><img src="https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/Red-signin_Google_base_44dp.png" height="40"></a>
+
+###Chat
+Join our online chat at<br>
+[![Gitter](https://badges.gitter.im/cordova-plugin-googlemaps.svg)](https://gitter.im/nightstomp/cordova-plugin-googlemaps)
+
+-----
+
+##Crosswalk
+If you want to use crosswalk, just follow this easy documentation.
+[Install Plugin with Crosswalk](https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
+
+-----
 
 
 ###Example
-You can see an example here. [phonegap-googlemaps-plugin-v1.2.5.apk](https://googledrive.com/host/0B1ECfqTCcLE8TXlUQUJXMmJpNGs/phonegap-googlemaps-plugin-v1.2.5.apk)
+You can see an example here. **(old version, but all most the same)**
+
+ [phonegap-googlemaps-plugin-v1.2.5.apk](https://googledrive.com/host/0B1ECfqTCcLE8TXlUQUJXMmJpNGs/phonegap-googlemaps-plugin-v1.2.5.apk)
 ```bash
 $> adb install phonegap-googlemaps-plugin-v1.2.5.apk
 ```
 
-![image](https://googledrive.com/host/0B1ECfqTCcLE8ZVQ1djlWNThISEE/example-v1.2.5.gif)
-
+![image](https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/example-v1.2.5.gif)

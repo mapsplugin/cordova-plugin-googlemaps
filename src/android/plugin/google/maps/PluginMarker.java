@@ -666,20 +666,25 @@ public class PluginMarker extends MyPlugin {
       this.sendNoResult(callbackContext);
     }
   }
-  
+
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
     if (iconProperty.containsKey("iconHue")) {
-      float hue = iconProperty.getFloat("iconHue");
-      marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
-      callback.onPostExecute(marker);
+      cordova.getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          float hue = iconProperty.getFloat("iconHue");
+          marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
+          callback.onPostExecute(marker);
+        }
+      });
       return;
     }
-    
+
     String iconUrl = iconProperty.getString("url");
-    if (iconUrl.indexOf("://") == -1 && 
-        iconUrl.startsWith("/") == false && 
-        iconUrl.startsWith("www/") == false &&
-        iconUrl.startsWith("data:image") == false) {
+    if (iconUrl.indexOf("://") == -1 &&
+      iconUrl.startsWith("/") == false &&
+      iconUrl.startsWith("www/") == false &&
+      iconUrl.startsWith("data:image") == false) {
       iconUrl = "./" + iconUrl;
     }
     if (iconUrl.indexOf("./") == 0) {
@@ -687,32 +692,34 @@ public class PluginMarker extends MyPlugin {
       currentPage = currentPage.replaceAll("[^\\/]*$", "");
       iconUrl = iconUrl.replace("./", currentPage);
     }
-    
+
     if (iconUrl == null) {
       callback.onPostExecute(marker);
       return;
     }
-    
-    
+
+
     if (iconUrl.indexOf("http") != 0) {
-      
+      //----------------------------------
+      // Load icon from local file
+      //----------------------------------
       AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
         @Override
         protected Bitmap doInBackground(Void... params) {
           String iconUrl = iconProperty.getString("url");
-          
+
           Bitmap image = null;
           if (iconUrl.indexOf("cdvfile://") == 0) {
             CordovaResourceApi resourceApi = webView.getResourceApi();
             iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
           }
-          
+
           if (iconUrl.indexOf("data:image/") == 0 && iconUrl.indexOf(";base64,") > -1) {
             String[] tmp = iconUrl.split(",");
             image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
           } else if (iconUrl.indexOf("file://") == 0 &&
-              iconUrl.indexOf("file:///android_asset/") == -1) {
+            iconUrl.indexOf("file:///android_asset/") == -1) {
             iconUrl = iconUrl.replace("file://", "");
             File tmp = new File(iconUrl);
             if (tmp.exists()) {
@@ -743,13 +750,13 @@ public class PluginMarker extends MyPlugin {
           if (image == null) {
             return null;
           }
-          
+
           Boolean isResized = false;
           if (iconProperty.containsKey("size") == true) {
             Object size = iconProperty.get("size");
-            
+
             if (Bundle.class.isInstance(size)) {
-              
+
               Bundle sizeInfo = (Bundle)size;
               int width = sizeInfo.getInt("width", 0);
               int height = sizeInfo.getInt("height", 0);
@@ -762,73 +769,77 @@ public class PluginMarker extends MyPlugin {
             }
           }
 
-          if (isResized == false) {
+          if (!isResized) {
             image = PluginUtil.scaleBitmapForDevice(image);
           }
+
           return image;
         }
-        
+
         @Override
         protected void onPostExecute(Bitmap image) {
           if (image == null) {
             callback.onPostExecute(marker);
             return;
           }
-          
-          try {
-              //TODO: check image is valid?
-              BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-              marker.setIcon(bitmapDescriptor);
-              
-              // Save the information for the anchor property
-              Bundle imageSize = new Bundle();
-              imageSize.putInt("width", image.getWidth());
-              imageSize.putInt("height", image.getHeight());
-              PluginMarker.this.objects.put("imageSize", imageSize);
-              
-    
-              // The `anchor` of the `icon` property
-              if (iconProperty.containsKey("anchor") == true) {
-                double[] anchor = iconProperty.getDoubleArray("anchor");
-                if (anchor.length == 2) {
-                  _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-                }
-              }
-              
-    
-              // The `anchor` property for the infoWindow
-              if (iconProperty.containsKey("infoWindowAnchor") == true) {
-                double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-                if (anchor.length == 2) {
-                  _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-                }
-              }
-    
-              callback.onPostExecute(marker);
-            
-              } catch (java.lang.IllegalArgumentException e) {
-                        Log.e("GoogleMapsPlugin","PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
-                        //e.printStackTrace();
 
-             }
+          try {
+            //TODO: check image is valid?
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+            marker.setIcon(bitmapDescriptor);
+
+            // Save the information for the anchor property
+            Bundle imageSize = new Bundle();
+            imageSize.putInt("width", image.getWidth());
+            imageSize.putInt("height", image.getHeight());
+            PluginMarker.this.objects.put("imageSize", imageSize);
+
+
+            // The `anchor` of the `icon` property
+            if (iconProperty.containsKey("anchor") == true) {
+              double[] anchor = iconProperty.getDoubleArray("anchor");
+              if (anchor.length == 2) {
+                _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+
+            // The `anchor` property for the infoWindow
+            if (iconProperty.containsKey("infoWindowAnchor") == true) {
+              double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+              if (anchor.length == 2) {
+                _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+            callback.onPostExecute(marker);
+
+          } catch (java.lang.IllegalArgumentException e) {
+            Log.e("GoogleMapsPlugin","PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
+            //e.printStackTrace();
+
+          }
         }
       };
       task.execute();
-          
-          
+
+
       return;
     }
-    
+
     if (iconUrl.indexOf("http") == 0) {
+      //----------------------------------
+      // Load icon from on the internet
+      //----------------------------------
       int width = -1;
       int height = -1;
       if (iconProperty.containsKey("size") == true) {
-          
+
         Bundle sizeInfo = (Bundle) iconProperty.get("size");
         width = sizeInfo.getInt("width", width);
         height = sizeInfo.getInt("height", height);
       }
-      
+
       AsyncLoadImage task = new AsyncLoadImage(width, height, new AsyncLoadImageInterface() {
 
         @Override
@@ -837,16 +848,16 @@ public class PluginMarker extends MyPlugin {
             callback.onPostExecute(marker);
             return;
           }
-            
+
           BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
           marker.setIcon(bitmapDescriptor);
-          
+
           // Save the information for the anchor property
           Bundle imageSize = new Bundle();
           imageSize.putInt("width", image.getWidth());
           imageSize.putInt("height", image.getHeight());
           PluginMarker.this.objects.put("imageSize", imageSize);
-          
+
           // The `anchor` of the `icon` property
           if (iconProperty.containsKey("anchor") == true) {
             double[] anchor = iconProperty.getDoubleArray("anchor");
@@ -866,11 +877,14 @@ public class PluginMarker extends MyPlugin {
           image.recycle();
           callback.onPostExecute(marker);
         }
-        
+
       });
       task.execute(iconUrl);
+
+
     }
   }
+
 
   private void _setIconAnchor(Marker marker, double anchorX, double anchorY, int imageWidth, int imageHeight) {
     // The `anchor` of the `icon` property
