@@ -125,14 +125,15 @@
         return;
     }
 
-    [self.executeQueue addOperationWithBlock: ^{
+    //[self.executeQueue addOperationWithBlock: ^{
+      //[self resizeMap:command];
+      
       [self setOptions:command];
 
-      [self resizeMap:command];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }];
+      //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    //}];
 }
 
 
@@ -462,131 +463,110 @@
 
 }
 
--(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
-  [self.executeQueue addOperationWithBlock:^{
-      NSDictionary *json = [command.arguments objectAtIndex:0];
+-(void)_changeCameraPosition: (NSString*)action params:(NSDictionary *)json command:(CDVInvokedUrlCommand *)command {
 
-      int bearing;
-      if ([json valueForKey:@"bearing"]) {
-        bearing = (int)[[json valueForKey:@"bearing"] integerValue];
-      } else {
-        bearing = self.mapCtrl.map.camera.bearing;
+  int bearing;
+  if ([json valueForKey:@"bearing"]) {
+    bearing = (int)[[json valueForKey:@"bearing"] integerValue];
+  } else {
+    bearing = self.mapCtrl.map.camera.bearing;
+  }
+
+  double angle;
+  if ([json valueForKey:@"tilt"]) {
+    angle = [[json valueForKey:@"tilt"] doubleValue];
+  } else {
+    angle = self.mapCtrl.map.camera.viewingAngle;
+  }
+
+  double zoom;
+  if ([json valueForKey:@"zoom"]) {
+    zoom = [[json valueForKey:@"zoom"] doubleValue];
+  } else {
+    zoom = self.mapCtrl.map.camera.zoom;
+  }
+
+
+  NSDictionary *latLng = nil;
+  float latitude;
+  float longitude;
+  GMSCameraPosition *cameraPosition;
+  GMSCoordinateBounds *cameraBounds = nil;
+
+
+  if ([json objectForKey:@"target"]) {
+    NSString *targetClsName = [[json objectForKey:@"target"] className];
+    NSLog(@"--->targetClsName =%@", targetClsName);
+    if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
+      //--------------------------------------------
+      //  cameraPosition.target = [
+      //    new plugin.google.maps.LatLng(),
+      //    ...
+      //    new plugin.google.maps.LatLng()
+      //  ]
+      //---------------------------------------------
+      int i = 0;
+      NSArray *latLngList = [json objectForKey:@"target"];
+      GMSMutablePath *path = [GMSMutablePath path];
+      for (i = 0; i < [latLngList count]; i++) {
+        latLng = [latLngList objectAtIndex:i];
+        latitude = [[latLng valueForKey:@"lat"] floatValue];
+        longitude = [[latLng valueForKey:@"lng"] floatValue];
+        [path addLatitude:latitude longitude:longitude];
       }
-
-      double angle;
-      if ([json valueForKey:@"tilt"]) {
-        angle = [[json valueForKey:@"tilt"] doubleValue];
-      } else {
-        angle = self.mapCtrl.map.camera.viewingAngle;
+      float scale = 1;
+      if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+        scale = [[UIScreen mainScreen] scale];
       }
+      [[UIScreen mainScreen] scale];
 
-      double zoom;
-      if ([json valueForKey:@"zoom"]) {
-        zoom = [[json valueForKey:@"zoom"] doubleValue];
-      } else {
-        zoom = self.mapCtrl.map.camera.zoom;
-      }
+      cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+      //CLLocationCoordinate2D center = cameraBounds.center;
 
+      cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
+NSLog(@"---> camera = %@", cameraPosition);
+    } else {
+      //------------------------------------------------------------------
+      //  cameraPosition.target = new plugin.google.maps.LatLng();
+      //------------------------------------------------------------------
 
-      NSDictionary *latLng = nil;
-      float latitude;
-      float longitude;
-      GMSCameraPosition *cameraPosition;
-      GMSCoordinateBounds *cameraBounds = nil;
+      latLng = [json objectForKey:@"target"];
+      latitude = [[latLng valueForKey:@"lat"] floatValue];
+      longitude = [[latLng valueForKey:@"lng"] floatValue];
 
+      cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
+                                          longitude:longitude
+                                          zoom:zoom
+                                          bearing:bearing
+                                          viewingAngle:angle];
+    }
+  } else {
+    cameraPosition = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
+                                        longitude:self.mapCtrl.map.camera.target.longitude
+                                        zoom:zoom
+                                        bearing:bearing
+                                        viewingAngle:angle];
+  }
 
-      if ([json objectForKey:@"target"]) {
-        NSString *targetClsName = [[json objectForKey:@"target"] className];
-        if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
-          //--------------------------------------------
-          //  cameraPosition.target = [
-          //    new plugin.google.maps.LatLng(),
-          //    ...
-          //    new plugin.google.maps.LatLng()
-          //  ]
-          //---------------------------------------------
-          int i = 0;
-          NSArray *latLngList = [json objectForKey:@"target"];
-          GMSMutablePath *path = [GMSMutablePath path];
-          for (i = 0; i < [latLngList count]; i++) {
-            latLng = [latLngList objectAtIndex:i];
-            latitude = [[latLng valueForKey:@"lat"] floatValue];
-            longitude = [[latLng valueForKey:@"lng"] floatValue];
-            [path addLatitude:latitude longitude:longitude];
-          }
-          float scale = 1;
-          if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-            scale = [[UIScreen mainScreen] scale];
-          }
-          [[UIScreen mainScreen] scale];
+  float duration = 5.0f;
+  if ([json objectForKey:@"duration"]) {
+    duration = [[json objectForKey:@"duration"] floatValue] / 1000;
+  }
 
-          cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-          //CLLocationCoordinate2D center = cameraBounds.center;
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
 
-          cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      if ([action  isEqual: @"animateCamera"]) {
+          [CATransaction begin]; {
+            [CATransaction setAnimationDuration: duration];
 
-        } else {
-          //------------------------------------------------------------------
-          //  cameraPosition.target = new plugin.google.maps.LatLng();
-          //------------------------------------------------------------------
+            //[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+            [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
 
-          latLng = [json objectForKey:@"target"];
-          latitude = [[latLng valueForKey:@"lat"] floatValue];
-          longitude = [[latLng valueForKey:@"lng"] floatValue];
-
-          cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
-                                              longitude:longitude
-                                              zoom:zoom
-                                              bearing:bearing
-                                              viewingAngle:angle];
-        }
-      } else {
-        cameraPosition = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
-                                            longitude:self.mapCtrl.map.camera.target.longitude
-                                            zoom:zoom
-                                            bearing:bearing
-                                            viewingAngle:angle];
-      }
-
-      float duration = 5.0f;
-      if ([json objectForKey:@"duration"]) {
-        duration = [[json objectForKey:@"duration"] floatValue] / 1000;
-      }
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          if ([action  isEqual: @"animateCamera"]) {
-              [CATransaction begin]; {
-                [CATransaction setAnimationDuration: duration];
-
-                //[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-                [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
-
-                [CATransaction setCompletionBlock:^{
-                  if (self.isRemoved) {
-                    return;
-                  }
-                  if (cameraBounds != nil){
-
-                    GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
-                                                        longitude:cameraBounds.center.longitude
-                                                        zoom:self.mapCtrl.map.camera.zoom
-                                                        bearing:[[json objectForKey:@"bearing"] doubleValue]
-                                                        viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
-
-                    [self.mapCtrl.map setCamera:cameraPosition2];
-                  }
-                  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                }];
-
-                [self.mapCtrl.map animateToCameraPosition: cameraPosition];
-              }[CATransaction commit];
-          }
-
-          if ([action  isEqual: @"moveCamera"]) {
-              [self.mapCtrl.map setCamera:cameraPosition];
-
+            [CATransaction setCompletionBlock:^{
+              if (self.isRemoved) {
+                return;
+              }
               if (cameraBounds != nil){
 
                 GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
@@ -595,18 +575,42 @@
                                                     bearing:[[json objectForKey:@"bearing"] doubleValue]
                                                     viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
 
-                if (self.isRemoved) {
-                  return;
-                }
                 [self.mapCtrl.map setCamera:cameraPosition2];
               }
-
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-          }
-      }];
+            }];
 
+            [self.mapCtrl.map animateToCameraPosition: cameraPosition];
+          }[CATransaction commit];
+      }
+
+      if ([action  isEqual: @"moveCamera"]) {
+          [self.mapCtrl.map setCamera:cameraPosition];
+
+          if (cameraBounds != nil){
+
+            GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
+                                                longitude:cameraBounds.center.longitude
+                                                zoom:self.mapCtrl.map.camera.zoom
+                                                bearing:[[json objectForKey:@"bearing"] doubleValue]
+                                                viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
+
+            if (self.isRemoved) {
+              return;
+            }
+            [self.mapCtrl.map setCamera:cameraPosition2];
+          }
+
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }
   }];
 
+}
+-(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
+  [self.executeQueue addOperationWithBlock:^{
+      NSDictionary *json = [command.arguments objectAtIndex:0];
+      [self _changeCameraPosition:action params:json command:command];
+  }];
 }
 
 
@@ -732,130 +736,6 @@
         initOptions = [command.arguments objectAtIndex:1];
       }
 
-
-    /*
-      if ([initOptions valueForKey:@"camera"]) {
-        // camera position
-        NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-        NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-        [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
-        [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
-
-        if (cameraOpts) {
-          NSDictionary *latLngJSON = [cameraOpts objectForKey:@"latLng"];
-          [latLng setObject:[NSNumber numberWithFloat:[[latLngJSON valueForKey:@"lat"] floatValue]] forKey:@"lat"];
-          [latLng setObject:[NSNumber numberWithFloat:[[latLngJSON valueForKey:@"lng"] floatValue]] forKey:@"lng"];
-        }
-        GMSCameraPosition *camera = [GMSCameraPosition
-                                      cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
-                                      longitude: [[latLng valueForKey:@"lng"] floatValue]
-                                      zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
-                                      bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                      viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-
-        self.map.camera = camera;
-      }
-    */
-
-      if ([initOptions valueForKey:@"camera"]) {
-        //------------------------------------------
-        // Case : The camera option is specified.
-        //------------------------------------------
-        NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-        NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-        [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lat"];
-        [latLng setObject:[NSNumber numberWithFloat:0.0f] forKey:@"lng"];
-        float latitude;
-        float longitude;
-        GMSCameraPosition *camera;
-        GMSCoordinateBounds *cameraBounds = nil;
-
-        //--------------------------
-        // MapOptions.camera.target
-        //--------------------------
-        if ([cameraOpts objectForKey:@"target"]) {
-          NSString *targetClsName = [[cameraOpts objectForKey:@"target"] className];
-          //-----------------------------------
-          // MapOptions.camera.target = [
-          //   new plugin.google.maps.LatLng(...),
-          //   ...,
-          //   new plugin.google.maps.LatLng(...)
-          // ];
-          //-----------------------------------
-          if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
-            int i = 0;
-            NSArray *latLngList = [cameraOpts objectForKey:@"target"];
-            GMSMutablePath *path = [GMSMutablePath path];
-            for (i = 0; i < [latLngList count]; i++) {
-              latLng = [latLngList objectAtIndex:i];
-              latitude = [[latLng valueForKey:@"lat"] floatValue];
-              longitude = [[latLng valueForKey:@"lng"] floatValue];
-              [path addLatitude:latitude longitude:longitude];
-            }
-
-            cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-
-            CLLocationCoordinate2D center = cameraBounds.center;
-
-            camera = [GMSCameraPosition cameraWithLatitude:center.latitude
-                                                longitude:center.longitude
-                                                zoom:self.mapCtrl.map.camera.zoom
-                                                bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                                viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-
-          } else {
-            //------------------------------------------------------------------
-            // MapOptions.camera.target = new plugin.google.maps.LatLng(...)
-            //------------------------------------------------------------------
-            latLng = [cameraOpts objectForKey:@"target"];
-            latitude = [[latLng valueForKey:@"lat"] floatValue];
-            longitude = [[latLng valueForKey:@"lng"] floatValue];
-
-            camera = [GMSCameraPosition cameraWithLatitude:latitude
-                                                longitude:longitude
-                                                zoom:[[cameraOpts valueForKey:@"zoom"] floatValue]
-                                                bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                                viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-          }
-        } else {
-          //------------------------------------------------------------------
-          // MapOptions.camera = {
-          //    lat: ...,
-          //    lng: ...,
-          //    zoom: ...,
-          //    bearing: ...,
-          //    tilt: ...
-          // }
-          //------------------------------------------------------------------
-          camera = [GMSCameraPosition
-                                  cameraWithLatitude: [[latLng valueForKey:@"lat"] floatValue]
-                                  longitude: [[latLng valueForKey:@"lng"] floatValue]
-                                  zoom: [[cameraOpts valueForKey:@"zoom"] floatValue]
-                                  bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                  viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-        }
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            self.mapCtrl.map.camera = camera;
-
-            if (cameraBounds != nil){
-              float scale = 1;
-              if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-                scale = [[UIScreen mainScreen] scale];
-              }
-              [[UIScreen mainScreen] scale];
-
-              [self.mapCtrl.map moveCamera:[GMSCameraUpdate fitBounds:cameraBounds withPadding:10 * scale]];
-              GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
-                                                  longitude:cameraBounds.center.longitude
-                                                  zoom:self.mapCtrl.map.camera.zoom
-                                                  bearing:[[cameraOpts objectForKey:@"bearing"] doubleValue]
-                                                  viewingAngle:[[cameraOpts objectForKey:@"tilt"] doubleValue]];
-
-              [self.mapCtrl.map setCamera:cameraPosition2];
-            }
-        }];
-      }
-
       BOOL isEnabled = NO;
       //controls
       NSDictionary *controls = [initOptions objectForKey:@"controls"];
@@ -964,6 +844,19 @@
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.mapCtrl.map setNeedsDisplay];
       }];
+    
+      
+      if ([initOptions valueForKey:@"camera"]) {
+          //------------------------------------------
+          // Case : The camera option is specified.
+          //------------------------------------------
+          NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
+          [self _changeCameraPosition:@"moveCamera" params:cameraOpts command:command];
+      } else {
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }
+
   }];
 
 }
@@ -981,6 +874,9 @@
 
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.mapCtrl.map setPadding:padding];
+          
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
   }];
 }
