@@ -110,43 +110,15 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       @SuppressLint("NewApi")
       public void run() {
 
-      /*
-          try {
-            Method method = webView.getClass().getMethod("getSettings");
-            WebSettings settings = (WebSettings)method.invoke(null);
-            settings.setRenderPriority(RenderPriority.HIGH);
-            settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-       */
         if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())){
           view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         }
 
-        /*
-         * Deprecated the below code for old Android versions.
-         *
-        if (VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
-          activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        }
-        if (VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-          Log.d(TAG, "Google Maps Plugin reloads the browser to change the background color as transparent.");
-          view.setBackgroundColor(0);
-            try {
-              Method method = webView.getClass().getMethod("reload");
-              method.invoke(webView);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-        }
-        */
 
         // ------------------------------
         // Check of Google Play Services
         // ------------------------------
-        int checkGooglePlayServices = GooglePlayServicesUtil
-            .isGooglePlayServicesAvailable(activity);
+        int checkGooglePlayServices = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
 
         Log.d(TAG, "----> checkGooglePlayServices = " + (ConnectionResult.SUCCESS == checkGooglePlayServices));
 
@@ -159,82 +131,69 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
            */
           Log.e(TAG, "---Google Play Services is not available: " + GooglePlayServicesUtil.getErrorString(checkGooglePlayServices));
 
-          //Dialog errorDialog = null;
-          //try {
-          //  //errorDialog = GooglePlayServicesUtil.getErrorDialog(checkGooglePlayServices, activity, 1);
-          //  Method getErrorDialogMethod = GooglePlayServicesUtil.class.getMethod("getErrorDialog", int.class, Activity.class, int.class);
-          //  errorDialog = (Dialog)getErrorDialogMethod.invoke(null, checkGooglePlayServices, activity, 1);
-          //} catch (Exception e) {
-          //  e.printStackTrace();
-          //};
+          boolean isNeedToUpdate = false;
 
-          //if (errorDialog != null) {
-          //  errorDialog.show();
-          //} else {
-            boolean isNeedToUpdate = false;
+          String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
+          switch (checkGooglePlayServices) {
+            case ConnectionResult.DEVELOPER_ERROR:
+              errorMsg = "The application is misconfigured. This error is not recoverable and will be treated as fatal. The developer should look at the logs after this to determine more actionable information.";
+              break;
+            case ConnectionResult.INTERNAL_ERROR:
+              errorMsg = "An internal error of Google Play Services occurred. Please retry, and it should resolve the problem.";
+              break;
+            case ConnectionResult.INVALID_ACCOUNT:
+              errorMsg = "You attempted to connect to the service with an invalid account name specified.";
+              break;
+            case ConnectionResult.LICENSE_CHECK_FAILED:
+              errorMsg = "The application is not licensed to the user. This error is not recoverable and will be treated as fatal.";
+              break;
+            case ConnectionResult.NETWORK_ERROR:
+              errorMsg = "A network error occurred. Please retry, and it should resolve the problem.";
+              break;
+            case ConnectionResult.SERVICE_DISABLED:
+              errorMsg = "The installed version of Google Play services has been disabled on this device. Please turn on Google Play Services.";
+              break;
+            case ConnectionResult.SERVICE_INVALID:
+              errorMsg = "The version of the Google Play services installed on this device is not authentic. Please update the Google Play Services from Google Play Store.";
+              isNeedToUpdate = true;
+              break;
+            case ConnectionResult.SERVICE_MISSING:
+              errorMsg = "Google Play services is missing on this device. Please install the Google Play Services.";
+              isNeedToUpdate = true;
+              break;
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+              errorMsg = "The installed version of Google Play services is out of date. Please update the Google Play Services from Google Play Store.";
+              isNeedToUpdate = true;
+              break;
+            case ConnectionResult.SIGN_IN_REQUIRED:
+              errorMsg = "You attempted to connect to the service but you are not signed in. Please check the Google Play Services configuration";
+              break;
+            default:
+              isNeedToUpdate = true;
+              break;
+          }
 
-            String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
-            switch (checkGooglePlayServices) {
-              case ConnectionResult.DEVELOPER_ERROR:
-                errorMsg = "The application is misconfigured. This error is not recoverable and will be treated as fatal. The developer should look at the logs after this to determine more actionable information.";
-                break;
-              case ConnectionResult.INTERNAL_ERROR:
-                errorMsg = "An internal error of Google Play Services occurred. Please retry, and it should resolve the problem.";
-                break;
-              case ConnectionResult.INVALID_ACCOUNT:
-                errorMsg = "You attempted to connect to the service with an invalid account name specified.";
-                break;
-              case ConnectionResult.LICENSE_CHECK_FAILED:
-                errorMsg = "The application is not licensed to the user. This error is not recoverable and will be treated as fatal.";
-                break;
-              case ConnectionResult.NETWORK_ERROR:
-                errorMsg = "A network error occurred. Please retry, and it should resolve the problem.";
-                break;
-              case ConnectionResult.SERVICE_DISABLED:
-                errorMsg = "The installed version of Google Play services has been disabled on this device. Please turn on Google Play Services.";
-                break;
-              case ConnectionResult.SERVICE_INVALID:
-                errorMsg = "The version of the Google Play services installed on this device is not authentic. Please update the Google Play Services from Google Play Store.";
-                isNeedToUpdate = true;
-                break;
-              case ConnectionResult.SERVICE_MISSING:
-                errorMsg = "Google Play services is missing on this device. Please install the Google Play Services.";
-                isNeedToUpdate = true;
-                break;
-              case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-                errorMsg = "The installed version of Google Play services is out of date. Please update the Google Play Services from Google Play Store.";
-                isNeedToUpdate = true;
-                break;
-              case ConnectionResult.SIGN_IN_REQUIRED:
-                errorMsg = "You attempted to connect to the service but you are not signed in. Please check the Google Play Services configuration";
-                break;
-              default:
-                isNeedToUpdate = true;
-                break;
-            }
-
-            final boolean finalIsNeedToUpdate = isNeedToUpdate;
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-            alertDialogBuilder
-                .setMessage(errorMsg)
-                .setCancelable(false)
-                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog,int id) {
-                    dialog.dismiss();
-                    if (finalIsNeedToUpdate) {
-                      try {
-                        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
-                      } catch (android.content.ActivityNotFoundException anfe) {
-                        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
-                      }
+          final boolean finalIsNeedToUpdate = isNeedToUpdate;
+          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+          alertDialogBuilder
+              .setMessage(errorMsg)
+              .setCancelable(false)
+              .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,int id) {
+                  dialog.dismiss();
+                  if (finalIsNeedToUpdate) {
+                    try {
+                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                    } catch (android.content.ActivityNotFoundException anfe) {
+                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
                     }
                   }
-                });
-            AlertDialog alertDialog = alertDialogBuilder.create();
+                }
+              });
+          AlertDialog alertDialog = alertDialogBuilder.create();
 
-            // show it
-            alertDialog.show();
-          //}
+          // show it
+          alertDialog.show();
 
           Log.e(TAG, "Google Play Services is not available.");
           return;

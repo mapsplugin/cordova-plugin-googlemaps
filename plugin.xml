@@ -284,11 +284,15 @@
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
+
+        <preference name="NSLocationAlwaysUsageDescription" default="Show your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
-            <string>Show your location on the map</string>
+            <string>$NSLocationWhenInUseUsageDescription</string>
         </config-file>
+
+        <preference name="NSLocationAlwaysUsageDescription" default="Trace your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-            <string>Trace your location on the map</string>
+            <string>$NSLocationAlwaysUsageDescription</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">

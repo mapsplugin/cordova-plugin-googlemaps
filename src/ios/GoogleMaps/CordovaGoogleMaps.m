@@ -166,7 +166,6 @@
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
 
-NSLog(@"---->getMap");
     dispatch_async(dispatch_get_main_queue(), ^{
 
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
@@ -220,7 +219,6 @@ NSLog(@"---->getMap");
                                             viewingAngle:0];
 
         pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
-NSLog(@"---->map = %@", pluginMap.mapCtrl.map);
         pluginMap.mapCtrl.map.delegate = mapCtrl;
         pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
