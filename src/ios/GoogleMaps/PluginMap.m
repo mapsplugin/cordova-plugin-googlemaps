@@ -124,16 +124,19 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-
-    //[self.executeQueue addOperationWithBlock: ^{
-      //[self resizeMap:command];
+    
+    NSDictionary *initOptions = [command.arguments objectAtIndex:1];
+    if ([initOptions valueForKey:@"camera"]) {
+  
+      double delayInSeconds = 1;
+      dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+      dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self _setOptions:initOptions command:command];
+      });
+    } else {
+      [self _setOptions:initOptions command:command];
+    }
       
-      [self setOptions:command];
-
-
-      //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    //}];
 }
 
 
@@ -724,17 +727,9 @@ NSLog(@"---> camera = %@", cameraPosition);
   }];
 }
 
-- (void)setOptions:(CDVInvokedUrlCommand *)command {
-  [self.executeQueue addOperationWithBlock:^{
+- (void)_setOptions:(NSDictionary *)initOptions command:(CDVInvokedUrlCommand *)command {
 
-      NSDictionary *initOptions;
-      if ([command.arguments count] == 1) {
-        // case of setOptions(options); and getMap(options)
-        initOptions = [command.arguments objectAtIndex:0];
-      } else {
-        // case of getMap(div, options);
-        initOptions = [command.arguments objectAtIndex:1];
-      }
+  [self.executeQueue addOperationWithBlock:^{
 
       BOOL isEnabled = NO;
       //controls
@@ -856,9 +851,13 @@ NSLog(@"---> camera = %@", cameraPosition);
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }
-
   }];
 
+};
+
+- (void)setOptions:(CDVInvokedUrlCommand *)command {
+  NSDictionary *initOptions = [command.arguments objectAtIndex:0];
+  [self _setOptions:initOptions command:command];
 }
 
 
