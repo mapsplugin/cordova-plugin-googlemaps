@@ -2139,8 +2139,17 @@ LatLngBounds.prototype.contains = function(latLng) {
     if (!("lat" in latLng) || !("lng" in latLng)) {
         return false;
     }
-    return (latLng.lat >= this.southwest.lat) && (latLng.lat <= this.northeast.lat) &&
-        (latLng.lng >= this.southwest.lng) && (latLng.lng <= this.northeast.lng);
+    var SWLat = this.southwest.lat,
+        NELat = this.northeast.lat,
+        SWLng = this.southwest.lng,
+        NELng = this.northeast.lng;
+
+    if (SWLng > NELng) {
+        return (latLng.lat >= SWLat) && (latLng.lat <= NELat) &&
+            (((SWLng < latLng.lng) && (latLng.lng < 180)) || ((-180 < latLng.lng) && (latLng.lng < NELng)));
+    }
+    return (latLng.lat >= SWLat) && (latLng.lat <= NELat) &&
+        (latLng.lng >= SWLng) && (latLng.lng <= NELng);
 };
 
 /*****************************************************************************
