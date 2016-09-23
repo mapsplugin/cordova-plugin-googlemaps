@@ -98,11 +98,12 @@
       // disable default clickable feature.
       polyline.tappable = NO;
 
+      NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
+      [self.objects setObject:polyline forKey: id];
+      polyline.title = id;
+      
       // Run the below code on background thread.
       [self.executeQueue addOperationWithBlock:^{
-          NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
-          [self.objects setObject:polyline forKey: id];
-          polyline.title = id;
 
           //---------------------------
           // Result for JS

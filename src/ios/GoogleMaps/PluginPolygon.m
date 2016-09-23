@@ -127,13 +127,13 @@
       // disable default clickable feature.
       polygon.tappable = NO;
 
+      // Register polygon to the overlayManager.
+      NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
+      polygon.title = id;
+      [self.objects setObject:polygon forKey: id];
 
       // Run the below code on background thread.
       [self.executeQueue addOperationWithBlock:^{
-          // Register polygon to the overlayManager.
-          NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
-          polygon.title = id;
-          [self.objects setObject:polygon forKey: id];
         
           //---------------------------
           // Keep the properties
