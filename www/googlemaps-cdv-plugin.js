@@ -122,10 +122,11 @@ var saltHash = Math.floor(Math.random() * Date.now());
                   MAPS[mapId].refreshLayout();
               });
           }
-          // Stop timer when user does not touch the app and no changes are occurred 1500ms (50ms * 30times).
+          // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
+          // (50ms * 5times + 200ms * 5times).
           // This save really the battery life significantly.
-          if (idlingCnt < 30) {
-            setTimeout(putHtmlElements, 50);
+          if (idlingCnt < 10) {
+            setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
           }
           isChecking = false;
           return;
