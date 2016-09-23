@@ -23,6 +23,7 @@
 - (void)setPoints:(CDVInvokedUrlCommand*)command;
 - (void)setZIndex:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
+- (void)setClickable:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand*)command;
 - (void)setGeodesic:(CDVInvokedUrlCommand*)command;
 

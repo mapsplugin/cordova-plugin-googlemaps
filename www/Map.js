@@ -605,8 +605,9 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     var self = this;
     groundOverlayOptions = groundOverlayOptions || {};
     groundOverlayOptions.url = groundOverlayOptions.url || null;
-    groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
-    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
+    groundOverlayOptions.clickable = groundOverlayOptions.clickable == true;
+    groundOverlayOptions.visible = common.defaultTrueOption(groundOverlayOptions.visible);
+    groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
 
     cordova.exec(function(result) {
@@ -637,7 +638,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (typeof tilelayerOptions.tileUrlFormat !== "string") {
         throw new Error("tilelayerOptions.tileUrlFormat should set a string.");
     }
-    tilelayerOptions.visible = tilelayerOptions.visible === undefined ? true : tilelayerOptions.visible;
+    tilelayerOptions.visible = common.defaultTrueOption(tilelayerOptions.visible);
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
     tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
@@ -682,8 +683,9 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
         polygonOptions.fillColor = common.HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
-    polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible === true;
-    polygonOptions.zIndex = polygonOptions.zIndex || 2;
+    polygonOptions.visible = common.defaultTrueOption(polygonOptions.visible);
+    polygonOptions.clickable = polygonOptions.clickable === true;
+    polygonOptions.zIndex = polygonOptions.zIndex || 0;
     polygonOptions.geodesic = polygonOptions.geodesic === true;
 
     cordova.exec(function(result) {
@@ -715,8 +717,9 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     }
     polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
     polylineOptions.width = polylineOptions.width || 10;
-    polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
-    polylineOptions.zIndex = polylineOptions.zIndex || 4;
+    polylineOptions.visible = common.defaultTrueOption(polylineOptions.visible);
+    polylineOptions.clickable = polylineOptions.clickable === true;
+    polylineOptions.zIndex = polylineOptions.zIndex || 0;
     polylineOptions.geodesic = polylineOptions.geodesic === true;
 
     cordova.exec(function(result) {
@@ -745,8 +748,8 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.strokeColor = common.HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000", 0.75);
     circleOptions.fillColor = common.HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
     circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
-    circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
-    circleOptions.zIndex = circleOptions.zIndex || 3;
+    circleOptions.visible = common.defaultTrueOption(circleOptions.visible);
+    circleOptions.zIndex = circleOptions.zIndex || 0;
     circleOptions.radius = circleOptions.radius || 1;
 
     cordova.exec(function(result) {
@@ -779,13 +782,13 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
-    markerOptions.snippet = markerOptions.snippet || undefined;
-    markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
-    markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
+    markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
+    markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
+    markerOptions.visible = common.defaultTrueOption(markerOptions.visible);
     markerOptions.flat = markerOptions.flat === true;
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
-    markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
+    markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
     if ("styles" in markerOptions) {
         markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
 

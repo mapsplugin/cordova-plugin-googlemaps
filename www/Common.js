@@ -441,6 +441,9 @@ var HTML_COLORS = {
     "yellowgreen": "#9acd32"
 };
 
+function defaultTrueOption(value) {
+  return value === undefined ? true : value === true;
+}
 
 module.exports = {
     deleteFromObject: deleteFromObject,
@@ -451,5 +454,6 @@ module.exports = {
     parseBoolean: parseBoolean,
     HLStoRGB: HLStoRGB,
     HTMLColor2RGBA: HTMLColor2RGBA,
-    isHTMLColorString: isHTMLColorString
+    isHTMLColorString: isHTMLColorString,
+    defaultTrueOption: defaultTrueOption
 };

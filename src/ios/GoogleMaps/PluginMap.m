@@ -792,11 +792,6 @@
               longitude = [[latLng valueForKey:@"lng"] floatValue];
               [path addLatitude:latitude longitude:longitude];
             }
-            float scale = 1;
-            if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-              scale = [[UIScreen mainScreen] scale];
-            }
-            [[UIScreen mainScreen] scale];
 
             cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
 

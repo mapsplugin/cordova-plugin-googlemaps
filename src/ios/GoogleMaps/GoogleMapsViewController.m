@@ -68,7 +68,7 @@
   GMSCoordinateBounds *bounds;
   GMSPath *path;
   NSArray *keys;
-  NSNumber *isVisible, *geodesic;
+  NSNumber *isVisible, *geodesic, *isClickable;
   NSMutableArray *boundsHitList = [NSMutableArray array];
   int i,j;
   float zIndex, maxZIndex;
@@ -89,14 +89,23 @@
     keys = [plugin.objects allKeys];
     for (j = 0; j < [keys count]; j++) {
       key = [keys objectAtIndex:j];
-      if ([key containsString:@"polyline_property"]) {
+      if ([key containsString:@"property"]) {
         properties = [plugin.objects objectForKey:key];
-        isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
         
         // Skip invisible polyline
+        isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
         if ([isVisible boolValue] == NO) {
+          //NSLog(@"--> key = %@, isVisible = NO", key);
           continue;
         }
+        
+        // Skip isClickable polyline
+        isClickable = (NSNumber *)[properties objectForKey:@"isClickable"];
+        if ([isClickable boolValue] == NO) {
+          //NSLog(@"--> key = %@, isClickable = NO", key);
+          continue;
+        }
+        //NSLog(@"--> key = %@, isVisible = YES, isClickable = YES", key);
         
         // Skip if the click point is out of the polyline bounds.
         bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
@@ -120,7 +129,10 @@
   for (i = 0; i < [boundsHitList count]; i++) {
     key = [boundsHitList objectAtIndex:i];
     properties = [plugin.objects objectForKey:key];
-    zIndex = [[properties objectForKey:key] floatValue];
+    
+    
+    zIndex = [[properties objectForKey:@"zIndex"] floatValue];
+    NSLog(@"--> zIndex = %f, maxZIndex = %f", zIndex, maxZIndex);
     if (zIndex < maxZIndex) {
       continue;
     }
