@@ -524,7 +524,7 @@
       cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
       //CLLocationCoordinate2D center = cameraBounds.center;
 
-      scale *= 10;
+      scale *= 20;
       cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(scale, scale, scale, scale)];
     } else {
       //------------------------------------------------------------------
