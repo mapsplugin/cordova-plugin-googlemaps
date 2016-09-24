@@ -29,46 +29,19 @@ var Polyline = function(map, polylineId, polylineOptions) {
         writable: false
     });
 
-    var mvcArray;
-    if (polylineOptions.points && typeof polylineOptions.points.getArray === "function") {
-        mvcArray = new BaseArrayClass(polylineOptions.points.getArray());
-        polylineOptions.points.on('set_at', function(index) {
-            var position = polylineOptions.points.getAt(index);
-            var value = {
-              lat: position.lat,
-              lng: position.lng
-            };
-            mvcArray.setAt(index, value);
-        });
-        polylineOptions.points.on('insert_at', function(index) {
-            var position = polylineOptions.points.getAt(index);
-            var value = {
-              lat: position.lat,
-              lng: position.lng
-            };
-            mvcArray.insertAt(index, value);
-        });
-        polylineOptions.points.on('remove_at', function(index) {
-            mvcArray.removeAt(index);
-        });
-
-    } else {
-        mvcArray = new BaseArrayClass(polylineOptions.points.slice(0));
-    }
-    mvcArray.on('set_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, mvcArray.getAt(index)]);
+    var pointsProperty = common.createMvcArray(polylineOptions.points);
+    pointsProperty.on('set_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, pointsProperty.getAt(index)]);
     });
-
-    mvcArray.on('insert_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, mvcArray.getAt(index)]);
+    pointsProperty.on('insert_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, pointsProperty.getAt(index)]);
     });
-
-    mvcArray.on('remove_at', function(index) {
+    pointsProperty.on('remove_at', function(index) {
         cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polylineId, index]);
     });
 
     Object.defineProperty(self, "points", {
-        value: mvcArray,
+        value: pointsProperty,
         writable: false
     });
 

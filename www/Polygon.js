@@ -29,46 +29,20 @@ var Polygon = function(map, polygonId, polygonOptions) {
         writable: false
     });
 
-    var mvcArray;
-    if (polygonOptions.points && typeof polygonOptions.points.getArray === "function") {
-        mvcArray = new BaseArrayClass(polygonOptions.points.getArray());
-        polygonOptions.points.on('set_at', function(index) {
-            var position = polygonOptions.points.getAt(index);
-            var value = {
-              lat: position.lat,
-              lng: position.lng
-            };
-            mvcArray.setAt(index, value);
-        });
-        polygonOptions.points.on('insert_at', function(index) {
-            var position = polygonOptions.points.getAt(index);
-            var value = {
-              lat: position.lat,
-              lng: position.lng
-            };
-            mvcArray.insertAt(index, value);
-        });
-        polygonOptions.points.on('remove_at', function(index) {
-            mvcArray.removeAt(index);
-        });
 
-    } else {
-        mvcArray = new BaseArrayClass(polygonOptions.points.slice(0));
-    }
-    mvcArray.on('set_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, mvcArray.getAt(index)]);
+    var pointsProperty = common.createMvcArray(polygonOptions.points);
+    pointsProperty.on('set_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, pointsProperty.getAt(index)]);
     });
-
-    mvcArray.on('insert_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, mvcArray.getAt(index)]);
+    pointsProperty.on('insert_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, pointsProperty.getAt(index)]);
     });
-
-    mvcArray.on('remove_at', function(index) {
+    pointsProperty.on('remove_at', function(index) {
         cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
     });
 
     Object.defineProperty(self, "points", {
-        value: mvcArray,
+        value: pointsProperty,
         writable: false
     });
     var ignores = ["map", "id", "hashCode", "type", "points"];

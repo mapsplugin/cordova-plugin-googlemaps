@@ -1,3 +1,4 @@
+var BaseArrayClass = require('./BaseArrayClass');
 //---------------------------
 // Convert HTML color to RGB
 //---------------------------
@@ -442,7 +443,27 @@ var HTML_COLORS = {
 };
 
 function defaultTrueOption(value) {
-  return value === undefined ? true : value === true;
+    return value === undefined ? true : value === true;
+}
+
+function createMvcArray(array) {
+    var mvcArray;
+    if (array && typeof array.getArray === "function") {
+        mvcArray = new BaseArrayClass(array.getArray());
+        array.on('set_at', function(index) {
+            mvcArray.setAt(index, array.getAt(index));
+        });
+        array.on('insert_at', function(index) {
+            mvcArray.insertAt(index, array.getAt(index));
+        });
+        array.on('remove_at', function(index) {
+            mvcArray.removeAt(index);
+        });
+
+    } else {
+        mvcArray = new BaseArrayClass(array.slice(0));
+    }
+    return mvcArray;
 }
 
 module.exports = {
@@ -455,5 +476,6 @@ module.exports = {
     HLStoRGB: HLStoRGB,
     HTMLColor2RGBA: HTMLColor2RGBA,
     isHTMLColorString: isHTMLColorString,
-    defaultTrueOption: defaultTrueOption
+    defaultTrueOption: defaultTrueOption,
+    createMvcArray: createMvcArray
 };
