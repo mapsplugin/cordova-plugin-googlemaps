@@ -127,14 +127,13 @@
     
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
     if ([initOptions valueForKey:@"camera"]) {
-  
-      double delayInSeconds = 1;
-      dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-      dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self _setOptions:initOptions command:command];
-      });
+        double delayInSeconds = 1;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self _setOptions:initOptions command:command];
+        });
     } else {
-      [self _setOptions:initOptions command:command];
+        [self _setOptions:initOptions command:command];
     }
       
 }
@@ -499,7 +498,6 @@
 
   if ([json objectForKey:@"target"]) {
     NSString *targetClsName = [[json objectForKey:@"target"] className];
-    NSLog(@"--->targetClsName =%@", targetClsName);
     if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
       //--------------------------------------------
       //  cameraPosition.target = [
@@ -526,8 +524,8 @@
       cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
       //CLLocationCoordinate2D center = cameraBounds.center;
 
-      cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(10 * scale, 10* scale, 10* scale, 10* scale)];
-NSLog(@"---> camera = %@", cameraPosition);
+      scale *= 10;
+      cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(scale, scale, scale, scale)];
     } else {
       //------------------------------------------------------------------
       //  cameraPosition.target = new plugin.google.maps.LatLng();
@@ -572,8 +570,8 @@ NSLog(@"---> camera = %@", cameraPosition);
               }
               if (cameraBounds != nil){
 
-                GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
-                                                    longitude:cameraBounds.center.longitude
+                GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
+                                                    longitude:self.mapCtrl.map.camera.target.longitude
                                                     zoom:self.mapCtrl.map.camera.zoom
                                                     bearing:[[json objectForKey:@"bearing"] doubleValue]
                                                     viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
@@ -592,8 +590,8 @@ NSLog(@"---> camera = %@", cameraPosition);
 
           if (cameraBounds != nil){
 
-            GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:cameraBounds.center.latitude
-                                                longitude:cameraBounds.center.longitude
+            GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
+                                                longitude:self.mapCtrl.map.camera.target.longitude
                                                 zoom:self.mapCtrl.map.camera.zoom
                                                 bearing:[[json objectForKey:@"bearing"] doubleValue]
                                                 viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
