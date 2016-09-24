@@ -12,18 +12,18 @@ var BaseArrayClass = function(array) {
        }
     }
 
-    self.forEach = function(callback) {
+    BaseArrayClass.prototype.forEach = function(callback) {
         if (typeof callback !== "function" || _array.length === 0) {
             return;
         }
         _array.forEach(callback);
     };
 
-    self.empty = function() {
+    BaseArrayClass.prototype.empty = function() {
         _array = [];
     };
 
-    self.push = function(value, noNotify) {
+    BaseArrayClass.prototype.push = function(value, noNotify) {
         _array.push(value);
         if (noNotify !== true) {
           self.trigger("insert_at", _array.length - 1);
@@ -31,42 +31,41 @@ var BaseArrayClass = function(array) {
         return _array.length;
     };
 
-    self.insertAt = function(index, value) {
+    BaseArrayClass.prototype.insertAt = function(index, value) {
         _array.splice(index, 0, value);
         self.trigger("insert_at", index);
     };
 
-    self.getArray = function() {
+    BaseArrayClass.prototype.getArray = function() {
         return _array.slice(0);
     };
 
-    self.getAt = function(index) {
+    BaseArrayClass.prototype.getAt = function(index) {
         return _array[index];
     };
 
-    self.setAt = function(index, value) {
+    BaseArrayClass.prototype.setAt = function(index, value) {
         var prev = _array[index];
         _array[index] = value;
         self.trigger("set_at", index, prev);
     };
 
 
-    self.removeAt = function(index) {
+    BaseArrayClass.prototype.removeAt = function(index) {
         var value = _array.slice(index, 1);
         self.trigger("remove_at", index, value);
         return value;
     };
 
-    self.pop = function() {
+    BaseArrayClass.prototype.pop = function() {
         var value = _array.pop();
         self.trigger("remove_at", _array.length, value);
         return value;
     };
 
-    self.getLength = function() {
+    BaseArrayClass.prototype.getLength = function() {
         return _array.length;
     };
-
     return self;
 };
 
