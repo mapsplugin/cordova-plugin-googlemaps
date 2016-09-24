@@ -594,7 +594,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, kmlOverlay, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', common.deleteFromObject(kmlOverlayOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions]);
 
 };
 
@@ -618,13 +618,10 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
             delete self.OVERLAYS[result.id];
             groundOverlay = undefined;
         });
-        if (typeof groundOverlayOptions.onClick === "function") {
-            groundOverlay.on(event.OVERLAY_CLICK, groundOverlayOptions.onClick);
-        }
         if (typeof callback === "function") {
             callback.call(self, groundOverlay, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', common.deleteFromObject(groundOverlayOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions]);
 
 };
 
@@ -654,7 +651,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, tileOverlay, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', common.deleteFromObject(tilelayerOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', tilelayerOptions]);
 };
 
 //-------------
@@ -680,7 +677,9 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     });
     polygonOptions.strokeColor = common.HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
     if (polygonOptions.fillColor) {
-        polygonOptions.fillColor = common.HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+        polygonOptions.fillColor = common.HTMLColor2RGBA(polygonOptions.fillColor || "#FF000080", 0.75);
+    } else {
+        polygonOptions.fillColor = common.HTMLColor2RGBA("#FF000080", 0.75);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = common.defaultTrueOption(polygonOptions.visible);
@@ -696,13 +695,10 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
             delete self.OVERLAYS[result.id];
             polygon = undefined;
         });
-        if (typeof polygonOptions.onClick === "function") {
-            polygon.on(event.OVERLAY_CLICK, polygonOptions.onClick);
-        }
         if (typeof callback === "function") {
             callback.call(self, polygon, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", common.deleteFromObject(polygonOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", polygonOptions]);
 };
 
 //-------------
@@ -734,7 +730,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, polyline, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', common.deleteFromObject(polylineOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions]);
 };
 
 //-------------
@@ -761,13 +757,10 @@ Map.prototype.addCircle = function(circleOptions, callback) {
             delete self.OVERLAYS[result.id];
             circle = undefined;
         });
-        if (typeof circleOptions.onClick === "function") {
-            circle.on(event.OVERLAY_CLICK, circleOptions.onClick);
-        }
         if (typeof callback === "function") {
             callback.call(self, circle, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['Circle', common.deleteFromObject(circleOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions]);
 };
 
 //-------------
@@ -816,17 +809,10 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             delete self.OVERLAYS[result.id];
             marker = undefined;
         });
-
-        if (typeof markerClick === "function") {
-            marker.on(event.MARKER_CLICK, markerClick);
-        }
-        if (typeof infoClick === "function") {
-            marker.on(event.INFO_CLICK, infoClick);
-        }
         if (typeof callback === "function") {
             callback.call(self, marker, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['Marker', common.deleteFromObject(markerOptions, 'function')]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
 };
 
 /*****************************************************************************
