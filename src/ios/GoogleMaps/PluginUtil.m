@@ -143,6 +143,42 @@ static char CAAnimationGroupBlockKey;
 @end
 @implementation PluginUtil
 
++ (BOOL)isPolygonContains:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
+  //-------------------------------------------------------------------
+  // Intersects using the Winding Number Algorithm
+  // http://www.nttpc.co.jp/company/r_and_d/technology/number_algorithm.html
+  //-------------------------------------------------------------------
+  int wn = 0;
+  GMSVisibleRegion visibleRegion = projection.visibleRegion;
+  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
+  CGPoint sw = [projection pointForCoordinate:bounds.southWest];
+  
+  CGPoint touchPoint = [projection pointForCoordinate:coordinate];
+  touchPoint.y = sw.y - touchPoint.y;
+  double vt;
+  
+  for (int i = 0; i < [path count] - 1; i++) {
+    CGPoint a = [projection pointForCoordinate:[path coordinateAtIndex:i]];
+    a.y = sw.y - a.y;
+    CGPoint b = [projection pointForCoordinate:[path coordinateAtIndex:(i + 1)]];
+    b.y = sw.y - b.y;
+    
+    if ((a.y <= touchPoint.y) && (b.y > touchPoint.y)) {
+      vt = (touchPoint.y - a.y) / (b.y - a.y);
+      if (touchPoint.x < (a.x + (vt * (b.x - a.x)))) {
+        wn++;
+      }
+    } else if ((a.y > touchPoint.y) && (b.y <= touchPoint.y)) {
+      vt = (touchPoint.y - a.y) / (b.y - a.y);
+      if (touchPoint.x < (a.x + (vt * (b.x - a.x)))) {
+        wn--;
+      }
+    }
+  }
+  
+  return (wn != 0);
+}
+
 + (BOOL)isPointOnTheLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
   //-------------------------------------------------------------------
   // Intersection for non-geodesic line

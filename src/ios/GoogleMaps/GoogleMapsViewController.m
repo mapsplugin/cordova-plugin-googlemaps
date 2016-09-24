@@ -109,7 +109,7 @@
         
         // Skip if the click point is out of the polyline bounds.
         bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
-        if ([bounds containsCoordinate:coordinate] == YES) {
+        if ([bounds containsCoordinate:coordinate]) {
           [boundsHitList addObject:key];
         }
       }
@@ -155,15 +155,24 @@
         }
       }
     }
+    
+    if ([key hasPrefix:@"polygon_"]) {
+      path = (GMSPath *)[properties objectForKey:@"mutablePath"];
+      if ([PluginUtil isPolygonContains:path coordinate:coordinate projection:self.map.projection]) {
+        maxZIndex = zIndex;
+        hitKey = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
+        continue;
+      }
+    }
   }
   
-  if ([hitKey hasPrefix:@"polyline_"]) {
-    NSLog(@"---> polyline_click");
-    [self triggerOverlayEvent:@"polyline_click" overlayId:hitKey coordinate:coordinate];
-  } else {
-    NSLog(@"---> map_click");
-    [self triggerMapEvent:@"map_click" coordinate:coordinate];
+  NSString *eventName = @"map";
+  if (hitKey != nil) {
+    eventName= [hitKey stringByReplacingOccurrencesOfString:@"property_" withString:@""];
   }
+  eventName = [NSString stringWithFormat:@"%@_click", eventName];
+  [self triggerOverlayEvent:eventName overlayId:hitKey coordinate:coordinate];
+  
 }
 /**
  * @callback map long_click

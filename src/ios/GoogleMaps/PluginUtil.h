@@ -66,6 +66,7 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 
 
 @interface PluginUtil : NSObject
++ (BOOL)isPolygonContains:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection;
 + (BOOL)isPointOnTheLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection;
 + (BOOL)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate threshold:(double)threshold;
 + (BOOL)isInDebugMode;

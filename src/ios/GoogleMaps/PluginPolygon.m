@@ -96,7 +96,6 @@
 
       // Create the polygon, and assign it to the map on UI thread.
       GMSPolygon *polygon = [GMSPolygon polygonWithPath:mutablePath];
-      polygon.title = @"polygon";
 
       if (holePaths != nil) {
         polygon.holes = holePaths;
@@ -129,11 +128,11 @@
 
       // Register polygon to the overlayManager.
       NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
-      polygon.title = id;
       [self.objects setObject:polygon forKey: id];
 
       // Run the below code on background thread.
       [self.executeQueue addOperationWithBlock:^{
+          polygon.title = id;
         
           //---------------------------
           // Keep the properties
