@@ -29,11 +29,11 @@
   NSString *key;
   for (int i = 0; i < [keys count]; i++) {
       key = [keys objectAtIndex:i];
-      if ([key hasPrefix:@"polyline_property"]) {
+      if ([key hasPrefix:@"polygon_property"]) {
         key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-        GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:key];
-        polyline.map = nil;
-        polyline = nil;
+        GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:key];
+        polygon.map = nil;
+        polygon = nil;
       }
       [self.objects removeObjectForKey:key];
   }
@@ -42,7 +42,7 @@
   key = nil;
   keys = nil;
   
-  NSString *pluginId = [NSString stringWithFormat:@"%@-polyline", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-polygon", self.mapCtrl.mapId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -168,6 +168,110 @@
 
   });
 
+
+}
+
+
+
+-(void)removePointAt:(CDVInvokedUrlCommand *)command
+{
+
+  [self.executeQueue addOperationWithBlock:^{
+  
+      NSString *polygonKey = [command.arguments objectAtIndex:0];
+      NSInteger index = [[command.arguments objectAtIndex:1] integerValue];
+      GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
+    
+      // Get properties
+      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+    
+      GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
+    
+      [mutablePath removeCoordinateAtIndex:index];
+    
+      // update the property
+      [properties setObject:mutablePath forKey:@"mutablePath"];
+      [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
+      [self.objects setObject:properties forKey:propertyId];
+    
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polygon setPath:mutablePath];
+
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+  }];
+
+}
+-(void)insertPointAt:(CDVInvokedUrlCommand *)command
+{
+
+  [self.executeQueue addOperationWithBlock:^{
+  
+      NSString *polygonKey = [command.arguments objectAtIndex:0];
+      NSInteger index = [[command.arguments objectAtIndex:1] integerValue];
+      NSDictionary *latLng = [command.arguments objectAtIndex:2];
+      GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
+    
+      // Get properties
+      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+    
+      GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
+    
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      [mutablePath insertCoordinate:position atIndex:index];
+    
+      // update the property
+      [properties setObject:mutablePath forKey:@"mutablePath"];
+      [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
+      [self.objects setObject:properties forKey:propertyId];
+    
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polygon setPath:mutablePath];
+
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+  }];
+
+}
+
+-(void)setPointAt:(CDVInvokedUrlCommand *)command
+{
+
+  [self.executeQueue addOperationWithBlock:^{
+  
+      NSString *polygonKey = [command.arguments objectAtIndex:0];
+      NSInteger index = [[command.arguments objectAtIndex:1] integerValue];
+      NSDictionary *latLng = [command.arguments objectAtIndex:2];
+      GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
+    
+      // Get properties
+      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+    
+      GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
+    
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      [mutablePath replaceCoordinateAtIndex:index withCoordinate:position];
+    
+      // update the property
+      [properties setObject:mutablePath forKey:@"mutablePath"];
+      [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
+      [self.objects setObject:properties forKey:propertyId];
+    
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polygon setPath:mutablePath];
+
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+  }];
 
 }
 

@@ -2,7 +2,8 @@ var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
     common = require('./Common'),
-    BaseClass = require('./BaseClass');
+    BaseClass = require('./BaseClass'),
+    BaseArrayClass = require('./BaseArrayClass');
 
 /*****************************************************************************
  * Polygon Class
@@ -27,7 +28,50 @@ var Polygon = function(map, polygonId, polygonOptions) {
         value: "Polygon",
         writable: false
     });
-    var ignores = ["map", "id", "hashCode", "type"];
+
+    var mvcArray;
+    if (polygonOptions.points && typeof polygonOptions.points.getArray === "function") {
+        mvcArray = new BaseArrayClass(polygonOptions.points.getArray());
+        polygonOptions.points.on('set_at', function(index) {
+            var position = polygonOptions.points.getAt(index);
+            var value = {
+              lat: position.lat,
+              lng: position.lng
+            };
+            mvcArray.setAt(index, value);
+        });
+        polygonOptions.points.on('insert_at', function(index) {
+            var position = polygonOptions.points.getAt(index);
+            var value = {
+              lat: position.lat,
+              lng: position.lng
+            };
+            mvcArray.insertAt(index, value);
+        });
+        polygonOptions.points.on('remove_at', function(index) {
+            mvcArray.removeAt(index);
+        });
+
+    } else {
+        mvcArray = new BaseArrayClass(polygonOptions.points.slice(0));
+    }
+    mvcArray.on('set_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, mvcArray.getAt(index)]);
+    });
+
+    mvcArray.on('insert_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, mvcArray.getAt(index)]);
+    });
+
+    mvcArray.on('remove_at', function(index) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
+    });
+
+    Object.defineProperty(self, "points", {
+        value: mvcArray,
+        writable: false
+    });
+    var ignores = ["map", "id", "hashCode", "type", "points"];
     for (var key in polygonOptions) {
         if (ignores.indexOf(key) === -1) {
             self.set(key, polygonOptions[key]);
@@ -54,20 +98,24 @@ Polygon.prototype.getMap = function() {
 Polygon.prototype.getId = function() {
     return this.id;
 };
+
 Polygon.prototype.setPoints = function(points) {
-    this.set('points', points);
+    var mvcArray = this.points;
+    mvcArray.empty();
+
     var i,
         path = [];
+
     for (i = 0; i < points.length; i++) {
-        path.push({
+        mvcArray.push({
             "lat": points[i].lat,
             "lng": points[i].lng
-        });
+        }, true);
     }
-    exec(null, this.errorHandler, this.getPluginName(), 'setPoints', [this.getId(), path]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setPoints', [this.getId(), mvcArray.getArray()]);
 };
 Polygon.prototype.getPoints = function() {
-    return this.get("points");
+    return this.points;
 };
 Polygon.prototype.setHoles = function(holes) {
     argscheck.checkArgs('A', 'Polygon.setHoles', arguments);
