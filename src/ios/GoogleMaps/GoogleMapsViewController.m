@@ -166,12 +166,14 @@
     }
   }
   
-  NSString *eventName = @"map";
   if (hitKey != nil) {
-    eventName= [hitKey stringByReplacingOccurrencesOfString:@"property_" withString:@""];
+    NSString *eventName= [hitKey stringByReplacingOccurrencesOfString:@"property_" withString:@""];
+    eventName = [NSString stringWithFormat:@"%@_click", eventName];
+    [self triggerOverlayEvent:eventName overlayId:hitKey coordinate:coordinate];
+  } else {
+    [self triggerMapEvent:@"map_click" coordinate:coordinate];
   }
-  eventName = [NSString stringWithFormat:@"%@_click", eventName];
-  [self triggerOverlayEvent:eventName overlayId:hitKey coordinate:coordinate];
+  
   
 }
 /**
