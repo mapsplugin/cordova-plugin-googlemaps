@@ -132,7 +132,7 @@
     
     
     zIndex = [[properties objectForKey:@"zIndex"] floatValue];
-    NSLog(@"--> zIndex = %f, maxZIndex = %f", zIndex, maxZIndex);
+    //NSLog(@"--> zIndex = %f, maxZIndex = %f", zIndex, maxZIndex);
     if (zIndex < maxZIndex) {
       continue;
     }
@@ -167,8 +167,8 @@
   }
   
   if (hitKey != nil) {
-    NSString *eventName= [hitKey stringByReplacingOccurrencesOfString:@"property_" withString:@""];
-    eventName = [NSString stringWithFormat:@"%@_click", eventName];
+    NSArray *tmp = [hitKey componentsSeparatedByString:@"_"];
+    NSString *eventName = [NSString stringWithFormat:@"%@_click", [tmp objectAtIndex:0]];
     [self triggerOverlayEvent:eventName overlayId:hitKey coordinate:coordinate];
   } else {
     [self triggerMapEvent:@"map_click" coordinate:coordinate];

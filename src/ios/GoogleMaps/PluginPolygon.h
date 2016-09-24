@@ -17,10 +17,13 @@
 - (void)setFillColor:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeColor:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeWidth:(CDVInvokedUrlCommand*)command;
-- (void)setHoles:(CDVInvokedUrlCommand*)command;
+//- (void)setHoles:(CDVInvokedUrlCommand*)command;
 - (void)removePointAt:(CDVInvokedUrlCommand*)command;
 - (void)setPointAt:(CDVInvokedUrlCommand*)command;
 - (void)insertPointAt:(CDVInvokedUrlCommand*)command;
+- (void)setPointHoleAt:(CDVInvokedUrlCommand*)command;
+- (void)removePointHoleAt:(CDVInvokedUrlCommand*)command;
+- (void)insertHoleAt:(CDVInvokedUrlCommand*)command;
 - (void)setPoints:(CDVInvokedUrlCommand*)command;
 - (void)setZIndex:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;

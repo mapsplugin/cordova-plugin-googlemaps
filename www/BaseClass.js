@@ -42,10 +42,10 @@ var BaseClass = function() {
        _listeners[eventName] = _listeners[eventName] || [];
 
        var listener = function(e) {
-           if (!e.myself || e.myself !== self) {
-               return;
-           }
-           callback.apply(self, e.mydata);
+          if (!e.myself || e.myself !== self) {
+            return;
+          }
+          callback.apply(self, e.mydata);
        };
        document.addEventListener(eventName, listener, false);
        _listeners[eventName].push({

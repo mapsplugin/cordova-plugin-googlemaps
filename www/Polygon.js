@@ -29,7 +29,9 @@ var Polygon = function(map, polygonId, polygonOptions) {
         writable: false
     });
 
-
+    //--------------------------
+    // points property
+    //--------------------------
     var pointsProperty = common.createMvcArray(polygonOptions.points);
     pointsProperty.on('set_at', function(index) {
         cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, pointsProperty.getAt(index)]);
@@ -45,7 +47,47 @@ var Polygon = function(map, polygonId, polygonOptions) {
         value: pointsProperty,
         writable: false
     });
-    var ignores = ["map", "id", "hashCode", "type", "points"];
+    //--------------------------
+    // holes property
+    //--------------------------
+    var holesProperty = common.createMvcArray(polygonOptions.holes);
+    var _holes = common.createMvcArray(holesProperty.getArray());
+
+    holesProperty.on('set_at', function(index) {
+      _holes.setAt(index, holesProperty.get(index));
+    });
+    holesProperty.on('remove_at', function(index) {
+      _holes.removeAt(index);
+    });
+    holesProperty.on('insert_at', function(index) {
+      var array = holesProperty.getAt(index);
+      if (array && (array instanceof Array || Array.isArray(array))) {
+        array = common.createMvcArray(array);
+      }
+      array.on('insert_at', function(idx) {
+        var position = array.getAt(idx);
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, position]);
+      });
+      array.on('set_at', function(idx) {
+        var position = array.getAt(idx);
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, position]);
+      });
+      array.on('remove_at', function(idx) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
+      });
+
+      cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
+    });
+
+    Object.defineProperty(self, "holes", {
+        value: holesProperty,
+        writable: false
+    });
+
+    //--------------------------
+    // other properties
+    //--------------------------
+    var ignores = ["map", "id", "hashCode", "type", "points", "holes"];
     for (var key in polygonOptions) {
         if (ignores.indexOf(key) === -1) {
             self.set(key, polygonOptions[key]);
@@ -109,7 +151,7 @@ Polygon.prototype.setHoles = function(holes) {
     exec(null, this.errorHandler, this.getPluginName(), 'setHoles', [this.getId(), holes]);
 };
 Polygon.prototype.getHoles = function() {
-    return this.get("holes");
+    return this.holes;
 };
 Polygon.prototype.setFillColor = function(color) {
     this.set('fillColor', color);

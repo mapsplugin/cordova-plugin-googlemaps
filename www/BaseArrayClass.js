@@ -1,7 +1,7 @@
 var utils = require('cordova/utils'),
     BaseClass = require('./BaseClass');
 
-var BaseArrayClass = function(array) {
+function BaseArrayClass(array) {
     BaseClass.apply(this);
     var self = this;
     var _array = [];
@@ -12,18 +12,18 @@ var BaseArrayClass = function(array) {
        }
     }
 
-    BaseArrayClass.prototype.forEach = function(callback) {
+    self.forEach = function(callback) {
         if (typeof callback !== "function" || _array.length === 0) {
             return;
         }
         _array.forEach(callback);
     };
 
-    BaseArrayClass.prototype.empty = function() {
+    self.empty = function() {
         _array = [];
     };
 
-    BaseArrayClass.prototype.push = function(value, noNotify) {
+    self.push = function(value, noNotify) {
         _array.push(value);
         if (noNotify !== true) {
           self.trigger("insert_at", _array.length - 1);
@@ -31,43 +31,43 @@ var BaseArrayClass = function(array) {
         return _array.length;
     };
 
-    BaseArrayClass.prototype.insertAt = function(index, value) {
+    self.insertAt = function(index, value) {
         _array.splice(index, 0, value);
         self.trigger("insert_at", index);
     };
 
-    BaseArrayClass.prototype.getArray = function() {
+    self.getArray = function() {
         return _array.slice(0);
     };
 
-    BaseArrayClass.prototype.getAt = function(index) {
+    self.getAt = function(index) {
         return _array[index];
     };
 
-    BaseArrayClass.prototype.setAt = function(index, value) {
+    self.setAt = function(index, value) {
         var prev = _array[index];
         _array[index] = value;
         self.trigger("set_at", index, prev);
     };
 
 
-    BaseArrayClass.prototype.removeAt = function(index) {
+    self.removeAt = function(index) {
         var value = _array.slice(index, 1);
         self.trigger("remove_at", index, value);
         return value;
     };
 
-    BaseArrayClass.prototype.pop = function() {
+    self.pop = function() {
         var value = _array.pop();
         self.trigger("remove_at", _array.length, value);
         return value;
     };
 
-    BaseArrayClass.prototype.getLength = function() {
+    self.getLength = function() {
         return _array.length;
     };
     return self;
-};
+}
 
 utils.extend(BaseArrayClass, BaseClass);
 
