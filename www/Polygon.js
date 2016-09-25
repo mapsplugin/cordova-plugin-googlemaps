@@ -119,15 +119,12 @@ Polygon.prototype.setPoints = function(points) {
     var mvcArray = this.points;
     mvcArray.empty();
 
-    var i,
-        path = [];
-
-    for (i = 0; i < points.length; i++) {
-        mvcArray.push({
-            "lat": points[i].lat,
-            "lng": points[i].lng
-        });
-    }
+    points.forEach(function(point) {
+      mvcArray.push({
+          "lat": point.lat,
+          "lng": point.lng
+      });
+    });
 };
 Polygon.prototype.getPoints = function() {
     return this.points;

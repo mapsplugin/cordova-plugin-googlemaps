@@ -20,8 +20,7 @@ function BaseArrayClass(array) {
     };
 
     self.empty = function() {
-        var cnt = _array.length;
-        for (var i = 0; i < cnt; i++) {
+        for (var i = 0; i < array.length; i++) {
             self.removeAt(0);
         }
     };

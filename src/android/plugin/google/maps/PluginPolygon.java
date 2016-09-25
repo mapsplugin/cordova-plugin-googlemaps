@@ -270,9 +270,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         String propertyId = "polygon_path_" + polygon.getId();
         final ArrayList<LatLng> path = (ArrayList<LatLng>)self.objects.get(propertyId);
-
-        Log.d("Polygon", "---> index = " + index + ", size = " + path.size());
-        path.remove(index);
+        if (path.size() > 0) {
+            path.remove(index);
+        }
         self.objects.put(propertyId, path);
 
         //-----------------------------------
