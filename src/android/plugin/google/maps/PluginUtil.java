@@ -61,6 +61,15 @@ public class PluginUtil {
     return true;
   }
 
+  public static LatLngBounds getBoundsFromPath(List<LatLng> path) {
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+    for (LatLng aPath : path) {
+      builder.include(aPath);
+    }
+    return builder.build();
+  }
+
   public static String getAbsolutePathFromCDVFilePath(CordovaResourceApi resourceApi, String cdvFilePath) {
     if (cdvFilePath.indexOf("cdvfile://") != 0) {
       return null;
@@ -127,8 +136,8 @@ public class PluginUtil {
     return Color.argb(arrayRGBA.getInt(3), arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2));
   }
 
-  public static List<LatLng> JSONArray2LatLngList(JSONArray points) throws JSONException  {
-    List<LatLng> path = new ArrayList<LatLng>();
+  public static ArrayList<LatLng> JSONArray2LatLngList(JSONArray points) throws JSONException  {
+    ArrayList<LatLng> path = new ArrayList<LatLng>();
     JSONObject pointJSON;
     int i = 0;
     for (i = 0; i < points.length(); i++) {

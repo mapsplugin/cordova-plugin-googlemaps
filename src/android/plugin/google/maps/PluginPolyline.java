@@ -246,7 +246,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       return;
     }
     self.objects.remove(id);
-    
+
     id = "polyline_bounds_" + polyline.getId();
     self.objects.remove(id);
 
@@ -262,13 +262,22 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
     String id = args.getString(0);
     final int index = args.getInt(1);
-
     final Polyline polyline = this.getPolyline(id);
+
+    // Recalculate the polygon bounds
+    final String propertyId = "polyline_bounds_" + polyline.getId();
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
         path.remove(index);
+        if (path.size() > 0) {
+          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+        } else {
+          self.objects.remove(propertyId);
+        }
+
         polyline.setPoints(path);
       }
     });
@@ -282,12 +291,18 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
 
     final Polyline polyline = this.getPolyline(id);
+
+
+    // Recalculate the polygon bounds
+    final String propertyId = "polyline_bounds_" + polyline.getId();
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
         path.add(index, latLng);
         polyline.setPoints(path);
+        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
       }
     });
     this.sendNoResult(callbackContext);
@@ -299,45 +314,25 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     JSONObject position = args.getJSONObject(2);
     final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
 
+
     final Polyline polyline = this.getPolyline(id);
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
         path.set(index, latLng);
+
+        // Recalculate the polygon bounds
+        String propertyId = "polyline_bounds_" + polyline.getId();
+        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+
         polyline.setPoints(path);
       }
     });
     this.sendNoResult(callbackContext);
   }
 
-  /**
-   * Set points
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  public void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final Polyline polyline = this.getPolyline(id);
-    
-    JSONArray points = args.getJSONArray(1);
-    final List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        polyline.setPoints(path);
-      }
-    });
-
-    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-    for (int i = 0; i < path.size(); i++) {
-      builder.include(path.get(i));
-    }
-    self.objects.put("polyline_bounds_" + polyline.getId(), builder.build());
-
-    this.sendNoResult(callbackContext);
-  }
   /**
    * set geodesic
    * @param args

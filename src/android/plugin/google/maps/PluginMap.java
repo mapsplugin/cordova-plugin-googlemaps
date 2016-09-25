@@ -2089,6 +2089,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             if (key.contains("property")) {
               properties = (JSONObject)myPlugin.objects.get(key);
               try {
+                //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
                 // skip invisible overlay
                 if (!properties.getBoolean("isVisible") ||
                     !properties.getBoolean("isClickable")) {
@@ -2099,7 +2100,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
               bounds = (LatLngBounds)myPlugin.objects.get(key.replace("property", "bounds"));
               if (bounds.contains(point)) {
-                Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
+                //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
                 results.put(key, myPlugin.objects.get(key.replace("property_", "")));
               }
 
@@ -2207,7 +2208,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           }
         }
 
-        Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
+        //Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
         if (hitOverlay instanceof Polygon) {
           onPolygonClick((Polygon)hitOverlay, point);
         } else if (hitOverlay instanceof Polyline) {

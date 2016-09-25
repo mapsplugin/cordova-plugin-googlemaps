@@ -106,7 +106,7 @@
         isVisible = YES;
       }
       BOOL isClickable = NO;
-      if ([[json valueForKey:@"visible"] boolValue]) {
+      if ([[json valueForKey:@"clickable"] boolValue]) {
         isClickable = YES;
       }
       if ([[json valueForKey:@"geodesic"] boolValue]) {
@@ -437,94 +437,6 @@
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
-  }];
-
-}
-
-
-/**
- * Set holes
- * @params key
- */
- /*
--(void)setHoles:(CDVInvokedUrlCommand *)command
-{
-  [self.executeQueue addOperationWithBlock:^{
-
-    // Obtain the polygon matched with the id.
-    NSString *polygonKey = [command.arguments objectAtIndex:0];
-    GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
-
-    // Create holes.
-    NSArray *holes = [command.arguments objectAtIndex:1];
-    NSArray *latLngArray;
-    NSDictionary *latLng;
-    int i, j;
-    NSMutableArray *holePaths = [NSMutableArray array];
-
-    for (i = 0; i < holes.count; i++) {
-      latLngArray = [holes objectAtIndex:i];
-      GMSMutablePath *holePath = [GMSMutablePath path];
-      for (j = 0; j < latLngArray.count; j++) {
-        latLng = [latLngArray objectAtIndex:j];
-        [holePath addLatitude:[[latLng objectForKey:@"lat"] floatValue] longitude:[[latLng objectForKey:@"lng"] floatValue]];
-      }
-      [holePaths addObject:holePath];
-    }
-
-    // Apply to the polygon on UI thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      polygon.holes = holePaths;
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
-
-  }];
-
-}
-*/
-
-/**
- * Set points
- * @params key
- */
--(void)setPoints:(CDVInvokedUrlCommand *)command
-{
-
-  [self.executeQueue addOperationWithBlock:^{
-    NSString *polygonKey = [command.arguments objectAtIndex:0];
-    GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
-    GMSMutablePath *mutablePath = [GMSMutablePath path];
-
-    // Parse the option.
-    NSArray *points = [command.arguments objectAtIndex:1];
-    int i = 0;
-    NSDictionary *latLng;
-    for (i = 0; i < points.count; i++) {
-      latLng = [points objectAtIndex:i];
-      [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
-    }
-
-    // Get properties
-    NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
-    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                       [self.objects objectForKey:propertyId]];
-
-    // update the property
-    [properties setObject:mutablePath forKey:@"mutablePath"];
-    [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
-    [self.objects setObject:properties forKey:propertyId];
-  
-    // Apply to the polygon on UI thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [polygon setPath:mutablePath];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
-
-
   }];
 
 }

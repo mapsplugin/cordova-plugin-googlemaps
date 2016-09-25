@@ -126,9 +126,8 @@ Polygon.prototype.setPoints = function(points) {
         mvcArray.push({
             "lat": points[i].lat,
             "lng": points[i].lng
-        }, true);
+        });
     }
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setPoints', [this.getId(), mvcArray.getArray()]);
 };
 Polygon.prototype.getPoints = function() {
     return this.points;
@@ -148,7 +147,6 @@ Polygon.prototype.setHoles = function(holes) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
-    exec(null, this.errorHandler, this.getPluginName(), 'setHoles', [this.getId(), holes]);
 };
 Polygon.prototype.getHoles = function() {
     return this.holes;

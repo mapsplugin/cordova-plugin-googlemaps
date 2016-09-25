@@ -1,5 +1,7 @@
 package plugin.google.maps;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
@@ -10,9 +12,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+//Future implement
+//TODO: https://codepen.io/jhawes/pen/ujdgK
+
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
@@ -30,14 +39,18 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         int color;
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
         final JSONObject properties = new JSONObject();
+        final ArrayList<LatLngBounds> holeBounds = new ArrayList<LatLngBounds>();
+        final ArrayList<LatLng> path = new ArrayList<LatLng>();
+        final ArrayList<ArrayList<LatLng>> holePaths = new ArrayList<ArrayList<LatLng>>();
 
         JSONObject opts = args.getJSONObject(1);
         if (opts.has("points")) {
             JSONArray points = opts.getJSONArray("points");
-            List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-            for (int i = 0; i < path.size(); i++) {
-                polygonOptions.add(path.get(i));
-                builder.include(path.get(i));
+            ArrayList<LatLng> path2 = PluginUtil.JSONArray2LatLngList(points);
+            for (int i = 0; i < path2.size(); i++) {
+                polygonOptions.add(path2.get(i));
+                path.add(path2.get(i));
+                builder.include(path2.get(i));
             }
         }
 
@@ -45,11 +58,23 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             JSONArray holes = opts.getJSONArray("holes");
             int i;
             JSONArray latLngArray;
+            ArrayList<LatLng> hole;
+            Iterator<LatLng> iterator;
+            LatLng latLng;
+            LatLngBounds.Builder builder2;
             for (i = 0; i < holes.length(); i++) {
                 latLngArray = holes.getJSONArray(i);
-                polygonOptions.addHole(PluginUtil.JSONArray2LatLngList(latLngArray));
+                hole = PluginUtil.JSONArray2LatLngList(latLngArray);
+                polygonOptions.addHole(hole);
+                holePaths.add(hole);
+                iterator = hole.iterator();
+                builder2 = new LatLngBounds.Builder();
+                while (iterator.hasNext()) {
+                    latLng = iterator.next();
+                    builder2.include(latLng);
+                }
+                holeBounds.add(builder2.build());
             }
-
         }
         if (opts.has("strokeColor")) {
             color = PluginUtil.parsePluginColor(opts.getJSONArray("strokeColor"));
@@ -88,19 +113,17 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             @Override
             public void run() {
                 Polygon polygon = map.addPolygon(polygonOptions);
-                String id = "polygon_"+ polygon.getId();
-                self.objects.put(id, polygon);
-
-                String boundsId = "polygon_bounds_" + polygon.getId();
-                self.objects.put(boundsId, builder.build());
-
-                String propertyId = "polygon_property_" + polygon.getId();
-                self.objects.put(propertyId, properties);
+                String id = polygon.getId();
+                self.objects.put("polygon_"+ id, polygon);
+                self.objects.put("polygon_bounds_" + id, builder.build());
+                self.objects.put("polygon_path_" + id, path);
+                self.objects.put("polygon_holePaths_" + id, holePaths);
+                self.objects.put("polygon_property_" + id, properties);
 
                 JSONObject result = new JSONObject();
                 try {
                     result.put("hashCode", polygon.hashCode());
-                    result.put("id", id);
+                    result.put("id", "polygon_"+ id);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -121,14 +144,13 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
                 for (String objectId : objectIdArray) {
                     if (objects.containsKey(objectId)) {
-                        if (objectId.startsWith("polygon_") &&
-                            !objectId.contains("bounds")) {
-                            Polygon polygon = (Polygon) objects.remove(objectId);
+                        if (objectId.contains("property")) {
+                            Polygon polygon = (Polygon) objects.remove(objectId.replace("property_", ""));
                             polygon.remove();
-                        } else {
-                            Object object = objects.remove(objectId);
-                            object = null;
                         }
+                        Object object = objects.remove(objectId);
+                        object = null;
+
                     }
                 }
 
@@ -138,7 +160,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         });
 
     }
-    
+
     /**
      * set fill color
      * @param args
@@ -216,8 +238,11 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         }
         self.objects.remove(id);
 
-        id = "polygon_bounds_" + polygon.getId();
-        self.objects.remove(id);
+        id = polygon.getId();
+        self.objects.remove("polygon_bounds_" + id);
+        self.objects.remove("polygon_property_" + id);
+        self.objects.remove("polygon_path_" + id);
+        self.objects.remove("polygon_holePaths_" + id);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -229,32 +254,53 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     }
 
     /**
-     * Set holes
+     * Set points
      * @param args
      * @param callbackContext
      * @throws JSONException
      */
-    public void setHoles(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    public void removePointAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
-
+        final int index = args.getInt(1);
         final Polygon polygon = this.getPolygon(id);
 
-        JSONArray holesJSONArray = args.getJSONArray(1);
-        final List<List<LatLng>> holes = new LinkedList<List<LatLng>>();
 
-        for (int i = 0; i < holesJSONArray.length(); i++) {
-            JSONArray holeJSONArray = holesJSONArray.getJSONArray(i);
-            holes.add(PluginUtil.JSONArray2LatLngList(holeJSONArray));
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_path_" + polygon.getId();
+        final ArrayList<LatLng> path = (ArrayList<LatLng>)self.objects.get(propertyId);
+
+        Log.d("Polygon", "---> index = " + index + ", size = " + path.size());
+        path.remove(index);
+        self.objects.put(propertyId, path);
+
+        //-----------------------------------
+        // Recalculate the polygon bounds
+        //-----------------------------------
+        propertyId = "polygon_bounds_" + polygon.getId();
+        if (path.size() > 0) {
+            self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+        } else {
+            self.objects.remove(propertyId);
         }
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                polygon.setHoles(holes);
-                PluginPolygon.this.sendNoResult(callbackContext);
+                if (path.size() > 0) {
+                    try {
+                        polygon.setPoints(path);
+                    } catch (Exception e) {
+                        // Ignore this error
+                        //e.printStackTrace();
+                    }
+                } else {
+                    polygon.setVisible(false);
+                }
+                sendNoResult(callbackContext);
             }
         });
-
     }
 
     /**
@@ -263,29 +309,317 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
      * @param callbackContext
      * @throws JSONException
      */
-    public void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    public void insertPointAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
+        final int index = args.getInt(1);
+        JSONObject position = args.getJSONObject(2);
+        final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
+
         final Polygon polygon = this.getPolygon(id);
 
-        JSONArray points = args.getJSONArray(1);
-        final List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (int i = 0; i < path.size(); i++) {
-            builder.include(path.get(i));
+        //------------------------
+        // Update the hole list
+        //------------------------
+        boolean shouldBeVisible = false;
+        String propertyId = "polygon_path_" + polygon.getId();
+        final ArrayList<LatLng> path = (ArrayList<LatLng>)self.objects.get(propertyId);
+        if (path.size() == 0) {
+            JSONObject properties = (JSONObject)self.objects.get("polygon_property_" + polygon.getId());
+            if (properties.getBoolean("isVisible")) {
+                shouldBeVisible = true;
+            }
         }
-        self.objects.put("polygon_bounds_" + polygon.getId(), builder.build());
+        path.add(index, latLng);
+        self.objects.put(propertyId, path);
+
+        //-----------------------------------
+        // Recalculate the polygon bounds
+        //-----------------------------------
+        propertyId = "polygon_bounds_" + polygon.getId();
+        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+
+        final boolean changeToVisible = shouldBeVisible;
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setPoints(path);
+                if (changeToVisible) {
+                    polygon.setVisible(true);
+                }
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void setPointAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int index = args.getInt(1);
+        JSONObject position = args.getJSONObject(2);
+        final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_path_" + polygon.getId();
+        final ArrayList<LatLng> path = (ArrayList<LatLng>)self.objects.get(propertyId);
+        path.set(index, latLng);
+        self.objects.put(propertyId, path);
+
+        //-----------------------------------
+        // Recalculate the polygon bounds
+        //-----------------------------------
+        propertyId = "polygon_bounds_" + polygon.getId();
+        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                // Update the polygon
                 polygon.setPoints(path);
                 sendNoResult(callbackContext);
             }
         });
-        this.sendNoResult(callbackContext);
     }
 
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void insertPointOfHoleAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int holeIndex = args.getInt(1);
+        final int pointIndex = args.getInt(2);
+        JSONObject position = args.getJSONObject(3);
+        final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        ArrayList<LatLng> hole = null;
+        if (holeIndex < holes.size()) {
+            hole = holes.get(holeIndex);
+        }
+        if (hole == null) {
+            hole = new ArrayList<LatLng>();
+        }
+        if (holes.size() == 0) {
+            holes.add(hole);
+        }
+        hole.add(pointIndex, latLng);
+        self.objects.put(propertyId, holes);
+
+        final ArrayList<LatLng> newHole = hole;
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setHoles(holes);
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void setPointOfHoleAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int holeIndex = args.getInt(1);
+        final int pointIndex = args.getInt(2);
+        JSONObject position = args.getJSONObject(3);
+        final LatLng latLng = new LatLng(position.getDouble("lat"), position.getDouble("lng"));
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        ArrayList<LatLng> hole = null;
+        if (holeIndex < holes.size()) {
+            hole = holes.get(holeIndex);
+        }
+        if (hole == null) {
+            hole = new ArrayList<LatLng>();
+        }
+        if (holes.size() == 0) {
+            holes.add(hole);
+        }
+        hole.set(pointIndex, latLng);
+        self.objects.put(propertyId, holes);
+
+        final ArrayList<LatLng> newHole = hole;
+
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setHoles(holes);
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void removePointOfHoleAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int holeIndex = args.getInt(1);
+        final int pointIndex = args.getInt(2);
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        ArrayList<LatLng> hole = null;
+        if (holeIndex < holes.size()) {
+            hole = holes.get(holeIndex);
+        }
+        if (hole == null) {
+            hole = new ArrayList<LatLng>();
+        }
+        if (holes.size() == 0) {
+            holes.add(hole);
+        }
+        hole.remove(pointIndex);
+        self.objects.put(propertyId, holes);
+
+        final ArrayList<LatLng> newHole = hole;
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setHoles(holes);
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+
+    public void insertHoleAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int holeIndex = args.getInt(1);
+
+        JSONArray holeJson = args.getJSONArray(2);
+        final ArrayList<LatLng> newHole = PluginUtil.JSONArray2LatLngList(holeJson);
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        holes.add(holeIndex, newHole);
+        self.objects.put(propertyId, holes);
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                try {
+                    polygon.setHoles(holes);
+                } catch (Exception e) {
+                    // Ignore this error
+                    //e.printStackTrace();
+                }
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void setHoleAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int holeIndex = args.getInt(1);
+
+        JSONArray holeJson = args.getJSONArray(2);
+        final ArrayList<LatLng> newHole = PluginUtil.JSONArray2LatLngList(holeJson);
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        holes.set(holeIndex, newHole);
+        self.objects.put(propertyId, holes);
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setHoles(holes);
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void removeHoleAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final int holeIndex = args.getInt(1);
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        holes.remove(holeIndex);
+        self.objects.put(propertyId, holes);
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setHoles(holes);
+                sendNoResult(callbackContext);
+            }
+        });
+    }
     /**
      * Set visibility for the object
      * @param args

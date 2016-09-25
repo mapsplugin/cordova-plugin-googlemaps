@@ -20,7 +20,10 @@ function BaseArrayClass(array) {
     };
 
     self.empty = function() {
-        _array = [];
+        var cnt = _array.length;
+        for (var i = 0; i < cnt; i++) {
+            self.removeAt(0);
+        }
     };
 
     self.push = function(value, noNotify) {
@@ -52,14 +55,16 @@ function BaseArrayClass(array) {
 
 
     self.removeAt = function(index) {
-        var value = _array.slice(index, 1);
+        var value = _array[index];
+        _array.splice(index, 1);
         self.trigger("remove_at", index, value);
         return value;
     };
 
     self.pop = function() {
+        var index = _array.length - 1;
         var value = _array.pop();
-        self.trigger("remove_at", _array.length, value);
+        self.trigger("remove_at", index, value);
         return value;
     };
 

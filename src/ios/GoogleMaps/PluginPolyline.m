@@ -243,46 +243,6 @@
 }
 
 /**
- * Set points
- * @params key
- */
--(void)setPoints:(CDVInvokedUrlCommand *)command
-{
-
-  [self.executeQueue addOperationWithBlock:^{
-  
-      NSString *polylineKey = [command.arguments objectAtIndex:0];
-      GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
-      GMSMutablePath *mutablePath = [GMSMutablePath path];
-    
-      NSArray *points = [command.arguments objectAtIndex:1];
-      int i = 0;
-      NSDictionary *latLng;
-      for (i = 0; i < points.count; i++) {
-        latLng = [points objectAtIndex:i];
-        [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
-      }
-    
-      
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
-      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
-      [properties setObject:mutablePath forKey:@"mutablePath"];
-      [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
-      [self.objects setObject:properties forKey:propertyId];
-    
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          [polyline setPath:mutablePath];
-
-
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
-  }];
-
-}
-
-/**
  * Set color
  * @params key
  */
