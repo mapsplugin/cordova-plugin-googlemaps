@@ -75,7 +75,7 @@ var Marker = function(map, id, markerOptions) {
         self.on("opacity_changed", function(oldValue, opacity) {
             cordova.exec(null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
         });
-        self.on("disableAutoPan_changed", function(oldValue, opacity) {
+        self.on("disableAutoPan_changed", function(oldValue, disableAutoPan) {
             cordova.exec(null, self.errorHandler, self.getPluginName(), 'setDisableAutoPan', [self.getId(), disableAutoPan]);
         });
 
