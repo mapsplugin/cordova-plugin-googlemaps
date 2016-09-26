@@ -44,6 +44,9 @@ var Circle = function(map, circleId, circleOptions) {
     self.on("visible_changed", function(oldValue, visible) {
         cordova.exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
+    self.on("clickable_changed", function(oldValue, clickable) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    });
     self.on("radius_changed", function(oldValue, radius) {
         cordova.exec(null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
     });
@@ -93,6 +96,9 @@ Circle.prototype.getZIndex = function() {
 Circle.prototype.getVisible = function() {
     return this.get('visible');
 };
+Circle.prototype.getClickable = function() {
+    return this.get('clickable');
+};
 Circle.prototype.setCenter = function(center) {
     this.set('center', center);
 };
@@ -108,6 +114,10 @@ Circle.prototype.setStrokeWidth = function(width) {
 Circle.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
+};
+Circle.prototype.setClickable = function(clickable) {
+    clickable = common.parseBoolean(clickable);
+    this.set('clickable', clickable);
 };
 Circle.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
