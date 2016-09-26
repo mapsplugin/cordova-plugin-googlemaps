@@ -20,6 +20,11 @@
   // Initialize this plugin
   self.objects = [[NSMutableDictionary alloc] init];
   self.executeQueue =  [NSOperationQueue new];
+  
+  // In order to keep the statement order,
+  // the queue must be FIFO.
+  // (especially for moderating the points and the holes)
+  self.executeQueue.maxConcurrentOperationCount = 1;
 }
 
 - (void)pluginUnload
@@ -163,12 +168,9 @@
       [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
       [self.objects setObject:properties forKey:propertyId];
     
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          [polyline setPath:mutablePath];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
   }];
 
 }
