@@ -285,7 +285,6 @@
     if (marker.icon) {
         anchorX = anchorX / marker.icon.size.width;
         anchorY = anchorY / marker.icon.size.height;
-        [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
     }
     [marker setInfoWindowAnchor:CGPointMake(anchorX, anchorY)];
 
