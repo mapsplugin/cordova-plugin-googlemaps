@@ -2074,39 +2074,43 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         String pluginName, key;
         String pluginNames[] = plugins.keySet().toArray(new String[plugins.size()]);
         int i,j;
-        for (i = 0; i < pluginNames.length; i++) {
-          pluginName = pluginNames[i];
+        try {
+          for (i = 0; i < pluginNames.length; i++) {
+            pluginName = pluginNames[i];
 
-          if (pluginName.contains("marker")) {
-            continue;
-          }
-          pluginEntry = plugins.get(pluginName);
-          myPlugin = (MyPlugin)pluginEntry.plugin;
-
-          keys = myPlugin.objects.keySet().toArray(new String[myPlugin.objects.size()]);
-          for (j = 0; j < keys.length; j++) {
-            key = keys[j];
-            if (key.contains("property")) {
-              properties = (JSONObject)myPlugin.objects.get(key);
-              try {
-                //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
-                // skip invisible overlay
-                if (!properties.getBoolean("isVisible") ||
-                    !properties.getBoolean("isClickable")) {
-                  continue;
-                }
-              } catch (JSONException e) {
-                e.printStackTrace();
-              }
-              bounds = (LatLngBounds)myPlugin.objects.get(key.replace("property", "bounds"));
-              if (bounds.contains(point)) {
-                //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
-                results.put(key, myPlugin.objects.get(key.replace("property_", "")));
-              }
-
+            if (pluginName.contains("marker")) {
+              continue;
             }
-          }
+            pluginEntry = plugins.get(pluginName);
+            myPlugin = (MyPlugin) pluginEntry.plugin;
 
+            keys = myPlugin.objects.keySet().toArray(new String[myPlugin.objects.size()]);
+            for (j = 0; j < keys.length; j++) {
+              key = keys[j];
+              if (key.contains("property")) {
+                properties = (JSONObject) myPlugin.objects.get(key);
+                try {
+                  //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
+                  // skip invisible overlay
+                  if (!properties.getBoolean("isVisible") ||
+                    !properties.getBoolean("isClickable")) {
+                    continue;
+                  }
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
+                bounds = (LatLngBounds) myPlugin.objects.get(key.replace("property", "bounds"));
+                if (bounds.contains(point)) {
+                  //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
+                  results.put(key, myPlugin.objects.get(key.replace("property_", "")));
+                }
+
+              }
+            }
+
+          }
+        } catch (Exception e) {
+          //e.printStackTrace();
         }
 
         return results;

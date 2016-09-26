@@ -41,6 +41,45 @@ var Marker = function(map, id, markerOptions) {
       map.set('active_marker_id', undefined);
     });
 
+
+        self.on("position_changed", function(oldValue, position) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPosition', [self.getId(), position.lat, position.lng]);
+        });
+        self.on("rotation_changed", function(oldValue, rotation) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setRotation', [self.getId(), rotation]);
+        });
+        self.on("snippet_changed", function(oldValue, snippet) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setSnippet', [self.getId(), snippet]);
+        });
+        self.on("visible_changed", function(oldValue, visible) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+        });
+        self.on("title_changed", function(oldValue, title) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setTitle', [self.getId(), title]);
+        });
+        self.on("icon_changed", function(oldValue, url) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setIcon', [self.getId(), url]);
+        });
+        self.on("flat_changed", function(oldValue, flat) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setFlat', [self.getId(), flat]);
+        });
+        self.on("draggable_changed", function(oldValue, draggable) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setDraggable', [self.getId(), draggable]);
+        });
+        self.on("anchor_changed", function(oldValue, anchor) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
+        });
+        self.on("zIndex_changed", function(oldValue, zIndex) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+        });
+        self.on("opacity_changed", function(oldValue, opacity) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+        });
+        self.on("disableAutoPan_changed", function(oldValue, opacity) {
+            cordova.exec(null, self.errorHandler, self.getPluginName(), 'setDisableAutoPan', [self.getId(), disableAutoPan]);
+        });
+
+
     var ignores = ["hashCode", "id", "hashCode", "type"];
     for (var key in markerOptions) {
         if (ignores.indexOf(key) === -1) {
@@ -102,7 +141,6 @@ Marker.prototype.setAnimation = function(animation, callback) {
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
     disableAutoPan = common.parseBoolean(disableAutoPan);
     this.set('disableAutoPan', disableAutoPan);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setDisableAutoPan', [this.getId(), disableAutoPan]);
     return this;
 };
 Marker.prototype.setOpacity = function(opacity) {
@@ -111,7 +149,6 @@ Marker.prototype.setOpacity = function(opacity) {
         return false;
     }
     this.set('opacity', opacity);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setOpacity', [this.getId(), opacity]);
     return this;
 };
 Marker.prototype.setZIndex = function(zIndex) {
@@ -119,7 +156,6 @@ Marker.prototype.setZIndex = function(zIndex) {
         return false;
     }
     this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
     return this;
 };
 Marker.prototype.getOpacity = function() {
@@ -127,18 +163,15 @@ Marker.prototype.getOpacity = function() {
 };
 Marker.prototype.setIconAnchor = function(anchorX, anchorY) {
     this.set('anchor', [anchorX, anchorY]);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setIconAnchor', [this.getId(), anchorX, anchorY]);
     return this;
 };
 Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
     this.set('anchor', [anchorX, anchorY]);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setInfoWindowAnchor', [this.getId(), anchorX, anchorY]);
     return this;
 };
 Marker.prototype.setDraggable = function(draggable) {
     draggable = common.parseBoolean(draggable);
     this.set('draggable', draggable);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setDraggable', [this.getId(), draggable]);
     return this;
 };
 Marker.prototype.isDraggable = function() {
@@ -147,14 +180,13 @@ Marker.prototype.isDraggable = function() {
 Marker.prototype.setFlat = function(flat) {
     flat = common.parseBoolean(flat);
     this.set('flat', flat);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setFlat', [this.getId(), flat]);
     return this;
 };
 Marker.prototype.setIcon = function(url) {
     if (url && common.isHTMLColorString(url)) {
         url = common.HTMLColor2RGBA(url);
     }
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setIcon', [this.getId(), url]);
+    this.set('icon', url);
     return this;
 };
 Marker.prototype.setTitle = function(title) {
@@ -164,13 +196,11 @@ Marker.prototype.setTitle = function(title) {
     }
     title = "" + title; // Convert to strings mandatory
     this.set('title', title);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setTitle', [this.getId(), title]);
     return this;
 };
 Marker.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setVisible', [this.getId(), visible]);
     return this;
 };
 Marker.prototype.getTitle = function() {
@@ -178,7 +208,6 @@ Marker.prototype.getTitle = function() {
 };
 Marker.prototype.setSnippet = function(snippet) {
     this.set('snippet', snippet);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setSnippet', [this.getId(), snippet]);
     return this;
 };
 Marker.prototype.getSnippet = function() {
@@ -190,7 +219,6 @@ Marker.prototype.setRotation = function(rotation) {
         return false;
     }
     this.set('rotation', rotation);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setRotation', [this.getId(), rotation]);
     return this;
 };
 Marker.prototype.getRotation = function() {
@@ -218,7 +246,6 @@ Marker.prototype.setPosition = function(position) {
         return false;
     }
     this.set('position', position);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setPosition', [this.getId(), position.lat, position.lng]);
     return this;
 };
 

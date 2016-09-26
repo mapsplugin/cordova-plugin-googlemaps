@@ -29,6 +29,28 @@ var Circle = function(map, circleId, circleOptions) {
         writable: false
     });
 
+    self.on("center_changed", function(oldValue, center) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
+    });
+    self.on("fillColor_changed", function(oldValue, color) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+    self.on("strokeColor_changed", function(oldValue, color) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+    self.on("strokeWidth_changed", function(oldValue, width) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    });
+    self.on("visible_changed", function(oldValue, visible) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    });
+    self.on("radius_changed", function(oldValue, radius) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
+    });
+    self.on("zIndex_changed", function(oldValue, zIndex) {
+        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    });
+
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in circleOptions) {
         if (ignores.indexOf(key) === -1) {
@@ -73,32 +95,25 @@ Circle.prototype.getVisible = function() {
 };
 Circle.prototype.setCenter = function(center) {
     this.set('center', center);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setCenter', [this.getId(), center.lat, center.lng]);
 };
 Circle.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setFillColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Circle.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setStrokeColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Circle.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setStrokeWidth', [this.getId(), width]);
 };
 Circle.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setVisible', [this.getId(), visible]);
 };
 Circle.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
 };
 Circle.prototype.setRadius = function(radius) {
     this.set('radius', radius);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setRadius', [this.getId(), radius]);
 };
 
 Circle.prototype.remove = function() {

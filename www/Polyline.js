@@ -45,6 +45,25 @@ var Polyline = function(map, polylineId, polylineOptions) {
         writable: false
     });
 
+    self.on("geodesic_changed", function(oldValue, geodesic) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
+    });
+    self.on("zIndex_changed", function(oldValue, zIndex) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    });
+    self.on("clickable_changed", function(oldValue, clickable) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    });
+    self.on("visible_changed", function(oldValue, visible) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    });
+    self.on("strokeWidth_changed", function(oldValue, width) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    });
+    self.on("strokeColor_changed", function(oldValue, color) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+
     var ignores = ["map", "id", "hashCode", "type", "points"];
     for (var key in polylineOptions) {
         if (ignores.indexOf(key) === -1) {
@@ -85,23 +104,20 @@ Polyline.prototype.getPoints = function() {
     return this.points;
 };
 Polyline.prototype.setStrokeColor = function(color) {
-    this.set('color', color);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setStrokeColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    this.set('strokeColor', color);
 };
 Polyline.prototype.getStrokeColor = function() {
-    return this.get('color');
+    return this.get('strokeColor');
 };
 Polyline.prototype.setStrokeWidth = function(width) {
-    this.set('width', width);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setStrokeWidth', [this.getId(), width]);
+    this.set('strokeWidth', width);
 };
 Polyline.prototype.getStrokeWidth = function() {
-    return this.get('width');
+    return this.get('strokeWidth');
 };
 Polyline.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setVisible', [this.getId(), visible]);
 };
 Polyline.prototype.getVisible = function() {
     return this.get('visible');
@@ -109,7 +125,6 @@ Polyline.prototype.getVisible = function() {
 Polyline.prototype.setClickable = function(clickable) {
     clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setClickable', [this.getId(), clickable]);
 };
 Polyline.prototype.getClickable = function() {
     return this.get('clickable');
@@ -117,14 +132,12 @@ Polyline.prototype.getClickable = function() {
 Polyline.prototype.setGeodesic = function(geodesic) {
     geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setGeodesic', [this.getId(), geodesic]);
 };
 Polyline.prototype.getGeodesic = function() {
     return this.get('geodesic');
 };
 Polyline.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
 };
 Polyline.prototype.getZIndex = function() {
     return this.get('zIndex');

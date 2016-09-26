@@ -84,9 +84,31 @@ var Polygon = function(map, polygonId, polygonOptions) {
         writable: false
     });
 
+    self.on("clickable_changed", function(oldValue, clickable) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    });
+    self.on("geodesic_changed", function(oldValue, geodesic) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
+    });
+    self.on("zIndex_changed", function(oldValue, zIndex) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    });
+    self.on("visible_changed", function(oldValue, visible) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    });
+    self.on("strokeWidth_changed", function(oldValue, width) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    });
+    self.on("strokeColor_changed", function(oldValue, color) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+    self.on("fillColor_changed", function(oldValue, color) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+
     //--------------------------
     // other properties
-    //--------------------------
+    //--------------------------.
     var ignores = ["map", "id", "hashCode", "type", "points", "holes"];
     for (var key in polygonOptions) {
         if (ignores.indexOf(key) === -1) {
@@ -150,21 +172,18 @@ Polygon.prototype.getHoles = function() {
 };
 Polygon.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
-    exec(null, this.errorHandler, this.getPluginName(), 'setFillColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Polygon.prototype.getFillColor = function() {
     return this.get('fillColor');
 };
 Polygon.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
-    exec(null, this.errorHandler, this.getPluginName(), 'setStrokeColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
 Polygon.prototype.getStrokeColor = function() {
     return this.get('strokeColor');
 };
 Polygon.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
-    exec(null, this.errorHandler, this.getPluginName(), 'setStrokeWidth', [this.getId(), width]);
 };
 Polygon.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
@@ -172,7 +191,6 @@ Polygon.prototype.getStrokeWidth = function() {
 Polygon.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
-    exec(null, this.errorHandler, this.getPluginName(), 'setVisible', [this.getId(), visible]);
 };
 Polygon.prototype.getVisible = function() {
     return this.get('visible');
@@ -180,7 +198,6 @@ Polygon.prototype.getVisible = function() {
 Polygon.prototype.setClickable = function(clickable) {
     clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setClickable', [this.getId(), clickable]);
 };
 Polygon.prototype.getClickable = function() {
     return this.get('clickable');
@@ -188,14 +205,12 @@ Polygon.prototype.getClickable = function() {
 Polygon.prototype.setGeodesic = function(geodesic) {
     geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
-    exec(null, this.errorHandler, this.getPluginName(), 'setGeodesic', [this.getId(), geodesic]);
 };
 Polygon.prototype.getGeodesic = function() {
     return this.get('geodesic');
 };
 Polygon.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
 };
 Polygon.prototype.getZIndex = function() {
     return this.get('zIndex');
