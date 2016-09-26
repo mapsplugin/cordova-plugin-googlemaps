@@ -873,12 +873,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                       image = BitmapFactory.decodeStream(inputStream);
                     } catch (IOException e) {
                       e.printStackTrace();
-                      callback.onPostExecute(marker);
                       return null;
                     }
                   }
                   if (image == null) {
-                    callback.onPostExecute(marker);
                     return null;
                   }
 
@@ -946,7 +944,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                     callback.onPostExecute(marker);
 
                   } catch (java.lang.IllegalArgumentException e) {
-                    Log.e("GoogleMapsPlugin","PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
+                    Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
                     //e.printStackTrace();
 
                   }
