@@ -31,20 +31,32 @@ var Polyline = function(map, polylineId, polylineOptions) {
 
     var pointsProperty = common.createMvcArray(polylineOptions.points);
     pointsProperty.on('set_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, pointsProperty.getAt(index)]);
+        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, pointsProperty.getAt(index)]);
     });
     pointsProperty.on('insert_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, pointsProperty.getAt(index)]);
+        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, pointsProperty.getAt(index)]);
     });
     pointsProperty.on('remove_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polylineId, index]);
+        exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polylineId, index]);
     });
 
     Object.defineProperty(self, "points", {
         value: pointsProperty,
         writable: false
     });
+    //-----------------------------------------------
+    // Sets the initialize option to each property
+    //-----------------------------------------------
+    var ignores = ["map", "id", "hashCode", "type", "points"];
+    for (var key in polylineOptions) {
+        if (ignores.indexOf(key) === -1) {
+            self.set(key, polylineOptions[key]);
+        }
+    }
 
+    //-----------------------------------------------
+    // Sets event listeners
+    //-----------------------------------------------
     self.on("geodesic_changed", function(oldValue, geodesic) {
         exec(null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
     });
@@ -64,12 +76,6 @@ var Polyline = function(map, polylineId, polylineOptions) {
         exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
 
-    var ignores = ["map", "id", "hashCode", "type", "points"];
-    for (var key in polylineOptions) {
-        if (ignores.indexOf(key) === -1) {
-            self.set(key, polylineOptions[key]);
-        }
-    }
 };
 
 utils.extend(Polyline, BaseClass);
@@ -148,7 +154,7 @@ Polyline.prototype.getMap = function() {
 };
 
 Polyline.prototype.remove = function() {
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
     this.trigger(this.id + "_remove");
     this.get("points").clear();
     this.off();

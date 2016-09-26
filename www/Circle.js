@@ -29,37 +29,41 @@ var Circle = function(map, circleId, circleOptions) {
         writable: false
     });
 
-    self.on("center_changed", function(oldValue, center) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
-    });
-    self.on("fillColor_changed", function(oldValue, color) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
-    });
-    self.on("strokeColor_changed", function(oldValue, color) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
-    });
-    self.on("strokeWidth_changed", function(oldValue, width) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
-    });
-    self.on("visible_changed", function(oldValue, visible) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
-    });
-    self.on("clickable_changed", function(oldValue, clickable) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
-    });
-    self.on("radius_changed", function(oldValue, radius) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
-    });
-    self.on("zIndex_changed", function(oldValue, zIndex) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
-    });
-
+    //-----------------------------------------------
+    // Sets the initialize option to each property
+    //-----------------------------------------------
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in circleOptions) {
         if (ignores.indexOf(key) === -1) {
             self.set(key, circleOptions[key]);
         }
     }
+
+    //-----------------------------------------------
+    // Sets event listeners
+    //-----------------------------------------------
+    self.on("center_changed", function(oldValue, center) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
+    });
+    self.on("fillColor_changed", function(oldValue, color) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+    self.on("strokeColor_changed", function(oldValue, color) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    });
+    self.on("strokeWidth_changed", function(oldValue, width) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    });
+    self.on("clickable_changed", function(oldValue, clickable) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    });
+    self.on("radius_changed", function(oldValue, radius) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
+    });
+    self.on("zIndex_changed", function(oldValue, zIndex) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    });
+
 };
 
 utils.extend(Circle, BaseClass);
@@ -128,7 +132,7 @@ Circle.prototype.setRadius = function(radius) {
 
 Circle.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
 };
 
 Circle.prototype.getBounds = function() {

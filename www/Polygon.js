@@ -34,13 +34,13 @@ var Polygon = function(map, polygonId, polygonOptions) {
     //--------------------------
     var pointsProperty = common.createMvcArray(polygonOptions.points);
     pointsProperty.on('set_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, pointsProperty.getAt(index)]);
+        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, pointsProperty.getAt(index)]);
     });
     pointsProperty.on('insert_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, pointsProperty.getAt(index)]);
+        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, pointsProperty.getAt(index)]);
     });
     pointsProperty.on('remove_at', function(index) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
+        exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
     });
 
     Object.defineProperty(self, "points", {
@@ -66,17 +66,17 @@ var Polygon = function(map, polygonId, polygonOptions) {
       }
       array.on('insert_at', function(idx) {
         var position = array.getAt(idx);
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, position]);
+        exec(null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, position]);
       });
       array.on('set_at', function(idx) {
         var position = array.getAt(idx);
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, position]);
+        exec(null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, position]);
       });
       array.on('remove_at', function(idx) {
-        cordova.exec(null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
+        exec(null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
       });
 
-      cordova.exec(null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
+      exec(null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
     });
 
     Object.defineProperty(self, "holes", {
@@ -84,6 +84,18 @@ var Polygon = function(map, polygonId, polygonOptions) {
         writable: false
     });
 
+    //--------------------------
+    // other properties
+    //--------------------------.
+    var ignores = ["map", "id", "hashCode", "type", "points", "holes"];
+    for (var key in polygonOptions) {
+        if (ignores.indexOf(key) === -1) {
+            self.set(key, polygonOptions[key]);
+        }
+    }
+    //-----------------------------------------------
+    // Sets event listeners
+    //-----------------------------------------------
     self.on("clickable_changed", function(oldValue, clickable) {
         exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
     });
@@ -106,22 +118,13 @@ var Polygon = function(map, polygonId, polygonOptions) {
         exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
 
-    //--------------------------
-    // other properties
-    //--------------------------.
-    var ignores = ["map", "id", "hashCode", "type", "points", "holes"];
-    for (var key in polygonOptions) {
-        if (ignores.indexOf(key) === -1) {
-            self.set(key, polygonOptions[key]);
-        }
-    }
 };
 
 utils.extend(Polygon, BaseClass);
 
 Polygon.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
 };
 Polygon.prototype.getPluginName = function() {
     return this.map.getId() + "-polygon";
