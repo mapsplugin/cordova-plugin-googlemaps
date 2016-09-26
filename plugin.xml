@@ -43,6 +43,9 @@
     <js-module name="encoding" src="www/encoding.js">
       <runs />
     </js-module>
+    <js-module name="spherical" src="www/spherical.js">
+      <runs />
+    </js-module>
     <js-module name="Geocoder" src="www/Geocoder.js">
       <runs />
     </js-module>

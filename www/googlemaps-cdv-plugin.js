@@ -21,6 +21,7 @@ var TileOverlay = require('./TileOverlay');
 var GroundOverlay = require('./GroundOverlay');
 var KmlOverlay = require('./KmlOverlay');
 var encoding = require('./encoding');
+var spherical = require('./spherical');
 var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
@@ -242,7 +243,8 @@ module.exports = {
     environment: Environment,
     Geocoder: Geocoder,
     geometry: {
-        encoding: encoding
+        encoding: encoding,
+        spherical: spherical
     }
 };
 
