@@ -201,7 +201,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  public void setColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
     int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
     this.setInt("setColor", id, color, callbackContext);
@@ -213,7 +213,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  public void setWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
     float width = (float) args.getDouble(1) * this.density;
     this.setFloat("setWidth", id, width, callbackContext);

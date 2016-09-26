@@ -248,7 +248,7 @@
  * Set color
  * @params key
  */
--(void)setColor:(CDVInvokedUrlCommand *)command
+-(void)setStrokeColor:(CDVInvokedUrlCommand *)command
 {
 
   [self.executeQueue addOperationWithBlock:^{
@@ -271,7 +271,7 @@
  * Set width
  * @params key
  */
--(void)setWidth:(CDVInvokedUrlCommand *)command
+-(void)setStrokeWidth:(CDVInvokedUrlCommand *)command
 {
 
   [self.executeQueue addOperationWithBlock:^{

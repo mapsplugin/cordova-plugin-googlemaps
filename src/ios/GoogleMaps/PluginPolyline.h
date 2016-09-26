@@ -15,8 +15,8 @@
 @property (nonatomic) NSOperationQueue *executeQueue;
 - (void)create:(CDVInvokedUrlCommand*)command;
 
-- (void)setColor:(CDVInvokedUrlCommand*)command;
-- (void)setWidth:(CDVInvokedUrlCommand*)command;
+- (void)setStrokeColor:(CDVInvokedUrlCommand*)command;
+- (void)setStrokeWidth:(CDVInvokedUrlCommand*)command;
 - (void)removePointAt:(CDVInvokedUrlCommand*)command;
 - (void)setPointAt:(CDVInvokedUrlCommand*)command;
 - (void)insertPointAt:(CDVInvokedUrlCommand*)command;

@@ -84,18 +84,18 @@ Polyline.prototype.setPoints = function(points) {
 Polyline.prototype.getPoints = function() {
     return this.points;
 };
-Polyline.prototype.setColor = function(color) {
+Polyline.prototype.setStrokeColor = function(color) {
     this.set('color', color);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setStrokeColor', [this.getId(), common.HTMLColor2RGBA(color, 0.75)]);
 };
-Polyline.prototype.getColor = function() {
+Polyline.prototype.getStrokeColor = function() {
     return this.get('color');
 };
-Polyline.prototype.setWidth = function(width) {
+Polyline.prototype.setStrokeWidth = function(width) {
     this.set('width', width);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setWidth', [this.getId(), width]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setStrokeWidth', [this.getId(), width]);
 };
-Polyline.prototype.getWidth = function() {
+Polyline.prototype.getStrokeWidth = function() {
     return this.get('width');
 };
 Polyline.prototype.setVisible = function(visible) {
