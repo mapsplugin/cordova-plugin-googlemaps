@@ -105,18 +105,21 @@ Polyline.prototype.setPoints = function(points) {
             "lng": points[i].lng
         });
     }
+    return this;
 };
 Polyline.prototype.getPoints = function() {
     return this.points;
 };
 Polyline.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
+    return this;
 };
 Polyline.prototype.getStrokeColor = function() {
     return this.get('strokeColor');
 };
 Polyline.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
+    return this;
 };
 Polyline.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
@@ -124,6 +127,7 @@ Polyline.prototype.getStrokeWidth = function() {
 Polyline.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
+    return this;
 };
 Polyline.prototype.getVisible = function() {
     return this.get('visible');
@@ -131,6 +135,7 @@ Polyline.prototype.getVisible = function() {
 Polyline.prototype.setClickable = function(clickable) {
     clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
+    return this;
 };
 Polyline.prototype.getClickable = function() {
     return this.get('clickable');
@@ -138,12 +143,14 @@ Polyline.prototype.getClickable = function() {
 Polyline.prototype.setGeodesic = function(geodesic) {
     geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
+    return this;
 };
 Polyline.prototype.getGeodesic = function() {
     return this.get('geodesic');
 };
 Polyline.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
+    return this;
 };
 Polyline.prototype.getZIndex = function() {
     return this.get('zIndex');

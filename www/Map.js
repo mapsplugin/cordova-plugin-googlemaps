@@ -605,7 +605,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     var self = this;
     groundOverlayOptions = groundOverlayOptions || {};
     groundOverlayOptions.url = groundOverlayOptions.url || null;
-    groundOverlayOptions.clickable = groundOverlayOptions.clickable == true;
+    groundOverlayOptions.clickable = groundOverlayOptions.clickable === true;
     groundOverlayOptions.visible = common.defaultTrueOption(groundOverlayOptions.visible);
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];

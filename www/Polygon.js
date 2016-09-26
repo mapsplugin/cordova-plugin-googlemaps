@@ -150,43 +150,50 @@ Polygon.prototype.setPoints = function(points) {
           "lng": point.lng
       });
     });
+    return this;
 };
 Polygon.prototype.getPoints = function() {
     return this.points;
 };
 Polygon.prototype.setHoles = function(holes) {
-    argscheck.checkArgs('A', 'Polygon.setHoles', arguments);
-    this.set('holes', holes);
+    var mvcArray = this.holes;
+    mvcArray.empty();
+
     holes = holes || [];
     if (holes.length > 0 && !utils.isArray(holes[0])) {
       holes = [holes];
     }
-    holes = holes.map(function(hole) {
+    holes.forEach(function(hole) {
       if (!utils.isArray(hole)) {
         return [];
       }
-      return hole.map(function(latLng) {
+      hole.forEach(function(latLng) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
+    //this.set('holes', holes);
+    return this;
 };
 Polygon.prototype.getHoles = function() {
     return this.holes;
 };
 Polygon.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
+    return this;
 };
 Polygon.prototype.getFillColor = function() {
     return this.get('fillColor');
 };
 Polygon.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
+    return this;
 };
 Polygon.prototype.getStrokeColor = function() {
     return this.get('strokeColor');
 };
 Polygon.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
+    return this;
 };
 Polygon.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
@@ -194,6 +201,7 @@ Polygon.prototype.getStrokeWidth = function() {
 Polygon.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
+    return this;
 };
 Polygon.prototype.getVisible = function() {
     return this.get('visible');
@@ -201,6 +209,7 @@ Polygon.prototype.getVisible = function() {
 Polygon.prototype.setClickable = function(clickable) {
     clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
+    return this;
 };
 Polygon.prototype.getClickable = function() {
     return this.get('clickable');
@@ -208,12 +217,14 @@ Polygon.prototype.getClickable = function() {
 Polygon.prototype.setGeodesic = function(geodesic) {
     geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
+    return this;
 };
 Polygon.prototype.getGeodesic = function() {
     return this.get('geodesic');
 };
 Polygon.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
+    return this;
 };
 Polygon.prototype.getZIndex = function() {
     return this.get('zIndex');

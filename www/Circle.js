@@ -105,29 +105,37 @@ Circle.prototype.getClickable = function() {
 };
 Circle.prototype.setCenter = function(center) {
     this.set('center', center);
+    return this;
 };
 Circle.prototype.setFillColor = function(color) {
     this.set('fillColor', color);
+    return this;
 };
 Circle.prototype.setStrokeColor = function(color) {
     this.set('strokeColor', color);
+    return this;
 };
 Circle.prototype.setStrokeWidth = function(width) {
     this.set('strokeWidth', width);
+    return this;
 };
 Circle.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
+    return this;
 };
 Circle.prototype.setClickable = function(clickable) {
     clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
+    return this;
 };
 Circle.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
+    return this;
 };
 Circle.prototype.setRadius = function(radius) {
     this.set('radius', radius);
+    return this;
 };
 
 Circle.prototype.remove = function() {
