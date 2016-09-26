@@ -106,6 +106,14 @@ Polyline.prototype.setVisible = function(visible) {
 Polyline.prototype.getVisible = function() {
     return this.get('visible');
 };
+Polyline.prototype.setClickable = function(clickable) {
+    clickable = common.parseBoolean(clickable);
+    this.set('clickable', clickable);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setClickable', [this.getId(), clickable]);
+};
+Polyline.prototype.getClickable = function() {
+    return this.get('clickable');
+};
 Polyline.prototype.setGeodesic = function(geodesic) {
     geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);

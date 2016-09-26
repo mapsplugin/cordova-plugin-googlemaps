@@ -99,7 +99,7 @@ utils.extend(Polygon, BaseClass);
 
 Polygon.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'remove', [this.getId()]);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
 };
 Polygon.prototype.getPluginName = function() {
     return this.map.getId() + "-polygon";
@@ -176,6 +176,14 @@ Polygon.prototype.setVisible = function(visible) {
 };
 Polygon.prototype.getVisible = function() {
     return this.get('visible');
+};
+Polygon.prototype.setClickable = function(clickable) {
+    clickable = common.parseBoolean(clickable);
+    this.set('clickable', clickable);
+    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setClickable', [this.getId(), clickable]);
+};
+Polygon.prototype.getClickable = function() {
+    return this.get('clickable');
 };
 Polygon.prototype.setGeodesic = function(geodesic) {
     geodesic = common.parseBoolean(geodesic);
