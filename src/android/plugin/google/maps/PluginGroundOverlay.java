@@ -4,7 +4,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -12,7 +11,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaResourceApi;
@@ -21,8 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -79,14 +75,18 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
     // Load image
     final String imageUrl = opts.getString("url");
-
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
+
         setImage_(options, imageUrl, new PluginAsyncInterface() {
 
           @Override
           public void onPostExecute(Object object) {
+            if (object == null) {
+              callbackContext.error("Cannot create a ground overlay");
+              return;
+            }
             GroundOverlay groundOverlay = (GroundOverlay)object;
 
             String id = "groundoverlay_" + groundOverlay.getId();
@@ -102,9 +102,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
             try {
               result.put("hashCode", groundOverlay.hashCode());
               result.put("id", id);
-
-              self.objects.put("groundoverlay_property_" + groundOverlay.getId(), opts);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
             callbackContext.success(result);
           }
 
