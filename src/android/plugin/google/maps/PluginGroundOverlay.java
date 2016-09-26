@@ -3,18 +3,24 @@ package plugin.google.maps;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaResourceApi;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,7 +41,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   }
   
   public void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
-    GroundOverlayOptions options = new GroundOverlayOptions();
+    final GroundOverlayOptions options = new GroundOverlayOptions();
     final JSONObject properties = new JSONObject();
 
     if (opts.has("anchor")) {
@@ -72,145 +78,47 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     options.clickable(false);
 
     // Load image
-    String url = opts.getString("url");
-    _setImage(url, options, new PluginAsyncInterface() {
+    final String imageUrl = opts.getString("url");
 
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
-      public void onPostExecute(Object object) {
-        GroundOverlay groundOverlay = (GroundOverlay)object;
+      public void run() {
+        setImage_(options, imageUrl, new PluginAsyncInterface() {
 
-        String id = "groundoverlay_" + groundOverlay.getId();
-        self.objects.put(id, groundOverlay);
+          @Override
+          public void onPostExecute(Object object) {
+            GroundOverlay groundOverlay = (GroundOverlay)object;
 
-        String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
-        self.objects.put(boundsId, groundOverlay.getBounds());
+            String id = "groundoverlay_" + groundOverlay.getId();
+            self.objects.put(id, groundOverlay);
 
-        String propertyId = "groundoverlay_property_" + groundOverlay.getId();
-        self.objects.put(propertyId, properties);
+            String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
+            self.objects.put(boundsId, groundOverlay.getBounds());
 
-        JSONObject result = new JSONObject();
-        try {
-          result.put("hashCode", groundOverlay.hashCode());
-          result.put("id", id);
-          
-          self.objects.put("groundoverlay_property_" + groundOverlay.getId(), opts);
-        } catch (Exception e) {}
-        callbackContext.success(result);
+            String propertyId = "groundoverlay_property_" + groundOverlay.getId();
+            self.objects.put(propertyId, properties);
+
+            JSONObject result = new JSONObject();
+            try {
+              result.put("hashCode", groundOverlay.hashCode());
+              result.put("id", id);
+
+              self.objects.put("groundoverlay_property_" + groundOverlay.getId(), opts);
+            } catch (Exception e) {}
+            callbackContext.success(result);
+          }
+
+          @Override
+          public void onError(String errorMsg) {
+            callbackContext.error(errorMsg);
+          }
+
+        });
       }
-
-      @Override
-      public void onError(String errorMsg) {
-        callbackContext.error(errorMsg);
-      }
-      
     });
+
   }
   
-  @SuppressWarnings("resource")
-  public void _setImage(final String url, final GroundOverlayOptions options, final PluginAsyncInterface callback) {
-    if (url == null || url.length() == 0) {
-      callback.onError("The url property is empty");
-      return;
-    }
-
-    String filePath = url;
-    if (!filePath.contains("://") &&
-        !filePath.startsWith("/") &&
-        !filePath.startsWith("www/")) {
-      filePath = "./" + filePath;
-    }
-    if (filePath.indexOf("./") == 0) {
-      String currentPage = this.webView.getUrl();
-      currentPage = currentPage.replaceAll("[^\\/]*$", "");
-      filePath = filePath.replace("./", currentPage);
-    }
-    
-    
-    //=================================
-    // Load the image from the Internet
-    //=================================
-    if (filePath.indexOf("http") == 0) {
-      
-      AsyncLoadImage task = new AsyncLoadImage(new AsyncLoadImageInterface() {
-
-        @Override
-        public void onPostExecute(Bitmap image) {
-          if (image == null) {
-            callback.onError("Can not load image from " + url);
-            return;
-          }
-          BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-          if (bitmapDescriptor != null) {
-            options.image(bitmapDescriptor);
-            GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
-            callback.onPostExecute(groundOverlay);
-          } else {
-            callback.onError("Can not load image from " + url);
-          }
-        }
-      
-      });
-      task.execute(filePath);
-      return;
-    }
-    
-    InputStream inputStream;
-    if (filePath.indexOf("/") == 0 ||
-        (filePath.indexOf("file://") == 0 && !filePath.contains("file:///android_asset/")) ||
-        filePath.indexOf("cdvfile://") == 0) {
-      if (filePath.indexOf("cdvfile://") == 0) {
-        filePath = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), filePath);
-      }
-      if (filePath.indexOf("file://") == 0) {
-        filePath = filePath.replace("file://", "");
-      }
-      
-      try {
-        inputStream = new FileInputStream(filePath);
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-        callback.onError("Can not load image from " + url);
-        return;
-      }
-    } else {
-      if (filePath.indexOf("file:///android_asset/") == 0) {
-        filePath = filePath.replace("file:///android_asset/", "");
-      }
-      AssetManager assetManager = PluginGroundOverlay.this.cordova.getActivity().getAssets();
-      try {
-        inputStream = assetManager.open(filePath);
-      } catch (IOException e) {
-        e.printStackTrace();
-        callback.onError("Can not load image from " + url);
-        return;
-      }
-    }
-    
-    
-    try {
-      Bitmap image = null;
-      image = BitmapFactory.decodeStream(inputStream);
-      
-      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-      if (bitmapDescriptor != null) {
-        options.image(bitmapDescriptor);
-
-        cordova.getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
-            callback.onPostExecute(groundOverlay);
-          }
-        });
-      } else {
-        callback.onError("Can not load image from " + url);
-      }
-      image.recycle();
-      inputStream.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
 
   /**
    * Remove this tile layer
@@ -244,7 +152,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     String url = args.getString(1);
     
-    String propertyId = "gOverlay_property_" + id;
+    String propertyId = "groundoverlay_property_" + id;
     JSONObject opts = (JSONObject) self.objects.get(propertyId);
     opts.put("url", url);
     
@@ -346,5 +254,190 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     properties.put("isClickable", clickable);
     self.objects.put(propertyId, properties);
     this.sendNoResult(callbackContext);
+  }
+
+  private void setImage_(final GroundOverlayOptions options, String iconUrl, final PluginAsyncInterface callback) {
+
+    if (iconUrl == null) {
+      callback.onPostExecute(null);
+      return;
+    }
+
+    if (!iconUrl.contains("://") &&
+        !iconUrl.startsWith("/") &&
+        !iconUrl.startsWith("www/") &&
+        !iconUrl.startsWith("data:image") &&
+        !iconUrl.startsWith("./") &&
+        !iconUrl.startsWith("../")) {
+      iconUrl = "./" + iconUrl;
+    }
+    if (iconUrl.startsWith("./")  || iconUrl.startsWith("../")) {
+      iconUrl = iconUrl.replace("././", "./");
+      String currentPage = PluginGroundOverlay.this.webView.getUrl();
+      currentPage = currentPage.replaceAll("[^\\/]*$", "");
+      iconUrl = currentPage + "/" + iconUrl;
+    }
+
+    if (iconUrl == null) {
+      callback.onPostExecute(null);
+      return;
+    }
+
+    final String imageUrl = iconUrl;
+
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+
+        if (imageUrl.indexOf("http") != 0) {
+          //----------------------------------
+          // Load icon from local file
+          //----------------------------------
+          AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
+
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+              String iconUrl = imageUrl;
+              if (iconUrl == null) {
+                return null;
+              }
+
+              Bitmap image = null;
+              if (iconUrl.indexOf("cdvfile://") == 0) {
+                CordovaResourceApi resourceApi = webView.getResourceApi();
+                iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
+              }
+              if (iconUrl == null) {
+                return null;
+              }
+
+              if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
+                String[] tmp = iconUrl.split(",");
+                image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+              } else if (iconUrl.indexOf("file://") == 0 &&
+                  !iconUrl.contains("file:///android_asset/")) {
+                iconUrl = iconUrl.replace("file://", "");
+                File tmp = new File(iconUrl);
+                if (tmp.exists()) {
+                  image = BitmapFactory.decodeFile(iconUrl);
+                } else {
+                  //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
+                  Log.w(TAG, "icon is not found (" + iconUrl + ")");
+                  //}
+                }
+              } else {
+                //Log.d(TAG, "iconUrl = " + iconUrl);
+                if (iconUrl.indexOf("file:///android_asset/") == 0) {
+                  iconUrl = iconUrl.replace("file:///android_asset/", "");
+                }
+                //Log.d(TAG, "iconUrl = " + iconUrl);
+                if (iconUrl.contains("./")) {
+                  try {
+                    boolean isAbsolutePath = iconUrl.startsWith("/");
+                    File relativePath = new File(iconUrl);
+                    iconUrl = relativePath.getCanonicalPath();
+                    //Log.d(TAG, "iconUrl = " + iconUrl);
+                    if (!isAbsolutePath) {
+                      iconUrl = iconUrl.substring(1);
+                    }
+                    //Log.d(TAG, "iconUrl = " + iconUrl);
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
+                }
+                AssetManager assetManager = PluginGroundOverlay.this.cordova.getActivity().getAssets();
+                InputStream inputStream;
+                try {
+                  inputStream = assetManager.open(iconUrl);
+                  image = BitmapFactory.decodeStream(inputStream);
+                } catch (IOException e) {
+                  e.printStackTrace();
+                  return null;
+                }
+              }
+              if (image == null) {
+                return null;
+              }
+
+              return image;
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap image) {
+              if (image == null) {
+                callback.onPostExecute(null);
+                return;
+              }
+
+              GroundOverlay groundOverlay = null;
+              try {
+                BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+                options.image(bitmapDescriptor);
+                groundOverlay = self.map.addGroundOverlay(options);
+
+                callback.onPostExecute(groundOverlay);
+
+              } catch (Exception e) {
+                Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
+                //e.printStackTrace();
+                try {
+                  if (groundOverlay != null) {
+                    groundOverlay.remove();
+                  }
+                } catch (Exception ignore) {
+                  ignore = null;
+                }
+                callback.onError(e.getMessage() + "");
+              }
+            }
+          };
+          task.execute();
+
+
+          return;
+        }
+
+        if (imageUrl.indexOf("http") == 0) {
+          //----------------------------------
+          // Load icon from on the internet
+          //----------------------------------
+          int width = -1;
+          int height = -1;
+          AsyncLoadImage task = new AsyncLoadImage(width, height, new AsyncLoadImageInterface() {
+
+            @Override
+            public void onPostExecute(Bitmap image) {
+
+              if (image == null) {
+                callback.onPostExecute(null);
+                return;
+              }
+              GroundOverlay groundOverlay = null;
+              try {
+                BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+                options.image(bitmapDescriptor);
+                groundOverlay = self.map.addGroundOverlay(options);
+
+                image.recycle();
+                callback.onPostExecute(groundOverlay);
+              } catch (Exception e) {
+                //e.printStackTrace();
+                try {
+                  if (groundOverlay != null) {
+                    groundOverlay.remove();
+                  }
+                } catch (Exception ignore) {
+                  ignore = null;
+                }
+                callback.onError(e.getMessage() + "");
+              }
+
+            }
+
+          });
+          task.execute(imageUrl);
+        }
+      }
+    });
   }
 }
