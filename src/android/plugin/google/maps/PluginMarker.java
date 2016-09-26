@@ -499,9 +499,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException
    */
   public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    float alpha = (float)args.getDouble(1);
+    float zIndex = (float)args.getDouble(1);
     String id = args.getString(0);
-    this.setFloat("setZIndex", id, alpha, callbackContext);
+    Marker marker = getMarker(id);
+    this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
 
   /**
