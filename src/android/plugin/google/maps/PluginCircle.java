@@ -1,13 +1,14 @@
 package plugin.google.maps;
 
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
 
 public class PluginCircle extends MyPlugin implements MyPluginInterface {
 
@@ -20,6 +21,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final CircleOptions circleOptions = new CircleOptions();
     int color;
+    final JSONObject properties = new JSONObject();
     
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("center")) {
@@ -46,18 +48,34 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     if (opts.has("zIndex")) {
       circleOptions.zIndex(opts.getInt("zIndex"));
     }
+    if (opts.has("clickable")) {
+      properties.put("isClickable", opts.getBoolean("clickable"));
+    } else {
+      properties.put("isClickable", true);
+    }
+    properties.put("isVisible", circleOptions.isVisible());
+
+    // Since this plugin provide own click detection,
+    // disable default clickable feature.
+    circleOptions.clickable(false);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         Circle circle = map.addCircle(circleOptions);
-        String id = "circle_" + circle.getId();
-        self.objects.put(id, circle);
+        String id =  circle.getId();
+        self.objects.put("circle_" + id, circle);
+
+        self.objects.put("circle_property_" + id, properties);
+
+        // Recalculate the circle bounds
+        LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circleOptions.getCenter(), circleOptions.getRadius());
+        self.objects.put("circle_bounds_" + id, bounds);
 
         JSONObject result = new JSONObject();
         try {
           result.put("hashCode", circle.hashCode());
-          result.put("id", id);
+          result.put("id", "circle_" + id);
           callbackContext.success(result);
         } catch (JSONException e) {
           e.printStackTrace();
@@ -67,6 +85,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     });
 
   }
+
 
   /**
    * set center
@@ -83,6 +102,11 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        // Recalculate the circle bounds
+        String propertyId = "circle_bounds_" + circle.getId();
+        LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
+        self.objects.put(propertyId, bounds);
+
         circle.setCenter(center);
         callbackContext.success();
       }
@@ -137,8 +161,24 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
   @SuppressWarnings("unused")
   public void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    float radius = (float) args.getDouble(1);
-    this.setDouble("setRadius", id, radius, callbackContext);
+    final float radius = (float) args.getDouble(1);
+    final Circle circle = this.getCircle(id);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        // Recalculate the circle bounds
+        String propertyId = "circle_bounds_" + circle.getId();
+        LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
+        self.objects.put(propertyId, bounds);
+
+        // Update the overlay
+        circle.setRadius(radius);
+        callbackContext.success();
+      }
+    });
+
   }
   
   /**
@@ -153,20 +193,48 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     float zIndex = (float) args.getDouble(1);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
-  
+
 
   /**
    * Set visibility for the object
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean visible = args.getBoolean(1);
     String id = args.getString(0);
-    this.setBoolean("setVisible", id, visible, callbackContext);
+    final boolean isVisible = args.getBoolean(1);
+
+    final Circle circle = this.getCircle(id);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        circle.setVisible(isVisible);
+      }
+    });
+    String propertyId = "circle_property_" + circle.getId();
+    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    properties.put("isVisible", isVisible);
+    self.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
   }
-  
+
+  /**
+   * Set clickable for the object
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    final boolean clickable = args.getBoolean(1);
+    String propertyId = id.replace("circle_", "circle_property_");
+    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    properties.put("isClickable", clickable);
+    self.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
+  }
   /**
    * Remove the circle
    * @param args

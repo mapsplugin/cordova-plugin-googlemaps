@@ -129,18 +129,15 @@ Circle.prototype.getBounds = function() {
   var center = this.get("center");
   radius *= 0.000621371192;
 
-  var points = 32;
-
   // find the raidus in lat/lon
   var rlat = (radius / earthsradius) * r2d;
   var rlng = rlat / Math.cos(center.lat * d2r);
 
   var bounds = new LatLngBounds();
   var ex, ey;
-  for (var i = 0; i < points + 1; i++) {
-    var theta = Math.PI * (i / (points/2));
-    ey = center.lng + (rlng * Math.cos(theta)); // center a + radius x * cos(theta)
-    ex = center.lat + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
+  for (var i = 0; i < 360; i += 90) {
+    ey = center.lng + (rlng * Math.cos(i * d2r)); // center a + radius x * cos(theta)
+    ex = center.lat + (rlat * Math.sin(i * d2r)); // center b + radius y * sin(theta)
     bounds.extend({lat: ex, lng: ey});
   }
   return bounds;

@@ -61,6 +61,26 @@ public class PluginUtil {
     return true;
   }
 
+  public static LatLngBounds getBoundsFromCircle(LatLng center, double radius) {
+    double d2r = Math.PI / 180;   // degrees to radians
+    double r2d = 180 / Math.PI;   // radians to degrees
+    double earthsradius = 3963.189; // 3963 is the radius of the earth in miles
+    radius *= 0.000621371192; // convert to mile
+
+    // find the raidus in lat/lon
+    double rlat = (radius / earthsradius) * r2d;
+    double rlng = rlat / Math.cos(center.latitude * d2r);
+
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    double ex, ey;
+    for (int i = 0; i < 360; i+=90) {
+      ey = center.longitude + (rlng * Math.cos(i * d2r)); // center a + radius x * cos(theta)
+      ex = center.latitude + (rlat * Math.sin(i * d2r)); // center b + radius y * sin(theta)
+      builder.include(new LatLng(ex, ey));
+    }
+    return builder.build();
+  }
+
   public static LatLngBounds getBoundsFromPath(List<LatLng> path) {
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
