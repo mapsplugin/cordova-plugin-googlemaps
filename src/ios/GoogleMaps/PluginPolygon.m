@@ -55,6 +55,11 @@
   // Initialize this plugin
   self.objects = [[NSMutableDictionary alloc] init];
   self.executeQueue =  [NSOperationQueue new];
+  
+  // In order to keep the statement order,
+  // the queue must be FIFO.
+  // (especially for moderating the points and the holes)
+  self.executeQueue.maxConcurrentOperationCount = 1;
 }
 
 -(void)create:(CDVInvokedUrlCommand *)command
@@ -91,7 +96,7 @@
       }
   }
 
-  dispatch_async(dispatch_get_main_queue(), ^{
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
 
       // Create the polygon, and assign it to the map on UI thread.
       GMSPolygon *polygon = [GMSPolygon polygonWithPath:mutablePath];
@@ -167,45 +172,11 @@
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
 
-  });
-
-
-}
-
-
-
--(void)removePointAt:(CDVInvokedUrlCommand *)command
-{
-
-  [self.executeQueue addOperationWithBlock:^{
-  
-      NSString *polygonKey = [command.arguments objectAtIndex:0];
-      NSInteger index = [[command.arguments objectAtIndex:1] integerValue];
-      GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
-    
-      // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
-      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
-    
-      GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
-    
-      [mutablePath removeCoordinateAtIndex:index];
-    
-      // update the property
-      [properties setObject:mutablePath forKey:@"mutablePath"];
-      [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
-      [self.objects setObject:properties forKey:propertyId];
-    
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          [polygon setPath:mutablePath];
-
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
   }];
 
+
 }
+
 -(void)insertHoleAt:(CDVInvokedUrlCommand *)command
 {
 
@@ -241,12 +212,12 @@
     
 
       // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         polygon.holes = holePaths;
 
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
+      }];
 
     }];
 
@@ -279,15 +250,8 @@
       // Save the property
       [properties setObject:holePaths forKey:@"holePaths"];
     
-
-      // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
-        polygon.holes = holePaths;
-
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
-
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -320,12 +284,12 @@
     
 
       // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         polygon.holes = holePaths;
 
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
+      }];
 
   }];
 }
@@ -359,16 +323,50 @@
     
 
       // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
-        polygon.holes = holePaths;
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          polygon.holes = holePaths;
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
 
   }];
 }
 
+
+
+-(void)removePointAt:(CDVInvokedUrlCommand *)command
+{
+
+  [self.executeQueue addOperationWithBlock:^{
+  
+      NSString *polygonKey = [command.arguments objectAtIndex:0];
+      NSInteger index = [[command.arguments objectAtIndex:1] integerValue];
+      GMSPolygon *polygon = (GMSPolygon *)[self.objects objectForKey:polygonKey];
+    
+      // Get properties
+      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+    
+      GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
+    
+      [mutablePath removeCoordinateAtIndex:index];
+    
+      // update the property
+      [properties setObject:mutablePath forKey:@"mutablePath"];
+      if ([mutablePath count] == 0) {
+          [properties removeObjectForKey:@"bounds"];
+      } else {
+          [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
+      }
+      [self.objects setObject:properties forKey:propertyId];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
+}
 
 
 -(void)insertPointAt:(CDVInvokedUrlCommand *)command
@@ -455,12 +453,12 @@
     NSArray *rgbColor = [command.arguments objectAtIndex:1];
 
     // Apply to the polygon on UI thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [polygon setFillColor:[rgbColor parsePluginColor]];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [polygon setFillColor:[rgbColor parsePluginColor]];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 
 }
@@ -480,12 +478,12 @@
     NSArray *rgbColor = [command.arguments objectAtIndex:1];
 
     // Apply to the polygon on UI thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [polygon setStrokeColor:[rgbColor parsePluginColor]];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [polygon setStrokeColor:[rgbColor parsePluginColor]];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 
 }
@@ -504,11 +502,11 @@
 
     
       // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [polygon setStrokeWidth:width];
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polygon setStrokeWidth:width];
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 
 }
@@ -536,12 +534,12 @@
       [self.objects setObject:properties forKey:propertyId];
       
       // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [polygon setZIndex:(int)zIndex];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
+      }];
   }];
 
 }
@@ -583,30 +581,30 @@
 
   [self.executeQueue addOperationWithBlock:^{
 
-    NSString *polygonKey = [command.arguments objectAtIndex:0];
-    GMSPolygon *polygon = [self.objects objectForKey:polygonKey];
-    Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
+      NSString *polygonKey = [command.arguments objectAtIndex:0];
+      GMSPolygon *polygon = [self.objects objectForKey:polygonKey];
+      Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
-    // Get properties
-    NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
-    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                       [self.objects objectForKey:propertyId]];
+      // Get properties
+      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
 
-    // update the property
-    [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
-    [self.objects setObject:properties forKey:propertyId];
-    
-    // Apply to the polygon on UI thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (isVisible) {
-        //polygon.map = self.mapCtrl.map;
-      } else {
-        polygon.map = nil;
-      }
+      // update the property
+      [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
+      [self.objects setObject:properties forKey:propertyId];
+      
+      // Apply to the polygon on UI thread.
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          if (isVisible) {
+            //polygon.map = self.mapCtrl.map;
+          } else {
+            polygon.map = nil;
+          }
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 
 }
@@ -619,17 +617,17 @@
 
   [self.executeQueue addOperationWithBlock:^{
 
-    NSString *polygonKey = [command.arguments objectAtIndex:0];
-    GMSPolygon *polygon = [self.objects objectForKey:polygonKey];
-    Boolean isGeodisic = [[command.arguments objectAtIndex:1] boolValue];
+      NSString *polygonKey = [command.arguments objectAtIndex:0];
+      GMSPolygon *polygon = [self.objects objectForKey:polygonKey];
+      Boolean isGeodisic = [[command.arguments objectAtIndex:1] boolValue];
 
-    // Apply to the polygon on UI thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [polygon setGeodesic:isGeodisic];
+      // Apply to the polygon on UI thread.
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polygon setGeodesic:isGeodisic];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    });
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 }
 
@@ -646,13 +644,15 @@
       GMSPolygon *polygon = [self.objects objectForKey:polygonKey];
 
       // Apply to the polygon on UI thread.
-      dispatch_async(dispatch_get_main_queue(), ^{
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           polygon.map = nil;
           [self.objects removeObjectForKey:polygonKey];
+          [self.objects removeObjectForKey:[polygonKey stringByReplacingOccurrencesOfString:@"_" withString:@"_holePaths_"]];
+          [self.objects removeObjectForKey:[polygonKey stringByReplacingOccurrencesOfString:@"_" withString:@"_property_"]];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      });
+      }];
   }];
   
 }

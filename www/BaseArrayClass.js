@@ -20,9 +20,13 @@ function BaseArrayClass(array) {
     };
 
     self.empty = function() {
-        for (var i = 0; i < array.length; i++) {
-            self.removeAt(0);
+        var tmp = [];
+        for (var i = 0; i < _array.length; i++) {
+            tmp.push(1);
         }
+        tmp.forEach(function() {
+          self.removeAt(0);
+        });
     };
 
     self.push = function(value, noNotify) {
