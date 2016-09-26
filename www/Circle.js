@@ -2,6 +2,7 @@ var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
     common = require('./Common'),
+    LatLngBounds = require('./LatLngBounds'),
     BaseClass = require('./BaseClass');
 
 /*****************************************************************************
@@ -103,6 +104,31 @@ Circle.prototype.setRadius = function(radius) {
 Circle.prototype.remove = function() {
     this.trigger(this.id + "_remove");
     cordova.exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+};
+
+Circle.prototype.getBounds = function() {
+  var d2r = Math.PI / 180;   // degrees to radians
+  var r2d = 180 / Math.PI;   // radians to degrees
+  var earthsradius = 3963.189; // 3963 is the radius of the earth in miles
+  var radius = this.get("radius");
+  var center = this.get("center");
+  radius *= 0.000621371192;
+
+  var points = 32;
+
+  // find the raidus in lat/lon
+  var rlat = (radius / earthsradius) * r2d;
+  var rlng = rlat / Math.cos(center.lat * d2r);
+
+  var bounds = new LatLngBounds();
+  var ex, ey;
+  for (var i = 0; i < points + 1; i++) {
+    var theta = Math.PI * (i / (points/2));
+    ey = center.lng + (rlng * Math.cos(theta)); // center a + radius x * cos(theta)
+    ex = center.lat + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
+    bounds.extend({lat: ex, lng: ey});
+  }
+  return bounds;
 };
 
 module.exports = Circle;
