@@ -23,8 +23,10 @@ dispatch_queue_t queue;
 }
 - (void)isAvailable:(CDVInvokedUrlCommand *)command {
   // Return true always in iOS.
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  dispatch_async(queue, ^{
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  });
 
 }
 
