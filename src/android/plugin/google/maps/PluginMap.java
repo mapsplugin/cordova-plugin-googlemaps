@@ -519,7 +519,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             public void run() {
               mapCtrl.mPluginLayout.removePluginMap(mapId);
 
-              Log.d("pluginMap", "--> map = " + map);
+              //Log.d("pluginMap", "--> map = " + map);
               if (map != null) {
                 try {
                   map.setIndoorEnabled(false);
@@ -549,12 +549,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   mapView.onCancelPendingInputEvents();
                   mapView.onPause();
                   mapView.onDestroy();
-                  Log.d("pluginMap", "--> mapView.onDestroy()");
+                  //Log.d("pluginMap", "--> mapView.onDestroy()");
                 } catch (Exception e) {
                   e.printStackTrace();
                 }
               }
-              Log.d("pluginMap", "--> mapView = " + mapView);
+              //Log.d("pluginMap", "--> mapView = " + mapView);
               map = null;
               mapView = null;
               System.gc();
