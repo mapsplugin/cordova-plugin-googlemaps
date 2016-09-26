@@ -110,9 +110,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       @SuppressLint("NewApi")
       public void run() {
 
-        if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())){
-          view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        }
+        // Enable this, webView makes draw cache on the Android action bar issue.
+        //View view = webView.getView();
+        //if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())){
+        //  view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        //  Log.d("Layout", "--> view =" + view.isHardwareAccelerated()); //always false
+        //}
 
 
         // ------------------------------
