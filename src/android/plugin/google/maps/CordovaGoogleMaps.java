@@ -305,31 +305,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
 
 
-  public void updateMapViewLayout() {
-    /*
-    View view = webView.getView();
-    mPluginLayout.scrollTo(view.getScrollX(), view.getScrollY());
-
-    Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-    RectF rectF;
-    int scrollX = webView.getView().getScrollX();
-    int scrollY = webView.getView().getScrollY();
-    String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-    for (String mapId : mapIdArray) {
-      rectF = mPluginLayout.getMapRect(mapId);
-      //Log.d(TAG, "---> updateMapViewLayout / " + mapId + " / " + rectF.left + ", " + rectF.top + " - " + rectF.width() + ", " + rectF.height());
-
-      rectF.left -= scrollX;
-      rectF.top -= scrollY;
-      rectF.right = rectF.left + rectF.width() - scrollX;
-      rectF.bottom = rectF.top + rectF.height() - scrollY;
-
-      mPluginLayout.setMapRect(mapId, rectF);
-    }
-    */
-  }
-
-
   public void requestPermissions(CordovaPlugin plugin, int requestCode, String[] permissions) {
 
     try {
@@ -680,7 +655,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       @Override
       public void run() {
         mPluginLayout.setBackgroundColor(Color.WHITE);
-
 
         Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
         PluginMap pluginMap;
