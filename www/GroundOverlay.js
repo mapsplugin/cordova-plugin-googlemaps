@@ -55,8 +55,8 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
   self.on("opacity_changed", function(oldValue, opacity) {
       exec(null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
   });
-  self.on("bearing_changed", function(oldValue, bearing) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setBearing', [self.getId(), bearing]);
+  self.on("clickable_changed", function(oldValue, clickable) {
+      exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
   });
   self.on("bearing_changed", function(oldValue, bearing) {
       exec(null, self.errorHandler, self.getPluginName(), 'setBearing', [self.getId(), bearing]);
@@ -134,6 +134,14 @@ GroundOverlay.prototype.getZIndex = function() {
 
 GroundOverlay.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
+};
+GroundOverlay.prototype.setClickable = function(clickable) {
+    clickable = common.parseBoolean(clickable);
+    this.set('clickable', clickable);
+    return this;
+};
+GroundOverlay.prototype.getClickable = function() {
+    return this.get('clickable');
 };
 
 GroundOverlay.prototype.remove = function() {

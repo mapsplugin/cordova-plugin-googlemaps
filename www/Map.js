@@ -51,7 +51,7 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
-    cordova.exec(null, null, this.id, 'resizeMap', []);
+    exec(null, null, this.id, 'resizeMap', []);
 };
 
 Map.prototype.getMap = function(mapId, div, options) {
@@ -132,7 +132,7 @@ Map.prototype.getMap = function(mapId, div, options) {
             div = div.parentNode;
         }
     }
-    cordova.exec(function() {
+    exec(function() {
       //setTimeout(function() {
           self.refreshLayout();
           self.trigger(event.MAP_READY, self);
@@ -161,25 +161,25 @@ Map.prototype.setOptions = function(options) {
         this.set('camera_tilt', options.camera.tilt);
       }
     }
-    cordova.exec(null, this.errorHandler, this.id, 'setOptions', [common.deleteFromObject(options, 'function')]);
+    exec(null, this.errorHandler, this.id, 'setOptions', [common.deleteFromObject(options, 'function')]);
     return this;
 };
 
 Map.prototype.setCameraTarget = function(latLng) {
     this.set('camera_target', latLng);
-    cordova.exec(null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
+    exec(null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
     return this;
 };
 
 Map.prototype.setCameraZoom = function(zoom) {
     this.set('camera_zoom', zoom);
-    cordova.exec(null, this.errorHandler, this.id, 'setCameraZoom', [zoom]);
+    exec(null, this.errorHandler, this.id, 'setCameraZoom', [zoom]);
     return this;
 };
 Map.prototype.panBy = function(x, y) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
-    cordova.exec(null, this.errorHandler, this.id, 'panBy', [x, y]);
+    exec(null, this.errorHandler, this.id, 'panBy', [x, y]);
     return this;
 };
 
@@ -205,7 +205,7 @@ Map.prototype.clear = function(callback) {
     clearObj(self.MARKERS);
     clearObj(self.KML_LAYERS);
 
-    cordova.exec(function() {
+    exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -226,7 +226,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
         return this.errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
-    cordova.exec(null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
+    exec(null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
     return this;
 };
 
@@ -236,7 +236,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setCameraTilt = function(tilt) {
     this.set('camera_tilt', tilt);
-    cordova.exec(null, this.errorHandler, this.id, 'setCameraTilt', [tilt]);
+    exec(null, this.errorHandler, this.id, 'setCameraTilt', [tilt]);
     return this;
 };
 
@@ -246,7 +246,7 @@ Map.prototype.setCameraTilt = function(tilt) {
  */
 Map.prototype.setCameraBearing = function(bearing) {
     this.set('camera_bearing', bearing);
-    cordova.exec(null, this.errorHandler, this.id, 'setCameraBearing', [bearing]);
+    exec(null, this.errorHandler, this.id, 'setCameraBearing', [bearing]);
     return this;
 };
 
@@ -261,7 +261,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
         cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
     }
 
-    cordova.exec(function() {
+    exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -279,7 +279,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
         cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
     }
     var self = this;
-    cordova.exec(function() {
+    exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -289,23 +289,23 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled]);
+    exec(null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled]);
     return this;
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
+    exec(null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
     return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
+    exec(null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
     return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
+    exec(null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
     return this;
 };
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
@@ -330,20 +330,20 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    cordova.exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [common.deleteFromObject(params, 'function')]);
+    exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [common.deleteFromObject(params, 'function')]);
 };
 Map.prototype.getFocusedBuilding = function(callback) {
-    cordova.exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
+    exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
 };
 Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
-    cordova.exec(null, self.errorHandler, this.id, 'setVisible', [isVisible]);
+    exec(null, self.errorHandler, this.id, 'setVisible', [isVisible]);
     return this;
 };
 Map.prototype.setClickable = function(isClickable) {
     isClickable = common.parseBoolean(isClickable);
-    cordova.exec(null, self.errorHandler, this.id, 'setClickable', [isClickable]);
+    exec(null, self.errorHandler, this.id, 'setClickable', [isClickable]);
     return this;
 };
 
@@ -353,7 +353,7 @@ Map.prototype.setClickable = function(isClickable) {
  */
 Map.prototype.setAllGesturesEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    cordova.exec(null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
+    exec(null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
     return this;
 };
 
@@ -390,7 +390,7 @@ Map.prototype.remove = function(callback) {
     self.clear();
     self.empty();
     self.off();
-    cordova.exec(function() {
+    exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -409,7 +409,7 @@ Map.prototype.toDataURL = function(params, callback) {
 
     params.uncompress = params.uncompress === true;
     var self = this;
-    cordova.exec(function(image) {
+    exec(function(image) {
         if (typeof callback === "function") {
             callback.call(self, image);
         }
@@ -461,7 +461,7 @@ Map.prototype.setDiv = function(div) {
             div = div.parentNode;
         }
     }
-    cordova.exec(function() {
+    exec(function() {
         self.refreshLayout();
     }, self.errorHandler, self.id, 'setDiv', args);
     return self;
@@ -474,7 +474,7 @@ Map.prototype.setDiv = function(div) {
 Map.prototype.getVisibleRegion = function(callback) {
     var self = this;
 
-    cordova.exec(function(result) {
+    exec(function(result) {
         if (typeof callback === "function") {
             var latLngBounds = new LatLngBounds(result.latLngArray);
             latLngBounds.northeast = new LatLng(result.northeast.lat, result.northeast.lng);
@@ -490,7 +490,7 @@ Map.prototype.getVisibleRegion = function(callback) {
 Map.prototype.fromLatLngToPoint = function(latLng, callback) {
     var self = this;
     if ("lat" in latLng && "lng" in latLng) {
-        cordova.exec(function(result) {
+        exec(function(result) {
             if (typeof callback === "function") {
                 callback.call(self, result);
             }
@@ -508,7 +508,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
 Map.prototype.fromPointToLatLng = function(pixel, callback) {
     var self = this;
     if (pixel.length == 2 && utils.isArray(pixel)) {
-        cordova.exec(function(result) {
+        exec(function(result) {
             if (typeof callback === "function") {
                 var latLng = new LatLng(result[0] || 0, result[1] || 0);
                 callback.call(self, latLng);
@@ -557,7 +557,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
             padding.left = padding.top;
             break;
     }
-    cordova.exec(function(result) {
+    exec(function(result) {
         if (typeof callback === "function") {
             var latLng = new LatLng(result[0] || 0, result[1] || 0);
             callback.call(self, result);
@@ -584,7 +584,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     self.OVERLAYS[kmlId] = kmlOverlay;
     self.KML_LAYERS[kmlId] = kmlOverlay;
 
-    cordova.exec(function(kmlId) {
+    exec(function(kmlId) {
         kmlOverlay.one(result.id + "_remove", function() {
             kmlOverlay.off();
             delete self.KML_LAYERS[kmlId];
@@ -610,7 +610,8 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
 
-    cordova.exec(function(result) {
+    exec(function(result) {
+        groundOverlayOptions.hashCode = result.hashCode;
         var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
         self.OVERLAYS[result.id] = groundOverlay;
         groundOverlay.one(result.id + "_remove", function() {
@@ -640,7 +641,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
     tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
 
-    cordova.exec(function(result) {
+    exec(function(result) {
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
         self.OVERLAYS[result.id] = tileOverlay;
         tileOverlay.one(result.id + "_remove", function() {
@@ -687,7 +688,8 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     polygonOptions.zIndex = polygonOptions.zIndex || 0;
     polygonOptions.geodesic = polygonOptions.geodesic === true;
 
-    cordova.exec(function(result) {
+    exec(function(result) {
+        polygonOptions.hashCode = result.hashCode;
         var polygon = new Polygon(self, result.id, polygonOptions);
         self.OVERLAYS[result.id] = polygon;
         polygon.one(result.id + "_remove", function() {
@@ -718,8 +720,9 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.zIndex = polylineOptions.zIndex || 0;
     polylineOptions.geodesic = polylineOptions.geodesic === true;
 
-    cordova.exec(function(result) {
+    exec(function(result) {
         polylineOptions.points = _orgs;
+        polylineOptions.hashCode = result.hashCode;
         var polyline = new Polyline(self, result.id, polylineOptions);
         self.OVERLAYS[result.id] = polyline;
         polyline.one(result.id + "_remove", function() {
@@ -748,7 +751,8 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.zIndex = circleOptions.zIndex || 0;
     circleOptions.radius = circleOptions.radius || 1;
 
-    cordova.exec(function(result) {
+    exec(function(result) {
+        circleOptions.hashCode = result.hashCode;
         var circle = new Circle(self, result.id, circleOptions);
         self.OVERLAYS[result.id] = circle;
 
@@ -796,7 +800,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     var markerClick = markerOptions.markerClick;
     var infoClick = markerOptions.infoClick;
 
-    cordova.exec(function(result) {
+    exec(function(result) {
         markerOptions.hashCode = result.hashCode;
         var marker = new Marker(self, result.id, markerOptions);
 
