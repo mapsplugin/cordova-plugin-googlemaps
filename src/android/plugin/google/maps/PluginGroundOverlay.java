@@ -168,14 +168,19 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void setBounds(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
+    final GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     
     JSONArray points = args.getJSONArray(1);
-    LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-    groundOverlay.setPositionFromBounds(bounds);
+    final LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        groundOverlay.setPositionFromBounds(bounds);
+      }
+    });
 
     String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
-    self.objects.put(boundsId, groundOverlay.getBounds());
+    self.objects.put(boundsId, bounds);
 
     this.sendNoResult(callbackContext);
   }
