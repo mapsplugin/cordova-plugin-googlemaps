@@ -175,6 +175,17 @@
         continue;
       }
     }
+    
+    if ([key hasPrefix:@"groundoverlay_"]) {
+      key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
+      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[plugin.objects objectForKey:key];
+      if ([groundOverlay.bounds containsCoordinate:coordinate]) {
+        maxZIndex = zIndex;
+        hitKey = key;
+        continue;
+      }
+    }
+
   }
   
   if (hitKey != nil) {

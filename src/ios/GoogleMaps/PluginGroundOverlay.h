@@ -18,6 +18,7 @@
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand *)command;
+- (void)setClickable:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
 - (void)setImage:(CDVInvokedUrlCommand*)command;
 - (void)setBounds:(CDVInvokedUrlCommand*)command;

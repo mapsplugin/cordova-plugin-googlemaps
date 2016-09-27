@@ -111,7 +111,7 @@
             // points
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
             GMSMutablePath *mutablePath = [PluginUtil getMutablePathFromCircle:circle.position radius:circle.radius];
-            [properties setObject:mutablePath forKey:@"mutablePath"];
+            //[properties setObject:mutablePath forKey:@"mutablePath"];
             // bounds (pre-calculate for click detection)
             [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
             // isVisible

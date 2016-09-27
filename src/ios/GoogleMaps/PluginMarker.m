@@ -695,7 +695,6 @@
             /**
              * Load icon from file or Base64 encoded strings
              */
-            Boolean isTextMode = true;
 
             UIImage *image;
             if ([iconPath rangeOfString:@"data:image/"].location != NSNotFound &&
@@ -704,7 +703,6 @@
                 /**
                  * Base64 icon
                  */
-                isTextMode = false;
                 NSArray *tmp = [iconPath componentsSeparatedByString:@","];
 
                 NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
