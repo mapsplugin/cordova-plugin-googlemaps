@@ -571,7 +571,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               if (mapView != null) {
                 try {
                   mapView.clearAnimation();
-                  mapView.onCancelPendingInputEvents();
+                  //mapView.onCancelPendingInputEvents();   // Android 4.2 crashes
                   mapView.onPause();
                   mapView.onDestroy();
                   //Log.d("pluginMap", "--> mapView.onDestroy()");
