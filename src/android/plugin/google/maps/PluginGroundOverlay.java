@@ -56,7 +56,6 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     if (opts.has("visible")) {
       options.visible(opts.getBoolean("visible"));
     }
-
     if (opts.has("bounds")) {
       JSONArray points = opts.getJSONArray("bounds");
       LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
@@ -88,20 +87,20 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
               return;
             }
             GroundOverlay groundOverlay = (GroundOverlay)object;
+            String id = groundOverlay.getId();
 
-            String id = "groundoverlay_" + groundOverlay.getId();
-            self.objects.put(id, groundOverlay);
+            self.objects.put("groundoverlay_" + id, groundOverlay);
 
-            String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
-            self.objects.put(boundsId, groundOverlay.getBounds());
+            self.objects.put("groundoverlay_bounds_" + id, groundOverlay.getBounds());
 
-            String propertyId = "groundoverlay_property_" + groundOverlay.getId();
-            self.objects.put(propertyId, properties);
+            self.objects.put("groundoverlay_property_" + id, properties);
+
+            self.objects.put("groundoverlay_initOpts_" + id, opts);
 
             JSONObject result = new JSONObject();
             try {
               result.put("hashCode", groundOverlay.hashCode());
-              result.put("id", id);
+              result.put("id", "groundoverlay_" + id);
             } catch (Exception e) {
               e.printStackTrace();
             }
@@ -152,9 +151,10 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     String url = args.getString(1);
     
-    String propertyId = "groundoverlay_property_" + id;
+    String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
     JSONObject opts = (JSONObject) self.objects.get(propertyId);
     opts.put("url", url);
+    self.objects.put(propertyId, opts);
     
     _createGroundOverlay(opts, callbackContext);
   }
@@ -169,8 +169,14 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   public void setBounds(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
     final GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
-    
+
+    String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
+    JSONObject opts = (JSONObject) self.objects.get(propertyId);
+
     JSONArray points = args.getJSONArray(1);
+    opts.put("bounds", points);
+    self.objects.put(propertyId, opts);
+
     final LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -192,9 +198,15 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    * @throws JSONException 
    */
   public void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    float alpha = (float)args.getDouble(1);
+    float opacity = (float)args.getDouble(1);
     String id = args.getString(0);
-    this.setFloat("setTransparency", id, 1 - alpha, callbackContext);
+
+    String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
+    JSONObject opts = (JSONObject) self.objects.get(propertyId);
+    opts.put("opacity", opacity);
+    self.objects.put(propertyId, opts);
+
+    this.setFloat("setTransparency", id, 1 - opacity, callbackContext);
   }
   /**
    * Set bearing
@@ -205,6 +217,12 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   public void setBearing(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float bearing = (float)args.getDouble(1);
     String id = args.getString(0);
+
+    String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
+    JSONObject opts = (JSONObject) self.objects.get(propertyId);
+    opts.put("bearing", bearing);
+    self.objects.put(propertyId, opts);
+
     this.setFloat("setBearing", id, bearing, callbackContext);
   }
   /**
@@ -216,6 +234,12 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
     float zIndex = (float) args.getDouble(1);
+
+    String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
+    JSONObject opts = (JSONObject) self.objects.get(propertyId);
+    opts.put("zIndex", zIndex);
+    self.objects.put(propertyId, opts);
+
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
 
@@ -242,6 +266,13 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     JSONObject properties = (JSONObject)self.objects.get(propertyId);
     properties.put("isVisible", isVisible);
     self.objects.put(propertyId, properties);
+
+    propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
+    JSONObject opts = (JSONObject) self.objects.get(propertyId);
+    opts.put("visible", isVisible);
+    self.objects.put(propertyId, opts);
+
+
     this.sendNoResult(callbackContext);
   }
 
@@ -261,34 +292,34 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     this.sendNoResult(callbackContext);
   }
 
-  private void setImage_(final GroundOverlayOptions options, String iconUrl, final PluginAsyncInterface callback) {
+  private void setImage_(final GroundOverlayOptions options, String imgUrl, final PluginAsyncInterface callback) {
 
-    if (iconUrl == null) {
+    if (imgUrl == null) {
       callback.onPostExecute(null);
       return;
     }
 
-    if (!iconUrl.contains("://") &&
-        !iconUrl.startsWith("/") &&
-        !iconUrl.startsWith("www/") &&
-        !iconUrl.startsWith("data:image") &&
-        !iconUrl.startsWith("./") &&
-        !iconUrl.startsWith("../")) {
-      iconUrl = "./" + iconUrl;
+    if (!imgUrl.contains("://") &&
+        !imgUrl.startsWith("/") &&
+        !imgUrl.startsWith("www/") &&
+        !imgUrl.startsWith("data:image") &&
+        !imgUrl.startsWith("./") &&
+        !imgUrl.startsWith("../")) {
+      imgUrl = "./" + imgUrl;
     }
-    if (iconUrl.startsWith("./")  || iconUrl.startsWith("../")) {
-      iconUrl = iconUrl.replace("././", "./");
+    if (imgUrl.startsWith("./")  || imgUrl.startsWith("../")) {
+      imgUrl = imgUrl.replace("././", "./");
       String currentPage = PluginGroundOverlay.this.webView.getUrl();
       currentPage = currentPage.replaceAll("[^\\/]*$", "");
-      iconUrl = currentPage + "/" + iconUrl;
+      imgUrl = currentPage + "/" + imgUrl;
     }
 
-    if (iconUrl == null) {
+    if (imgUrl == null) {
       callback.onPostExecute(null);
       return;
     }
 
-    final String imageUrl = iconUrl;
+    final String imageUrl = imgUrl;
 
     cordova.getThreadPool().submit(new Runnable() {
       @Override
@@ -296,56 +327,54 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
         if (imageUrl.indexOf("http") != 0) {
           //----------------------------------
-          // Load icon from local file
+          // Load img from local file
           //----------------------------------
           AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
             @Override
             protected Bitmap doInBackground(Void... params) {
-              String iconUrl = imageUrl;
-              if (iconUrl == null) {
+              String imgUrl = imageUrl;
+              if (imgUrl == null) {
                 return null;
               }
 
               Bitmap image = null;
-              if (iconUrl.indexOf("cdvfile://") == 0) {
+              if (imgUrl.indexOf("cdvfile://") == 0) {
                 CordovaResourceApi resourceApi = webView.getResourceApi();
-                iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
+                imgUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, imgUrl);
               }
-              if (iconUrl == null) {
+              if (imgUrl == null) {
                 return null;
               }
 
-              if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
-                String[] tmp = iconUrl.split(",");
+              if (imgUrl.indexOf("data:image/") == 0 && imgUrl.contains(";base64,")) {
+                String[] tmp = imgUrl.split(",");
                 image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-              } else if (iconUrl.indexOf("file://") == 0 &&
-                  !iconUrl.contains("file:///android_asset/")) {
-                iconUrl = iconUrl.replace("file://", "");
-                File tmp = new File(iconUrl);
+              } else if (imgUrl.indexOf("file://") == 0 &&
+                  !imgUrl.contains("file:///android_asset/")) {
+                imgUrl = imgUrl.replace("file://", "");
+                File tmp = new File(imgUrl);
                 if (tmp.exists()) {
-                  image = BitmapFactory.decodeFile(iconUrl);
+                  image = BitmapFactory.decodeFile(imgUrl);
                 } else {
-                  //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
-                  Log.w(TAG, "icon is not found (" + iconUrl + ")");
-                  //}
+                  Log.w(TAG, "image is not found (" + imgUrl + ")");
                 }
               } else {
-                //Log.d(TAG, "iconUrl = " + iconUrl);
-                if (iconUrl.indexOf("file:///android_asset/") == 0) {
-                  iconUrl = iconUrl.replace("file:///android_asset/", "");
+                //Log.d(TAG, "imgUrl = " + imgUrl);
+                if (imgUrl.indexOf("file:///android_asset/") == 0) {
+                  imgUrl = imgUrl.replace("file:///android_asset/", "");
                 }
-                //Log.d(TAG, "iconUrl = " + iconUrl);
-                if (iconUrl.contains("./")) {
+                //Log.d(TAG, "imgUrl = " + imgUrl);
+                if (imgUrl.contains("./")) {
                   try {
-                    boolean isAbsolutePath = iconUrl.startsWith("/");
-                    File relativePath = new File(iconUrl);
-                    iconUrl = relativePath.getCanonicalPath();
-                    //Log.d(TAG, "iconUrl = " + iconUrl);
+                    boolean isAbsolutePath = imgUrl.startsWith("/");
+                    File relativePath = new File(imgUrl);
+                    imgUrl = relativePath.getCanonicalPath();
+                    //Log.d(TAG, "imgUrl = " + imgUrl);
                     if (!isAbsolutePath) {
-                      iconUrl = iconUrl.substring(1);
+                      imgUrl = imgUrl.substring(1);
                     }
-                    //Log.d(TAG, "iconUrl = " + iconUrl);
+                    //Log.d(TAG, "imgUrl = " + imgUrl);
                   } catch (Exception e) {
                     e.printStackTrace();
                   }
@@ -353,7 +382,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
                 AssetManager assetManager = PluginGroundOverlay.this.cordova.getActivity().getAssets();
                 InputStream inputStream;
                 try {
-                  inputStream = assetManager.open(iconUrl);
+                  inputStream = assetManager.open(imgUrl);
                   image = BitmapFactory.decodeStream(inputStream);
                 } catch (IOException e) {
                   e.printStackTrace();
@@ -383,7 +412,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
                 callback.onPostExecute(groundOverlay);
 
               } catch (Exception e) {
-                Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
+                Log.e(TAG,"PluginGroundOverlay: Warning - ground overlay method is called when ground overlay method has been disposed, wait for addGroundOverlay callback before calling more methods on the groundOverlay.");
                 //e.printStackTrace();
                 try {
                   if (groundOverlay != null) {
@@ -404,7 +433,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
         if (imageUrl.indexOf("http") == 0) {
           //----------------------------------
-          // Load icon from on the internet
+          // Load img from on the internet
           //----------------------------------
           int width = -1;
           int height = -1;
