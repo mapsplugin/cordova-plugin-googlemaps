@@ -12,6 +12,7 @@
 @interface PluginCircle : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) NSMutableDictionary* objects;
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic) NSOperationQueue *executeQueue;
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)setCenter:(CDVInvokedUrlCommand*)command;
 - (void)setFillColor:(CDVInvokedUrlCommand*)command;

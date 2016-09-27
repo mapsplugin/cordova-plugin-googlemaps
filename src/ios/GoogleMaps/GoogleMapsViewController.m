@@ -164,6 +164,17 @@
         continue;
       }
     }
+    
+    
+    if ([key hasPrefix:@"circle_"]) {
+      key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
+      GMSCircle *circle = (GMSCircle *)[plugin.objects objectForKey:key];
+      if ([PluginUtil isCircleContains:circle coordinate:coordinate]) {
+        maxZIndex = zIndex;
+        hitKey = key;
+        continue;
+      }
+    }
   }
   
   if (hitKey != nil) {

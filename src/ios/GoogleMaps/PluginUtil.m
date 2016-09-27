@@ -247,6 +247,31 @@ static char CAAnimationGroupBlockKey;
     #endif
 }
 
++ (BOOL)isCircleContains:(GMSCircle *)circle coordinate:(CLLocationCoordinate2D)point {
+    CLLocationDistance distance = GMSGeometryDistance(circle.position, point);
+    return (distance < circle.radius);
+}
+
++ (GMSMutablePath *)getMutablePathFromCircle:(CLLocationCoordinate2D)center radius:(double)radius {
+  
+    double d2r = M_PI / 180;   // degrees to radians
+    double r2d = 180 / M_PI;   // radians to degrees
+    double earthsradius = 3963.189; // 3963 is the radius of the earth in miles
+    radius = radius * 0.000621371192; // convert to mile
+
+    // find the raidus in lat/lon
+    double rlat = (radius / earthsradius) * r2d;
+    double rlng = rlat / cos(center.latitude * d2r);
+
+    GMSMutablePath *mutablePath = [[GMSMutablePath alloc] init];
+    double ex, ey;
+    for (int i = 0; i < 360; i++) {
+      ey = center.longitude + (rlng * cos(i * d2r)); // center a + radius x * cos(theta)
+      ex = center.latitude + (rlat * sin(i * d2r)); // center b + radius y * sin(theta)
+      [mutablePath addLatitude:ex longitude:ey];
+    }
+    return mutablePath;
+}
 
 + (NSString *)getAbsolutePathFromCDVFilePath:(UIView*)webView cdvFilePath:(NSString *)cdvFilePath {
 

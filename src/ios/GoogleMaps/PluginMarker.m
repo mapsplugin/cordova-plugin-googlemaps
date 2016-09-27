@@ -447,17 +447,19 @@
  */
 -(void)setPosition:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+  [self.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
       GMSMarker *marker = [self.objects objectForKey:markerId];
 
       float latitude = [[command.arguments objectAtIndex:1] floatValue];
       float longitude = [[command.arguments objectAtIndex:2] floatValue];
       CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
-      [marker setPosition:position];
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [marker setPosition:position];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 }
 

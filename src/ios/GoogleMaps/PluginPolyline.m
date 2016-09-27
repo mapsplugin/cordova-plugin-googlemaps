@@ -72,8 +72,10 @@
   int i = 0;
   NSDictionary *latLng;
   for (i = 0; i < points.count; i++) {
-    latLng = [points objectAtIndex:i];
-    [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+      latLng = [points objectAtIndex:i];
+      [mutablePath
+        addCoordinate:
+          CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
 
   dispatch_async(dispatch_get_main_queue(), ^{
