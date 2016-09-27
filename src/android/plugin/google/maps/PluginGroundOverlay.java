@@ -125,18 +125,26 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    * @param callbackContext
    * @throws JSONException 
    */
-  public void remove(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
+  public void remove(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final String id = args.getString(0);
+    final GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
     if (groundOverlay == null) {
       this.sendNoResult(callbackContext);
       return;
     }
 
-    String propertyId = "groundoverlay_property_" + id;
-    self.objects.remove(propertyId);
-    groundOverlay.remove();
-    this.sendNoResult(callbackContext);
+    self.objects.remove(id.replace("groundoverlay_", "groundoverlay_property_"));
+    self.objects.remove(id.replace("groundoverlay_", "groundoverlay_initOpts_"));
+    self.objects.remove(id.replace("groundoverlay_", "groundoverlay_bounds_"));
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        GroundOverlay groundOverlay = (GroundOverlay)self.objects.get(id);
+        groundOverlay.remove();
+        self.objects.remove(id);
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
 
