@@ -15,7 +15,7 @@
 
 @property (nonatomic, strong) NSCache* imgCache;
 @property (nonatomic) NSOperationQueue *executeQueue;
-@property (nonatomic, strong) NSMutableDictionary* objects;
+@property (nonatomic) NSMutableDictionary* objects;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;

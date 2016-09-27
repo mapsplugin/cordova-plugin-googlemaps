@@ -16,7 +16,7 @@
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
 @property (nonatomic, strong) UIView* webView;
-@property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
+@property (nonatomic) NSMutableDictionary* plugins;
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;

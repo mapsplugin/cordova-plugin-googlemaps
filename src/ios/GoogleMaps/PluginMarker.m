@@ -71,113 +71,114 @@
 
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
 
-    GMSMarker *marker;
-    NSMutableDictionary *iconProperty = nil;
-    NSString *animation = nil;
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
 
 
-    
-    // Create a marker
-    marker = [GMSMarker markerWithPosition:position];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSMutableDictionary *iconProperty = nil;
+        NSString *animation = nil;
+        
+        // Create a marker
+        GMSMarker *marker = [GMSMarker markerWithPosition:position];
 
-    if ([json valueForKey:@"title"]) {
-        [marker setTitle: [json valueForKey:@"title"]];
-    }
-    if ([json valueForKey:@"snippet"]) {
-        [marker setSnippet: [json valueForKey:@"snippet"]];
-    }
-    if ([json valueForKey:@"draggable"]) {
-        [marker setDraggable:[[json valueForKey:@"draggable"] boolValue]];
-    }
-    if ([json valueForKey:@"flat"]) {
-        [marker setFlat:[[json valueForKey:@"flat"] boolValue]];
-    }
-    if ([json valueForKey:@"rotation"]) {
-        CLLocationDegrees degrees = [[json valueForKey:@"rotation"] doubleValue];
-        [marker setRotation:degrees];
-    }
-    if ([json valueForKey:@"opacity"]) {
-        [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
-    }
-    if ([json valueForKey:@"zIndex"]) {
-        [marker setZIndex:[[json valueForKey:@"zIndex"] intValue]];
-    }
+        if ([json valueForKey:@"title"]) {
+            [marker setTitle: [json valueForKey:@"title"]];
+        }
+        if ([json valueForKey:@"snippet"]) {
+            [marker setSnippet: [json valueForKey:@"snippet"]];
+        }
+        if ([json valueForKey:@"draggable"]) {
+            [marker setDraggable:[[json valueForKey:@"draggable"] boolValue]];
+        }
+        if ([json valueForKey:@"flat"]) {
+            [marker setFlat:[[json valueForKey:@"flat"] boolValue]];
+        }
+        if ([json valueForKey:@"rotation"]) {
+            CLLocationDegrees degrees = [[json valueForKey:@"rotation"] doubleValue];
+            [marker setRotation:degrees];
+        }
+        if ([json valueForKey:@"opacity"]) {
+            [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
+        }
+        if ([json valueForKey:@"zIndex"]) {
+            [marker setZIndex:[[json valueForKey:@"zIndex"] intValue]];
+        }
 
 
-    NSString *markerId = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
-    [self.objects setObject:marker forKey: markerId];
-  
-    [result setObject:markerId forKey:@"id"];
-    [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
+        NSString *markerId = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
+        [self.objects setObject:marker forKey: markerId];
+      
+        [result setObject:markerId forKey:@"id"];
+        [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
 
-    // Custom properties
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+        // Custom properties
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
 
-    if ([json valueForKey:@"styles"]) {
-        NSDictionary *styles = [json valueForKey:@"styles"];
-        [properties setObject:styles forKey:@"styles"];
-    }
+        if ([json valueForKey:@"styles"]) {
+            NSDictionary *styles = [json valueForKey:@"styles"];
+            [properties setObject:styles forKey:@"styles"];
+        }
 
-    BOOL disableAutoPan = NO;
-    if ([json valueForKey:@"disableAutoPan"] != nil) {
-        disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
-    }
-    [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
-    [self.objects setObject:properties forKey: propertyId];
+        BOOL disableAutoPan = NO;
+        if ([json valueForKey:@"disableAutoPan"] != nil) {
+            disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
+        }
+        [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
+        [self.objects setObject:properties forKey: propertyId];
 
-    // Create icon
-    NSObject *icon = [json valueForKey:@"icon"];
-    if ([icon isKindOfClass:[NSString class]]) {
-        iconProperty = [NSMutableDictionary dictionary];
-        [iconProperty setObject:icon forKey:@"url"];
+        // Create icon
+        NSObject *icon = [json valueForKey:@"icon"];
+        if ([icon isKindOfClass:[NSString class]]) {
+            iconProperty = [NSMutableDictionary dictionary];
+            [iconProperty setObject:icon forKey:@"url"];
 
-    } else if ([icon isKindOfClass:[NSDictionary class]]) {
-        iconProperty = [json valueForKey:@"icon"];
+        } else if ([icon isKindOfClass:[NSDictionary class]]) {
+            iconProperty = [json valueForKey:@"icon"];
 
-    } else if ([icon isKindOfClass:[NSArray class]]) {
-        NSArray *rgbColor = [json valueForKey:@"icon"];
-        iconProperty = [NSMutableDictionary dictionary];
-        [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
-    }
+        } else if ([icon isKindOfClass:[NSArray class]]) {
+            NSArray *rgbColor = [json valueForKey:@"icon"];
+            iconProperty = [NSMutableDictionary dictionary];
+            [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+        }
 
-    // Visible property
-    if (iconProperty) {
-        [iconProperty setObject:[NSNumber numberWithBool:[[json valueForKey:@"visible"] boolValue]] forKey:@"visible"];
-    }
-
-    // Animation
-    if ([json valueForKey:@"animation"]) {
-        animation = [json valueForKey:@"animation"];
+        // Visible property
         if (iconProperty) {
-            [iconProperty setObject:animation forKey:@"animation"];
-        }
-    }
-
-    if (iconProperty) {
-        if ([json valueForKey:@"infoWindowAnchor"]) {
-            [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+            [iconProperty setObject:[NSNumber numberWithBool:[[json valueForKey:@"visible"] boolValue]] forKey:@"visible"];
         }
 
-        // Load icon in asynchronise
-        CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-        [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
-
-    } else {
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([[json valueForKey:@"visible"] boolValue]) {
-                marker.map = self.mapCtrl.map;
+        // Animation
+        if ([json valueForKey:@"animation"]) {
+            animation = [json valueForKey:@"animation"];
+            if (iconProperty) {
+                [iconProperty setObject:animation forKey:@"animation"];
             }
-            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-            if (animation) {
-                [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
-            } else {
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
+
+        if (iconProperty) {
+            if ([json valueForKey:@"infoWindowAnchor"]) {
+                [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
             }
-        });
-    }
+
+            // Load icon in asynchronise
+            CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+            [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+
+        } else {
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([[json valueForKey:@"visible"] boolValue]) {
+                    marker.map = self.mapCtrl.map;
+                }
+                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+                if (animation) {
+                    [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
+                } else {
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                }
+            });
+        }
+    }];
 
 }
 

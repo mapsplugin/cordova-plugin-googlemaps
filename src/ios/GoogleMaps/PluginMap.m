@@ -94,13 +94,13 @@
     
       //plugin.commandDelegate = self.commandDelegate;
 
-      //NSLog(@"--> pluginId = %@", pluginId);
+      NSLog(@"--> pluginId = %@", pluginId);
 
         
 
       SEL selector = NSSelectorFromString(@"create:");
       if ([plugin respondsToSelector:selector]){
-          [plugin performSelectorOnMainThread:selector withObject:command waitUntilDone:NO];
+          [plugin performSelectorInBackground:selector withObject:command];
       } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                            messageAsString:[NSString stringWithFormat:@"method not found: %@ in %@ class", @"create", className]];
@@ -231,7 +231,7 @@
                         
       [cdvViewController.pluginObjects removeObjectForKey:pluginName];
       [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
-      plugin = nil;
+      //plugin = nil;
     }
 
     [self.mapCtrl.plugins removeAllObjects];
@@ -487,14 +487,23 @@
   } else {
     zoom = self.mapCtrl.map.camera.zoom;
   }
+  
+  double cameraPadding = 20;
+  if ([json valueForKey:@"padding"]) {
+    cameraPadding = [[json valueForKey:@"padding"] doubleValue];
+  }
 
 
   NSDictionary *latLng = nil;
-  float latitude;
-  float longitude;
+  double latitude;
+  double longitude;
   GMSCameraPosition *cameraPosition;
   GMSCoordinateBounds *cameraBounds = nil;
 
+  float scale = self.webView.scrollView.zoomScale;
+  NSLog(@"scale = %f", scale);
+  NSLog(@"cameraPadding = %f", cameraPadding);
+  UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding, cameraPadding, cameraPadding, cameraPadding);
 
   if ([json objectForKey:@"target"]) {
     NSString *targetClsName = [[json objectForKey:@"target"] className];
@@ -511,21 +520,16 @@
       GMSMutablePath *path = [GMSMutablePath path];
       for (i = 0; i < [latLngList count]; i++) {
         latLng = [latLngList objectAtIndex:i];
-        latitude = [[latLng valueForKey:@"lat"] floatValue];
-        longitude = [[latLng valueForKey:@"lng"] floatValue];
+        latitude = [[latLng valueForKey:@"lat"] doubleValue];
+        longitude = [[latLng valueForKey:@"lng"] doubleValue];
         [path addLatitude:latitude longitude:longitude];
       }
-      float scale = 1;
-      if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-        scale = [[UIScreen mainScreen] scale];
-      }
-      [[UIScreen mainScreen] scale];
 
       cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
       //CLLocationCoordinate2D center = cameraBounds.center;
+      NSLog(@"---> camera with bounds");
 
-      scale *= 20;
-      cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:UIEdgeInsetsMake(scale, scale, scale, scale)];
+      cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:paddingUiEdgeInsets];
     } else {
       //------------------------------------------------------------------
       //  cameraPosition.target = new plugin.google.maps.LatLng();
@@ -577,6 +581,10 @@
                                                     viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
 
                 [self.mapCtrl.map setCamera:cameraPosition2];
+                
+              } else {
+                GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
+                [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
               }
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }];
@@ -587,22 +595,31 @@
 
       if ([action  isEqual: @"moveCamera"]) {
           [self.mapCtrl.map setCamera:cameraPosition];
-
+        
           if (cameraBounds != nil){
+            double delayInSeconds = 0.5;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
+                                                  longitude:self.mapCtrl.map.camera.target.longitude
+                                                  zoom:self.mapCtrl.map.camera.zoom
+                                                  bearing:[[json objectForKey:@"bearing"] doubleValue]
+                                                  viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
 
-            GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
-                                                longitude:self.mapCtrl.map.camera.target.longitude
-                                                zoom:self.mapCtrl.map.camera.zoom
-                                                bearing:[[json objectForKey:@"bearing"] doubleValue]
-                                                viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
+                if (self.isRemoved) {
+                  return;
+                }
+                [self.mapCtrl.map setCamera:cameraPosition2];
+                //GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
+                //[self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
 
-            if (self.isRemoved) {
-              return;
-            }
-            [self.mapCtrl.map setCamera:cameraPosition2];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            });
+          
+          } else {
+              [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
           }
 
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }
   }];
 

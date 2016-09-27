@@ -133,10 +133,10 @@
       // Register polygon to the overlayManager.
       NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
       [self.objects setObject:polygon forKey: id];
+      polygon.title = id;
 
       // Run the below code on background thread.
       [self.executeQueue addOperationWithBlock:^{
-          polygon.title = id;
         
           //---------------------------
           // Keep the properties
