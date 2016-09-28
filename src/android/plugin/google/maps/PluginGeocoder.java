@@ -1,40 +1,49 @@
 package plugin.google.maps;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.Bundle;
+
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.location.Address;
-import android.location.Geocoder;
-import android.os.Bundle;
-import android.util.Log;
-
-import com.google.android.gms.maps.model.LatLngBounds;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class PluginGeocoder extends CordovaPlugin {
 
+  private static Geocoder geocoder;
+
+  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
+    super.initialize(cordova, webView);
+    geocoder = new Geocoder(cordova.getActivity());
+  }
   @Override
-  public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {
-    try {
-      Method method = this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
-      if (method.isAccessible() == false) {
-        method.setAccessible(true);
+  public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) {
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          if ("geocode".equals(action)) {
+            PluginGeocoder.this.geocode(args, callbackContext);
+          } else {
+            callbackContext.error("Method: Geocoder." + action + "() is not found.");
+          }
+        } catch (Exception e) {
+          callbackContext.error(e.getMessage() + "");
+        }
       }
-      method.invoke(this, args, callbackContext);
-      return true;
-    } catch (Exception e) {
-      Log.e("CordovaLog", "An error occurred", e);
-      callbackContext.error(e.toString());
-      return false;
-    }
+    });
+    return true;
   }
   
   @SuppressWarnings("unused")
@@ -42,16 +51,15 @@ public class PluginGeocoder extends CordovaPlugin {
       final CallbackContext callbackContext) throws JSONException, IOException {
 
     JSONObject opts = args.getJSONObject(0);
-    Geocoder geocoder = new Geocoder(this.cordova.getActivity());
     List<Address> geoResults;
     JSONArray results = new JSONArray();
     Iterator<Address> iterator = null;
 
     // Geocoding
-    if (opts.has("position") == false && opts.has("address")) {
+    if (!opts.has("position") && opts.has("address")) {
       String address = opts.getString("address");
       if (opts.has("bounds")) {
-        if (opts.has("bounds") == true) {
+        if (opts.has("bounds")) {
           JSONArray points = opts.getJSONArray("bounds");
           LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
           try {
@@ -84,7 +92,7 @@ public class PluginGeocoder extends CordovaPlugin {
     }
 
     // Reverse geocoding
-    if (opts.has("position") && opts.has("address") == false) {
+    if (opts.has("position") && !opts.has("address")) {
       JSONObject position = opts.getJSONObject("position");
       try {
         geoResults = geocoder.getFromLocation(
@@ -154,7 +162,6 @@ public class PluginGeocoder extends CordovaPlugin {
       results.put(result);
     }
     callbackContext.success(results);
-    
   }
 
 }
