@@ -48,7 +48,6 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         }
       }
     });
-    final String id = "" + tileProvider.hashCode();
 
     final TileOverlayOptions options = new TileOverlayOptions();
     options.tileProvider(tileProvider);
@@ -58,21 +57,22 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     if (opts.has("visible")) {
       options.visible(opts.getBoolean("visible"));
     }
-    Log.d("TileOverlay", "---> transparency = " + options.isVisible());
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
 
         TileOverlay tileOverlay = map.addTileOverlay(options);
+        String id = tileOverlay.getId();
 
+        Log.d("TileOverlay", "---> tileoverlay_ = " + id);
         self.objects.put("tileoverlay_" + id, tileOverlay);
         self.objects.put("tileprovider_" + id, tileProvider);
 
         try {
           JSONObject result = new JSONObject();
           result.put("hashCode", tileOverlay.hashCode());
-          result.put("id", id);
+          result.put("id", "tileoverlay_" + id);
           callbackContext.success(result);
         } catch (JSONException e) {
           e.printStackTrace();
@@ -114,6 +114,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    */
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
+    Log.d("TileOverlay", "---> remove = " + id);
     final TileOverlay tileOverlay = (TileOverlay)self.objects.get(id);
     if (tileOverlay == null) {
       this.sendNoResult(callbackContext);

@@ -355,7 +355,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String serviceName = args.getString(0);
     final String pluginName = mapId + "-" + serviceName.toLowerCase();
-    //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
+    Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
     try {
 

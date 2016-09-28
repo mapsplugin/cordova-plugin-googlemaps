@@ -643,6 +643,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
 
     exec(function(result) {
+        tilelayerOptions.hashCode = result.hashCode;
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
         self.OVERLAYS[result.id] = tileOverlay;
         tileOverlay.one(result.id + "_remove", function() {
