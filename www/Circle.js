@@ -63,6 +63,9 @@ var Circle = function(map, circleId, circleOptions) {
     self.on("zIndex_changed", function(oldValue, zIndex) {
         exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
+    self.on("visible_changed", function(oldValue, visible) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    });
 
 };
 

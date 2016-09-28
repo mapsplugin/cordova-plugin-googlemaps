@@ -24,15 +24,34 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
         writable: false
     });
     Object.defineProperty(self, "hashCode", {
-        value: groundOverlayOptions.hashCode,
+        value: tileOverlayOptions.hashCode,
         writable: false
     });
+    //-----------------------------------------------
+    // Sets the initialize option to each property
+    //-----------------------------------------------
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in tileOverlayOptions) {
         if (ignores.indexOf(key) === -1) {
             self.set(key, tileOverlayOptions[key]);
         }
     }
+
+    //-----------------------------------------------
+    // Sets event listeners
+    //-----------------------------------------------
+    self.on("fadeIn_changed", function(oldValue, fadeIn) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
+    });
+    self.on("opacity_changed", function(oldValue, opacity) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+    });
+    self.on("zIndex_changed", function(oldValue, zIndex) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    });
+    self.on("visible_changed", function(oldValue, visible) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    });
 };
 
 
@@ -49,9 +68,6 @@ TileOverlay.prototype.getHashCode = function() {
 TileOverlay.prototype.getMap = function() {
     return this.map;
 };
-TileOverlay.prototype.clearTileCache = function() {
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'clearTileCache', [this.getId()]);
-};
 TileOverlay.prototype.getId = function() {
     return this.id;
 };
@@ -63,12 +79,10 @@ TileOverlay.prototype.getZIndex = function() {
 };
 TileOverlay.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setZIndex', [this.getId(), zIndex]);
 };
 TileOverlay.prototype.setFadeIn = function(fadeIn) {
     fadeIn = common.parseBoolean(fadeIn);
     this.set('fadeIn', fadeIn);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setFadeIn', [this.getId(), fadeIn]);
 };
 TileOverlay.prototype.getFadeIn = function() {
     return this.get('fadeIn');
@@ -76,7 +90,6 @@ TileOverlay.prototype.getFadeIn = function() {
 TileOverlay.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setVisible', [this.getId(), visible]);
 };
 TileOverlay.prototype.getOpacity = function() {
     return this.get('opacity');
@@ -87,7 +100,6 @@ TileOverlay.prototype.setOpacity = function(opacity) {
         return false;
     }
     this.set('opacity', opacity);
-    cordova.exec(null, this.errorHandler, this.getPluginName(), 'setOpacity', [this.getId(), opacity]);
 };
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
