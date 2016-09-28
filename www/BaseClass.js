@@ -28,6 +28,9 @@ var BaseClass = function() {
    };
 
    self.trigger = function(eventName) {
+       if (!eventName) {
+         return;
+       }
        var args = [];
        for (var i = 1; i < arguments.length; i++) {
            args.push(arguments[i]);
@@ -39,6 +42,9 @@ var BaseClass = function() {
        document.dispatchEvent(event);
    };
    self.on = function(eventName, callback) {
+      if (!eventName || !callback || typeof callback !== "function") {
+        return;
+      }
        _listeners[eventName] = _listeners[eventName] || [];
 
        var listener = function(e) {

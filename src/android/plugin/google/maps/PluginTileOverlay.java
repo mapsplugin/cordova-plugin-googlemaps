@@ -2,17 +2,13 @@ package plugin.google.maps;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaArgs;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.android.gms.maps.model.Tile;
-import com.google.android.gms.maps.model.TileOverlay;
-import com.google.android.gms.maps.model.TileOverlayOptions;
 
 public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
@@ -27,7 +23,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
   public void create(final JSONArray args,
     final CallbackContext callbackContext) throws JSONException {
 
-    final JSONObject properties = new JSONObject();
+
     JSONObject opts = args.getJSONObject(1);
     final int tileSize = opts.getInt("tileSize");
     final String tileUrlFormat = opts.getString("tileUrlFormat");
@@ -36,7 +32,22 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     if (opts.has("opacity")) {
       opacity = opts.getDouble("opacity");
     }
-    final PluginTileProvider tileProvider = new PluginTileProvider(tileUrlFormat, opacity, tileSize);
+    String userAgent = "Mozilla";
+    if (opts.has("userAgent")) {
+      userAgent = opts.getString("userAgent");
+    }
+
+    final PluginTileProvider tileProvider = new PluginTileProvider(userAgent, tileUrlFormat, opacity, tileSize);
+    tileProvider.setOnCacheClear(new PluginTileProvider.OnCacheClear() {
+      @Override
+      public void onCacheClear(int hashCode) {
+        TileOverlay tileOverlay = (TileOverlay)PluginTileOverlay.this.getTileOverlay(hashCode+"");
+        if (tileOverlay != null) {
+          tileOverlay.clearTileCache();
+          System.gc();
+        }
+      }
+    });
     final String id = "" + tileProvider.hashCode();
 
     final TileOverlayOptions options = new TileOverlayOptions();

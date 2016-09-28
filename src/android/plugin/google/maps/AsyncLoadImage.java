@@ -189,25 +189,4 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     this.targetPlugin.onPostExecute(image);
   }
 
-  class BitmapCache extends LruCache<String, Bitmap> {
-
-    public BitmapCache(int maxSize) {
-      super(maxSize);
-    }
-
-    @Override
-    protected int sizeOf(String key, Bitmap bitmap) {
-      // The cache size will be measured in kilobytes rather than
-      // number of items.
-      return bitmap.getByteCount() / 1024;
-    }
-
-    @Override
-    protected void entryRemoved(boolean evicted, String key, Bitmap oldBitmap, Bitmap newBitmap) {
-      if (!oldBitmap.isRecycled()) {
-        oldBitmap.recycle();
-        oldBitmap = null;
-      }
-    }
-  }
 }

@@ -136,7 +136,7 @@ Map.prototype.getMap = function(mapId, div, options) {
       //setTimeout(function() {
           self.refreshLayout();
           self.trigger(event.MAP_READY, self);
-      //}, 100);
+      //}, 10);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
 };
 
@@ -640,6 +640,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
     tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
+    tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
 
     exec(function(result) {
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);

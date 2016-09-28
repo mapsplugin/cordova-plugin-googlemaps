@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -454,8 +455,8 @@ public class MyPluginLayout extends FrameLayout {
 
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
-        webView.loadUrl("javascript:cordova.fireDocumentEvent('touch_start', {});");
       }
+      webView.loadUrl("javascript:cordova.fireDocumentEvent('touch_start', {});");
 
       MyPluginLayout.this.stopFlag = false;
       return isMapAction;

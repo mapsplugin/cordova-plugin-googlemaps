@@ -56,6 +56,20 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * Add event lister to all html nodes under the <body> tag.
  *****************************************************************************/
 (function() {
+  if (!document.body || !document.body.firstChild) {
+    setTimeout(arguments.callee, 25);
+    return;
+  }
+
+  //setTimeout(function() {
+    // Webkit redraw mandatory
+    // http://stackoverflow.com/a/3485654/697856
+    document.body.style.backgroundColor = "rgba(0,0,0,0)";
+    //document.body.style.display='none';
+    document.body.offsetHeight;
+    //document.body.style.display='';
+  //}, 0);
+
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
   var idlingCnt = 0;
@@ -166,15 +180,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
   window.addEventListener("orientationchange", resetTimer);
 
 }());
-
-//setTimeout(function() {
-  // Webkit redraw mandatory
-  // http://stackoverflow.com/a/3485654/697856
-  document.body.style.backgroundColor = "rgba(0,0,0,0)";
-  //document.body.style.display='none';
-  document.body.offsetHeight;
-  //document.body.style.display='';
-//}, 0);
 
 
 /*****************************************************************************
