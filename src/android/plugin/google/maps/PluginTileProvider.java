@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -11,7 +12,11 @@ import android.util.Log;
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
 
+import org.apache.cordova.CordovaResourceApi;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -23,12 +28,16 @@ public class PluginTileProvider implements TileProvider  {
   private String userAgent = null;
   private static BitmapCache tileCache = null;
   private OnCacheClear listener = null;
+  private String webPageUrl = null;
+  private AssetManager assetManager;
 
-  public PluginTileProvider(String userAgent, String tileUrlFormat, double opacity, int tileSize) {
+  public PluginTileProvider(AssetManager assetManager, String webPageUrl, String userAgent, String tileUrlFormat, int tileSize) {
     this.tileUrlFormat = tileUrlFormat;
     this.tileSize = tileSize;
-    this.tilePaint.setAlpha((int) (opacity * 255));
+    //this.tilePaint.setAlpha((int) (opacity * 255));
     this.userAgent = userAgent == null ? "Mozilla" : userAgent;
+    this.webPageUrl = webPageUrl;
+    this.assetManager = assetManager;
 
     // Get max available VM memory, exceeding this amount will throw an
     // OutOfMemory exception. Stored in kilobytes as LruCache takes an
@@ -55,11 +64,14 @@ public class PluginTileProvider implements TileProvider  {
     String urlStr = tileUrlFormat.replaceAll("<x>", x + "")
         .replaceAll("<y>", y + "")
         .replaceAll("<zoom>", zoom + "");
-    
+
+    Tile tile = null;
     try {
       InputStream inputStream = null;
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-
+        //-------------------------------
+        // load image from the internet
+        //-------------------------------
 
         boolean redirect = true;
         URL url = new URL(urlStr);
@@ -104,21 +116,101 @@ public class PluginTileProvider implements TileProvider  {
             redirectCnt++;
           }
         }
-        Tile tile = null;
         if (http != null) {
           inputStream = http.getInputStream();
 
           Bitmap image = BitmapFactory.decodeStream(inputStream);
-          Bitmap tileImage = this.resizeForTile(image);
-          tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
-          tileCache.put(cacheKey, tileImage.copy(tileImage.getConfig(), false));
-          tileImage.recycle();
-          image.recycle();
+          if (image.getWidth() != tileSize || image.getHeight() != tileSize) {
+            Bitmap tileImage = this.resizeForTile(image);
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
+            tileCache.put(cacheKey, tileImage.copy(tileImage.getConfig(), false));
+            tileImage.recycle();
+          } else {
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
+            tileCache.put(cacheKey, image.copy(image.getConfig(), false));
+            image.recycle();
+          }
           http.disconnect();
         }
         inputStream.close();
-        return tile;
+      } else {
+        //---------------------------------
+        // load image from the local path
+        //---------------------------------
+
+        if (!urlStr.contains("://") &&
+          !urlStr.startsWith("/") &&
+          !urlStr.startsWith("www/") &&
+          !urlStr.startsWith("./") &&
+          !urlStr.startsWith("../")) {
+          urlStr = "./" + urlStr;
+        }
+        if (urlStr.startsWith("./")  || urlStr.startsWith("../")) {
+          urlStr = urlStr.replace("././", "./");
+          String currentPage = webPageUrl;
+          currentPage = currentPage.replaceAll("[^\\/]*$", "");
+          urlStr = currentPage + "/" + urlStr;
+        }
+        String cacheKey = new File(urlStr).hashCode() + "";
+        Bitmap cachedImage = tileCache.get(cacheKey);
+        if (cachedImage != null) {
+          return new Tile(tileSize, tileSize, bitmapToByteArray(cachedImage));
+        }
+
+        Bitmap image = null;
+        if (urlStr.indexOf("file://") == 0 &&
+          !urlStr.contains("file:///android_asset/")) {
+          urlStr = urlStr.replace("file://", "");
+          File tmp = new File(urlStr);
+          if (tmp.exists()) {
+            image = BitmapFactory.decodeFile(urlStr);
+          } else {
+            //Log.w("PluginTileProvider", "image is not found (" + urlStr + ")");
+            return null;
+          }
+        } else {
+          //Log.d(TAG, "imgUrl = " + imgUrl);
+          if (urlStr.indexOf("file:///android_asset/") == 0) {
+            urlStr = urlStr.replace("file:///android_asset/", "");
+          }
+          if (urlStr.contains("./")) {
+            try {
+              boolean isAbsolutePath = urlStr.startsWith("/");
+              File relativePath = new File(urlStr);
+              urlStr = relativePath.getCanonicalPath();
+              //Log.d(TAG, "imgUrl = " + imgUrl);
+              if (!isAbsolutePath) {
+                urlStr = urlStr.substring(1);
+              }
+              //Log.d(TAG, "imgUrl = " + imgUrl);
+            } catch (Exception e) {
+              //e.printStackTrace();
+            }
+          }
+          //Log.d("PluginTileProvider", "urlStr = " + urlStr);
+          try {
+            inputStream = assetManager.open(urlStr);
+            image = BitmapFactory.decodeStream(inputStream);
+          } catch (IOException e) {
+            //e.printStackTrace();
+            return null;
+          }
+        }
+        Log.d("PluginTileProvider", "cacheKey = " + cacheKey);
+        if (image != null) {
+          if (image.getWidth() != tileSize || image.getHeight() != tileSize) {
+            Bitmap tileImage = this.resizeForTile(image);
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
+            tileCache.put(cacheKey, tileImage.copy(tileImage.getConfig(), false));
+            tileImage.recycle();
+          } else {
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
+            tileCache.put(cacheKey, image);
+          }
+        }
+
       }
+      return tile;
       
     } catch (Exception e) {
       e.printStackTrace();
@@ -132,9 +224,9 @@ public class PluginTileProvider implements TileProvider  {
     return  outputStream.toByteArray();
   }
   
-  public void setOpacity(double opacity) {
-    this.tilePaint.setAlpha((int) (opacity * 255));
-  }
+  //public void setOpacity(double opacity) {
+  //  this.tilePaint.setAlpha((int) (opacity * 255));
+  //}
   
   private Bitmap resizeForTile(Bitmap bitmap) {
 
