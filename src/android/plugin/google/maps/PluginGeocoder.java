@@ -18,18 +18,26 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PluginGeocoder extends CordovaPlugin {
 
   private static Geocoder geocoder;
 
+  // In order to prevent the TOO_MANY_REQUEST_ERROR (block by Google because too many request in short period),
+  // restricts the number of parallel threads.
+  private static ExecutorService executorService = Executors.newFixedThreadPool(4);
+
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-    geocoder = new Geocoder(cordova.getActivity());
+    if (geocoder == null) {
+      geocoder = new Geocoder(cordova.getActivity());
+    }
   }
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) {
-    cordova.getThreadPool().submit(new Runnable() {
+    executorService.submit(new Runnable() {
       @Override
       public void run() {
         try {
