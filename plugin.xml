@@ -206,6 +206,13 @@
             <string>$NSLocationAlwaysUsageDescription</string>
         </config-file>
 
+        <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+          <array>
+            <string>googlechromes</string>
+            <string>comgooglemaps</string>
+          </array>
+        </config-file>
+
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
           <array>
             <dict>
