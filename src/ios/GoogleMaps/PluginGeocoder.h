@@ -11,9 +11,6 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface PluginGeocoder : CDVPlugin
-
-@property (nonatomic, strong) CLGeocoder *geocoder;
-@property (nonatomic, strong) GMSGeocoder *reverseGeocoder;
 @property (nonatomic, strong) NSDictionary *codeForCountryDictionary;
 @property (nonatomic, strong) NSOperationQueue *executeQueue;
 - (void)geocode:(CDVInvokedUrlCommand*)command;
