@@ -15,6 +15,7 @@
 @property (nonatomic, strong) CLGeocoder *geocoder;
 @property (nonatomic, strong) GMSGeocoder *reverseGeocoder;
 @property (nonatomic, strong) NSDictionary *codeForCountryDictionary;
+@property (nonatomic, strong) NSOperationQueue *executeQueue;
 - (void)geocode:(CDVInvokedUrlCommand*)command;
 - (NSArray *)geocoder_callback:(NSArray *)placemarks error:(NSError *)error;
 
