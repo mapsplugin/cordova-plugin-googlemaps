@@ -3,7 +3,6 @@ package plugin.google.maps;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
 
 public class PluginGeocoder extends CordovaPlugin {
 
@@ -30,7 +28,9 @@ public class PluginGeocoder extends CordovaPlugin {
 
   // In order to prevent the TOO_MANY_REQUEST_ERROR (block by Google because too many request in short period),
   // restricts the number of parallel threads.
-  private static ExecutorService executorService = Executors.newFixedThreadPool(10);
+  //
+  // According from my tests, 6 thread is the best.
+  private static ExecutorService executorService = Executors.newFixedThreadPool(6);
 
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -66,7 +66,6 @@ public class PluginGeocoder extends CordovaPlugin {
     List<Address> geoResults = null;
     JSONArray results = new JSONArray();
     Iterator<Address> iterator = null;
-    boolean keepCallback = opts.getBoolean("keepCallback");
 
     // Geocoding
     if (!opts.has("position") && opts.has("address")) {
@@ -99,11 +98,9 @@ public class PluginGeocoder extends CordovaPlugin {
           if (geoResults.size() == 0) {
             JSONObject methodResult = new JSONObject();
             methodResult.put("idx", opts.getInt("idx"));
-            methodResult.put("keepCallback", keepCallback);
             methodResult.put("results", new JSONArray());
 
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
-            //pluginResult.setKeepCallback(keepCallback);
             callbackContext.sendPluginResult(pluginResult);
 
             return;
@@ -133,11 +130,9 @@ public class PluginGeocoder extends CordovaPlugin {
         if (geoResults != null && geoResults.size() == 0) {
           JSONObject methodResult = new JSONObject();
           methodResult.put("idx", opts.getInt("idx"));
-          methodResult.put("keepCallback", keepCallback);
           methodResult.put("results", new JSONArray());
 
           PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
-          //pluginResult.setKeepCallback(keepCallback);
           callbackContext.sendPluginResult(pluginResult);
 
           return;
@@ -174,11 +169,9 @@ public class PluginGeocoder extends CordovaPlugin {
       if (geoResults != null && geoResults.size() == 0) {
         JSONObject methodResult = new JSONObject();
         methodResult.put("idx", opts.getInt("idx"));
-        methodResult.put("keepCallback", keepCallback);
         methodResult.put("results", new JSONArray());
 
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
-        //pluginResult.setKeepCallback(keepCallback);
         callbackContext.sendPluginResult(pluginResult);
 
         return;
@@ -241,11 +234,9 @@ public class PluginGeocoder extends CordovaPlugin {
 
     JSONObject methodResult = new JSONObject();
     methodResult.put("idx", opts.getInt("idx"));
-    methodResult.put("keepCallback", keepCallback);
     methodResult.put("results", results);
 
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
-    //pluginResult.setKeepCallback(keepCallback);
     callbackContext.sendPluginResult(pluginResult);
   }
 

@@ -76,7 +76,6 @@ Geocoder.geocode = function(geocoderRequest, callback) {
         for (i = 0; i < requestCnt; i++) {
             request = utils.clone(baseRequest);
             request[requestProperty] = geocoderRequest[requestProperty][i];
-            request.keepCallback = (i < requestCnt - 1);
             request.idx = i;
             if (requestProperty === "position") {
                 request.position.lat = request.position.lat || 0.0;
@@ -95,7 +94,6 @@ Geocoder.geocode = function(geocoderRequest, callback) {
             geocoderRequest.position.lat = geocoderRequest.position.lat || 0.0;
             geocoderRequest.position.lng = geocoderRequest.position.lng || 0.0;
         }
-        geocoderRequest.keepCallback = false;
         geocoderRequest.idx = -1;
         requests.push(geocoderRequest);
     }
