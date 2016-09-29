@@ -56,7 +56,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * Add event lister to all html nodes under the <body> tag.
  *****************************************************************************/
 (function() {
-  if (!document.body || !document.body.firstChild) {
+  if (!document.body || !document.body.firstChild || !document.body.style) {
     setTimeout(arguments.callee, 25);
     return;
   }
@@ -168,7 +168,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
       elemId = null;
       children = null;
   }
-  setTimeout(putHtmlElements, 50);
+  setTimeout(resetTimer, 50);
 
   // This is the special event that is fired by the google maps plugin
   // (Not generic plugin)

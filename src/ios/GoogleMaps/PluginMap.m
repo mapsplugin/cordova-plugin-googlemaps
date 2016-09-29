@@ -93,9 +93,6 @@
       }
     
       //plugin.commandDelegate = self.commandDelegate;
-
-      NSLog(@"--> pluginId = %@", pluginId);
-
         
 
       SEL selector = NSSelectorFromString(@"create:");
@@ -500,9 +497,6 @@
   GMSCameraPosition *cameraPosition;
   GMSCoordinateBounds *cameraBounds = nil;
 
-  float scale = self.webView.scrollView.zoomScale;
-  NSLog(@"scale = %f", scale);
-  NSLog(@"cameraPadding = %f", cameraPadding);
   UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding, cameraPadding, cameraPadding, cameraPadding);
 
   if ([json objectForKey:@"target"]) {
@@ -527,7 +521,6 @@
 
       cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
       //CLLocationCoordinate2D center = cameraBounds.center;
-      NSLog(@"---> camera with bounds");
 
       cameraPosition = [self.mapCtrl.map cameraForBounds:cameraBounds insets:paddingUiEdgeInsets];
     } else {
@@ -610,10 +603,12 @@
                   return;
                 }
                 [self.mapCtrl.map setCamera:cameraPosition2];
-                //GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
-                //[self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                    GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
+                    [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                });
 
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             });
           
           } else {

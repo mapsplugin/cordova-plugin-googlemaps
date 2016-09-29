@@ -365,7 +365,6 @@
 
           if (self.pluginLayer.needUpdatePosition) {
               self.pluginLayer.needUpdatePosition = NO;
-              //NSLog(@"---->putHtmlElements  needUpdatePosition = NO");
               //NSLog(@"%@", elements);
               NSArray *keys=[self.pluginMaps allKeys];
               NSString *mapId;
