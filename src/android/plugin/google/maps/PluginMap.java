@@ -1217,7 +1217,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map.moveCamera(cameraUpdate);
 
 
-              Builder builder = CameraPosition.builder();
+              final Builder builder = CameraPosition.builder();
               if (cameraPos.has("tilt")) {
                 try {
                   builder.tilt((float) cameraPos.getDouble("tilt"));
@@ -1234,12 +1234,24 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
               builder.zoom(map.getCameraPosition().zoom);
               builder.target(map.getCameraPosition().target);
-              map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+              Handler handler = new Handler();
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                }
+              }, 100);
             } else {
               map.moveCamera(finalCameraPosition.cameraUpdate);
               VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
-              LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
-              map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int)density));
+              final LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
+              Handler handler = new Handler();
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int)density));
+                }
+              }, 100);
             }
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
           }
