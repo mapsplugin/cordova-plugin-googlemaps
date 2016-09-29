@@ -69,6 +69,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("deprecation")
 public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
@@ -331,28 +333,43 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     CordovaGoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
   }
 
+  private static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final JSONObject elements = args.getJSONObject(0);
-    if (mPluginLayout == null) {
-      callbackContext.success();
-      return;
-    }
+    executorService.submit(new Runnable() {
+      @Override
+      public void run() {
 
-    if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-      mPluginLayout.putHTMLElements(elements);
-    }
+        try {
+          final JSONObject elements = args.getJSONObject(0);
+          if (mPluginLayout == null) {
+            callbackContext.success();
+            return;
+          }
 
-    if (mPluginLayout.needUpdatePosition) {
-      mPluginLayout.needUpdatePosition = false;
+          if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+            mPluginLayout.putHTMLElements(elements);
+          }
 
-      for (String s : mPluginLayout.pluginMaps.keySet()) {
-        mPluginLayout.updateViewPosition(s);
+          /*
+          if (mPluginLayout.needUpdatePosition) {
+            mPluginLayout.needUpdatePosition = false;
+
+            for (String s : mPluginLayout.pluginMaps.keySet()) {
+              mPluginLayout.updateViewPosition(s);
+            }
+          }
+          */
+
+
+          callbackContext.success();
+        } catch (Exception e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage() + "");
+        }
+
       }
-    }
-
-
-    callbackContext.success();
+    });
   }
 
   @SuppressWarnings("unused")

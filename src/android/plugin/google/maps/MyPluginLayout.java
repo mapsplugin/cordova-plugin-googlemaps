@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -9,12 +10,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -27,9 +30,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @SuppressWarnings("deprecation")
-public class MyPluginLayout extends FrameLayout {
+public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener, ViewTreeObserver.OnGlobalLayoutListener {
   private CordovaWebView webView;
   private View browserView;
   private ViewGroup root;
@@ -48,16 +53,112 @@ public class MyPluginLayout extends FrameLayout {
   public boolean stopFlag = false;
   public boolean needUpdatePosition = false;
   private float zoomScale;
-  
+
+  public Timer redrawTimer;
+
+  @Override
+  public void onGlobalLayout() {
+    Log.d("Layout", "---> onGlobalLayout");
+    ViewTreeObserver observer = browserView.getViewTreeObserver();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      observer.removeOnGlobalLayoutListener(this);
+    } else {
+      observer.removeGlobalOnLayoutListener(this);
+    }
+    observer.addOnScrollChangedListener(this);
+  }
+
+
+  private class ResizeTask extends TimerTask {
+    @Override
+    public void run() {
+      //final PluginMap pluginMap = pluginMaps.get(mapId);
+      //if (pluginMap.mapDivId == null) {
+      //  return;
+      //}
+      //int scrollX = browserView.getScrollX();
+      final int scrollY = browserView.getScrollY();
+      final int webviewWidth = browserView.getWidth();
+      final int webviewHeight = browserView.getHeight();
+
+      mActivity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+
+          String[] mapIds = pluginMaps.keySet().toArray(new String[pluginMaps.size()]);
+          String mapId;
+          PluginMap pluginMap;
+          RectF drawRect;
+          for (int i = 0; i < mapIds.length; i++) {
+            mapId = mapIds[i];
+            pluginMap = pluginMaps.get(mapId);
+            if (pluginMap.mapDivId == null) {
+              continue;
+            }
+            drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+
+            int width = (int)drawRect.width();
+            int height = (int)drawRect.height();
+            int x = (int) drawRect.left;
+            int y = (int) drawRect.top + scrollY;
+            ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
+
+            if (lParams instanceof AbsoluteLayout.LayoutParams) {
+              AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+              if (params.x == x && params.y == y &&
+                params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.x = x;
+              params.y = y;
+              pluginMap.mapView.setLayoutParams(params);
+            } else if (lParams instanceof LinearLayout.LayoutParams) {
+              LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+
+              if (params.leftMargin == x && params.topMargin == y &&
+                params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.leftMargin = x;
+              params.topMargin = y;
+              pluginMap.mapView.setLayoutParams(params);
+            } else if (lParams instanceof FrameLayout.LayoutParams) {
+              FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+              if (params.leftMargin == x && params.topMargin == y &&
+                params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.leftMargin = x;
+              params.topMargin = y;
+              Log.d("MyPluginLayout", "-->FrameLayout y = " + y + ", topMargin = " + params.topMargin + ", drawRect.top = " + drawRect.top);
+              pluginMap.mapView.setLayoutParams(params);
+
+            }
+
+          }
+        }
+      });
+
+    }
+  };
+
   @SuppressLint("NewApi")
   public MyPluginLayout(CordovaWebView webView, Activity activity) {
     super(webView.getView().getContext());
     this.browserView = webView.getView();
+    browserView.getViewTreeObserver().addOnGlobalLayoutListener(this);
     mActivity = activity;
     this.webView = webView;
     this.root = (ViewGroup) browserView.getParent();
     this.context = browserView.getContext();
-    //if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
+    //if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
     //  browserView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
     //}
 
@@ -82,15 +183,12 @@ public class MyPluginLayout extends FrameLayout {
     scrollView.setVerticalScrollBarEnabled(true);
     scrollView.addView(scrollFrameLayout);
 
+    browserView.setDrawingCacheEnabled(false);
 
 
     this.addView(scrollView);
     this.addView(frontLayer);
     root.addView(this);
-
-
-
-
     browserView.setBackgroundColor(Color.TRANSPARENT);
     if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
       || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
@@ -108,8 +206,12 @@ public class MyPluginLayout extends FrameLayout {
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
 
+    redrawTimer = new Timer();
+    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 100, 25);
     mActivity.getWindow().getDecorView().requestFocus();
   }
+
+
 
   public void putHTMLElements(JSONObject elements)  {
 
@@ -143,6 +245,7 @@ public class MyPluginLayout extends FrameLayout {
     HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
     HTMLNodes = newBuffer;
     HTMLNodeRectFs = newBufferRectFs;
+/*
 
     if (needUpdatePosition) {
       return;
@@ -201,11 +304,12 @@ public class MyPluginLayout extends FrameLayout {
       }
 
     }
+*/
     newBuffer = null;
     oldBuffer = null;
   }
 
-  
+  /*
   public void updateViewPosition(final String mapId) {
     //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
 
@@ -213,45 +317,68 @@ public class MyPluginLayout extends FrameLayout {
       return;
     }
 
-    mActivity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        PluginMap pluginMap = pluginMaps.get(mapId);
+    final PluginMap pluginMap = pluginMaps.get(mapId);
         if (pluginMap.mapDivId == null) {
           return;
         }
-        ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
+        final ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
         //int scrollX = browserView.getScrollX();
-        int scrollY = browserView.getScrollY();
-        int webviewWidth = browserView.getWidth();
-        int webviewHeight = browserView.getHeight();
-        RectF drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+    final int scrollY = browserView.getScrollY();
+    final int webviewWidth = browserView.getWidth();
+    final int webviewHeight = browserView.getHeight();
+    final RectF drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
 
+    final int width = (int)drawRect.width();
+    final int height = (int)drawRect.height();
+    final int x = (int) drawRect.left;
+    final int y = (int) drawRect.top + scrollY;
+
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
         if (lParams instanceof AbsoluteLayout.LayoutParams) {
           AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-          params.width = (int) drawRect.width();
-          params.height = (int) drawRect.height();
-          params.x = (int) drawRect.left;
-          params.y = (int) drawRect.top + scrollY;
+          if (params.x == x && params.y == y &&
+              params.width == width && params.height == height) {
+            return;
+          }
+          params.width = width;
+          params.height = height;
+          params.x = x;
+          params.y = y;
+          Log.d("MyPluginLayout", "-->absolute " + params.x + ", " + params.y + " - " + params.width + ", " + params.height);
           pluginMap.mapView.setLayoutParams(params);
         } else if (lParams instanceof LinearLayout.LayoutParams) {
           LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-          params.width = (int) drawRect.width();
-          params.height = (int) drawRect.height();
-          params.topMargin = (int) drawRect.top + scrollY;
-          params.leftMargin = (int) drawRect.left;
+
+          if (params.leftMargin == x && params.topMargin == y &&
+            params.width == width && params.height == height) {
+            return;
+          }
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
+          Log.d("MyPluginLayout", "-->LinearLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
           pluginMap.mapView.setLayoutParams(params);
+
         } else if (lParams instanceof FrameLayout.LayoutParams) {
           FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-          params.width = (int) drawRect.width();
-          params.height = (int) drawRect.height();
-          params.topMargin = (int) drawRect.top + scrollY;
-          params.leftMargin = (int) drawRect.left;
+
+          if (params.leftMargin == x && params.topMargin == y &&
+            params.width == width && params.height == height) {
+            return;
+          }
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
           params.gravity = Gravity.TOP;
+          Log.d("MyPluginLayout", "-->FrameLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
           pluginMap.mapView.setLayoutParams(params);
         }
-        //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top);
-/*
+        //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
+/ *
         if ((drawRect.top + drawRect.height() < 0) ||
           (drawRect.top >  webviewHeight) ||
           (drawRect.left + drawRect.width() < 0) ||
@@ -262,11 +389,11 @@ public class MyPluginLayout extends FrameLayout {
           pluginMap.mapView.setVisibility(View.VISIBLE);
         }
         frontLayer.invalidate();
-        */
+        * /
       }
     });
   }
-
+*/
 
   public void setDebug(final boolean debug) {
     this.isDebug = debug;
@@ -332,7 +459,7 @@ public class MyPluginLayout extends FrameLayout {
 
         mActivity.getWindow().getDecorView().requestFocus();
 
-        updateViewPosition(pluginMap.mapId);
+        //updateViewPosition(pluginMap.mapId);
 
       }
     });
@@ -346,6 +473,11 @@ public class MyPluginLayout extends FrameLayout {
     this.frontLayer.invalidate();
   }
 
+  @Override
+  public void onScrollChanged() {
+//Log.d("Layout", "---> onScrollChanged");
+    scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
+  }
 
 
   private class FrontLayerLayout extends FrameLayout {
