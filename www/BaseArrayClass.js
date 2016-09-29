@@ -38,7 +38,12 @@ function BaseArrayClass(array) {
     };
 
     self.insertAt = function(index, value) {
-        _array.splice(index, 0, value);
+        if (index > _array.length) {
+          for (var i = _array.length; i <= index; i++) {
+            _array[i] = undefined;
+          }
+        }
+        _array[index] = value;
         self.trigger("insert_at", index);
     };
 

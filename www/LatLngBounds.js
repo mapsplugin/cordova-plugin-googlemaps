@@ -28,10 +28,10 @@ LatLngBounds.prototype.northeast = null;
 LatLngBounds.prototype.southwest = null;
 
 LatLngBounds.prototype.toString = function() {
-    return "[[" + this.southwest.toString() + "],[" + this.northeast.toString() + "]]";
+    return "{\"southwest\": : " + this.southwest.toString() + ", \"northeast\": : " + this.northeast.toString() + "}";
 };
 LatLngBounds.prototype.toUrlValue = function(precision) {
-    return "[[" + this.southwest.toUrlValue(precision) + "],[" + this.northeast.toUrlValue(precision) + "]]";
+    return "[" + this.southwest.toUrlValue(precision) + "," + this.northeast.toUrlValue(precision) + "]";
 };
 
 LatLngBounds.prototype.extend = function(latLng) {

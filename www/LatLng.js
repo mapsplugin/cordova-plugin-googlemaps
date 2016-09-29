@@ -32,7 +32,7 @@ function LatLng(latitude, longitude) {
      * @return {String} latitude,lontitude
      */
     self.toString = function() {
-        return self.lat + "," + self.lng;
+        return "{\"lat\": " + self.lat + ", \"lng\": " + self.lng + "}";
     };
 
     /**
@@ -42,7 +42,7 @@ function LatLng(latitude, longitude) {
      */
     self.toUrlValue = function(precision) {
         precision = precision || 6;
-        return self.lat.toFixed(precision) + "," + self.lng.toFixed(precision);
+        return "{\"lat\": " + self.lat.toFixed(precision) + ", \"lng\": " + self.lng.toFixed(precision) + "}";
     };
 }
 

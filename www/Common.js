@@ -461,7 +461,7 @@ function createMvcArray(array) {
         });
 
     } else {
-        mvcArray = new BaseArrayClass(array.slice(0));
+        mvcArray = new BaseArrayClass(!!array ? array.slice(0) : undefined);
     }
     return mvcArray;
 }

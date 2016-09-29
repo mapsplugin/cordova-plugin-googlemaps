@@ -3,6 +3,7 @@ package plugin.google.maps;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -10,6 +11,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 
 public class PluginGeocoder extends CordovaPlugin {
 
@@ -27,7 +30,7 @@ public class PluginGeocoder extends CordovaPlugin {
 
   // In order to prevent the TOO_MANY_REQUEST_ERROR (block by Google because too many request in short period),
   // restricts the number of parallel threads.
-  private static ExecutorService executorService = Executors.newFixedThreadPool(4);
+  private static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -47,6 +50,7 @@ public class PluginGeocoder extends CordovaPlugin {
             callbackContext.error("Method: Geocoder." + action + "() is not found.");
           }
         } catch (Exception e) {
+          e.printStackTrace();
           callbackContext.error(e.getMessage() + "");
         }
       }
@@ -59,9 +63,10 @@ public class PluginGeocoder extends CordovaPlugin {
       final CallbackContext callbackContext) throws JSONException, IOException {
 
     JSONObject opts = args.getJSONObject(0);
-    List<Address> geoResults;
+    List<Address> geoResults = null;
     JSONArray results = new JSONArray();
     Iterator<Address> iterator = null;
+    boolean keepCallback = opts.getBoolean("keepCallback");
 
     // Geocoding
     if (!opts.has("position") && opts.has("address")) {
@@ -70,29 +75,71 @@ public class PluginGeocoder extends CordovaPlugin {
         if (opts.has("bounds")) {
           JSONArray points = opts.getJSONArray("bounds");
           LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-          try {
-            geoResults = geocoder.getFromLocationName(address, 20,
-                bounds.southwest.latitude, bounds.southwest.longitude,
-                bounds.northeast.latitude, bounds.northeast.longitude);
-          }catch (Exception e) {
-            callbackContext.error("Geocoder service is not available.");
-            return;
+
+          boolean retry = true;
+          while (retry) {
+            retry = false;
+            try {
+              geoResults = geocoder.getFromLocationName(address, 5,
+                  bounds.southwest.latitude, bounds.southwest.longitude,
+                  bounds.northeast.latitude, bounds.northeast.longitude);
+            } catch (IOException e) {
+              if ("Timed out waiting for response from server".equals(e.getMessage())) {
+                retry = true;
+                try {
+                  Thread.sleep((int)(150 + Math.random() * 100));  // wait (150 + random)ms before retry
+                } catch (InterruptedException e1) {
+                  //e1.printStackTrace();
+                }
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
           }
           if (geoResults.size() == 0) {
-            callbackContext.error("Not found");
+            JSONObject methodResult = new JSONObject();
+            methodResult.put("idx", opts.getInt("idx"));
+            methodResult.put("keepCallback", keepCallback);
+            methodResult.put("results", new JSONArray());
+
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
+            //pluginResult.setKeepCallback(keepCallback);
+            callbackContext.sendPluginResult(pluginResult);
+
             return;
           }
           iterator = geoResults.iterator();
         }
       } else {
-        try {
-          geoResults = geocoder.getFromLocationName(address, 20);
-        }catch (Exception e) {
-          callbackContext.error("Geocoder service is not available.");
-          return;
+
+        boolean retry = true;
+        while (retry) {
+          retry = false;
+          try {
+            geoResults = geocoder.getFromLocationName(address, 5);
+          } catch (IOException e) {
+            if ("Timed out waiting for response from server".equals(e.getMessage())) {
+              retry = true;
+              try {
+                Thread.sleep((int)(150 + Math.random() * 100));  // wait (150 + random)ms before retry
+              } catch (InterruptedException e1) {
+                //e1.printStackTrace();
+              }
+            }
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
-        if (geoResults.size() == 0) {
-          callbackContext.error("Not found");
+        if (geoResults != null && geoResults.size() == 0) {
+          JSONObject methodResult = new JSONObject();
+          methodResult.put("idx", opts.getInt("idx"));
+          methodResult.put("keepCallback", keepCallback);
+          methodResult.put("results", new JSONArray());
+
+          PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
+          //pluginResult.setKeepCallback(keepCallback);
+          callbackContext.sendPluginResult(pluginResult);
+
           return;
         }
         iterator = geoResults.iterator();
@@ -102,16 +149,38 @@ public class PluginGeocoder extends CordovaPlugin {
     // Reverse geocoding
     if (opts.has("position") && !opts.has("address")) {
       JSONObject position = opts.getJSONObject("position");
-      try {
-        geoResults = geocoder.getFromLocation(
-            position.getDouble("lat"), 
-            position.getDouble("lng"), 20);
-      } catch (Exception e) {
-        callbackContext.error("Geocoder service is not available.");
-        return;
+
+      boolean retry = true;
+      while (retry) {
+        retry = false;
+        try {
+          geoResults = geocoder.getFromLocation(
+              position.getDouble("lat"),
+              position.getDouble("lng"), 5);
+        } catch (IOException e) {
+          if ("Timed out waiting for response from server".equals(e.getMessage())) {
+            retry = true;
+            try {
+              Thread.sleep((int)(150 + Math.random() * 100));  // wait (150 + random)ms before retry
+            } catch (InterruptedException e1) {
+              //e1.printStackTrace();
+            }
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
-      if (geoResults.size() == 0) {
-        callbackContext.error("Not found");
+
+      if (geoResults != null && geoResults.size() == 0) {
+        JSONObject methodResult = new JSONObject();
+        methodResult.put("idx", opts.getInt("idx"));
+        methodResult.put("keepCallback", keepCallback);
+        methodResult.put("results", new JSONArray());
+
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
+        //pluginResult.setKeepCallback(keepCallback);
+        callbackContext.sendPluginResult(pluginResult);
+
         return;
       }
       iterator = geoResults.iterator();
@@ -169,7 +238,15 @@ public class PluginGeocoder extends CordovaPlugin {
       result.put("extra", extra);
       results.put(result);
     }
-    callbackContext.success(results);
+
+    JSONObject methodResult = new JSONObject();
+    methodResult.put("idx", opts.getInt("idx"));
+    methodResult.put("keepCallback", keepCallback);
+    methodResult.put("results", results);
+
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, methodResult);
+    //pluginResult.setKeepCallback(keepCallback);
+    callbackContext.sendPluginResult(pluginResult);
   }
 
 }
