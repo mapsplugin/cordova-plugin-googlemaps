@@ -355,7 +355,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String serviceName = args.getString(0);
     final String pluginName = mapId + "-" + serviceName.toLowerCase();
-    Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
+    //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
 
     try {
 
@@ -466,7 +466,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       mapCtrl.mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
     }
 
-    mapCtrl.mPluginLayout.updateViewPosition(mapId);
+    //mapCtrl.mPluginLayout.updateViewPosition(mapId);
 
     //mapCtrl.mPluginLayout.inValidate();
     callbackContext.success();
@@ -916,6 +916,39 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           params = args.getJSONObject(0);
           UiSettings settings = map.getUiSettings();
 
+          //preferences
+          if (params.has("preferences")) {
+            JSONObject preferences = params.getJSONObject("preferences");
+
+            if (preferences.has("padding")) {
+              JSONObject padding = preferences.getJSONObject("padding");
+              int left = 0, top = 0, bottom = 0, right = 0;
+              if (padding.has("left")) {
+                left = (int) (padding.getInt("left") * density);
+              }
+              if (padding.has("top")) {
+                top = (int) (padding.getInt("top") * density);
+              }
+              if (padding.has("bottom")) {
+                bottom = (int) (padding.getInt("bottom") * density);
+              }
+              if (padding.has("right")) {
+                right = (int) (padding.getInt("right") * density);
+              }
+              self.map.setPadding(left, top, right, bottom);
+            }
+
+            if (preferences.has("zoom")) {
+              JSONObject zoom = preferences.getJSONObject("zoom");
+              if (zoom.has("minZoom")) {
+                self.map.setMinZoomPreference((float)zoom.getDouble("minZoom"));
+              }
+              if (zoom.has("maxZoom")) {
+                self.map.setMinZoomPreference((float)zoom.getDouble("minZoom"));
+              }
+            }
+          }
+
           //gestures
           if (params.has("gestures")) {
             JSONObject gestures = params.getJSONObject("gestures");
@@ -946,6 +979,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             }
             if (controls.has("indoorPicker")) {
               settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
+            }
+            if (controls.has("mapToolbar")) {
+              settings.setMapToolbarEnabled(controls.getBoolean("mapToolbar"));
             }
             if (controls.has("myLocationButton")) {
               boolean isEnabled = controls.getBoolean("myLocationButton");
