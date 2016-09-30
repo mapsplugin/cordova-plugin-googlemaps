@@ -28,14 +28,18 @@ public class PluginGeocoder extends CordovaPlugin {
   // In order to prevent the TOO_MANY_REQUEST_ERROR (block by Google because too many request in short period),
   // restricts the number of parallel threads.
   //
-  // According from my tests,  4 threads are the best setting.
-  private static ExecutorService executorService = Executors.newFixedThreadPool(4);
+  // According from my tests,  5 threads are the best setting.
+  private static ExecutorService executorService = Executors.newFixedThreadPool(5);
   private Activity mActivity = null;
+  private static Geocoder geocoder = null;
 
 
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     mActivity = cordova.getActivity();
+    if (geocoder == null) {
+      geocoder = new Geocoder(mActivity);
+    }
   }
 
 
@@ -67,7 +71,6 @@ public class PluginGeocoder extends CordovaPlugin {
     List<Address> geoResults = null;
     JSONArray results = new JSONArray();
     Iterator<Address> iterator = null;
-    final Geocoder geocoder = new Geocoder(mActivity);
 
     // Geocoding
     if (!opts.has("position") && opts.has("address")) {
