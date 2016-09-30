@@ -212,45 +212,43 @@ function getDivRect(div) {
 }
 
 function getAllChildren(root) {
-    var list = [];
-    var clickableElements = [];
     if (!root) {
       return [];
     }
 
-    var clickable;
-    var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
-    var heightCSS, widthCSS;
+    var list;
     if (window.document.querySelectorAll) {
         // Android: v4.3 and over
         // iOS safari: v9.2 and over
-        //var childNodes = root.querySelectorAll(':not([data-clickable="false"])');
         var childNodes = root.querySelectorAll("*");
         var allClickableElements = Array.prototype.slice.call(childNodes);
-        clickableElements = allClickableElements.filter(function(i) {
-            return i != root;
+        list = allClickableElements.filter(function(node) {
+            return node !== root && _shouldWatchByNative(node);
         });
     } else {
-        clickableElements = root.getElementsByTagName("*");
-    }
-
-    for (var i = 0; i < clickableElements.length; i++) {
-        node = clickableElements[i];
-        if (node.nodeType == 1) {
-            style = window.getComputedStyle(node);
-            visibilityCSS = style.getPropertyValue('visibility');
-            displayCSS = style.getPropertyValue('display');
-            opacityCSS = style.getPropertyValue('opacity');
-            heightCSS = style.getPropertyValue('height');
-            widthCSS = style.getPropertyValue('width');
-            clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
-            if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
+        var node;
+        var clickableElements = root.getElementsByTagName("*");
+        for (var i = 0; i < clickableElements.length; i++) {
+            node = clickableElements[i];
+            if (_shouldWatchByNative(node)) {
                 list.push(node);
             }
         }
     }
 
     return list;
+}
+function _shouldWatchByNative(node) {
+  if (node.nodeType !== 1) {
+    return;
+  }
+  var visibilityCSS = getStyle(node, 'visibility');
+  var displayCSS = getStyle(node, 'display');
+  var opacityCSS = getStyle(node, 'opacity');
+  var heightCSS = getStyle(node, 'height');
+  var widthCSS = getStyle(node, 'width');
+  var clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
+  return displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize;
 }
 
 
@@ -269,13 +267,24 @@ function getDomDepth(dom) {
     return depth;
 }
 
+// Get CSS value of an element
+// http://stackoverflow.com/a/1388022
+function getStyle(element, styleProperty)
+{
+    if (window.getComputedStyle) {
+        return document.defaultView.getComputedStyle(element,null).getPropertyValue(styleProperty);
+    } else if (element.currentStyle) {
+      return element.currentStyle[styleProperty];
+    }
+    return;
+}
+
 function getDomInfo(dom) {
-    var style = window.getComputedStyle(dom);
-    var zIndexCSS = style.getPropertyValue('zIndex');
-    var position = style.getPropertyValue('position');
+    var zIndexCSS = getStyle(dom, 'z-index');
+    var position = getStyle(dom, 'position');
     var depth;
 
-    if (zIndexCSS && zIndexCSS > 0 || position == "fixed") {
+    if (zIndexCSS && zIndexCSS > 0 || position === "fixed") {
         if (dom !== document.body) {
             depth = 999999;
         } else {
@@ -477,5 +486,6 @@ module.exports = {
     HTMLColor2RGBA: HTMLColor2RGBA,
     isHTMLColorString: isHTMLColorString,
     defaultTrueOption: defaultTrueOption,
-    createMvcArray: createMvcArray
+    createMvcArray: createMvcArray,
+    getStyle: getStyle
 };

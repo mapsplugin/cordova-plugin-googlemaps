@@ -144,7 +144,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, this.errorHandler, self.getPluginName(), 'setAnimation', [this.getId(), common.deleteFromObject(animation,'function')]);
+    }, this.errorHandler, self.getPluginName(), 'setAnimation', [this.getId(), animation]);
     return this;
 };
 

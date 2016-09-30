@@ -161,7 +161,7 @@ Map.prototype.setOptions = function(options) {
         this.set('camera_tilt', options.camera.tilt);
       }
     }
-    exec(null, this.errorHandler, this.id, 'setOptions', [common.deleteFromObject(options, 'function')]);
+    exec(null, this.errorHandler, this.id, 'setOptions', [options]);
     return this;
 };
 
@@ -265,7 +265,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'animateCamera', [common.deleteFromObject(cameraPosition, 'function')]);
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
 
 };
 /**
@@ -283,7 +283,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'moveCamera', [common.deleteFromObject(cameraPosition, 'function')]);
+    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition]);
 
 };
 
@@ -330,7 +330,7 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [common.deleteFromObject(params, 'function')]);
+    exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params]);
 };
 Map.prototype.getFocusedBuilding = function(callback) {
     exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
@@ -413,7 +413,7 @@ Map.prototype.toDataURL = function(params, callback) {
         if (typeof callback === "function") {
             callback.call(self, image);
         }
-    }, self.errorHandler, self.id, 'toDataURL', [common.deleteFromObject(params, 'function')]);
+    }, self.errorHandler, self.id, 'toDataURL', [params]);
 };
 
 /**

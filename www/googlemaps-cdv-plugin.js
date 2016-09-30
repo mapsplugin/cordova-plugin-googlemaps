@@ -73,7 +73,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
   var idlingCnt = 0;
-
+/*
   var baseDom = document.createElement("div");
   baseDom.style.width = "1px";
   baseDom.style.height = "1px";
@@ -82,6 +82,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
   baseDom.style.visibility = "hidden";
   document.body.insertBefore(baseDom, document.body.firstChild);
   var baseRect;
+*/
   var isChecking = false;
 
   function putHtmlElements() {
@@ -89,7 +90,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
         return;
       }
       isChecking = true;
-      baseRect = common.getDivRect(baseDom);
+      //baseRect = common.getDivRect(baseDom);
       var children = common.getAllChildren(document.body);
       var bodyRect = common.getDivRect(document.body);
 
@@ -147,14 +148,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
           return;
       }
       idlingCnt = 0;
-      /*
-      for (i = 0; i < children.length; i++) {
-          child = children[i];
-          elemId = child.getAttribute("__pluginDomId");
-          domPositions[elemId].offsetX = domPositions[elemId].size.left - baseRect.left;
-          domPositions[elemId].offsetY = domPositions[elemId].size.top - baseRect.top;
-      }
-      */
+
       cordova.exec(function() {
           prevDomPositions = domPositions;
           var mapIDs = Object.keys(MAPS);
