@@ -10,7 +10,7 @@
 #import "GoogleMapsViewController.h"
 
 @interface MyPluginLayerDebugView : UIView
-@property (nonatomic) UIWebView *webView;
+@property (nonatomic) UIView *webView;
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) NSMutableDictionary *mapCtrls;
 @property (nonatomic) NSMutableDictionary *HTMLNodes;

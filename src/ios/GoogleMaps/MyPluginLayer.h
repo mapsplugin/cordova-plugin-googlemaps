@@ -12,12 +12,12 @@
 
 @interface MyPluginLayer : UIView<UIScrollViewDelegate>
 
-@property (nonatomic) UIWebView *webView;
+@property (nonatomic) UIView *webView;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 @property (nonatomic) BOOL stopFlag;
 @property (nonatomic) BOOL needUpdatePosition;
 
-- (id)initWithWebView:(UIWebView *)webView;
+- (id)initWithWebView:(UIView *)webView;
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl;

@@ -79,7 +79,9 @@
           NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
           
           CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-          NSString *webPageUrl = ((UIWebView *)(cdvViewController.webView)).request.URL.absoluteString;
+          id webview = cdvViewController.webView;
+          NSURL *url = [webview URL];
+          NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
           
           [options setObject:tileUrlFormat forKey:@"tileUrlFormat"];

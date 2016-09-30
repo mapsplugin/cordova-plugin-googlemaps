@@ -79,7 +79,10 @@ var Marker = function(map, id, markerOptions) {
     self.on("draggable_changed", function(oldValue, draggable) {
         exec(null, self.errorHandler, self.getPluginName(), 'setDraggable', [self.getId(), draggable]);
     });
-    self.on("anchor_changed", function(oldValue, anchor) {
+    self.on("iconAnchor_changed", function(oldValue, anchor) {
+        exec(null, self.errorHandler, self.getPluginName(), 'setIconAnchor', [self.getId(), anchor[0], anchor[1]]);
+    });
+    self.on("infoWndAnchor_changed", function(oldValue, anchor) {
         exec(null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
     self.on("zIndex_changed", function(oldValue, zIndex) {
@@ -169,11 +172,11 @@ Marker.prototype.getOpacity = function() {
     return this.get('opacity');
 };
 Marker.prototype.setIconAnchor = function(anchorX, anchorY) {
-    this.set('anchor', [anchorX, anchorY]);
+    this.set('iconAnchor', [anchorX, anchorY]);
     return this;
 };
 Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
-    this.set('anchor', [anchorX, anchorY]);
+    this.set('infoWndAnchor', [anchorX, anchorY]);
     return this;
 };
 Marker.prototype.setDraggable = function(draggable) {

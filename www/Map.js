@@ -133,10 +133,10 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
     }
     exec(function() {
-      setTimeout(function() {
+      //setTimeout(function() {
           self.refreshLayout();
           self.trigger(event.MAP_READY, self);
-      }, 10);
+      //}, 10);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
 };
 

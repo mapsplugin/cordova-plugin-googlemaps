@@ -48,7 +48,6 @@
   NSString *className = [command.arguments objectAtIndex:0];
   NSString *pluginName = [NSString stringWithFormat:@"%@", className];
   className = [NSString stringWithFormat:@"Plugin%@", className];
-  //NSLog(@"--->loadPlugin : %@ className : %@", self.mapId, className);
 
 
   [self.loadPluginQueue addOperationWithBlock: ^{
@@ -87,6 +86,7 @@
           [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
           [plugin pluginInitialize];
         
+  NSLog(@"--->loadPlugin : %@ className : %@", pluginId, className);
           [self.mapCtrl.plugins setObject:plugin forKey:pluginId];
           [plugin setGoogleMapsViewController:self.mapCtrl];
           
@@ -819,6 +819,50 @@
           }];
         }
       }
+      //preferences
+      NSDictionary *preferences = [initOptions objectForKey:@"preferences"];
+      if (preferences) {
+        //padding
+        if ([preferences valueForKey:@"padding"] != nil) {
+          NSDictionary *padding = [preferences valueForKey:@"padding"];
+          UIEdgeInsets current = self.mapCtrl.map.padding;
+          if ([padding objectForKey:@"left"] != nil) {
+            current.left = [[padding objectForKey:@"left"] floatValue];
+          }
+          if ([padding objectForKey:@"top"] != nil) {
+            current.top = [[padding objectForKey:@"top"] floatValue];
+          }
+          if ([padding objectForKey:@"bottom"] != nil) {
+            current.bottom = [[padding objectForKey:@"bottom"] floatValue];
+          }
+          if ([padding objectForKey:@"right"] != nil) {
+            current.right = [[padding objectForKey:@"right"] floatValue];
+          }
+      UIEdgeInsets newPadding = UIEdgeInsetsMake(current.top, current.left, current.bottom, current.right);
+      NSLog(@"newPadding = %f,%f - %f, %f", current.top, current.right, current.bottom, current.top);
+          
+          [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+              [self.mapCtrl.map setPadding:newPadding];
+          }];
+        }
+        //zoom
+        if ([preferences valueForKey:@"zoom"] != nil) {
+          NSDictionary *zoom = [preferences valueForKey:@"zoom"];
+          float minZoom = self.mapCtrl.map.minZoom;
+          float maxZoom = self.mapCtrl.map.maxZoom;
+          if ([zoom objectForKey:@"minZoom"] != nil) {
+            minZoom = [[zoom objectForKey:@"minZoom"] doubleValue];
+          }
+          if ([zoom objectForKey:@"maxZoom"] != nil) {
+            maxZoom = [[zoom objectForKey:@"maxZoom"] doubleValue];
+          }
+
+          [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+              [self.mapCtrl.map setMinZoom:minZoom maxZoom:maxZoom];
+          }];
+        }
+      }
+
 
       //mapType
       NSString *typeStr = [initOptions valueForKey:@"mapType"];

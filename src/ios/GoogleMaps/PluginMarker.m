@@ -739,7 +739,10 @@
                     if (range.location != 0) {
                       // Get the current URL, then calculate the relative path.
                       CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-                      NSString *currentURL = ((UIWebView *)(cdvViewController.webView)).request.URL.absoluteString;
+                      
+                      id webview = cdvViewController.webView;
+                      NSURL *url = [webview URL];
+                      NSString *currentURL = url.absoluteString;
                       currentURL = [currentURL stringByDeletingLastPathComponent];
                       currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
                       currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];

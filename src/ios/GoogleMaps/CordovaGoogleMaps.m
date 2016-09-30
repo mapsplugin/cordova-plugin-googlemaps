@@ -49,7 +49,7 @@
     self.pluginMaps = [[NSMutableDictionary alloc] init];
     self.locationCommandQueue = [[NSMutableArray alloc] init];
 
-    self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:(UIWebView *)self.webView];
+    self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
     self.pluginLayer.backgroundColor = [UIColor whiteColor];
     self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
@@ -357,40 +357,29 @@
 }
 
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
-    //dispatch_async(dispatch_get_main_queue(), ^{
     [self.executeQueue addOperationWithBlock:^{
     
         NSDictionary *elements = [command.arguments objectAtIndex:0];
 
-        CDVPluginResult* pluginResult;
-        if (self.pluginLayer.stopFlag == NO || self.pluginLayer.needUpdatePosition == YES) {
-          [self.pluginLayer putHTMLElements:elements];
+        [self.pluginLayer putHTMLElements:elements];
 
-          if (self.pluginLayer.needUpdatePosition) {
-              self.pluginLayer.needUpdatePosition = NO;
-              //NSLog(@"%@", elements);
-              [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                  NSArray *keys=[self.pluginMaps allKeys];
-                  NSString *mapId;
-                  PluginMap *pluginMap;
+        if (self.pluginLayer.needUpdatePosition) {
+            self.pluginLayer.needUpdatePosition = NO;
+            NSArray *keys=[self.pluginMaps allKeys];
+            NSString *mapId;
+            PluginMap *pluginMap;
 
-                  for (int i = 0; i < [keys count]; i++) {
-                    mapId = [keys objectAtIndex:i];
-                    pluginMap = [self.pluginMaps objectForKey:mapId];
-                    [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
-                  }
-              }];
-          }
-
-          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        } else {
-          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            for (int i = 0; i < [keys count]; i++) {
+              mapId = [keys objectAtIndex:i];
+              pluginMap = [self.pluginMaps objectForKey:mapId];
+              [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
+            }
         }
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         pluginResult = nil;
         elements = nil;
     }];
-    //});
 }
 
 @end

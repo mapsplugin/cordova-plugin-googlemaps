@@ -12,10 +12,10 @@ NSOperationQueue *executeQueue;
 
 @implementation MyPluginLayer
 
-- (id)initWithWebView:(UIWebView *)webView {
+- (id)initWithWebView:(UIView *)webView {
     executeQueue = [NSOperationQueue new];
 
-    self = [super initWithFrame:webView.frame];
+    self = [super initWithFrame:[webView frame]];
     self.webView = webView;
     self.opaque = NO;
     [self.webView removeFromSuperview];
@@ -23,20 +23,21 @@ NSOperationQueue *executeQueue;
     if ([self.webView respondsToSelector:@selector(scrollView)]) {
         ((UIScrollView*)[self.webView scrollView]).bounces = NO;
     } else {
-        for (id subview in self.webView.subviews) {
+        for (id subview in [self.webView subviews]) {
             if ([[subview class] isSubclassOfClass:[UIScrollView class]]) {
                 ((UIScrollView*)subview).bounces = NO;
             }
         }
     }
 
-    self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:self.webView.frame];
+    self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:[self.webView frame]];
   
     self.pluginScrollView.debugView.webView = self.webView;
     self.pluginScrollView.debugView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
     self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.webView.scrollView.delegate = self;
+    UIView *uiview = self.webView;
+    uiview.scrollView.delegate = self;
     [self.pluginScrollView setContentSize:self.webView.scrollView.frame.size ];
   
     [self addSubview:self.pluginScrollView];

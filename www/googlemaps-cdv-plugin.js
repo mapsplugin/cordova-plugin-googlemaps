@@ -56,7 +56,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * Add event lister to all html nodes under the <body> tag.
  *****************************************************************************/
 (function() {
-  if (!document.body || !document.body.firstChild || !document.body.style) {
+  if (!document.body || !document.body.firstChild) {
     setTimeout(arguments.callee, 25);
     return;
   }
@@ -147,15 +147,16 @@ var saltHash = Math.floor(Math.random() * Date.now());
           return;
       }
       idlingCnt = 0;
+      /*
       for (i = 0; i < children.length; i++) {
           child = children[i];
           elemId = child.getAttribute("__pluginDomId");
           domPositions[elemId].offsetX = domPositions[elemId].size.left - baseRect.left;
           domPositions[elemId].offsetY = domPositions[elemId].size.top - baseRect.top;
       }
+      */
       cordova.exec(function() {
           prevDomPositions = domPositions;
-
           var mapIDs = Object.keys(MAPS);
           mapIDs.forEach(function(mapId) {
               MAPS[mapId].refreshLayout();
@@ -168,7 +169,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
       elemId = null;
       children = null;
   }
-  setTimeout(resetTimer, 50);
 
   // This is the special event that is fired by the google maps plugin
   // (Not generic plugin)
@@ -176,6 +176,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
     idlingCnt = 0;
     setTimeout(putHtmlElements, 0);
   }
+  setTimeout(resetTimer, 50);
   document.addEventListener("touch_start", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
 
