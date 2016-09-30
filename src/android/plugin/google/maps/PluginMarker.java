@@ -43,12 +43,19 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     BOUNCE
   }
 
+  private String CURRENT_PAGE_URL;
+
   private ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        CURRENT_PAGE_URL = webView.getUrl();
+      }
+    });
   }
 
   @Override
@@ -767,270 +774,252 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   }
   
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (iconProperty.containsKey("iconHue")) {
-          float hue = iconProperty.getFloat("iconHue");
-          marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
-          callback.onPostExecute(marker);
-        }
+    if (iconProperty.containsKey("iconHue")) {
+      float hue = iconProperty.getFloat("iconHue");
+      marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
+      callback.onPostExecute(marker);
+    }
 
-        String iconUrl = iconProperty.getString("url");
-        if (iconUrl == null) {
-          callback.onPostExecute(marker);
-          return;
-        }
+    String iconUrl = iconProperty.getString("url");
+    if (iconUrl == null) {
+      callback.onPostExecute(marker);
+      return;
+    }
 
-        if (!iconUrl.contains("://") &&
-          !iconUrl.startsWith("/") &&
-          !iconUrl.startsWith("www/") &&
-          !iconUrl.startsWith("data:image") &&
-            !iconUrl.startsWith("./") &&
-            !iconUrl.startsWith("../")) {
-          iconUrl = "./" + iconUrl;
-        }
-        if (iconUrl.startsWith("./")  || iconUrl.startsWith("../")) {
-          iconUrl = iconUrl.replace("././", "./");
-          String currentPage = PluginMarker.this.webView.getUrl();
-          currentPage = currentPage.replaceAll("[^\\/]*$", "");
-          iconUrl = currentPage + "/" + iconUrl;
-        }
+    if (!iconUrl.contains("://") &&
+      !iconUrl.startsWith("/") &&
+      !iconUrl.startsWith("www/") &&
+      !iconUrl.startsWith("data:image") &&
+        !iconUrl.startsWith("./") &&
+        !iconUrl.startsWith("../")) {
+      iconUrl = "./" + iconUrl;
+    }
+    if (iconUrl.startsWith("./")  || iconUrl.startsWith("../")) {
+      iconUrl = iconUrl.replace("././", "./");
+      String currentPage = CURRENT_PAGE_URL;
+      currentPage = currentPage.replaceAll("[^\\/]*$", "");
+      iconUrl = currentPage + "/" + iconUrl;
+    }
 
-        if (iconUrl == null) {
-          callback.onPostExecute(marker);
-          return;
-        }
+    if (iconUrl == null) {
+      callback.onPostExecute(marker);
+      return;
+    }
 
-        iconProperty.putString("url", iconUrl);
+    iconProperty.putString("url", iconUrl);
 
-        cordova.getThreadPool().submit(new Runnable() {
-          @Override
-          public void run() {
+    if (iconUrl.indexOf("http") != 0) {
+      //----------------------------------
+      // Load icon from local file
+      //----------------------------------
+      AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
-            String iconUrl = iconProperty.getString("url");
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+          String iconUrl = iconProperty.getString("url");
+          if (iconUrl == null) {
+            return null;
+          }
 
-            if (iconUrl.indexOf("http") != 0) {
-              //----------------------------------
-              // Load icon from local file
-              //----------------------------------
-              AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
+          Bitmap image = null;
+          if (iconUrl.indexOf("cdvfile://") == 0) {
+            CordovaResourceApi resourceApi = webView.getResourceApi();
+            iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
+          }
+          if (iconUrl == null) {
+            return null;
+          }
 
-                @Override
-                protected Bitmap doInBackground(Void... params) {
-                  String iconUrl = iconProperty.getString("url");
-                  if (iconUrl == null) {
-                    return null;
-                  }
-
-                  Bitmap image = null;
-                  if (iconUrl.indexOf("cdvfile://") == 0) {
-                    CordovaResourceApi resourceApi = webView.getResourceApi();
-                    iconUrl = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, iconUrl);
-                  }
-                  if (iconUrl == null) {
-                    return null;
-                  }
-
-                  if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
-                    String[] tmp = iconUrl.split(",");
-                    image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-                  } else if (iconUrl.indexOf("file://") == 0 &&
-                      !iconUrl.contains("file:///android_asset/")) {
-                    iconUrl = iconUrl.replace("file://", "");
-                    File tmp = new File(iconUrl);
-                    if (tmp.exists()) {
-                      image = BitmapFactory.decodeFile(iconUrl);
-                    } else {
-                      //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
-                        Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
-                      //}
-                    }
-                  } else {
-                    //Log.d(TAG, "iconUrl = " + iconUrl);
-                    if (iconUrl.indexOf("file:///android_asset/") == 0) {
-                      iconUrl = iconUrl.replace("file:///android_asset/", "");
-                    }
-                    //Log.d(TAG, "iconUrl = " + iconUrl);
-                    if (iconUrl.contains("./")) {
-                      try {
-                        boolean isAbsolutePath = iconUrl.startsWith("/");
-                        File relativePath = new File(iconUrl);
-                        iconUrl = relativePath.getCanonicalPath();
-                        //Log.d(TAG, "iconUrl = " + iconUrl);
-                        if (!isAbsolutePath) {
-                          iconUrl = iconUrl.substring(1);
-                        }
-                        //Log.d(TAG, "iconUrl = " + iconUrl);
-                      } catch (Exception e) {
-                        e.printStackTrace();
-                      }
-                    }
-                    AssetManager assetManager = PluginMarker.this.cordova.getActivity().getAssets();
-                    InputStream inputStream;
-                    try {
-                      inputStream = assetManager.open(iconUrl);
-                      image = BitmapFactory.decodeStream(inputStream);
-                    } catch (IOException e) {
-                      e.printStackTrace();
-                      return null;
-                    }
-                  }
-                  if (image == null) {
-                    return null;
-                  }
-
-                  Boolean isResized = false;
-                  if (iconProperty.containsKey("size")) {
-                    Object size = iconProperty.get("size");
-
-                    if (Bundle.class.isInstance(size)) {
-
-                      Bundle sizeInfo = (Bundle)size;
-                      int width = sizeInfo.getInt("width", 0);
-                      int height = sizeInfo.getInt("height", 0);
-                      if (width > 0 && height > 0) {
-                        isResized = true;
-                        width = (int)Math.round(width * PluginMarker.this.density);
-                        height = (int)Math.round(height * PluginMarker.this.density);
-                        image = PluginUtil.resizeBitmap(image, width, height);
-                      }
-                    }
-                  }
-
-                  if (!isResized) {
-                    image = PluginUtil.scaleBitmapForDevice(image);
-                  }
-
-                  return image;
-                }
-
-                @Override
-                protected void onPostExecute(Bitmap image) {
-                  if (image == null) {
-                    callback.onPostExecute(marker);
-                    return;
-                  }
-
-                  try {
-                    //TODO: check image is valid?
-                    BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-                    marker.setIcon(bitmapDescriptor);
-
-                    // Save the information for the anchor property
-                    Bundle imageSize = new Bundle();
-                    imageSize.putInt("width", image.getWidth());
-                    imageSize.putInt("height", image.getHeight());
-                    self.objects.put("imageSize", imageSize);
-
-
-                    // The `anchor` of the `icon` property
-                    if (iconProperty.containsKey("anchor")) {
-                      double[] anchor = iconProperty.getDoubleArray("anchor");
-                      if (anchor.length == 2) {
-                        _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-                      }
-                    }
-
-
-                    // The `anchor` property for the infoWindow
-                    if (iconProperty.containsKey("infoWindowAnchor")) {
-                      double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-                      if (anchor.length == 2) {
-                        _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-                      }
-                    }
-
-                    callback.onPostExecute(marker);
-
-                  } catch (java.lang.IllegalArgumentException e) {
-                    Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
-                    //e.printStackTrace();
-
-                  }
-                }
-              };
-              task.execute();
-              iconLoadingTasks.add(task);
-
-
-              return;
+          if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
+            String[] tmp = iconUrl.split(",");
+            image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+          } else if (iconUrl.indexOf("file://") == 0 &&
+              !iconUrl.contains("file:///android_asset/")) {
+            iconUrl = iconUrl.replace("file://", "");
+            File tmp = new File(iconUrl);
+            if (tmp.exists()) {
+              image = BitmapFactory.decodeFile(iconUrl);
+            } else {
+              //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
+                Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
+              //}
             }
-
-            if (iconUrl.indexOf("http") == 0) {
-              //----------------------------------
-              // Load icon from on the internet
-              //----------------------------------
-              int width = -1;
-              int height = -1;
-              if (iconProperty.containsKey("size")) {
-
-                Bundle sizeInfo = (Bundle) iconProperty.get("size");
-                width = sizeInfo.getInt("width", width);
-                height = sizeInfo.getInt("height", height);
-              }
-
-              AsyncLoadImage task = new AsyncLoadImage(width, height, new AsyncLoadImageInterface() {
-
-                @Override
-                public void onPostExecute(Bitmap image) {
-
-                  if (image == null) {
-                    callback.onPostExecute(marker);
-                    return;
-                  }
-
-                  try {
-                    BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
-                    marker.setIcon(bitmapDescriptor);
-
-                    // Save the information for the anchor property
-                    Bundle imageSize = new Bundle();
-                    imageSize.putInt("width", image.getWidth());
-                    imageSize.putInt("height", image.getHeight());
-                    self.objects.put("imageSize", imageSize);
-
-                    // The `anchor` of the `icon` property
-                    if (iconProperty.containsKey("anchor")) {
-                      double[] anchor = iconProperty.getDoubleArray("anchor");
-                      if (anchor.length == 2) {
-                        _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-                      }
-                    }
-
-                    // The `anchor` property for the infoWindow
-                    if (iconProperty.containsKey("infoWindowAnchor")) {
-                      double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-                      if (anchor.length == 2) {
-                        _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-                      }
-                    }
-
-                    image.recycle();
-                    callback.onPostExecute(marker);
-                  } catch (Exception e) {
-                    //e.printStackTrace();
-                    try {
-                      marker.remove();
-                    } catch (Exception ignore) {
-                      ignore = null;
-                    }
-                    callback.onError(e.getMessage() + "");
-                  }
-
+          } else {
+            //Log.d(TAG, "iconUrl = " + iconUrl);
+            if (iconUrl.indexOf("file:///android_asset/") == 0) {
+              iconUrl = iconUrl.replace("file:///android_asset/", "");
+            }
+            //Log.d(TAG, "iconUrl = " + iconUrl);
+            if (iconUrl.contains("./")) {
+              try {
+                boolean isAbsolutePath = iconUrl.startsWith("/");
+                File relativePath = new File(iconUrl);
+                iconUrl = relativePath.getCanonicalPath();
+                //Log.d(TAG, "iconUrl = " + iconUrl);
+                if (!isAbsolutePath) {
+                  iconUrl = iconUrl.substring(1);
                 }
-
-              });
-              task.execute(iconUrl);
-              iconLoadingTasks.add(task);
-
-
+                //Log.d(TAG, "iconUrl = " + iconUrl);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }
+            AssetManager assetManager = PluginMarker.this.cordova.getActivity().getAssets();
+            InputStream inputStream;
+            try {
+              inputStream = assetManager.open(iconUrl);
+              image = BitmapFactory.decodeStream(inputStream);
+            } catch (IOException e) {
+              e.printStackTrace();
+              return null;
             }
           }
-        });
+          if (image == null) {
+            return null;
+          }
 
+          Boolean isResized = false;
+          if (iconProperty.containsKey("size")) {
+            Object size = iconProperty.get("size");
+
+            if (Bundle.class.isInstance(size)) {
+
+              Bundle sizeInfo = (Bundle)size;
+              int width = sizeInfo.getInt("width", 0);
+              int height = sizeInfo.getInt("height", 0);
+              if (width > 0 && height > 0) {
+                isResized = true;
+                width = (int)Math.round(width * PluginMarker.this.density);
+                height = (int)Math.round(height * PluginMarker.this.density);
+                image = PluginUtil.resizeBitmap(image, width, height);
+              }
+            }
+          }
+
+          if (!isResized) {
+            image = PluginUtil.scaleBitmapForDevice(image);
+          }
+
+          return image;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap image) {
+          if (image == null) {
+            callback.onPostExecute(marker);
+            return;
+          }
+
+          try {
+            //TODO: check image is valid?
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+            marker.setIcon(bitmapDescriptor);
+
+            // Save the information for the anchor property
+            Bundle imageSize = new Bundle();
+            imageSize.putInt("width", image.getWidth());
+            imageSize.putInt("height", image.getHeight());
+            self.objects.put("imageSize", imageSize);
+
+
+            // The `anchor` of the `icon` property
+            if (iconProperty.containsKey("anchor")) {
+              double[] anchor = iconProperty.getDoubleArray("anchor");
+              if (anchor.length == 2) {
+                _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+
+            // The `anchor` property for the infoWindow
+            if (iconProperty.containsKey("infoWindowAnchor")) {
+              double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+              if (anchor.length == 2) {
+                _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+            callback.onPostExecute(marker);
+
+          } catch (java.lang.IllegalArgumentException e) {
+            Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
+            //e.printStackTrace();
+
+          }
+        }
+      };
+      task.execute();
+      iconLoadingTasks.add(task);
+
+
+      return;
+    }
+
+    if (iconUrl.indexOf("http") == 0) {
+      //----------------------------------
+      // Load icon from on the internet
+      //----------------------------------
+      int width = -1;
+      int height = -1;
+      if (iconProperty.containsKey("size")) {
+
+        Bundle sizeInfo = (Bundle) iconProperty.get("size");
+        width = sizeInfo.getInt("width", width);
+        height = sizeInfo.getInt("height", height);
       }
-    });
+
+      AsyncLoadImage task = new AsyncLoadImage(width, height, new AsyncLoadImageInterface() {
+
+        @Override
+        public void onPostExecute(Bitmap image) {
+
+          if (image == null) {
+            callback.onPostExecute(marker);
+            return;
+          }
+
+          try {
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+            marker.setIcon(bitmapDescriptor);
+
+            // Save the information for the anchor property
+            Bundle imageSize = new Bundle();
+            imageSize.putInt("width", image.getWidth());
+            imageSize.putInt("height", image.getHeight());
+            self.objects.put("imageSize", imageSize);
+
+            // The `anchor` of the `icon` property
+            if (iconProperty.containsKey("anchor")) {
+              double[] anchor = iconProperty.getDoubleArray("anchor");
+              if (anchor.length == 2) {
+                _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+            // The `anchor` property for the infoWindow
+            if (iconProperty.containsKey("infoWindowAnchor")) {
+              double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+              if (anchor.length == 2) {
+                _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+              }
+            }
+
+            image.recycle();
+            callback.onPostExecute(marker);
+          } catch (Exception e) {
+            //e.printStackTrace();
+            try {
+              marker.remove();
+            } catch (Exception ignore) {
+              ignore = null;
+            }
+            callback.onError(e.getMessage() + "");
+          }
+        }
+      });
+      task.execute(iconUrl);
+      iconLoadingTasks.add(task);
+    }
   }
 
   private void _setIconAnchor(final Marker marker, double anchorX, double anchorY, final int imageWidth, final int imageHeight) {
