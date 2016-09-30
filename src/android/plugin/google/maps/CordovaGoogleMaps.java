@@ -89,6 +89,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public final HashMap<String, Method> methods = new HashMap<String, Method>();
   public boolean initialized = false;
   public PluginManager pluginManager;
+  private static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -332,8 +333,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
     CordovaGoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
   }
-
-  private static ExecutorService executorService = Executors.newFixedThreadPool(5);
 
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     executorService.submit(new Runnable() {

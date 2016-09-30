@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.app.Activity;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -24,20 +25,20 @@ import java.util.concurrent.Executors;
 
 public class PluginGeocoder extends CordovaPlugin {
 
-  private static Geocoder geocoder;
-
   // In order to prevent the TOO_MANY_REQUEST_ERROR (block by Google because too many request in short period),
   // restricts the number of parallel threads.
   //
-  // According from my tests, 6 thread is the best.
-  private static ExecutorService executorService = Executors.newFixedThreadPool(6);
+  // According from my tests,  4 threads are the best setting.
+  private static ExecutorService executorService = Executors.newFixedThreadPool(4);
+  private Activity mActivity = null;
+
 
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-    if (geocoder == null) {
-      geocoder = new Geocoder(cordova.getActivity());
-    }
+    mActivity = cordova.getActivity();
   }
+
+
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) {
     executorService.submit(new Runnable() {
@@ -66,6 +67,7 @@ public class PluginGeocoder extends CordovaPlugin {
     List<Address> geoResults = null;
     JSONArray results = new JSONArray();
     Iterator<Address> iterator = null;
+    final Geocoder geocoder = new Geocoder(mActivity);
 
     // Geocoding
     if (!opts.has("position") && opts.has("address")) {
