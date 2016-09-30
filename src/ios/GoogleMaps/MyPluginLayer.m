@@ -373,33 +373,14 @@ NSOperationQueue *executeQueue;
         UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
         //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
       
-        /*
-          TODO: Does this code still need for Google Maps? Check it out later.
-         
-        NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
-        if ([PluginUtil isIOS7_OR_OVER] &&
-            [hitClass isEqualToString:@"UIButton"] &&
-            mapCtrl.map.isMyLocationEnabled &&
-            (point.x  + offsetX2) >= (rect.origin.x + rect.size.width - 50) &&
-            (point.y + offsetY2) >= (rect.origin.y + rect.size.height - 50)) {
-
-            BOOL retValue = [mapCtrl didTapMyLocationButtonForMapView:mapCtrl.map];
-            if (retValue == YES) {
-                return nil;
-            }
-        }
-        */
-        if (isMapAction == NO) {
-            [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
-        }
+        [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
+      
         self.stopFlag = NO;
         return hitView;
     }
     self.stopFlag = NO;
   
-    if (isMapAction == NO) {
-        [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
-    }
+    [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
     return [super hitTest:point withEvent:event];
 }
 

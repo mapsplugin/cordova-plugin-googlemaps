@@ -51,10 +51,11 @@
   key = nil;
   keys = nil;
   
+  
   NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
-  [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+  //[cdvViewController.pluginsMap setValue:nil forKey:pluginId];
   pluginId = nil;
 }
 

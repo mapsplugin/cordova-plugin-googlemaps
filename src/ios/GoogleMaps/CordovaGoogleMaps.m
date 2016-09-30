@@ -17,6 +17,7 @@
     self.webView.opaque = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
 #endif
+    self.executeQueue =  [NSOperationQueue new];
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
@@ -356,7 +357,9 @@
 }
 
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    //dispatch_async(dispatch_get_main_queue(), ^{
+    [self.executeQueue addOperationWithBlock:^{
+    
         NSDictionary *elements = [command.arguments objectAtIndex:0];
 
         CDVPluginResult* pluginResult;
@@ -366,15 +369,17 @@
           if (self.pluginLayer.needUpdatePosition) {
               self.pluginLayer.needUpdatePosition = NO;
               //NSLog(@"%@", elements);
-              NSArray *keys=[self.pluginMaps allKeys];
-              NSString *mapId;
-              PluginMap *pluginMap;
+              [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                  NSArray *keys=[self.pluginMaps allKeys];
+                  NSString *mapId;
+                  PluginMap *pluginMap;
 
-              for (int i = 0; i < [keys count]; i++) {
-                mapId = [keys objectAtIndex:i];
-                pluginMap = [self.pluginMaps objectForKey:mapId];
-                [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
-              }
+                  for (int i = 0; i < [keys count]; i++) {
+                    mapId = [keys objectAtIndex:i];
+                    pluginMap = [self.pluginMaps objectForKey:mapId];
+                    [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
+                  }
+              }];
           }
 
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -384,7 +389,8 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         pluginResult = nil;
         elements = nil;
-    });
+    }];
+    //});
 }
 
 @end

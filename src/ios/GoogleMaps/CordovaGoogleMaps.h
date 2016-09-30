@@ -20,6 +20,7 @@
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 @property (nonatomic) NSMutableDictionary *pluginMaps;
+@property (nonatomic) NSOperationQueue *executeQueue;
 
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
