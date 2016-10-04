@@ -294,7 +294,7 @@
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
 
-        <preference name="NSLocationAlwaysUsageDescription" default="Show your location on the map" />
+        <preference name="NSLocationWhenInUseUsageDescription" default="Show your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
             <string>$NSLocationWhenInUseUsageDescription</string>
         </config-file>
