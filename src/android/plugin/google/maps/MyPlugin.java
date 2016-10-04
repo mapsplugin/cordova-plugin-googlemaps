@@ -54,7 +54,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     this.objects = new HashMap<String, Object>();
     TAG = this.getServiceName();
     if (executorService == null) {
-      executorService = Executors.newFixedThreadPool(20);
+      executorService = Executors.newFixedThreadPool(5);
     }
   }
   @Override
