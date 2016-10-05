@@ -320,7 +320,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                           }
                           fitBounds(initCameraBounds, CAMERA_PADDING);
                         }
-                      }, 400);
+                      }, 700);
                     }
                   }
                 });
@@ -343,7 +343,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       }
                       fitBounds(initCameraBounds, CAMERA_PADDING);
                     }
-                  }, 300);
+                  }, 500);
                 }
               }
               if (params.has("controls")) {
@@ -429,10 +429,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     // Fit the camera to the cameraBounds with 20px padding.
     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, padding * (int)density);
-    map.moveCamera(cameraUpdate);
-    builder.zoom(map.getCameraPosition().zoom);
-    builder.target(map.getCameraPosition().target);
-    map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+    try {
+        map.moveCamera(cameraUpdate);
+        builder.zoom(map.getCameraPosition().zoom);
+        builder.target(map.getCameraPosition().target);
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
   }
 
 
@@ -496,8 +500,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       Bundle dummySize = new Bundle();
       dummySize.putDouble("left", 0);
       dummySize.putDouble("top", 3000);
-      dummySize.putDouble("width", 50);
-      dummySize.putDouble("height", 50);
+      dummySize.putDouble("width", 200);
+      dummySize.putDouble("height", 200);
       dummyInfo.putBundle("size", dummySize);
       dummySize.putDouble("depth", -999);
       mapCtrl.mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
@@ -938,7 +942,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void onPostExecute(AsyncSetOptionsResult results) {
         if (results.cameraPosition != null) {
-          map.moveCamera(CameraUpdateFactory.newCameraPosition(results.cameraPosition));
+          try {
+              map.moveCamera(CameraUpdateFactory.newCameraPosition(results.cameraPosition));
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
           if (results.cameraBounds != null) {
             fitBounds(results.cameraBounds, results.cameraPadding);
           }
@@ -1251,7 +1259,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           public void onResult(final PluginResult pluginResult) {
             if (finalCameraPosition.cameraBounds != null && ANIMATE_CAMERA_DONE.equals(pluginResult.getStrMessage())) {
               CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, finalCameraPosition.cameraPadding * (int)density);
-              map.moveCamera(cameraUpdate);
+              try {
+                  map.moveCamera(cameraUpdate);
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
 
 
               final Builder builder = CameraPosition.builder();
@@ -1275,20 +1287,32 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                  map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                  try {
+                      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
                 }
-              }, 100);
+              }, 250);
             } else {
-              map.moveCamera(finalCameraPosition.cameraUpdate);
+              try {
+                  map.moveCamera(finalCameraPosition.cameraUpdate);
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
               VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
               final LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
               Handler handler = new Handler();
               handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                  map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int)density));
+                  try {
+                      map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int) density));
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
                 }
-              }, 100);
+              }, 250);
             }
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
           }
@@ -1366,7 +1390,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    */
   public void myMoveCamera(CameraUpdate cameraUpdate, CallbackContext callbackContext) {
-    map.moveCamera(cameraUpdate);
+    try {
+        map.moveCamera(cameraUpdate);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
     callbackContext.success();
   }
 
