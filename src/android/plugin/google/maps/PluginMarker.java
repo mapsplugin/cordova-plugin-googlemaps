@@ -948,7 +948,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
         }
       };
-      task.execute();
+      task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
       iconLoadingTasks.add(task);
 
 
@@ -1017,7 +1017,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
         }
       });
-      task.execute(iconUrl);
+      task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, iconUrl);
       iconLoadingTasks.add(task);
     }
   }

@@ -477,7 +477,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
             }
 
           });
-          task.execute(imageUrl);
+          task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageUrl);
         }
       }
     });
