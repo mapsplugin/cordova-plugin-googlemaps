@@ -397,7 +397,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
       if (plugins.containsKey(pluginName)) {
         //Log.d("PluginMap", "--> useCache");
-        plugins.get(pluginName).plugin.execute("create", args, callbackContext);
+        MyPlugin myPlugin = (MyPlugin) plugins.get(pluginName).plugin;
+        myPlugin.create(args, callbackContext);
         return;
       }
 
@@ -414,9 +415,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
       plugin.initialize(cordova, webView);
       ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
-      ((MyPlugin)plugin).self = (MyPlugin)plugin;
-      plugin.execute("create", args, callbackContext);
-
+      MyPlugin myPlugin = (MyPlugin) plugin;
+      myPlugin.self = (MyPlugin)plugin;
+      myPlugin.create(args, callbackContext);
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -271,6 +271,26 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+    executorService.submit(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          if (action.equals("putHtmlElements")) {
+            CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
+          } else if ("getMyLocation".equals(action)) {
+            CordovaGoogleMaps.this.getMyLocation(args, callbackContext);
+          } else if ("getMap".equals(action)) {
+            CordovaGoogleMaps.this.getMap(args, callbackContext);
+          } else if ("removeMap".equals(action)) {
+            CordovaGoogleMaps.this.removeMap(args, callbackContext);
+          }
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+    /*
     if (mPluginLayout != null && mPluginLayout.isDebug) {
       if (args != null && args.length() > 0) {
         Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
@@ -302,7 +322,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       return true;
     } else {
       return false;
-    }
+    }*/
+    return true;
 
   }
 
@@ -335,40 +356,34 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   }
 
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    executorService.submit(new Runnable() {
-      @Override
-      public void run() {
 
-        try {
-          final JSONObject elements = args.getJSONObject(0);
-          if (mPluginLayout == null) {
-            callbackContext.success();
-            return;
-          }
-
-          if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-            mPluginLayout.putHTMLElements(elements);
-          }
-
-          /*
-          if (mPluginLayout.needUpdatePosition) {
-            mPluginLayout.needUpdatePosition = false;
-
-            for (String s : mPluginLayout.pluginMaps.keySet()) {
-              mPluginLayout.updateViewPosition(s);
-            }
-          }
-          */
-
-
-          callbackContext.success();
-        } catch (Exception e) {
-          e.printStackTrace();
-          callbackContext.error(e.getMessage() + "");
-        }
-
+    try {
+      final JSONObject elements = args.getJSONObject(0);
+      if (mPluginLayout == null) {
+        callbackContext.success();
+        return;
       }
-    });
+
+      if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+        mPluginLayout.putHTMLElements(elements);
+      }
+
+      /*
+      if (mPluginLayout.needUpdatePosition) {
+        mPluginLayout.needUpdatePosition = false;
+
+        for (String s : mPluginLayout.pluginMaps.keySet()) {
+          mPluginLayout.updateViewPosition(s);
+        }
+      }
+      */
+
+
+      callbackContext.success();
+    } catch (Exception e) {
+      e.printStackTrace();
+      callbackContext.error(e.getMessage() + "");
+    }
   }
 
   @SuppressWarnings("unused")
@@ -384,72 +399,65 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
     final boolean isHigh = isHighLocal;
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
+    // Request geolocation permission.
+    boolean locationPermission;
+    try {
+      Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
 
-        // Request geolocation permission.
-        boolean locationPermission;
-        try {
-          Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
+      String permission = "android.permission.ACCESS_COARSE_LOCATION";
+      locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
+    } catch (Exception e) {
+      PluginResult result;
+      result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+      callbackContext.sendPluginResult(result);
+      return;
+    }
 
-          String permission = "android.permission.ACCESS_COARSE_LOCATION";
-          locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
-        } catch (Exception e) {
-          PluginResult result;
-          result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-          callbackContext.sendPluginResult(result);
-          return;
-        }
+    if (!locationPermission) {
+      _saveArgs = args;
+      _saveCallbackContext = callbackContext;
+      requestPermissions(CordovaGoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+      return;
+    }
 
-        if (!locationPermission) {
-          _saveArgs = args;
-          _saveCallbackContext = callbackContext;
-          requestPermissions(CordovaGoogleMaps.this, 0, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
-          return;
-        }
+    if (googleApiClient == null) {
+      googleApiClient = new GoogleApiClient.Builder(activity)
+        .addApi(LocationServices.API)
+        .addConnectionCallbacks(new com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks() {
 
-        if (googleApiClient == null) {
-          googleApiClient = new GoogleApiClient.Builder(activity)
-            .addApi(LocationServices.API)
-            .addConnectionCallbacks(new com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks() {
+          @Override
+          public void onConnected(Bundle connectionHint) {
+            Log.e(TAG, "===> onConnected");
+            CordovaGoogleMaps.this.sendNoResult(callbackContext);
 
-              @Override
-              public void onConnected(Bundle connectionHint) {
-                Log.e(TAG, "===> onConnected");
-                CordovaGoogleMaps.this.sendNoResult(callbackContext);
+            _checkLocationSettings(isHigh, callbackContext);
+          }
 
-                _checkLocationSettings(isHigh, callbackContext);
-              }
+          @Override
+          public void onConnectionSuspended(int cause) {
+            Log.e(TAG, "===> onConnectionSuspended");
+          }
 
-              @Override
-              public void onConnectionSuspended(int cause) {
-                Log.e(TAG, "===> onConnectionSuspended");
-              }
+        })
+        .addOnConnectionFailedListener(new com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener() {
 
-            })
-            .addOnConnectionFailedListener(new com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener() {
+          @Override
+          public void onConnectionFailed(@NonNull ConnectionResult result) {
+            Log.e(TAG, "===> onConnectionFailed");
 
-              @Override
-              public void onConnectionFailed(@NonNull ConnectionResult result) {
-                Log.e(TAG, "===> onConnectionFailed");
+            PluginResult tmpResult = new PluginResult(PluginResult.Status.ERROR, result.toString());
+            tmpResult.setKeepCallback(false);
+            callbackContext.sendPluginResult(tmpResult);
 
-                PluginResult tmpResult = new PluginResult(PluginResult.Status.ERROR, result.toString());
-                tmpResult.setKeepCallback(false);
-                callbackContext.sendPluginResult(tmpResult);
+            googleApiClient.disconnect();
+          }
 
-                googleApiClient.disconnect();
-              }
-
-            })
-            .build();
-          googleApiClient.connect();
-        } else if (googleApiClient.isConnected()) {
-          _checkLocationSettings(isHigh, callbackContext);
-        }
-      }
-    });
-
+        })
+        .build();
+      googleApiClient.connect();
+    } else if (googleApiClient.isConnected()) {
+      _checkLocationSettings(isHigh, callbackContext);
+    }
   }
 
   private void _checkLocationSettings(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
