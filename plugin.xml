@@ -139,8 +139,8 @@
             </feature>
         </config-file>
 
-        <framework src="com.google.android.gms:play-services-maps:+" />
-        <framework src="com.google.android.gms:play-services-location:+" />
+        <framework src="com.google.android.gms:play-services-maps:9.6.1" />
+        <framework src="com.google.android.gms:play-services-location:9.6.1" />
 
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
@@ -175,6 +175,9 @@
             <meta-data android:name="com.google.android.gms.version"
                        android:value="@integer/google_play_services_version" />
         </config-file>
+        <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
+            <application android:largeHeap="true" />
+        </edit-config>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
