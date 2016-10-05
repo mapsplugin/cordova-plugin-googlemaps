@@ -1039,7 +1039,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   private void _checkLocationSettings(final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
-    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().setAlwaysShow(true);
 
     LocationRequest locationRequest;
     locationRequest = LocationRequest.create()
