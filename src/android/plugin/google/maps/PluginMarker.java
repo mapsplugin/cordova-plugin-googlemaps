@@ -43,19 +43,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     BOUNCE
   }
 
-  private String CURRENT_PAGE_URL;
-
   private ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        CURRENT_PAGE_URL = webView.getUrl();
-      }
-    });
   }
 
   @Override
@@ -775,8 +767,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
     if (iconProperty.containsKey("iconHue")) {
-      float hue = iconProperty.getFloat("iconHue");
-      marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
+      cordova.getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          float hue = iconProperty.getFloat("iconHue");
+          marker.setIcon(BitmapDescriptorFactory.defaultMarker(hue));
+        }
+      });
       callback.onPostExecute(marker);
     }
 
@@ -968,7 +965,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         height = sizeInfo.getInt("height", height);
       }
 
-      AsyncLoadImage task = new AsyncLoadImage(width, height, new AsyncLoadImageInterface() {
+      AsyncLoadImage task = new AsyncLoadImage("Mozilla", width, height, new AsyncLoadImageInterface() {
 
         @Override
         public void onPostExecute(Bitmap image) {

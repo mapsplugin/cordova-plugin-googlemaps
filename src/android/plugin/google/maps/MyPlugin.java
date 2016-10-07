@@ -39,6 +39,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   public PluginMap pluginMap = null;
   protected boolean isRemoved = false;
   public float density = Resources.getSystem().getDisplayMetrics().density;
+  public String CURRENT_PAGE_URL;
 
   public void setPluginMap(PluginMap pluginMap) {
     this.pluginMap = pluginMap;

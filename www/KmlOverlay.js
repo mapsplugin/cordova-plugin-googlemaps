@@ -14,8 +14,6 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
     self._overlays = [];
     //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
     //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
-    kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
-    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport  === true;
     Object.defineProperty(self, "id", {
         value: kmlOverlayId,
         writable: false

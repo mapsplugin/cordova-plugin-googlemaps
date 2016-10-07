@@ -90,6 +90,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public boolean initialized = false;
   public PluginManager pluginManager;
   private static ExecutorService executorService = Executors.newFixedThreadPool(5);
+  private String CURRENT_URL;
 
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -236,7 +237,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           alertDialog.show();
         }
 
-
+        CURRENT_URL = webView.getUrl();
 
 
         //------------------------------
@@ -678,6 +679,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        CURRENT_URL = webView.getUrl();
+
         mPluginLayout.setBackgroundColor(Color.WHITE);
 
         Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
@@ -723,6 +726,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     pluginMap.initialize(cordova, webView);
     pluginMap.mapCtrl = CordovaGoogleMaps.this;
     pluginMap.self = pluginMap;
+    ((MyPlugin)pluginMap).CURRENT_PAGE_URL = CURRENT_URL;
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
     pluginManager.addService(pluginEntry);
