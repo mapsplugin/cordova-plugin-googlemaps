@@ -575,18 +575,16 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var self = this;
     kmlOverlayOptions = kmlOverlayOptions || {};
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
-    kmlOverlayOptions.preserveViewport = kmlOverlayOptions.preserveViewport === true;
-    kmlOverlayOptions.animation = kmlOverlayOptions.animation === undefined ? true : kmlOverlayOptions.animation;
 
-    var kmlId = "kml" + (Math.random() * 9999999);
+    var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
     kmlOverlayOptions.kmlId = kmlId;
 
     var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
     self.OVERLAYS[kmlId] = kmlOverlay;
     self.KML_LAYERS[kmlId] = kmlOverlay;
 
-    exec(function(kmlId) {
-        kmlOverlay.one(result.id + "_remove", function() {
+    exec(function() {
+        kmlOverlay.one(kmlId + "_remove", function() {
             kmlOverlay.off();
             delete self.KML_LAYERS[kmlId];
             delete self.OVERLAYS[kmlId];

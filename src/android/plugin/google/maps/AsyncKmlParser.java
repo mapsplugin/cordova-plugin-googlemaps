@@ -40,7 +40,6 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private Activity mActivity;
   private CallbackContext mCallback;
   private String kmlId = null;
-  private ProgressDialog mProgress;
   private static ExecutorService executorService = Executors.newCachedThreadPool();
   
   private enum KML_TAG {
@@ -70,23 +69,15 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     
     coordinates
   };
-  private long start, end;
   private Bundle mOption = null;
   
-  public AsyncKmlParser(Activity activity, PluginMap pluginMap, String kmlId, CallbackContext callbackContext, Bundle option) {
+  public AsyncKmlParser(Activity activity, PluginMap pluginMap, String kmlId, Bundle option, CallbackContext callbackContext) {
     this.kmlId = kmlId;
     mCallback = callbackContext;
     mPluginMap = pluginMap;
     mActivity = activity;
     mOption = option;
 
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mProgress = ProgressDialog.show(mActivity, "", "Please wait...", true);
-      }
-    });
-    start = System.currentTimeMillis();
     
     try {
       parser = XmlPullParserFactory.newInstance().newPullParser();
@@ -200,19 +191,17 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     }
     final Bundle styles = kmlData.getBundle("styles");
     ArrayList<Bundle> placeMarks = kmlData.getParcelableArrayList("placeMarks");
-
-    
-
-    //Iterator<Bundle> iterator = placeMarks.iterator();
     Bundle[] tags = placeMarks.toArray(new Bundle[placeMarks.size()]);
     ExecutorService executor = Executors.newCachedThreadPool();
     List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
+    int i = 0;
     for (final Bundle node : tags) {
 
+      final String placeMarkId = "placeMark-" + (i++);
       Callable<Void> callable = new Callable<Void>() {
         @Override
         public Void call() throws Exception {
-          parseNode(styles, node);
+          parsePlaceMark(placeMarkId, styles, node);
           return null;
         }
       };
@@ -228,7 +217,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     return kmlData;
   }
 
-  private void parseNode(Bundle styles, Bundle node) {
+  private void parsePlaceMark(String placeMarkId, Bundle styles, Bundle node) {
     String tmp, tagName;
     Bundle style;
     ArrayList<Bundle> bundleList;
@@ -249,13 +238,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         final Bundle childNode = bundleIterator.next();
         tagName = childNode.getString("tagName");
         if ("link".equals(tagName)) {
-          mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              AsyncKmlParser kmlParser = new AsyncKmlParser(mActivity, mPluginMap, kmlId, mCallback, mOption);
-              kmlParser.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, childNode.getString("href"));
-            }
-          });
+          AsyncKmlParser kmlParser = new AsyncKmlParser(mActivity, mPluginMap, kmlId, mOption, mCallback);
+          kmlParser.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, childNode.getString("href"));
           return;
         }
       }
@@ -307,7 +291,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
-          this.implementToMap("Marker", options, kmlId);
+          this.implementToMap("Marker", options, kmlId, placeMarkId);
           break;
 
         case linestring:
@@ -376,7 +360,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               }
             }
           }
-          this.implementToMap("Polyline", optionsJSON, kmlId);
+          this.implementToMap("Polyline", optionsJSON, kmlId, placeMarkId);
           break;
 
 
@@ -452,7 +436,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           } catch (Exception e) {
             e.printStackTrace();
           }
-          this.implementToMap("Polygon", optionsJSON, kmlId);
+          this.implementToMap("Polygon", optionsJSON, kmlId, placeMarkId);
           break;
         default:
           break;
@@ -493,11 +477,8 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   }
   
   protected void onPostExecute(Bundle parseResult) {
-    end = System.currentTimeMillis();
-    //Log.d("GoogleMaps", "duration=" + ((end -start) / 1000));
-    
-    this.mProgress.dismiss();
-    this.mCallback.success(kmlId);
+
+    this.mCallback.success();
   }
   
 
@@ -515,11 +496,11 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       }
     });
   }
-  private void implementToMap(final String className, final Bundle options, final String kmlId) {
-    this.implementToMap(className, PluginUtil.Bundle2Json(options), kmlId);
+  private void implementToMap(final String className, final Bundle options, final String kmlId, final String placeMarkId) {
+    this.implementToMap(className, PluginUtil.Bundle2Json(options), kmlId, placeMarkId);
   }
 
-  private void implementToMap(final String className, final JSONObject options, final String kmlId) {
+  private void implementToMap(final String className, final JSONObject options, final String kmlId, final String placeMarkId) {
     JSONArray params = new JSONArray();
     params.put(className);
     params.put(options);
@@ -527,10 +508,12 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
 
       @Override
       public void onResult(PluginResult pluginResult) {
-        Log.d("AsyncKmlParse", "--> (implementToMap) pluginResult = " + pluginResult.getStatus());
-        // todo:
-        //mMapCtrl.webView.loadUrl("javascript:plugin.google.maps.Map." +
-        //    "_onKmlEvent('add', '" + className.toLowerCase(Locale.US) + "','" + kmlId + "'," + pluginResult.getMessage() + "," +  optionsJSON.toString()+ ")");
+        String jsStr = String.format(Locale.ENGLISH,
+          "javascript:cordova.fireDocumentEvent('%s_%s', {class:'%s', placeMarkId:'%s', options:%s})",
+          mPluginMap.mapId, kmlId, className, placeMarkId, options.toString());
+
+        Log.d("AsyncKmlParse", "--> " + jsStr);
+          mPluginMap.webView.loadUrl(jsStr);
       }
       
     });
@@ -572,7 +555,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           try {
             kmlTag = KML_TAG.valueOf(tagName);
           } catch(Exception e) {
-            Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
+            //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
             // ignore
             //e.printStackTrace();
           }
@@ -681,7 +664,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             try {
               kmlTag = KML_TAG.valueOf(tagName);
             } catch(Exception e) {
-              Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
+              //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
               //e.printStackTrace();
             }
             

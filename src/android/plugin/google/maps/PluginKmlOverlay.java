@@ -1,18 +1,14 @@
 package plugin.google.maps;
 
+import android.os.AsyncTask;
+import android.os.Bundle;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.annotation.SuppressLint;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 
 public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
@@ -70,7 +66,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       urlStr = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), urlStr);
     }
 
-    AsyncKmlParser kmlParser = new AsyncKmlParser(cordova.getActivity(), pluginMap, kmlId, callbackContext, params);
+    AsyncKmlParser kmlParser = new AsyncKmlParser(cordova.getActivity(), pluginMap, kmlId, params, callbackContext);
     kmlParser.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, urlStr);
 
   }

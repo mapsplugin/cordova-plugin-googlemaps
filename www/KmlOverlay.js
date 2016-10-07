@@ -36,6 +36,11 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
             self.set(key, kmlOverlayOptions[key]);
         }
     }
+
+
+    document.addEventListener(map.getId()  + "_" + kmlOverlayId, function(event) {
+console.log(event.placeMarkId);
+    });
 };
 
 utils.extend(KmlOverlay, BaseClass);
