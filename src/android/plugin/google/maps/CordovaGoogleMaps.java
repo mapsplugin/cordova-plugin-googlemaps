@@ -206,7 +206,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           return;
         }
 
-        root.setBackgroundColor(Color.WHITE);
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView, activity);
