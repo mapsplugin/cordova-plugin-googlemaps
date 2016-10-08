@@ -149,6 +149,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
       }
       idlingCnt = 0;
       //console.log(domPositions);
+      //return;
 
       cordova.exec(function() {
           prevDomPositions = domPositions;

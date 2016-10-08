@@ -253,14 +253,32 @@ function _shouldWatchByNative(node) {
 
 
 // Get z-index order
-// (Simple is the best)
 // http://stackoverflow.com/a/24136505
-function getDomDepth(dom) {
+function getZIndex(dom) {
     var z = window.document.defaultView.getComputedStyle(dom).getPropertyValue('z-index');
     if (isNaN(z)) {
-        return getDomDepth(dom.parentNode);
+        return getZIndex(dom.parentNode);
     }
     return z;
+}
+
+function getDomDepth(dom) {
+    var orgDom = dom;
+    var depth = 0;
+    var zIndex = getZIndex(dom);
+    while (dom.parentNode !== null && dom.parentNode != document) {
+        dom = dom.parentNode;
+        depth++;
+    }
+    //if (zIndex > -1) {
+    //  depth = depth * 1000 + zIndex;
+    //} else {
+    //  depth = zIndex;
+    //}
+
+    orgDom.setAttribute("_depth", depth + "_" + zIndex);
+    orgDom.setAttribute("_result", depth * 1000 + parseInt(zIndex, 10));
+    return depth * 1000 + parseInt(zIndex, 10);
 }
 
 // Get CSS value of an element
