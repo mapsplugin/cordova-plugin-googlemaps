@@ -252,19 +252,15 @@ function _shouldWatchByNative(node) {
 }
 
 
-
+// Get z-index order
+// (Simple is the best)
+// http://stackoverflow.com/a/24136505
 function getDomDepth(dom) {
-    var depth = 1;
-    if (dom == document.body) {
-        return 0;
+    var z = window.document.defaultView.getComputedStyle(dom).getPropertyValue('z-index');
+    if (isNaN(z)) {
+        return getDomDepth(dom.parentNode);
     }
-
-
-    while (dom.parentNode !== null && dom.parentNode != document.body) {
-        dom = dom.parentNode;
-        depth++;
-    }
-    return depth;
+    return z;
 }
 
 // Get CSS value of an element
@@ -280,23 +276,9 @@ function getStyle(element, styleProperty)
 }
 
 function getDomInfo(dom) {
-    var zIndexCSS = getStyle(dom, 'z-index');
-    var position = getStyle(dom, 'position');
-    var depth;
-
-    if (zIndexCSS && zIndexCSS > 0 || position === "fixed") {
-        if (dom !== document.body) {
-            depth = 999999;
-        } else {
-            depth = 0;
-        }
-    } else {
-        depth = getDomDepth(dom);
-    }
-
     return {
         size: getDivRect(dom),
-        depth: depth
+        depth: depth = getDomDepth(dom)
     };
 }
 

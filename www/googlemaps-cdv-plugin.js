@@ -72,7 +72,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
-  var idlingCnt = 0;
+  var idlingCnt = -1;
 /*
   var baseDom = document.createElement("div");
   baseDom.style.width = "1px";
@@ -130,7 +130,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
               }
           }
       }
-      if (!shouldUpdate) {
+      if (!shouldUpdate && idlingCnt > -1) {
           idlingCnt++;
           if (idlingCnt === 2) {
               var mapIDs = Object.keys(MAPS);
@@ -148,6 +148,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
           return;
       }
       idlingCnt = 0;
+      //console.log(domPositions);
 
       cordova.exec(function() {
           prevDomPositions = domPositions;
@@ -155,7 +156,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
           mapIDs.forEach(function(mapId) {
               MAPS[mapId].refreshLayout();
           });
-          setTimeout(putHtmlElements, 50);
+          setTimeout(putHtmlElements, 25);
           isChecking = false;
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
@@ -167,10 +168,11 @@ var saltHash = Math.floor(Math.random() * Date.now());
   // This is the special event that is fired by the google maps plugin
   // (Not generic plugin)
   function resetTimer() {
-    idlingCnt = 0;
+    idlingCnt = -1;
     setTimeout(putHtmlElements, 0);
   }
   setTimeout(resetTimer, 50);
+  document.addEventListener("deviceready", resetTimer);
   document.addEventListener("touch_start", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
 
