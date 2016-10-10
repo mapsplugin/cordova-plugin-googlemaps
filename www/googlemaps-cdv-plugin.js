@@ -84,6 +84,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var baseRect;
 */
   var isChecking = false;
+  var cacheDepth = {};
 
   function putHtmlElements() {
       if (isChecking || Object.keys(MAPS).length === 0) {
@@ -116,6 +117,39 @@ var saltHash = Math.floor(Math.random() * Date.now());
               elemId = "pgm" + Math.floor(Math.random() * Date.now());
               child.setAttribute("__pluginDomId", elemId);
           }
+          //domPositions[elemId] = common.getDomInfo(child);
+          var depth = cacheDepth[elemId];
+          if (elemId in cacheDepth) {
+              depth = cacheDepth[elemId];
+          } else {
+              depth = common.getDomDepth(child, i);
+              cacheDepth[elemId] = depth;
+          }
+          domPositions[elemId] = {
+              size: common.getDivRect(child),
+              depth: depth
+          };
+          if (!shouldUpdate) {
+              if (elemId in prevDomPositions) {
+                  if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
+                      domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
+                      domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
+                      domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
+                      shouldUpdate = true;
+                  }
+              } else {
+                  shouldUpdate = true;
+              }
+          }
+      }
+      /*
+      for (i = 0; i < children.length; i++) {
+          child = children[i];
+          elemId = child.getAttribute("__pluginDomId");
+          if (!elemId) {
+              elemId = "pgm" + Math.floor(Math.random() * Date.now());
+              child.setAttribute("__pluginDomId", elemId);
+          }
           domPositions[elemId] = common.getDomInfo(child);
           if (!shouldUpdate) {
               if (elemId in prevDomPositions) {
@@ -130,6 +164,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
               }
           }
       }
+      */
       if (!shouldUpdate && idlingCnt > -1) {
           idlingCnt++;
           if (idlingCnt === 2) {
@@ -170,9 +205,10 @@ var saltHash = Math.floor(Math.random() * Date.now());
   // (Not generic plugin)
   function resetTimer() {
     idlingCnt = -1;
+    delete cacheDepth;
+    cacheZIndex = {};
     setTimeout(putHtmlElements, 0);
   }
-  setTimeout(resetTimer, 50);
   document.addEventListener("deviceready", resetTimer);
   document.addEventListener("touch_start", resetTimer);
   window.addEventListener("orientationchange", resetTimer);

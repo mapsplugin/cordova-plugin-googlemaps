@@ -216,6 +216,8 @@ function getAllChildren(root) {
       return [];
     }
 
+    var ignoreTags = ["pre", "textarea", "p", "form", "input", "table", "caption"];
+
     var list;
     if (window.document.querySelectorAll) {
         // Android: v4.3 and over
@@ -223,14 +225,15 @@ function getAllChildren(root) {
         var childNodes = root.querySelectorAll("*");
         var allClickableElements = Array.prototype.slice.call(childNodes);
         list = allClickableElements.filter(function(node) {
-            return node !== root && _shouldWatchByNative(node);
+            var tagName = node.tagName.toLowerCase();
+            return node !== root && _shouldWatchByNative(node) && ignoreTags.indexOf(tagName) == -1;
         });
     } else {
         var node;
         var clickableElements = root.getElementsByTagName("*");
         for (var i = 0; i < clickableElements.length; i++) {
             node = clickableElements[i];
-            if (_shouldWatchByNative(node)) {
+            if (_shouldWatchByNative(node) && ignoreTags.indexOf(tagName) == -1) {
                 list.push(node);
             }
         }
@@ -262,7 +265,7 @@ function getZIndex(dom) {
     return z;
 }
 
-function getDomDepth(dom) {
+function getDomDepth(dom, idx) {
     var orgDom = dom;
     var depth = 0;
     var zIndex = getZIndex(dom);
@@ -276,9 +279,9 @@ function getDomDepth(dom) {
     //  depth = zIndex;
     //}
 
-    orgDom.setAttribute("_depth", depth + "_" + zIndex);
-    orgDom.setAttribute("_result", depth * 1000 + parseInt(zIndex, 10));
-    return depth * 1000 + parseInt(zIndex, 10);
+    //orgDom.setAttribute("_depth", depth + "_" + zIndex + "_" + idx);
+    //orgDom.setAttribute("_result", depth * 1000 + parseInt(zIndex, 10) + idx);
+    return depth * 1000 + parseInt(zIndex, 10) + idx;
 }
 
 // Get CSS value of an element
@@ -476,6 +479,7 @@ function createMvcArray(array) {
 }
 
 module.exports = {
+    getDomDepth: getDomDepth,
     deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
