@@ -130,21 +130,57 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   protected Circle getCircle(String id) {
+    if (objects == null) {
+      return null;
+    }
+    if (!this.objects.containsKey(id)) {
+      return null;
+    }
     return (Circle)this.objects.get(id);
   }
-
-
-  protected GroundOverlay getGroundOverlay(String id) { return (GroundOverlay)this.objects.get(id);}
+  protected GroundOverlay getGroundOverlay(String id) {
+    if (objects == null) {
+      return null;
+    }
+    if (!this.objects.containsKey(id)) {
+      return null;
+    }
+    return (GroundOverlay)this.objects.get(id);
+  }
   protected Marker getMarker(String id) {
+    if (objects == null) {
+      return null;
+    }
+    if (!this.objects.containsKey(id)) {
+      return null;
+    }
     return (Marker)this.objects.get(id);
   }
   protected Polyline getPolyline(String id) {
+    if (objects == null) {
+      return null;
+    }
+    if (!this.objects.containsKey(id)) {
+      return null;
+    }
     return (Polyline)this.objects.get(id);
   }
   protected Polygon getPolygon(String id) {
+    if (objects == null) {
+      return null;
+    }
+    if (!this.objects.containsKey(id)) {
+      return null;
+    }
     return (Polygon)this.objects.get(id);
   }
   protected TileOverlay getTileOverlay(String id) {
+    if (objects == null) {
+      return null;
+    }
+    if (!this.objects.containsKey(id)) {
+      return null;
+    }
     return (TileOverlay)this.objects.get(id);
   }
 
@@ -166,6 +202,9 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   private void setValue(String methodName, Class<?> methodClass, String id, final Object value, final CallbackContext callbackContext) throws JSONException {
+    if (!this.objects.containsKey(id)) {
+      return;
+    }
     final Object object = this.objects.get(id);
     try {
       final Method method = object.getClass().getDeclaredMethod(methodName, methodClass);
