@@ -1314,7 +1314,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       e.printStackTrace();
                   }
                 }
-              }, 100);
+              }, 250);
             } else {
               try {
                   map.moveCamera(finalCameraPosition.cameraUpdate);
@@ -1353,7 +1353,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       e.printStackTrace();
                   }
                 }
-              }, 100);
+              }, 250);
             }
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
           }
