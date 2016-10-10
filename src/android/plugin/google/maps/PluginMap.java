@@ -1290,11 +1290,31 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 public void run() {
                   try {
                       map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+
+                      Builder builder = CameraPosition.builder();
+                      if (cameraPos.has("tilt")) {
+                        try {
+                          builder.tilt((float) cameraPos.getDouble("tilt"));
+                        } catch (JSONException e) {
+                          e.printStackTrace();
+                        }
+                      }
+                      if (cameraPos.has("bearing")) {
+                        try {
+                          builder.bearing((float) cameraPos.getDouble("bearing"));
+                        } catch (JSONException e) {
+                          e.printStackTrace();
+                        }
+                      }
+                      builder.zoom(map.getCameraPosition().zoom);
+                      builder.target(map.getCameraPosition().target);
+                      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+
                   } catch (Exception e) {
                       e.printStackTrace();
                   }
                 }
-              }, 250);
+              }, 100);
             } else {
               try {
                   map.moveCamera(finalCameraPosition.cameraUpdate);
@@ -1308,12 +1328,32 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 @Override
                 public void run() {
                   try {
-                      map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int) density));
+                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int) density));
+
+                    Builder builder = CameraPosition.builder();
+                    if (cameraPos.has("tilt")) {
+                      try {
+                        builder.tilt((float) cameraPos.getDouble("tilt"));
+                      } catch (JSONException e) {
+                        e.printStackTrace();
+                      }
+                    }
+                    if (cameraPos.has("bearing")) {
+                      try {
+                        builder.bearing((float) cameraPos.getDouble("bearing"));
+                      } catch (JSONException e) {
+                        e.printStackTrace();
+                      }
+                    }
+                    builder.zoom(map.getCameraPosition().zoom);
+                    builder.target(mapLatLngBound.getCenter());
+                    map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+
                   } catch (Exception e) {
                       e.printStackTrace();
                   }
                 }
-              }, 250);
+              }, 100);
             }
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
           }

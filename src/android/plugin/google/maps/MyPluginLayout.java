@@ -444,7 +444,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       dummyInfo.putDouble("offsetY", 3000);
       dummyInfo.putBoolean("isDummy", true);
       HTMLNodes.put(pluginMap.mapDivId, dummyInfo);
-      HTMLNodeRectFs.put(pluginMap.mapDivId, new RectF(0, 3000, 50, 50));
+      HTMLNodeRectFs.put(pluginMap.mapDivId, new RectF(0, 3000, 100, 100));
     }
     pluginMaps.put(pluginMap.mapId, pluginMap);
 
