@@ -49,8 +49,73 @@ function computeOffset(fromLatLng, distance, heading) {
   return new LatLng(ex, ey);
 }
 
+
+function d2r(d) {
+    return d * Math.PI / 180;
+}
+
+function r2d(r) {
+    return r2d * 180 / Math.PI;
+}
+
+var wgs84 = {};
+wgs84.CRADIUS = 6378137;
+wgs84.CFLATTENING_DENOM = 298.257223563;
+wgs84.CFLATTENING = 1 / wgs84.FLATTENING_DENOM;
+wgs84.CPOLAR_RADIUS = wgs84.RADIUS * (1 - wgs84.FLATTENING);
+
+/**
+ * compute geometry area
+ * https://github.com/mapbox/geojson-area
+ *
+ * License : BSD 2-Clause
+ * https://github.com/mapbox/geojson-area/blob/master/LICENSE
+ */
+function computeArea(coords) {
+   var area = 0;
+   if (coords && coords.length > 0) {
+       area += Math.abs(ringArea(coords[0]));
+       for (var i = 1; i < coords.length; i++) {
+           area -= Math.abs(ringArea(coords[i]));
+       }
+   }
+   return area;
+}
+function ringArea(coords) {
+    var p1, p2, p3, lowerIndex, middleIndex, upperIndex,
+    area = 0,
+    coordsLength = coords.length;
+
+    if (coordsLength > 2) {
+        for (i = 0; i < coordsLength; i++) {
+            if (i === coordsLength - 2) {// i = N-2
+                lowerIndex = coordsLength - 2;
+                middleIndex = coordsLength -1;
+                upperIndex = 0;
+            } else if (i === coordsLength - 1) {// i = N-1
+                lowerIndex = coordsLength - 1;
+                middleIndex = 0;
+                upperIndex = 1;
+            } else { // i = 0 to N-3
+                lowerIndex = i;
+                middleIndex = i + 1;
+                upperIndex = i + 2;
+            }
+            p1 = coords[lowerIndex];
+            p2 = coords[middleIndex];
+            p3 = coords[upperIndex];
+            area += ( r2d(p3[0]) - r2d(p1[0]) ) * Math.sin( r2d(p2[1]));
+        }
+
+        area = area * wgs84.RADIUS * wgs84.RADIUS / 2;
+    }
+
+    return area;
+}
+
 module.exports = {
     computeDistanceBetween: computeDistanceBetween,
     computeMidpointBetween: computeMidpointBetween,
-    computeOffset: computeOffset
+    computeOffset: computeOffset,
+    computeArea: computeArea
 };
