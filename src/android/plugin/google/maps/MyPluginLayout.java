@@ -237,7 +237,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       newBufferRectFs.put(domId, rectF);
 
       domInfo.remove("size");
-      domInfo.putBoolean("isDummy", false);
       newBuffer.put(domId, domInfo);
     }
 

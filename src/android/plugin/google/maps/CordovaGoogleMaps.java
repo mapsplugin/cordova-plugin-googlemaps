@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,10 +11,7 @@ import android.content.IntentSender.SendIntentException;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.RectF;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -25,15 +21,9 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsoluteLayout;
-import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -48,7 +38,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 
 import org.apache.cordova.CallbackContext;
@@ -63,11 +52,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -86,10 +73,10 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   private GoogleApiClient googleApiClient = null;
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
-  public final HashMap<String, Method> methods = new HashMap<String, Method>();
+  public final HashMap<String, Integer> methods = new HashMap<String, Integer>();
   public boolean initialized = false;
   public PluginManager pluginManager;
-  private static ExecutorService executorService = Executors.newFixedThreadPool(5);
+  private static ExecutorService executorService = Executors.newFixedThreadPool(1);
   private String CURRENT_URL;
 
   @SuppressLint("NewApi") @Override
@@ -105,7 +92,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Method[] classMethods = this.getClass().getMethods();
     for (int i = 0; i < classMethods.length; i++) {
-      methods.put(classMethods[i].getName(), classMethods[i]);
+      String methodName = classMethods[i].getName();
+      methods.put(methodName, methodName.hashCode());
     }
 
     pluginManager = webView.getPluginManager();
@@ -275,19 +263,20 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     executorService.submit(new Runnable() {
       @Override
       public void run() {
-        try {
-          if (action.equals("putHtmlElements")) {
-            CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
-          } else if ("getMyLocation".equals(action)) {
-            CordovaGoogleMaps.this.getMyLocation(args, callbackContext);
-          } else if ("getMap".equals(action)) {
-            CordovaGoogleMaps.this.getMap(args, callbackContext);
-          } else if ("removeMap".equals(action)) {
-            CordovaGoogleMaps.this.removeMap(args, callbackContext);
+          try {
+              if (action.equals("putHtmlElements")) {
+                  CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
+              } else if ("getMyLocation".equals(action)) {
+                  CordovaGoogleMaps.this.getMyLocation(args, callbackContext);
+              } else if ("getMap".equals(action)) {
+                  CordovaGoogleMaps.this.getMap(args, callbackContext);
+              } else if ("removeMap".equals(action)) {
+                  CordovaGoogleMaps.this.removeMap(args, callbackContext);
+              }
+
+          } catch (JSONException e) {
+              e.printStackTrace();
           }
-        } catch (JSONException e) {
-          e.printStackTrace();
-        }
       }
     });
     /*
@@ -357,15 +346,14 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    try {
       final JSONObject elements = args.getJSONObject(0);
       if (mPluginLayout == null) {
-        callbackContext.success();
-        return;
+          callbackContext.success();
+          return;
       }
 
       if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-        mPluginLayout.putHTMLElements(elements);
+          mPluginLayout.putHTMLElements(elements);
       }
 
       /*
@@ -380,10 +368,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
 
       callbackContext.success();
-    } catch (Exception e) {
-      e.printStackTrace();
-      callbackContext.error(e.getMessage() + "");
-    }
   }
 
   @SuppressWarnings("unused")

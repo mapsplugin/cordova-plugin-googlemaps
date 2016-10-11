@@ -221,7 +221,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         mapView.onCreate(null);
-        mapView.onResume();
 
         mapView.getMapAsync(new OnMapReadyCallback() {
           @Override
@@ -290,6 +289,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
               //Custom info window
               map.setInfoWindowAdapter(PluginMap.this);
+
+
+              mapView.onResume();
+
               // ------------------------------
               // Embed the map if a container is specified.
               // ------------------------------
@@ -380,6 +383,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             }
           }
         });
+
 
       }
     });
