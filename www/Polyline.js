@@ -31,10 +31,12 @@ var Polyline = function(map, polylineId, polylineOptions) {
 
     var pointsProperty = common.createMvcArray(polylineOptions.points);
     pointsProperty.on('set_at', function(index) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, pointsProperty.getAt(index)]);
+        var value = common.getLatLng(pointsProperty.getAt(index));
+        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, value]);
     });
     pointsProperty.on('insert_at', function(index) {
-        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, pointsProperty.getAt(index)]);
+        var value = common.getLatLng(pointsProperty.getAt(index));
+        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, value]);
     });
     pointsProperty.on('remove_at', function(index) {
         exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polylineId, index]);

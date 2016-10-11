@@ -258,9 +258,7 @@ Map.prototype.setCameraBearing = function(bearing) {
  */
 Map.prototype.animateCamera = function(cameraPosition, callback) {
     var self = this;
-    if (cameraPosition.target && cameraPosition.target.type === "LatLngBounds") {
-        cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
-    }
+    cameraPosition.target = common.convertToPositionArray(cameraPosition.target);
 
     exec(function() {
         if (typeof callback === "function") {
@@ -275,10 +273,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
  * @params {Function} [callback] This callback is involved when the animation is completed.
  */
 Map.prototype.moveCamera = function(cameraPosition, callback) {
-    if (cameraPosition.target &&
-        cameraPosition.target.type === "LatLngBounds") {
-        cameraPosition.target = [cameraPosition.target.southwest, cameraPosition.target.northeast];
-    }
+    cameraPosition.target = common.convertToPositionArray(cameraPosition.target);
     var self = this;
     exec(function() {
         if (typeof callback === "function") {
@@ -607,7 +602,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.clickable = groundOverlayOptions.clickable === true;
     groundOverlayOptions.visible = common.defaultTrueOption(groundOverlayOptions.visible);
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
-    groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
+    groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
 
     exec(function(result) {
         groundOverlayOptions.hashCode = result.hashCode;
@@ -667,15 +662,10 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
         polygonOptions.holes = [polygonOptions.holes];
     }
     polygonOptions.holes = polygonOptions.holes.map(function(hole) {
-        if (!Array.isArray(hole)) {
+        if (!utils.isArray(hole)) {
             return [];
         }
-        return hole.map(function(latLng) {
-            return {
-                lat: latLng.lat,
-                lng: latLng.lng
-            };
-        });
+        return hole.map(common.convertToPositionArray);
     });
     polygonOptions.strokeColor = common.HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
     if (polygonOptions.fillColor) {
@@ -711,16 +701,14 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     var self = this;
     polylineOptions.points = polylineOptions.points || [];
     var _orgs = polylineOptions.points;
-    if (polylineOptions.points && typeof polylineOptions.points.getArray === "function") {
-      polylineOptions.points = polylineOptions.points.getArray();
-    }
+    polylineOptions.points = common.convertToPositionArray(polylineOptions.points);
     polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
     polylineOptions.width = polylineOptions.width || 10;
     polylineOptions.visible = common.defaultTrueOption(polylineOptions.visible);
     polylineOptions.clickable = polylineOptions.clickable === true;
     polylineOptions.zIndex = polylineOptions.zIndex || 0;
     polylineOptions.geodesic = polylineOptions.geodesic === true;
-
+console.log(polylineOptions.points);
     exec(function(result) {
         polylineOptions.points = _orgs;
         polylineOptions.hashCode = result.hashCode;

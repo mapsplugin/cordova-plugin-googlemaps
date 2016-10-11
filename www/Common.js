@@ -1,4 +1,6 @@
 var BaseArrayClass = require('./BaseArrayClass');
+var utils = require("cordova/utils");
+
 //---------------------------
 // Convert HTML color to RGB
 //---------------------------
@@ -463,10 +465,14 @@ function createMvcArray(array) {
     if (array && typeof array.getArray === "function") {
         mvcArray = new BaseArrayClass(array.getArray());
         array.on('set_at', function(index) {
-            mvcArray.setAt(index, array.getAt(index));
+            var value = array.getAt(index);
+            value = "position" in value ? value.getPosition() : value;
+            mvcArray.setAt(index, value);
         });
         array.on('insert_at', function(index) {
-            mvcArray.insertAt(index, array.getAt(index));
+            var value = array.getAt(index);
+            value = "position" in value ? value.getPosition() : value;
+            mvcArray.insertAt(index, value);
         });
         array.on('remove_at', function(index) {
             mvcArray.removeAt(index);
@@ -476,6 +482,31 @@ function createMvcArray(array) {
         mvcArray = new BaseArrayClass(!!array ? array.slice(0) : undefined);
     }
     return mvcArray;
+}
+
+function getLatLng(target) {
+  return "getPosition" in target ? target.getPosition() : {
+    "lat": target.lat,
+    "lng": target.lng
+  };
+}
+function convertToPositionArray(array) {
+    array = array || [];
+
+    if (!utils.isArray(array)) {
+        if (array &&
+            array.type === "LatLngBounds") {
+            array = [array.southwest, array.northeast];
+        } else if (array && typeof array.getArray === "function") {
+            array = array.getArray();
+        } else {
+            array = [array];
+        }
+    }
+
+    array = array.map(getLatLng);
+
+    return array;
 }
 
 module.exports = {
@@ -491,5 +522,7 @@ module.exports = {
     isHTMLColorString: isHTMLColorString,
     defaultTrueOption: defaultTrueOption,
     createMvcArray: createMvcArray,
-    getStyle: getStyle
+    getStyle: getStyle,
+    convertToPositionArray: convertToPositionArray,
+    getLatLng: getLatLng
 };

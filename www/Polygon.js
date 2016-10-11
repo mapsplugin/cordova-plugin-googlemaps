@@ -34,10 +34,12 @@ var Polygon = function(map, polygonId, polygonOptions) {
     //--------------------------
     var pointsProperty = common.createMvcArray(polygonOptions.points);
     pointsProperty.on('set_at', function(index) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, pointsProperty.getAt(index)]);
+        var value = common.getLatLng(pointsProperty.getAt(index));
+        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, value]);
     });
     pointsProperty.on('insert_at', function(index) {
-        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, pointsProperty.getAt(index)]);
+        var value = common.getLatLng(pointsProperty.getAt(index));
+        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, value]);
     });
     pointsProperty.on('remove_at', function(index) {
         exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
@@ -54,7 +56,8 @@ var Polygon = function(map, polygonId, polygonOptions) {
     var _holes = common.createMvcArray(holesProperty.getArray());
 
     holesProperty.on('set_at', function(index) {
-      _holes.setAt(index, holesProperty.get(index));
+      var value = common.getLatLng(pointsProperty.getAt(index));
+      _holes.setAt(index,value);
     });
     holesProperty.on('remove_at', function(index) {
       _holes.removeAt(index);
@@ -65,12 +68,12 @@ var Polygon = function(map, polygonId, polygonOptions) {
         array = common.createMvcArray(array);
       }
       array.on('insert_at', function(idx) {
-        var position = array.getAt(idx);
-        exec(null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, position]);
+        var value = common.getLatLng(pointsProperty.getAt(index));
+        exec(null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, value]);
       });
       array.on('set_at', function(idx) {
-        var position = array.getAt(idx);
-        exec(null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, position]);
+        var value = common.getLatLng(pointsProperty.getAt(index));
+        exec(null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, value]);
       });
       array.on('remove_at', function(idx) {
         exec(null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
@@ -145,10 +148,7 @@ Polygon.prototype.setPoints = function(points) {
     mvcArray.empty();
 
     points.forEach(function(point) {
-      mvcArray.push({
-          "lat": point.lat,
-          "lng": point.lng
-      });
+      mvcArray.push(common.getLatLng(point));
     });
     return this;
 };
@@ -168,7 +168,7 @@ Polygon.prototype.setHoles = function(holes) {
         return [];
       }
       hole.forEach(function(latLng) {
-        return {lat: latLng.lat, lng: latLng.lng};
+        mvcArray.push(common.getLatLng(latLng));
       });
     });
     //this.set('holes', holes);
