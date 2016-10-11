@@ -87,7 +87,8 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var cacheDepth = {};
 
   function putHtmlElements() {
-      if (isChecking || Object.keys(MAPS).length === 0) {
+      var mapIDs = Object.keys(MAPS);
+      if (isChecking || mapIDs.length === 0) {
         return;
       }
       isChecking = true;
@@ -168,7 +169,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
       if (!shouldUpdate && idlingCnt > -1) {
           idlingCnt++;
           if (idlingCnt === 2) {
-              var mapIDs = Object.keys(MAPS);
               mapIDs.forEach(function(mapId) {
                   MAPS[mapId].refreshLayout();
               });
@@ -186,11 +186,35 @@ var saltHash = Math.floor(Math.random() * Date.now());
       //console.log(domPositions);
       //return;
 
+      // If the map div is removed, remove the map automatically.
+      mapIDs.forEach(function(mapId) {
+          var div = MAPS[mapId].getDiv();
+          if (div) {
+            var elemId = div.getAttribute("__pluginDomId");
+            if (elemId && !(elemId in domPositions)) {
+                // Remove the map
+                MAPS[mapId].remove();
+
+                // Insert dummy data to prevent app crash
+                domPositions[elemId] = {
+                  size: {
+                    top: 10000,
+                    left: 0,
+                    width: 100,
+                    height: 100
+                  },
+                  depth: 0
+                };
+            }
+          }
+      });
+
       cordova.exec(function() {
           prevDomPositions = domPositions;
-          var mapIDs = Object.keys(MAPS);
           mapIDs.forEach(function(mapId) {
-              MAPS[mapId].refreshLayout();
+              if (mapId in MAPS) {
+                  MAPS[mapId].refreshLayout();
+              }
           });
           setTimeout(putHtmlElements, 25);
           isChecking = false;
