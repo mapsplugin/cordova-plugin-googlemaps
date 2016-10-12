@@ -223,7 +223,13 @@
                   // Get the current URL, then calculate the relative path.
                   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
                   id webview = cdvViewController.webView;
-                  NSURL *url = [webview URL];
+                  NSString *clsName = [webview className];
+                  NSURL *url;
+                  if ([clsName isEqualToString:@"UIWebView"]) {
+                    url = ((UIWebView *)cdvViewController.webView).request.URL;
+                  } else {
+                    url = [webview URL];
+                  }
                   NSString *currentURL = url.absoluteString;
                   currentURL = [currentURL stringByDeletingLastPathComponent];
                   currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
@@ -261,7 +267,7 @@
       
     } else {
         NSURL *url = [NSURL URLWithString:urlStr];
-        [self downloadImageWithURL:url  completionBlock:^(NSError *error, UIImage *image) {
+        [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
             if (error) {
               completionHandler(error);

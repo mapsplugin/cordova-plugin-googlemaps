@@ -741,7 +741,13 @@
                       CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
                       
                       id webview = cdvViewController.webView;
-                      NSURL *url = [webview URL];
+                      NSString *clsName = [webview className];
+                      NSURL *url;
+                      if ([clsName isEqualToString:@"UIWebView"]) {
+                        url = ((UIWebView *)cdvViewController.webView).request.URL;
+                      } else {
+                        url = [webview URL];
+                      }
                       NSString *currentURL = url.absoluteString;
                       currentURL = [currentURL stringByDeletingLastPathComponent];
                       currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];

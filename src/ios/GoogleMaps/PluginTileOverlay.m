@@ -80,7 +80,13 @@
           
           CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
           id webview = cdvViewController.webView;
-          NSURL *url = [webview URL];
+          NSString *clsName = [webview className];
+          NSURL *url;
+          if ([clsName isEqualToString:@"UIWebView"]) {
+            url = ((UIWebView *)cdvViewController.webView).request.URL;
+          } else {
+            url = [webview URL];
+          }
           NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
           
