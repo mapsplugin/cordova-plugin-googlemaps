@@ -190,12 +190,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     this.addView(frontLayer);
     root.addView(this);
     browserView.setBackgroundColor(Color.TRANSPARENT);
+    /*
     if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
       || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
       try {
-    /* view.setZOrderOnTop(true)
-     * Called just in time as with root.setBackground(...) the color
-     * come in front and take the whole screen */
+    // view.setZOrderOnTop(true)
+    // Called just in time as with root.setBackground(...) the color
+    // come in front and take the whole screen
         browserView.getClass().getMethod("setZOrderOnTop", boolean.class)
           .invoke(browserView, true);
       }
@@ -203,6 +204,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         e.printStackTrace();
       }
     }
+    */
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
 
@@ -431,7 +433,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     });
     return pluginMap;
   }
-  
+
   public void addPluginMap(final PluginMap pluginMap) {
     if (pluginMap.mapDivId == null) {
       return;
@@ -480,12 +482,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
 
   private class FrontLayerLayout extends FrameLayout {
-    
+
     public FrontLayerLayout(Context context) {
       super(context);
       this.setWillNotDraw(false);
     }
-    
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (pluginMaps == null || pluginMaps.size() == 0) {
@@ -618,9 +620,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     }
   }
-  
+
   private class TouchableWrapper extends FrameLayout {
-    
+
     public TouchableWrapper(Context context) {
       super(context);
     }
@@ -633,5 +635,5 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       }
       return super.dispatchTouchEvent(event);
     }
-  } 
+  }
 }
