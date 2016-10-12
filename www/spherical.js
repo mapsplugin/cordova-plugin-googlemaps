@@ -1,4 +1,5 @@
 var LatLng = require('./LatLng');
+var common = require('./Common');
 var EARTH_RADIUS = 6371009;
 
 /**
@@ -107,9 +108,7 @@ function toDegrees(r) {
  */
 function computeSignedArea(path) {
     radius = EARTH_RADIUS;
-    if (path && typeof path.getArray === "function") {
-        path = path.getArray();
-    }
+    path = common.convertToPositionArray(path);
 
     var size = path.length;
     if (size < 3) {
@@ -198,12 +197,12 @@ function computeOffsetOrigin(to, distance, heading) {
     b /= n1 * n1 + n2 * n2;
     var a = (n4 - n2 * b) / n1;
     var fromLatRadians = Math.atan2(a, b);
-    if (fromLatRadians < -PI / 2 || fromLatRadians > PI / 2) {
+    if (fromLatRadians < - Math.PI / 2 || fromLatRadians > Math.PI / 2) {
         b = n2 * n4 - Math.sqrt(discriminant);
         b /= n1 * n1 + n2 * n2;
         fromLatRadians = Math.atan2(a, b);
     }
-    if (fromLatRadians < -PI / 2 || fromLatRadians > PI / 2) {
+    if (fromLatRadians < - Math.PI / 2 || fromLatRadians > Math.PI / 2) {
         // No solution which would make sense in LatLng-space.
         return null;
     }
@@ -249,11 +248,35 @@ function interpolate(from, to, fraction) {
     var lng = Math.atan2(y, x);
     return new LatLng(toDegrees(lat), toDegrees(lng));
 }
+
+/**
+ * Returns the length of the given path, in meters, on Earth.
+ */
+function computeLength(path) {
+    path = common.convertToPositionArray(path);
+    if (path.length < 2) {
+        return 0;
+    }
+    var length = 0;
+    var prev = path[0];
+    var prevLat = toRadians(prev.lat);
+    var prevLng = toRadians(prev.lng);
+    path.forEach(function(point) {
+        var lat = toRadians(point.lat);
+        var lng = toRadians(point.lng);
+        length += distanceRadians(prevLat, prevLng, lat, lng);
+        prevLat = lat;
+        prevLng = lng;
+    });
+    return length * EARTH_RADIUS;
+}
 module.exports = {
     computeDistanceBetween: computeDistanceBetween,
     computeOffset: computeOffset,
     computeOffsetOrigin: computeOffsetOrigin,
     computeArea: computeArea,
+    computeSignedArea: computeSignedArea,
     computeHeading: computeHeading,
-    interpolate: interpolate
+    interpolate: interpolate,
+    computeLength: computeLength
 };

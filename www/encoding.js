@@ -1,4 +1,5 @@
 var LatLng = require('./LatLng');
+var common = require('./Common');
 
 /*****************************************************************************
  * geometry Encode / decode points
@@ -42,6 +43,8 @@ function encodePath(points) {
     var plat = 0;
     var plng = 0;
     var encoded_points = "";
+
+    points = common.convertToPositionArray(points);
 
     for (var i = 0; i < points.length; ++i) {
         encoded_points += encodePoint(plat, plng, points[i].lat, points[i].lng);
