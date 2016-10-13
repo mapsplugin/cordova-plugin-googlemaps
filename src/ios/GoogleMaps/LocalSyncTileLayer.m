@@ -59,9 +59,12 @@
   }
   
   
-  UIImage *image = [UIImage imageNamed:urlStr];
+  //UIImage *image = [UIImage imageWithContentsOfFile:urlStr];
+  NSData *data = [[NSFileManager defaultManager] contentsAtPath:urlStr];
+  CGFloat screenScale = [[UIScreen mainScreen] scale];
+  UIImage *image = [UIImage imageWithData:data scale:screenScale];
   if (image != nil &&
-      (image.size.width != self.tile_size || image.size.height != self.tile_size)) {\
+      (image.size.width != self.tile_size || image.size.height != self.tile_size)) {
     
       image = [image resize:self.tile_size height:self.tile_size];
   }

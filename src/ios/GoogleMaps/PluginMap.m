@@ -838,9 +838,8 @@
           if ([padding objectForKey:@"right"] != nil) {
             current.right = [[padding objectForKey:@"right"] floatValue];
           }
-      UIEdgeInsets newPadding = UIEdgeInsetsMake(current.top, current.left, current.bottom, current.right);
-      NSLog(@"newPadding = %f,%f - %f, %f", current.top, current.right, current.bottom, current.top);
           
+          UIEdgeInsets newPadding = UIEdgeInsetsMake(current.top, current.left, current.bottom, current.right);
           [[NSOperationQueue mainQueue] addOperationWithBlock:^{
               [self.mapCtrl.map setPadding:newPadding];
           }];
