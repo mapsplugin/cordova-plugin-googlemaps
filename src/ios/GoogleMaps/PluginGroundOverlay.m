@@ -13,8 +13,8 @@
 {
   // Initialize this plugin
   self.objects = [[NSMutableDictionary alloc] init];
-  self.imgCache = [[NSCache alloc]init];
-  self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
+  //self.imgCache = [[NSCache alloc]init];
+  //self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
   self.executeQueue =  [NSOperationQueue new];
 }
 
@@ -44,8 +44,8 @@
     }
     self.objects = nil;
   
-  [self.imgCache removeAllObjects];
-  self.imgCache = nil;
+  //[self.imgCache removeAllObjects];
+  //self.imgCache = nil;
   
   key = nil;
   keys = nil;
@@ -126,8 +126,8 @@
                       return;
                   }
 
-                  NSString *imgId = [NSString stringWithFormat:@"groundoverlay_image_%lu", (unsigned long)groundOverlay.hash];
-                  [me.imgCache setObject:groundOverlay.icon forKey:imgId];
+                  //NSString *imgId = [NSString stringWithFormat:@"groundoverlay_image_%lu", (unsigned long)groundOverlay.hash];
+                  //[me.imgCache setObject:groundOverlay.icon forKey:imgId];
                 
                   if ([json valueForKey:@"opacity"]) {
                       CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
@@ -284,7 +284,7 @@
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
       
-        [self.imgCache removeObjectForKey:groundOverlayId];
+        //[self.imgCache removeObjectForKey:groundOverlayId];
         
         NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
         [self.objects removeObjectForKey:propertyId];
@@ -410,13 +410,8 @@
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
         CGFloat opacity = [[command.arguments objectAtIndex:1] floatValue];
       
-        
-        NSString *imgId = [NSString stringWithFormat:@"groundoverlay_image_%lu", (unsigned long)groundOverlay.hash];
-        UIImage *image = [self.imgCache objectForKey:imgId];
-        UIImage *prevImage = groundOverlay.icon;
-        prevImage = nil;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            groundOverlay.icon = [image imageByApplyingAlpha:opacity];
+            groundOverlay.opacity = opacity;
 
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -506,21 +501,11 @@
           return;
         }
 
-        NSString *uniqueKey = url.absoluteString;
-        NSData *cache = [self.imgCache objectForKey:uniqueKey];
-        if (cache != nil) {
-            UIImage *image = [[UIImage alloc] initWithData:cache];
-            completionBlock(YES, image);
-            return;
-        }
-
-
-
+      
         [NSURLConnection sendAsynchronousRequest:req
               queue:self.executeQueue
               completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
                 if ( !error ) {
-                  [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
                   UIImage *image = [UIImage imageWithData:data];
                   completionBlock(YES, image);
                 } else {

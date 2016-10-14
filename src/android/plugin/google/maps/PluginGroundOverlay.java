@@ -442,7 +442,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       //----------------------------------
       int width = -1;
       int height = -1;
-      AsyncLoadImage task = new AsyncLoadImage(userAgent, width, height, new AsyncLoadImageInterface() {
+      AsyncLoadImage task = new AsyncLoadImage(userAgent, width, height, true, new AsyncLoadImageInterface() {
 
         @Override
         public void onPostExecute(Bitmap image) {

@@ -25,12 +25,21 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
 
   public static BitmapCache mIconCache;
   private String userAgent = null;
+  private boolean noCaching = false;
 
   public AsyncLoadImage(AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
     privateInit();
   }
 
+  public AsyncLoadImage(String userAgent, int width, int height, boolean noCaching, AsyncLoadImageInterface plugin) {
+    targetPlugin = plugin;
+    mWidth = width;
+    mHeight = height;
+    this.userAgent = userAgent == null ? "Mozilla" : userAgent;
+    this.noCaching = noCaching;
+    privateInit();
+  }
   public AsyncLoadImage(String userAgent, int width, int height, AsyncLoadImageInterface plugin) {
     targetPlugin = plugin;
     mWidth = width;
@@ -183,8 +192,9 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       canvas = null;
       imageBytes = null;
 
-      addBitmapToMemoryCache(cacheKey, scaledBitmap);
-      
+      if (!noCaching) {
+        addBitmapToMemoryCache(cacheKey, scaledBitmap);
+      }
       return scaledBitmap;
     } catch (Exception e) {
       e.printStackTrace();
