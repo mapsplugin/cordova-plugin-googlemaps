@@ -811,6 +811,11 @@ Map.prototype.addMarker = function(markerOptions, callback) {
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
+
+Map.prototype._onSyncInfoWndPosition = function(eventName, points) {
+  this.set("infoPosition", points);
+};
+
 Map.prototype._onMapEvent = function(eventName) {
     var args = [eventName];
     for (var i = 1; i < arguments.length; i++) {
