@@ -229,9 +229,25 @@ If you want to use crosswalk, just follow this easy documentation.
 ###Example
 You can see an example here. **(old version, but all most the same)**
 
- [phonegap-googlemaps-plugin-v1.2.5.apk](https://googledrive.com/host/0B1ECfqTCcLE8TXlUQUJXMmJpNGs/phonegap-googlemaps-plugin-v1.2.5.apk)
+ [phonegap-googlemaps-plugin-v1.2.5.apk](https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/apks/phonegap-googlemaps-plugin-v1.2.5.apk)
 ```bash
 $> adb install phonegap-googlemaps-plugin-v1.2.5.apk
 ```
 
 ![image](https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/example-v1.2.5.gif)
+
+-----
+
+
+### Version 2.0 Beta
+
+The new version 2.0 supports multiple maps on multiple pages.
+Lots of issues are fixed, and the performance of methods are improved.
+
+However the new verion might be affect your code.
+At least some event names and some method names are changed.
+
+For the reason, the new version is still in the beta.
+If you are interested in it, you can try the new version.
+
+https://github.com/mapsplugin/v2.0-demo
