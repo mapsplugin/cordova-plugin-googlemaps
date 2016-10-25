@@ -244,10 +244,18 @@ $> adb install phonegap-googlemaps-plugin-v1.2.5.apk
 The new version 2.0 supports multiple maps on multiple pages.
 Lots of issues are fixed, and the performance of methods are improved.
 
+
+
+
 However the new verion might be affect your code.
 At least some event names and some method names are changed.
 
 For the reason, the new version is still in the beta.
 If you are interested in it, you can try the new version.
 
+For more details, please read here.
+https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/v2-beta
+
+You can try the demo application from here.
+![](https://lh3.googleusercontent.com/3iqhCVsAkGkVRjfEnkRpRgoFMP4hB_NPJpdsrgr1nWBk_2fmBgq-R_5dXsrJFzSsjb9rX95vGk8=w1366-h768-rw-no)
 https://github.com/mapsplugin/v2.0-demo
