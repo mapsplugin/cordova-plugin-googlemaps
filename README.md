@@ -257,5 +257,7 @@ For more details, please read here.
 https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/v2-beta
 
 You can try the demo application from here.
+
 ![](https://lh3.googleusercontent.com/3iqhCVsAkGkVRjfEnkRpRgoFMP4hB_NPJpdsrgr1nWBk_2fmBgq-R_5dXsrJFzSsjb9rX95vGk8=w1366-h768-rw-no)
+
 https://github.com/mapsplugin/v2.0-demo
