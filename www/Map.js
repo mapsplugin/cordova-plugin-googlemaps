@@ -39,6 +39,57 @@ var Map = function(id) {
         writable: false
     });
 
+    var box = document.createElement("div");
+    box.style.width="20px";
+    box.style.height="20px";
+    box.style.backgroundColor="white";
+    box.style.position="absolute";
+    box.style.display = "node";
+    self.on("div_changed", function(oldDiv, newDiv) {
+      if (box.parentNode) {
+        box.parentNode.removeChild(box);
+      }
+      if (common.isDom(newDiv)) {
+        newDiv.appendChild(box);
+      }
+    });
+
+    self.on("active_marker_id_changed", function(ignore, markerId) {
+      if (!markerId) {
+        return;
+      }
+      var marker = self.MARKERS[markerId];
+      if (!marker) {
+        return;
+      }
+      box.innerHTML = marker.get("title");
+    });
+
+    self.on("infoPosition_changed", function(ignore, point) {
+      var markerId = self.get("active_marker_id");
+      if (!markerId) {
+        box.style.display = "node";
+        return;
+      }
+      var marker = self.MARKERS[markerId];
+      if (!marker) {
+        box.style.display = "node";
+        return;
+      }
+      box.style.display = "block";
+
+      box.style.left = (point.x - 10) + "px";
+      box.style.top = (point.y - 60)  + "px";
+    });
+
+    self.on("active_marker_id_changed", function() {
+      var marker = this;
+      if (marker.get("useHtmlInfoWnd") === true) {
+        self.bindTo("infoPosition", marker);
+      }
+    });
+
+
 };
 
 utils.extend(Map, BaseClass);
@@ -104,6 +155,7 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
         args.push(options);
 
+        div.style.overflow = "hidden !important";
         self.set("div", div);
         var elements = [];
         var elemId, clickable, size;
@@ -775,6 +827,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
+    markerOptions.useHtmlInfoWnd = markerOptions.useHtmlInfoWnd === true;
     if ("styles" in markerOptions) {
         markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
 
