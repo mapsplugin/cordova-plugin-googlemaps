@@ -186,16 +186,23 @@ var saltHash = Math.floor(Math.random() * Date.now());
       //console.log(domPositions);
       //return;
 
-      // If the map div is removed, remove the map automatically.
+      // If the map div is not displayed (such as display='none'),
+      // ignore the map temporally.
       mapIDs.forEach(function(mapId) {
           var div = MAPS[mapId].getDiv();
           if (div) {
             var elemId = div.getAttribute("__pluginDomId");
             if (elemId && !(elemId in domPositions)) {
-                // Remove the map
-                MAPS[mapId].remove();
 
-                // Insert dummy data to prevent app crash
+                // Is the map div removed?
+                if (window.document.querySelector) {
+                  var ele = document.querySelector("[__pluginDomId='" + elemId + "']");
+                  if (!ele) {
+                    // If no div element, remove the map.
+                    MAPS[mapId].remove();
+                  }
+                }
+
                 domPositions[elemId] = {
                   size: {
                     top: 10000,

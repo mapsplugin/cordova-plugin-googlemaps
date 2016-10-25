@@ -244,7 +244,7 @@ function getAllChildren(root) {
     return list;
 }
 function _shouldWatchByNative(node) {
-  if (node.nodeType !== 1) {
+  if (node.nodeType !== Node.ELEMENT_NODE) {
     return;
   }
   var visibilityCSS = getStyle(node, 'visibility');
@@ -261,6 +261,9 @@ function _shouldWatchByNative(node) {
 // Get z-index order
 // http://stackoverflow.com/a/24136505
 function getZIndex(dom) {
+    if (dom.nodeType !== Node.ELEMENT_NODE) {
+      return;
+    }
     var z = window.document.defaultView.getComputedStyle(dom).getPropertyValue('z-index');
     if (isNaN(z)) {
         return getZIndex(dom.parentNode);
@@ -269,6 +272,9 @@ function getZIndex(dom) {
 }
 
 function getDomDepth(dom, idx) {
+    if (dom.nodeType !== Node.ELEMENT_NODE) {
+      return 0;
+    }
     var orgDom = dom;
     var depth = 0;
     var zIndex = getZIndex(dom);
