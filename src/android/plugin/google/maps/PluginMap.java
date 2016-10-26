@@ -16,8 +16,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -654,26 +656,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       return null;
     }
 
-    this.onMarkerEvent("info_open", marker);
-
-    PluginManager pluginManager = this.webView.getPluginManager();
-    PluginMarker pluginMarker = (PluginMarker)pluginManager.getPlugin("Marker");
+    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
 
     JSONObject properties = null;
     JSONObject styles = null;
     String propertyId = "marker_property_" + marker.getId();
+
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
 
-      if (properties.has("styles")) {
-        try {
-          styles = (JSONObject) properties.getJSONObject("styles");
-        } catch (JSONException e) {
-          e.printStackTrace();
+      try {
+        if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
+          return null;
         }
+        if (properties.has("styles")) {
+            styles = (JSONObject) properties.getJSONObject("styles");
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
       }
     }
 
+    this.onMarkerEvent("info_open", marker);
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
@@ -853,6 +858,33 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public View getInfoWindow(Marker marker) {
     activeMarker = marker;
+    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+
+    JSONObject properties = null;
+    String propertyId = "marker_property_" + marker.getId();
+
+    if (pluginMarker.objects.containsKey(propertyId)) {
+      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+
+      try {
+        if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
+
+          syncInfoWndPosition();
+          this.onMarkerEvent("info_open", marker);
+          View view = new View(cordova.getActivity());
+          ViewGroup.LayoutParams lParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+          lParams.width = 1;
+          lParams.height = 1;
+          view.setLayoutParams(lParams);
+          view.setBackgroundColor(Color.RED);
+          return view;
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+
+    }
     return null;
   }
 
@@ -1984,8 +2016,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     LatLng latLng = activeMarker.getPosition();
     Point point = projection.toScreenLocation(latLng);
 
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'syncPosition', callback:'_onSyncInfoWndPosition', args:[{'x': %f, 'y': %f}]})",
-        mapId, point.x / density, point.y / density);
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'syncPosition', callback:'_onSyncInfoWndPosition', args:[{'x': %d, 'y': %d}]})",
+        mapId, (int)(point.x / density), (int)(point.y / density));
     jsCallback(js);
   }
 

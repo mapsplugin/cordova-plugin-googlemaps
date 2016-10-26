@@ -3,6 +3,7 @@ var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec'),
     common = require('./Common'),
     LatLng = require('./LatLng'),
+    event = require('./event'),
     BaseClass = require('./BaseClass');
 
 /*****************************************************************************
@@ -47,11 +48,22 @@ var Marker = function(map, id, markerOptions) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    this.on('info_open', function() {
+    this.on(event.INFO_OPEN, function() {
+        if (map.get("active_marker_id") === id) {
+          return;
+        }
         map.set('active_marker_id', id);
+
+        if (markerOptions.infoWindow) {
+            markerOptions.infoWindow.open(self);
+        }
     });
-    this.on('info_close', function() {
+    this.on(event.INFO_CLOSE, function() {
         map.set('active_marker_id', undefined);
+
+        if (markerOptions.infoWindow) {
+            markerOptions.infoWindow.close(self);
+        }
     });
 
 
@@ -94,7 +106,6 @@ var Marker = function(map, id, markerOptions) {
     self.on("disableAutoPan_changed", function(oldValue, disableAutoPan) {
         exec(null, self.errorHandler, self.getPluginName(), 'setDisableAutoPan', [self.getId(), disableAutoPan]);
     });
-
 
 };
 

@@ -28,6 +28,9 @@
     <js-module name="Marker" src="www/Marker.js">
       <runs />
     </js-module>
+    <js-module name="InfoWindow" src="www/InfoWindow.js">
+      <runs />
+    </js-module>
     <js-module name="Circle" src="www/Circle.js">
       <runs />
     </js-module>

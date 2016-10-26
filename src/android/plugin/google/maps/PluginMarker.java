@@ -146,11 +146,17 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     } else {
       properties.put("disableAutoPan", false);
     }
+    if (opts.has("useHtmlInfoWnd")) {
+      properties.put("useHtmlInfoWnd", opts.getBoolean("useHtmlInfoWnd"));
+    } else {
+      properties.put("useHtmlInfoWnd", false);
+    }
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         final Marker marker = map.addMarker(markerOptions);
+        marker.hideInfoWindow();
 
         cordova.getThreadPool().execute(new Runnable() {
           @Override
