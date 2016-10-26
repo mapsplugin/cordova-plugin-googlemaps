@@ -163,11 +163,7 @@ public class PluginMarker extends MyPlugin {
             try {
               marker.setVisible(opts.getBoolean("visible"));
             } catch (Exception e) {
-              if(e instanceof JSONException) {}
-              if(e instanceof FileNotFoundException) {}
-              else {
-                e.printStackTrace();
-              }
+              e.printStackTrace();
             }
           } else {
             marker.setVisible(true);
