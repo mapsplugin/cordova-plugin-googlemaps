@@ -73,6 +73,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import cordova.google.maps.R;
+
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -667,9 +669,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
 
       try {
-        if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
-          return null;
-        }
         if (properties.has("styles")) {
             styles = (JSONObject) properties.getJSONObject("styles");
         }
@@ -858,32 +857,27 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public View getInfoWindow(Marker marker) {
     activeMarker = marker;
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
 
     JSONObject properties = null;
     String propertyId = "marker_property_" + marker.getId();
 
+    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
-
       try {
         if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
 
           syncInfoWndPosition();
           this.onMarkerEvent("info_open", marker);
-          View view = new View(cordova.getActivity());
-          ViewGroup.LayoutParams lParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-          lParams.width = 1;
-          lParams.height = 1;
-          view.setLayoutParams(lParams);
-          view.setBackgroundColor(Color.RED);
-          return view;
+
+          View dummyView = cordova.getActivity().getLayoutInflater().inflate(R.layout.dummy_infowindow, null);
+          return dummyView;
         }
-      } catch (JSONException e) {
+      } catch (Exception e) {
         e.printStackTrace();
       }
-
     }
     return null;
   }

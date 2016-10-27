@@ -196,6 +196,8 @@
             <uses-feature android:name="android.hardware.location" />
             <uses-feature android:name="android.hardware.location.gps"/>
         </config-file>
+
+        <resource-file src="src/android/res/layout/dummy_infowindow.xml" target="res/layout/dummy_infowindow.xml"/>
     </platform>
 
     <!-- ios -->

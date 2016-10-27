@@ -103,7 +103,8 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
         args.push(options);
 
-        div.style.overflow = "hidden !important";
+        div.style.overflow = "hidden";
+        console.log(div);
         self.set("div", div);
         var elements = [];
         var elemId, clickable, size;
