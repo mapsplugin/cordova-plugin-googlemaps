@@ -261,10 +261,15 @@ function _shouldWatchByNative(node) {
 // Get z-index order
 // http://stackoverflow.com/a/24136505
 function getZIndex(dom) {
-    if (dom.nodeType !== Node.ELEMENT_NODE) {
-      return;
+    var z = null;
+    if (window.getComputedStyle) {
+        z = document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index');
+    } else if (x.currentStyle) {
+        z = x.currentStyle['z-index'];
     }
-    var z = window.document.defaultView.getComputedStyle(dom).getPropertyValue('z-index');
+    if (dom === document.body && z === "auto") {
+      z = 0;
+    }
     if (isNaN(z)) {
         return getZIndex(dom.parentNode);
     }
