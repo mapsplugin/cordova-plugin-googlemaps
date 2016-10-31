@@ -86,7 +86,7 @@
           [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
           [plugin pluginInitialize];
         
-  NSLog(@"--->loadPlugin : %@ className : %@", pluginId, className);
+  //NSLog(@"--->loadPlugin : %@ className : %@", pluginId, className);
           [self.mapCtrl.plugins setObject:plugin forKey:pluginId];
           [plugin setGoogleMapsViewController:self.mapCtrl];
           

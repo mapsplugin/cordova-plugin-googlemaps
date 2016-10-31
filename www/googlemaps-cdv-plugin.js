@@ -19,6 +19,7 @@ var Polyline = require('./Polyline');
 var Polygon = require('./Polygon');
 var TileOverlay = require('./TileOverlay');
 var GroundOverlay = require('./GroundOverlay');
+var InfoWindow = require('./InfoWindow');
 var KmlOverlay = require('./KmlOverlay');
 var encoding = require('./encoding');
 var spherical = require('./spherical');
@@ -305,6 +306,7 @@ module.exports = {
             return map;
         }
     },
+    InfoWindow: InfoWindow,
     LatLng: LatLng,
     LatLngBounds: LatLngBounds,
     Marker: Marker,

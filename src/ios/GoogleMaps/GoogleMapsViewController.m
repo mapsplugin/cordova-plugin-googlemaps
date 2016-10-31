@@ -241,12 +241,14 @@
 - (void) mapView:(GMSMapView *)mapView didTapInfoWindowOfMarker:(GMSMarker *)marker
 {
   [self triggerMarkerEvent:@"info_click" marker:marker];
+  [self syncInfoWndPosition];
 }
 /**
  * Called after a marker's info window has been long pressed.
  */
 - (void)mapView:(GMSMapView *)mapView didLongPressInfoWindowOfMarker:(GMSMarker *)marker {
 
+  [self syncInfoWndPosition];
   [self triggerMarkerEvent:@"info_long_click" marker:marker];
 }
 /**
@@ -254,6 +256,7 @@
  */
 - (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
 {
+  [self syncInfoWndPosition];
   [self triggerMarkerEvent:@"marker_drag_start" marker:marker];
 }
 /**
@@ -261,6 +264,7 @@
  */
 - (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
 {
+  [self syncInfoWndPosition];
   [self triggerMarkerEvent:@"marker_drag_end" marker:marker];
 }
 /**
@@ -268,9 +272,20 @@
  */
 - (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
 {
+  [self syncInfoWndPosition];
   [self triggerMarkerEvent:@"marker_drag" marker:marker];
 }
 
+- (void) syncInfoWndPosition {
+  CLLocationCoordinate2D position = self.map.selectedMarker.position;
+  CGPoint point = [self.map.projection
+                      pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
+  NSString* jsString = [NSString
+                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
+                              self.mapId, point.x, point.y ];
+  NSLog(@"--->%@", jsString);
+  [self execJS:jsString];
+}
 /**
  * @callback plugin.google.maps.event.MARKER_CLICK
  */
@@ -349,6 +364,10 @@
     stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});",
     self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
+  
+  if (self.map.selectedMarker) {
+    [self syncInfoWndPosition];
+  }
 }
 
 - (void)execJS: (NSString *)jsString {
@@ -401,7 +420,6 @@
     return NULL;
   }
   
-  [self triggerMarkerEvent:@"info_open" marker:marker];
   
   // Get the marker plugin
   NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
@@ -410,6 +428,14 @@
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
   NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+  
+  if ([[properties objectForKey:@"useHtmlInfoWnd"] boolValue]) {
+    [self syncInfoWndPosition];
+    [self triggerMarkerEvent:@"info_open" marker:marker];
+    
+    return [[UIView alloc]initWithFrame:CGRectMake(0, 0, 1, 1)];
+  }
+  [self triggerMarkerEvent:@"info_open" marker:marker];
 
   // Load styles
   NSDictionary *styles = nil;

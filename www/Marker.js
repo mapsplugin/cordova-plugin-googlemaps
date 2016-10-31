@@ -3,6 +3,7 @@ var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec'),
     common = require('./Common'),
     LatLng = require('./LatLng'),
+    event = require('./event'),
     BaseClass = require('./BaseClass');
 
 /*****************************************************************************
@@ -47,11 +48,22 @@ var Marker = function(map, id, markerOptions) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    this.on('info_open', function() {
+    this.on(event.INFO_OPEN, function() {
+        if (map.get("active_marker_id") === id) {
+          return;
+        }
         map.set('active_marker_id', id);
+
+        if (markerOptions.infoWindow) {
+            markerOptions.infoWindow.open(self);
+        }
     });
-    this.on('info_close', function() {
+    this.on(event.INFO_CLOSE, function() {
         map.set('active_marker_id', undefined);
+
+        if (markerOptions.infoWindow) {
+            markerOptions.infoWindow.close(self);
+        }
     });
 
 
@@ -79,10 +91,11 @@ var Marker = function(map, id, markerOptions) {
     self.on("draggable_changed", function(oldValue, draggable) {
         exec(null, self.errorHandler, self.getPluginName(), 'setDraggable', [self.getId(), draggable]);
     });
-    self.on("iconAnchor_changed", function(oldValue, anchor) {
+    self.on("anchor_changed", function(oldValue, anchor) {
         exec(null, self.errorHandler, self.getPluginName(), 'setIconAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
-    self.on("infoWndAnchor_changed", function(oldValue, anchor) {
+    self.on("infoWindowAnchor_changed", function(oldValue, anchor) {
+        console.log("infoWindowAnchor", anchor);
         exec(null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
     self.on("zIndex_changed", function(oldValue, zIndex) {
@@ -94,7 +107,6 @@ var Marker = function(map, id, markerOptions) {
     self.on("disableAutoPan_changed", function(oldValue, disableAutoPan) {
         exec(null, self.errorHandler, self.getPluginName(), 'setDisableAutoPan', [self.getId(), disableAutoPan]);
     });
-
 
 };
 
@@ -172,11 +184,11 @@ Marker.prototype.getOpacity = function() {
     return this.get('opacity');
 };
 Marker.prototype.setIconAnchor = function(anchorX, anchorY) {
-    this.set('iconAnchor', [anchorX, anchorY]);
+    this.set('anchor', [anchorX, anchorY]);
     return this;
 };
 Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
-    this.set('infoWndAnchor', [anchorX, anchorY]);
+    this.set('infoWindowAnchor', [anchorX, anchorY]);
     return this;
 };
 Marker.prototype.setDraggable = function(draggable) {

@@ -38,7 +38,6 @@ var Map = function(id) {
         value: id,
         writable: false
     });
-
 };
 
 utils.extend(Map, BaseClass);
@@ -104,6 +103,7 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
         args.push(options);
 
+        div.style.overflow = "hidden";
         self.set("div", div);
         var elements = [];
         var elemId, clickable, size;
@@ -765,7 +765,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.position = markerOptions.position || {};
     markerOptions.position.lat = markerOptions.position.lat || 0.0;
     markerOptions.position.lng = markerOptions.position.lng || 0.0;
-    markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
     markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
@@ -775,6 +774,8 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
+    markerOptions.useHtmlInfoWnd = !(markerOptions.infoWindow === undefined);
+
     if ("styles" in markerOptions) {
         markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
 
@@ -785,9 +786,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     if (markerOptions.icon && common.isHTMLColorString(markerOptions.icon)) {
         markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
     }
-
-    var markerClick = markerOptions.markerClick;
-    var infoClick = markerOptions.infoClick;
 
     exec(function(result) {
         markerOptions.hashCode = result.hashCode;
@@ -811,6 +809,11 @@ Map.prototype.addMarker = function(markerOptions, callback) {
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
+
+Map.prototype._onSyncInfoWndPosition = function(eventName, points) {
+  this.set("infoPosition", points);
+};
+
 Map.prototype._onMapEvent = function(eventName) {
     var args = [eventName];
     for (var i = 1; i < arguments.length; i++) {

@@ -19,6 +19,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -72,6 +73,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import cordova.google.maps.R;
+
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -94,6 +97,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public String mapDivId;
   public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   final int DEFAULT_CAMERA_PADDING = 20;
+  private Projection projection = null;
+  private Marker activeMarker = null;
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -227,6 +232,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           public void onMapReady(GoogleMap googleMap) {
 
             map = googleMap;
+            projection = map.getProjection();
 
             try {
               //controls
@@ -645,32 +651,33 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
+    activeMarker = marker;
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
     if ((title == null) && (snippet == null)) {
       return null;
     }
 
-    this.onMarkerEvent("info_open", marker);
-
-    PluginManager pluginManager = this.webView.getPluginManager();
-    PluginMarker pluginMarker = (PluginMarker)pluginManager.getPlugin("Marker");
+    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
 
     JSONObject properties = null;
     JSONObject styles = null;
     String propertyId = "marker_property_" + marker.getId();
+
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
 
-      if (properties.has("styles")) {
-        try {
-          styles = (JSONObject) properties.getJSONObject("styles");
-        } catch (JSONException e) {
-          e.printStackTrace();
+      try {
+        if (properties.has("styles")) {
+            styles = (JSONObject) properties.getJSONObject("styles");
         }
+      } catch (JSONException e) {
+        e.printStackTrace();
       }
     }
 
+    this.onMarkerEvent("info_open", marker);
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
@@ -849,6 +856,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public View getInfoWindow(Marker marker) {
+    activeMarker = marker;
+
+    JSONObject properties = null;
+    String propertyId = "marker_property_" + marker.getId();
+
+    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+
+    if (pluginMarker.objects.containsKey(propertyId)) {
+      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+      try {
+        if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
+
+          syncInfoWndPosition();
+          this.onMarkerEvent("info_open", marker);
+
+          View dummyView = cordova.getActivity().getLayoutInflater().inflate(R.layout.dummy_infowindow, null);
+          return dummyView;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
     return null;
   }
 
@@ -1325,7 +1355,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               } catch (Exception e) {
                   e.printStackTrace();
               }
-              VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
+              VisibleRegion visibleRegion = projection.getVisibleRegion();
               final LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
               Handler handler = new Handler();
               handler.postDelayed(new Runnable() {
@@ -1763,11 +1793,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Point point = map.getProjection().toScreenLocation(latLng);
+        Point point = projection.toScreenLocation(latLng);
         try {
-          JSONArray pointJSON = new JSONArray();
-          pointJSON.put(point.x / density);
-          pointJSON.put(point.y / density);
+          JSONObject pointJSON = new JSONObject();
+          pointJSON.put("x", point.x / density);
+          pointJSON.put("y", point.y / density);
           callbackContext.success(pointJSON);
         } catch (JSONException e) {
           e.printStackTrace();
@@ -1788,7 +1818,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
 
-        LatLng latlng = map.getProjection().fromScreenLocation(point);
+        LatLng latlng = projection.fromScreenLocation(point);
         try {
           JSONArray pointJSON = new JSONArray();
           pointJSON.put(latlng.latitude);
@@ -1804,13 +1834,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   /**
    * Return the visible region of the map
-   * Thanks @fschmidt
    */
   public void getVisibleRegion(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        final VisibleRegion visibleRegion = map.getProjection().getVisibleRegion();
+        final VisibleRegion visibleRegion = projection.getVisibleRegion();
         cordova.getThreadPool().submit(new Runnable() {
           @Override
           public void run() {
@@ -1917,26 +1946,39 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onInfoWindowClick(Marker marker) {
+    activeMarker = marker;
+    syncInfoWndPosition();
     this.onMarkerEvent("info_click", marker);
   }
 
   @Override
   public void onMarkerDrag(Marker marker) {
+    if (marker.equals(activeMarker)) {
+      syncInfoWndPosition();
+    }
     this.onMarkerEvent("marker_drag", marker);
   }
 
   @Override
   public void onMarkerDragEnd(Marker marker) {
+    if (marker.equals(activeMarker)) {
+      syncInfoWndPosition();
+    }
     this.onMarkerEvent("marker_drag_end", marker);
   }
 
   @Override
   public void onMarkerDragStart(Marker marker) {
+    if (marker.equals(activeMarker)) {
+      syncInfoWndPosition();
+    }
     this.onMarkerEvent("marker_drag_start", marker);
   }
 
   @Override
   public void onInfoWindowLongClick(Marker marker) {
+    activeMarker = marker;
+    syncInfoWndPosition();
     this.onMarkerEvent("info_long_click", marker);
   }
 
@@ -1957,9 +1999,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param marker
    */
   public void onMarkerEvent(String eventName, Marker marker) {
+    LatLng latLng = marker.getPosition();
+
     String markerId = "marker_" + marker.getId();
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
-        mapId, eventName, markerId, marker.getPosition().latitude, marker.getPosition().longitude);
+        mapId, eventName, markerId, latLng.latitude, latLng.longitude);
+    jsCallback(js);
+  }
+  public void syncInfoWndPosition() {
+    LatLng latLng = activeMarker.getPosition();
+    Point point = projection.toScreenLocation(latLng);
+
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'syncPosition', callback:'_onSyncInfoWndPosition', args:[{'x': %d, 'y': %d}]})",
+        mapId, (int)(point.x / density), (int)(point.y / density));
     jsCallback(js);
   }
 
@@ -2020,7 +2072,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   private boolean isPointOnTheLine(List<LatLng> points, LatLng point) {
     double Sx, Sy;
-    Projection projection = map.getProjection();
     Point p0, p1, touchPoint;
     touchPoint = projection.toScreenLocation(point);
 
@@ -2081,7 +2132,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   private boolean isPolygonContains(List<LatLng> path, LatLng point) {
     int wn = 0;
-    Projection projection = map.getProjection();
     VisibleRegion visibleRegion = projection.getVisibleRegion();
     LatLngBounds bounds = visibleRegion.latLngBounds;
     Point sw = projection.toScreenLocation(bounds.southwest);
@@ -2186,25 +2236,33 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 mapId, eventName, jsonStr));
       }
     });
+
+    if (activeMarker != null) {
+      syncInfoWndPosition();
+    }
   }
 
   @Override
   public void onCameraIdle() {
+    projection = map.getProjection();
     onCameraEvent("camera_move_end");
   }
 
   @Override
   public void onCameraMoveCanceled() {
+    projection = map.getProjection();
     onCameraEvent("camera_moving");
   }
 
   @Override
   public void onCameraMove() {
+    projection = map.getProjection();
     onCameraEvent("camera_move");
   }
 
   @Override
   public void onCameraMoveStarted(final int reason) {
+    projection = map.getProjection();
 
     // In order to pass the gesture parameter to the callbacks,
     // use the _onMapEvent callback instead of the _onCameraEvent callback.
@@ -2329,7 +2387,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         Point hitArea = new Point();
         hitArea.x = 1;
         hitArea.y = 1;
-        Projection projection = map.getProjection();
         double threshold = calculateDistance(
             projection.fromScreenLocation(origin),
             projection.fromScreenLocation(hitArea));
