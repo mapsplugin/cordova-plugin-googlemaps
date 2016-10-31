@@ -1,6 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-    utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
+var utils = require('cordova/utils'),
     common = require('./Common'),
     BaseClass = require('./BaseClass');
 
@@ -11,12 +9,6 @@ var InfoWindow = function() {
     var self = this;
     BaseClass.apply(self);
 
-/*
-
-<div style="position: relative; margin-top: -1px;">
-<div style="position: absolute; left: 50%; height: 0px; width: 0px; margin-left: -15px; border-width: 15px 15px 0px; border-color: rgb(204, 204, 204) transparent transparent; border-style: solid;"></div>
-<div style="position: absolute; left: 50%; height: 0px; width: 0px; border-color: rgb(255, 255, 255) transparent transparent; border-style: solid; border-top-width: 14px; border-left-width: 14px; border-right-width: 14px; margin-left: -14px;"></div></div>
-*/
 
     var frame = document.createElement("div");
     frame.style.overflow="visible";
@@ -73,7 +65,6 @@ var InfoWindow = function() {
       var map = marker.getMap();
 
       var div = map.getDiv();
-      var divSize = common.getDivRect(div);
 
       var frame = self.get("frame");
       var contentFrame = frame.firstChild;
@@ -150,20 +141,21 @@ var InfoWindow = function() {
       self.set("offsetY", offsetY);
 
       //console.log("offset = " + self.get("offsetX") + ", " + self.get("offsetY"));
+      var infoPosition = map.get("infoPosition");
+      self.trigger("infoPosition_changed", "", infoPosition);
     };
 
-    self.on("infoWindowAnchor_changed", calculate);
-    self.on("icon_changed", calculate);
     self.on("infoPosition_changed", function(ignore, point) {
 
-        var contentsWidth = self.get("contentsWidth");
-        var contentsHeight = self.get("contentsHeight");
         var x = point.x - self.get("offsetX");
         var y = point.y - self.get("offsetY");
+        //console.log("offset = " + x + ", " + y);
 
         frame.style.left = x + "px";
         frame.style.top =  y + "px";
     });
+    self.on("infoWindowAnchor_changed", calculate);
+    self.on("icon_changed", calculate);
 
 };
 
@@ -172,6 +164,8 @@ utils.extend(InfoWindow, BaseClass);
 InfoWindow.prototype.close = function(marker) {
     var map = marker.getMap();
     map.off("infoPosition_changed");
+    marker.off("icon_changed");
+    marker.off("infoWindowAnchor_changed");
     var map = marker.getMap();
     var div = map.getDiv();
     var frame = this.get("frame");
