@@ -1,6 +1,7 @@
 package plugin.google.maps;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -37,6 +38,11 @@ import java.util.List;
 import java.util.Set;
 
 public class PluginUtil {
+  // Get resource id
+  // http://stackoverflow.com/a/37840674
+  public static int getAppResource(Activity activity, String name, String type) {
+    return activity.getResources().getIdentifier(name, type, activity.getPackageName());
+  }
 
   public static abstract class MyCallbackContext extends CallbackContext {
 

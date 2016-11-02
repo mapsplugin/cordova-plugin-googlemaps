@@ -73,8 +73,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cordova.google.maps.R;
-
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
@@ -872,8 +870,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           syncInfoWndPosition();
           this.onMarkerEvent("info_open", marker);
 
-          View dummyView = cordova.getActivity().getLayoutInflater().inflate(R.layout.dummy_infowindow, null);
-          return dummyView;
+          int resId = PluginUtil.getAppResource(cordova.getActivity(), "dummy_infowindow", "layout");
+          return cordova.getActivity().getLayoutInflater().inflate(resId, null);
         }
       } catch (Exception e) {
         e.printStackTrace();
