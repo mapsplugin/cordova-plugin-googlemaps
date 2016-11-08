@@ -205,15 +205,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         } else {
           JSONObject latLng = camera.getJSONObject("target");
           builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+          if (camera.has("zoom")) {
+            builder.zoom((float) camera.getDouble("zoom"));
+          }
         }
       } else {
         builder.target(new LatLng(0, 0));
       }
       if (camera.has("tilt")) {
         builder.tilt((float) camera.getDouble("tilt"));
-      }
-      if (camera.has("zoom")) {
-        builder.zoom((float) camera.getDouble("zoom"));
       }
       options.camera(builder.build());
     }
@@ -310,47 +310,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   public void onResult(PluginResult pluginResult) {
 
                     if (initCameraBounds != null) {
-                      Handler handler = new Handler();
-                      handler.postDelayed(new Runnable() {
+                      map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                         @Override
-                        public void run() {
-                          int CAMERA_PADDING = DEFAULT_CAMERA_PADDING;
-                          try {
-                            if (params.has("camera")) {
-                              JSONObject camera = params.getJSONObject("camera");
-                              if (camera.has("padding")) {
-                                CAMERA_PADDING = camera.getInt("padding");
-                              }
-                            }
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                          fitBounds(initCameraBounds, CAMERA_PADDING);
+                        public void onCameraIdle() {
+                          PluginMap.this.onCameraIdle();
+                          map.setOnCameraIdleListener(PluginMap.this);
+                          Handler handler = new Handler();
+                          handler.post(new AdjustInitCamera(params));
                         }
-                      }, 700);
+                      });
                     }
                   }
                 });
               } else {
                 if (initCameraBounds != null) {
-                  Handler handler = new Handler();
-                  handler.postDelayed(new Runnable() {
+                  map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                     @Override
-                    public void run() {
-                      int CAMERA_PADDING = DEFAULT_CAMERA_PADDING;
-                      try {
-                        if (params.has("camera")) {
-                          JSONObject camera = params.getJSONObject("camera");
-                          if (camera.has("padding")) {
-                            CAMERA_PADDING = camera.getInt("padding");
-                          }
-                        }
-                      } catch (Exception e) {
-                        e.printStackTrace();
-                      }
-                      fitBounds(initCameraBounds, CAMERA_PADDING);
+                    public void onCameraIdle() {
+                      PluginMap.this.onCameraIdle();
+                      map.setOnCameraIdleListener(PluginMap.this);
+                      Handler handler = new Handler();
+                      handler.post(new AdjustInitCamera(params));
                     }
-                  }, 500);
+                  });
                 }
               }
               if (params.has("controls")) {
@@ -391,6 +373,48 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
       }
     });
+  }
+
+  private class AdjustInitCamera implements Runnable {
+    private JSONObject mParams;
+    public AdjustInitCamera(JSONObject params) {
+      mParams = params;
+    }
+    @Override
+    public void run() {
+
+      int CAMERA_PADDING = DEFAULT_CAMERA_PADDING;
+      try {
+        if (mParams.has("camera")) {
+          JSONObject camera = mParams.getJSONObject("camera");
+          if (camera.has("padding")) {
+            CAMERA_PADDING = camera.getInt("padding");
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, CAMERA_PADDING * (int) density));
+
+      CameraPosition.Builder builder = CameraPosition.builder(map.getCameraPosition());
+
+      try {
+        if (mParams.has("camera")) {
+          JSONObject camera = mParams.getJSONObject("camera");
+          if (camera.has("bearing")) {
+            builder.bearing((float) camera.getDouble("bearing"));
+          }
+          if (camera.has("tilt")) {
+            builder.tilt((float) camera.getDouble("tilt"));
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+
+      //fitBounds(initCameraBounds, CAMERA_PADDING);
+    }
   }
 
   //-----------------------------------
@@ -1193,212 +1217,210 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (this.isRemoved) {
       return;
     }
-
-    final CameraPosition.Builder builder = CameraPosition.builder();
     final JSONObject cameraPos = args.getJSONObject(0);
 
-    AsyncTask<Void, Void, AsyncUpdateCameraPositionResult> createCameraUpdate = new AsyncTask<Void, Void, AsyncUpdateCameraPositionResult>() {
-      private Exception mException = null;
-
+    cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
-      protected AsyncUpdateCameraPositionResult doInBackground(Void... voids) {
-        AsyncUpdateCameraPositionResult result = new AsyncUpdateCameraPositionResult();
-        if (isRemoved) {
-          this.cancel(true);
-          return null;
-        }
-        try {
+      public void run() {
 
-          result.durationMS = 4000;
-          result.cameraPadding = DEFAULT_CAMERA_PADDING;
-          if (cameraPos.has("tilt")) {
-            builder.tilt((float) cameraPos.getDouble("tilt"));
-          }
-          if (cameraPos.has("bearing")) {
-            builder.bearing((float) cameraPos.getDouble("bearing"));
-          }
-          if (cameraPos.has("zoom")) {
-            builder.zoom((float) cameraPos.getDouble("zoom"));
-          }
-          if (cameraPos.has("duration")) {
-            result.durationMS = cameraPos.getInt("duration");
-          }
-          if (cameraPos.has("padding")) {
-            result.cameraPadding = cameraPos.getInt("padding");
-          }
+        final CameraPosition.Builder builder = CameraPosition.builder(map.getCameraPosition());
 
-          if (!cameraPos.has("target")) {
+        AsyncTask<Void, Void, AsyncUpdateCameraPositionResult> createCameraUpdate = new AsyncTask<Void, Void, AsyncUpdateCameraPositionResult>() {
+          private Exception mException = null;
+
+          @Override
+          protected AsyncUpdateCameraPositionResult doInBackground(Void... voids) {
+            AsyncUpdateCameraPositionResult result = new AsyncUpdateCameraPositionResult();
+            if (isRemoved) {
+              this.cancel(true);
+              return null;
+            }
+
+            try {
+
+              result.durationMS = 4000;
+              result.cameraPadding = DEFAULT_CAMERA_PADDING;
+              if (cameraPos.has("tilt")) {
+                builder.tilt((float) cameraPos.getDouble("tilt"));
+              }
+              if (cameraPos.has("bearing")) {
+                builder.bearing((float) cameraPos.getDouble("bearing"));
+              }
+              if (cameraPos.has("zoom")) {
+                builder.zoom((float) cameraPos.getDouble("zoom"));
+              }
+              if (cameraPos.has("duration")) {
+                result.durationMS = cameraPos.getInt("duration");
+              }
+              if (cameraPos.has("padding")) {
+                result.cameraPadding = cameraPos.getInt("padding");
+              }
+
+              if (!cameraPos.has("target")) {
+                return result;
+              }
+
+              //------------------------
+              // Create a cameraUpdate
+              //------------------------
+              result.cameraUpdate = null;
+              result.cameraBounds = null;
+              CameraPosition newPosition;
+              Object target = cameraPos.get("target");
+              @SuppressWarnings("rawtypes")
+              Class targetClass = target.getClass();
+              JSONObject latLng;
+              if ("org.json.JSONArray".equals(targetClass.getName())) {
+                JSONArray points = cameraPos.getJSONArray("target");
+                result.cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
+                result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding * density));
+              } else {
+                latLng = cameraPos.getJSONObject("target");
+                builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
+                newPosition = builder.build();
+                result.cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
+              }
+            } catch (Exception e) {
+              mException = e;
+              e.printStackTrace();
+              this.cancel(true);
+              return null;
+            }
+
             return result;
           }
 
-          //------------------------
-          // Create a cameraUpdate
-          //------------------------
-          result.cameraUpdate = null;
-          result.cameraBounds = null;
-          CameraPosition newPosition;
-          Object target = cameraPos.get("target");
-          @SuppressWarnings("rawtypes")
-          Class targetClass = target.getClass();
-          JSONObject latLng;
-          if ("org.json.JSONArray".equals(targetClass.getName())) {
-            JSONArray points = cameraPos.getJSONArray("target");
-            result.cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
-            result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding * density));
-          } else {
-            latLng = cameraPos.getJSONObject("target");
-            builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
-            newPosition = builder.build();
-            result.cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
-          }
-        } catch (Exception e) {
-          mException = e;
-          e.printStackTrace();
-          this.cancel(true);
-          return null;
-        }
-
-        return result;
-      }
-
-      @Override
-      public void onCancelled() {
-        if (mException != null) {
-          mException.printStackTrace();
-        }
-        callbackContext.error(mException != null ? mException.getMessage() + "" : "");
-      }
-      @Override
-      public void onCancelled(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
-        if (mException != null) {
-          mException.printStackTrace();
-        }
-        callbackContext.error(mException != null ? mException.getMessage() + "" : "");
-      }
-
-      @Override
-      public void onPostExecute(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
-        if (isRemoved) {
-          return;
-        }
-        if (AsyncUpdateCameraPositionResult.cameraUpdate == null) {
-          builder.target(map.getCameraPosition().target);
-          AsyncUpdateCameraPositionResult.cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
-        }
-
-        final AsyncUpdateCameraPositionResult finalCameraPosition = AsyncUpdateCameraPositionResult;
-        PluginUtil.MyCallbackContext myCallback = new PluginUtil.MyCallbackContext("moveCamera", webView) {
           @Override
-          public void onResult(final PluginResult pluginResult) {
-            if (finalCameraPosition.cameraBounds != null && ANIMATE_CAMERA_DONE.equals(pluginResult.getStrMessage())) {
-              CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, finalCameraPosition.cameraPadding * (int)density);
-              try {
-                  map.moveCamera(cameraUpdate);
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-
-
-              final Builder builder = CameraPosition.builder();
-              if (cameraPos.has("tilt")) {
-                try {
-                  builder.tilt((float) cameraPos.getDouble("tilt"));
-                } catch (JSONException e) {
-                  e.printStackTrace();
-                }
-              }
-              if (cameraPos.has("bearing")) {
-                try {
-                  builder.bearing((float) cameraPos.getDouble("bearing"));
-                } catch (JSONException e) {
-                  e.printStackTrace();
-                }
-              }
-              builder.zoom(map.getCameraPosition().zoom);
-              builder.target(map.getCameraPosition().target);
-              Handler handler = new Handler();
-              handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-
-                      Builder builder = CameraPosition.builder();
-                      if (cameraPos.has("tilt")) {
-                        try {
-                          builder.tilt((float) cameraPos.getDouble("tilt"));
-                        } catch (JSONException e) {
-                          e.printStackTrace();
-                        }
-                      }
-                      if (cameraPos.has("bearing")) {
-                        try {
-                          builder.bearing((float) cameraPos.getDouble("bearing"));
-                        } catch (JSONException e) {
-                          e.printStackTrace();
-                        }
-                      }
-                      builder.zoom(map.getCameraPosition().zoom);
-                      builder.target(map.getCameraPosition().target);
-                      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-
-                  } catch (Exception e) {
-                      e.printStackTrace();
-                  }
-                }
-              }, 250);
-            } else {
-              try {
-                  map.moveCamera(finalCameraPosition.cameraUpdate);
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-              VisibleRegion visibleRegion = projection.getVisibleRegion();
-              final LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
-              Handler handler = new Handler();
-              handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int) density));
-
-                    Builder builder = CameraPosition.builder();
-                    if (cameraPos.has("tilt")) {
-                      try {
-                        builder.tilt((float) cameraPos.getDouble("tilt"));
-                      } catch (JSONException e) {
-                        e.printStackTrace();
-                      }
-                    }
-                    if (cameraPos.has("bearing")) {
-                      try {
-                        builder.bearing((float) cameraPos.getDouble("bearing"));
-                      } catch (JSONException e) {
-                        e.printStackTrace();
-                      }
-                    }
-                    builder.zoom(map.getCameraPosition().zoom);
-                    builder.target(mapLatLngBound.getCenter());
-                    map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-
-                  } catch (Exception e) {
-                      e.printStackTrace();
-                  }
-                }
-              }, 250);
+          public void onCancelled() {
+            if (mException != null) {
+              mException.printStackTrace();
             }
-            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+            callbackContext.error(mException != null ? mException.getMessage() + "" : "");
+          }
+          @Override
+          public void onCancelled(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
+            if (mException != null) {
+              mException.printStackTrace();
+            }
+            callbackContext.error(mException != null ? mException.getMessage() + "" : "");
+          }
+
+          @Override
+          public void onPostExecute(AsyncUpdateCameraPositionResult AsyncUpdateCameraPositionResult) {
+            if (isRemoved) {
+              return;
+            }
+
+
+            if (AsyncUpdateCameraPositionResult.cameraUpdate == null) {
+              CameraPosition.Builder builder = CameraPosition.builder(map.getCameraPosition());
+              builder.target(map.getCameraPosition().target);
+              AsyncUpdateCameraPositionResult.cameraUpdate = CameraUpdateFactory.newCameraPosition(builder.build());
+            }
+
+            final AsyncUpdateCameraPositionResult finalCameraPosition = AsyncUpdateCameraPositionResult;
+            PluginUtil.MyCallbackContext myCallback = new PluginUtil.MyCallbackContext("moveCamera", webView) {
+              @Override
+              public void onResult(final PluginResult pluginResult) {
+                if (finalCameraPosition.cameraBounds != null && ANIMATE_CAMERA_DONE.equals(pluginResult.getStrMessage())) {
+
+
+                  final Builder builder = CameraPosition.builder(map.getCameraPosition());
+                  if (cameraPos.has("tilt")) {
+                    try {
+                      builder.tilt((float) cameraPos.getDouble("tilt"));
+                    } catch (JSONException e) {
+                      e.printStackTrace();
+                    }
+                  }
+                  if (cameraPos.has("bearing")) {
+                    try {
+                      builder.bearing((float) cameraPos.getDouble("bearing"));
+                    } catch (JSONException e) {
+                      e.printStackTrace();
+                    }
+                  }
+
+                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, finalCameraPosition.cameraPadding * (int)density);
+                  try {
+                    map.moveCamera(cameraUpdate);
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
+                  builder.zoom(map.getCameraPosition().zoom);
+                  builder.target(map.getCameraPosition().target);
+
+                  Handler handler = new Handler();
+                  handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                      try {
+                        map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+
+                      } catch (Exception e) {
+                        e.printStackTrace();
+                      }
+                    }
+                  }, 250);
+                } else {
+                  final Builder builder = CameraPosition.builder(map.getCameraPosition());
+                  if (cameraPos.has("tilt")) {
+                    try {
+                      builder.tilt((float) cameraPos.getDouble("tilt"));
+                    } catch (JSONException e) {
+                      e.printStackTrace();
+                    }
+                  }
+                  if (cameraPos.has("bearing")) {
+                    try {
+                      builder.bearing((float) cameraPos.getDouble("bearing"));
+                    } catch (JSONException e) {
+                      e.printStackTrace();
+                    }
+                  }
+
+                  try {
+                    map.moveCamera(finalCameraPosition.cameraUpdate);
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
+
+                  builder.zoom(map.getCameraPosition().zoom);
+                  builder.target(map.getCameraPosition().target);
+
+                  VisibleRegion visibleRegion = projection.getVisibleRegion();
+                  final LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
+                  Handler handler = new Handler();
+                  handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                      try {
+                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int) density));
+
+                        //
+                        map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+
+                      } catch (Exception e) {
+                        e.printStackTrace();
+                      }
+                    }
+                  }, 250);
+                }
+                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+              }
+            };
+            if (action.equals("moveCamera")) {
+              myMoveCamera(AsyncUpdateCameraPositionResult.cameraUpdate, myCallback);
+            } else {
+              myAnimateCamera(mapId, AsyncUpdateCameraPositionResult.cameraUpdate, AsyncUpdateCameraPositionResult.durationMS, myCallback);
+            }
+
           }
         };
-        if (action.equals("moveCamera")) {
-          myMoveCamera(AsyncUpdateCameraPositionResult.cameraUpdate, myCallback);
-        } else {
-          myAnimateCamera(mapId, AsyncUpdateCameraPositionResult.cameraUpdate, AsyncUpdateCameraPositionResult.durationMS, myCallback);
-        }
+        createCameraUpdate.execute();
 
       }
-    };
-    createCameraUpdate.execute();
+    });
 
 
 
