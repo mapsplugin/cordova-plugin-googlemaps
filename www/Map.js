@@ -258,7 +258,19 @@ Map.prototype.setCameraBearing = function(bearing) {
  */
 Map.prototype.animateCamera = function(cameraPosition, callback) {
     var self = this;
-    cameraPosition.target = common.convertToPositionArray(cameraPosition.target);
+    var target = cameraPosition.target;
+    if (!target && position in cameraPosition) {
+      target = cameraPosition.position;
+    }
+    if (!target) {
+      return;
+    }
+
+    if (utils.isArray(target)) {
+      target = common.convertToPositionArray(target);
+    }
+    cameraPosition.target = target;
+    console.log(cameraPosition);
 
     exec(function() {
         if (typeof callback === "function") {
@@ -273,8 +285,20 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
  * @params {Function} [callback] This callback is involved when the animation is completed.
  */
 Map.prototype.moveCamera = function(cameraPosition, callback) {
-    cameraPosition.target = common.convertToPositionArray(cameraPosition.target);
     var self = this;
+    var target = cameraPosition.target;
+    if (!target && position in cameraPosition) {
+      target = cameraPosition.position;
+    }
+    if (!target) {
+      return;
+    }
+
+      console.log("utils.isArray  = " + (utils.isArray(target)));
+    if (utils.isArray(target)) {
+      target = common.convertToPositionArray(target);
+    }
+    cameraPosition.target = target;
     exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
