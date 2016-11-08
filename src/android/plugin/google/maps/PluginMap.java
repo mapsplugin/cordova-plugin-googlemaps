@@ -1347,21 +1347,16 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   } catch (Exception e) {
                     e.printStackTrace();
                   }
-                  builder.zoom(map.getCameraPosition().zoom);
-                  builder.target(map.getCameraPosition().target);
-
-                  Handler handler = new Handler();
-                  handler.postDelayed(new Runnable() {
+                  map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                     @Override
-                    public void run() {
-                      try {
-                        map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-
-                      } catch (Exception e) {
-                        e.printStackTrace();
-                      }
+                    public void onCameraIdle() {
+                      PluginMap.this.onCameraIdle();
+                      map.setOnCameraIdleListener(PluginMap.this);
+                      builder.zoom(map.getCameraPosition().zoom);
+                      builder.target(map.getCameraPosition().target);
+                      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
                     }
-                  }, 250);
+                  });
                 } else {
                   final Builder builder = CameraPosition.builder(map.getCameraPosition());
                   if (cameraPos.has("tilt")) {
@@ -1388,23 +1383,16 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   builder.zoom(map.getCameraPosition().zoom);
                   builder.target(map.getCameraPosition().target);
 
-                  VisibleRegion visibleRegion = projection.getVisibleRegion();
-                  final LatLngBounds mapLatLngBound = visibleRegion.latLngBounds;
-                  Handler handler = new Handler();
-                  handler.postDelayed(new Runnable() {
+                  map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                     @Override
-                    public void run() {
-                      try {
-                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapLatLngBound, finalCameraPosition.cameraPadding * (int) density));
-
-                        //
-                        map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-
-                      } catch (Exception e) {
-                        e.printStackTrace();
-                      }
+                    public void onCameraIdle() {
+                      PluginMap.this.onCameraIdle();
+                      map.setOnCameraIdleListener(PluginMap.this);
+                      builder.zoom(map.getCameraPosition().zoom);
+                      builder.target(map.getCameraPosition().target);
+                      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
                     }
-                  }, 250);
+                  });
                 }
                 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
               }
