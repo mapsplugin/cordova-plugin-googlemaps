@@ -1241,12 +1241,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           @SuppressWarnings("rawtypes")
           Class targetClass = target.getClass();
           JSONObject latLng;
-          if ("org.json.JSONArray".equals(targetClass.getName())) {
-            JSONArray points = cameraPos.getJSONArray("target");
+          JSONArray points = cameraPos.getJSONArray("target");
+          if (points.length() > 1) {
             result.cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
             result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding * density));
           } else {
-            latLng = cameraPos.getJSONObject("target");
+            latLng = (JSONObject)points.get(0);
             builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
             newPosition = builder.build();
             result.cameraUpdate = CameraUpdateFactory.newCameraPosition(newPosition);
