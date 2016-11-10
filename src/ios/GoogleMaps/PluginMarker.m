@@ -81,6 +81,8 @@
         
         // Create a marker
         GMSMarker *marker = [GMSMarker markerWithPosition:position];
+        marker.tracksViewChanges = NO;
+        marker.tracksInfoWindowChanges = NO;
 
         if ([json valueForKey:@"title"]) {
             [marker setTitle: [json valueForKey:@"title"]];
