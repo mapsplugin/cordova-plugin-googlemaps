@@ -266,11 +266,10 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
       return;
     }
 
-    if (utils.isArray(target)) {
+    if (utils.isArray(target) || target.type === "LatLngBounds") {
       target = common.convertToPositionArray(target);
     }
     cameraPosition.target = target;
-    console.log(cameraPosition);
 
     exec(function() {
         if (typeof callback === "function") {
@@ -294,8 +293,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
       return;
     }
 
-      console.log("utils.isArray  = " + (utils.isArray(target)));
-    if (utils.isArray(target)) {
+    if (utils.isArray(target) || target.type === "LatLngBounds") {
       target = common.convertToPositionArray(target);
     }
     cameraPosition.target = target;
