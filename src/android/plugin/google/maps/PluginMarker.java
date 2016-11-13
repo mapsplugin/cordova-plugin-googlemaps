@@ -196,7 +196,6 @@ public class PluginMarker extends MyPlugin {
           } else {
             callbackContext.success(result);
           }
-          callbackContext.success(result);
         }
 
         @Override
