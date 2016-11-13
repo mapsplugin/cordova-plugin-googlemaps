@@ -50,6 +50,7 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
+    cordova.fireDocumentEvent('touch_start', {});
     exec(null, null, this.id, 'resizeMap', []);
 };
 
