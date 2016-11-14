@@ -450,9 +450,14 @@ Map.prototype.setDiv = function(div) {
         args = [];
 
     if (!common.isDom(div)) {
+        div = self.get("div");
+        if (common.isDom(div)) {
+          div.removeAttribute("__pluginMapId");
+        }
         self.set("div", null);
     } else {
         var currentDiv = self.get("div");
+        div.setAttribute("__pluginMapId", self.id);
 
         // Webkit redraw mandatory
         // http://stackoverflow.com/a/3485654/697856

@@ -279,8 +279,26 @@ module.exports = {
     BaseClass: BaseClass,
     BaseArrayClass: BaseArrayClass,
     Map: {
-        getMap: function() {
-            var mapId = "map_" + MAP_CNT + "_" + saltHash;
+        getMap: function(div) {
+            var mapId;
+            if (common.isDom(div)) {
+              mapId = div.getAttribute("__pluginMapId");
+            }
+            if (mapId in MAPS) {
+              //--------------------------------------------------
+              // Backward compatibility for v1
+              //
+              // If the div is already recognized as map div,
+              // return the map instance
+              //--------------------------------------------------
+              return MAPS[mapId];
+            } else {
+              mapId = "map_" + MAP_CNT + "_" + saltHash;
+            }
+            if (common.isDom(div)) {
+              div.setAttribute("__pluginMapId", mapId);
+            }
+
             var map = new Map(mapId);
 
             // Catch all events for this map instance, then pass to the instance.
