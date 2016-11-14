@@ -294,8 +294,9 @@ function getDomDepth(dom, idx) {
     //}
 
     //orgDom.setAttribute("_depth", depth + "_" + zIndex + "_" + idx);
-    //orgDom.setAttribute("_result", depth * 1000 + parseInt(zIndex, 10) + idx);
-    return depth * 1000 + parseInt(zIndex, 10) + idx;
+    var result = idx * 1000 + parseInt(zIndex, 10) + depth;
+    orgDom.setAttribute("_result", result);
+    return result;
 }
 
 // Get CSS value of an element
@@ -310,10 +311,10 @@ function getStyle(element, styleProperty)
     return;
 }
 
-function getDomInfo(dom) {
+function getDomInfo(dom, idx) {
     return {
         size: getDivRect(dom),
-        depth: depth = getDomDepth(dom)
+        depth: getDomDepth(dom, idx)
     };
 }
 
