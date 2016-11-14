@@ -1,6 +1,5 @@
 package plugin.google.maps;
 
-import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -589,7 +587,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
       }
-      webView.loadUrl("javascript:cordova.fireDocumentEvent('touch_start', {});");
+      webView.loadUrl("javascript:cordova.fireDocumentEvent('plugin_touch', {});");
 
       MyPluginLayout.this.stopFlag = false;
       return isMapAction;

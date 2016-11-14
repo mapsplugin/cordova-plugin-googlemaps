@@ -242,7 +242,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
     setTimeout(putHtmlElements, 0);
   }
   document.addEventListener("deviceready", resetTimer);
-  document.addEventListener("touch_start", resetTimer);
+  document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
 
 }());

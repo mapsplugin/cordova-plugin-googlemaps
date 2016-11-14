@@ -374,14 +374,14 @@ NSOperationQueue *executeQueue;
         UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
         //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
       
-        [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
+        [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
       
         self.stopFlag = NO;
         return hitView;
     }
     self.stopFlag = NO;
   
-    [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('touch_start', {});"];
+    [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
     return [super hitTest:point withEvent:event];
 }
 
