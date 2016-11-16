@@ -50,7 +50,6 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
-    cordova.fireDocumentEvent('plugin_touch', {});
     exec(null, null, this.id, 'resizeMap', []);
 };
 
@@ -66,6 +65,7 @@ Map.prototype.getMap = function(mapId, div, options) {
               options.camera.target = options.camera.latLng;
               delete options.camera.latLng;
           }
+          this.set('camera', options.camera);
           if (options.camera.target) {
             this.set('camera_target', options.camera.target);
           }
@@ -89,6 +89,7 @@ Map.prototype.getMap = function(mapId, div, options) {
               options.camera.target = options.camera.latLng;
               delete options.camera.latLng;
           }
+          this.set('camera', options.camera);
           if (options.camera.target) {
             this.set('camera_target', options.camera.target);
           }
@@ -150,6 +151,7 @@ Map.prototype.setOptions = function(options) {
           options.camera.target = options.camera.latLng;
           delete options.camera.latLng;
       }
+      this.set('camera', options.camera);
       if (options.camera.target) {
         this.set('camera_target', options.camera.target);
       }
