@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 public class PluginMap extends MyPlugin {
@@ -82,23 +83,32 @@ public class PluginMap extends MyPlugin {
         settings.setZoomGesturesEnabled(gestures.getBoolean("zoom"));
       }
     }
-    
-    // map type
-    if (params.has("mapType")) {
-      String typeStr = params.getString("mapType");
-      int mapTypeId = -1;
-      mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
-          : mapTypeId;
-      mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
-          : mapTypeId;
-      if (mapTypeId != -1) {
-        this.map.setMapType(mapTypeId);
+
+
+    //styles
+    if (params.has("styles")) {
+      JSONArray styles = params.getJSONArray("styles");
+      MapStyleOptions styleOptions = new MapStyleOptions(styles.toString(0));
+      map.setMapStyle(styleOptions);
+      map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    } else {
+      // map type
+      if (params.has("mapType")) {
+        String typeStr = params.getString("mapType");
+        int mapTypeId = -1;
+        mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
+            : mapTypeId;
+        mapTypeId = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID
+            : mapTypeId;
+        mapTypeId = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE
+            : mapTypeId;
+        mapTypeId = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN
+            : mapTypeId;
+        mapTypeId = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE
+            : mapTypeId;
+        if (mapTypeId != -1) {
+          this.map.setMapType(mapTypeId);
+        }
       }
     }
     

@@ -76,6 +76,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
@@ -501,7 +502,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
 
     // map type
-    if (params.has("mapType")) {
+    if (!params.has("styles") && params.has("mapType")) {
       String typeStr = params.getString("mapType");
       int mapTypeId = -1;
       mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL
@@ -559,6 +560,13 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         map = googleMap;
 
         try {
+          //styles
+          if (params.has("styles")) {
+            JSONArray styles = params.getJSONArray("styles");
+            MapStyleOptions styleOptions = new MapStyleOptions(styles.toString(0));
+            map.setMapStyle(styleOptions);
+            map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+          }
           //controls
           if (params.has("controls")) {
             JSONObject controls = params.getJSONObject("controls");
