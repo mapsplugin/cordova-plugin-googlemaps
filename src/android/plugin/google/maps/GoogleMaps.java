@@ -562,8 +562,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
         try {
           //styles
           if (params.has("styles")) {
-            JSONArray styles = params.getJSONArray("styles");
-            MapStyleOptions styleOptions = new MapStyleOptions(styles.toString(0));
+            String styles = params.getString("styles");
+            MapStyleOptions styleOptions = new MapStyleOptions(styles);
             map.setMapStyle(styleOptions);
             map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
           }

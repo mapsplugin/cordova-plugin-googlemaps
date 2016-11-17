@@ -342,6 +342,9 @@ App.prototype.getMap = function(div, params) {
           params.camera.target = params.camera.latLng;
           delete params.camera.latLng;
         }
+        if (params.styles) {
+          params.styles = JSON.stringify(params.styles);
+        }
         args.push(params);
 
         self.set("div", div);
@@ -452,6 +455,9 @@ App.prototype.setOptions = function(options) {
     if (options.camera && options.camera.latLng) {
       options.camera.target = options.camera.latLng;
       delete options.camera.latLng;
+    }
+    if (options.styles) {
+      options.styles = JSON.stringify(options.styles);
     }
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setOptions', this.deleteFromObject(options,'function')]);
 };

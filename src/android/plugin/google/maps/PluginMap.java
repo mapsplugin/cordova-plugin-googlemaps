@@ -87,8 +87,8 @@ public class PluginMap extends MyPlugin {
 
     //styles
     if (params.has("styles")) {
-      JSONArray styles = params.getJSONArray("styles");
-      MapStyleOptions styleOptions = new MapStyleOptions(styles.toString(0));
+      String styles = params.getString("styles");
+      MapStyleOptions styleOptions = new MapStyleOptions(styles);
       map.setMapStyle(styleOptions);
       map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     } else {
