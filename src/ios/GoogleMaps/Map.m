@@ -524,7 +524,50 @@
   } else {
     self.mapCtrl.map.settings.compassButton = YES;
   }
-
+  
+  //preferences
+  NSDictionary *preferences = [initOptions objectForKey:@"preferences"];
+  if (preferences) {
+    //padding
+    if ([preferences valueForKey:@"padding"] != nil) {
+      NSDictionary *padding = [preferences valueForKey:@"padding"];
+      UIEdgeInsets current = self.mapCtrl.map.padding;
+      if ([padding objectForKey:@"left"] != nil) {
+        current.left = [[padding objectForKey:@"left"] floatValue];
+      }
+      if ([padding objectForKey:@"top"] != nil) {
+        current.top = [[padding objectForKey:@"top"] floatValue];
+      }
+      if ([padding objectForKey:@"bottom"] != nil) {
+        current.bottom = [[padding objectForKey:@"bottom"] floatValue];
+      }
+      if ([padding objectForKey:@"right"] != nil) {
+        current.right = [[padding objectForKey:@"right"] floatValue];
+      }
+      
+      UIEdgeInsets newPadding = UIEdgeInsetsMake(current.top, current.left, current.bottom, current.right);
+      [self.mapCtrl.map setPadding:newPadding];
+    }
+    //zoom
+    if ([preferences valueForKey:@"zoom"] != nil) {
+      NSDictionary *zoom = [preferences valueForKey:@"zoom"];
+      float minZoom = self.mapCtrl.map.minZoom;
+      float maxZoom = self.mapCtrl.map.maxZoom;
+      if ([zoom objectForKey:@"minZoom"] != nil) {
+        minZoom = [[zoom objectForKey:@"minZoom"] doubleValue];
+      }
+      if ([zoom objectForKey:@"maxZoom"] != nil) {
+        maxZoom = [[zoom objectForKey:@"maxZoom"] doubleValue];
+      }
+      
+      [self.mapCtrl.map setMinZoom:minZoom maxZoom:maxZoom];
+    }
+    // building
+    if ([preferences valueForKey:@"building"] != nil) {
+      self.mapCtrl.map.buildingsEnabled = [[preferences valueForKey:@"building"] boolValue];
+    }
+  }
+  
   //gestures
   NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
   if (gestures) {

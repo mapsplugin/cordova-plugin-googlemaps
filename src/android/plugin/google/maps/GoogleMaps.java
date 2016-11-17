@@ -611,6 +611,40 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             }
           }
 
+          if (params.has("preferences")) {
+            JSONObject preferences = params.getJSONObject("preferences");
+
+            if (preferences.has("padding")) {
+              JSONObject padding = preferences.getJSONObject("padding");
+              int left = 0, top = 0, bottom = 0, right = 0;
+              if (padding.has("left")) {
+                left = (int) (padding.getInt("left") * density);
+              }
+              if (padding.has("top")) {
+                top = (int) (padding.getInt("top") * density);
+              }
+              if (padding.has("bottom")) {
+                bottom = (int) (padding.getInt("bottom") * density);
+              }
+              if (padding.has("right")) {
+                right = (int) (padding.getInt("right") * density);
+              }
+              map.setPadding(left, top, right, bottom);
+            }
+
+            if (preferences.has("zoom")) {
+              JSONObject zoom = preferences.getJSONObject("zoom");
+              if (zoom.has("minZoom")) {
+                map.setMinZoomPreference((float)zoom.getDouble("minZoom"));
+              }
+              if (zoom.has("maxZoom")) {
+                map.setMaxZoomPreference((float)zoom.getDouble("maxZoom"));
+              }
+            }
+            if (preferences.has("building")) {
+              map.setBuildingsEnabled(preferences.getBoolean("building"));
+            }
+          }
 
           if (params.has("controls")) {
             JSONObject controls = params.getJSONObject("controls");
@@ -633,6 +667,8 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
           } else {
             callbackContext.success();
           }
+
+
 
         } catch (Exception e) {
           Log.d("GoogleMaps", "------->error");
