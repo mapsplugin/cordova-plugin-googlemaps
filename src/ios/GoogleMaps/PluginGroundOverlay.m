@@ -280,7 +280,7 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
-    [self.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
       
