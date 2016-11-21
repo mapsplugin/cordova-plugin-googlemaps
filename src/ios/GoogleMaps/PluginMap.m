@@ -173,7 +173,6 @@
         // Load the GoogleMap.m
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-        googlemaps.pluginLayer.needUpdatePosition = YES;
 
 
         // Save the map rectangle.
@@ -184,8 +183,7 @@
             [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];
         }
 
-        googlemaps.pluginLayer.needUpdatePosition = YES;
-        [googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
+        //[googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
     }];
 }
 

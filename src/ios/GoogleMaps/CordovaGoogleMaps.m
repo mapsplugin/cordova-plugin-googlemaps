@@ -67,24 +67,8 @@
 }
 
 - (void) didRotate:(id)sender
-{
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
+{}
 
-      NSArray *keys=[self.pluginMaps allKeys];
-      NSString *mapId;
-      PluginMap *pluginMap;
-
-      for (int i = 0; i < [keys count]; i++) {
-        mapId = [keys objectAtIndex:i];
-        pluginMap = [self.pluginMaps objectForKey:mapId];
-        [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
-      }
-
-      if (self.pluginLayer.pluginScrollView.debugView.debuggable == YES) {
-          [self.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
-      }
-  });
-}
 -(void)viewDidLayoutSubviews {
     [self.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
     [self.pluginLayer.pluginScrollView flashScrollIndicators];
@@ -362,7 +346,7 @@
         NSDictionary *elements = [command.arguments objectAtIndex:0];
 
         [self.pluginLayer putHTMLElements:elements];
-
+/*
         if (self.pluginLayer.needUpdatePosition) {
             self.pluginLayer.needUpdatePosition = NO;
             NSArray *keys=[self.pluginMaps allKeys];
@@ -375,6 +359,7 @@
               [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
             }
         }
+*/
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         pluginResult = nil;

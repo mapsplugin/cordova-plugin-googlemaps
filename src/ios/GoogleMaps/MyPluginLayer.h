@@ -14,11 +14,10 @@
 
 @property (nonatomic) UIView *webView;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
-@property (nonatomic) BOOL stopFlag;
-@property (nonatomic) BOOL needUpdatePosition;
+@property (nonatomic) NSTimer *redrawTimer;
 
 - (id)initWithWebView:(UIView *)webView;
-- (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
+- (void)resizeTask:(NSTimer *)timer;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl;
 - (void)removeMapView:(GoogleMapsViewController *)mapCtrl;
