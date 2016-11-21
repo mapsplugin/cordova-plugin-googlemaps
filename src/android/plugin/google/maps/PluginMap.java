@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
@@ -123,6 +124,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     CameraPosition cameraPosition;
     LatLngBounds cameraBounds;
     int cameraPadding;
+    String styles;
   }
 
   @Override
@@ -173,7 +175,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
 
     // map type
-    if (params.has("mapType")) {
+    if (!params.has("styles") &&  params.has("mapType")) {
       String typeStr = params.getString("mapType");
       int mapTypeId = -1;
       mapTypeId = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : mapTypeId;
@@ -233,6 +235,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             projection = map.getProjection();
 
             try {
+              //styles
+              if (params.has("styles")) {
+                String styles = params.getString("styles");
+                MapStyleOptions styleOptions = new MapStyleOptions(styles);
+                map.setMapStyle(styleOptions);
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+              }
+
               //controls
               if (params.has("controls")) {
                 JSONObject controls = params.getJSONObject("controls");
@@ -921,16 +931,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         try {
           JSONObject params = args.getJSONObject(0);
 
-
-          // map type
-          results.MAP_TYPE_ID = -1;
-          if (params.has("mapType")) {
-            String typeStr = params.getString("mapType");
-            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : results.MAP_TYPE_ID;
-            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : results.MAP_TYPE_ID;
-            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : results.MAP_TYPE_ID;
-            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : results.MAP_TYPE_ID;
-            results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : results.MAP_TYPE_ID;
+          if (params.has("styles")) {
+            results.styles = params.getString("styles");
+          } else {
+            // map type
+            results.MAP_TYPE_ID = -1;
+            if (!params.has("styles") && params.has("mapType")) {
+              String typeStr = params.getString("mapType");
+              results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NORMAL") ? GoogleMap.MAP_TYPE_NORMAL : results.MAP_TYPE_ID;
+              results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_HYBRID") ? GoogleMap.MAP_TYPE_HYBRID : results.MAP_TYPE_ID;
+              results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_SATELLITE") ? GoogleMap.MAP_TYPE_SATELLITE : results.MAP_TYPE_ID;
+              results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_TERRAIN") ? GoogleMap.MAP_TYPE_TERRAIN : results.MAP_TYPE_ID;
+              results.MAP_TYPE_ID = typeStr.equals("MAP_TYPE_NONE") ? GoogleMap.MAP_TYPE_NONE : results.MAP_TYPE_ID;
+            }
           }
 
 
@@ -1008,7 +1021,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             fitBounds(results.cameraBounds, results.cameraPadding);
           }
         }
-        if (results.MAP_TYPE_ID != -1) {
+
+        //styles
+        if (results.styles != null) {
+          MapStyleOptions styleOptions = new MapStyleOptions(results.styles);
+          map.setMapStyle(styleOptions);
+          map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        } else if (results.MAP_TYPE_ID != -1) {
           map.setMapType(results.MAP_TYPE_ID);
         }
 

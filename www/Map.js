@@ -79,7 +79,7 @@ Map.prototype.getMap = function(mapId, div, options) {
             this.set('camera_tilt', options.camera.tilt);
           }
         }
-        args.push(params);
+        args.push(options);
     } else {
 
         var currentDiv = self.get("div");
@@ -102,6 +102,9 @@ Map.prototype.getMap = function(mapId, div, options) {
           if (options.camera.tilt) {
             this.set('camera_tilt', options.camera.tilt);
           }
+        }
+        if (options.styles) {
+          options.styles = JSON.stringify(options.styles);
         }
         args.push(options);
 
@@ -164,6 +167,9 @@ Map.prototype.setOptions = function(options) {
       if (options.camera.tilt) {
         this.set('camera_tilt', options.camera.tilt);
       }
+    }
+    if (options.styles) {
+      options.styles = JSON.stringify(options.styles);
     }
     exec(null, this.errorHandler, this.id, 'setOptions', [options]);
     return this;
