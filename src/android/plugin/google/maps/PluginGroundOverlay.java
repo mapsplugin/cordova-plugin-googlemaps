@@ -61,6 +61,8 @@ public class PluginGroundOverlay extends MyPlugin {
       options.positionFromBounds(bounds);
     }
 
+    final boolean tappable = opts.has("tappable") && opts.getBoolean("tappable");
+
     // Load image
     String url = opts.getString("url");
     _setImage(url, options, new PluginAsyncInterface() {
@@ -71,6 +73,10 @@ public class PluginGroundOverlay extends MyPlugin {
 
         String id = "groundOverlay_" + groundOverlay.getId();
         PluginGroundOverlay.this.objects.put(id, groundOverlay);
+
+        if (tappable) {
+          PluginGroundOverlay.this.tappables.put(id, true);
+        }
 
         JSONObject result = new JSONObject();
         try {
@@ -202,6 +208,11 @@ public class PluginGroundOverlay extends MyPlugin {
       this.sendNoResult(callbackContext);
       return;
     }
+
+    // FIXME should this function also remove the overlay from this.objects?
+    // this.objects.remove(id);
+
+    this.tappables.remove(id);
 
     String propertyId = "gOverlay_property_" + id;
     this.objects.remove(propertyId);

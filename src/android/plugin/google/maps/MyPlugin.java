@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   protected HashMap<String, Object> objects;
+  protected HashMap<String, Boolean> tappables;
 
   public GoogleMaps mapCtrl = null;
   public GoogleMap map = null;
@@ -39,6 +40,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     this.objects = new HashMap<String, Object>();
+    this.tappables = new HashMap<String, Boolean>();
   }
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -55,6 +57,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface  {
     }
   }
   
+  protected boolean isTappable(String id) {
+    return this.tappables.containsKey(id);
+  }
+
   protected Circle getCircle(String id) {
     return (Circle)this.objects.get(id);
   }

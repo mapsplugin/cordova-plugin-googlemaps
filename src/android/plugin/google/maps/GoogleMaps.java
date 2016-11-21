@@ -1433,23 +1433,26 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
         key = entry.getKey();
         if (key.contains("polyline_bounds_")) {
-          bounds = (LatLngBounds) entry.getValue();
-          if (bounds.contains(point)) {
-            key = key.replace("bounds_", "");
+          key = key.replace("bounds_", "");
+          if (polylineClass.isTappable(key)) {
+            bounds = (LatLngBounds) entry.getValue();
+            if (bounds.contains(point)) {
+              key = key.replace("bounds_", "");
 
-            polyline = polylineClass.getPolyline(key);
-            points = polyline.getPoints();
+              polyline = polylineClass.getPolyline(key);
+              points = polyline.getPoints();
 
-            if (polyline.isGeodesic()) {
-              if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
-                hitPoly = true;
-                this.onPolylineClick(polyline, point);
-              }
-            } else {
+              if (polyline.isGeodesic()) {
+                if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
+                  hitPoly = true;
+                  this.onPolylineClick(polyline, point);
+                }
+              } else {
                 if (this.isPointOnTheLine(points, point)) {
                   hitPoly = true;
                   this.onPolylineClick(polyline, point);
                 }
+              }
             }
           }
         }
@@ -1467,15 +1470,16 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       for (HashMap.Entry<String, Object> entry : polygonClass.objects.entrySet()) {
         key = entry.getKey();
         if (key.contains("polygon_bounds_")) {
-          bounds = (LatLngBounds) entry.getValue();
-          if (bounds.contains(point)) {
+          key = key.replace("_bounds", "");
+          if (polygonClass.isTappable(key)) {
+            bounds = (LatLngBounds) entry.getValue();
+            if (bounds.contains(point)) {
+              Polygon polygon = polygonClass.getPolygon(key);
 
-            key = key.replace("_bounds", "");
-            Polygon polygon = polygonClass.getPolygon(key);
-
-            if (this.isPolygonContains(polygon.getPoints(), point)) {
-              hitPoly = true;
-              this.onPolygonClick(polygon, point);
+              if (this.isPolygonContains(polygon.getPoints(), point)) {
+                hitPoly = true;
+                this.onPolygonClick(polygon, point);
+              }
             }
           }
         }
@@ -1492,9 +1496,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
       for (HashMap.Entry<String, Object> entry : circleClass.objects.entrySet()) {
         Circle circle = (Circle) entry.getValue();
-        if (this.isCircleContains(circle, point)) {
-          hitPoly = true;
-          this.onCircleClick(circle, point);
+        if (circleClass.isTappable(entry.getKey())) {
+          if (this.isCircleContains(circle, point)) {
+            hitPoly = true;
+            this.onCircleClick(circle, point);
+          }
         }
       }
       if (hitPoly) {
@@ -1510,10 +1516,12 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       for (HashMap.Entry<String, Object> entry : groundOverlayClass.objects.entrySet()) {
         key = entry.getKey();
         if (key.contains("groundOverlay_")) {
-          GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
-          if (this.isGroundOverlayContains(groundOverlay, point)) {
-            hitPoly = true;
-            this.onGroundOverlayClick(groundOverlay, point);
+          if (groundOverlayClass.isTappable(key)) {
+            GroundOverlay groundOverlay = (GroundOverlay) entry.getValue();
+            if (this.isGroundOverlayContains(groundOverlay, point)) {
+              hitPoly = true;
+              this.onGroundOverlayClick(groundOverlay, point);
+            }
           }
         }
       }

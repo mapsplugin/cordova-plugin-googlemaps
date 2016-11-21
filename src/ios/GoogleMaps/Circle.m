@@ -37,8 +37,13 @@
   circle.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
   circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
 
-  circle.tappable = YES;
-  
+  if ([[json valueForKey:@"tappable"] boolValue]) {
+    circle.tappable = YES;
+  }
+  else {
+    circle.tappable = NO;
+  }
+
   NSString *id = [NSString stringWithFormat:@"circle_%lu", (unsigned long)circle.hash];
   [self.mapCtrl.overlayManager setObject:circle forKey: id];
   circle.title = id;

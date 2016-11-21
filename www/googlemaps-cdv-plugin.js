@@ -1100,6 +1100,7 @@ App.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.visible = circleOptions.visible === undefined ? true : circleOptions.visible;
     circleOptions.zIndex = circleOptions.zIndex || 3;
     circleOptions.radius = circleOptions.radius || 1;
+    circleOptions.tappable = circleOptions.tappable === undefined ? true : circleOptions.tappable;
 
     cordova.exec(function(result) {
         var circle = new Circle(self, result.id, circleOptions);
@@ -1123,6 +1124,7 @@ App.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.visible = polylineOptions.visible === undefined ? true : polylineOptions.visible;
     polylineOptions.zIndex = polylineOptions.zIndex || 4;
     polylineOptions.geodesic = polylineOptions.geodesic  === true;
+    polylineOptions.tappable = polylineOptions.tappable === undefined ? true : polylineOptions.tappable;
 
     cordova.exec(function(result) {
         var polyline = new Polyline(self, result.id, polylineOptions);
@@ -1161,6 +1163,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
     polygonOptions.zIndex = polygonOptions.zIndex || 2;
     polygonOptions.geodesic = polygonOptions.geodesic  === true;
+    polygonOptions.tappable    = polygonOptions.tappable === undefined ? true : polygonOptions.tappable;
 
     cordova.exec(function(result) {
         var polygon = new Polygon(self, result.id, polygonOptions);
@@ -1212,6 +1215,7 @@ App.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 1;
     groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
+    groundOverlayOptions.tappable = groundOverlayOptions.tappable === undefined ? true : groundOverlayOptions.tappable;
 
     cordova.exec(function(result) {
         var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
