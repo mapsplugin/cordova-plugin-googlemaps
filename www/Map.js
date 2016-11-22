@@ -744,7 +744,6 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.clickable = polylineOptions.clickable === true;
     polylineOptions.zIndex = polylineOptions.zIndex || 0;
     polylineOptions.geodesic = polylineOptions.geodesic === true;
-console.log(polylineOptions.points);
     exec(function(result) {
         polylineOptions.points = _orgs;
         polylineOptions.hashCode = result.hashCode;

@@ -236,7 +236,7 @@ Marker.prototype.getSnippet = function() {
     return this.get('snippet');
 };
 Marker.prototype.setRotation = function(rotation) {
-    if (!rotation) {
+    if (typeof rotation !== "number") {
         console.log('missing value for rotation');
         return false;
     }
