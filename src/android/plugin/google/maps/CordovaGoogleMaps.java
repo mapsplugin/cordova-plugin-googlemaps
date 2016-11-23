@@ -44,6 +44,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.LOG;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
@@ -85,6 +86,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     if (root != null) {
       return;
     }
+    LOG.setLogLevel(LOG.WARN);
+
     activity = cordova.getActivity();
     final View view = webView.getView();
     view.getViewTreeObserver().addOnScrollChangedListener(CordovaGoogleMaps.this);
