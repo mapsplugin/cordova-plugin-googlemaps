@@ -289,7 +289,10 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     NSDictionary *domInfo, *mapDivInfo;
     int domDepth, mapDivDepth;
     if (hasCordovaStatusBar) {
-        point.y -= 20 * zoomScale;
+        UIApplication* app = [UIApplication sharedApplication];
+        if (app.isStatusBarHidden) {
+            point.y -= 20 * zoomScale;
+        }
     }
   
     CGPoint clickPointAsHtml = CGPointMake(point.x * zoomScale, point.y * zoomScale);
