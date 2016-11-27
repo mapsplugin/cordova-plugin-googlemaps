@@ -137,6 +137,9 @@ Map.prototype.getMap = function(mapId, div, options) {
             div = div.parentNode;
         }
     }
+    
+    cordova.fireDocumentEvent('plugin_touch', {});
+
     exec(function() {
       // Prevent too much faster
       setTimeout(function() {

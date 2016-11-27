@@ -10,6 +10,7 @@
 
 NSOperationQueue *executeQueue;
 BOOL stopFlag = NO;
+BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
 @implementation MyPluginLayer
 
@@ -50,6 +51,8 @@ BOOL stopFlag = NO;
                                 selector:@selector(resizeTask:)
                                 userInfo:nil
                                 repeats:YES];
+    
+    hasCordovaStatusBar = NSClassFromString(@"CDVStatusBar") != nil;
 
     return self;
 }
@@ -285,6 +288,9 @@ BOOL stopFlag = NO;
   
     NSDictionary *domInfo, *mapDivInfo;
     int domDepth, mapDivDepth;
+    if (hasCordovaStatusBar) {
+        point.y -= 20 * zoomScale;
+    }
   
     CGPoint clickPointAsHtml = CGPointMake(point.x * zoomScale, point.y * zoomScale);
   
@@ -380,8 +386,12 @@ BOOL stopFlag = NO;
         return hitView;
     }
   
+    
+    UIView *hitView =[self.webView hitTest:point withEvent:event];
+    //NSLog(@"--> (hit test) hit = %@", hitView.class);
     [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
-    return [super hitTest:point withEvent:event];
+    return hitView;
+    
 }
 
 @end
