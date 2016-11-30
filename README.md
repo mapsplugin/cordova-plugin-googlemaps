@@ -116,21 +116,22 @@ function onBtnClicked() {
 
 * [Terms of Services](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Terms-of-Services)
 
-* Map
-* Marker
-* Circle
-* Polyline
-* Polygon
-* Tile Overlay
-* Ground Overlay
-* Kml Overlay
-* LatLng
-* LatLngBounds
-* CameraPosition
-* Location
-* Geocoder
-* BaseClass
-* External Service
+#### Classes
+- [Map](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Map)
+- [Marker](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Marker)
+- [Circle](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Circle)
+- [Polyline](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Polyline)
+- [Polygon](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Polygon)
+- [Tile Overlay](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/TileOverlay)
+- [Ground Overlay](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/GroundOverlay)
+- [Kml Overlay](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/KmlOverlay)
+- [LatLng](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/LatLng)
+- [LatLngBounds](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/LatLngBounds)
+- [CameraPosition](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/CameraPosition)
+- [Location](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Location)
+- [Geocoder](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Geocoder)
+- [BaseClass](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/BaseClass)
+- [External Service](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/External-Service)
 
 If you want to use crosswalk, just follow this easy documentation.
 [Install Plugin with Crosswalk](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Tutorial-for-CrossWalk-Webview-Plugin-%28Android%29)
@@ -187,4 +188,4 @@ The date is not decided yet, but we release the v1.4.0 is the last version of v1
 
 For more details are announced through the [Official community](https://plus.google.com/u/0/communities/117427728522929652853)
 
-![](https://github.com/mapsplugin/cordova-plugin-googlemaps/roadmap.png)
+![](https://dl.dropboxusercontent.com/u/1456061/cordova-google-maps/top/roadmap.png)
