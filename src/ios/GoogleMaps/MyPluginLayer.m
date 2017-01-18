@@ -142,7 +142,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
   dispatch_async(dispatch_get_main_queue(), ^{
   
       // Remove the mapCtrl instance with mapId.
-      [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl];
+      [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl.mapId];
       
       // Remove the mapView from the scroll view.
       [mapCtrl.view removeFromSuperview];
