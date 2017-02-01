@@ -203,6 +203,12 @@ Map.prototype.panBy = function(x, y) {
 Map.prototype.clear = function(callback) {
     var self = this;
 
+    // Close the active infoWindow
+    var active_marker_id = self.get("active_marker_id");
+    if (active_marker_id && active_marker_id in self.MARKERS) {
+      self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
+    }
+    
     var clearObj = function(obj) {
         var ids = Object.keys(obj);
         var id;
