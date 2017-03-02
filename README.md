@@ -36,7 +36,7 @@ Exmaple using the cordova CLI
 ```bash
 $> cordova plugin rm cordova-plugin-googlemaps
 $> cordova plugin rm com.googlemaps.ios
-$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE" --variable LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message" --variable LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage variable"
+$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE" --variable LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message" --variable LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"
 ```
 Example using config.xml
 ```xml
