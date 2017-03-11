@@ -245,7 +245,12 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           //-----------------
           // Polyline
           //-----------------
-          
+          // title
+          tmp = childNode.getString("name");
+          if (childNode.containsKey("description")) {
+            tmp += "\n\n" + node.getString("description");
+          }
+
           //points
           options = new Bundle();
           latLngList = childNode.getParcelableArrayList("coordinates");
@@ -262,6 +267,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
 
           options.putBoolean("visible", true);
           options.putBoolean("geodesic", true);
+	   options.putString("title", tmp);
           
           //Bundle -> JSON
           optionsJSON = PluginUtil.Bundle2Json(options);
@@ -309,6 +315,13 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           //-----------------
           // Polygon
           //-----------------
+
+	   // title
+          tmp = childNode.getString("name");
+          if (childNode.containsKey("description")) {
+            tmp += "\n\n" + node.getString("description");
+          }
+
           children = childNode.getParcelableArrayList("children");
           childNode = children.get(0);
           
@@ -323,6 +336,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           }
           options.putBoolean("visible", true);
           options.putInt("strokeWidth", 4);
+	   options.putString("title", tmp);
           
           //Bundle -> JSON
           optionsJSON = PluginUtil.Bundle2Json(options);
