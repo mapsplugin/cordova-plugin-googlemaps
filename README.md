@@ -5,7 +5,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 -----
 
-###Quick install
+### Quick install
 
 Before you install, make sure you've read the [instructions](https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation)
 
