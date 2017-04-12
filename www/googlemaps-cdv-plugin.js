@@ -2684,6 +2684,14 @@ cordova.addConstructor(function() {
     window.plugin = window.plugin || {};
     window.plugin.google = window.plugin.google || {};
     window.plugin.google.maps = window.plugin.google.maps || module.exports;
+    document.addEventListener("deviceready", function() {
+        document.removeEventListener("deviceready", arguments.callee);
+        // workaround for issue on android-19: Cannot read property 'maps' of undefined
+        if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
+        if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
+        if (!window.plugin.google.maps) { console.warn('re-init window.plugin.google.maps'); window.plugin.google.maps = window.plugin.google.maps || module.exports; }
+        window.plugin.google.maps.Map.isAvailable();
+    });
 });
 window.addEventListener("orientationchange", function() {
     setTimeout(onMapResize, 1000);
@@ -2721,11 +2729,7 @@ function getAllChildren(root) {
     return list;
 }
 
-
-document.addEventListener("deviceready", function() {
-    document.removeEventListener("deviceready", arguments.callee);
-    plugin.google.maps.Map.isAvailable();
-});
+// move "deviceready" handling to cordova.addConstructor
 
 var HTML_COLORS = {
     "aliceblue": "#f0f8ff",
