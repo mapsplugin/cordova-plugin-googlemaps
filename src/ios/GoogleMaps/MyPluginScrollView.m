@@ -22,10 +22,10 @@ UIView *myView = nil;
 - (void)attachView:(WKWebView *)view {
   myView = view;
   [self addSubview:view];
-  [self addSubview:self.debugView];
+  //[self addSubview:self.debugView];
 }
 - (void)dettachView {
   [myView removeFromSuperview];
-  [self.debugView removeFromSuperview];
+  //[self.debugView removeFromSuperview];
 }
 @end
