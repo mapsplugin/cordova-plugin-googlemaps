@@ -19,7 +19,7 @@ UIView *myView = nil;
   return self;
 }
 
-- (void)attachView:(UIView *)view {
+- (void)attachView:(WKWebView *)view {
   myView = view;
   [self addSubview:view];
   [self addSubview:self.debugView];
