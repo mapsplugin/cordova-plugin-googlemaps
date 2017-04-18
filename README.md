@@ -29,8 +29,6 @@ $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="
 
 The SDK-Plugin won't be uninstalled automatically and you will stuck on an old version.
 
-
-https://github.com/mapsplugin/cordova-plugin-googlemaps-doc
 -----
 
 ### Join the official community
