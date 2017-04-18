@@ -73,7 +73,6 @@ https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/v2-beta
 
 You can try the demo application from here.
 
-![](https://github.com/mapsplugin/v2.0-demo/blob/master/cordova-googlemaps-v2-demo_02.apk)
 
 https://github.com/mapsplugin/v2.0-demo
 
