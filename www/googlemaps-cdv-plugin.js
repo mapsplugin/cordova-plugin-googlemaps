@@ -1155,7 +1155,8 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
     });
     polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
     if (polygonOptions.fillColor) {
-        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+        var fillOpacity = polygonOptions.fillOpacity || 1;
+        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, fillOpacity);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
