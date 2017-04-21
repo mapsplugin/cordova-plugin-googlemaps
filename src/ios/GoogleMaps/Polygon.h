@@ -8,6 +8,7 @@
 
 #import "GoogleMaps.h"
 #import "MyPlgunProtocol.h"
+
 @interface Polygon : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)createPolygon:(CDVInvokedUrlCommand*)command;
@@ -19,4 +20,5 @@
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
 - (void)remove:(CDVInvokedUrlCommand*)command;
 - (void)setGeodesic:(CDVInvokedUrlCommand*)command;
+- (void)setEditable:(CDVInvokedUrlCommand *)command;
 @end
