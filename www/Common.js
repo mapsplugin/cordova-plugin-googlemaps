@@ -262,13 +262,16 @@ function _shouldWatchByNative(node) {
 // http://stackoverflow.com/a/24136505
 function getZIndex(dom) {
     var z = null;
+    if (!dom) {
+      return 0;
+    }
     if (window.getComputedStyle) {
       try {
         z = document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index');
       } catch(e) {}
     }
-    if (x.currentStyle) {
-        z = x.currentStyle['z-index'];
+    if (dom.currentStyle) {
+        z = dom.currentStyle['z-index'];
     }
     if (dom === document.body && z === "auto") {
       z = 0;
