@@ -148,6 +148,8 @@ NSDictionary *initOptions;
     //self.map.autoresizingMask = UIViewAutoresizingNone;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   
+    self.map.myLocationEnabled = true;
+    
     //indoor display
     self.map.indoorDisplay.delegate = self;
   
