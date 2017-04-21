@@ -142,8 +142,8 @@
             </feature>
         </config-file>
 
-        <framework src="com.google.android.gms:play-services-maps:10.0.0" />
-        <framework src="com.google.android.gms:play-services-location:10.0.0" />
+        <framework src="com.google.android.gms:play-services-maps:10.+" />
+        <framework src="com.google.android.gms:play-services-location:10.+" />
 
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
@@ -178,14 +178,10 @@
             <meta-data android:name="com.google.android.gms.version"
                        android:value="@integer/google_play_services_version" />
         </config-file>
-        <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
-            <application android:largeHeap="true" />
-        </edit-config>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-            <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
             <!-- The following two permissions are not required to use
                  Google Maps Android API v2, but are recommended. -->
             <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -203,6 +199,8 @@
     <!-- ios -->
     <platform name="ios">
         <preference name="API_KEY_FOR_IOS" />
+        <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
+        <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="Trace your location on the map" />
 
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for iOS.
@@ -302,14 +300,12 @@
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
 
-        <preference name="NSLocationWhenInUseUsageDescription" default="Show your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
-            <string>$NSLocationWhenInUseUsageDescription</string>
+            <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
         </config-file>
 
-        <preference name="NSLocationAlwaysUsageDescription" default="Trace your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-            <string>$NSLocationAlwaysUsageDescription</string>
+            <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
