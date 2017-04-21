@@ -7,6 +7,9 @@
 //
 
 #import "GoogleMapsViewController.h"
+#import "DDPolygon.h"
+#import "DDPolyline.h"
+#import "GoogleMapsViewController.h"
 #if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
 #import <Cordova/CDVJSON.h>
 #endif
@@ -144,8 +147,7 @@ NSDictionary *initOptions;
     self.map.delegate = self;
     //self.map.autoresizingMask = UIViewAutoresizingNone;
     self.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    self.map.myLocationEnabled = true;
+  
     //indoor display
     self.map.indoorDisplay.delegate = self;
   
@@ -323,6 +325,134 @@ NSDictionary *initOptions;
 	return NO;
 }
 
+// TODO: We must do a refactor for this code
+- (void)didDragMarker:(GMSMarker *)marker{
+    
+    if (marker.userData)
+    {
+        
+        if ([marker.userData isKindOfClass:[DDPolygon class]])
+        {
+            DDPolygon *polygon = (DDPolygon *)marker.userData;
+            
+            if ([marker.title isEqualToString:@"Center Marker"])
+            {
+                [polygon moveToCenter:marker.position];
+            }
+            else if([marker.title isEqualToString:@"MidPoint"])
+            {
+                //[[MapController sharedInstance] movePolygonMidMarker:marker ofPolygon:markerPolygon];
+            }
+            else
+            {
+                [polygon movePolygonBorderMarker:marker];
+            }
+        }
+        else if ([marker.userData isKindOfClass:[DDPolyline class]])
+        {
+            DDPolyline *polyline = (DDPolyline *)marker.userData;
+            
+            if ([marker.title isEqualToString:@"Center Marker"])
+            {
+                [polyline movePolylineToCenter:marker.position];
+            }
+            else if([marker.title isEqualToString:@"MidPoint"])
+            {
+                //[[MapController sharedInstance] movePolygonMidMarker:marker ofPolygon:markerPolygon];
+            }
+            else
+            {
+                [polyline movePolylineMarker:marker];
+            }
+        
+        }
+    }
+}
+
+
+// TODO: We must do a refactor for this code
+- (void)didBeginDraggingMarker:(GMSMarker *)marker{
+    
+    if (marker.userData)
+    {
+        if ([marker.userData isKindOfClass:[DDPolygon class]])
+        {
+            if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
+            {
+                DDPolygon *polygon = (DDPolygon *)marker.userData;
+                
+                [polygon startDraggingBorderMarker:marker];
+                
+            }
+        }
+        else if ([marker.userData isKindOfClass:[DDPolyline class]])
+        {
+            if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
+            {
+                DDPolyline *polyline = (DDPolyline *)marker.userData;
+                
+                [polyline startDraggingPolylineBorderMarker:marker];
+                
+            }
+        }
+    }
+};
+
+
+// TODO: We must do a refactor for this code
+- (void)didEndDraggingMarker:(GMSMarker *)marker {
+    
+    if (marker.userData)
+    {
+        if ([marker.userData isKindOfClass:[DDPolygon class]])
+        {
+            DDPolygon *polygon = (DDPolygon *)marker.userData;
+            
+            if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
+            {
+                [polygon movePolygonBorderMarker:marker];
+                [polygon polygonEdited];
+                
+            }
+            else if([marker.title isEqualToString:@"MidPoint"])
+            {
+                [polygon movePolygonMidMarker:marker];
+                
+            }
+            else if ([marker.title isEqualToString:@"Center Marker"])
+            {
+                [polygon polygonEdited];
+            }
+        }
+        else if ([marker.userData isKindOfClass:[DDPolyline class]])
+        {
+            DDPolyline *polyline = (DDPolyline *)marker.userData;
+            
+            if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
+            {
+                [polyline movePolylineMarker:marker];
+                [polyline polylineEdited];
+                
+            }
+            else if([marker.title isEqualToString:@"MidPoint"])
+            {
+                [polyline movePolylineMidMarker:marker];
+                
+            }
+            else if ([marker.title isEqualToString:@"Center Marker"])
+            {
+                [polyline polylineEdited];
+            }
+        }
+        
+        
+    }
+}
+
+- (BOOL)isMarkerOfOverlay:(GMSMarker *)marker{
+    return [marker.userData isKindOfClass:[GMSOverlay class]];
+}
+
 #pragma mark - GMSMapViewDelegate
 
 /**
@@ -376,49 +506,75 @@ NSDictionary *initOptions;
  */
 - (void) mapView:(GMSMapView *)mapView didTapInfoWindowOfMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"info_click" marker:marker];
+    [self triggerMarkerEvent:@"info_click" marker:marker];
 }
 /**
  * @callback marker drag_start
  */
 - (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"drag_start" marker:marker];
+    if (![self isMarkerOfOverlay:marker])
+    {
+        [self triggerMarkerEvent:@"drag_start" marker:marker];
+    }
+    else
+    {
+        [self didBeginDraggingMarker:marker];
+    }
+    
+    
 }
 /**
  * @callback marker drag_end
  */
 - (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"drag_end" marker:marker];
+    if (![self isMarkerOfOverlay:marker])
+    {
+        [self triggerMarkerEvent:@"drag_end" marker:marker];
+    }
+    else
+    {
+        [self didEndDraggingMarker:marker];
+    }
 }
 /**
  * @callback marker drag
  */
 - (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"drag" marker:marker];
+    if (![self isMarkerOfOverlay:marker])
+    {
+        [self triggerMarkerEvent:@"drag" marker:marker];
+    }
+    else
+    {
+        [self didDragMarker:marker];
+    }
 }
 
 /**
  * @callback marker click
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
-  [self triggerMarkerEvent:@"click" marker:marker];
-
-  
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  
-  NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
-  BOOL disableAutoPan = false;
-  if ([properties objectForKey:@"disableAutoPan"] != nil) {
-    disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
-    if (disableAutoPan) {
-      self.map.selectedMarker = marker;
-      return YES;
+    
+    [self triggerMarkerEvent:@"click" marker:marker];
+    
+    
+    NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+    
+    NSDictionary *properties = [self.overlayManager objectForKey:markerPropertyId];
+    BOOL disableAutoPan = false;
+    if ([properties objectForKey:@"disableAutoPan"] != nil) {
+        disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
+        if (disableAutoPan) {
+            self.map.selectedMarker = marker;
+            return YES;
+        }
     }
-  }
-	return NO;
+    
+    
+    return NO;
 }
 
 - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
