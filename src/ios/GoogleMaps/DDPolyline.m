@@ -121,33 +121,51 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
 
 #pragma mark - Map Events
 
-- (void)movePolylineMarker:(GMSMarker *)markerMoved {
+- (void)polylineEdited{
     
-    [self updatePolylinePathWithBorderMarker:markerMoved];
-    
-    [self updateCenterCoordinates];
-    
+    [self clearMidMarkers];
+    [self addMidMarkers];
 }
 
-// Dragend mid marker
-- (void)movePolylineMidMarker:(GMSMarker *)markerMoved {
+#pragma mark - Mid Markers
+
+- (void)startDraggingPolylineMidMarker:(GMSMarker *)marker{
     
-    int currentIndex = (int)[self.midMarkers indexOfObject:markerMoved];
+    int currentIndex = (int)[self.midMarkers indexOfObject:marker];
     
-    [self.midMarkers removeObject:markerMoved];
-    
-    markerMoved.opacity = 1;
-    
-    // TODO: we should update all border markers titles
-    markerMoved.title = @"";
+    marker.opacity = 1;
     
     GMSMutablePath *newPath = [[GMSMutablePath alloc] initWithPath:self.path];
     
-    [newPath insertCoordinate:markerMoved.position atIndex:currentIndex + 1];
+    [newPath insertCoordinate:marker.position atIndex:currentIndex + 1];
     
     self.path = newPath;
     
+};
+
+- (void)polylineMidMarkerDragging:(GMSMarker *)markerMoved {
+    
+    GMSMutablePath *newPath = [[GMSMutablePath alloc] initWithPath:self.path];
+    
+    int currentIndex = (int)[self.midMarkers indexOfObject:markerMoved];
+    
+    [newPath replaceCoordinateAtIndex:(currentIndex + 1) withCoordinate:markerMoved.position];
+    
+    self.path = newPath;
+    
+}
+
+- (void)polylineMidMarkerWasDragged:(GMSMarker *)markerMoved{
+    
+    GMSMutablePath *newPath = [[GMSMutablePath alloc] initWithPath:self.path];
+    int currentIndex = (int)[self.midMarkers indexOfObject:markerMoved];
+    [self.midMarkers removeObject:markerMoved];
+    
     markerMoved.map = nil;
+    
+    [newPath replaceCoordinateAtIndex:(currentIndex + 1) withCoordinate:markerMoved.position];
+    
+    self.path = newPath;
     
     [self reloadBorderMarkers];
     
@@ -156,6 +174,28 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
     
     [self updateCenterCoordinates];
     
+};
+
+#pragma mark - Border Markers
+
+// Dragstart border marker
+- (void)startDraggingPolylineBorderMarker:(GMSMarker *)marker{
+    
+    [self clearMidMarkers];
+}
+
+- (void)movePolylineBorderMarker:(GMSMarker *)markerMoved {
+    
+    [self updatePolylinePathWithBorderMarker:markerMoved];
+    
+    [self updateCenterCoordinates];
+}
+
+#pragma mark - Center Marker
+
+- (void)startDraggingPolylineCenterMarker:(GMSMarker *)marker{
+    
+    [self clearMidMarkers];
 }
 
 // Dragging Center marker
@@ -183,19 +223,6 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
     self.currentCenter = toCenter;
     self.centerMarker.position = self.currentCenter;
     
-}
-
-// Dragstart border marker
-- (void)startDraggingPolylineBorderMarker:(GMSMarker *)marker{
-    
-    [self clearMidMarkers];
-    
-}
-
-- (void)polylineEdited{
-    
-    [self clearMidMarkers];
-    [self addMidMarkers];
 }
 
 #pragma mark - Private Methods

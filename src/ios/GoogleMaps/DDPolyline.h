@@ -14,11 +14,23 @@
 
 - (void)polylineEdited;
 
-- (void)movePolylineMarker:(GMSMarker *)markerMoved;
+#pragma mark - Mid Markers
 
-- (void)movePolylineMidMarker:(GMSMarker *)markerMoved;
+- (void)polylineMidMarkerDragging:(GMSMarker *)markerMoved;
+
+- (void)polylineMidMarkerWasDragged:(GMSMarker *)markerMoved;
+
+- (void)startDraggingPolylineMidMarker:(GMSMarker *)marker;
+
+#pragma mark - Border Markers
+
+- (void)movePolylineBorderMarker:(GMSMarker *)markerMoved;
 
 - (void)startDraggingPolylineBorderMarker:(GMSMarker *)marker;
+
+#pragma mark - Center Marker
+
+- (void)startDraggingPolylineCenterMarker:(GMSMarker *)marker;
 
 - (void)movePolylineToCenter:(CLLocationCoordinate2D)toCenter;
 

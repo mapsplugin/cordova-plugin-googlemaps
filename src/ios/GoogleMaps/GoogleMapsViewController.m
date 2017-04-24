@@ -328,7 +328,7 @@ NSDictionary *initOptions;
 }
 
 // TODO: We must do a refactor for this code
-- (void)didDragMarker:(GMSMarker *)marker{
+- (void)draggingMarker:(GMSMarker *)marker{
     
     if (marker.userData)
     {
@@ -343,7 +343,7 @@ NSDictionary *initOptions;
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
-                //[[MapController sharedInstance] movePolygonMidMarker:marker ofPolygon:markerPolygon];
+                [polygon polygonMidMarkerDragging:marker];
             }
             else
             {
@@ -360,11 +360,11 @@ NSDictionary *initOptions;
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
-                //[[MapController sharedInstance] movePolygonMidMarker:marker ofPolygon:markerPolygon];
+                [polyline polylineMidMarkerDragging:marker];
             }
             else
             {
-                [polyline movePolylineMarker:marker];
+                [polyline movePolylineBorderMarker:marker];
             }
         
         }
@@ -379,22 +379,37 @@ NSDictionary *initOptions;
     {
         if ([marker.userData isKindOfClass:[DDPolygon class]])
         {
+            DDPolygon *polygon = (DDPolygon *)marker.userData;
+            
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
-                DDPolygon *polygon = (DDPolygon *)marker.userData;
-                
                 [polygon startDraggingBorderMarker:marker];
                 
+            }
+            else if([marker.title isEqualToString:@"Center Marker"])
+            {
+                [polygon startDraggingPolygonCenterMarker:marker];
+            }
+            else if([marker.title isEqualToString:@"MidPoint"])
+            {
+                [polygon startDraggingPolygonMidMarker:marker];
             }
         }
         else if ([marker.userData isKindOfClass:[DDPolyline class]])
         {
+            DDPolyline *polyline = (DDPolyline *)marker.userData;
+            
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
-                DDPolyline *polyline = (DDPolyline *)marker.userData;
-                
                 [polyline startDraggingPolylineBorderMarker:marker];
-                
+            }
+            else if([marker.title isEqualToString:@"Center Marker"])
+            {
+                [polyline startDraggingPolylineCenterMarker:marker];
+            }
+            else if([marker.title isEqualToString:@"MidPoint"])
+            {
+                [polyline startDraggingPolylineMidMarker:marker];
             }
         }
     }
@@ -418,7 +433,7 @@ NSDictionary *initOptions;
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
-                [polygon movePolygonMidMarker:marker];
+                [polygon polygonMidMarkerWasDragged:marker];
                 
             }
             else if ([marker.title isEqualToString:@"Center Marker"])
@@ -432,13 +447,13 @@ NSDictionary *initOptions;
             
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
-                [polyline movePolylineMarker:marker];
+                [polyline movePolylineBorderMarker:marker];
                 [polyline polylineEdited];
                 
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
-                [polyline movePolylineMidMarker:marker];
+                [polyline polylineMidMarkerWasDragged:marker];
                 
             }
             else if ([marker.title isEqualToString:@"Center Marker"])
@@ -551,7 +566,7 @@ NSDictionary *initOptions;
     }
     else
     {
-        [self didDragMarker:marker];
+        [self draggingMarker:marker];
     }
 }
 

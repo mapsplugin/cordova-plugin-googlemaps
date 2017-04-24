@@ -120,31 +120,52 @@
 
 #pragma mark - Map Events
 
-- (void)movePolygonBorderMarker:(GMSMarker *)markerMoved {
-
-    [self updatePolygonPathWithBorderMarker:markerMoved];
+- (void)polygonEdited{
     
-    [self updateCenterCoordinates];
+    [self clearMidMarkers];
+    [self addMidMarkers];
+    
 }
 
-// Dragend mid marker
-- (void)movePolygonMidMarker:(GMSMarker *)markerMoved {
-  
-    int currentIndex = (int)[self.midMarkers indexOfObject:markerMoved];
+#pragma mark - Mid Markers
+
+- (void)startDraggingPolygonMidMarker:(GMSMarker *)marker{
     
-    [self.midMarkers removeObject:markerMoved];
+    int currentIndex = (int)[self.midMarkers indexOfObject:marker];
     
-    markerMoved.opacity = 1;
-    
-    markerMoved.title = @"";
+    marker.opacity = 1;
     
     GMSMutablePath *newPath = [[GMSMutablePath alloc] initWithPath:self.path];
     
-    [newPath insertCoordinate:markerMoved.position atIndex:currentIndex + 1];
+    [newPath insertCoordinate:marker.position atIndex:currentIndex + 1];
     
     self.path = newPath;
     
+};
+
+- (void)polygonMidMarkerDragging:(GMSMarker *)markerMoved {
+    
+    GMSMutablePath *newPath = [[GMSMutablePath alloc] initWithPath:self.path];
+    
+    int currentIndex = (int)[self.midMarkers indexOfObject:markerMoved];
+    
+    [newPath replaceCoordinateAtIndex:(currentIndex + 1) withCoordinate:markerMoved.position];
+    
+    self.path = newPath;
+    
+}
+
+- (void)polygonMidMarkerWasDragged:(GMSMarker *)markerMoved{
+    
+    GMSMutablePath *newPath = [[GMSMutablePath alloc] initWithPath:self.path];
+    int currentIndex = (int)[self.midMarkers indexOfObject:markerMoved];
+    [self.midMarkers removeObject:markerMoved];
+    
     markerMoved.map = nil;
+    
+    [newPath replaceCoordinateAtIndex:(currentIndex + 1) withCoordinate:markerMoved.position];
+    
+    self.path = newPath;
     
     [self reloadBorderMarkers];
     
@@ -153,13 +174,28 @@
     
     [self updateCenterCoordinates];
     
-}
+};
+
+#pragma mark - Border Markers
 
 // Dragstart border marker
 - (void)startDraggingBorderMarker:(GMSMarker *)marker{
-
-    [self clearMidMarkers];
     
+    [self clearMidMarkers];
+}
+
+- (void)movePolygonBorderMarker:(GMSMarker *)markerMoved {
+    
+    [self updatePolygonPathWithBorderMarker:markerMoved];
+    
+    [self updateCenterCoordinates];
+}
+
+#pragma mark - Center Marker
+
+- (void)startDraggingPolygonCenterMarker:(GMSMarker *)marker{
+    
+    [self clearMidMarkers];
 }
 
 // Dragging Center marker
@@ -186,13 +222,6 @@
 
     self.currentCenter = toCenter;
     self.centerMarker.position = self.currentCenter;
-    
-}
-
-- (void)polygonEdited{
-    
-    [self clearMidMarkers];
-    [self addMidMarkers];
     
 }
 

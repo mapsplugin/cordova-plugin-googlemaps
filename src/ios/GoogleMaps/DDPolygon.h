@@ -12,27 +12,28 @@
 
 #pragma mark - Map Events
 
-/**
- *  This method is called when a polygon's border marked was dragged
- *
- *  @param markerMoved The border marked that was moved
- *
- */
-- (void)movePolygonBorderMarker:(GMSMarker *)markerMoved;
+- (void)polygonEdited;
 
-- (void)movePolygonMidMarker:(GMSMarker *)markerMoved;
+#pragma mark - Mid Markers
+
+- (void)polygonMidMarkerDragging:(GMSMarker *)markerMoved;
+
+- (void)polygonMidMarkerWasDragged:(GMSMarker *)markerMoved;
+
+- (void)startDraggingPolygonMidMarker:(GMSMarker *)marker;
+
+#pragma mark - Border Markers
+
+- (void)movePolygonBorderMarker:(GMSMarker *)markerMoved;
 
 - (void)startDraggingBorderMarker:(GMSMarker *)marker;
 
-/**
- *  This method is called when a polygon's center marked was dragged
- *
- *  @param toCenter coordinates of the polygon's center marker
- *
- */
+#pragma mark - Center Marker
+
+- (void)startDraggingPolygonCenterMarker:(GMSMarker *)marker;
+
 - (void)moveToCenter:(CLLocationCoordinate2D)toCenter;
 
-- (void)polygonEdited;
 
 
 #pragma mark - Public Methods
