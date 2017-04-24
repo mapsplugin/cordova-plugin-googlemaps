@@ -283,7 +283,7 @@
   NSString* jsString = [NSString
                               stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
                               self.mapId, point.x, point.y ];
-  NSLog(@"--->%@", jsString);
+  //NSLog(@"--->%@", jsString);
   [self execJS:jsString];
 }
 /**
