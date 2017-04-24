@@ -95,8 +95,10 @@
       }
       [self.pluginMaps removeAllObjects];
 
-      [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
-      self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
+      @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
+        [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
+        self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
+      }
       [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
     
   });

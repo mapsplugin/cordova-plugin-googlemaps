@@ -79,18 +79,16 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 - (void)putHTMLElements:(NSDictionary *)elementsDic {
 
     [executeQueue addOperationWithBlock:^{
-        if (stopFlag) {
-            return;
-        }
-        stopFlag = YES;
-      
         CGRect rect = CGRectMake(0, 0, 0, 0);
         NSMutableDictionary *domInfo, *size;
         NSString *domId;
-        NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
-        NSArray *keys2;
-        int i, j;
-        for (i = 0; i < [keys count]; i++) {
+        
+        @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+      
+          NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
+          NSArray *keys2;
+          int i, j;
+          for (i = 0; i < [keys count]; i++) {
             domId = [keys objectAtIndex:i];
             domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
             if (domInfo) {
@@ -101,11 +99,11 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
                 domInfo = nil;
             }
             [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
-        }
-        self.pluginScrollView.debugView.HTMLNodes = nil;
+          }
+          self.pluginScrollView.debugView.HTMLNodes = nil;
 
-        NSMutableDictionary *newBuffer = [[NSMutableDictionary alloc] init];
-        for (domId in elementsDic) {
+          NSMutableDictionary *newBuffer = [[NSMutableDictionary alloc] init];
+          for (domId in elementsDic) {
             domInfo = [elementsDic objectForKey:domId];
             size = [domInfo objectForKey:@"size"];
             rect.origin.x = [[size objectForKey:@"left"] doubleValue];
@@ -117,10 +115,10 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
           
             domInfo = nil;
             size = nil;
-        }
+          }
      
-        self.pluginScrollView.debugView.HTMLNodes = newBuffer;
-        stopFlag = NO;
+          self.pluginScrollView.debugView.HTMLNodes = newBuffer;
+        }
     }];
   
 }
@@ -303,6 +301,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
           continue;
         }
         domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+        
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
         rect.origin.x += offsetX2;
         rect.origin.y += offsetY2;
@@ -337,8 +336,8 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
         // Is the clicked point is on the html elements in the map?
         mapDivInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+        
         mapDivDepth = [[mapDivInfo objectForKey:@"depth"] intValue];
-      
         for (NSString *domId in self.pluginScrollView.debugView.HTMLNodes) {
             if ([mapCtrl.mapDivId isEqualToString:domId]) {
                 continue;
@@ -367,7 +366,6 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
                 //NSLog(@"--> hit (%@) : (domId: %@, depth: %d) ", mapCtrl.mapId, domId, domDepth);
                 break;
             }
-          
         }
 
         if (isMapAction == NO) {
