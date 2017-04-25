@@ -9,6 +9,7 @@
 #import "GoogleMapsViewController.h"
 #import "DDPolygon.h"
 #import "DDPolyline.h"
+#import "Map.h"
 #import "GoogleMapsViewController.h"
 #if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
 #import <Cordova/CDVJSON.h>
@@ -25,6 +26,7 @@ NSDictionary *initOptions;
     self.isFullScreen = NO;
     self.embedRect = nil;
     self.screenSize = [[UIScreen mainScreen] bounds];
+    self.drawMarkerMode = NO;
 
     return self;
 }
@@ -476,6 +478,20 @@ NSDictionary *initOptions;
  * @callback the my location button is clicked.
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+    
+    if (self.drawMarkerMode)
+    {
+        GMSMarker *marker = [GMSMarker markerWithPosition:coordinate];
+        
+        marker.map = mapView;
+        
+        NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
+        [self.overlayManager setObject:marker forKey: id];
+        
+        Map *mapClass = (CDVViewController*)[self.plugins objectForKey:@"Map"];
+        [mapClass drawMarkerCallbackCalled:marker];
+    }
+    
   [self triggerMapEvent:@"click" coordinate:coordinate];
 }
 /**
@@ -1094,6 +1110,9 @@ NSDictionary *initOptions;
 }
 
 
+- (void)drawMarker{
+    self.drawMarkerMode = YES;
+};
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {
   return [self.overlayManager objectForKey:key];

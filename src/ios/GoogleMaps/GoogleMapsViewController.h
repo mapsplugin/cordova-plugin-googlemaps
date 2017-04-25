@@ -23,6 +23,7 @@
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;
+@property (nonatomic) BOOL drawMarkerMode;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
@@ -42,4 +43,6 @@
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)level;
+
+- (void)drawMarker;
 @end

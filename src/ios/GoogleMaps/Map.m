@@ -8,6 +8,12 @@
 
 #import "Map.h"
 
+@interface Map()
+
+@property (nonatomic, strong) CDVInvokedUrlCommand *drawMarkerCommand;
+
+@end
+
 @implementation Map
 
 
@@ -671,4 +677,25 @@
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+- (void)drawMarker:(CDVInvokedUrlCommand*)command{
+    
+    self.drawMarkerCommand = command;
+    
+    [self.mapCtrl drawMarker];
+};
+
+- (void)drawMarkerCallbackCalled:(GMSMarker *)marker{
+    
+    NSString *id = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
+    
+    NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+    
+    [result setObject:id forKey:@"id"];
+    [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.drawMarkerCommand.callbackId];
+    
+};
 @end

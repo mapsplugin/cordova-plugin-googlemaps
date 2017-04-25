@@ -31,4 +31,7 @@
 - (void)setPadding:(CDVInvokedUrlCommand*)command;
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
+
+- (void)drawMarker:(CDVInvokedUrlCommand*)command;
+- (void)drawMarkerCallbackCalled:(GMSMarker *)marker;
 @end
