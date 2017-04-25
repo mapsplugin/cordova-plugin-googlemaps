@@ -398,7 +398,7 @@ Map.prototype.setAllGesturesEnabled = function(enabled) {
  * @return {CameraPosition}
  */
 Map.prototype.getCameraPosition = function(callback) {
-    return this.get("camera");
+    callback.call(self, this.get("camera"));
 };
 
 /**
