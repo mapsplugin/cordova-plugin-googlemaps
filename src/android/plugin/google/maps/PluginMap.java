@@ -1822,9 +1822,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
         Point point = projection.toScreenLocation(latLng);
         try {
-          JSONObject pointJSON = new JSONObject();
-          pointJSON.put("x", point.x / density);
-          pointJSON.put("y", point.y / density);
+          JSONArray pointJSON = new JSONArray();
+          pointJSON.put(point.x / density);
+          pointJSON.put(point.y / density);
           callbackContext.success(pointJSON);
         } catch (JSONException e) {
           e.printStackTrace();
