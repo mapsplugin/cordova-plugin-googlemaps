@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong) CDVInvokedUrlCommand *drawMarkerCommand;
 @property (nonatomic, strong) CDVInvokedUrlCommand *drawPolygonCommand;
+@property (nonatomic, strong) CDVInvokedUrlCommand *drawPolylineCommand;
 
 @end
 
@@ -707,11 +708,31 @@
     [self.mapCtrl drawPolygon];
 }
 
+- (void)drawPolyline:(CDVInvokedUrlCommand*)command
+{
+    self.drawPolylineCommand = command;
+    
+    [self.mapCtrl drawPolyline];
+}
+
 - (void)completeDrawnShape:(CDVInvokedUrlCommand*)command
 {
+    CDVInvokedUrlCommand *resultCommand;
+    
+    NSString *id;
+    
     GMSOverlay *shape = [self.mapCtrl completeDrawnShape];
     
-    NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)shape.hash];
+    if ([shape isKindOfClass:[GMSPolygon class]])
+    {
+        resultCommand = self.drawPolygonCommand;
+        id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)shape.hash];
+    }
+    else if ([shape isKindOfClass:[GMSPolyline class]])
+    {
+        resultCommand = self.drawPolylineCommand;
+        id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)shape.hash];
+    }
     
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
     
@@ -719,7 +740,7 @@
     [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)shape.hash] forKey:@"hashCode"];
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.drawPolygonCommand.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:resultCommand.callbackId];
 
 
     

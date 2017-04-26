@@ -16,10 +16,12 @@
 #endif
 
 #import "DDPolygonDrawer.h"
+#import "DDPolylineDrawer.h"
 
 @interface GoogleMapsViewController ()
 
 @property (nonatomic, strong) DDPolygonDrawer *polygonDrawer;
+@property (nonatomic, strong) DDPolylineDrawer *polylineDrawer;
 
 @end
 
@@ -312,7 +314,6 @@ NSDictionary *initOptions;
       }
     });
     
-    [self drawPolygon];
 }
 
 
@@ -502,6 +503,10 @@ NSDictionary *initOptions;
     } else if (self.drawingMode == GoogleMapsDrawingModePolygon) {
         [self.polygonDrawer pushCoordinate:coordinate];
         [self.polygonDrawer draw];
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline) {
+        [self.polylineDrawer pushCoordinate:coordinate];
+        [self.polylineDrawer draw];
     }
     
   [self triggerMapEvent:@"click" coordinate:coordinate];
@@ -1133,9 +1138,24 @@ NSDictionary *initOptions;
     self.polygonDrawer = [[DDPolygonDrawer alloc] initWithMapView:self.map];
 }
 
+- (void)drawPolyline
+{
+    self.drawingMode = GoogleMapsDrawingModePolyline;
+    self.polylineDrawer = [[DDPolylineDrawer alloc] initWithMapView:self.map];
+}
+
 - (GMSOverlay *)completeDrawnShape
 {
-    return [self.polygonDrawer print];
+    if (self.drawingMode == GoogleMapsDrawingModePolygon)
+    {
+        return [self.polygonDrawer print];
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline)
+    {
+        return [self.polylineDrawer print];
+    }
+    
+    return nil;
 }
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {

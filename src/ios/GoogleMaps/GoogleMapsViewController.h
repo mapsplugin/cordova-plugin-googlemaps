@@ -53,6 +53,7 @@ typedef NS_ENUM(NSUInteger, GoogleMapsDrawingMode) {
 
 - (void)drawMarker;
 - (void)drawPolygon;
+- (void)drawPolyline;
 
 - (GMSOverlay *)completeDrawnShape;
 
