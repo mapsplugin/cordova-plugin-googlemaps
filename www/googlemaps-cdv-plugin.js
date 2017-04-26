@@ -1043,6 +1043,8 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+    markerOptions.size = markerOptions.size || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;

@@ -107,6 +107,18 @@
         [iconProperty setObject:size forKey:@"size"];
     }
 
+    // Icon anchor
+    NSArray *iconAnchor = [json valueForKey:@"iconAnchor"];
+    if ([iconAnchor isKindOfClass:[NSArray class]]) {
+        CGFloat anchorX = [[iconAnchor objectAtIndex:0] floatValue];
+        CGFloat anchorY = [[iconAnchor objectAtIndex:1] floatValue];
+        if (size) {
+            anchorX = anchorX / [size[@"width"] floatValue];
+            anchorY = anchorY / [size[@"height"] floatValue];
+            [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
+        }
+    }
+
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
     [result setObject:id forKey:@"id"];
     [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
@@ -127,7 +139,6 @@
         // Load icon in asynchronise
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
         [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
-
     } else {
         if ([[json valueForKey:@"visible"] boolValue] == true) {
             marker.map = self.mapCtrl.map;
