@@ -429,17 +429,23 @@ NSDictionary *initOptions;
             
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
+                [self triggerOverlayEvent:@"overlay_edit" id:polygon.title];
+                
                 [polygon movePolygonBorderMarker:marker];
                 [polygon polygonEdited];
                 
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
+                [self triggerOverlayEvent:@"overlay_edit" id:polygon.title];
+                
                 [polygon polygonMidMarkerWasDragged:marker];
                 
             }
             else if ([marker.title isEqualToString:@"Center Marker"])
             {
+                [self triggerOverlayEvent:@"overlay_edit" id:polygon.title];
+                
                 [polygon polygonEdited];
             }
         }
@@ -449,17 +455,23 @@ NSDictionary *initOptions;
             
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
+                [self triggerOverlayEvent:@"overlay_edit" id:polyline.title];
+                
                 [polyline movePolylineBorderMarker:marker];
                 [polyline polylineEdited];
                 
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
+                [self triggerOverlayEvent:@"overlay_edit" id:polyline.title];
+                
                 [polyline polylineMidMarkerWasDragged:marker];
                 
             }
             else if ([marker.title isEqualToString:@"Center Marker"])
             {
+                [self triggerOverlayEvent:@"overlay_edit" id:polyline.title];
+                
                 [polyline polylineEdited];
             }
         }
