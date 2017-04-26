@@ -15,6 +15,13 @@
 #import <Cordova/CDVJSON.h>
 #endif
 
+#import "DDPolygonDrawer.h"
+
+@interface GoogleMapsViewController ()
+
+@property (nonatomic, strong) DDPolygonDrawer *polygonDrawer;
+
+@end
 
 @implementation GoogleMapsViewController
 NSDictionary *initOptions;
@@ -26,7 +33,7 @@ NSDictionary *initOptions;
     self.isFullScreen = NO;
     self.embedRect = nil;
     self.screenSize = [[UIScreen mainScreen] bounds];
-    self.drawMarkerMode = NO;
+    self.drawingMode = GoogleMapsDrawingModeDisabled;
 
     return self;
 }
@@ -304,6 +311,8 @@ NSDictionary *initOptions;
 
       }
     });
+    
+    [self drawPolygon];
 }
 
 
@@ -479,7 +488,7 @@ NSDictionary *initOptions;
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
     
-    if (self.drawMarkerMode)
+    if (self.drawingMode == GoogleMapsDrawingModeMarker)
     {
         GMSMarker *marker = [GMSMarker markerWithPosition:coordinate];
         
@@ -490,6 +499,9 @@ NSDictionary *initOptions;
         
         Map *mapClass = (CDVViewController*)[self.plugins objectForKey:@"Map"];
         [mapClass drawMarkerCallbackCalled:marker];
+    } else if (self.drawingMode == GoogleMapsDrawingModePolygon) {
+        [self.polygonDrawer pushCoordinate:coordinate];
+        [self.polygonDrawer draw];
     }
     
   [self triggerMapEvent:@"click" coordinate:coordinate];
@@ -1110,9 +1122,21 @@ NSDictionary *initOptions;
 }
 
 
-- (void)drawMarker{
-    self.drawMarkerMode = YES;
-};
+- (void)drawMarker
+{
+    self.drawingMode = GoogleMapsDrawingModeMarker;
+}
+
+- (void)drawPolygon
+{
+    self.drawingMode = GoogleMapsDrawingModePolygon;
+    self.polygonDrawer = [[DDPolygonDrawer alloc] initWithMapView:self.map];
+}
+
+- (GMSOverlay *)completeDrawnShape
+{
+    return [self.polygonDrawer print];
+}
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {
   return [self.overlayManager objectForKey:key];

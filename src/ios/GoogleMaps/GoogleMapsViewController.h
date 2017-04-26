@@ -13,6 +13,13 @@
 #import "NSData+Base64.h"
 #import <WebKit/WKWebView.h>
 
+typedef NS_ENUM(NSUInteger, GoogleMapsDrawingMode) {
+    GoogleMapsDrawingModeMarker,
+    GoogleMapsDrawingModePolygon,
+    GoogleMapsDrawingModePolyline,
+    GoogleMapsDrawingModeDisabled
+};
+
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
 @property (nonatomic, strong) GMSMapView* map;
@@ -23,7 +30,7 @@
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;
-@property (nonatomic) BOOL drawMarkerMode;
+@property (nonatomic) GoogleMapsDrawingMode drawingMode;
 
 
 //- (UIView *)mapView:(GMSMapView *)mapView markerInfoWindow:(GMSMarker *)marker;
@@ -45,4 +52,8 @@
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)level;
 
 - (void)drawMarker;
+- (void)drawPolygon;
+
+- (GMSOverlay *)completeDrawnShape;
+
 @end

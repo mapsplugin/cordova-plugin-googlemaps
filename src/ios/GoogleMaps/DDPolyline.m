@@ -19,6 +19,7 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
 @property (nonatomic, strong) GMSMarker *centerMarker;
 @property (nonatomic, assign) CLLocationCoordinate2D currentCenter;
 @property (nonatomic, assign) BOOL editMode;
+@property (nonatomic, assign) BOOL drawMode;
 @property (nonatomic, strong) GMSMapView *mapView;
 
 @end
@@ -249,6 +250,23 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
         GMSMarker *marker = [self.midMarkers objectAtIndex:i];
         [marker setDraggable:editable];
         marker.opacity = 0.5 * editable;
+    }
+}
+
+- (void)setPolylineDrawable:(BOOL)drawable
+{
+    
+    if (self.editMode) {
+        return;
+    }
+    
+    self.drawMode = drawable;
+    
+    for (int i = 0; i < self.polylineMarkers.count; i++)
+    {
+        GMSMarker *marker = [self.polylineMarkers objectAtIndex:i];
+        [marker setDraggable:NO];
+        marker.opacity = drawable;
     }
 }
 

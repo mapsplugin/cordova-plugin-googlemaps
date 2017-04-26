@@ -48,4 +48,6 @@
 
 - (void)setPolylineEditable:(BOOL)editable;
 
+- (void)setPolylineDrawable:(BOOL)drawable;
+
 @end
