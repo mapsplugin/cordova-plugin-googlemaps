@@ -1158,16 +1158,26 @@ NSDictionary *initOptions;
 
 - (GMSOverlay *)completeDrawnShape
 {
+    GMSOverlay *overlay;
+    
     if (self.drawingMode == GoogleMapsDrawingModePolygon)
     {
-        return [self.polygonDrawer print];
+        DDPolygon *polygon = [self.polygonDrawer print];
+        NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
+        [self.overlayManager setObject:polygon forKey:id];
+        overlay = polygon;
     }
     else if (self.drawingMode == GoogleMapsDrawingModePolyline)
     {
-        return [self.polylineDrawer print];
+        DDPolyline *polyline = [self.polylineDrawer print];
+        NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
+        [self.overlayManager setObject:polyline forKey:id];
+        overlay = polyline;
     }
     
-    return nil;
+    self.drawingMode = GoogleMapsDrawingModeDisabled;
+    
+    return overlay;
 }
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {
