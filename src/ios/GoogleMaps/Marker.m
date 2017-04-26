@@ -91,6 +91,7 @@
     } else {
         iconProperty[@"visible"] = @NO;
     }
+
     // Animation
     NSString *animation = nil;
     if ([json valueForKey:@"animation"]) {
@@ -98,6 +99,12 @@
         if (iconProperty) {
             [iconProperty setObject:animation forKey:@"animation"];
         }
+    }
+
+    // Size
+    NSDictionary *size = [json valueForKey:@"size"];
+    if (iconProperty && size) {
+        [iconProperty setObject:size forKey:@"size"];
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
@@ -699,7 +706,7 @@
                     #else
                         iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
                     #endif
-                    
+
                     NSFileManager *fileManager = [NSFileManager defaultManager];
                     if (![fileManager fileExistsAtPath:iconPath]) {
                         if (self.mapCtrl.debuggable) {
@@ -838,12 +845,12 @@
     } else if ([iconProperty valueForKey:@"iconColor"]) {
         UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
         marker.icon = [GMSMarker markerImageWithColor:iconColor];
-        
+
         // The `visible` property
         if ([[iconProperty valueForKey:@"visible"] boolValue]) {
             marker.map = self.mapCtrl.map;
         }
-        
+
         if (animation) {
             // Do animation, then send the result
             [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];

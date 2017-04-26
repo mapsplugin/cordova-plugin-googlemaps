@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -24,7 +25,7 @@ import java.util.List;
  * Created by Leandro Leoncini on 10/13/16.
  */
 
-public class DDPolygon {
+public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnMarkerDragListener{
 
     private com.google.android.gms.maps.model.Polygon mPolygon;
     private com.google.android.gms.maps.model.Marker mMarkerCenter;
@@ -40,6 +41,9 @@ public class DDPolygon {
         mPolygon = polygon;
         addBorderMarkers();
         addCenterMarker();
+
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMarkerDragListener(this);
     }
 
     public void setLatLngs(JSONArray params, CallbackContext callbackContext) {
@@ -157,4 +161,29 @@ public class DDPolygon {
         return list;
     }
 
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+        if (isMarkerIdCenter(marker.getId())) {
+            moveToCenter(marker.getPosition());
+        } else if (isMarkerInBorder(marker.getId())) {
+            updateBorder();
+        }
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
 }

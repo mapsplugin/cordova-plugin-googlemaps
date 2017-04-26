@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-googlemaps.cordova-plugin-googlemaps", function(require, exports, module) {
 /* global cordova, plugin, CSSPrimitiveValue */
 var PLUGIN_NAME = 'GoogleMaps';
 var MARKERS = {};
@@ -646,11 +647,9 @@ App.prototype.setBackgroundColor = function(color) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
 
-
-App.prototype.setDebuggable = function(debug) {
+App.prototype.drawMarker = function(callback) {
     var self = this;
-    debug = parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'drawMarker', []);
 };
 
 /**
@@ -1153,7 +1152,7 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
-    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
+    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 1);
     if (polygonOptions.fillColor) {
         var fillOpacity = polygonOptions.fillOpacity || 1;
         polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, fillOpacity);
@@ -1721,6 +1720,11 @@ Polyline.prototype.remove = function() {
 Polyline.prototype.getMap = function() {
     return this.map;
 };
+Polyline.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
+};
 /*****************************************************************************
  * Polygon Class
  *****************************************************************************/
@@ -1837,6 +1841,11 @@ Polygon.prototype.getZIndex = function() {
 Polygon.prototype.remove = function() {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
     this.off();
+};
+Polygon.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
 };
 
 /*****************************************************************************
@@ -2878,3 +2887,5 @@ var HTML_COLORS = {
     "yellow": "#ffff00",
     "yellowgreen": "#9acd32"
 };
+
+});
