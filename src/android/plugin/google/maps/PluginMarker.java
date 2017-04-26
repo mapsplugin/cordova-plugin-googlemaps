@@ -165,8 +165,8 @@ public class PluginMarker extends MyPlugin {
 
       JSONArray iconAnchor = opts.optJSONArray("iconAnchor");
       if (iconAnchor != null && size != null) {
-        double anchorX = null;
-        double anchorY = null;
+        double anchorX = -1;
+        double anchorY = -1;
         try {
           anchorX = iconAnchor.getDouble(0);
           anchorY = iconAnchor.getDouble(1);
@@ -175,7 +175,7 @@ public class PluginMarker extends MyPlugin {
           e.printStackTrace();
         }
 
-        if (anchorX != null && anchorY != null) {
+        if (anchorX >= 0 && anchorY >= 0) {
           this._setIconAnchor(marker, anchorX, anchorY, size.getInt("width"), size.getInt("height"));
         }
       }
