@@ -291,7 +291,7 @@ App.prototype._onCameraEvent = function(eventName, params) {
 App.prototype.getMap = function(div, params) {
      // Redraw the browser mandatory (especially for iOS)
     document.body.style.backgroundColor="rgba(0,0,0,0.1)";
-    
+
     var self = this,
         args = [];
 
@@ -1501,8 +1501,8 @@ Marker.prototype.getSnippet = function() {
     return this.get('snippet');
 };
 Marker.prototype.setRotation = function(rotation) {
-    if (!rotation) {
-        console.log('missing value for rotation');
+    if (typeof rotation !== 'number') {
+        console.log('missing or invalid value for rotation');
         return false;
     }
     this.set('rotation', rotation);
