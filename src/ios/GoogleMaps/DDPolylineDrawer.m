@@ -48,10 +48,13 @@
 
 - (DDPolyline *)print
 {
+    [self.templatePolyline removeFromMap];
     self.templatePolyline.map = nil;
     self.templatePolyline = nil;
     
     DDPolyline *polyline = [[DDPolyline alloc] initPolylineWithWithGMSPath:self.currentPath andMapView:self.mapView];
+    [polyline setPolylineEditable:YES];
+    polyline.map = self.mapView;
     
     return polyline;
 }

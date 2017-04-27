@@ -65,12 +65,16 @@
 
 - (DDPolygon *)print
 {
+    [self.templatePolyline removeFromMap];
     self.templatePolyline.map = nil;
+    self.templatePolyline = nil;
     self.templatePolygon.map = nil;
     self.templatePolygon = nil;
-    self.templatePolyline = nil;
+    
     
     DDPolygon *polygon = [[DDPolygon alloc] initPolygonWithWithGMSPath:self.currentPath andMapView:self.mapView];
+    polygon.map = self.mapView;
+    [polygon setPolygonEditable:YES];
     
     return polygon;
 }

@@ -1164,14 +1164,14 @@ NSDictionary *initOptions;
     {
         DDPolygon *polygon = [self.polygonDrawer print];
         NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
-        [self.overlayManager setObject:polygon forKey:id];
+      //  [self.overlayManager setObject:polygon forKey:id];
         overlay = polygon;
     }
     else if (self.drawingMode == GoogleMapsDrawingModePolyline)
     {
         DDPolyline *polyline = [self.polylineDrawer print];
         NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
-        [self.overlayManager setObject:polyline forKey:id];
+      //  [self.overlayManager setObject:polyline forKey:id];
         overlay = polyline;
     }
     

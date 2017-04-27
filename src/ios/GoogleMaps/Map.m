@@ -722,7 +722,7 @@
     NSString *id;
     
     GMSOverlay *shape = [self.mapCtrl completeDrawnShape];
-    
+
     if ([shape isKindOfClass:[GMSPolygon class]])
     {
         resultCommand = self.drawPolygonCommand;
