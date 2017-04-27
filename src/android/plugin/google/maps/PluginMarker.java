@@ -163,21 +163,12 @@ public class PluginMarker extends MyPlugin {
         bundle.putBundle("size", sizeBundle);
       }
 
-      JSONArray iconAnchor = opts.optJSONArray("iconAnchor");
-      if (iconAnchor != null && size != null) {
-        double anchorX = -1;
-        double anchorY = -1;
-        try {
-          anchorX = iconAnchor.getDouble(0);
-          anchorY = iconAnchor.getDouble(1);
-        }
-        catch (JSONException e) {
-          e.printStackTrace();
-        }
-
-        if (anchorX >= 0 && anchorY >= 0) {
-          this._setIconAnchor(marker, anchorX, anchorY, size.getInt("width"), size.getInt("height"));
-        }
+      JSONArray anchor = opts.optJSONArray("anchor");
+      if (anchor != null && anchor.length() == 2) {
+        double[] anchorPoints = new double[2];
+        anchorPoints[0] = anchor.getDouble(0);
+        anchorPoints[1] = anchor.getDouble(1);
+        bundle.putDoubleArray("anchor", anchorPoints);
       }
 
       this.setIcon_(marker, bundle, new PluginAsyncInterface() {
