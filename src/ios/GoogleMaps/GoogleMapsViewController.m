@@ -313,7 +313,6 @@ NSDictionary *initOptions;
 
       }
     });
-    
 }
 
 
@@ -1179,6 +1178,18 @@ NSDictionary *initOptions;
     
     return overlay;
 }
+
+- (void)deleteLastDrawnVertex{
+
+    if (self.drawingMode == GoogleMapsDrawingModePolygon)
+    {
+        [self.polygonDrawer deleteLastDrawnVertex];
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline)
+    {
+        [self.polylineDrawer deleteLastDrawnVertex];
+    }
+};
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {
   return [self.overlayManager objectForKey:key];

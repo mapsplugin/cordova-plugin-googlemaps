@@ -229,28 +229,30 @@
 
 - (void)addMidMarkers{
 
-    for (int i = 0; i < self.polygonMarkers.count; i++)
+    if (self.polygonMarkers && self.polygonMarkers.count)
     {
-        GMSMarker *markerA = (GMSMarker *)[self.polygonMarkers objectAtIndex:i];
-        GMSMarker *markerB;
-        
-        if (i == self.polygonMarkers.count - 1)
+        for (int i = 0; i < self.polygonMarkers.count; i++)
         {
-            markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:0];
+            GMSMarker *markerA = (GMSMarker *)[self.polygonMarkers objectAtIndex:i];
+            GMSMarker *markerB;
+            
+            if (i == self.polygonMarkers.count - 1)
+            {
+                markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:0];
+            }
+            else
+            {
+                markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:i+1];
+            }
+            
+            CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
+            
+            [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapview];
+            
+            
         }
-        else
-        {
-            markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:i+1];
-        }
-        
-        CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
-        
-        [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapview];
-        
-        
     }
-    
-    
+  
 }
 
 - (void)createBorderMarkerWithCoordinates:(CLLocationCoordinate2D)coordinates{

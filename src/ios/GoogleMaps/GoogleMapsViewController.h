@@ -57,4 +57,6 @@ typedef NS_ENUM(NSUInteger, GoogleMapsDrawingMode) {
 
 - (GMSOverlay *)completeDrawnShape;
 
+- (void)deleteLastDrawnVertex;
+
 @end

@@ -44,6 +44,15 @@
         [self.templatePolyline updatePath:self.currentPath];
         [self.templatePolyline setPolylineDrawable:YES];
     }
+    
+    if (self.currentPath.count < 2)
+    {
+         self.templatePolyline.map = nil;
+    }
+    else
+    {
+        self.templatePolyline.map = self.mapView;
+    }
 }
 
 - (DDPolyline *)print
@@ -58,5 +67,12 @@
     
     return polyline;
 }
+
+- (void)deleteLastDrawnVertex{
+
+    [self.currentPath removeLastCoordinate];
+    
+    [self draw];
+};
 
 @end

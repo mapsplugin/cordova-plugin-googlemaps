@@ -315,16 +315,20 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
 
 - (void)addMidMarkers{
     
-    for (int i = 0; i < self.polylineMarkers.count - 1; i++)
+    if (self.polylineMarkers && self.polylineMarkers.count)
     {
-        GMSMarker *markerA = (GMSMarker *)[self.polylineMarkers objectAtIndex:i];
-        GMSMarker *markerB = (GMSMarker *)[self.polylineMarkers objectAtIndex:i+1];
-        
-        CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
-        
-        [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapView];
-    
+        for (int i = 0; i < self.polylineMarkers.count - 1; i++)
+        {
+            GMSMarker *markerA = (GMSMarker *)[self.polylineMarkers objectAtIndex:i];
+            GMSMarker *markerB = (GMSMarker *)[self.polylineMarkers objectAtIndex:i+1];
+            
+            CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
+            
+            [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapView];
+            
+        }
     }
+    
 }
 
 - (void)addBorderMarkersToPolyline{

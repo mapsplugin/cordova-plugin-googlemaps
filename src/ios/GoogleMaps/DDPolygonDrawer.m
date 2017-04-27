@@ -61,6 +61,19 @@
         self.templatePolygon = nil;
     }
     
+    if (self.currentPath.count < 2)
+    {
+        if (!self.currentPath.count)
+        {
+            [self.templatePolyline removeFromMap];
+        }
+        self.templatePolyline.map = nil;
+    }
+    else
+    {
+        self.templatePolyline.map = self.mapView;
+    }
+    
 }
 
 - (DDPolygon *)print
@@ -78,5 +91,12 @@
     
     return polygon;
 }
+
+- (void)deleteLastDrawnVertex{
+    
+    [self.currentPath removeLastCoordinate];
+    
+    [self draw];
+};
 
 @end

@@ -21,4 +21,6 @@
 
 - (DDPolyline *)print;
 
+- (void)deleteLastDrawnVertex;
+
 @end

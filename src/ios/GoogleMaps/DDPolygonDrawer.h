@@ -21,4 +21,6 @@
 
 - (DDPolygon *)print;
 
+- (void)deleteLastDrawnVertex;
+
 @end

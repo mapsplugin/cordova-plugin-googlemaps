@@ -38,4 +38,6 @@
 - (void)drawPolygon:(CDVInvokedUrlCommand*)command;
 - (void)completeDrawnShape:(CDVInvokedUrlCommand*)command;
 
+- (void)deleteLastDrawnVertex:(CDVInvokedUrlCommand*)command;
+
 @end
