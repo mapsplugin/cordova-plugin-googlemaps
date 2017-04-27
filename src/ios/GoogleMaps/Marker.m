@@ -108,15 +108,9 @@
     }
 
     // Icon anchor
-    NSArray *iconAnchor = [json valueForKey:@"iconAnchor"];
-    if ([iconAnchor isKindOfClass:[NSArray class]]) {
-        CGFloat anchorX = [[iconAnchor objectAtIndex:0] floatValue];
-        CGFloat anchorY = [[iconAnchor objectAtIndex:1] floatValue];
-        if (size) {
-            anchorX = anchorX / [size[@"width"] floatValue];
-            anchorY = anchorY / [size[@"height"] floatValue];
-            [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
-        }
+    NSArray *anchor = [json valueForKey:@"anchor"];
+    if (iconProperty && anchor) {
+        [iconProperty setObject:anchor forKey:@"anchor"];
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
