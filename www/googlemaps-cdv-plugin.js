@@ -649,7 +649,22 @@ App.prototype.setBackgroundColor = function(color) {
 
 App.prototype.drawMarker = function(callback) {
     var self = this;
-    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'drawMarker', []);
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
+};
+               
+App.prototype.drawPolygon = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawPolygon']);
+};
+
+App.prototype.drawPolyline = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawPolyline']);
+};
+
+App.prototype.completeDrawnShape = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.completeDrawnShape']);
 };
 
 /**
