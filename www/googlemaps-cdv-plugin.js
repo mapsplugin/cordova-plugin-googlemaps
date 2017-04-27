@@ -2656,6 +2656,7 @@ module.exports = {
         MAP_CLOSE: 'map_close',
         MARKER_CLICK: 'click',
         OVERLAY_CLICK: 'overlay_click',
+        OVERLAY_EDIT: 'overlay_edit',
         INFO_CLICK: 'info_click',
         MARKER_DRAG: 'drag',
         MARKER_DRAG_START: 'drag_start',
