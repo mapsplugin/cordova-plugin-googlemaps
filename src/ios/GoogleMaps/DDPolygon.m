@@ -148,6 +148,7 @@
         }
         
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resArray];
+        pluginResult.keepCallback = @TRUE;
         [self.polygonEditCommandDelegate sendPluginResult:pluginResult callbackId:self.polygonEditCommand.callbackId];
     }
 };

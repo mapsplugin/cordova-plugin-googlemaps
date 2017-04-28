@@ -649,7 +649,18 @@ App.prototype.setBackgroundColor = function(color) {
 
 App.prototype.drawMarker = function(callback) {
     var self = this;
-    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
+    cordova.exec(function(result) {
+        markerOptions.hashCode = result.hashCode;
+        var marker = new Marker(self, result.id, null);
+        
+        MARKERS[result.id] = marker;
+        OVERLAYS[result.id] = marker;
+        
+        if (typeof callback === "function") {
+            callback.call(self, marker, self);
+        }
+                 
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
 };
                
 App.prototype.drawPolygon = function(callback) {
@@ -1746,6 +1757,7 @@ Polyline.prototype.setEditable = function(editable) {
     editable = parseBoolean(editable);
     this.set('editable', editable);
     function updatePoints(newPoints) {
+               console.log("set points!!");
         this.setPoints(newPoints);
     }
     cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
@@ -1871,6 +1883,7 @@ Polygon.prototype.setEditable = function(editable) {
     editable = parseBoolean(editable);
     this.set('editable', editable);
     function updatePoints(newPoints) {
+               console.log("Set Points···");
         this.setPoints(newPoints);
     }
     cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
