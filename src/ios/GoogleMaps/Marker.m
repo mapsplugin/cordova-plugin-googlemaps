@@ -107,6 +107,12 @@
         [iconProperty setObject:size forKey:@"size"];
     }
 
+    // Icon anchor
+    NSArray *anchor = [json valueForKey:@"anchor"];
+    if (iconProperty && anchor) {
+        [iconProperty setObject:anchor forKey:@"anchor"];
+    }
+
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
     [result setObject:id forKey:@"id"];
     [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
@@ -127,7 +133,6 @@
         // Load icon in asynchronise
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
         [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
-
     } else {
         if ([[json valueForKey:@"visible"] boolValue] == true) {
             marker.map = self.mapCtrl.map;

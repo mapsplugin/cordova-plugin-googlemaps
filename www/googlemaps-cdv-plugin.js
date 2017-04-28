@@ -1062,6 +1062,8 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+    markerOptions.size = markerOptions.size || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
@@ -1940,6 +1942,10 @@ TileOverlay.prototype.setOpacity = function(opacity) {
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
 };
+TileOverlay.prototype.setTileUrlFormat = function(tileUrlFormat) {
+  this.set('tileUrlFormat', tileUrlFormat);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setTileUrlFormat', this.getId(), tileUrlFormat]);
+};
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
 };
@@ -2674,6 +2680,7 @@ module.exports = {
         MAP_CLOSE: 'map_close',
         MARKER_CLICK: 'click',
         OVERLAY_CLICK: 'overlay_click',
+        OVERLAY_EDIT: 'overlay_edit',
         INFO_CLICK: 'info_click',
         MARKER_DRAG: 'drag',
         MARKER_DRAG_START: 'drag_start',
