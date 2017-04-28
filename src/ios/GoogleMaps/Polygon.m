@@ -249,10 +249,10 @@
     NSString *polygonKey = [command.arguments objectAtIndex:1];
     DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
     Boolean isEditable = [[command.arguments objectAtIndex:2] boolValue];
-    [polygon setPolygonEditable:isEditable];
+    [polygon setPolygonEditable:isEditable withCommand:command andDelegate:self.commandDelegate];
     
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    /*CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];*/
 };
 
 /**

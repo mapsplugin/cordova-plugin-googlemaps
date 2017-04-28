@@ -173,10 +173,8 @@
     NSString *polylineKey = [command.arguments objectAtIndex:1];
     DDPolyline *polyline = [self.mapCtrl getPolygonByKey: polylineKey];
     Boolean isEditable = [[command.arguments objectAtIndex:2] boolValue];
-    [polyline setPolylineEditable:isEditable];
     
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [polyline setPolylineEditable:isEditable withCommand:command andDelegate:self.commandDelegate];
 };
 
 /**

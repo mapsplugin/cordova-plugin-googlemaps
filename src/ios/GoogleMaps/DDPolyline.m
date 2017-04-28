@@ -22,6 +22,9 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
 @property (nonatomic, assign) BOOL drawMode;
 @property (nonatomic, strong) GMSMapView *mapView;
 
+@property (nonatomic, strong) CDVInvokedUrlCommand *polylineEditCommand;
+@property (nonatomic, strong) id <CDVCommandDelegate> polylineEditCommandDelegate;
+
 @end
 
 @implementation DDPolyline
@@ -127,6 +130,28 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
     [self clearMidMarkers];
     [self addMidMarkers];
 }
+
+- (void)notifyPolylineEdited{
+    
+    if (self.polylineEditCommand && self.polylineEditCommandDelegate)
+    {
+        NSMutableArray *resArray = [[NSMutableArray alloc] init];
+        
+        for (int i = 0; i < self.path.count; i++) {
+            
+            CLLocationCoordinate2D cord = [self.path coordinateAtIndex:i];
+            
+            NSMutableDictionary *cordDictionary = [[NSMutableDictionary alloc] init];
+            cordDictionary[@"lat"] = [NSNumber numberWithDouble:cord.latitude];
+            cordDictionary[@"lng"] = [NSNumber numberWithDouble:cord.longitude];
+            
+            [resArray addObject:cordDictionary];
+        }
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resArray];
+        [self.polylineEditCommandDelegate sendPluginResult:pluginResult callbackId:self.polylineEditCommand.callbackId];
+    }
+};
 
 #pragma mark - Mid Markers
 
@@ -251,6 +276,15 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
         [marker setDraggable:editable];
         marker.opacity = 0.5 * editable;
     }
+}
+
+- (void)setPolylineEditable:(BOOL)editable withCommand:(CDVInvokedUrlCommand *)command andDelegate:(id <CDVCommandDelegate>)commandDelegate{
+    
+    self.polylineEditCommandDelegate = commandDelegate;
+    self.polylineEditCommand = command;
+    
+    [self setPolylineEditable:editable];
+    
 }
 
 - (void)setPolylineDrawable:(BOOL)drawable
