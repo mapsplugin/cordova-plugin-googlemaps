@@ -1,5 +1,7 @@
 package plugin.google.maps;
 
+import android.util.Log;
+
 import com.dronedeploy.beta.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -169,8 +171,10 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
 
         int index = mPolyMarks.indexOf(marker);
 
-        int before = index == 0 ? mPolyMarks.size() : index - 1;
-        int after = index == mPolyMarks.size() ? 0 : index + 1;
+        int before = index == 0 ? mPolyMarks.size() - 1 : index - 1;
+        int after = index == mPolyMarks.size() - 1 ? 0 : index + 1;
+
+        Log.i("DDPolygon", "Index: " + index + " Before: " + before + "After: " + after);
 
         LatLng markerPosition = marker.getPosition();
         LatLng beforePosition = (mPolyMarks.get(before)).getPosition();
