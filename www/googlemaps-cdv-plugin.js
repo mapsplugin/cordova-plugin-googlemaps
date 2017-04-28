@@ -1725,7 +1725,10 @@ Polyline.prototype.getMap = function() {
 Polyline.prototype.setEditable = function(editable) {
     editable = parseBoolean(editable);
     this.set('editable', editable);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
+    function updatePoints(newPoints) {
+        this.setPoints(newPoints);
+    }
+    cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
 };
 /*****************************************************************************
  * Polygon Class
@@ -1847,7 +1850,10 @@ Polygon.prototype.remove = function() {
 Polygon.prototype.setEditable = function(editable) {
     editable = parseBoolean(editable);
     this.set('editable', editable);
-    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
+    function updatePoints(newPoints) {
+        this.setPoints(newPoints);
+    }
+    cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
 };
 
 /*****************************************************************************
