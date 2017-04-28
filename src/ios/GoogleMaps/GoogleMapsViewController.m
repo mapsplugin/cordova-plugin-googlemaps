@@ -15,6 +15,15 @@
 #import <Cordova/CDVJSON.h>
 #endif
 
+#import "DDPolygonDrawer.h"
+#import "DDPolylineDrawer.h"
+
+@interface GoogleMapsViewController ()
+
+@property (nonatomic, strong) DDPolygonDrawer *polygonDrawer;
+@property (nonatomic, strong) DDPolylineDrawer *polylineDrawer;
+
+@end
 
 @implementation GoogleMapsViewController
 NSDictionary *initOptions;
@@ -26,7 +35,7 @@ NSDictionary *initOptions;
     self.isFullScreen = NO;
     self.embedRect = nil;
     self.screenSize = [[UIScreen mainScreen] bounds];
-    self.drawMarkerMode = NO;
+    self.drawingMode = GoogleMapsDrawingModeDisabled;
 
     return self;
 }
@@ -448,6 +457,8 @@ NSDictionary *initOptions;
                 
                 [polygon polygonEdited];
             }
+            
+            [polygon notifyPolygonEdited];
         }
         else if ([marker.userData isKindOfClass:[DDPolyline class]])
         {
@@ -474,6 +485,8 @@ NSDictionary *initOptions;
                 
                 [polyline polylineEdited];
             }
+            
+            [polyline notifyPolylineEdited];
         }
         
         
@@ -491,7 +504,7 @@ NSDictionary *initOptions;
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
     
-    if (self.drawMarkerMode)
+    if (self.drawingMode == GoogleMapsDrawingModeMarker)
     {
         GMSMarker *marker = [GMSMarker markerWithPosition:coordinate];
         
@@ -502,6 +515,13 @@ NSDictionary *initOptions;
         
         Map *mapClass = (CDVViewController*)[self.plugins objectForKey:@"Map"];
         [mapClass drawMarkerCallbackCalled:marker];
+    } else if (self.drawingMode == GoogleMapsDrawingModePolygon) {
+        [self.polygonDrawer pushCoordinate:coordinate];
+        [self.polygonDrawer draw];
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline) {
+        [self.polylineDrawer pushCoordinate:coordinate];
+        [self.polylineDrawer draw];
     }
     
   [self triggerMapEvent:@"click" coordinate:coordinate];
@@ -1122,8 +1142,57 @@ NSDictionary *initOptions;
 }
 
 
-- (void)drawMarker{
-    self.drawMarkerMode = YES;
+- (void)drawMarker
+{
+    self.drawingMode = GoogleMapsDrawingModeMarker;
+}
+
+- (void)drawPolygon
+{
+    self.drawingMode = GoogleMapsDrawingModePolygon;
+    self.polygonDrawer = [[DDPolygonDrawer alloc] initWithMapView:self.map];
+}
+
+- (void)drawPolyline
+{
+    self.drawingMode = GoogleMapsDrawingModePolyline;
+    self.polylineDrawer = [[DDPolylineDrawer alloc] initWithMapView:self.map];
+}
+
+- (GMSOverlay *)completeDrawnShape
+{
+    GMSOverlay *overlay;
+    
+    if (self.drawingMode == GoogleMapsDrawingModePolygon)
+    {
+        DDPolygon *polygon = [self.polygonDrawer print];
+        NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
+      //  [self.overlayManager setObject:polygon forKey:id];
+        overlay = polygon;
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline)
+    {
+        DDPolyline *polyline = [self.polylineDrawer print];
+        NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
+      //  [self.overlayManager setObject:polyline forKey:id];
+        overlay = polyline;
+    }
+    
+    self.drawingMode = GoogleMapsDrawingModeDisabled;
+    
+    return overlay;
+}
+
+- (void)deleteLastDrawnVertex{
+
+    if (self.drawingMode == GoogleMapsDrawingModePolygon)
+    {
+        [self.polygonDrawer deleteLastDrawnVertex];
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline)
+    {
+        [self.polylineDrawer deleteLastDrawnVertex];
+    }
 };
 
 - (GMSCircle *)getCircleByKey: (NSString *)key {

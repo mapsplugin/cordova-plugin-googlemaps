@@ -7,12 +7,15 @@
 //
 
 #import <GoogleMaps/GoogleMaps.h>
+#import <Cordova/CDV.h>
 
 @interface DDPolyline : GMSPolyline
 
 #pragma mark - Map Events
 
 - (void)polylineEdited;
+
+- (void)notifyPolylineEdited;
 
 #pragma mark - Mid Markers
 
@@ -47,5 +50,9 @@
 - (void)updatePath:(GMSMutablePath *)newPath;
 
 - (void)setPolylineEditable:(BOOL)editable;
+
+- (void)setPolylineDrawable:(BOOL)drawable;
+
+- (void)setPolylineEditable:(BOOL)editable withCommand:(CDVInvokedUrlCommand *)command andDelegate:(id <CDVCommandDelegate>)commandDelegate;
 
 @end

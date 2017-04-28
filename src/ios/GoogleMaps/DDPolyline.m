@@ -19,7 +19,11 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
 @property (nonatomic, strong) GMSMarker *centerMarker;
 @property (nonatomic, assign) CLLocationCoordinate2D currentCenter;
 @property (nonatomic, assign) BOOL editMode;
+@property (nonatomic, assign) BOOL drawMode;
 @property (nonatomic, strong) GMSMapView *mapView;
+
+@property (nonatomic, strong) CDVInvokedUrlCommand *polylineEditCommand;
+@property (nonatomic, strong) id <CDVCommandDelegate> polylineEditCommandDelegate;
 
 @end
 
@@ -126,6 +130,28 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
     [self clearMidMarkers];
     [self addMidMarkers];
 }
+
+- (void)notifyPolylineEdited{
+    
+    if (self.polylineEditCommand && self.polylineEditCommandDelegate)
+    {
+        NSMutableArray *resArray = [[NSMutableArray alloc] init];
+        
+        for (int i = 0; i < self.path.count; i++) {
+            
+            CLLocationCoordinate2D cord = [self.path coordinateAtIndex:i];
+            
+            NSMutableDictionary *cordDictionary = [[NSMutableDictionary alloc] init];
+            cordDictionary[@"lat"] = [NSNumber numberWithDouble:cord.latitude];
+            cordDictionary[@"lng"] = [NSNumber numberWithDouble:cord.longitude];
+            
+            [resArray addObject:cordDictionary];
+        }
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resArray];
+        [self.polylineEditCommandDelegate sendPluginResult:pluginResult callbackId:self.polylineEditCommand.callbackId];
+    }
+};
 
 #pragma mark - Mid Markers
 
@@ -252,6 +278,32 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
     }
 }
 
+- (void)setPolylineEditable:(BOOL)editable withCommand:(CDVInvokedUrlCommand *)command andDelegate:(id <CDVCommandDelegate>)commandDelegate{
+    
+    self.polylineEditCommandDelegate = commandDelegate;
+    self.polylineEditCommand = command;
+    
+    [self setPolylineEditable:editable];
+    
+}
+
+- (void)setPolylineDrawable:(BOOL)drawable
+{
+    
+    if (self.editMode) {
+        return;
+    }
+    
+    self.drawMode = drawable;
+    
+    for (int i = 0; i < self.polylineMarkers.count; i++)
+    {
+        GMSMarker *marker = [self.polylineMarkers objectAtIndex:i];
+        [marker setDraggable:NO];
+        marker.opacity = drawable;
+    }
+}
+
 - (void)updateCenterCoordinates{
     
     CLLocationCoordinate2D center = [GMUtils calculateCenterCoordinate:self.polylineMarkers];
@@ -297,16 +349,20 @@ NSString * const kGeoJSONPolylineKey = @"LineString";
 
 - (void)addMidMarkers{
     
-    for (int i = 0; i < self.polylineMarkers.count - 1; i++)
+    if (self.polylineMarkers && self.polylineMarkers.count)
     {
-        GMSMarker *markerA = (GMSMarker *)[self.polylineMarkers objectAtIndex:i];
-        GMSMarker *markerB = (GMSMarker *)[self.polylineMarkers objectAtIndex:i+1];
-        
-        CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
-        
-        [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapView];
-    
+        for (int i = 0; i < self.polylineMarkers.count - 1; i++)
+        {
+            GMSMarker *markerA = (GMSMarker *)[self.polylineMarkers objectAtIndex:i];
+            GMSMarker *markerB = (GMSMarker *)[self.polylineMarkers objectAtIndex:i+1];
+            
+            CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
+            
+            [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapView];
+            
+        }
     }
+    
 }
 
 - (void)addBorderMarkersToPolyline{

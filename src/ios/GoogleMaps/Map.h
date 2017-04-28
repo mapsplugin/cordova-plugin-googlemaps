@@ -34,4 +34,10 @@
 
 - (void)drawMarker:(CDVInvokedUrlCommand*)command;
 - (void)drawMarkerCallbackCalled:(GMSMarker *)marker;
+
+- (void)drawPolygon:(CDVInvokedUrlCommand*)command;
+- (void)completeDrawnShape:(CDVInvokedUrlCommand*)command;
+
+- (void)deleteLastDrawnVertex:(CDVInvokedUrlCommand*)command;
+
 @end

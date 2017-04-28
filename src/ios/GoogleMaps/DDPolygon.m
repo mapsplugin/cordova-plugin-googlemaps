@@ -19,6 +19,9 @@
 @property (nonatomic, assign) BOOL editMode;
 @property (nonatomic, strong) GMSMapView *mapview;
 
+@property (nonatomic, strong) CDVInvokedUrlCommand *polygonEditCommand;
+@property (nonatomic, strong) id <CDVCommandDelegate> polygonEditCommandDelegate;
+
 @end
 
 @implementation DDPolygon
@@ -127,6 +130,28 @@
     
 }
 
+- (void)notifyPolygonEdited{
+
+    if (self.polygonEditCommand && self.polygonEditCommandDelegate)
+    {
+        NSMutableArray *resArray = [[NSMutableArray alloc] init];
+        
+        for (int i = 0; i < self.path.count; i++) {
+            
+            CLLocationCoordinate2D cord = [self.path coordinateAtIndex:i];
+            
+            NSMutableDictionary *cordDictionary = [[NSMutableDictionary alloc] init];
+            cordDictionary[@"lat"] = [NSNumber numberWithDouble:cord.latitude];
+            cordDictionary[@"lng"] = [NSNumber numberWithDouble:cord.longitude];
+            
+            [resArray addObject:cordDictionary];
+        }
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resArray];
+        [self.polygonEditCommandDelegate sendPluginResult:pluginResult callbackId:self.polygonEditCommand.callbackId];
+    }
+};
+
 #pragma mark - Mid Markers
 
 - (void)startDraggingPolygonMidMarker:(GMSMarker *)marker{
@@ -229,28 +254,30 @@
 
 - (void)addMidMarkers{
 
-    for (int i = 0; i < self.polygonMarkers.count; i++)
+    if (self.polygonMarkers && self.polygonMarkers.count)
     {
-        GMSMarker *markerA = (GMSMarker *)[self.polygonMarkers objectAtIndex:i];
-        GMSMarker *markerB;
-        
-        if (i == self.polygonMarkers.count - 1)
+        for (int i = 0; i < self.polygonMarkers.count; i++)
         {
-            markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:0];
+            GMSMarker *markerA = (GMSMarker *)[self.polygonMarkers objectAtIndex:i];
+            GMSMarker *markerB;
+            
+            if (i == self.polygonMarkers.count - 1)
+            {
+                markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:0];
+            }
+            else
+            {
+                markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:i+1];
+            }
+            
+            CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
+            
+            [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapview];
+            
+            
         }
-        else
-        {
-            markerB = (GMSMarker *)[self.polygonMarkers objectAtIndex:i+1];
-        }
-        
-        CLLocationCoordinate2D midCoordinate = [GMUtils getMidPointBetweenCoordinate:markerA.position andCoordinate:markerB.position];
-        
-        [[PolyUtils sharedInstance] createMidMarkerForOverlay:self withCoordinates:midCoordinate midMarkersAray:self.midMarkers andIsEditMode:self.editMode andMap:self.mapview];
-        
-        
     }
-    
-    
+  
 }
 
 - (void)createBorderMarkerWithCoordinates:(CLLocationCoordinate2D)coordinates{
@@ -271,8 +298,6 @@
 
 - (void)setPolygonEditable:(BOOL)editable{
 
-    // Enable or disable DRAG feature for all polygons marker (center manker and border markers)
-    
     self.editMode = editable;
     
     [self.centerMarker setDraggable:editable];
@@ -292,6 +317,16 @@
         [marker setDraggable:editable];
         marker.opacity = 0.5 * editable;
     }
+};
+
+- (void)setPolygonEditable:(BOOL)editable withCommand:(CDVInvokedUrlCommand *)command andDelegate:(id <CDVCommandDelegate>)commandDelegate{
+
+    // Enable or disable DRAG feature for all polygons marker (center manker and border markers)
+    
+    self.polygonEditCommandDelegate = commandDelegate;
+    self.polygonEditCommand = command;
+    
+    [self setPolygonEditable:editable];
     
 }
 
