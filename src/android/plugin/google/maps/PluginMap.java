@@ -667,6 +667,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map = null;
               mapView = null;
               System.gc();
+              Runtime.getRuntime().gc();
               if (callbackContext != null) {
                 sendNoResult(callbackContext);
               }

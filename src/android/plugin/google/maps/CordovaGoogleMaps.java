@@ -686,6 +686,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.pluginMaps.clear();
 
         System.gc();
+        Runtime.getRuntime().gc();
       }
     });
 
@@ -699,6 +700,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       pluginMap.onDestroy();
       mPluginLayout.HTMLNodes.remove(mapId);
     }
+    System.gc();
+    Runtime.getRuntime().gc();
     callbackContext.success();
   }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
