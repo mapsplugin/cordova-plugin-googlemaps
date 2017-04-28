@@ -438,6 +438,7 @@ NSDictionary *initOptions;
             
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
+                [polygon notifyPolygonEdited];
                 [self triggerOverlayEvent:@"overlay_edit" id:polygon.title];
                 
                 [polygon movePolygonBorderMarker:marker];
@@ -446,6 +447,7 @@ NSDictionary *initOptions;
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
+                [polygon notifyPolygonEdited];
                 [self triggerOverlayEvent:@"overlay_edit" id:polygon.title];
                 
                 [polygon polygonMidMarkerWasDragged:marker];
@@ -453,12 +455,11 @@ NSDictionary *initOptions;
             }
             else if ([marker.title isEqualToString:@"Center Marker"])
             {
+                [polygon notifyPolygonEdited];
                 [self triggerOverlayEvent:@"overlay_edit" id:polygon.title];
                 
                 [polygon polygonEdited];
             }
-            
-            [polygon notifyPolygonEdited];
         }
         else if ([marker.userData isKindOfClass:[DDPolyline class]])
         {
@@ -466,6 +467,7 @@ NSDictionary *initOptions;
             
             if (![marker.title isEqualToString:@"Center Marker"] && ![marker.title isEqualToString:@"MidPoint"])
             {
+                [polyline notifyPolylineEdited];
                 [self triggerOverlayEvent:@"overlay_edit" id:polyline.title];
                 
                 [polyline movePolylineBorderMarker:marker];
@@ -474,6 +476,7 @@ NSDictionary *initOptions;
             }
             else if([marker.title isEqualToString:@"MidPoint"])
             {
+                [polyline notifyPolylineEdited];
                 [self triggerOverlayEvent:@"overlay_edit" id:polyline.title];
                 
                 [polyline polylineMidMarkerWasDragged:marker];
@@ -481,12 +484,13 @@ NSDictionary *initOptions;
             }
             else if ([marker.title isEqualToString:@"Center Marker"])
             {
+                [polyline notifyPolylineEdited];
                 [self triggerOverlayEvent:@"overlay_edit" id:polyline.title];
                 
                 [polyline polylineEdited];
             }
             
-            [polyline notifyPolylineEdited];
+            
         }
         
         
@@ -714,13 +718,18 @@ NSDictionary *initOptions;
  */
 - (void)triggerOverlayEvent: (NSString *)eventName id:(NSString *) id
 {
-  NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
-                                      eventName, id];
-	if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-		[self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-	} else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-		[self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-	}
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        NSString* jsString = [NSString stringWithFormat:@"plugin.google.maps.Map._onOverlayEvent('%@', '%@');",
+                              eventName, id];
+        if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+            [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+        } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+            [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+        }
+    });
+    
+  
 }
 
 //future support: custom info window

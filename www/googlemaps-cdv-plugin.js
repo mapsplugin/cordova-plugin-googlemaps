@@ -1757,7 +1757,6 @@ Polyline.prototype.setEditable = function(editable) {
     editable = parseBoolean(editable);
     this.set('editable', editable);
     function updatePoints(newPoints) {
-               console.log("set points!!");
         this.setPoints(newPoints);
     }
     cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
@@ -1883,7 +1882,6 @@ Polygon.prototype.setEditable = function(editable) {
     editable = parseBoolean(editable);
     this.set('editable', editable);
     function updatePoints(newPoints) {
-               console.log("Set Points···");
         this.setPoints(newPoints);
     }
     cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
