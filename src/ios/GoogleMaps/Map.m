@@ -732,7 +732,7 @@
     {
         resultCommand = self.drawPolylineCommand;
         id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)shape.hash];
-    }
+    }a
     
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
     
