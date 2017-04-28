@@ -1922,6 +1922,10 @@ TileOverlay.prototype.setOpacity = function(opacity) {
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
 };
+TileOverlay.prototype.setTileUrlFormat = function(tileUrlFormat) {
+  this.set('tileUrlFormat', tileUrlFormat);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setTileUrlFormat', this.getId(), tileUrlFormat]);
+};
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
 };
