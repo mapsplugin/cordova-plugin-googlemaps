@@ -515,6 +515,7 @@ NSDictionary *initOptions;
         
         Map *mapClass = (CDVViewController*)[self.plugins objectForKey:@"Map"];
         [mapClass drawMarkerCallbackCalled:marker];
+        self.drawingMode = GoogleMapsDrawingModeDisabled;
     } else if (self.drawingMode == GoogleMapsDrawingModePolygon) {
         [self.polygonDrawer pushCoordinate:coordinate];
         [self.polygonDrawer draw];
