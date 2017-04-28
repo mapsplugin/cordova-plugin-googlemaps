@@ -1,7 +1,5 @@
 package plugin.google.maps;
 
-import android.graphics.Color;
-
 import com.dronedeploy.beta.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -11,7 +9,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -27,9 +24,9 @@ import java.util.List;
 
 public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnMarkerDragListener{
 
-    private com.google.android.gms.maps.model.Polygon mPolygon;
-    private com.google.android.gms.maps.model.Marker mMarkerCenter;
-    private ArrayList<com.google.android.gms.maps.model.Marker> mPolyMarks = new ArrayList<>();
+    private Polygon mPolygon;
+    private Marker mMarkerCenter;
+    private ArrayList<Marker> mPolyMarks = new ArrayList<>();
     private LatLng mCenter;
     private GoogleMap mMap;
 
@@ -50,7 +47,7 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
         try {
             List<LatLng> latLngList = getLatLngList(params.getJSONArray(0).getJSONArray(0));
             mPolygon.setPoints(latLngList);
-            for (com.google.android.gms.maps.model.Marker mark : mPolyMarks) {
+            for (Marker mark : mPolyMarks) {
                 mark.remove();
             }
             addBorderMarkers();
@@ -85,7 +82,9 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
         for (LatLng p : points) {
             MarkerOptions mark = new MarkerOptions().position(p).draggable(true).
                     icon(icon).anchor(0.5f, 0.5f);
-            mPolyMarks.add(mMap.addMarker(mark));
+            Marker addedMarker = mMap.addMarker(mark);
+            addedMarker.setTag(new MarkerTag());
+            mPolyMarks.add(addedMarker);
         }
     }
 
@@ -107,7 +106,7 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
         double offsetY = center.latitude - mCenter.latitude;
         double offsetX = center.longitude - mCenter.longitude;
 
-        for (com.google.android.gms.maps.model.Marker mark : mPolyMarks) {
+        for (Marker mark : mPolyMarks) {
             LatLng position = new LatLng(mark.getPosition().latitude + offsetY, mark.getPosition().
                     longitude + offsetX);
             mark.setPosition(position);
@@ -124,7 +123,7 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
 
     public void updateBorder() {
         ArrayList<LatLng> newPoints = new ArrayList();
-        for (com.google.android.gms.maps.model.Marker mark : mPolyMarks) {
+        for (Marker mark : mPolyMarks) {
             LatLng position = new LatLng(mark.getPosition().latitude, mark.getPosition().longitude);
             newPoints.add(position);
         }
@@ -141,7 +140,7 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
     }
 
     public boolean isMarkerInBorder(String id) {
-        for (com.google.android.gms.maps.model.Marker marker : mPolyMarks) {
+        for (Marker marker : mPolyMarks) {
             if (marker.getId().equals(id)) {
                 return true;
             }
@@ -159,6 +158,87 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
         }
 
         return list;
+    }
+
+    public void removeMarker(Marker marker) {
+        mPolyMarks.remove(marker);
+        updateBorder();
+    }
+
+    public void addLateralMarkersTo(Marker marker) {
+
+        int index = mPolyMarks.indexOf(marker);
+
+        int before = index == 0 ? mPolyMarks.size() : index - 1;
+        int after = index == mPolyMarks.size() ? 0 : index + 1;
+
+        LatLng markerPosition = marker.getPosition();
+        LatLng beforePosition = (mPolyMarks.get(before)).getPosition();
+        LatLng afterPosition = (mPolyMarks.get(after)).getPosition();
+
+        ArrayList<LatLng> points = new ArrayList();
+
+        points.add(markerPosition);
+        points.add(beforePosition);
+
+        LatLng latLngBefore = getPolygonCenterPoint(points);
+
+        points.clear();
+
+        points.add(markerPosition);
+        points.add(afterPosition);
+
+        LatLng latLngAfter = getPolygonCenterPoint(points);
+
+        List<LatLng> polyPoints  = mPolygon.getPoints();
+
+        ArrayList<LatLng> newPolyPoints = new ArrayList<>();
+
+        int currentIndex = 0;
+
+        for (LatLng latLng : polyPoints) {
+
+            newPolyPoints.add(latLng);
+
+            if (currentIndex == before) {
+                newPolyPoints.add(latLngBefore);
+            } else if (currentIndex == after - 1) {
+                newPolyPoints.add(latLngAfter);
+            }
+
+            currentIndex++;
+        }
+
+        mPolygon.setPoints(newPolyPoints);
+
+        ArrayList<Marker> newMarkers = new ArrayList<>();
+
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.circle_image);
+
+        for (currentIndex = 0; currentIndex < mPolyMarks.size(); currentIndex++) {
+
+            newMarkers.add(mPolyMarks.get(currentIndex));
+
+            if (currentIndex == before) {
+                MarkerOptions mark = new MarkerOptions().position(latLngBefore).draggable(true).
+                        icon(icon).anchor(0.5f, 0.5f).alpha(0.5f);
+                Marker addMarker = mMap.addMarker(mark);
+                addMarker.setTag(new MarkerTag());
+                newMarkers.add(addMarker);
+            } else if (currentIndex == after - 1) {
+                MarkerOptions mark = new MarkerOptions().position(latLngAfter).draggable(true).
+                        icon(icon).anchor(0.5f, 0.5f).alpha(0.5f);;
+                Marker addMarker = mMap.addMarker(mark);
+                addMarker.setTag(new MarkerTag());
+                newMarkers.add(addMarker);
+            }
+
+        }
+
+        mPolyMarks.clear();
+        mPolyMarks.addAll(newMarkers);
+
+
     }
 
     @Override
@@ -180,10 +260,35 @@ public class DDPolygon implements GoogleMap.OnMarkerClickListener, GoogleMap.OnM
     @Override
     public void onMarkerDragEnd(Marker marker) {
 
+        if (isMarkerIdCenter(marker.getId())) {
+
+        } else if (isMarkerInBorder(marker.getId())) {
+            MarkerTag tag = (MarkerTag) marker.getTag();
+            if (tag.isWasClicked()) {
+
+            } else {
+                tag.setWasClicked(true);
+                marker.setAlpha(1.0f);
+                addLateralMarkersTo(marker);
+            }
+        }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+
+        if (isMarkerIdCenter(marker.getId())) {
+
+        } else if (isMarkerInBorder(marker.getId())) {
+            MarkerTag tag = (MarkerTag) marker.getTag();
+            if (tag.isWasClicked()) {
+                removeMarker(marker);
+                marker.remove();
+            } else {
+                tag.setWasClicked(true);
+                marker.setAlpha(1.0f);
+            }
+        }
         return false;
     }
 }
