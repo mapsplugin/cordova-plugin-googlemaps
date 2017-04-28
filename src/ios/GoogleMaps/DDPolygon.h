@@ -7,12 +7,15 @@
 //
 
 #import <GoogleMaps/GoogleMaps.h>
+#import <Cordova/CDV.h>
 
 @interface DDPolygon : GMSPolygon
 
 #pragma mark - Map Events
 
 - (void)polygonEdited;
+
+- (void)notifyPolygonEdited;
 
 #pragma mark - Mid Markers
 
@@ -49,5 +52,7 @@
 - (void)updatePath:(GMSMutablePath *)newPath;
 
 - (void)setPolygonEditable:(BOOL)editable;
+
+- (void)setPolygonEditable:(BOOL)editable withCommand:(CDVInvokedUrlCommand *)command andDelegate:(id <CDVCommandDelegate>)commandDelegate;
 
 @end

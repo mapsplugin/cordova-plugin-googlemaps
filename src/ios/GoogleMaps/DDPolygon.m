@@ -19,6 +19,9 @@
 @property (nonatomic, assign) BOOL editMode;
 @property (nonatomic, strong) GMSMapView *mapview;
 
+@property (nonatomic, strong) CDVInvokedUrlCommand *polygonEditCommand;
+@property (nonatomic, strong) id <CDVCommandDelegate> polygonEditCommandDelegate;
+
 @end
 
 @implementation DDPolygon
@@ -126,6 +129,28 @@
     [self addMidMarkers];
     
 }
+
+- (void)notifyPolygonEdited{
+
+    if (self.polygonEditCommand && self.polygonEditCommandDelegate)
+    {
+        NSMutableArray *resArray = [[NSMutableArray alloc] init];
+        
+        for (int i = 0; i < self.path.count; i++) {
+            
+            CLLocationCoordinate2D cord = [self.path coordinateAtIndex:i];
+            
+            NSMutableDictionary *cordDictionary = [[NSMutableDictionary alloc] init];
+            cordDictionary[@"lat"] = [NSNumber numberWithDouble:cord.latitude];
+            cordDictionary[@"lng"] = [NSNumber numberWithDouble:cord.longitude];
+            
+            [resArray addObject:cordDictionary];
+        }
+        
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resArray];
+        [self.polygonEditCommandDelegate sendPluginResult:pluginResult callbackId:self.polygonEditCommand.callbackId];
+    }
+};
 
 #pragma mark - Mid Markers
 
@@ -273,8 +298,6 @@
 
 - (void)setPolygonEditable:(BOOL)editable{
 
-    // Enable or disable DRAG feature for all polygons marker (center manker and border markers)
-    
     self.editMode = editable;
     
     [self.centerMarker setDraggable:editable];
@@ -294,6 +317,16 @@
         [marker setDraggable:editable];
         marker.opacity = 0.5 * editable;
     }
+};
+
+- (void)setPolygonEditable:(BOOL)editable withCommand:(CDVInvokedUrlCommand *)command andDelegate:(id <CDVCommandDelegate>)commandDelegate{
+
+    // Enable or disable DRAG feature for all polygons marker (center manker and border markers)
+    
+    self.polygonEditCommandDelegate = commandDelegate;
+    self.polygonEditCommand = command;
+    
+    [self setPolygonEditable:editable];
     
 }
 

@@ -457,6 +457,8 @@ NSDictionary *initOptions;
                 
                 [polygon polygonEdited];
             }
+            
+            [polygon notifyPolygonEdited];
         }
         else if ([marker.userData isKindOfClass:[DDPolyline class]])
         {
@@ -483,6 +485,8 @@ NSDictionary *initOptions;
                 
                 [polyline polylineEdited];
             }
+            
+            [polyline notifyPolylineEdited];
         }
         
         
