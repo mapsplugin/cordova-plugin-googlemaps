@@ -179,7 +179,7 @@ public class PluginUtil {
     int i = 0;
     for (i = 0; i < points.length(); i++) {
       pointJSON = points.getJSONObject(i);
-      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng"))); 
+      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng")));
     }
     return path;
   }
@@ -243,7 +243,8 @@ public class PluginUtil {
     Canvas canvas = new Canvas(scaledBitmap);
     canvas.setMatrix(scaleMatrix);
     canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-    
+    bitmap.recycle();
+
     return scaledBitmap;
   }
 

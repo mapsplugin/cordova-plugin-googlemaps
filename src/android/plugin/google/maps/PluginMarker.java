@@ -37,13 +37,15 @@ import java.util.Locale;
 import java.util.Set;
 
 public class PluginMarker extends MyPlugin implements MyPluginInterface  {
-  
+
   private enum Animation {
     DROP,
     BOUNCE
   }
 
   private ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
+  private ArrayList<String> iconCacheKeys = new ArrayList<String>();
+  private ArrayList<Bitmap> icons = new ArrayList<Bitmap>();
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -56,6 +58,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        if (objects == null) {
+          return;
+        }
         Set<String> keySet = objects.keySet();
         String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
@@ -64,7 +69,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             if (objectId.startsWith("marker_") &&
               !objectId.startsWith("marker_property_")) {
               Marker marker = (Marker) objects.remove(objectId);
+              marker.setIcon(null);
               marker.remove();
+              marker = null;
             } else {
               Object object = objects.remove(objectId);
               object = null;
@@ -81,19 +88,75 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
   @Override
   protected void clear() {
-    AsyncLoadImage[] tasks = iconLoadingTasks.toArray(new AsyncLoadImage[iconLoadingTasks.size()]);
-    for (int i = 0; i < tasks.length; i++) {
-      tasks[i].cancel(true);
+    //--------------------------------------
+    // Cancel tasks
+    //--------------------------------------
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        AsyncLoadImage[] tasks = iconLoadingTasks.toArray(new AsyncLoadImage[iconLoadingTasks.size()]);
+        for (int i = 0; i < tasks.length; i++) {
+          tasks[i].cancel(true);
+        }
+        iconLoadingTasks.clear();
+      }
+    });
+
+    //--------------------------------------
+    // Recycle bitmaps as much as possible
+    //--------------------------------------
+    String[] cacheKeys = iconCacheKeys.toArray(new String[iconCacheKeys.size()]);
+    for (int i = 0; i < cacheKeys.length; i++) {
+      AsyncLoadImage.removeBitmapFromMemCahce(iconCacheKeys.remove(0));
     }
-    iconLoadingTasks.clear();
-    super.clear();
+    Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
+    Bitmap image;
+    for (int i = 0; i < cachedBitmaps.length; i++) {
+      image = icons.remove(0);
+      if (image != null && !image.isRecycled()) {
+        image.recycle();
+      }
+      image = null;
+    }
+    icons.clear();
+
+    //--------------------------------------
+    // clean up properties as much as possible
+    //--------------------------------------
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Set<String> keySet = objects.keySet();
+        String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+
+        for (String objectId : objectIdArray) {
+          if (objects.containsKey(objectId)) {
+            if (objectId.startsWith("marker_") &&
+                !objectId.startsWith("marker_property_")) {
+              Marker marker = (Marker) objects.remove(objectId);
+              marker.setIcon(null);
+              marker.remove();
+              marker = null;
+            } else {
+              Object object = objects.remove(objectId);
+              object = null;
+            }
+          }
+        }
+
+        objects.clear();
+        PluginMarker.super.clear();
+
+      }
+    });
+
   }
 
   /**
    * Create a marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   @SuppressWarnings("unused")
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -145,6 +208,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       properties.put("disableAutoPan", opts.getBoolean("disableAutoPan"));
     } else {
       properties.put("disableAutoPan", false);
+    }
+    if (opts.has("noCache")) {
+      properties.put("noCache", opts.getBoolean("noCache"));
+    } else {
+      properties.put("noCache", false);
     }
     if (opts.has("useHtmlInfoWnd")) {
       properties.put("useHtmlInfoWnd", opts.getBoolean("useHtmlInfoWnd"));
@@ -318,9 +386,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     });
 
 
-    
+
   }
-  
+
   private void setDropAnimation_(final Marker marker, final PluginAsyncInterface callback) {
     final long startTime = SystemClock.uptimeMillis();
     final long duration = 100;
@@ -357,7 +425,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
-  
+
   /**
    * Bounce animation
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
@@ -401,7 +469,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     });
 
   }
-  
+
   private void setMarkerAnimation_(Marker marker, String animationType, PluginAsyncInterface callback) {
     Animation animation = null;
     try {
@@ -421,14 +489,14 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     case BOUNCE:
       this.setBounceAnimation_(marker, callback);
       break;
-    
+
     default:
       break;
     }
   }
-  
+
   /**
-   * 
+   *
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
    * @param args
    * @param callbackContext
@@ -438,7 +506,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     String markerId = args.getString(0);
     String animation = args.getString(1);
     final Marker marker = this.getMarker(markerId);
-    
+
     this.setMarkerAnimation_(marker, animation, new PluginAsyncInterface() {
 
       @Override
@@ -449,7 +517,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       public void onError(String errorMsg) {
         callbackContext.error(errorMsg);
       }
-      
+
     });
   }
 
@@ -457,7 +525,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * Show the InfoWindow bound with the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void showInfoWindow(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String id = args.getString(0);
@@ -477,26 +545,26 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * Set rotation for the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setRotation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float rotation = (float)args.getDouble(1);
     String id = args.getString(0);
     this.setFloat("setRotation", id, rotation, callbackContext);
   }
-  
+
   /**
    * Set opacity for the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setOpacity(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float alpha = (float)args.getDouble(1);
     String id = args.getString(0);
     this.setFloat("setAlpha", id, alpha, callbackContext);
   }
-    
+
   /**
    * Set zIndex for the marker (dummy code, not available on Android V2)
    * @param args
@@ -530,12 +598,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
-  
+
   /**
    * Set flat for the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setFlat(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     boolean isFlat = args.getBoolean(1);
@@ -547,7 +615,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * Set visibility for the object
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean isVisible = args.getBoolean(1);
@@ -573,7 +641,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   /**
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setDisableAutoPan(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean disableAutoPan = args.getBoolean(1);
@@ -598,31 +666,31 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * Set title for the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setTitle(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String title = args.getString(1);
     String id = args.getString(0);
     this.setString("setTitle", id, title, callbackContext);
   }
-  
+
   /**
    * Set the snippet for the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setSnippet(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String snippet = args.getString(1);
     String id = args.getString(0);
     this.setString("setSnippet", id, snippet, callbackContext);
   }
-  
+
   /**
    * Hide the InfoWindow binded with the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void hideInfoWindow(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String id = args.getString(0);
@@ -642,7 +710,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * Remove the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String id = args.getString(0);
@@ -652,11 +720,17 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       return;
     }
 
+    String[] cacheKeys = iconCacheKeys.toArray(new String[iconCacheKeys.size()]);
+    for (int i = 0; i < cacheKeys.length; i++) {
+      AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
+    }
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         marker.remove();
         objects.remove(id);
+
 
         String propertyId = "marker_property_" + id;
         objects.remove(propertyId);
@@ -664,63 +738,63 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
-  
+
   /**
    * Set anchor for the icon of the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setIconAnchor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float anchorX = (float)args.getDouble(1);
     float anchorY = (float)args.getDouble(2);
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
-    
+
     Bundle imageSize = (Bundle) self.objects.get("imageSize");
     if (imageSize != null) {
       this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
     this.sendNoResult(callbackContext);
   }
-  
+
 
   /**
    * Set anchor for the InfoWindow of the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setInfoWindowAnchor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float anchorX = (float)args.getDouble(1);
     float anchorY = (float)args.getDouble(2);
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
-    
+
     Bundle imageSize = (Bundle) self.objects.get("imageSize");
     if (imageSize != null) {
       this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
     this.sendNoResult(callbackContext);
   }
-  
+
   /**
    * Set draggable for the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setDraggable(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     Boolean draggable = args.getBoolean(1);
     String id = args.getString(0);
     this.setBoolean("setDraggable", id, draggable, callbackContext);
   }
-  
+
   /**
    * Set icon of the marker
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setIcon(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
@@ -730,7 +804,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     if (JSONObject.class.isInstance(value)) {
       JSONObject iconProperty = (JSONObject)value;
       bundle = PluginUtil.Json2Bundle(iconProperty);
-          
+
       // The `anchor` for icon
       if (iconProperty.has("anchor")) {
         value = iconProperty.get("anchor");
@@ -770,8 +844,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       this.sendNoResult(callbackContext);
     }
   }
-  
+
   private void setIcon_(final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
+    boolean noCaching = false;
+    if (iconProperty.containsKey("noCache")) {
+      noCaching = iconProperty.getBoolean("noCache");
+    }
     if (iconProperty.containsKey("iconHue")) {
       cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
@@ -880,6 +958,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           if (image == null) {
             return null;
           }
+          icons.add(image);
 
           Boolean isResized = false;
           if (iconProperty.containsKey("size")) {
@@ -902,6 +981,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           if (!isResized) {
             image = PluginUtil.scaleBitmapForDevice(image);
           }
+          icons.add(image);
 
           return image;
         }
@@ -971,7 +1051,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         height = sizeInfo.getInt("height", height);
       }
 
-      AsyncLoadImage task = new AsyncLoadImage("Mozilla", width, height, new AsyncLoadImageInterface() {
+      String cacheKey = AsyncLoadImage.getCacheKey(iconUrl, width, height);
+      iconCacheKeys.add(cacheKey);
+
+      AsyncLoadImage task = new AsyncLoadImage("Mozilla", width, height, noCaching, new AsyncLoadImageInterface() {
 
         @Override
         public void onPostExecute(Bitmap image) {
@@ -982,6 +1065,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
 
           try {
+            icons.add(image);
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
             marker.setIcon(bitmapDescriptor);
 

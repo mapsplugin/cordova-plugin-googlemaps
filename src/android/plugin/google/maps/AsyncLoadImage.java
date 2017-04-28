@@ -3,6 +3,7 @@ package plugin.google.maps;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.annotation.SuppressLint;
@@ -63,13 +64,34 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
 
     mIconCache = new BitmapCache(cacheSize);
   }
-  private void addBitmapToMemoryCache(String key, Bitmap image) {
+
+  public static String getCacheKey(String url, int width, int height) {
+    try {
+      return getCacheKey(new URL(url), width, height);
+    } catch (MalformedURLException e) {
+      return null;
+    }
+  }
+  public static String getCacheKey(URL url, int width, int height) {
+    return url.hashCode() + "/" + width + "x" + height;
+  }
+
+  public static void addBitmapToMemoryCache(String key, Bitmap image) {
     if (getBitmapFromMemCache(key) == null) {
       mIconCache.put(key, image.copy(image.getConfig(), true));
     }
   }
 
-  private Bitmap getBitmapFromMemCache(String key) {
+  public static void removeBitmapFromMemCahce(String key) {
+    Log.d("removeBitmap", key);
+    Bitmap image = mIconCache.remove(key);
+    if (image == null || image.isRecycled()) {
+      return;
+    }
+    image.recycle();
+  }
+
+  private static Bitmap getBitmapFromMemCache(String key) {
     Bitmap image = mIconCache.get(key);
     if (image == null || image.isRecycled()) {
       return null;
@@ -93,11 +115,13 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   @SuppressLint("NewApi")
   protected Bitmap doInBackground(String... urls) {
     try {
-      URL url= new URL(urls[0]);
-      String cacheKey = url.hashCode() + "/" + mWidth + "x" + mHeight;
-      Bitmap image = getBitmapFromMemCache(cacheKey);
-      if (image != null) {
-        return image;
+      URL url = new URL(urls[0]);
+      String cacheKey = getCacheKey(url, mWidth, mHeight);
+      if (!noCaching) {
+        Bitmap image = getBitmapFromMemCache(cacheKey);
+        if (image != null) {
+          return image;
+        }
       }
 
       boolean redirect = true;
@@ -137,10 +161,10 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
         }
       }
 
-      
+
       Bitmap myBitmap = null;
       InputStream inputStream = http.getInputStream();
-      
+
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       int nRead;
       byte[] data = new byte[16384];
@@ -150,21 +174,22 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       buffer.flush();
       inputStream.close();
       byte[] imageBytes = buffer.toByteArray();
-      
+
       BitmapFactory.Options options = new BitmapFactory.Options();
       options.inJustDecodeBounds = true;
       myBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
-      
+      myBitmap.recycle();
+
       if (mWidth < 1 && mHeight < 1) {
         mWidth = options.outWidth;
         mHeight = options.outHeight;
       }
-      
+
       // Resize
       int newWidth = (int)(mWidth * density);
       int newHeight = (int)(mHeight * density);
 
-      
+
       /**
        * http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap#7468636
        */
@@ -174,7 +199,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       float ratioY = newHeight / (float) options.outHeight;
       float middleX = newWidth / 2.0f;
       float middleY = newHeight / 2.0f;
-      
+
       options.inJustDecodeBounds = false;
       //options.inSampleSize = (int) Math.max(ratioX, ratioY);
       options.outWidth = newWidth;
@@ -189,6 +214,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
       myBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
       canvas.drawBitmap(myBitmap, middleX - options.outWidth / 2, middleY - options.outHeight / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
       myBitmap.recycle();
+      myBitmap = null;
       canvas = null;
       imageBytes = null;
 

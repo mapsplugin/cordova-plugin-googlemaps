@@ -819,6 +819,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
     markerOptions.useHtmlInfoWnd = !(markerOptions.infoWindow === undefined);
+    markerOptions.noCache = markerOptions.noCache === true; //experimental
 
     if ("styles" in markerOptions) {
         markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};

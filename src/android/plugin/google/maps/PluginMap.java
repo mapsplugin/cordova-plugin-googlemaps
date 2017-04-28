@@ -663,6 +663,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   e.printStackTrace();
                 }
               }
+              String[] pluginNames = plugins.keySet().toArray(new String[plugins.size()]);
+              PluginEntry pluginEntry;
+              for (int i = 0; i < pluginNames.length; i++) {
+                pluginEntry = plugins.remove(pluginNames[i]);
+                pluginEntry.plugin.onDestroy();
+                pluginEntry = null;
+              }
               //Log.d("pluginMap", "--> mapView = " + mapView);
               map = null;
               mapView = null;
@@ -671,6 +678,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               if (callbackContext != null) {
                 sendNoResult(callbackContext);
               }
+              PluginMap.this.onDestroy();
             }
           });
         }
@@ -1575,21 +1583,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @SuppressWarnings("unused")
   public void clear(JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    this.activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        boolean isSuccess = false;
-        while (!isSuccess) {
-          try {
-            map.clear();
-            isSuccess = true;
-          } catch (Exception e) {
-            //e.printStackTrace();
-            isSuccess = false;
-          }
-        }
-      }
-    });
 
     cordova.getThreadPool().submit(new Runnable() {
       @Override
@@ -1606,9 +1599,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             ((MyPlugin) pluginEntry.plugin).clear();
           }
         }
-        if (callbackContext != null) {
-          sendNoResult(callbackContext);
-        }
+
+        activity.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            boolean isSuccess = false;
+            while (!isSuccess) {
+              try {
+                map.clear();
+                isSuccess = true;
+              } catch (Exception e) {
+                //e.printStackTrace();
+                isSuccess = false;
+              }
+            }
+            if (callbackContext != null) {
+              sendNoResult(callbackContext);
+            }
+          }
+        });
+
       }
     });
   }
