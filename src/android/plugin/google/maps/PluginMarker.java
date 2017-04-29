@@ -94,11 +94,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-        AsyncLoadImage[] tasks = iconLoadingTasks.toArray(new AsyncLoadImage[iconLoadingTasks.size()]);
-        for (int i = 0; i < tasks.length; i++) {
-          tasks[i].cancel(true);
+        for (int i = 0, ilen=iconLoadingTasks.size(); i < ilen; i++) {
+          iconLoadingTasks.get(i).cancel(true);
+          iconLoadingTasks.set(i, null);
         }
-        iconLoadingTasks.clear();
+        iconLoadingTasks = null;
       }
     });
 
