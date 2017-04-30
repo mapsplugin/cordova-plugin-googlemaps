@@ -950,6 +950,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             try {
               inputStream = assetManager.open(iconUrl);
               image = BitmapFactory.decodeStream(inputStream);
+              inputStream.close()
             } catch (IOException e) {
               e.printStackTrace();
               return null;
@@ -958,8 +959,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           if (image == null) {
             return null;
           }
-          icons.add(image);
-
           Boolean isResized = false;
           if (iconProperty.containsKey("size")) {
             Object size = iconProperty.get("size");
