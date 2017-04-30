@@ -950,7 +950,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             try {
               inputStream = assetManager.open(iconUrl);
               image = BitmapFactory.decodeStream(inputStream);
-              inputStream.close()
+              inputStream.close();
             } catch (IOException e) {
               e.printStackTrace();
               return null;
