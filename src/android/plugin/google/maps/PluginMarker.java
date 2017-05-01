@@ -959,6 +959,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           if (image == null) {
             return null;
           }
+          icons.add(image);
+
           Boolean isResized = false;
           if (iconProperty.containsKey("size")) {
             Object size = iconProperty.get("size");
