@@ -177,8 +177,10 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
 
       BitmapFactory.Options options = new BitmapFactory.Options();
       options.inJustDecodeBounds = true;
-      myBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
-      myBitmap.recycle();
+
+      // The below line just checking the bitmap size (width,height).
+      // Returned value is always null.
+      BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
 
       if (mWidth < 1 && mHeight < 1) {
         mWidth = options.outWidth;
