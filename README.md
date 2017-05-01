@@ -67,7 +67,7 @@ For the reason, the new version is still in the beta.
 If you are interested in it, you can try the new version.
 
 For more details, please read here.
-https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/v2-beta
+https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
 
 You can try the demo application from here.
 
