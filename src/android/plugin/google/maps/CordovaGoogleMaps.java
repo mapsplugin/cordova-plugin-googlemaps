@@ -76,7 +76,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   private CallbackContext _saveCallbackContext = null;
   public boolean initialized = false;
   public PluginManager pluginManager;
-  private static ExecutorService executorService = Executors.newFixedThreadPool(1);
+  private static ExecutorService executorService = Executors.newFixedThreadPool(1); // Must be 1 thread.
   private String CURRENT_URL;
 
   @SuppressLint("NewApi") @Override
