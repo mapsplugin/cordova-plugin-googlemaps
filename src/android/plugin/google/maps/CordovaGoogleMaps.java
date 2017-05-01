@@ -74,7 +74,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   private GoogleApiClient googleApiClient = null;
   private JSONArray _saveArgs = null;
   private CallbackContext _saveCallbackContext = null;
-  public final HashMap<String, Integer> methods = new HashMap<String, Integer>();
   public boolean initialized = false;
   public PluginManager pluginManager;
   private static ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -92,12 +91,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     final View view = webView.getView();
     view.getViewTreeObserver().addOnScrollChangedListener(CordovaGoogleMaps.this);
     root = (ViewGroup) view.getParent();
-
-    Method[] classMethods = this.getClass().getMethods();
-    for (int i = 0; i < classMethods.length; i++) {
-      String methodName = classMethods[i].getName();
-      methods.put(methodName, methodName.hashCode());
-    }
 
     pluginManager = webView.getPluginManager();
 
@@ -282,39 +275,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           }
       }
     });
-    /*
-    if (mPluginLayout != null && mPluginLayout.isDebug) {
-      if (args != null && args.length() > 0) {
-        Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
-      } else {
-        Log.d(TAG, "(debug)action=" + action);
-      }
-    }
-
-    if (methods.containsKey(action)) {
-      if (mPluginLayout != null && mPluginLayout.isDebug) {
-        if (args != null && args.length() > 0) {
-          Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
-        } else {
-          Log.d(TAG, "(debug)action=" + action);
-        }
-      }
-      cordova.getThreadPool().submit(new Runnable() {
-        @Override
-        public void run() {
-          Method method = methods.get(action);
-          try {
-            method.invoke(CordovaGoogleMaps.this, args, callbackContext);
-          } catch (Exception e) {
-            e.printStackTrace();
-            callbackContext.error("" + e.getMessage());
-          }
-        }
-      });
-      return true;
-    } else {
-      return false;
-    }*/
     return true;
 
   }
@@ -358,17 +318,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
           mPluginLayout.putHTMLElements(elements);
       }
-
-      /*
-      if (mPluginLayout.needUpdatePosition) {
-        mPluginLayout.needUpdatePosition = false;
-
-        for (String s : mPluginLayout.pluginMaps.keySet()) {
-          mPluginLayout.updateViewPosition(s);
-        }
-      }
-      */
-
 
       callbackContext.success();
   }
@@ -696,10 +645,14 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     String mapId = args.getString(0);
     if (mPluginLayout.pluginMaps.containsKey(mapId)) {
       PluginMap pluginMap = mPluginLayout.removePluginMap(mapId);
-      pluginMap.remove(null, null);
-      pluginMap.onDestroy();
-      mPluginLayout.HTMLNodes.remove(mapId);
+      if (pluginMap != null) {
+        pluginMap.remove(null, null);
+        pluginMap.onDestroy();
+        mPluginLayout.HTMLNodes.remove(mapId);
+        pluginMap = null;
+      }
     }
+
     System.gc();
     Runtime.getRuntime().gc();
     callbackContext.success();

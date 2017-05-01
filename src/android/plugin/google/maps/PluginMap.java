@@ -94,7 +94,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public boolean isClickable = true;
   public final String TAG = mapId;
   public String mapDivId;
-  public final HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
+  public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   private Marker activeMarker = null;
@@ -674,8 +674,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 pluginEntry = null;
               }
               //Log.d("pluginMap", "--> mapView = " + mapView);
+              projection = null;
+              plugins = null;
               map = null;
               mapView = null;
+              _saveArgs = null;
+              _saveCallbackContext = null;
+              initCameraBounds = null;
+              activity = null;
+              mapId = null;
+              mapDivId = null;
+              activeMarker = null;
+
               System.gc();
               Runtime.getRuntime().gc();
               if (callbackContext != null) {
