@@ -55,6 +55,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   @Override
   public void onDestroy() {
     super.onDestroy();
+    this.clear();
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -94,9 +95,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
-        for (int i = 0, ilen=iconLoadingTasks.size(); i < ilen; i++) {
-          iconLoadingTasks.get(i).cancel(true);
-          iconLoadingTasks.set(i, null);
+        AsyncTask task;
+        int i, ilen=iconLoadingTasks.size();
+        for (i = 0; i < ilen; i++) {
+          task = iconLoadingTasks.remove(i);
+          task.cancel(true);
+          task = null;
         }
         iconLoadingTasks = null;
       }
@@ -997,6 +1001,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           try {
             //TODO: check image is valid?
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
+            if (bitmapDescriptor == null) {
+              callback.onPostExecute(marker);
+              return;
+            }
             marker.setIcon(bitmapDescriptor);
 
             // Save the information for the anchor property

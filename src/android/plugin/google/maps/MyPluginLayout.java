@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -76,14 +77,18 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       //}
       //int scrollX = browserView.getScrollX();
       final int scrollY = browserView.getScrollY();
-      final int webviewWidth = browserView.getWidth();
-      final int webviewHeight = browserView.getHeight();
+      //final int webviewWidth = browserView.getWidth();
+      //final int webviewHeight = browserView.getHeight();
 
       mActivity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
 
-          String[] mapIds = pluginMaps.keySet().toArray(new String[pluginMaps.size()]);
+          Set<String> keySet = pluginMaps.keySet();
+          String[] toArrayBuf = new String[pluginMaps.size()];
+          String[] mapIds = keySet.toArray(toArrayBuf);
+          toArrayBuf = null;
+          keySet = null;
           String mapId;
           PluginMap pluginMap;
           RectF drawRect;
@@ -141,6 +146,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             }
 
           }
+          mapIds = null;
+          pluginMap = null;
+          mapId = null;
+          pluginMap = null;
+          drawRect = null;
         }
       });
 
@@ -240,72 +250,25 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       newBuffer.put(domId, domInfo);
     }
 
+    Bundle bundle;
+    RectF rectF;
     HashMap<String, Bundle> oldBuffer = HTMLNodes;
     HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
+
     HTMLNodes = newBuffer;
     HTMLNodeRectFs = newBufferRectFs;
-/*
 
-    if (needUpdatePosition) {
-      return;
+    String[] keys = oldBuffer.keySet().toArray(new String[oldBuffer.size()]);
+    for (int i = 0; i < oldBuffer.size(); i++) {
+      bundle = oldBuffer.remove(keys[i]);
+      bundle = null;
+      rectF = oldBufferRectFs.remove(keys[i]);
+      rectF = null;
     }
-
-    double prevOffsetX, prevOffsetY, newOffsetX, newOffsetY;
-    Iterator<String> mapIDs = pluginMaps.keySet().iterator();
-    String mapId;
-    PluginMap pluginMap;
-    Bundle prevDomInfo;
-    RectF oldRectF, newRectF;
-    while(mapIDs.hasNext()) {
-      mapId = mapIDs.next();
-      pluginMap = pluginMaps.get(mapId);
-      if (pluginMap.mapDivId == null) {
-        needUpdatePosition = true;
-        stopFlag = false;
-        break;
-      }
-
-      oldRectF = oldBufferRectFs.get(pluginMap.mapDivId);
-      newRectF = newBufferRectFs.get(pluginMap.mapDivId);
-
-      if (oldRectF.left != newRectF.left ||
-        oldRectF.top != newRectF.top ||
-        oldRectF.width() != newRectF.width() ||
-        oldRectF.height() != newRectF.height() ) {
-        needUpdatePosition = true;
-        stopFlag = false;
-        break;
-      }
-
-      prevDomInfo = oldBuffer.get(pluginMap.mapDivId);
-      if (prevDomInfo == null) {
-        needUpdatePosition = true;
-        stopFlag = false;
-        break;
-      }
-
-      domInfo = newBuffer.get(pluginMap.mapDivId);
-      if (domInfo == null) {
-        needUpdatePosition = true;
-        stopFlag = false;
-        break;
-      }
-
-      prevOffsetX = Double.parseDouble(prevDomInfo.get("offsetX") + "");
-      prevOffsetY = Double.parseDouble(prevDomInfo.get("offsetY") + "");
-      newOffsetX = Double.parseDouble(domInfo.get("offsetX") + "");
-      newOffsetY = Double.parseDouble(domInfo.get("offsetY") + "");
-
-      if (prevOffsetX != newOffsetX || prevOffsetY != newOffsetY ) {
-        needUpdatePosition = true;
-        stopFlag = false;
-        break;
-      }
-
-    }
-*/
-    newBuffer = null;
     oldBuffer = null;
+    oldBufferRectFs = null;
+    keys = null;
+    elementsBundle = null;
   }
 
   /*
