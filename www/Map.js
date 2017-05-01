@@ -110,6 +110,15 @@ Map.prototype.getMap = function(mapId, div, options) {
 
         div.style.overflow = "hidden";
         self.set("div", div);
+        
+        if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+          // If the map Div is too small, wait a little.
+          var callee = arguments.callee;
+          setTimeout(function() {
+            callee.call(self, mapId, div, options);
+          }, 250 + Math.random() * 100);
+          return;
+        }
         var elements = [];
         var elemId, clickable, size;
 
