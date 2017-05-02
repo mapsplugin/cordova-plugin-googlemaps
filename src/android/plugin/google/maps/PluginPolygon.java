@@ -1,7 +1,5 @@
 package plugin.google.maps;
 
-import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
@@ -12,11 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 //Future implement
@@ -422,8 +417,6 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         }
         hole.add(pointIndex, latLng);
         self.objects.put(propertyId, holes);
-
-        final ArrayList<LatLng> newHole = hole;
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
