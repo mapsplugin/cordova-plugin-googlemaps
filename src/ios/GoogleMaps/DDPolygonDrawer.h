@@ -23,4 +23,6 @@
 
 - (void)deleteLastDrawnVertex;
 
+- (void)cancelPolygonDrawing;
+
 @end
