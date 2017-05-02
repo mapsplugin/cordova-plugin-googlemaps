@@ -326,7 +326,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                           PluginMap.this.onCameraIdle();
                           map.setOnCameraIdleListener(PluginMap.this);
                           Handler handler = new Handler();
-                          handler.post(new AdjustInitCamera(params));
+                          handler.postDelayed(new AdjustInitCamera(params), 500);
                         }
                       });
                     }
@@ -340,7 +340,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       PluginMap.this.onCameraIdle();
                       map.setOnCameraIdleListener(PluginMap.this);
                       Handler handler = new Handler();
-                      handler.post(new AdjustInitCamera(params));
+                      handler.postDelayed(new AdjustInitCamera(params), 500);
                     }
                   });
                 }
