@@ -696,6 +696,10 @@
     [result setObject:id forKey:@"id"];
     [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
     
+    NSDictionary *position = @{@"lat":@(marker.position.latitude), @"lng":@(marker.position.longitude)};
+    [result setObject:position forKey:@"position"];
+    
+    
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.drawMarkerCommand.callbackId];
     
@@ -720,16 +724,33 @@
     CDVInvokedUrlCommand *resultCommand;
     
     NSString *id;
+    NSMutableArray *points = [NSMutableArray array];
     
     GMSOverlay *shape = [self.mapCtrl completeDrawnShape];
 
     if ([shape isKindOfClass:[GMSPolygon class]])
     {
+        GMSPolygon *polygon = (GMSPolygon *)shape;
+        
+        for (int i = 0; i < polygon.path.count; i++) {
+            CLLocationCoordinate2D coord = [polygon.path coordinateAtIndex:i];
+            NSDictionary *position = @{@"lat":@(coord.latitude), @"lng":@(coord.longitude)};
+            [points addObject:position];
+        }
+        
         resultCommand = self.drawPolygonCommand;
         id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)shape.hash];
     }
     else if ([shape isKindOfClass:[GMSPolyline class]])
     {
+        GMSPolyline *polyline = (GMSPolyline *)shape;
+        
+        for (int i = 0; i < polyline.path.count; i++) {
+            CLLocationCoordinate2D coord = [polyline.path coordinateAtIndex:i];
+            NSDictionary *position = @{@"lat":@(coord.latitude), @"lng":@(coord.longitude)};
+            [points addObject:position];
+        }
+        
         resultCommand = self.drawPolylineCommand;
         id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)shape.hash];
     }
@@ -738,6 +759,7 @@
     
     [result setObject:id forKey:@"id"];
     [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)shape.hash] forKey:@"hashCode"];
+    [result setObject:points forKey:@"points"];
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:resultCommand.callbackId];
