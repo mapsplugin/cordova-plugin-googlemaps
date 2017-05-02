@@ -3,9 +3,9 @@ var utils = require('cordova/utils'),
     BaseClass = require('./BaseClass');
 
 /*****************************************************************************
- * InfoWindow Class
+ * HTMLInfoWindow Class
  *****************************************************************************/
-var InfoWindow = function() {
+var HTMLInfoWindow = function() {
     var self = this;
     BaseClass.apply(self);
 
@@ -80,12 +80,12 @@ var InfoWindow = function() {
           contentBox.appendChild(title);
       }
 
-      // Insert the contents to this infoWindow
+      // Insert the contents to this HTMLInfoWindow
       if (!frame.parentNode) {
           div.appendChild(frame);
       }
 
-      // Adjust the infoWindow size
+      // Adjust the HTMLInfoWindow size
       var contentsWidth = contentBox.clientWidth;
       self.set("contentsWidth", contentsWidth);
       var contentsHeight = contentBox.clientHeight;
@@ -118,12 +118,12 @@ var InfoWindow = function() {
           }
 
       }
-      var infoWindowAnchor = marker.get("infoWindowAnchor");
-      if (utils.isArray(infoWindowAnchor)) {
-        infoOffset.x = infoWindowAnchor[0] / icon.size.width;
+      var HTMLInfoWindowAnchor = marker.get("HTMLInfoWindowAnchor");
+      if (utils.isArray(HTMLInfoWindowAnchor)) {
+        infoOffset.x = HTMLInfoWindowAnchor[0] / icon.size.width;
         infoOffset.x = infoOffset.x > 1 ? 1 : infoOffset.x;
         infoOffset.x = infoOffset.x < 0 ? 0 : infoOffset.x;
-        infoOffset.y = infoWindowAnchor[1] / icon.size.height;
+        infoOffset.y = HTMLInfoWindowAnchor[1] / icon.size.height;
         infoOffset.y = infoOffset.y > 1 ? 1 : infoOffset.y;
         infoOffset.y = infoOffset.y < 0 ? 0 : infoOffset.y;
       }
@@ -154,43 +154,43 @@ var InfoWindow = function() {
         frame.style.left = x + "px";
         frame.style.top =  y + "px";
     });
-    self.on("infoWindowAnchor_changed", calculate);
+    self.on("HTMLInfoWindowAnchor_changed", calculate);
     self.on("icon_changed", calculate);
 
 };
 
-utils.extend(InfoWindow, BaseClass);
+utils.extend(HTMLInfoWindow, BaseClass);
 
-InfoWindow.prototype.close = function(marker) {
+HTMLInfoWindow.prototype.close = function(marker) {
     if (!marker) {
         return;
     }
     var map = marker.getMap();
     map.off("infoPosition_changed");
     marker.off("icon_changed");
-    marker.off("infoWindowAnchor_changed");
-    var map = marker.getMap();
+    marker.off("HTMLInfoWindowAnchor_changed");
+
     var div = map.getDiv();
     var frame = this.get("frame");
     div.removeChild(frame);
     this.set('marker', undefined);
 
-    // Remove the contents from this infoWindow
+    // Remove the contents from this HTMLInfoWindow
     var contentFrame = frame.firstChild;
     var content = contentFrame.firstChild;
     content.innerHTML = "";
 };
 
-InfoWindow.prototype.open = function(marker) {
+HTMLInfoWindow.prototype.open = function(marker) {
     if (!marker) {
         return;
     }
     var map = marker.getMap();
     map.bindTo("infoPosition", this);
-    marker.bindTo("infoWindowAnchor", this);
+    marker.bindTo("HTMLInfoWindowAnchor", this);
     marker.bindTo("icon", this);
     this.set("marker", marker);
-    this.trigger("infoWindowAnchor_changed");
+    this.trigger("HTMLInfoWindowAnchor_changed");
 };
 
-module.exports = InfoWindow;
+module.exports = HTMLInfoWindow;

@@ -28,7 +28,7 @@
     <js-module name="Marker" src="www/Marker.js">
       <runs />
     </js-module>
-    <js-module name="InfoWindow" src="www/InfoWindow.js">
+    <js-module name="HtmlInfoWindow" src="www/HtmlInfoWindow.js">
       <runs />
     </js-module>
     <js-module name="Circle" src="www/Circle.js">
