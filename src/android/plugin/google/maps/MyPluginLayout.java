@@ -95,10 +95,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           for (int i = 0; i < mapIds.length; i++) {
             mapId = mapIds[i];
             pluginMap = pluginMaps.get(mapId);
-            if (pluginMap.mapDivId == null) {
+            if (pluginMap == null || pluginMap.mapDivId == null) {
               continue;
             }
             drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+            if (drawRect == null) {
+              continue;
+            }
 
             int width = (int)drawRect.width();
             int height = (int)drawRect.height();
