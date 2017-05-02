@@ -30,15 +30,13 @@ public class PluginGeocoder extends CordovaPlugin {
   //
   // According from my tests,  5 threads are the best setting.
   private static ExecutorService executorService = Executors.newFixedThreadPool(5);
-  private Activity mActivity = null;
   private static Geocoder geocoder = null;
 
 
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-    mActivity = cordova.getActivity();
     if (geocoder == null) {
-      geocoder = new Geocoder(mActivity);
+      geocoder = new Geocoder(cordova.getActivity());
     }
   }
 
@@ -62,7 +60,7 @@ public class PluginGeocoder extends CordovaPlugin {
     });
     return true;
   }
-  
+
   @SuppressWarnings("unused")
   private void geocode(final JSONArray args,
       final CallbackContext callbackContext) throws JSONException, IOException {

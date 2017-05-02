@@ -23,8 +23,12 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Set;
 
 public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  {
+
+  private ArrayList<AsyncTask> imageLoadingTasks = new ArrayList<AsyncTask>();
 
   private String userAgent = "Mozilla";
   @Override
@@ -475,6 +479,32 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
       });
       task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageUrl);
+      imageLoadingTasks.add(task);
     }
   }
+
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    //--------------------------------------
+    // Cancel tasks
+    //--------------------------------------
+    cordova.getThreadPool().submit(new Runnable() {
+      @Override
+      public void run() {
+        AsyncTask task;
+        int i, ilen=imageLoadingTasks.size();
+        for (i = 0; i < ilen; i++) {
+          task = imageLoadingTasks.remove(i);
+          task.cancel(true);
+          task = null;
+        }
+        imageLoadingTasks = null;
+      }
+    });
+
+  }
+
 }

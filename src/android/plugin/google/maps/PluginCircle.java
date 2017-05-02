@@ -252,7 +252,9 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       @Override
       public void run() {
         circle.remove();
-        objects.remove(id);
+        if (objects != null) {
+          objects.remove(id);
+        }
         sendNoResult(callbackContext);
       }
     });

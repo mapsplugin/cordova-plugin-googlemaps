@@ -733,7 +733,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         marker.remove();
-        objects.remove(id);
+        if (objects != null) {
+          objects.remove(id);
+        }
 
 
         String propertyId = "marker_property_" + id;
