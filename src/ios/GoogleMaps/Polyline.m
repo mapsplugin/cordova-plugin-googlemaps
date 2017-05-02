@@ -20,7 +20,7 @@
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   GMSMutablePath *path = [GMSMutablePath path];
-
+    
   NSArray *points = [json objectForKey:@"points"];
   int i = 0;
   NSDictionary *latLng;
@@ -58,7 +58,23 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-
+-(void)addPoint:(CDVInvokedUrlCommand *)command
+{
+    NSString *polylineKey = [command.arguments objectAtIndex:1];
+    DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+    GMSMutablePath *path = [[GMSMutablePath path] initWithPath:polyline.path];
+    
+    NSDictionary *latLng = [command.arguments objectAtIndex:2];
+    CLLocationDegrees lat = [[latLng objectForKey:@"lat"] floatValue];
+    CLLocationDegrees lng = [[latLng objectForKey:@"lng"] floatValue];
+    
+    [path addCoordinate:CLLocationCoordinate2DMake(lat, lng)];
+    
+    [polyline updatePath:path];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 /**
  * Set points
@@ -69,7 +85,6 @@
   NSString *polylineKey = [command.arguments objectAtIndex:1];
   DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   GMSMutablePath *path = [GMSMutablePath path];
-
   NSArray *points = [command.arguments objectAtIndex:2];
   int i = 0;
   NSDictionary *latLng;

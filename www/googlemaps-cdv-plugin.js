@@ -5,6 +5,43 @@ var MARKERS = {};
 var KML_LAYERS = {};
 var OVERLAYS = {};
 
+// Returns a function, that, when invoked, will only be triggered at most once
+// during a given window of time. Normally, the throttled function will run
+// as much as it can, without ever going more than once per `wait` duration;
+// but if you'd like to disable the execution on the leading edge, pass
+// `{leading: false}`. To disable execution on the trailing edge, ditto.
+function throttle(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
+    var previous = 0;
+    if (!options) options = {};
+    var later = function() {
+    previous = options.leading === false ? 0 : Date.now();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+    };
+    return function() {
+        var now = Date.now();
+        if (!previous && options.leading === false) previous = now;
+        var remaining = wait - (now - previous);
+        context = this;
+        args = arguments;
+        if (remaining <= 0 || remaining > wait) {
+        if (timeout) {
+               clearTimeout(timeout);
+               timeout = null;
+        }
+        previous = now;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+        } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+    }
+    return result;
+    };
+};
+               
 /**
  * Google Maps model.
  */
@@ -1571,14 +1608,14 @@ Marker.prototype.setSnippet = function(snippet) {
 Marker.prototype.getSnippet = function() {
     return this.get('snippet');
 };
-Marker.prototype.setRotation = function(rotation) {
+Marker.prototype.setRotation = throttle(function(rotation) {
     if (!rotation) {
         console.log('missing value for rotation');
         return false;
     }
     this.set('rotation', rotation);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setRotation', this.getId(), rotation]);
-};
+}, 250);
 Marker.prototype.getRotation = function() {
     return this.get('rotation');
 };
@@ -1601,14 +1638,14 @@ Marker.prototype.isVisible = function() {
     return this.get("visible");
 };
 
-Marker.prototype.setPosition = function(position) {
+Marker.prototype.setPosition = throttle(function(position) {
     if (!position) {
         console.log('missing value for position');
         return false;
     }
     this.set('position', position);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setPosition', this.getId(), position.lat, position.lng]);
-};
+}, 50);
 
 
 /*****************************************************************************
@@ -1732,7 +1769,7 @@ Polyline.prototype.getId = function() {
     return this.id;
 };
 
-Polyline.prototype.setPoints = function(points) {
+Polyline.prototype.setPoints = throttle(function(points) {
     this.set('points', points);
     var i,
         path = [];
@@ -1743,7 +1780,7 @@ Polyline.prototype.setPoints = function(points) {
         });
     }
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setPoints', this.getId(), path]);
-};
+}, 500);
 Polyline.prototype.getPoints = function() {
     return this.get("points");
 };
@@ -1758,6 +1795,10 @@ Polyline.prototype.setWidth = function(width) {
     this.set('width', width);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setWidth', this.getId(), width]);
 };
+Polyline.prototype.addPoint = throttle(function(point) {
+   this.set('points', this.getPoints().concat(point));
+   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.addPoint', this.getId(), point]);
+}, 500);
 Polyline.prototype.getWidth = function() {
     return this.get('width');
 };
