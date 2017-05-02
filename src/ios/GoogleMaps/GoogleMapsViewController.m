@@ -1205,6 +1205,20 @@ NSDictionary *initOptions;
     }
 };
 
+- (void)cancelDrawing{
+
+    if (self.drawingMode == GoogleMapsDrawingModePolygon)
+    {
+        [self.polygonDrawer cancelPolygonDrawing];
+    }
+    else if (self.drawingMode == GoogleMapsDrawingModePolyline)
+    {
+        [self.polylineDrawer cancelPolylineDrawing];
+    }
+    
+    self.drawingMode = GoogleMapsDrawingModeDisabled;
+};
+
 - (GMSCircle *)getCircleByKey: (NSString *)key {
   return [self.overlayManager objectForKey:key];
 }

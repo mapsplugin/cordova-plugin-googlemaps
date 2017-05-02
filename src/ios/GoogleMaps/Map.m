@@ -757,4 +757,12 @@
     [self.commandDelegate sendPluginResult:plugResult callbackId:command.callbackId];
 };
 
+- (void)cancelDrawing:(CDVInvokedUrlCommand*)command{
+
+    [self.mapCtrl cancelDrawing];
+    
+    CDVPluginResult* plugResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:nil];
+    [self.commandDelegate sendPluginResult:plugResult callbackId:command.callbackId];
+};
+
 @end

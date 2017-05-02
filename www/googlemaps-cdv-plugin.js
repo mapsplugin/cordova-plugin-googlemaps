@@ -716,6 +716,11 @@ App.prototype.deleteLastDrawnVertex = function(callback) {
     var self = this;
     cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.deleteLastDrawnVertex']);
 };
+    
+App.prototype.cancelDrawing = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.cancelDrawing']);
+};
 
 /**
  * Sets the preference for whether all gestures should be enabled or disabled.

@@ -75,4 +75,19 @@
     [self draw];
 };
 
+- (void)cancelPolylineDrawing{
+
+    if (self.templatePolyline)
+    {
+        [self.templatePolyline removeFromMap];
+        self.templatePolyline.map = nil;
+        self.templatePolyline = nil;
+    }
+    
+    [self.currentPath removeAllCoordinates];
+    
+    self.currentPath = nil;
+    
+};
+
 @end

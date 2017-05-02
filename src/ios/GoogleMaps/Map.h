@@ -40,4 +40,6 @@
 
 - (void)deleteLastDrawnVertex:(CDVInvokedUrlCommand*)command;
 
+- (void)cancelDrawing:(CDVInvokedUrlCommand*)command;
+
 @end

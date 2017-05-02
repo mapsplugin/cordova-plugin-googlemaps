@@ -99,4 +99,25 @@
     [self draw];
 };
 
+- (void)cancelPolygonDrawing{
+
+    if (self.templatePolyline)
+    {
+        [self.templatePolyline removeFromMap];
+        self.templatePolyline.map = nil;
+        self.templatePolyline = nil;
+    }
+    
+    if (self.templatePolygon)
+    {
+        self.templatePolygon.map = nil;
+        self.templatePolygon = nil;
+    }
+    
+    [self.currentPath removeAllCoordinates];
+    
+    self.currentPath = nil;
+    
+};
+
 @end
