@@ -35,7 +35,10 @@
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    
+    if (self.mapCtrl.map == nil) {
+        return [self.webView.scrollView hitTest:point withEvent:event];
+    }
+
     [self.webView setAlpha:1.0];
     [self.webView setBackgroundColor:[UIColor clearColor]];
     [self.webView setFrame:[UIScreen mainScreen].bounds];
