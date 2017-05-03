@@ -727,6 +727,12 @@
     NSMutableArray *points = [NSMutableArray array];
     
     GMSOverlay *shape = [self.mapCtrl completeDrawnShape];
+    
+    if (!shape) {
+        CDVPluginResult* plugResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid call"];
+        [self.commandDelegate sendPluginResult:plugResult callbackId:command.callbackId];
+        return ;
+    }
 
     if ([shape isKindOfClass:[GMSPolygon class]])
     {

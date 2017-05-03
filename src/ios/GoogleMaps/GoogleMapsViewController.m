@@ -1154,17 +1154,29 @@ NSDictionary *initOptions;
 
 - (void)drawMarker
 {
+    if (self.drawingMode != GoogleMapsDrawingModeDisabled) {
+        [self cancelDrawing];
+    }
+    
     self.drawingMode = GoogleMapsDrawingModeMarker;
 }
 
 - (void)drawPolygon
 {
+    if (self.drawingMode != GoogleMapsDrawingModeDisabled) {
+        [self cancelDrawing];
+    }
+    
     self.drawingMode = GoogleMapsDrawingModePolygon;
     self.polygonDrawer = [[DDPolygonDrawer alloc] initWithMapView:self.map];
 }
 
 - (void)drawPolyline
 {
+    if (self.drawingMode != GoogleMapsDrawingModeDisabled) {
+        [self cancelDrawing];
+    }
+    
     self.drawingMode = GoogleMapsDrawingModePolyline;
     self.polylineDrawer = [[DDPolylineDrawer alloc] initWithMapView:self.map];
 }
