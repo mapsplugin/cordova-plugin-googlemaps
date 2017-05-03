@@ -161,17 +161,14 @@ Polygon.prototype.setHoles = function(holes) {
 
     holes = holes || [];
     if (holes.length > 0 && !utils.isArray(holes[0])) {
-      holes = [holes];
+        holes = [holes];
     }
     holes.forEach(function(hole) {
-      if (!utils.isArray(hole)) {
-        return [];
-      }
-      hole.forEach(function(latLng) {
-        mvcArray.push(common.getLatLng(latLng));
-      });
+        if (!utils.isArray(hole)) {
+            hole = [hole];
+        }
+        mvcArray.push(hole);
     });
-    //this.set('holes', holes);
     return this;
 };
 Polygon.prototype.getHoles = function() {
