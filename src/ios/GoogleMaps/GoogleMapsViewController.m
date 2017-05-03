@@ -416,10 +416,6 @@
   NSString *title = marker.title;
   NSString *snippet = marker.snippet;
   
-  if (title == nil) {
-    return NULL;
-  }
-  
   
   // Get the marker plugin
   NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
@@ -435,6 +431,11 @@
     
     return [[UIView alloc]initWithFrame:CGRectMake(0, 0, 1, 1)];
   }
+
+  if (title == nil) {
+    return NULL;
+  }
+
   [self triggerMarkerEvent:@"info_open" marker:marker];
 
   // Load styles

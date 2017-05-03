@@ -116,12 +116,12 @@ var HTMLInfoWindow = function() {
           }
 
       }
-      var HTMLInfoWindowAnchor = marker.get("HTMLInfoWindowAnchor");
-      if (utils.isArray(HTMLInfoWindowAnchor)) {
-        infoOffset.x = HTMLInfoWindowAnchor[0] / icon.size.width;
+      var infoWindowAnchor = marker.get("infoWindowAnchor");
+      if (utils.isArray(infoWindowAnchor)) {
+        infoOffset.x = infoWindowAnchor[0] / icon.size.width;
         infoOffset.x = infoOffset.x > 1 ? 1 : infoOffset.x;
         infoOffset.x = infoOffset.x < 0 ? 0 : infoOffset.x;
-        infoOffset.y = HTMLInfoWindowAnchor[1] / icon.size.height;
+        infoOffset.y = infoWindowAnchor[1] / icon.size.height;
         infoOffset.y = infoOffset.y > 1 ? 1 : infoOffset.y;
         infoOffset.y = infoOffset.y < 0 ? 0 : infoOffset.y;
       }
@@ -152,7 +152,7 @@ var HTMLInfoWindow = function() {
         frame.style.left = x + "px";
         frame.style.top =  y + "px";
     });
-    self.on("HTMLInfoWindowAnchor_changed", calculate);
+    self.on("infoWindowAnchor_changed", calculate);
     self.on("icon_changed", calculate);
 
 };
@@ -166,7 +166,7 @@ HTMLInfoWindow.prototype.close = function(marker) {
     var map = marker.getMap();
     map.off("infoPosition_changed");
     marker.off("icon_changed");
-    marker.off("HTMLInfoWindowAnchor_changed");
+    marker.off("infoWindowAnchor_changed");
 
     var div = map.getDiv();
     var frame = this.get("frame");
@@ -191,10 +191,10 @@ HTMLInfoWindow.prototype.open = function(marker) {
     var self = this;
 
     map.bindTo("infoPosition", this);
-    marker.bindTo("HTMLInfoWindowAnchor", this);
+    marker.bindTo("infoWindowAnchor", this);
     marker.bindTo("icon", this);
     this.set("marker", marker);
-    this.trigger("HTMLInfoWindowAnchor_changed");
+    this.trigger("infoWindowAnchor_changed");
 };
 
 HTMLInfoWindow.prototype.setBackgroundColor = function(backgroundColor) {
