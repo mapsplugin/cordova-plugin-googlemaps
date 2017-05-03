@@ -688,33 +688,33 @@ App.prototype.drawMarker = function(callback) {
 
     var self = this;
     cordova.exec(function(result) {
-                 const markerOptions = {};
-                 markerOptions.animation = markerOptions.animation || undefined;
-                 markerOptions.position = markerOptions.position || {};
-                 markerOptions.position.lat = markerOptions.position.lat || 0.0;
-                 markerOptions.position.lng = markerOptions.position.lng || 0.0;
-                 markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
-                 markerOptions.draggable = markerOptions.draggable === true;
-                 markerOptions.icon = markerOptions.icon || undefined;
-                 markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
-                 markerOptions.size = markerOptions.size || undefined;
-                 markerOptions.snippet = markerOptions.snippet || undefined;
-                 markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
-                 markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
-                 markerOptions.flat = markerOptions.flat  === true;
-                 markerOptions.rotation = markerOptions.rotation || 0;
-                 markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
-                 markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
-                 markerOptions.params = markerOptions.params || {};
-                 markerOptions.hashCode = result.hashCode;
-    var marker = new Marker(self, result.id, markerOptions);
-    marker
-      MARKERS[result.id] = marker;
-      OVERLAYS[result.id] = marker;
+        const markerOptions = {};
+        markerOptions.animation = markerOptions.animation || undefined;
+        markerOptions.position = result.position;
+        markerOptions.position.lat = markerOptions.position.lat || 0.0;
+        markerOptions.position.lng = markerOptions.position.lng || 0.0;
+        markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
+        markerOptions.draggable = markerOptions.draggable === true;
+        markerOptions.icon = markerOptions.icon || undefined;
+        markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+        markerOptions.size = markerOptions.size || undefined;
+        markerOptions.snippet = markerOptions.snippet || undefined;
+        markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
+        markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
+        markerOptions.flat = markerOptions.flat  === true;
+        markerOptions.rotation = markerOptions.rotation || 0;
+        markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+        markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
+        markerOptions.params = markerOptions.params || {};
+        markerOptions.hashCode = result.hashCode;
+        var marker = new Marker(self, result.id, markerOptions);
+
+        MARKERS[result.id] = marker;
+        OVERLAYS[result.id] = marker;
                  
-      if (typeof callback === "function") {
-        callback.call(self, marker, self);
-      }
+        if (typeof callback === "function") {
+                 callback.call(self, marker, self);
+        }
                  
     }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
 };
@@ -722,7 +722,18 @@ App.prototype.drawMarker = function(callback) {
 App.prototype.drawPolygon = function(callback) {
     var self = this;
     cordova.exec(function(result) {
-        var polygon = new Polygon(self, result.id, {});
+                 
+        var polygonOptions = {};
+        polygonOptions.points = result.points;
+        polygonOptions.holes = [];
+        polygonOptions.strokeColor = HTMLColor2RGBA("#FF000080", 1);
+        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 1);
+        polygonOptions.strokeWidth = 10;
+        polygonOptions.visible = true;
+        polygonOptions.zIndex = 2;
+        polygonOptions.geodesic = true;
+                 
+        var polygon = new Polygon(self, result.id, polygonOptions);
         OVERLAYS[result.id] = polygon;
         if (typeof callback === "function") {
             callback.call(self, polygon, self);
@@ -732,8 +743,17 @@ App.prototype.drawPolygon = function(callback) {
 
 App.prototype.drawPolyline = function(callback) {
     var self = this;
-    cordova.exec(function() {
-        var polyline = new Polyline(self, result.id, {});
+    cordova.exec(function(result) {
+           
+        var polylineOptions = {};
+        polylineOptions.points = result.points;
+        polylineOptions.color = HTMLColor2RGBA("#FF000080", 0.75);
+        polylineOptions.width = 10;
+        polylineOptions.visible =  true;
+        polylineOptions.zIndex = 4;
+        polylineOptions.geodesic = true;
+                 
+        var polyline = new Polyline(self, result.id, polylineOptions);
         OVERLAYS[result.id] = polyline;
         /*if (typeof polylineOptions.onClick === "function") {
          polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
