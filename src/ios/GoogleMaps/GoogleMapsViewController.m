@@ -1188,19 +1188,27 @@ NSDictionary *initOptions;
     if (self.drawingMode == GoogleMapsDrawingModePolygon)
     {
         DDPolygon *polygon = [self.polygonDrawer print];
-        NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
-        [self.overlayManager setObject:polygon forKey:id];
-        overlay = polygon;
+        
+        if (polygon) {
+            NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
+            [self.overlayManager setObject:polygon forKey:id];
+            overlay = polygon;
+            self.drawingMode = GoogleMapsDrawingModeDisabled;
+        }
     }
     else if (self.drawingMode == GoogleMapsDrawingModePolyline)
     {
         DDPolyline *polyline = [self.polylineDrawer print];
-        NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
-        [self.overlayManager setObject:polyline forKey:id];
-        overlay = polyline;
+        
+        if (polyline) {
+            NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
+            [self.overlayManager setObject:polyline forKey:id];
+            overlay = polyline;
+            self.drawingMode = GoogleMapsDrawingModeDisabled;
+        }
+    } else if (self.drawingMode == GoogleMapsDrawingModeMarker) {
+        self.drawingMode = GoogleMapsDrawingModeDisabled;
     }
-    
-    self.drawingMode = GoogleMapsDrawingModeDisabled;
     
     return overlay;
 }
