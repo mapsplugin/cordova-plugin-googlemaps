@@ -118,4 +118,78 @@
     return CLLocationCoordinate2DMake((maxLat + minLat) * 0.5, (maxLong + minLong) * 0.5);
 }
 
++ (BOOL)checkNonConvexHullPath:(GMSPath *)path
+{
+    if (path.count < 3) {
+        return NO;
+    }
+    
+    GMSMutablePath *currentPath = [[GMSMutablePath alloc] initWithPath:path];
+    CLLocationCoordinate2D coordinate = [path coordinateAtIndex:0];
+    for (NSInteger i = path.count - 1; i >= 1; i--) {
+
+        BOOL intersects = [self segmentToPoint:coordinate intersectsWithPath:currentPath];
+        
+        if (intersects) {
+            return YES;
+        }
+        
+        coordinate = [currentPath coordinateAtIndex:i];
+        [currentPath removeLastCoordinate];
+        
+    }
+    
+    return NO;
+}
+
++ (BOOL)segmentToPoint:(CLLocationCoordinate2D)point intersectsWithPath:(GMSPath *)path
+{
+    if (path.count < 3) {
+        return NO;
+    }
+    
+    CLLocationCoordinate2D lastPoint = [path coordinateAtIndex:path.count - 1];
+    
+    return [GMUtils lineSegmentFrom:lastPoint toPoint:point intersectsToPath:path inRange:NSMakeRange(0, path.count - 2)];
+}
+
++ (BOOL)lineSegmentFrom:(CLLocationCoordinate2D)pointA toPoint:(CLLocationCoordinate2D)pointB intersectsToPath:(GMSPath *)path inRange:(NSRange)range
+{
+    for (NSUInteger i = range.location; i < range.location + range.length && i < (path.count - 1); i++) {
+        CLLocationCoordinate2D pointC = [path coordinateAtIndex:i];
+        CLLocationCoordinate2D pointD = [path coordinateAtIndex:i + 1];
+        
+        BOOL intersects = [GMUtils segmentFromPoint:pointA to:pointB intersectsWithsegmentFromPoint:pointC to:pointD];
+        
+        if (intersects) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
++ (BOOL)segmentFromPoint:(CLLocationCoordinate2D)pointA to:(CLLocationCoordinate2D)pointB intersectsWithsegmentFromPoint:(CLLocationCoordinate2D)pointC to:(CLLocationCoordinate2D)pointD
+{
+    
+    if ([GMUtils isCoordinate:pointB equalTo:pointC]) {
+        return NO;
+    }
+    
+    return ([GMUtils checkCounterClockWiseFrom:pointA thru:pointC to:pointD] != [GMUtils checkCounterClockWiseFrom:pointB thru:pointC to:pointD]) &&
+    ([GMUtils checkCounterClockWiseFrom:pointA thru:pointB to:pointC] != [GMUtils checkCounterClockWiseFrom:pointA thru:pointB to:pointD]);
+}
+
++ (BOOL)checkCounterClockWiseFrom:(CLLocationCoordinate2D)pointA thru:(CLLocationCoordinate2D)pointB to:(CLLocationCoordinate2D)pointC
+{
+    
+    
+    return (pointC.latitude - pointA.latitude) * (pointB.longitude - pointA.longitude) > (pointB.latitude - pointA.latitude) * (pointC.longitude - pointA.longitude);
+}
+
++ (BOOL)isCoordinate:(CLLocationCoordinate2D)pointA equalTo:(CLLocationCoordinate2D)pointB
+{
+    return pointA.latitude == pointB.latitude && pointA.longitude == pointB.longitude;
+}
+
 @end
