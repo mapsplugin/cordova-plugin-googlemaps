@@ -41,7 +41,7 @@ function throttle(func, wait, options) {
     return result;
     };
 };
-               
+
 /**
  * Google Maps model.
  */
@@ -329,7 +329,7 @@ App.prototype._onCameraEvent = function(eventName, params) {
 App.prototype.getMap = function(div, params) {
      // Redraw the browser mandatory (especially for iOS)
     document.body.style.backgroundColor="rgba(0,0,0,0.1)";
-    
+
     var self = this,
         args = [];
 
@@ -711,18 +711,18 @@ App.prototype.drawMarker = function(callback) {
 
         MARKERS[result.id] = marker;
         OVERLAYS[result.id] = marker;
-                 
+
         if (typeof callback === "function") {
                  callback.call(self, marker, self);
         }
-                 
+
     }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
 };
-               
+
 App.prototype.drawPolygon = function(callback) {
     var self = this;
     cordova.exec(function(result) {
-                 
+
         var polygonOptions = {};
         polygonOptions.points = result.points;
         polygonOptions.holes = [];
@@ -732,7 +732,7 @@ App.prototype.drawPolygon = function(callback) {
         polygonOptions.visible = true;
         polygonOptions.zIndex = 2;
         polygonOptions.geodesic = true;
-                 
+
         var polygon = new Polygon(self, result.id, polygonOptions);
         OVERLAYS[result.id] = polygon;
         if (typeof callback === "function") {
@@ -744,7 +744,7 @@ App.prototype.drawPolygon = function(callback) {
 App.prototype.drawPolyline = function(callback) {
     var self = this;
     cordova.exec(function(result) {
-           
+
         var polylineOptions = {};
         polylineOptions.points = result.points;
         polylineOptions.color = HTMLColor2RGBA("#FF000080", 0.75);
@@ -752,7 +752,7 @@ App.prototype.drawPolyline = function(callback) {
         polylineOptions.visible =  true;
         polylineOptions.zIndex = 4;
         polylineOptions.geodesic = true;
-                 
+
         var polyline = new Polyline(self, result.id, polylineOptions);
         OVERLAYS[result.id] = polyline;
         /*if (typeof polylineOptions.onClick === "function") {
@@ -768,12 +768,12 @@ App.prototype.completeDrawnShape = function(callback) {
     var self = this;
     cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.completeDrawnShape']);
 };
-               
+
 App.prototype.deleteLastDrawnVertex = function(callback) {
     var self = this;
     cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.deleteLastDrawnVertex']);
 };
-    
+
 App.prototype.cancelDrawing = function(callback) {
     var self = this;
     cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.cancelDrawing']);
@@ -1629,8 +1629,8 @@ Marker.prototype.getSnippet = function() {
     return this.get('snippet');
 };
 Marker.prototype.setRotation = throttle(function(rotation) {
-    if (!rotation) {
-        console.log('missing value for rotation');
+    if (typeof rotation !== 'number') {
+        console.log('missing or invalid value for rotation');
         return false;
     }
     this.set('rotation', rotation);
