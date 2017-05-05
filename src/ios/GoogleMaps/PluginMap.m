@@ -38,6 +38,16 @@
       [self.mapCtrl.view removeFromSuperview];
       [self.mapCtrl.view setFrame:CGRectMake(0, -1000, 100, 100)];
       [self.mapCtrl.view setNeedsDisplay];
+
+      NSArray *keys = [self.mapCtrl.plugins allKeys];
+      CDVPlugin<MyPlgunProtocol> *plugin;
+      for (int i = 0; i < [keys count]; i++) {
+          plugin = [self.mapCtrl.plugins objectForKey:[keys objectAtIndex:i]];
+          [plugin pluginUnload];
+          plugin = nil;
+      }
+
+
       [self.mapCtrl.plugins removeAllObjects];
       self.mapCtrl.map = nil;
       self.mapCtrl = nil;
@@ -55,18 +65,18 @@
       CDVPluginResult* pluginResult = nil;
       CDVPlugin<MyPlgunProtocol> *plugin;
       NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapCtrl.mapId, [pluginName lowercaseString]];
-    
+
       plugin = [self.mapCtrl.plugins objectForKey:pluginId];
       if (!plugin) {
           plugin = [[NSClassFromString(className)alloc] init];
-        
+
           if (!plugin) {
               pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                messageAsString:[NSString stringWithFormat:@"Class not found: %@", className]];
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
               return;
           }
-        
+
           // Hack:
           // In order to load the plugin instance of the same class but different names,
           // register the map plugin instance into the pluginObjects directly.
@@ -85,15 +95,15 @@
           [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
           [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
           [plugin pluginInitialize];
-        
+
   //NSLog(@"--->loadPlugin : %@ className : %@", pluginId, className);
           [self.mapCtrl.plugins setObject:plugin forKey:pluginId];
           [plugin setGoogleMapsViewController:self.mapCtrl];
-          
+
       }
-    
+
       //plugin.commandDelegate = self.commandDelegate;
-        
+
 
       SEL selector = NSSelectorFromString(@"create:");
       if ([plugin respondsToSelector:selector]){
@@ -121,7 +131,7 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
     if ([initOptions valueForKey:@"camera"]) {
         double delayInSeconds = 1;
@@ -132,7 +142,7 @@
     } else {
         [self _setOptions:initOptions command:command];
     }
-      
+
 }
 
 
@@ -214,7 +224,7 @@
         self.loadPluginQueue.suspended = NO;
     }
 
-  
+
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CDVPlugin<MyPlgunProtocol> *plugin;
     NSString *pluginName;
@@ -223,7 +233,7 @@
       pluginName = [keys objectAtIndex:j];
       plugin = [self.mapCtrl.plugins objectForKey:pluginName];
       [plugin pluginUnload];
-                        
+
       [cdvViewController.pluginObjects removeObjectForKey:pluginName];
       [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
       //plugin = nil;
@@ -482,7 +492,7 @@
   } else {
     zoom = self.mapCtrl.map.camera.zoom;
   }
-  
+
   double cameraPadding = 20;
   if ([json valueForKey:@"padding"]) {
     cameraPadding = [[json valueForKey:@"padding"] doubleValue];
@@ -572,7 +582,7 @@
                                                     viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
 
                 [self.mapCtrl.map setCamera:cameraPosition2];
-                
+
               } else {
                 GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
                 [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
@@ -586,7 +596,7 @@
 
       if ([action  isEqual: @"moveCamera"]) {
           [self.mapCtrl.map setCamera:cameraPosition];
-        
+
           if (cameraBounds != nil){
             double delayInSeconds = 0.5;
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
@@ -608,7 +618,7 @@
                 });
 
             });
-          
+
           } else {
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
           }
@@ -836,7 +846,7 @@
           if ([padding objectForKey:@"right"] != nil) {
             current.right = [[padding objectForKey:@"right"] floatValue];
           }
-          
+
           UIEdgeInsets newPadding = UIEdgeInsetsMake(current.top, current.left, current.bottom, current.right);
           [[NSOperationQueue mainQueue] addOperationWithBlock:^{
               [self.mapCtrl.map setPadding:newPadding];
@@ -905,8 +915,8 @@
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.mapCtrl.map setNeedsDisplay];
       }];
-    
-      
+
+
       if ([initOptions valueForKey:@"camera"]) {
           //------------------------------------------
           // Case : The camera option is specified.
@@ -939,7 +949,7 @@
 
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.mapCtrl.map setPadding:padding];
-          
+
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
@@ -955,9 +965,9 @@
         return;
       }
       GMSIndoorLevel *activeLevel = self.mapCtrl.map.indoorDisplay.activeLevel;
-      
+
       [self.executeQueue addOperationWithBlock:^{
-        
+
           NSMutableDictionary *result = [NSMutableDictionary dictionary];
 
           NSUInteger activeLevelIndex = [building.levels indexOfObject:activeLevel];

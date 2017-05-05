@@ -33,25 +33,25 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     }
 
     self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:[self.webView frame]];
-  
+
     self.pluginScrollView.debugView.webView = self.webView;
     self.pluginScrollView.debugView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  
+
     self.pluginScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     UIView *uiview = self.webView;
     uiview.scrollView.delegate = self;
     [self.pluginScrollView setContentSize:self.webView.scrollView.frame.size ];
-  
+
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
-  
-  
+
+
     self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
                                 target:self
                                 selector:@selector(resizeTask:)
                                 userInfo:nil
                                 repeats:YES];
-    
+
     hasCordovaStatusBar = NSClassFromString(@"CDVStatusBar") != nil;
 
     return self;
@@ -70,7 +70,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
   CGPoint offset = self.webView.scrollView.contentOffset;
   self.pluginScrollView.contentOffset = offset;
-  
+
   if (self.pluginScrollView.debugView.debuggable) {
       [self.pluginScrollView.debugView setNeedsDisplay];
   }
@@ -82,9 +82,9 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         CGRect rect = CGRectMake(0, 0, 0, 0);
         NSMutableDictionary *domInfo, *size;
         NSString *domId;
-        
+
         @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
-      
+
           NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
           NSArray *keys2;
           int i, j;
@@ -112,15 +112,15 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
             rect.size.height = [[size objectForKey:@"height"] doubleValue];
             [domInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
             [newBuffer setObject:domInfo forKey:domId];
-          
+
             domInfo = nil;
             size = nil;
           }
-     
+
           self.pluginScrollView.debugView.HTMLNodes = newBuffer;
         }
     }];
-  
+
 }
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl {
 
@@ -128,35 +128,35 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
       // Hold the mapCtrl instance with mapId.
       [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapCtrl.mapId];
-      
+
       // Add the mapView under the scroll view.
       [self.pluginScrollView attachView:mapCtrl.view];
-      
+
       //[self updateViewPosition:mapCtrl];
   });
 }
 
 - (void)removeMapView:(GoogleMapsViewController *)mapCtrl {
   dispatch_async(dispatch_get_main_queue(), ^{
-  
+
       // Remove the mapCtrl instance with mapId.
       [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl.mapId];
-      
+
       // Remove the mapView from the scroll view.
       [mapCtrl.view removeFromSuperview];
-    
+
       [mapCtrl.view setFrame:CGRectMake(0, -1000, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
       [mapCtrl.view setNeedsDisplay];
-   
+
       if (self.pluginScrollView.debugView.debuggable) {
           [self.pluginScrollView.debugView setNeedsDisplay];
       }
   });
-  
+
 }
 
 - (void)resizeTask:(NSTimer *)timer {
-  
+
     if (stopFlag) {
         return;
     }
@@ -164,13 +164,13 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     NSArray *keys=[self.pluginScrollView.debugView.mapCtrls allKeys];
     NSString *mapId;
     GoogleMapsViewController *mapCtrl;
-    
+
     for (int i = 0; i < [keys count]; i++) {
         mapId = [keys objectAtIndex:i];
         mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
         [self updateViewPosition:mapCtrl];
     }
-    
+
     if (self.pluginScrollView.debugView.debuggable == YES) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
 
@@ -182,29 +182,30 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
 
-
       CGFloat zoomScale = self.webView.scrollView.zoomScale;
 
       CGPoint offset = self.webView.scrollView.contentOffset;
       offset.x *= zoomScale;
       offset.y *= zoomScale;
       [self.pluginScrollView setContentOffset:offset];
-    
+
       if (!mapCtrl.mapDivId) {
           return;
       }
 
-      NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+    NSDictionary *domInfo = nil;
+    @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+      domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
       if (domInfo == nil) {
           return;
       }
-  
+
+    }
       NSString *rectStr = [domInfo objectForKey:@"size"];
       if (rectStr == nil || [rectStr  isEqual: @"null"]) {
         return;
       }
-      
-      
+
       __block CGRect rect = CGRectFromString(rectStr);
       rect.origin.x *= zoomScale;
       rect.origin.y *= zoomScale;
@@ -215,7 +216,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 ///*
       float webviewWidth = self.webView.frame.size.width;
       float webviewHeight = self.webView.frame.size.height;
-      
+
 
       // Is the map is displayed?
       if (rect.origin.y + rect.size.height >= offset.y &&
@@ -223,14 +224,14 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
           rect.origin.y < offset.y + webviewHeight &&
           rect.origin.x < offset.x + webviewWidth &&
           mapCtrl.view.hidden == NO) {
-        
+
           // Attach the map view to the parent.
           if (mapCtrl.isRenderedAtOnce == YES ||
               (mapCtrl.map.mapType != kGMSTypeSatellite &&
               mapCtrl.map.mapType != kGMSTypeHybrid)) {
               [self.pluginScrollView attachView:mapCtrl.view];
           }
-        
+
       } else {
           // Detach from the parent view
           if (mapCtrl.isRenderedAtOnce == YES ||
@@ -248,16 +249,16 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
           rect.size.height == mapCtrl.view.frame.size.height) {
           return;
       }
-    
+
   dispatch_async(dispatch_get_main_queue(), ^{
       [mapCtrl.view setFrame:rect];
-    
+
       rect.origin.x = 0;
       rect.origin.y = 0;
       [mapCtrl.map setFrame:rect];
-    
+
   });
-  
+
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
@@ -266,24 +267,24 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     float offsetY = self.webView.scrollView.contentOffset.y;
     float offsetX2 = self.webView.scrollView.contentOffset.x;
     float offsetY2 = self.webView.scrollView.contentOffset.y;
-  
+
     float webviewWidth = self.webView.frame.size.width;
     float webviewHeight = self.webView.frame.size.height;
-  
-    
+
+
     CGRect rect, htmlElementRect= CGRectMake(0, 0, 0, 0);
     NSEnumerator *mapIDs = [self.pluginScrollView.debugView.mapCtrls keyEnumerator];
     GoogleMapsViewController *mapCtrl;
     id mapId;
     BOOL isMapAction = NO;
     NSString *elementRect;
-  
+
     CGFloat zoomScale = self.webView.scrollView.zoomScale;
     offsetY *= zoomScale;
     offsetX *= zoomScale;
     webviewWidth *= zoomScale;
     webviewHeight *= zoomScale;
-  
+
     NSDictionary *domInfo, *mapDivInfo;
     int domDepth, mapDivDepth;
     if (hasCordovaStatusBar) {
@@ -292,16 +293,16 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
             point.y -= 20 * zoomScale;
         }
     }
-  
+
     CGPoint clickPointAsHtml = CGPointMake(point.x * zoomScale, point.y * zoomScale);
-  
+@synchronized(self.pluginScrollView.debugView.HTMLNodes) {
     while(mapId = [mapIDs nextObject]) {
         mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
         if (!mapCtrl.mapDivId) {
           continue;
         }
         domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-        
+
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
         rect.origin.x += offsetX2;
         rect.origin.y += offsetY2;
@@ -309,7 +310,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         rect.origin.y *= zoomScale;
         rect.size.width *= zoomScale;
         rect.size.height *= zoomScale;
-        
+
         // Is the map clickable?
         if (mapCtrl.clickable == NO) {
             //NSLog(@"--> map (%@) is not clickable.", mapCtrl.mapId);
@@ -325,7 +326,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
             //NSLog(@"--> map (%@) is not displayed.", mapCtrl.mapId);
             continue;
         }
-      
+
         // Is the clicked point is in the map rectangle?
         if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
             (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
@@ -336,13 +337,13 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
         // Is the clicked point is on the html elements in the map?
         mapDivInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-        
+
         mapDivDepth = [[mapDivInfo objectForKey:@"depth"] intValue];
         for (NSString *domId in self.pluginScrollView.debugView.HTMLNodes) {
             if ([mapCtrl.mapDivId isEqualToString:domId]) {
                 continue;
             }
-          
+
             domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
             domDepth = [[domInfo objectForKey:@"depth"] intValue];
             if (domDepth < mapDivDepth) {
@@ -353,7 +354,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
             if (htmlElementRect.size.width == 0 || htmlElementRect.size.height == 0) {
                 continue;
             }
-          
+
             //NSLog(@"----> domId = %@, %f, %f - %f, %f (%@ : %@)",
             //                domId,
             //                htmlElementRect.origin.x, htmlElementRect.origin.y,
@@ -371,7 +372,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         if (isMapAction == NO) {
             continue;
         }
-      
+
         // If user click on the map, return the mapCtrl.view.
         offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
         offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
@@ -381,18 +382,18 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
         UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
         //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
-      
+
         [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
-      
+
         return hitView;
     }
-  
-    
+}
+
     UIView *hitView =[self.webView hitTest:point withEvent:event];
     //NSLog(@"--> (hit test) hit = %@", hitView.class);
     [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
     return hitView;
-    
+
 }
 
 @end
