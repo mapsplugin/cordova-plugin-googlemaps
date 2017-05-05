@@ -130,6 +130,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        if (objects == null) {
+          return;
+        }
         Set<String> keySet = objects.keySet();
         String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
