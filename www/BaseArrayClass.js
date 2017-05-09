@@ -12,11 +12,80 @@ function BaseArrayClass(array) {
        }
     }
 
-    self.forEach = function(callback) {
-        if (typeof callback !== "function" || _array.length === 0) {
+    self.map = function(fn, callback) {
+        if (typeof fn !== "function" || _array.length === 0) {
             return;
         }
-        _array.forEach(callback);
+        var results = [];
+        if (typeof fn === "function" && typeof callback !== "function") {
+            //------------------------
+            // example:
+            //    var values = baseArray.forEach(function(item, idx) {
+            //       ...
+            //       return someValue;
+            //    });
+            //------------------------
+            results = _array.map(fn.bind(self));
+            return;
+        }
+        //------------------------
+        // example:
+        //    baseArray.forEach(function(item, idx, callback) {
+        //       ...
+        //       callback(value);
+        //    }, function(values) {
+        //
+        //    });
+        //------------------------
+        _array.forEach(function() {
+          results.push(null);
+        });
+        var _arrayLength = _array.length;
+        var finishCnt = 0;
+        _array.forEach(function(item, idx) {
+          fn.call(self, item, function(value) {
+            results[idx] = value;
+            finishCnt++;
+            if (finishCnt === _arrayLength) {
+              callback.call(self, results);
+            }
+          });
+        });
+    };
+
+    self.forEach = function(fn, callback) {
+        if (typeof fn !== "function" || _array.length === 0) {
+            return;
+        }
+        if (typeof fn === "function" && typeof callback !== "function") {
+            //------------------------
+            // example:
+            //    baseArray.forEach(function(item, idx) {
+            //       ...
+            //    });
+            //------------------------
+            _array.forEach(fn.bind(self));
+            return;
+        }
+        //------------------------
+        // example:
+        //    baseArray.forEach(function(item, callback) {
+        //       ...
+        //       callback();
+        //    }, function() {
+        //
+        //    });
+        //------------------------
+        var finishCnt = 0;
+        var _arrayLength = _array.length;
+        _array.forEach(function(item, idx) {
+          fn.call(self, item, function() {
+            finishCnt++;
+            if (finishCnt === _arrayLength) {
+              callback.call(self);
+            }
+          });
+        });
     };
 
     self.empty = function() {

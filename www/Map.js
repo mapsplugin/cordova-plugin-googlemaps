@@ -278,6 +278,58 @@ Map.prototype.setCameraBearing = function(bearing) {
     return this;
 };
 
+Map.prototype.moveCameraZoomIn = function(callback) {
+    var self = this;
+    var cameraPosition = self.get("camera");
+    cameraPosition.zoom++;
+    cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
+
+    exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+
+};
+Map.prototype.moveCameraZoomOut = function(callback) {
+    var self = this;
+    var cameraPosition = self.get("camera");
+    cameraPosition.zoom--;
+    cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
+
+    exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+
+};
+Map.prototype.animateCameraZoomIn = function(callback) {
+    var self = this;
+    var cameraPosition = self.get("camera");
+    cameraPosition.zoom++;
+    cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
+
+    exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+
+};
+Map.prototype.animateCameraZoomOut = function(callback) {
+    var self = this;
+    var cameraPosition = self.get("camera");
+    cameraPosition.zoom--;
+    cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
+
+    exec(function() {
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+
+};
 /**
  * @desc   Move the map camera with animation
  * @params {CameraPosition} cameraPosition New camera position
@@ -286,7 +338,7 @@ Map.prototype.setCameraBearing = function(bearing) {
 Map.prototype.animateCamera = function(cameraPosition, callback) {
     var self = this;
     var target = cameraPosition.target;
-    if (!target && position in cameraPosition) {
+    if (!target && "position" in cameraPosition) {
       target = cameraPosition.position;
     }
     if (!target) {
@@ -313,7 +365,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
 Map.prototype.moveCamera = function(cameraPosition, callback) {
     var self = this;
     var target = cameraPosition.target;
-    if (!target && position in cameraPosition) {
+    if (!target && "position" in cameraPosition) {
       target = cameraPosition.position;
     }
     if (!target) {
@@ -523,15 +575,15 @@ Map.prototype.setDiv = function(div) {
  */
 Map.prototype.getVisibleRegion = function(callback) {
     var self = this;
+    var northeast = self.get("camera_northeast");
+    var southwest = self.get("camera_southwest");
+    var latLngBounds = new LatLngBounds(northeast, southwest);
 
-    exec(function(result) {
-        if (typeof callback === "function") {
-            var latLngBounds = new LatLngBounds(result.latLngArray);
-            latLngBounds.northeast = new LatLng(result.northeast.lat, result.northeast.lng);
-            latLngBounds.southwest = new LatLng(result.southwest.lat, result.southwest.lng);
-            callback.call(self, latLngBounds);
-        }
-    }, self.errorHandler, self.id, 'getVisibleRegion', []);
+    if (typeof callback === "function") {
+      callback.call(self, latLngBounds);
+    }
+
+    return latLngBounds;
 };
 
 /**
@@ -711,6 +763,8 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
 Map.prototype.addPolygon = function(polygonOptions, callback) {
     var self = this;
     polygonOptions.points = polygonOptions.points || [];
+    var _orgs = polygonOptions.points;
+    polygonOptions.points = common.convertToPositionArray(polygonOptions.points);
     polygonOptions.holes = polygonOptions.holes || [];
     if (polygonOptions.holes.length > 0 && !Array.isArray(polygonOptions.holes[0])) {
         polygonOptions.holes = [polygonOptions.holes];
@@ -735,6 +789,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
 
     exec(function(result) {
         polygonOptions.hashCode = result.hashCode;
+        polygonOptions.points = _orgs;
         var polygon = new Polygon(self, result.id, polygonOptions);
         self.OVERLAYS[result.id] = polygon;
         polygon.one(result.id + "_remove", function() {
@@ -987,6 +1042,8 @@ Map.prototype._onCameraEvent = function(eventName, params) {
     this.set('camera_zoom', cameraPosition.zoom);
     this.set('camera_bearing', cameraPosition.bearing);
     this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+    this.set('camera_northeast', cameraPosition.northeast);
+    this.set('camera_southwest', cameraPosition.southwest);
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;

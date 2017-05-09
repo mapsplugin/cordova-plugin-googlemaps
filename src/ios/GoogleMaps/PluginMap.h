@@ -34,7 +34,6 @@
 - (void)setCompassEnabled:(CDVInvokedUrlCommand*)command;
 - (void)getCameraPosition:(CDVInvokedUrlCommand*)command;
 - (void)toDataURL:(CDVInvokedUrlCommand*)command;
-- (void)getVisibleRegion:(CDVInvokedUrlCommand*)command;
 - (void)setOptions:(CDVInvokedUrlCommand*)command;
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setPadding:(CDVInvokedUrlCommand*)command;

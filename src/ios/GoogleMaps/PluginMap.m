@@ -703,40 +703,6 @@
   }];
 }
 
-/**
- * Return the visible region of the map
- * Thanks @fschmidt
- */
-- (void)getVisibleRegion:(CDVInvokedUrlCommand*)command {
-
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      GMSVisibleRegion visibleRegion = self.mapCtrl.map.projection.visibleRegion;
-      GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
-
-      [self.executeQueue addOperationWithBlock:^{
-
-
-          NSMutableDictionary *json = [NSMutableDictionary dictionary];
-          NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
-          [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.latitude] forKey:@"lat"];
-          [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.longitude] forKey:@"lng"];
-          [json setObject:northeast forKey:@"northeast"];
-          NSMutableDictionary *southwest = [NSMutableDictionary dictionary];
-          [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.latitude] forKey:@"lat"];
-          [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.longitude] forKey:@"lng"];
-          [json setObject:southwest forKey:@"southwest"];
-
-          NSMutableArray *latLngArray = [NSMutableArray array];
-          [latLngArray addObject:northeast];
-          [latLngArray addObject:southwest];
-          [json setObject:latLngArray forKey:@"latLngArray"];
-
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
-  }];
-}
-
 - (void)_setOptions:(NSDictionary *)initOptions command:(CDVInvokedUrlCommand *)command {
 
   [self.executeQueue addOperationWithBlock:^{

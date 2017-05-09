@@ -357,6 +357,18 @@
   [json setObject:[NSNumber numberWithInt:(int)position.hash] forKey:@"hashCode"];
   [json setObject:[NSNumber numberWithFloat:position.zoom] forKey:@"zoom"];
   
+    
+  GMSVisibleRegion visibleRegion = self.map.projection.visibleRegion;
+  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
+  NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
+  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.latitude] forKey:@"lat"];
+  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.longitude] forKey:@"lng"];
+  [json setObject:northeast forKey:@"northeast"];
+  NSMutableDictionary *southwest = [NSMutableDictionary dictionary];
+  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.latitude] forKey:@"lat"];
+  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.longitude] forKey:@"lng"];
+  [json setObject:southwest forKey:@"southwest"];
+    
   
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];

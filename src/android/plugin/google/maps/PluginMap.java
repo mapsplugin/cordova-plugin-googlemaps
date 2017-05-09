@@ -1883,44 +1883,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     });
   }
 
-  /**
-   * Return the visible region of the map
-   */
-  public void getVisibleRegion(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    this.activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        final VisibleRegion visibleRegion = projection.getVisibleRegion();
-        cordova.getThreadPool().submit(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              LatLngBounds latLngBounds = visibleRegion.latLngBounds;
-              JSONObject result = new JSONObject();
-              JSONObject northeast = new JSONObject();
-              JSONObject southwest = new JSONObject();
-              northeast.put("lat", latLngBounds.northeast.latitude);
-              northeast.put("lng", latLngBounds.northeast.longitude);
-              southwest.put("lat", latLngBounds.southwest.latitude);
-              southwest.put("lng", latLngBounds.southwest.longitude);
-              result.put("northeast", northeast);
-              result.put("southwest", southwest);
-
-              JSONArray latLngArray = new JSONArray();
-              latLngArray.put(northeast);
-              latLngArray.put(southwest);
-              result.put("latLngArray", latLngArray);
-
-              callbackContext.success(result);
-            } catch (JSONException e) {
-              e.printStackTrace();
-              callbackContext.error(e.getMessage() + "");
-            }
-          }
-        });
-      }
-    });
-  }
 
 
   /**
@@ -2275,6 +2237,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           target.put("lat", position.target.latitude);
           target.put("lng", position.target.longitude);
           params.put("target", target);
+
+          LatLngBounds latLngBounds = projection.getVisibleRegion().latLngBounds;
+          JSONObject result = new JSONObject();
+          JSONObject northeast = new JSONObject();
+          JSONObject southwest = new JSONObject();
+          northeast.put("lat", latLngBounds.northeast.latitude);
+          northeast.put("lng", latLngBounds.northeast.longitude);
+          southwest.put("lat", latLngBounds.southwest.latitude);
+          southwest.put("lng", latLngBounds.southwest.longitude);
+          params.put("northeast", northeast);
+          params.put("southwest", southwest);
+
           jsonStr = params.toString();
         } catch (JSONException e) {
           e.printStackTrace();
