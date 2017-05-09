@@ -13,7 +13,6 @@
 @interface PluginMap : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) BOOL isRemoved;
-@property (nonatomic) NSOperationQueue *loadPluginQueue;
 @property (nonatomic) NSOperationQueue *executeQueue;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
