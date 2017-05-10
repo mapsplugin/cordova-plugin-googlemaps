@@ -51,7 +51,11 @@ var BaseClass = function() {
           if (!e.myself || e.myself !== self) {
             return;
           }
-          callback.apply(self, e.mydata);
+          var mydata = e.mydata;
+          delete e.mydata;
+          delete e.myself;
+          self.event = e;
+          callback.apply(self, mydata);
        };
        document.addEventListener(eventName, listener, false);
        _listeners[eventName].push({
@@ -105,7 +109,11 @@ var BaseClass = function() {
            if (!e.myself || e.myself !== self) {
                return;
            }
-           callback.apply(self, e.mydata);
+           var mydata = e.mydata;
+           delete e.mydata;
+           delete e.myself;
+           self.event = e;
+           callback.apply(self, mydata);
            self.off(eventName, callback);
        };
        document.addEventListener(eventName, listener, false);
