@@ -20,8 +20,5 @@ module.exports = {
     MARKER_CLICK: 'marker_click',
     MARKER_DRAG: 'marker_drag',
     MARKER_DRAG_START: 'marker_drag_start',
-    MARKER_DRAG_END: 'marker_drag_end',
-    MAP_DRAG: 'map_drag',
-    MAP_DRAG_START: 'map_drag_start',
-    MAP_DRAG_END: 'map_drag_end'
+    MARKER_DRAG_END: 'marker_drag_end'
 };

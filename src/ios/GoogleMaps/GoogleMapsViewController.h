@@ -18,7 +18,6 @@
 @property (nonatomic, strong) UIView* webView;
 @property (nonatomic) NSMutableDictionary* plugins;
 @property (nonatomic) BOOL isFullScreen;
-@property (nonatomic) BOOL isDragging;
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) NSString *mapId;
