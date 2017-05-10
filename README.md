@@ -86,4 +86,4 @@ The date is not decided yet, but we release the v1.4.0 is the last version of v1
 
 For more details are announced through the [Official community](https://plus.google.com/u/0/communities/117427728522929652853)
 
-![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps-doc/master/v2.0.0/images/roadmap.png)
+![](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/roadmap.png?raw=true)
