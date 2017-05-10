@@ -74,6 +74,8 @@ You can try the demo application from here.
 
 https://github.com/mapsplugin/v2.0-demo
 
+![](https://github.com/mapsplugin/v2.0-demo/raw/master/image.gif)
+
 -----
 
 
