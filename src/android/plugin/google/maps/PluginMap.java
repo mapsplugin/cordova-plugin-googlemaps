@@ -98,6 +98,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   private Marker activeMarker = null;
+  private boolean isDragging = false;
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -2050,6 +2051,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.onOverlayEvent("groundoverlay_click", overlayId, point);
   }
 
+  /**
+   * Notify map event to JS
+   * @param eventName
+   */
+  public void onMapEvent(final String eventName) {
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:[]})",
+            mapId, eventName);
+    jsCallback(js);
+  }
 
   /**
    * Notify map event to JS
@@ -2270,18 +2280,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onCameraIdle() {
     projection = map.getProjection();
+    if (this.isDragging) {
+      onMapEvent("map_drag_end");
+    }
+    this.isDragging = false;
     onCameraEvent("camera_move_end");
   }
 
   @Override
   public void onCameraMoveCanceled() {
     projection = map.getProjection();
-    onCameraEvent("camera_moving");
+    if (this.isDragging) {
+      onMapEvent("map_drag_end");
+    }
+    this.isDragging = false;
+    onCameraEvent("camera_move_end");
   }
 
   @Override
   public void onCameraMove() {
     projection = map.getProjection();
+    if (this.isDragging) {
+      onMapEvent("map_drag");
+    }
     onCameraEvent("camera_move");
   }
 
@@ -2291,12 +2312,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     // In order to pass the gesture parameter to the callbacks,
     // use the _onMapEvent callback instead of the _onCameraEvent callback.
-    boolean gesture = reason == REASON_GESTURE;
-    jsCallback(
-      String.format(
-        Locale.ENGLISH,
-        "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onMapEvent', args: [%s]})",
-        mapId, "camera_move_start", gesture ? "true": "false"));
+    this.isDragging = reason == REASON_GESTURE;
+
+    if (this.isDragging) {
+      onMapEvent("map_drag_start");
+    }
+    onCameraEvent("camera_move_start");
+
 
   }
 

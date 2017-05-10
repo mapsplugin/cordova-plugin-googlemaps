@@ -210,12 +210,12 @@
  */
 - (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
 {
-  // In order to pass the gesture parameter to the callbacks,
-  // use the _onMapEvent callback instead of the _onCameraEvent callback.
-	NSString* jsString = [NSString
-    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [%@]});",
-    self.mapId, @"camera_move_start", gesture ? @"true": @"false"];
-  [self execJS:jsString];
+  self.isDragging = gesture;
+
+  if (self.isDragging) {
+    [self triggerMapEvent:@"map_drag_start"];
+  }
+  [self triggerCameraEvent:@"camera_move_start" position:self.map.camera];
 }
 
 
@@ -223,7 +223,11 @@
  * @callback plugin.google.maps.event.CAMERA_MOVE
  */
 - (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
-  [self triggerCameraEvent:@"camera_move" position:position];
+
+  if (self.isDragging) {
+    [self triggerMapEvent:@"map_drag"];
+  }
+  [self triggerCameraEvent:(@"camera_move") position:position];
 }
 
 /**
@@ -231,7 +235,11 @@
  */
 - (void) mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position
 {
-  [self triggerCameraEvent:@"camera_move_end" position:position];
+  if (self.isDragging) {
+    [self triggerMapEvent:@"map_drag_end"];
+  }
+  [self triggerCameraEvent:(@"camera_move_end") position:position];
+  self.isDragging = NO;
 }
 
 
@@ -327,6 +335,18 @@
   }
 }
 */
+
+/**
+ * plugin.google.maps.event.MAP_***()) events
+ */
+- (void)triggerMapEvent: (NSString *)eventName
+{
+
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});",
+                        self.mapId, eventName];
+  [self execJS:jsString];
+}
 
 /**
  * plugin.google.maps.event.MAP_***(new google.maps.LatLng(lat,lng)) events
