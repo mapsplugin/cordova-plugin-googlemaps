@@ -98,6 +98,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   private Marker activeMarker = null;
+  private boolean isDragging = false;
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -2270,19 +2271,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onCameraIdle() {
     projection = map.getProjection();
-    onCameraEvent("camera_move_end");
+    onCameraEvent(this.isDragging ? "map_drag_end" : "camera_move_end");
   }
 
   @Override
   public void onCameraMoveCanceled() {
     projection = map.getProjection();
-    onCameraEvent("camera_moving");
+    onCameraEvent(this.isDragging ? "map_drag_end" : "camera_move_end");
   }
 
   @Override
   public void onCameraMove() {
     projection = map.getProjection();
-    onCameraEvent("camera_move");
+    onCameraEvent(this.isDragging ? "map_drag" : "camera_moving");
   }
 
   @Override
@@ -2291,12 +2292,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     // In order to pass the gesture parameter to the callbacks,
     // use the _onMapEvent callback instead of the _onCameraEvent callback.
-    boolean gesture = reason == REASON_GESTURE;
+    this.isDragging = reason == REASON_GESTURE;
     jsCallback(
       String.format(
         Locale.ENGLISH,
-        "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onMapEvent', args: [%s]})",
-        mapId, "camera_move_start", gesture ? "true": "false"));
+        "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onMapEvent', args: []})",
+        mapId, this.isDragging ? "map_drag_start" : "camera_move_start"));
 
   }
 
