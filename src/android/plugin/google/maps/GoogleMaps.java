@@ -1853,6 +1853,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
+    return null;
+  }
+
+  @Override
+  public View getInfoWindow(Marker marker) {
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
     if ((title == null) && (snippet == null)) {
@@ -1877,10 +1882,53 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
     // Linear layout
     LinearLayout windowLayer = new LinearLayout(activity);
-    windowLayer.setPadding(3, 3, 3, 3);
     windowLayer.setOrientation(LinearLayout.VERTICAL);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+
+    int paddingLeft = 3;
+    int paddingTop = 3;
+    int paddingRight = 3;
+    int paddingBottom = 3;
+
+    //----------------------------------------
+    // padding
+    // padding-left
+    // padding-top
+    // padding-right
+    // padding-bottom
+    //----------------------------------------
+    if (styles != null) {
+      try {
+        if (styles.has("padding")) {
+          try {
+            paddingLeft = paddingTop = paddingRight = paddingBottom = Integer.parseInt(styles.getString("padding"));
+          } catch (NumberFormatException e) {}
+        }
+        if (styles.has("padding-left")) {
+          try {
+            paddingLeft = Integer.parseInt(styles.getString("padding-left"));
+          } catch (NumberFormatException e) {}
+        }
+        if (styles.has("padding-top")) {
+          try {
+            paddingTop = Integer.parseInt(styles.getString("padding-top"));
+          } catch (NumberFormatException e) {}
+        }
+        if (styles.has("padding-right")) {
+          try {
+            paddingRight = Integer.parseInt(styles.getString("padding-right"));
+          } catch (NumberFormatException e) {}
+        }
+        if (styles.has("padding-bottom")) {
+          try {
+            paddingBottom = Integer.parseInt(styles.getString("padding-bottom"));
+          } catch (NumberFormatException e) {}
+        }
+      }
+      catch (Exception e) {}
+    }
+    windowLayer.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 
     int maxWidth = 0;
 
@@ -2036,11 +2084,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
 
     return windowLayer;
-  }
-
-  @Override
-  public View getInfoWindow(Marker marker) {
-    return null;
   }
 
   /**
