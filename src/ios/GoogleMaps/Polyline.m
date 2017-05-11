@@ -7,6 +7,7 @@
 //
 
 #import "Polyline.h"
+#import "DDPolyline.h"
 
 @implementation Polyline
 
@@ -29,7 +30,7 @@
   }
 
   // Create the Polyline, and assign it to the map.
-  GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
+  DDPolyline *polyline = [[DDPolyline alloc] initPolylineWithWithGMSPath:path andMapView:self.mapCtrl.map];
 
   if ([[json valueForKey:@"visible"] boolValue]) {
     polyline.map = self.mapCtrl.map;
@@ -66,7 +67,7 @@
 -(void)setPoints:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   GMSMutablePath *path = [GMSMutablePath path];
 
   NSArray *points = [command.arguments objectAtIndex:2];
@@ -76,7 +77,8 @@
     latLng = [points objectAtIndex:i];
     [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
-  [polyline setPath:path];
+    
+    [polyline updatePath:path];
 
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -90,7 +92,7 @@
 -(void)setColor:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
 
   NSArray *rgbColor = [command.arguments objectAtIndex:2];
   [polyline setStrokeColor:[rgbColor parsePluginColor]];
@@ -106,7 +108,7 @@
 -(void)setWidth:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   float width = [[command.arguments objectAtIndex:2] floatValue];
   [polyline setStrokeWidth:width];
 
@@ -121,9 +123,9 @@
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
-  [polyline setZIndex:(int)zIndex];
+  [polyline updateZIndex:(int)zIndex];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -136,13 +138,17 @@
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
-  if (isVisible) {
-    polyline.map = self.mapCtrl.map;
-  } else {
-    polyline.map = nil;
-  }
+    
+    if (isVisible)
+    {
+        [polyline updateDDPolylineVisibilityInMap:self.mapCtrl.map];
+    }
+    else
+    {
+        [polyline updateDDPolylineVisibilityInMap:nil];
+    }
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -154,13 +160,24 @@
 -(void)setGeodesic:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
   Boolean isGeodisic = [[command.arguments objectAtIndex:2] boolValue];
   [polyline setGeodesic:isGeodisic];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+- (void)setEditable:(CDVInvokedUrlCommand *)command{
+    
+    NSString *polylineKey = [command.arguments objectAtIndex:1];
+    DDPolyline *polyline = [self.mapCtrl getPolygonByKey: polylineKey];
+    Boolean isEditable = [[command.arguments objectAtIndex:2] boolValue];
+    [polyline setPolylineEditable:isEditable];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+};
 
 /**
  * Remove the polyline
@@ -169,7 +186,10 @@
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
   NSString *polylineKey = [command.arguments objectAtIndex:1];
-  GMSPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+  DDPolyline *polyline = [self.mapCtrl getPolylineByKey: polylineKey];
+    
+    [polyline removeFromMap];
+    
   polyline.map = nil;
   [self.mapCtrl removeObjectForKey:polylineKey];
   polyline = nil;

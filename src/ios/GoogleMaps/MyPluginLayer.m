@@ -7,6 +7,7 @@
 //
 
 #import "MyPluginLayer.h"
+#import "UIView+ColorOfPoint.h"
 
 @implementation MyPluginLayer
 
@@ -34,68 +35,20 @@
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-  if (self.clickable == NO ||
-      self.mapCtrl.map == nil ||
-      self.mapCtrl.map.hidden == YES) {
-    return [super hitTest:point withEvent:event];
-  }
-  
-  float offsetX = self.webView.scrollView.contentOffset.x;// + self.mapCtrl.view.frame.origin.x;
-  float offsetY = self.webView.scrollView.contentOffset.y;// + self.mapCtrl.view.frame.origin.y;
-  
-  float left = [[self.embedRect objectForKey:@"left"] floatValue] - offsetX;
-  float top = [[self.embedRect objectForKey:@"top"] floatValue] - offsetY;
-  float width = [[self.embedRect objectForKey:@"width"] floatValue];
-  float height = [[self.embedRect objectForKey:@"height"] floatValue];
-  
-  BOOL isMapAction = NO;
-  if (point.x >= left && point.x <= (left + width) &&
-      point.y >= top && point.y <= (top + height)) {
-    isMapAction = YES;
-  } else {
-    isMapAction = NO;
-  }
-  if (isMapAction == YES) {
-    NSDictionary *elemSize;
-    for (NSString *domId in self.HTMLNodes) {
-      elemSize = [self.HTMLNodes objectForKey:domId];
-      left = [[elemSize objectForKey:@"left"] floatValue] - offsetX;
-      top = [[elemSize objectForKey:@"top"] floatValue] - offsetY;
-      width = [[elemSize objectForKey:@"width"] floatValue];
-      height = [[elemSize objectForKey:@"height"] floatValue];
-      
-      if (point.x >= left && point.x <= (left + width) &&
-          point.y >= top && point.y <= (top + height)) {
-        isMapAction = NO;
-        break;
-      }
-      
-    }
-  }
-  if (isMapAction == YES) {
-    // The issue #217 is fixed by @YazeedFares. Thank you!
-    offsetX = self.mapCtrl.view.frame.origin.x - offsetX;
-    offsetY = self.mapCtrl.view.frame.origin.y - offsetY;
-    point.x -= offsetX;
-    point.y -= offsetY;
     
-    UIView *hitView =[self.mapCtrl.view hitTest:point withEvent:event];
-    NSString *hitClass = [NSString stringWithFormat:@"%@", [hitView class]];
-    if ([PluginUtil isIOS7_OR_OVER] &&
-        [hitClass isEqualToString:@"UIButton"] &&
-        self.mapCtrl.map.isMyLocationEnabled &&
-        (point.x  + offsetX) >= (left + width - 50) &&
-         (point.y + offsetY) >= (top + height - 50)) {
-      
-      BOOL retValue = [self.mapCtrl didTapMyLocationButtonForMapView:self.mapCtrl.map];
-      if (retValue == YES) {
-        return nil;
-      }
+    [self.webView setAlpha:1.0];
+    [self.webView setBackgroundColor:[UIColor clearColor]];
+    [self.webView setFrame:[UIScreen mainScreen].bounds];
+    unsigned char alpha = [self.webView.scrollView colorAlphaPoint:point];
+
+    
+    if (alpha != 0) {
+        return [self.webView.scrollView hitTest:point withEvent:event];
+    } else {
+        return [self.mapCtrl.view hitTest:point withEvent:event];
     }
-    return hitView;
-  }
-  
-  return [super hitTest:point withEvent:event];
+
+    return nil;
 }
 
 - (void)drawRect:(CGRect)rect

@@ -190,6 +190,8 @@
         <source-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m" />
+        <header-file src="src/ios/GoogleMaps/UIView+ColorOfPoint.h" />
+        <source-file src="src/ios/GoogleMaps/UIView+ColorOfPoint.m" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
