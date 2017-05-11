@@ -1853,6 +1853,11 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
+    return null;
+  }
+
+  @Override
+  public View getInfoWindow(Marker marker) {
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
     if ((title == null) && (snippet == null)) {
@@ -1881,6 +1886,18 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     windowLayer.setOrientation(LinearLayout.VERTICAL);
     LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+
+    //----------------------------------------
+    // background-color
+    //----------------------------------------
+    int backgroundColor = Color.WHITE;
+
+    if (styles != null && styles.has("background-color")) {
+      try {
+        backgroundColor = PluginUtil.parsePluginColor(styles.getJSONArray("background-color"));
+      } catch (JSONException e) {}
+    }
+    windowLayer.setBackgroundColor(backgroundColor);
 
     int maxWidth = 0;
 
@@ -2036,11 +2053,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     }
 
     return windowLayer;
-  }
-
-  @Override
-  public View getInfoWindow(Marker marker) {
-    return null;
   }
 
   /**

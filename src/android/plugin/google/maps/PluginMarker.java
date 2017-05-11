@@ -465,6 +465,27 @@ public class PluginMarker extends MyPlugin {
     this.sendNoResult(callbackContext);
   }
   /**
+   * Set styles for the marker
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  protected void setStyles(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    JSONObject styles = args.getJSONObject(2);
+    String id = args.getString(1);
+    Marker marker = this.getMarker(id);
+    String propertyId = "marker_property_" + marker.getId();
+    JSONObject properties = null;
+    if (this.objects.containsKey(propertyId)) {
+      properties = (JSONObject)this.objects.get(propertyId);
+    } else {
+      properties = new JSONObject();
+    }
+    properties.put("styles", styles);
+    this.objects.put(propertyId, properties);
+    this.sendNoResult(callbackContext);
+  }
+  /**
    * Set title for the marker
    * @param args
    * @param callbackContext

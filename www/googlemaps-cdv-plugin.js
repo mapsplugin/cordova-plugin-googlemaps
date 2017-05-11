@@ -1057,6 +1057,9 @@ App.prototype.addMarker = function(markerOptions, callback) {
         if ("color" in markerOptions.styles) {
             markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
         }
+        if ("background-color" in markerOptions.styles) {
+            markerOptions.styles['background-color'] = HTMLColor2RGBA(markerOptions.styles['background-color'] || "#FFFFFF");
+        }
     }
     if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
         markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
@@ -1509,6 +1512,28 @@ Marker.prototype.setRotation = function(rotation) {
 };
 Marker.prototype.getRotation = function() {
     return this.get('rotation');
+};
+Marker.prototype.setBackgroundColor = function(color) {
+    if (!color) {
+        console.log('missing value for color');
+        return false;
+    }
+    var styles = this.get('styles');
+    styles['background-color'] = HTMLColor2RGBA(color);
+    this.set('styles', styles);
+
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setStyles', this.getId(), styles]);
+};
+Marker.prototype.setColor = function(color) {
+    if (!color) {
+        console.log('missing value for color');
+        return false;
+    }
+    var styles = this.get('styles');
+    styles['color'] = HTMLColor2RGBA(color);
+    this.set('styles', styles);
+
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setStyles', this.getId(), styles]);
 };
 Marker.prototype.showInfoWindow = function() {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.showInfoWindow', this.getId()]);
