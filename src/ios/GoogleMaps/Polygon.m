@@ -7,6 +7,7 @@
 //
 
 #import "Polygon.h"
+#import "DDPolygon.h"
 
 @implementation Polygon
 
@@ -30,8 +31,11 @@
   }
 
   // Create the polygon, and assign it to the map.
-  GMSPolygon *polygon = [GMSPolygon polygonWithPath:path];
-  polygon.title = @"polygon";
+  //GMSPolygon *polygon = [GMSPolygon polygonWithPath:path];
+
+    DDPolygon *customPolygon = [[DDPolygon alloc] initPolygonWithWithGMSPath:path andMapView:self.mapCtrl.map];
+    
+  customPolygon.title = @"polygon";
   if ([json valueForKey:@"holes"]) {
     NSArray *holes = [json objectForKey:@"holes"];
     NSArray *latLngArray;
@@ -49,34 +53,34 @@
       }
       [holePaths addObject:holePath];
     }
-    polygon.holes = holePaths;
+    customPolygon.holes = holePaths;
   }
   
   if ([[json valueForKey:@"visible"] boolValue]) {
-    polygon.map = self.mapCtrl.map;
+    customPolygon.map = self.mapCtrl.map;
   }
   if ([[json valueForKey:@"geodesic"] boolValue]) {
-    polygon.geodesic = true;
+    customPolygon.geodesic = true;
   }
   NSArray *rgbColor = [json valueForKey:@"fillColor"];
-  polygon.fillColor = [rgbColor parsePluginColor];
+  customPolygon.fillColor = [rgbColor parsePluginColor];
 
   rgbColor = [json valueForKey:@"strokeColor"];
-  polygon.strokeColor = [rgbColor parsePluginColor];
+  customPolygon.strokeColor = [rgbColor parsePluginColor];
 
-  polygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
-  polygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
+  customPolygon.strokeWidth = [[json valueForKey:@"strokeWidth"] floatValue];
+  customPolygon.zIndex = [[json valueForKey:@"zIndex"] floatValue];
     
-  polygon.tappable = YES;
+  customPolygon.tappable = YES;
 
-  NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
-  [self.mapCtrl.overlayManager setObject:polygon forKey: id];
-  polygon.title = id;
+  NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)customPolygon.hash];
+  [self.mapCtrl.overlayManager setObject:customPolygon forKey: id];
+  customPolygon.title = id;
 
 
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:id forKey:@"id"];
-  [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)polygon.hash] forKey:@"hashCode"];
+  [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)customPolygon.hash] forKey:@"hashCode"];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -90,7 +94,7 @@
 -(void)setHoles:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   
   NSArray *holes = [command.arguments objectAtIndex:2];
   NSArray *latLngArray;
@@ -124,7 +128,7 @@
 -(void)setPoints:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   GMSMutablePath *path = [GMSMutablePath path];
 
   NSArray *points = [command.arguments objectAtIndex:2];
@@ -134,8 +138,8 @@
     latLng = [points objectAtIndex:i];
     [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
   }
-  [polygon setPath:path];
-
+    
+    [polygon updatePath:path];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -147,7 +151,7 @@
 -(void)setFillColor:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
 
   NSArray *rgbColor = [command.arguments objectAtIndex:2];
   [polygon setFillColor:[rgbColor parsePluginColor]];
@@ -164,7 +168,7 @@
 -(void)setStrokeColor:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
 
   NSArray *rgbColor = [command.arguments objectAtIndex:2];
   [polygon setStrokeColor:[rgbColor parsePluginColor]];
@@ -180,7 +184,7 @@
 -(void)setStrokeWidth:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   float width = [[command.arguments objectAtIndex:2] floatValue];
   [polygon setStrokeWidth:width];
 
@@ -195,9 +199,9 @@
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   NSInteger zIndex = [[command.arguments objectAtIndex:2] integerValue];
-  [polygon setZIndex:(int)zIndex];
+  [polygon updateZIndex:(int)zIndex];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -210,12 +214,16 @@
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   Boolean isVisible = [[command.arguments objectAtIndex:2] boolValue];
-  if (isVisible) {
-    polygon.map = self.mapCtrl.map;
-  } else {
-    polygon.map = nil;
+  
+    if (isVisible)
+  {
+      [polygon updateDDPolygonVisibilityInMap:self.mapCtrl.map];
+  }
+  else
+  {
+      [polygon updateDDPolygonVisibilityInMap:nil];
   }
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -228,13 +236,24 @@
 -(void)setGeodesic:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
   Boolean isGeodisic = [[command.arguments objectAtIndex:2] boolValue];
   [polygon setGeodesic:isGeodisic];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+- (void)setEditable:(CDVInvokedUrlCommand *)command{
+    
+    NSString *polygonKey = [command.arguments objectAtIndex:1];
+    DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+    Boolean isEditable = [[command.arguments objectAtIndex:2] boolValue];
+    [polygon setPolygonEditable:isEditable];
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+};
 
 /**
  * Remove the polygon
@@ -243,7 +262,10 @@
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
   NSString *polygonKey = [command.arguments objectAtIndex:1];
-  GMSPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+  DDPolygon *polygon = [self.mapCtrl getPolygonByKey: polygonKey];
+    
+    [polygon removeFromMap];
+    
   polygon.map = nil;
   [self.mapCtrl removeObjectForKey:polygonKey];
   polygon = nil;

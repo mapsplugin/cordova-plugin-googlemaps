@@ -11,11 +11,12 @@
 #import <UIKit/UIKit.h>
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
+#import <WebKit/WKWebView.h>
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
 @property (nonatomic, strong) GMSMapView* map;
-@property (nonatomic, strong) UIView* webView;
+@property (nonatomic, strong) WKWebView* webView;
 @property (nonatomic, strong) NSMutableDictionary* overlayManager;
 @property (nonatomic, readwrite, strong) NSMutableDictionary* plugins;
 @property (nonatomic) BOOL isFullScreen;
