@@ -92,10 +92,10 @@ function HTMLColor2RGBA(colorValue, defaultOpacity) {
         matches = colorStr.match(/([0-9A-F]{2})/ig);
 
         return [
-            parseInt(matches[0], 16),
             parseInt(matches[1], 16),
             parseInt(matches[2], 16),
-            parseInt(matches[3], 16)
+            parseInt(matches[3], 16),
+            parseInt(matches[0], 16)
         ];
     }
     // convert rgb(), rgba()
