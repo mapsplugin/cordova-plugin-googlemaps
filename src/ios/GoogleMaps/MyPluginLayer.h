@@ -12,7 +12,7 @@
 
 @interface MyPluginLayer : UIView
 
-@property (nonatomic) UIView *webView;
+@property (nonatomic) WKWebView *webView;
 @property (nonatomic) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) NSDictionary *embedRect;
 @property (nonatomic) BOOL debuggable;
