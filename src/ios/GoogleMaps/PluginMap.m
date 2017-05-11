@@ -59,7 +59,7 @@
   NSString *pluginName = [NSString stringWithFormat:@"%@", className];
   className = [NSString stringWithFormat:@"Plugin%@", className];
 
-  @synchronized (self) {
+  @synchronized (self.mapCtrl.plugins) {
 
       CDVPluginResult* pluginResult = nil;
       CDVPlugin<MyPlgunProtocol> *plugin;
