@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-googlemaps.cordova-plugin-googlemaps", function(require, exports, module) {
 /* global cordova, plugin, CSSPrimitiveValue */
 var PLUGIN_NAME = 'GoogleMaps';
 var MARKERS = {};
@@ -646,11 +647,9 @@ App.prototype.setBackgroundColor = function(color) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
 
-
-App.prototype.setDebuggable = function(debug) {
+App.prototype.drawMarker = function(callback) {
     var self = this;
-    debug = parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'drawMarker', []);
 };
 
 /**
@@ -1043,6 +1042,8 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+    markerOptions.size = markerOptions.size || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
@@ -1153,9 +1154,10 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
-    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
+    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 1);
     if (polygonOptions.fillColor) {
-        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+        var fillOpacity = polygonOptions.fillOpacity || 1;
+        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, fillOpacity);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
@@ -1720,6 +1722,11 @@ Polyline.prototype.remove = function() {
 Polyline.prototype.getMap = function() {
     return this.map;
 };
+Polyline.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
+};
 /*****************************************************************************
  * Polygon Class
  *****************************************************************************/
@@ -1837,6 +1844,11 @@ Polygon.prototype.remove = function() {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
     this.off();
 };
+Polygon.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
+};
 
 /*****************************************************************************
  * TileOverlay Class
@@ -1909,6 +1921,10 @@ TileOverlay.prototype.setOpacity = function(opacity) {
     }
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
+};
+TileOverlay.prototype.setTileUrlFormat = function(tileUrlFormat) {
+  this.set('tileUrlFormat', tileUrlFormat);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setTileUrlFormat', this.getId(), tileUrlFormat]);
 };
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
@@ -2644,6 +2660,7 @@ module.exports = {
         MAP_CLOSE: 'map_close',
         MARKER_CLICK: 'click',
         OVERLAY_CLICK: 'overlay_click',
+        OVERLAY_EDIT: 'overlay_edit',
         INFO_CLICK: 'info_click',
         MARKER_DRAG: 'drag',
         MARKER_DRAG_START: 'drag_start',
@@ -2881,3 +2898,5 @@ var HTML_COLORS = {
     "yellow": "#ffff00",
     "yellowgreen": "#9acd32"
 };
+
+});

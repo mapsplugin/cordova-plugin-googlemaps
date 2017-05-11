@@ -8,9 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "MyPluginLayerDebugView.h"
+#import <WebKit/WKWebView.h>
 
 @interface MyPluginScrollView : UIScrollView
 @property (nonatomic) MyPluginLayerDebugView *debugView;
-- (void)attachView:(UIView *)view;
+- (void)attachView:(WKWebView *)view;
 - (void)dettachView;
 @end
