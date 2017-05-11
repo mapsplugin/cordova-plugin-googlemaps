@@ -98,6 +98,8 @@
     <!-- ios -->
     <platform name="ios">
         <preference name="API_KEY_FOR_IOS" />
+        <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
+        <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="Trace your location on the map" />
 
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for iOS.
@@ -195,14 +197,12 @@
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
 
-        <preference name="NSLocationWhenInUseUsageDescription" default="Show your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
-            <string>$NSLocationWhenInUseUsageDescription</string>
+            <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
         </config-file>
 
-        <preference name="NSLocationAlwaysUsageDescription" default="Trace your location on the map" />
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-            <string>$NSLocationAlwaysUsageDescription</string>
+            <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
