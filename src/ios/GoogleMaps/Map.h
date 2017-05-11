@@ -31,4 +31,15 @@
 - (void)setPadding:(CDVInvokedUrlCommand*)command;
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
+
+- (void)drawMarker:(CDVInvokedUrlCommand*)command;
+- (void)drawMarkerCallbackCalled:(GMSMarker *)marker;
+
+- (void)drawPolygon:(CDVInvokedUrlCommand*)command;
+- (void)completeDrawnShape:(CDVInvokedUrlCommand*)command;
+
+- (void)deleteLastDrawnVertex:(CDVInvokedUrlCommand*)command;
+
+- (void)cancelDrawing:(CDVInvokedUrlCommand*)command;
+
 @end

@@ -69,7 +69,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             polygonOptions.zIndex(opts.getInt("zIndex"));
         }
 
-        Polygon polygon = map.addPolygon(polygonOptions);
+        DDPolygon polygon = new DDPolygon(map.addPolygon(polygonOptions), map);//map.addPolygon(polygonOptions);
         String id = "polygon_"+ polygon.getId();
         this.objects.put(id, polygon);
 

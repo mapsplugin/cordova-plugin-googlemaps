@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-googlemaps.cordova-plugin-googlemaps", function(require, exports, module) {
 /* global cordova, plugin, CSSPrimitiveValue */
 var PLUGIN_NAME = 'GoogleMaps';
 var MARKERS = {};
@@ -646,11 +647,79 @@ App.prototype.setBackgroundColor = function(color) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
 
+App.prototype.drawMarker = function(callback) {
 
-App.prototype.setDebuggable = function(debug) {
     var self = this;
-    debug = parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+    cordova.exec(function(result) {
+                 const markerOptions = {};
+                 markerOptions.animation = markerOptions.animation || undefined;
+                 markerOptions.position = markerOptions.position || {};
+                 markerOptions.position.lat = markerOptions.position.lat || 0.0;
+                 markerOptions.position.lng = markerOptions.position.lng || 0.0;
+                 markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
+                 markerOptions.draggable = markerOptions.draggable === true;
+                 markerOptions.icon = markerOptions.icon || undefined;
+                 markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+                 markerOptions.size = markerOptions.size || undefined;
+                 markerOptions.snippet = markerOptions.snippet || undefined;
+                 markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
+                 markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
+                 markerOptions.flat = markerOptions.flat  === true;
+                 markerOptions.rotation = markerOptions.rotation || 0;
+                 markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+                 markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
+                 markerOptions.params = markerOptions.params || {};
+                 markerOptions.hashCode = result.hashCode;
+    var marker = new Marker(self, result.id, markerOptions);
+    marker
+      MARKERS[result.id] = marker;
+      OVERLAYS[result.id] = marker;
+                 
+      if (typeof callback === "function") {
+        callback.call(self, marker, self);
+      }
+                 
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
+};
+               
+App.prototype.drawPolygon = function(callback) {
+    var self = this;
+    cordova.exec(function(result) {
+        var polygon = new Polygon(self, result.id, {});
+        OVERLAYS[result.id] = polygon;
+        if (typeof callback === "function") {
+            callback.call(self, polygon, self);
+        }
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawPolygon']);
+};
+
+App.prototype.drawPolyline = function(callback) {
+    var self = this;
+    cordova.exec(function() {
+        var polyline = new Polyline(self, result.id, {});
+        OVERLAYS[result.id] = polyline;
+        /*if (typeof polylineOptions.onClick === "function") {
+         polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
+         }*/
+        if (typeof callback === "function") {
+          callback.call(self, polyline, self);
+        }
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawPolyline']);
+};
+
+App.prototype.completeDrawnShape = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.completeDrawnShape']);
+};
+               
+App.prototype.deleteLastDrawnVertex = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.deleteLastDrawnVertex']);
+};
+    
+App.prototype.cancelDrawing = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.cancelDrawing']);
 };
 
 /**
@@ -1043,6 +1112,8 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+    markerOptions.size = markerOptions.size || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
@@ -1153,9 +1224,10 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
-    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
+    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 1);
     if (polygonOptions.fillColor) {
-        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+        var fillOpacity = polygonOptions.fillOpacity || 1;
+        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, fillOpacity);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
@@ -1720,6 +1792,14 @@ Polyline.prototype.remove = function() {
 Polyline.prototype.getMap = function() {
     return this.map;
 };
+Polyline.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    function updatePoints(newPoints) {
+        this.setPoints(newPoints);
+    }
+    cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
+};
 /*****************************************************************************
  * Polygon Class
  *****************************************************************************/
@@ -1837,6 +1917,14 @@ Polygon.prototype.remove = function() {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
     this.off();
 };
+Polygon.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    function updatePoints(newPoints) {
+        this.setPoints(newPoints);
+    }
+    cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
+};
 
 /*****************************************************************************
  * TileOverlay Class
@@ -1909,6 +1997,10 @@ TileOverlay.prototype.setOpacity = function(opacity) {
     }
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
+};
+TileOverlay.prototype.setTileUrlFormat = function(tileUrlFormat) {
+  this.set('tileUrlFormat', tileUrlFormat);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setTileUrlFormat', this.getId(), tileUrlFormat]);
 };
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
@@ -2644,6 +2736,7 @@ module.exports = {
         MAP_CLOSE: 'map_close',
         MARKER_CLICK: 'click',
         OVERLAY_CLICK: 'overlay_click',
+        OVERLAY_EDIT: 'overlay_edit',
         INFO_CLICK: 'info_click',
         MARKER_DRAG: 'drag',
         MARKER_DRAG_START: 'drag_start',
@@ -2881,3 +2974,5 @@ var HTML_COLORS = {
     "yellow": "#ffff00",
     "yellowgreen": "#9acd32"
 };
+
+});

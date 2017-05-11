@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import android.graphics.Bitmap;
 import android.view.View;
 
 import android.annotation.SuppressLint;
@@ -44,6 +45,7 @@ public class MyPluginLayout extends FrameLayout  {
   private boolean isClickable = true;
   private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
   private Activity mActivity = null;
+  private Bitmap mImage;
   
   @SuppressLint("NewApi")
   public MyPluginLayout(View view, Activity activity) {
@@ -265,45 +267,35 @@ public class MyPluginLayout extends FrameLayout  {
       super(context);
       this.setWillNotDraw(false);
     }
-    
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
         view.requestFocus(View.FOCUS_DOWN);
         return false;
       }
-      int x = (int)event.getX();
-      int y = (int)event.getY();
-      int scrollY = view.getScrollY();
-      boolean contains = drawRect.contains(x, y);
-      int action = event.getAction();
-      isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
-      isScrolling = (action == MotionEvent.ACTION_UP) ? false : isScrolling;
-      contains = isScrolling == true ? false : contains;
-      
-      if (contains) {
-        // Is the touch point on any HTML elements?
-        Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
-        Iterator<Entry<String, RectF>> iterator = elements.iterator();
-        Entry <String, RectF> entry;
-        RectF rect;
-        while(iterator.hasNext() && contains == true) {
-          entry = iterator.next();
-          rect = entry.getValue();
-          rect.top -= scrollY;
-          rect.bottom -= scrollY;
-          if (entry.getValue().contains(x, y)) {
-            contains = false;
-          }
-          rect.top += scrollY;
-          rect.bottom += scrollY;
-        }
+      float x = event.getX();
+      float y = event.getY();
+
+      mImage = getBitmapFromView(view);
+
+      int pixel = mImage.getPixel((int) x, (int) y);
+
+      if (pixel == 0) {
+        return true;
       }
-      if (!contains) {
-        view.requestFocus(View.FOCUS_DOWN);
-      }
-      return contains;
+
+      return false;
     }
+
+    private Bitmap getBitmapFromView(View view) {
+      Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
+              Bitmap.Config.ARGB_8888);
+      Canvas canvas = new Canvas(bitmap);
+      view.draw(canvas);
+      return bitmap;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
       if (drawRect == null || isDebug == false) {

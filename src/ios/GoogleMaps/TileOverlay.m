@@ -9,28 +9,39 @@
 #import "TileOverlay.h"
 
 @implementation TileOverlay
-
+    
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
 }
-
 -(void)createTileOverlay:(CDVInvokedUrlCommand *)command
 {
   NSDictionary *json = [command.arguments objectAtIndex:1];
   NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
-
-
+    
+  NSString *id = [[[NSUUID alloc] init] UUIDString];
+    
+    if (!self.tileLayerFormats) {
+        self.tileLayerFormats = [NSMutableDictionary dictionary];
+    }
+    
+  [self.tileLayerFormats setObject:tileUrlFormat forKey:id];
   GMSTileURLConstructor constructor = ^(NSUInteger x, NSUInteger y, NSUInteger zoom) {
-    NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)x]];
+    NSString *urlStr = [[self.tileLayerFormats objectForKey:id] stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)x]];
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<y>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)y]];
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<zoom>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)zoom]];
-    
-    if (self.mapCtrl.debuggable) {
-      NSLog(@"%@", urlStr);
-    }
-    return [NSURL URLWithString:urlStr];
+
+    urlStr = [urlStr stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLFragmentAllowedCharacterSet]];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"https%253A%252F%252F"
+                                             withString:@"https://"];
+    NSURL *url = [NSURL URLWithString:urlStr];
+
+      if (true) {
+          NSLog(@"%@", url);
+      }
+    return url;
   };
+    
   GMSTileLayer *layer = [GMSURLTileLayer tileLayerWithURLConstructor:constructor];
 
   if ([[json valueForKey:@"visible"] boolValue]) {
@@ -46,7 +57,6 @@
     layer.opacity = [[json valueForKey:@"opacity"] floatValue];
   }
 
-  NSString *id = [NSString stringWithFormat:@"tileOverlay_%lu", (unsigned long)layer.hash];
   [self.mapCtrl.overlayManager setObject:layer forKey: id];
 
 
@@ -111,6 +121,16 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+-(void)setTileUrlFormat:(CDVInvokedUrlCommand *)command
+{
+    NSString *tileLayerKey = [command.arguments objectAtIndex:1];
+    NSString *newTileLayerFormat = [[command.arguments objectAtIndex:2] stringValue];
+    
+    [self.tileLayerFormats setObject:newTileLayerFormat forKey:tileLayerKey];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+    
 /**
  * Set z-index
  * @params key
