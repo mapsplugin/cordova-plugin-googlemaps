@@ -1,8 +1,46 @@
+cordova.define("cordova-plugin-googlemaps.cordova-plugin-googlemaps", function(require, exports, module) {
 /* global cordova, plugin, CSSPrimitiveValue */
 var PLUGIN_NAME = 'GoogleMaps';
 var MARKERS = {};
 var KML_LAYERS = {};
 var OVERLAYS = {};
+
+// Returns a function, that, when invoked, will only be triggered at most once
+// during a given window of time. Normally, the throttled function will run
+// as much as it can, without ever going more than once per `wait` duration;
+// but if you'd like to disable the execution on the leading edge, pass
+// `{leading: false}`. To disable execution on the trailing edge, ditto.
+function throttle(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
+    var previous = 0;
+    if (!options) options = {};
+    var later = function() {
+    previous = options.leading === false ? 0 : Date.now();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+    };
+    return function() {
+        var now = Date.now();
+        if (!previous && options.leading === false) previous = now;
+        var remaining = wait - (now - previous);
+        context = this;
+        args = arguments;
+        if (remaining <= 0 || remaining > wait) {
+        if (timeout) {
+               clearTimeout(timeout);
+               timeout = null;
+        }
+        previous = now;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+        } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+    }
+    return result;
+    };
+};
 
 /**
  * Google Maps model.
@@ -291,7 +329,7 @@ App.prototype._onCameraEvent = function(eventName, params) {
 App.prototype.getMap = function(div, params) {
      // Redraw the browser mandatory (especially for iOS)
     document.body.style.backgroundColor="rgba(0,0,0,0.1)";
-    
+
     var self = this,
         args = [];
 
@@ -646,11 +684,99 @@ App.prototype.setBackgroundColor = function(color) {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'pluginLayer_setBackGroundColor', [HTMLColor2RGBA(color)]);
 };
 
+App.prototype.drawMarker = function(callback) {
 
-App.prototype.setDebuggable = function(debug) {
     var self = this;
-    debug = parseBoolean(debug);
-    cordova.exec(null, self.errorHandler, PLUGIN_NAME, 'pluginLayer_setDebuggable', [debug]);
+    cordova.exec(function(result) {
+        const markerOptions = {};
+        markerOptions.animation = markerOptions.animation || undefined;
+        markerOptions.position = result.position;
+        markerOptions.position.lat = markerOptions.position.lat || 0.0;
+        markerOptions.position.lng = markerOptions.position.lng || 0.0;
+        markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
+        markerOptions.draggable = markerOptions.draggable === true;
+        markerOptions.icon = markerOptions.icon || undefined;
+        markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+        markerOptions.size = markerOptions.size || undefined;
+        markerOptions.snippet = markerOptions.snippet || undefined;
+        markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
+        markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
+        markerOptions.flat = markerOptions.flat  === true;
+        markerOptions.rotation = markerOptions.rotation || 0;
+        markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+        markerOptions.disableAutoPan = markerOptions.disableAutoPan === undefined ? false : markerOptions.disableAutoPan;
+        markerOptions.params = markerOptions.params || {};
+        markerOptions.hashCode = result.hashCode;
+        var marker = new Marker(self, result.id, markerOptions);
+
+        MARKERS[result.id] = marker;
+        OVERLAYS[result.id] = marker;
+
+        if (typeof callback === "function") {
+                 callback.call(self, marker, self);
+        }
+
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawMarker']);
+};
+
+App.prototype.drawPolygon = function(callback) {
+    var self = this;
+    cordova.exec(function(result) {
+
+        var polygonOptions = {};
+        polygonOptions.points = result.points;
+        polygonOptions.holes = [];
+        polygonOptions.strokeColor = HTMLColor2RGBA("#FF000080", 1);
+        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 1);
+        polygonOptions.strokeWidth = 10;
+        polygonOptions.visible = true;
+        polygonOptions.zIndex = 2;
+        polygonOptions.geodesic = true;
+
+        var polygon = new Polygon(self, result.id, polygonOptions);
+        OVERLAYS[result.id] = polygon;
+        if (typeof callback === "function") {
+            callback.call(self, polygon, self);
+        }
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawPolygon']);
+};
+
+App.prototype.drawPolyline = function(callback) {
+    var self = this;
+    cordova.exec(function(result) {
+
+        var polylineOptions = {};
+        polylineOptions.points = result.points;
+        polylineOptions.color = HTMLColor2RGBA("#FF000080", 0.75);
+        polylineOptions.width = 10;
+        polylineOptions.visible =  true;
+        polylineOptions.zIndex = 4;
+        polylineOptions.geodesic = true;
+
+        var polyline = new Polyline(self, result.id, polylineOptions);
+        OVERLAYS[result.id] = polyline;
+        /*if (typeof polylineOptions.onClick === "function") {
+         polyline.on(plugin.google.maps.event.OVERLAY_CLICK, polylineOptions.onClick);
+         }*/
+        if (typeof callback === "function") {
+          callback.call(self, polyline, self);
+        }
+    }, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.drawPolyline']);
+};
+
+App.prototype.completeDrawnShape = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.completeDrawnShape']);
+};
+
+App.prototype.deleteLastDrawnVertex = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.deleteLastDrawnVertex']);
+};
+
+App.prototype.cancelDrawing = function(callback) {
+    var self = this;
+    cordova.exec(callback, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.cancelDrawing']);
 };
 
 /**
@@ -1043,6 +1169,8 @@ App.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = markerOptions.anchor || [0.5, 0.5];
     markerOptions.draggable = markerOptions.draggable === true;
     markerOptions.icon = markerOptions.icon || undefined;
+    markerOptions.iconAnchor = markerOptions.iconAnchor || undefined;
+    markerOptions.size = markerOptions.size || undefined;
     markerOptions.snippet = markerOptions.snippet || undefined;
     markerOptions.title = markerOptions.title !== undefined ? String(markerOptions.title) : undefined;
     markerOptions.visible = markerOptions.visible === undefined ? true : markerOptions.visible;
@@ -1153,9 +1281,10 @@ App.prototype.addPolygon = function(polygonOptions, callback) {
         return {lat: latLng.lat, lng: latLng.lng};
       });
     });
-    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
+    polygonOptions.strokeColor = HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 1);
     if (polygonOptions.fillColor) {
-        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, 0.75);
+        var fillOpacity = polygonOptions.fillOpacity || 1;
+        polygonOptions.fillColor = HTMLColor2RGBA(polygonOptions.fillColor, fillOpacity);
     }
     polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
     polygonOptions.visible = polygonOptions.visible === undefined ? true : polygonOptions.visible;
@@ -1499,14 +1628,14 @@ Marker.prototype.setSnippet = function(snippet) {
 Marker.prototype.getSnippet = function() {
     return this.get('snippet');
 };
-Marker.prototype.setRotation = function(rotation) {
-    if (!rotation) {
-        console.log('missing value for rotation');
+Marker.prototype.setRotation = throttle(function(rotation) {
+    if (typeof rotation !== 'number') {
+        console.log('missing or invalid value for rotation');
         return false;
     }
     this.set('rotation', rotation);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setRotation', this.getId(), rotation]);
-};
+}, 250);
 Marker.prototype.getRotation = function() {
     return this.get('rotation');
 };
@@ -1529,14 +1658,14 @@ Marker.prototype.isVisible = function() {
     return this.get("visible");
 };
 
-Marker.prototype.setPosition = function(position) {
+Marker.prototype.setPosition = throttle(function(position) {
     if (!position) {
         console.log('missing value for position');
         return false;
     }
     this.set('position', position);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Marker.setPosition', this.getId(), position.lat, position.lng]);
-};
+}, 50);
 
 
 /*****************************************************************************
@@ -1660,7 +1789,7 @@ Polyline.prototype.getId = function() {
     return this.id;
 };
 
-Polyline.prototype.setPoints = function(points) {
+Polyline.prototype.setPoints = throttle(function(points) {
     this.set('points', points);
     var i,
         path = [];
@@ -1671,7 +1800,7 @@ Polyline.prototype.setPoints = function(points) {
         });
     }
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setPoints', this.getId(), path]);
-};
+}, 500);
 Polyline.prototype.getPoints = function() {
     return this.get("points");
 };
@@ -1686,6 +1815,10 @@ Polyline.prototype.setWidth = function(width) {
     this.set('width', width);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setWidth', this.getId(), width]);
 };
+Polyline.prototype.addPoint = throttle(function(point) {
+   this.set('points', this.getPoints().concat(point));
+   cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.addPoint', this.getId(), point]);
+}, 500);
 Polyline.prototype.getWidth = function() {
     return this.get('width');
 };
@@ -1719,6 +1852,14 @@ Polyline.prototype.remove = function() {
 
 Polyline.prototype.getMap = function() {
     return this.map;
+};
+Polyline.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    function updatePoints(newPoints) {
+        this.setPoints(newPoints);
+    }
+    cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polyline.setEditable', this.getId(), editable]);
 };
 /*****************************************************************************
  * Polygon Class
@@ -1837,6 +1978,14 @@ Polygon.prototype.remove = function() {
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.remove', this.getId()]);
     this.off();
 };
+Polygon.prototype.setEditable = function(editable) {
+    editable = parseBoolean(editable);
+    this.set('editable', editable);
+    function updatePoints(newPoints) {
+        this.setPoints(newPoints);
+    }
+    cordova.exec(updatePoints.bind(this), this.errorHandler, PLUGIN_NAME, 'exec', ['Polygon.setEditable', this.getId(), editable]);
+};
 
 /*****************************************************************************
  * TileOverlay Class
@@ -1909,6 +2058,10 @@ TileOverlay.prototype.setOpacity = function(opacity) {
     }
     this.set('opacity', opacity);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setOpacity', this.getId(), opacity]);
+};
+TileOverlay.prototype.setTileUrlFormat = function(tileUrlFormat) {
+  this.set('tileUrlFormat', tileUrlFormat);
+  cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['TileOverlay.setTileUrlFormat', this.getId(), tileUrlFormat]);
 };
 TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
@@ -2644,6 +2797,7 @@ module.exports = {
         MAP_CLOSE: 'map_close',
         MARKER_CLICK: 'click',
         OVERLAY_CLICK: 'overlay_click',
+        OVERLAY_EDIT: 'overlay_edit',
         INFO_CLICK: 'info_click',
         MARKER_DRAG: 'drag',
         MARKER_DRAG_START: 'drag_start',
@@ -2881,3 +3035,5 @@ var HTML_COLORS = {
     "yellow": "#ffff00",
     "yellowgreen": "#9acd32"
 };
+
+});
