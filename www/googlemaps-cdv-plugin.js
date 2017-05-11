@@ -296,7 +296,14 @@ App.prototype.getMap = function(div, params) {
         args = [];
 
     if (!isDom(div)) {
-        params = div;
+		// check if div and params arguments are both given. If so, warn about !isDom(div)
+		if (div != null && params != null && isPlainObject(params)) {
+			return self.errorHandler("The [div] argument to function [getMap] is not a DOM element." +
+					"\nEither supply a valid DOM element with getMap(div,params) or only supply the [params] argument.");
+		// if only one argument was supplied, use the div value as params
+		} else if (div != null && params == null) {
+			params = div;
+		}
         params = params || {};
         params.backgroundColor = params.backgroundColor || '#ffffff';
         params.backgroundColor = HTMLColor2RGBA(params.backgroundColor);
@@ -2343,6 +2350,16 @@ function isDom(element) {
     return !!element &&
         typeof element === "object" &&
         "getBoundingClientRect" in element;
+}
+
+
+// Reference: http://stackoverflow.com/a/23441431/2783456
+// Make sure Object.getPrototypeOf exists
+Object.getPrototypeOf || (Object.getPrototypeOf=function(obj){
+	return obj.__proto__ || obj.prototype || (obj.constructor&&obj.constructor.prototype) || Object.prototype
+});
+function isPlainObject(obj) {
+	return obj != null && typeof(obj) == "object" && Object.getPrototypeOf(obj) == Object.prototype;
 }
 
 function getPageRect() {
