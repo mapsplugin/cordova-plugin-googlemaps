@@ -668,6 +668,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               PluginEntry pluginEntry;
               for (int i = 0; i < pluginNames.length; i++) {
                 pluginEntry = plugins.remove(pluginNames[i]);
+                if (pluginEntry == null) {
+                  continue;
+                }
                 ((MyPlugin)pluginEntry.plugin).map = null;
                 ((MyPlugin)pluginEntry.plugin).mapCtrl = null;
                 ((MyPlugin)pluginEntry.plugin).pluginMap = null;
