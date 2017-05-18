@@ -2251,16 +2251,38 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           target.put("lng", position.target.longitude);
           params.put("target", target);
 
-          LatLngBounds latLngBounds = projection.getVisibleRegion().latLngBounds;
-          JSONObject result = new JSONObject();
+          VisibleRegion visibleRegion = projection.getVisibleRegion();
+          LatLngBounds latLngBounds = visibleRegion.latLngBounds;
+
           JSONObject northeast = new JSONObject();
-          JSONObject southwest = new JSONObject();
           northeast.put("lat", latLngBounds.northeast.latitude);
           northeast.put("lng", latLngBounds.northeast.longitude);
+          params.put("northeast", northeast);
+
+          JSONObject southwest = new JSONObject();
           southwest.put("lat", latLngBounds.southwest.latitude);
           southwest.put("lng", latLngBounds.southwest.longitude);
-          params.put("northeast", northeast);
           params.put("southwest", southwest);
+
+          JSONObject nearLeft = new JSONObject();
+          nearLeft.put("lat", visibleRegion.nearLeft.latitude);
+          nearLeft.put("lng", visibleRegion.nearLeft.longitude);
+          params.put("nearLeft", nearLeft);
+
+          JSONObject nearRight = new JSONObject();
+          nearRight.put("lat", visibleRegion.nearRight.latitude);
+          nearRight.put("lng", visibleRegion.nearRight.longitude);
+          params.put("nearRight", nearRight);
+
+          JSONObject farLeft = new JSONObject();
+          farLeft.put("lat", visibleRegion.farLeft.latitude);
+          farLeft.put("lng", visibleRegion.farLeft.longitude);
+          params.put("farLeft", farLeft);
+
+          JSONObject farRight = new JSONObject();
+          farRight.put("lat", visibleRegion.farRight.latitude);
+          farRight.put("lng", visibleRegion.farRight.longitude);
+          params.put("farRight", farRight);
 
           jsonStr = params.toString();
         } catch (JSONException e) {

@@ -577,15 +577,22 @@ Map.prototype.setDiv = function(div) {
  */
 Map.prototype.getVisibleRegion = function(callback) {
     var self = this;
-    var northeast = self.get("camera_northeast");
-    var southwest = self.get("camera_southwest");
-    var latLngBounds = new LatLngBounds(northeast, southwest);
+    var cameraPosition = self.get("camera");
+
+    var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
 
     if (typeof callback === "function") {
+      console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
       callback.call(self, latLngBounds);
     }
 
-    return latLngBounds;
+    return {
+      "latLngBounds" : latLngBounds,
+      "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
+      "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
+      "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
+      "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
+    }
 };
 
 /**
@@ -1036,9 +1043,7 @@ Map.prototype.getCameraTilt = function() {
 Map.prototype.getCameraBearing = function() {
     return this.get("camera_bearing");
 };
-Map.prototype._onCameraEvent = function(eventName, params) {
-    //var cameraPosition = new CameraPosition(params);
-    var cameraPosition = params;
+Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
     this.set('camera', cameraPosition);
     this.set('camera_target', cameraPosition.target);
     this.set('camera_zoom', cameraPosition.zoom);
@@ -1046,6 +1051,10 @@ Map.prototype._onCameraEvent = function(eventName, params) {
     this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
     this.set('camera_northeast', cameraPosition.northeast);
     this.set('camera_southwest', cameraPosition.southwest);
+    this.set('camera_nearLeft', cameraPosition.nearLeft);
+    this.set('camera_nearRight', cameraPosition.nearRight);
+    this.set('camera_farLeft', cameraPosition.farLeft);
+    this.set('camera_farRight', cameraPosition.farRight);
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;

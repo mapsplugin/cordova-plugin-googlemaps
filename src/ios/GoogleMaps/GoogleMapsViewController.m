@@ -390,6 +390,28 @@
   [json setObject:southwest forKey:@"southwest"];
     
   
+
+  NSMutableDictionary *farLeft = [NSMutableDictionary dictionary];
+  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.latitude] forKey:@"lat"];
+  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.longitude] forKey:@"lng"];
+  [json setObject:farLeft forKey:@"farLeft"];
+
+  NSMutableDictionary *farRight = [NSMutableDictionary dictionary];
+  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.latitude] forKey:@"lat"];
+  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.longitude] forKey:@"lng"];
+  [json setObject:farRight forKey:@"farRight"];
+
+  NSMutableDictionary *nearLeft = [NSMutableDictionary dictionary];
+  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.latitude] forKey:@"lat"];
+  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.longitude] forKey:@"lng"];
+  [json setObject:nearLeft forKey:@"nearLeft"];
+
+  NSMutableDictionary *nearRight = [NSMutableDictionary dictionary];
+  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.latitude] forKey:@"lat"];
+  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.longitude] forKey:@"lng"];
+  [json setObject:nearRight forKey:@"nearRight"];
+
+
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString
