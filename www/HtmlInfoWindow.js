@@ -180,7 +180,13 @@ HTMLInfoWindow.prototype.close = function(marker) {
 };
 
 HTMLInfoWindow.prototype.setContent = function(content) {
-  this.set("content", content);
+    var self = this;
+    var prevContent = self.get("content");
+    self.set("content", content);
+    var marker = self.get("marker");
+    if (content !== prevContent && marker && marker.isInfoWindowShown()) {
+      self.trigger("infoWindowAnchor_changed");
+    }
 };
 
 HTMLInfoWindow.prototype.open = function(marker) {
@@ -190,11 +196,15 @@ HTMLInfoWindow.prototype.open = function(marker) {
     var map = marker.getMap();
     var self = this;
 
-    map.bindTo("infoPosition", this);
-    marker.bindTo("infoWindowAnchor", this);
-    marker.bindTo("icon", this);
-    this.set("marker", marker);
-    this.trigger("infoWindowAnchor_changed");
+    map.fromLatLngToPoint(marker.getPosition(), function(point) {
+      map.set("infoPosition", {x: point[0], y: point[1]})
+
+      map.bindTo("infoPosition", self);
+      marker.bindTo("infoWindowAnchor", self);
+      marker.bindTo("icon", self);
+      self.set("marker", marker);
+      self.trigger("infoWindowAnchor_changed");
+    });
 };
 
 HTMLInfoWindow.prototype.setBackgroundColor = function(backgroundColor) {
