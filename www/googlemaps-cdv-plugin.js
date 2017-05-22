@@ -2701,31 +2701,27 @@ window.addEventListener("orientationchange", function() {
 function getAllChildren(root) {
     var list = [];
     var clickable;
-    var style, displayCSS, opacityCSS, visibilityCSS;
-    var search = function(node) {
-        while (node != null) {
-            if (node.nodeType == 1) {
-                style = window.getComputedStyle(node);
-                visibilityCSS = style.getPropertyValue('visibility');
-                displayCSS = style.getPropertyValue('display');
-                opacityCSS = style.getPropertyValue('opacity');
-                if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden") {
-                    clickable = node.getAttribute("data-clickable");
-                    if (clickable &&
-                        clickable.toLowerCase() === "false" &&
-                        node.hasChildNodes()) {
-                        Array.prototype.push.apply(list, getAllChildren(node));
-                    } else {
-                        list.push(node);
-                    }
-                }
-            }
-            node = node.nextSibling;
+    var style, displayCSS, opacityCSS, visibilityCSS, node, clickableSize;
+
+    var allClickableElements = Array.prototype.slice.call(root.querySelectorAll(':not([data-clickable="false"])'));
+    var clickableElements =  allClickableElements.filter(function(i) {return i != root;});
+
+    for (var i = 0; i < clickableElements.length; i++) {
+        node = clickableElements[i];
+        if (node.nodeType == 1){
+          style = window.getComputedStyle(node);
+          visibilityCSS = style.getPropertyValue('visibility');
+          displayCSS = style.getPropertyValue('display');
+          opacityCSS = style.getPropertyValue('opacity');
+          heightCSS = style.getPropertyValue('height')
+          widthCSS = style.getPropertyValue('width')
+          clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
+          if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
+            list.push(node);
+          }
         }
-    };
-    for (var i = 0; i < root.childNodes.length; i++) {
-        search(root.childNodes[i]);
     }
+
     return list;
 }
 
