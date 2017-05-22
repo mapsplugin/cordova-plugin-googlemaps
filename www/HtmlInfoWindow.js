@@ -75,7 +75,13 @@ var HTMLInfoWindow = function() {
           contentBox.style.whiteSpace="nowrap";
           contentBox.innerHTML = content;
       } else {
-          contentBox.appendChild(content);
+          if (!content) {
+            contentBox.innerText = "";
+          } else if (content.nodeType === 1) {
+            contentBox.appendChild(content);
+          } else {
+            contentBox.innerText = content;
+          }
       }
 
       // Insert the contents to this HTMLInfoWindow
@@ -159,17 +165,18 @@ var HTMLInfoWindow = function() {
 
 utils.extend(HTMLInfoWindow, BaseClass);
 
-HTMLInfoWindow.prototype.close = function(marker) {
-    if (!marker) {
-        return;
-    }
+HTMLInfoWindow.prototype.close = function() {
+    var self = this;
+
+    var marker = self.get("marker");
     var map = marker.getMap();
     map.off("infoPosition_changed");
     marker.off("icon_changed");
     marker.off("infoWindowAnchor_changed");
+    map.set("active_marker_id", null);
 
     var div = map.getDiv();
-    var frame = this.get("frame");
+    var frame = self.get("frame");
     div.removeChild(frame);
     this.set('marker', undefined);
 
@@ -203,6 +210,7 @@ HTMLInfoWindow.prototype.open = function(marker) {
       marker.bindTo("infoWindowAnchor", self);
       marker.bindTo("icon", self);
       self.set("marker", marker);
+      map.set("active_marker_id", marker.getId());
       self.trigger("infoWindowAnchor_changed");
     });
 };
