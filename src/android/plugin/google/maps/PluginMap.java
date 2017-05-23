@@ -1848,6 +1848,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        projection = map.getProjection();
         Point point = projection.toScreenLocation(latLng);
         try {
           JSONArray pointJSON = new JSONArray();
@@ -1873,6 +1874,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
 
+        projection = map.getProjection();
         LatLng latlng = projection.fromScreenLocation(point);
         try {
           JSONArray pointJSON = new JSONArray();
