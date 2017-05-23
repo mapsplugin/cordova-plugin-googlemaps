@@ -97,7 +97,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
-  private Marker activeMarker = null;
+  public Marker activeMarker = null;
   private boolean isDragging = false;
 
 
