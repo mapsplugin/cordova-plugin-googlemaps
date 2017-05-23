@@ -83,7 +83,6 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
   }
 
   public static void removeBitmapFromMemCahce(String key) {
-    Log.d("removeBitmap", key);
     Bitmap image = mIconCache.remove(key);
     if (image == null || image.isRecycled()) {
       return;
