@@ -25,6 +25,7 @@
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) BOOL isRenderedAtOnce;
+@property (nonatomic) GMSMarker* activeMarker;
 @property (nonatomic, readwrite, strong) NSString *mapDivId;
 
 

@@ -48,26 +48,26 @@ var Marker = function(map, id, markerOptions) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    this.on(event.INFO_OPEN, function() {
-        if (map.get("active_marker_id") === id) {
-          return;
-        }
-        map.set('active_marker_id', id);
-
-        if (markerOptions.infoWindow) {
-            markerOptions.infoWindow.open(self);
-        }
-    });
-    this.on(event.INFO_CLOSE, function() {
-        map.set('active_marker_id', undefined);
-
-        if (markerOptions.infoWindow) {
-            markerOptions.infoWindow.close(self);
-        }
-    });
 
     if (markerOptions.infoWindow) {
       console.log("[deprecated] the infoWindow option is deprecated. Please use event listener.");
+      self.on(event.INFO_OPEN, function() {
+          if (map.get("active_marker_id") === id) {
+            return;
+          }
+          map.set('active_marker_id', id);
+
+          if (markerOptions.infoWindow) {
+              markerOptions.infoWindow.open(self);
+          }
+      });
+      self.on(event.INFO_CLOSE, function() {
+          map.set('active_marker_id', undefined);
+
+          if (markerOptions.infoWindow) {
+              markerOptions.infoWindow.close(self);
+          }
+      });
       self.on(event.MARKER_CLICK, function() {
           self.trigger(event.INFO_OPEN);
       });

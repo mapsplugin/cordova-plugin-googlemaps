@@ -1,4 +1,5 @@
 var utils = require('cordova/utils'),
+    event = require('./event'),
     common = require('./Common'),
     BaseClass = require('./BaseClass');
 
@@ -173,6 +174,7 @@ HTMLInfoWindow.prototype.close = function() {
     map.off("infoPosition_changed");
     marker.off("icon_changed");
     marker.off("infoWindowAnchor_changed");
+    marker.off(event.INFO_CLOSE, self.close);
     map.set("active_marker_id", null);
 
     var div = map.getDiv();
@@ -203,12 +205,14 @@ HTMLInfoWindow.prototype.open = function(marker) {
     var map = marker.getMap();
     var self = this;
 
+
     map.fromLatLngToPoint(marker.getPosition(), function(point) {
         map.set("infoPosition", {x: point[0], y: point[1]});
 
         map.bindTo("infoPosition", self);
         marker.bindTo("infoWindowAnchor", self);
         marker.bindTo("icon", self);
+        marker.on(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
         self.trigger("infoWindowAnchor_changed");

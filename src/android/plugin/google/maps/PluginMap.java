@@ -97,7 +97,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
-  private Marker activeMarker = null;
+  public Marker activeMarker = null;
   private boolean isDragging = false;
 
 
@@ -2004,6 +2004,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onInfoWindowClose(Marker marker) {
     this.onMarkerEvent("info_close", marker);
+    activeMarker = null;
   }
 
 
@@ -2023,6 +2024,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String markerId = "marker_" + marker.getId();
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
         mapId, eventName, markerId, latLng.latitude, latLng.longitude);
+    Log.d(TAG, js);
     jsCallback(js);
   }
   public void syncInfoWndPosition() {
@@ -2449,6 +2451,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void onPostExecute(HashMap<String, Object> boundsHitList) {
 
+        if (activeMarker != null) {
+          onInfoWindowClose(activeMarker);
+
+        }
         String key;
         Map.Entry<String, Object> entry;
 

@@ -45,13 +45,13 @@
       [self.objects removeObjectForKey:key];
   }
   self.objects = nil;
-  
+
   [self.imgCache removeAllObjects];
   self.imgCache = nil;
   key = nil;
   keys = nil;
-  
-  
+
+
   NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
@@ -78,7 +78,7 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSMutableDictionary *iconProperty = nil;
         NSString *animation = nil;
-        
+
         // Create a marker
         GMSMarker *marker = [GMSMarker markerWithPosition:position];
         marker.tracksViewChanges = NO;
@@ -110,7 +110,7 @@
 
         NSString *markerId = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
         [self.objects setObject:marker forKey: markerId];
-      
+
         [result setObject:markerId forKey:@"id"];
         [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
 
@@ -128,7 +128,7 @@
             disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
         }
         [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
-        
+
         BOOL useHtmlInfoWnd = NO;
         if ([json valueForKey:@"useHtmlInfoWnd"] != nil) {
             useHtmlInfoWnd = [[json valueForKey:@"useHtmlInfoWnd"] boolValue];
@@ -203,6 +203,7 @@
       GMSMarker *marker = [self.objects objectForKey:hashCode];
       if (marker) {
           self.mapCtrl.map.selectedMarker = marker;
+          self.mapCtrl.activeMarker = marker;
       }
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -217,6 +218,7 @@
 {
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       self.mapCtrl.map.selectedMarker = nil;
+      self.mapCtrl.activeMarker = nil;
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
@@ -288,6 +290,7 @@
         return ;
       }
       self.mapCtrl.map.selectedMarker = marker;
+      self.mapCtrl.activeMarker = marker;
   }];
 }
 
@@ -305,7 +308,7 @@
       [self.objects removeObjectForKey:markerId];
       [self.objects removeObjectForKey:propertyId];
       marker = nil;
-    
+
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
@@ -452,7 +455,7 @@
       } else {
           marker.map = nil;
       }
-      
+
       NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.objects objectForKey:propertyId]];
@@ -527,7 +530,7 @@
           iconProperty = [[NSMutableDictionary alloc] init];
           [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
       }
-    
+
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
@@ -566,7 +569,7 @@
 }
 
 -(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId {
-  
+
     animation = [animation uppercaseString];
     SWITCH(animation) {
         CASE (@"DROP") {
@@ -760,7 +763,7 @@
                     if (range.location != 0) {
                       // Get the current URL, then calculate the relative path.
                       CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-                      
+
                       id webview = cdvViewController.webView;
                       NSString *clsName = [webview className];
                       NSURL *url;
@@ -940,7 +943,7 @@
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
     [self.executeQueue addOperationWithBlock:^{
-  
+
         NSURLRequest *req = [NSURLRequest requestWithURL:url
                                           cachePolicy:NSURLRequestReturnCacheDataElseLoad
                                           timeoutInterval:5];
