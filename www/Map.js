@@ -739,14 +739,39 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     var self = this;
     tilelayerOptions = tilelayerOptions || {};
     tilelayerOptions.tileUrlFormat = tilelayerOptions.tileUrlFormat || null;
-    if (typeof tilelayerOptions.tileUrlFormat !== "string") {
-        throw new Error("tilelayerOptions.tileUrlFormat should set a string.");
+    if (tilelayerOptions.tileUrlFormat === "string") {
+        console.log("[deprecated] the tileUrlFormat property is now deprecated. Use the getTile property.");
+        tilelayerOptions.getTile = function(x, y, zoom) {
+          return tilelayerOptions.tileUrlFormat.replace(/<x>/gi, x).
+                    tileUrlFormat.replace(/<y>/gi, y).
+                    tileUrlFormat.replace(/<zoom>/gi, zoom);
+        };
+    }
+    if (typeof tilelayerOptions.getTile !== "function") {
+      throw new Error("[error] the getTile property is required.");
     }
     tilelayerOptions.visible = common.defaultTrueOption(tilelayerOptions.visible);
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
     tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
     tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
+
+    var options = {
+        visible: tilelayerOptions.visible,
+        zIndex: tilelayerOptions.zIndex,
+        tileSize: tilelayerOptions.tileSize,
+        opacity: tilelayerOptions.opacity,
+        userAgent: tilelayerOptions.userAgent,
+        _id : Math.floor(Math.random() * Date.now())
+    };
+
+    //console.log(self.id + "-" + options._id + "-tileoverlay");
+    document.addEventListener(self.id + "-" + options._id + "-tileoverlay", function(params) {
+        //console.log("--> " + self.id + "-tileoverlay");
+        //    console.log("--> " + "tileoverlay_" + options._id);
+        var url = tilelayerOptions.getTile(params.x, params.y, params.zoom);
+        exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, url]);
+    });
 
     exec(function(result) {
         tilelayerOptions.hashCode = result.hashCode;
@@ -760,8 +785,9 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, tileOverlay, self);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', tilelayerOptions]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options]);
 };
+
 
 //-------------
 // Polygon

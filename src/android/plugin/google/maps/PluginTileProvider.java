@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -7,12 +8,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
 
 import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginEntry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,9 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 
 public class PluginTileProvider implements TileProvider  {
-  private String tileUrlFormat = null;
   private int tileSize = 256;
   private Paint tilePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
   private String userAgent = null;
@@ -30,14 +37,21 @@ public class PluginTileProvider implements TileProvider  {
   private OnCacheClear listener = null;
   private String webPageUrl = null;
   private AssetManager assetManager;
+  private CordovaWebView webView;
+  private String mapId, pluginId;
+  private String tileUrl;
+  private Handler handler;
 
-  public PluginTileProvider(AssetManager assetManager, String webPageUrl, String userAgent, String tileUrlFormat, int tileSize) {
-    this.tileUrlFormat = tileUrlFormat;
+  @SuppressLint({"NewApi", "JavascriptInterface"})
+  public PluginTileProvider(String mapId, String pluginId, CordovaWebView webView, AssetManager assetManager, String webPageUrl, String userAgent, int tileSize) {
     this.tileSize = tileSize;
     //this.tilePaint.setAlpha((int) (opacity * 255));
     this.userAgent = userAgent == null ? "Mozilla" : userAgent;
     this.webPageUrl = webPageUrl;
     this.assetManager = assetManager;
+    this.webView = webView;
+    this.mapId = mapId;
+    this.pluginId = pluginId;
 
     // Get max available VM memory, exceeding this amount will throw an
     // OutOfMemory exception. Stored in kilobytes as LruCache takes an
@@ -48,22 +62,53 @@ public class PluginTileProvider implements TileProvider  {
     int cacheSize = maxMemory / 8;
 
     tileCache = new BitmapCache(cacheSize);
+
+    handler = new Handler(Looper.getMainLooper());
+
   }
 
   public interface OnCacheClear {
     public void onCacheClear(int hashCode);
   }
 
+  public void onGetTileUrlFromJS(String tileUrl) {
+    this.tileUrl = tileUrl;
+    synchronized (this) {
+      this.notify();
+    }
+  }
+
   public void setOnCacheClear(OnCacheClear listener) {
     this.listener = listener;
   }
-  
+
   @Override
   public Tile getTile(int x, int y, int zoom) {
 
+    /*
     String urlStr = tileUrlFormat.replaceAll("<x>", x + "")
         .replaceAll("<y>", y + "")
         .replaceAll("<zoom>", zoom + "");
+        */
+    String urlStr = null;
+    synchronized (this) {
+      final String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s-%s-tileoverlay', {x: %d, y: %d, zoom: %d})",
+              mapId, pluginId, x, y, zoom);
+
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          webView.loadUrl(js);
+        }
+      });
+      try {
+        this.wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+        return null;
+      }
+      urlStr = tileUrl;
+    }
 
     Tile tile = null;
     try {
@@ -196,7 +241,6 @@ public class PluginTileProvider implements TileProvider  {
             return null;
           }
         }
-        Log.d("PluginTileProvider", "cacheKey = " + cacheKey);
         if (image != null) {
           if (image.getWidth() != tileSize || image.getHeight() != tileSize) {
             Bitmap tileImage = this.resizeForTile(image);
@@ -211,7 +255,7 @@ public class PluginTileProvider implements TileProvider  {
 
       }
       return tile;
-      
+
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -223,11 +267,11 @@ public class PluginTileProvider implements TileProvider  {
     bitmap.compress(Bitmap.CompressFormat.WEBP, 99, outputStream);
     return  outputStream.toByteArray();
   }
-  
+
   //public void setOpacity(double opacity) {
   //  this.tilePaint.setAlpha((int) (opacity * 255));
   //}
-  
+
   private Bitmap resizeForTile(Bitmap bitmap) {
 
     if (bitmap == null) {
@@ -250,7 +294,7 @@ public class PluginTileProvider implements TileProvider  {
     canvas.setMatrix(scaleMatrix);
     canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, tilePaint);
     bitmap.recycle();
-    
+
     return scaledBitmap;
   }
 
