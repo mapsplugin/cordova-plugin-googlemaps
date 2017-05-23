@@ -577,7 +577,6 @@ Map.prototype.setDiv = function(div) {
 
 /**
  * Return the visible region of the map.
- * Thanks @fschmidt
  */
 Map.prototype.getVisibleRegion = function(callback) {
     var self = this;
