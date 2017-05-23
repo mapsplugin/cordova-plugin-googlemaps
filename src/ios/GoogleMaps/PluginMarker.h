@@ -24,6 +24,7 @@
 - (void)getPosition:(CDVInvokedUrlCommand*)command;
 - (void)setSnippet:(CDVInvokedUrlCommand*)command;
 - (void)setTitle:(CDVInvokedUrlCommand*)command;
+- (void)setActiveMarkerId:(CDVInvokedUrlCommand*)command;
 - (void)setFlat:(CDVInvokedUrlCommand*)command;
 - (void)setOpacity:(CDVInvokedUrlCommand*)command;
 - (void)setDraggable:(CDVInvokedUrlCommand*)command;

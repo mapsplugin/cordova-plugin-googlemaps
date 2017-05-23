@@ -204,14 +204,14 @@ HTMLInfoWindow.prototype.open = function(marker) {
     var self = this;
 
     map.fromLatLngToPoint(marker.getPosition(), function(point) {
-      map.set("infoPosition", {x: point[0], y: point[1]})
+        map.set("infoPosition", {x: point[0], y: point[1]});
 
-      map.bindTo("infoPosition", self);
-      marker.bindTo("infoWindowAnchor", self);
-      marker.bindTo("icon", self);
-      self.set("marker", marker);
-      map.set("active_marker_id", marker.getId());
-      self.trigger("infoWindowAnchor_changed");
+        map.bindTo("infoPosition", self);
+        marker.bindTo("infoWindowAnchor", self);
+        marker.bindTo("icon", self);
+        self.set("marker", marker);
+        map.set("active_marker_id", marker.getId());
+        self.trigger("infoWindowAnchor_changed");
     });
 };
 

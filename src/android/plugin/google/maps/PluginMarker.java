@@ -502,6 +502,22 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     }
   }
 
+
+  public void setActiveMarkerId(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final String id = args.getString(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Marker marker = (Marker) objects.get(id);
+        if (marker == null) {
+          return;
+        }
+        pluginMap.activeMarker = marker;
+      }
+    });
+  }
+  
   /**
    *
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html

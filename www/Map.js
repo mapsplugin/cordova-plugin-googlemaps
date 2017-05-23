@@ -38,6 +38,10 @@ var Map = function(id) {
         value: id,
         writable: false
     });
+
+    self.on("active_marker_id_changed", function() {
+        exec(null, null, self.id + "-marker", 'setActiveMarkerId', [self.get("active_marker_id")]);
+    });
 };
 
 utils.extend(Map, BaseClass);
@@ -110,7 +114,7 @@ Map.prototype.getMap = function(mapId, div, options) {
 
         div.style.overflow = "hidden";
         self.set("div", div);
-        
+
         if (div.offsetWidth < 100 || div.offsetHeight < 100) {
           // If the map Div is too small, wait a little.
           var callee = arguments.callee;
@@ -146,7 +150,7 @@ Map.prototype.getMap = function(mapId, div, options) {
             div = div.parentNode;
         }
     }
-    
+
     cordova.fireDocumentEvent('plugin_touch', {});
 
     exec(function() {
@@ -217,7 +221,7 @@ Map.prototype.clear = function(callback) {
     if (active_marker_id && active_marker_id in self.MARKERS) {
       self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
     }
-    
+
     var clearObj = function(obj) {
         var ids = Object.keys(obj);
         var id;
@@ -577,22 +581,15 @@ Map.prototype.setDiv = function(div) {
  */
 Map.prototype.getVisibleRegion = function(callback) {
     var self = this;
-    var cameraPosition = self.get("camera");
-
-    var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
+    var northeast = self.get("camera_northeast");
+    var southwest = self.get("camera_southwest");
+    var latLngBounds = new LatLngBounds(northeast, southwest);
 
     if (typeof callback === "function") {
-      console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
       callback.call(self, latLngBounds);
     }
 
-    return {
-      "latLngBounds" : latLngBounds,
-      "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
-      "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
-      "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
-      "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
-    }
+    return latLngBounds;
 };
 
 /**
@@ -1043,7 +1040,9 @@ Map.prototype.getCameraTilt = function() {
 Map.prototype.getCameraBearing = function() {
     return this.get("camera_bearing");
 };
-Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
+Map.prototype._onCameraEvent = function(eventName, params) {
+    //var cameraPosition = new CameraPosition(params);
+    var cameraPosition = params;
     this.set('camera', cameraPosition);
     this.set('camera_target', cameraPosition.target);
     this.set('camera_zoom', cameraPosition.zoom);
@@ -1051,10 +1050,6 @@ Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
     this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
     this.set('camera_northeast', cameraPosition.northeast);
     this.set('camera_southwest', cameraPosition.southwest);
-    this.set('camera_nearLeft', cameraPosition.nearLeft);
-    this.set('camera_nearRight', cameraPosition.nearRight);
-    this.set('camera_farLeft', cameraPosition.farLeft);
-    this.set('camera_farRight', cameraPosition.farRight);
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;

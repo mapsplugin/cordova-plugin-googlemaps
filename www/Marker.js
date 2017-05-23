@@ -66,6 +66,13 @@ var Marker = function(map, id, markerOptions) {
         }
     });
 
+    if (markerOptions.infoWindow) {
+      console.log("[deprecated] the infoWindow option is deprecated. Please use event listener.");
+      self.on(event.MARKER_CLICK, function() {
+          self.trigger(event.INFO_OPEN);
+      });
+    }
+
 
     self.on("position_changed", function(oldValue, position) {
         exec(null, self.errorHandler, self.getPluginName(), 'setPosition', [self.getId(), position.lat, position.lng]);
@@ -95,7 +102,6 @@ var Marker = function(map, id, markerOptions) {
         exec(null, self.errorHandler, self.getPluginName(), 'setIconAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
     self.on("infoWindowAnchor_changed", function(oldValue, anchor) {
-        console.log("infoWindowAnchor", anchor);
         exec(null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
     self.on("zIndex_changed", function(oldValue, zIndex) {
