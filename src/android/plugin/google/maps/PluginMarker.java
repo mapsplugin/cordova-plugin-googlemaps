@@ -1002,9 +1002,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             callback.onPostExecute(marker);
             return;
           }
+          if (image.isRecycled()) {
+            //Maybe the task was canceled by map.clean()?
+            callback.onError("Can not get image for marker. Maybe the task was canceled by map.clean()?");
+            return;
+          }
 
           try {
-            //TODO: check image is valid?
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
             if (bitmapDescriptor == null) {
               callback.onPostExecute(marker);
@@ -1038,10 +1042,15 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
             callback.onPostExecute(marker);
 
-          } catch (java.lang.IllegalArgumentException e) {
+          } catch (Exception e) {
             Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
             //e.printStackTrace();
-
+            try {
+              marker.remove();
+            } catch (Exception ignore) {
+              ignore = null;
+            }
+            callback.onError(e.getMessage() + "");
           }
         }
       };
@@ -1078,6 +1087,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             return;
           }
 
+          if (image.isRecycled()) {
+            //Maybe the task was canceled by map.clean()?
+            callback.onError("Can not get image for marker. Maybe the task was canceled by map.clean()?");
+            return;
+          }
           try {
             icons.add(image);
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
