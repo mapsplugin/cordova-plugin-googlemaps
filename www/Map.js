@@ -16,6 +16,7 @@ var TileOverlay = require('./TileOverlay');
 var GroundOverlay = require('./GroundOverlay');
 var KmlOverlay = require('./KmlOverlay');
 var CameraPosition = require('./CameraPosition');
+var MarkerClusterer = require('./MarkerClusterer');
 
 
 /**
@@ -576,19 +577,26 @@ Map.prototype.setDiv = function(div) {
 };
 
 /**
- * Return the visible region of the map.
- */
+* Return the visible region of the map.
+*/
 Map.prototype.getVisibleRegion = function(callback) {
-    var self = this;
-    var northeast = self.get("camera_northeast");
-    var southwest = self.get("camera_southwest");
-    var latLngBounds = new LatLngBounds(northeast, southwest);
+   var self = this;
+   var cameraPosition = self.get("camera");
 
-    if (typeof callback === "function") {
-      callback.call(self, latLngBounds);
-    }
+   var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
 
-    return latLngBounds;
+   if (typeof callback === "function") {
+     console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
+     callback.call(self, latLngBounds);
+   }
+
+   return {
+     "latLngBounds" : latLngBounds,
+     "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
+     "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
+     "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
+     "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
+   };
 };
 
 /**
@@ -912,7 +920,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
-    markerOptions.useHtmlInfoWnd = !(markerOptions.infoWindow === undefined);
+    markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
     markerOptions.noCache = markerOptions.noCache === true; //experimental
 
     if ("styles" in markerOptions) {
@@ -943,6 +951,25 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             callback.call(self, marker, self);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
+};
+
+//------------------
+// Marker clusterer
+//------------------
+Map.prototype.addMarkerClusterer = function(markerClustererOptions, callback) {
+  var self = this;
+  if (typeof markerClustererOptions === "function") {
+    callback = markerClustererOptions;
+    markerClustererOptions = null;
+  }
+  markerClustererOptions = markerClustererOptions || {};
+
+  exec(function(result) {
+    markerClustererOptions.hashCode = result.hashCode;
+    self.OVERLAYS[result.id] = new MarkerClusterer(self, result.id, markerClustererOptions);
+
+  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerClusterer', ""]);
+
 };
 
 /*****************************************************************************
@@ -1064,9 +1091,8 @@ Map.prototype.getCameraTilt = function() {
 Map.prototype.getCameraBearing = function() {
     return this.get("camera_bearing");
 };
-Map.prototype._onCameraEvent = function(eventName, params) {
-    //var cameraPosition = new CameraPosition(params);
-    var cameraPosition = params;
+
+Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
     this.set('camera', cameraPosition);
     this.set('camera_target', cameraPosition.target);
     this.set('camera_zoom', cameraPosition.zoom);
@@ -1074,6 +1100,10 @@ Map.prototype._onCameraEvent = function(eventName, params) {
     this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
     this.set('camera_northeast', cameraPosition.northeast);
     this.set('camera_southwest', cameraPosition.southwest);
+    this.set('camera_nearLeft', cameraPosition.nearLeft);
+    this.set('camera_nearRight', cameraPosition.nearRight);
+    this.set('camera_farLeft', cameraPosition.farLeft);
+    this.set('camera_farRight', cameraPosition.farRight);
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;
