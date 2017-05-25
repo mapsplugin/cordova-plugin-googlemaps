@@ -63,7 +63,7 @@
 
   if (self.activeMarker) {
     [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
-    self.map.selectedMarker = nil;
+    //self.map.selectedMarker = nil;
     self.activeMarker = nil;
   }
 
@@ -327,8 +327,21 @@
 }
 
 - (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
-  [self triggerMarkerEvent:@"info_close" marker:marker];
-  self.map.selectedMarker = nil;
+
+
+  // Get the marker plugin
+  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+
+  // Get the marker properties
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+
+  if (![[properties objectForKey:@"useHtmlInfoWnd"] boolValue]) {
+    [self triggerMarkerEvent:@"info_close" marker:marker];
+  }
+
+  //self.map.selectedMarker = nil; // <-- this cause the didCloseInfoWindowOfMarker event again
   self.activeMarker = nil;
 }
 

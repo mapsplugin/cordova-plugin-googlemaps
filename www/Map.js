@@ -576,19 +576,20 @@ Map.prototype.setDiv = function(div) {
 };
 
 /**
- * Return the visible region of the map.
- */
+* Return the visible region of the map.
+*/
 Map.prototype.getVisibleRegion = function(callback) {
-    var self = this;
-    var northeast = self.get("camera_northeast");
-    var southwest = self.get("camera_southwest");
-    var latLngBounds = new LatLngBounds(northeast, southwest);
+   var self = this;
+   var cameraPosition = self.get("camera");
 
-    if (typeof callback === "function") {
-      callback.call(self, latLngBounds);
-    }
+   var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
 
-    return latLngBounds;
+   if (typeof callback === "function") {
+     console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
+     callback.call(self, latLngBounds);
+   }
+
+   return latLngBounds;
 };
 
 /**
@@ -912,7 +913,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
-    markerOptions.useHtmlInfoWnd = !(markerOptions.infoWindow === undefined);
+    markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
     markerOptions.noCache = markerOptions.noCache === true; //experimental
 
     if ("styles" in markerOptions) {
@@ -1064,9 +1065,8 @@ Map.prototype.getCameraTilt = function() {
 Map.prototype.getCameraBearing = function() {
     return this.get("camera_bearing");
 };
-Map.prototype._onCameraEvent = function(eventName, params) {
-    //var cameraPosition = new CameraPosition(params);
-    var cameraPosition = params;
+
+Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
     this.set('camera', cameraPosition);
     this.set('camera_target', cameraPosition.target);
     this.set('camera_zoom', cameraPosition.zoom);
