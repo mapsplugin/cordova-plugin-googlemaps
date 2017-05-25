@@ -16,7 +16,6 @@ var TileOverlay = require('./TileOverlay');
 var GroundOverlay = require('./GroundOverlay');
 var KmlOverlay = require('./KmlOverlay');
 var CameraPosition = require('./CameraPosition');
-var MarkerClusterer = require('./MarkerClusterer');
 
 
 /**
@@ -951,25 +950,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             callback.call(self, marker, self);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
-};
-
-//------------------
-// Marker clusterer
-//------------------
-Map.prototype.addMarkerClusterer = function(markerClustererOptions, callback) {
-  var self = this;
-  if (typeof markerClustererOptions === "function") {
-    callback = markerClustererOptions;
-    markerClustererOptions = null;
-  }
-  markerClustererOptions = markerClustererOptions || {};
-
-  exec(function(result) {
-    markerClustererOptions.hashCode = result.hashCode;
-    self.OVERLAYS[result.id] = new MarkerClusterer(self, result.id, markerClustererOptions);
-
-  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerClusterer', ""]);
-
 };
 
 /*****************************************************************************
