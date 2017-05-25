@@ -2,7 +2,7 @@
 //  MyPluginLayer.h
 //  DevApp
 //
-//  Created by masashi on 8/13/14.
+//  Created by masashi.
 //
 //
 

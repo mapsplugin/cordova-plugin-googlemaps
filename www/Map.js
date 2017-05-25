@@ -739,12 +739,12 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     var self = this;
     tilelayerOptions = tilelayerOptions || {};
     tilelayerOptions.tileUrlFormat = tilelayerOptions.tileUrlFormat || null;
-    if (tilelayerOptions.tileUrlFormat === "string") {
+    if (typeof tilelayerOptions.tileUrlFormat === "string") {
         console.log("[deprecated] the tileUrlFormat property is now deprecated. Use the getTile property.");
         tilelayerOptions.getTile = function(x, y, zoom) {
-          return tilelayerOptions.tileUrlFormat.replace(/<x>/gi, x).
-                    tileUrlFormat.replace(/<y>/gi, y).
-                    tileUrlFormat.replace(/<zoom>/gi, zoom);
+          return tilelayerOptions.tileUrlFormat.replace(/<x>/gi, x)
+                    .replace(/<y>/gi, y)
+                    .replace(/<zoom>/gi, zoom);
         };
     }
     if (typeof tilelayerOptions.getTile !== "function") {
@@ -765,11 +765,11 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         _id : Math.floor(Math.random() * Date.now())
     };
 
-    //console.log(self.id + "-" + options._id + "-tileoverlay");
     document.addEventListener(self.id + "-" + options._id + "-tileoverlay", function(params) {
-        //console.log("--> " + self.id + "-tileoverlay");
-        //    console.log("--> " + "tileoverlay_" + options._id);
         var url = tilelayerOptions.getTile(params.x, params.y, params.zoom);
+        if (!url || url === "(null)" || url === "undefined" || url === "null") {
+          url = "(null)";
+        }
         exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, url]);
     });
 
@@ -787,7 +787,6 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options]);
 };
-
 
 //-------------
 // Polygon

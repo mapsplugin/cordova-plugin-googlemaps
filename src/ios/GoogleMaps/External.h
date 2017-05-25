@@ -1,8 +1,8 @@
 //
 //  External.h
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by Masashi Katsumata on 11/19/13.
+//  Created by Masashi Katsumata.
 //
 //
 

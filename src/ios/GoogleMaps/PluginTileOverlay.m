@@ -1,8 +1,8 @@
 //
-//  TileOverlay.m
-//  SimpleMap
+//  PluginTileOverlay.m
+//  cordova-googlemaps-plugin v2
 //
-//  Created by Masashi Katsumata on 11/19/13.
+//  Created by Masashi Katsumata.
 //
 //
 
@@ -48,10 +48,10 @@
       [self.objects removeObjectForKey:key];
   }
   self.objects = nil;
-  
+
   [self.imgCache removeAllObjects];
   self.imgCache = nil;
-  
+
   key = nil;
   keys = nil;
 
@@ -69,15 +69,16 @@
   dispatch_async(dispatch_get_main_queue(), ^{
 
       NSDictionary *json = [command.arguments objectAtIndex:1];
-      NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
-  
-    
+      //NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
+
+
       GMSTileLayer *layer;
-    
-      NSRange range = [tileUrlFormat rangeOfString:@"http"];
-      if (range.location != 0) {
+      NSString *_id = [NSString stringWithFormat:@"tileoverlay_%@", [json valueForKey:@"_id"]];
+
+      //NSRange range = [tileUrlFormat rangeOfString:@"http"];
+      //if (range.location != 0) {
           NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-          
+
           CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
           id webview = cdvViewController.webView;
           NSString *clsName = [webview className];
@@ -89,24 +90,28 @@
           }
           NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
-          
-          [options setObject:tileUrlFormat forKey:@"tileUrlFormat"];
+          [options setObject:self.mapCtrl.mapId forKey:@"mapId"];
+          [options setObject:[json valueForKey:@"_id"] forKey:@"pluginId"];
+
+          ///[options setObject:tileUrlFormat forKey:@"tileUrlFormat"];
           [options setObject:[json objectForKey:@"tileSize"] forKey:@"tileSize"];
-          
-          layer = [[LocalSyncTileLayer alloc] initWithOptions:options];
-      } else {
+
+          layer = [[PluginTileProvider alloc] initWithOptions:options webView:webview];
+      /*
+  } else {
           GMSTileURLConstructor constructor = ^(NSUInteger x, NSUInteger y, NSUInteger zoom) {
               NSString *urlStr = [tileUrlFormat stringByReplacingOccurrencesOfString:@"<x>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)x]];
               urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<y>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)y]];
               urlStr = [urlStr stringByReplacingOccurrencesOfString:@"<zoom>" withString:[NSString stringWithFormat:@"%lu", (unsigned long)zoom]];
               return [NSURL URLWithString:urlStr];
           };
-        
+
           layer = [GMSURLTileLayer tileLayerWithURLConstructor:constructor];
       }
-    
-    
-    
+       */
+
+
+
 
       if ([[json valueForKey:@"visible"] boolValue]) {
         layer.map = self.mapCtrl.map;
@@ -124,11 +129,10 @@
 
       [self.executeQueue addOperationWithBlock:^{
 
-          NSString *id = [NSString stringWithFormat:@"tileoverlay_%lu", (unsigned long)layer.hash];
-          [self.objects setObject:layer forKey:id];
+          [self.objects setObject:layer forKey:_id];
 
           NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-          [result setObject:id forKey:@"id"];
+          [result setObject:_id forKey:@"id"];
           [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)layer.hash] forKey:@"hashCode"];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
@@ -137,6 +141,26 @@
   });
 }
 
+
+-(void)onGetTileUrlFromJS:(CDVInvokedUrlCommand *)command
+{
+
+  [self.executeQueue addOperationWithBlock:^{
+    NSString *_id = [command.arguments objectAtIndex:0];
+    NSString *tileUrl = [command.arguments objectAtIndex:1];
+    NSString *pluginId = [NSString stringWithFormat:@"tileoverlay_%@", _id];
+    GMSTileLayer *tileLayer = [self.objects objectForKey:pluginId];
+
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    if (tileLayer) {
+        PluginTileProvider *localLayer =(PluginTileProvider *)tileLayer;
+        [localLayer onGetTileUrlFromJS:tileUrl];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+  }];
+}
 
 /**
  * Set visibility

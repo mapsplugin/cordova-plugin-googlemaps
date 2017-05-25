@@ -1,8 +1,8 @@
 //
 //  Geocoder.m
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by Katsumata Masashi on 12/29/13.
+//  Created by Katsumata Masashi.
 //
 //
 

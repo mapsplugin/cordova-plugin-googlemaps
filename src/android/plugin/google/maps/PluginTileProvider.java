@@ -41,6 +41,7 @@ public class PluginTileProvider implements TileProvider  {
   private String mapId, pluginId;
   private String tileUrl;
   private Handler handler;
+  private Object semaphore = new Object();
 
   @SuppressLint({"NewApi", "JavascriptInterface"})
   public PluginTileProvider(String mapId, String pluginId, CordovaWebView webView, AssetManager assetManager, String webPageUrl, String userAgent, int tileSize) {
@@ -73,8 +74,8 @@ public class PluginTileProvider implements TileProvider  {
 
   public void onGetTileUrlFromJS(String tileUrl) {
     this.tileUrl = tileUrl;
-    synchronized (this) {
-      this.notify();
+    synchronized (semaphore) {
+      semaphore.notify();
     }
   }
 
@@ -85,13 +86,8 @@ public class PluginTileProvider implements TileProvider  {
   @Override
   public Tile getTile(int x, int y, int zoom) {
 
-    /*
-    String urlStr = tileUrlFormat.replaceAll("<x>", x + "")
-        .replaceAll("<y>", y + "")
-        .replaceAll("<zoom>", zoom + "");
-        */
     String urlStr = null;
-    synchronized (this) {
+    synchronized (semaphore) {
       final String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s-%s-tileoverlay', {x: %d, y: %d, zoom: %d})",
               mapId, pluginId, x, y, zoom);
 
@@ -102,12 +98,15 @@ public class PluginTileProvider implements TileProvider  {
         }
       });
       try {
-        this.wait();
+        semaphore.wait();
       } catch (InterruptedException e) {
         e.printStackTrace();
         return null;
       }
       urlStr = tileUrl;
+    }
+    if ("(null)".equals(urlStr)) {
+      return null;
     }
 
     Tile tile = null;
@@ -170,6 +169,7 @@ public class PluginTileProvider implements TileProvider  {
             tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
             tileCache.put(cacheKey, tileImage.copy(tileImage.getConfig(), false));
             tileImage.recycle();
+            image.recycle();
           } else {
             tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
             tileCache.put(cacheKey, image.copy(image.getConfig(), false));

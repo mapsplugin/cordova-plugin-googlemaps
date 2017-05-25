@@ -1,8 +1,8 @@
 //
 //  Polyline.m
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by masashi on 11/14/13.
+//  Created by masashi.
 //
 //
 

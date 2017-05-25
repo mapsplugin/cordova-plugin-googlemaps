@@ -90,16 +90,16 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
       }
     });
   }
+
+  @SuppressWarnings("unused")
   public void onGetTileUrlFromJS(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
     String tileUrl = args.getString(1);
     String pluginId = "tileprovider_" + id;
-    ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(tileUrl);
-  }
-
-  public void onGetTileUrlFromJS(String pluginId, String tileUrl) {
-    pluginId = "tileprovider_" + pluginId;
-    ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(tileUrl);
+    if (objects.containsKey(pluginId)) {
+      ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(tileUrl);
+    }
+    callbackContext.success();
   }
 
   /**
