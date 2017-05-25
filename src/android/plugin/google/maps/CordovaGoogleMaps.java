@@ -57,8 +57,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @SuppressWarnings("deprecation")
 public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
@@ -76,7 +74,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   private CallbackContext _saveCallbackContext = null;
   public boolean initialized = false;
   public PluginManager pluginManager;
-  private static ExecutorService executorService = Executors.newFixedThreadPool(1); // Must be 1 thread.
   private String CURRENT_URL;
 
   @SuppressLint("NewApi") @Override
@@ -85,7 +82,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     if (root != null) {
       return;
     }
-    LOG.setLogLevel(LOG.WARN);
+    LOG.setLogLevel(LOG.ERROR);
 
     activity = cordova.getActivity();
     final View view = webView.getView();
@@ -256,23 +253,23 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    executorService.submit(new Runnable() {
+    cordova.getThreadPool().execute(new Runnable() {
       @Override
       public void run() {
-          try {
-              if (action.equals("putHtmlElements")) {
-                  CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
-              } else if ("getMyLocation".equals(action)) {
-                  CordovaGoogleMaps.this.getMyLocation(args, callbackContext);
-              } else if ("getMap".equals(action)) {
-                  CordovaGoogleMaps.this.getMap(args, callbackContext);
-              } else if ("removeMap".equals(action)) {
-                  CordovaGoogleMaps.this.removeMap(args, callbackContext);
-              }
-
-          } catch (JSONException e) {
-              e.printStackTrace();
+        try {
+          if (action.equals("putHtmlElements")) {
+            CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
+          } else if ("getMyLocation".equals(action)) {
+            CordovaGoogleMaps.this.getMyLocation(args, callbackContext);
+          } else if ("getMap".equals(action)) {
+            CordovaGoogleMaps.this.getMap(args, callbackContext);
+          } else if ("removeMap".equals(action)) {
+            CordovaGoogleMaps.this.removeMap(args, callbackContext);
           }
+
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
       }
     });
     return true;
