@@ -1,8 +1,8 @@
 //
 //  Environment.m
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by masashi on 06/26/16.
+//  Created by masashi.
 //
 //
 

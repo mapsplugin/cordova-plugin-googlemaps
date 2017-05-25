@@ -1,8 +1,8 @@
 //
 //  GroundOverlay.m
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by Katsumata Masashi on 12/4/13.
+//  Created by Katsumata Masashi.
 //
 //
 

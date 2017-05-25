@@ -1,8 +1,8 @@
 //
 //  Map.h
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by masashi on 11/8/13.
+//  Created by masashi.
 //
 //
 

@@ -2,9 +2,11 @@ package plugin.google.maps;
 
 import android.content.res.AssetManager;
 import android.util.Log;
+import android.webkit.WebView;
 
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -16,7 +18,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
   /**
    * Create tile overlay
-   * 
+   *
    * @param args
    * @param callbackContext
    * @throws JSONException
@@ -27,7 +29,6 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
     final JSONObject opts = args.getJSONObject(1);
     final int tileSize = opts.getInt("tileSize");
-    final String tileUrlFormat = opts.getString("tileUrlFormat");
 
 
     final TileOverlayOptions options = new TileOverlayOptions();
@@ -40,6 +41,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     if (opts.has("opacity")) {
       options.transparency((float)(1 - opts.getDouble("opacity")));
     }
+    final String id = opts.getString("_id");
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -56,7 +58,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         String currentPageUrl = webView.getUrl();
 
         AssetManager assetManager = cordova.getActivity().getAssets();
-        final PluginTileProvider tileProvider = new PluginTileProvider(assetManager, currentPageUrl, userAgent, tileUrlFormat,tileSize);
+        final PluginTileProvider tileProvider = new PluginTileProvider(pluginMap.mapId, id, webView, assetManager, currentPageUrl, userAgent, tileSize);
         tileProvider.setOnCacheClear(new PluginTileProvider.OnCacheClear() {
           @Override
           public void onCacheClear(int hashCode) {
@@ -71,7 +73,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
 
         TileOverlay tileOverlay = map.addTileOverlay(options);
-        String id = tileOverlay.getId();
+        //String id = tileOverlay.getId();
 
         self.objects.put("tileoverlay_" + id, tileOverlay);
         self.objects.put("tileprovider_" + id, tileProvider);
@@ -87,6 +89,17 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         }
       }
     });
+  }
+
+  @SuppressWarnings("unused")
+  public void onGetTileUrlFromJS(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(0);
+    String tileUrl = args.getString(1);
+    String pluginId = "tileprovider_" + id;
+    if (objects.containsKey(pluginId)) {
+      ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(tileUrl);
+    }
+    callbackContext.success();
   }
 
   /**
@@ -106,7 +119,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    * Set visibility for the object
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(1);
@@ -117,7 +130,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    * Remove this tile layer
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
@@ -142,7 +155,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         } catch (JSONException e) {
           e.printStackTrace();
           callbackContext.error("" + e.getMessage());
-          
+
         }
       }
     });
@@ -152,7 +165,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    * Set fadeIn for the object
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setFadeIn(JSONArray args, CallbackContext callbackContext) throws JSONException {
     boolean visible = args.getBoolean(1);
@@ -163,7 +176,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    * Set opacity for the tile layer
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setOpacity(JSONArray args, CallbackContext callbackContext) throws JSONException {
     double opacity = 1 - args.getDouble(1);

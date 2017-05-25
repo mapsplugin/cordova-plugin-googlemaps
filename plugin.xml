@@ -278,8 +278,8 @@
         <source-file src="src/ios/GoogleMaps/PluginPolygon.m" />
         <header-file src="src/ios/GoogleMaps/PluginPolyline.h" />
         <source-file src="src/ios/GoogleMaps/PluginPolyline.m" />
-        <header-file src="src/ios/GoogleMaps/LocalSyncTileLayer.h" />
-        <source-file src="src/ios/GoogleMaps/LocalSyncTileLayer.m" />
+        <header-file src="src/ios/GoogleMaps/PluginTileProvider.h" />
+        <source-file src="src/ios/GoogleMaps/PluginTileProvider.m" />
         <header-file src="src/ios/GoogleMaps/TBXML.h" />
         <source-file src="src/ios/GoogleMaps/TBXML.m" />
         <header-file src="src/ios/GoogleMaps/PluginTileOverlay.h" />

@@ -2,7 +2,7 @@
 //  MyPluginScrollView.h
 //  DevApp
 //
-//  Created by masashi on 9/22/14.
+//  Created by masashi.
 //
 //
 

@@ -1,14 +1,14 @@
 //
 //  TileOverlay.h
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by Masashi Katsumata on 11/19/13.
+//  Created by Masashi Katsumata.
 //
 //
 
 #import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
-#import "LocalSyncTileLayer.h"
+#import "PluginTileProvider.h"
 
 @interface PluginTileOverlay : CDVPlugin<MyPlgunProtocol>
 
@@ -17,12 +17,13 @@
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (nonatomic, strong) NSCache* imgCache;
 
-- (void)create:(CDVInvokedUrlCommand*)command;
+-(void)create:(CDVInvokedUrlCommand*)command;
 -(void)setVisible:(CDVInvokedUrlCommand *)command;
 -(void)remove:(CDVInvokedUrlCommand *)command;
 -(void)setZIndex:(CDVInvokedUrlCommand *)command;
 -(void)setFadeIn:(CDVInvokedUrlCommand *)command;
 -(void)setOpacity:(CDVInvokedUrlCommand *)command;
 -(void)setVisible:(CDVInvokedUrlCommand *)command;
+-(void)onGetTileUrlFromJS:(CDVInvokedUrlCommand *)command;
 
 @end

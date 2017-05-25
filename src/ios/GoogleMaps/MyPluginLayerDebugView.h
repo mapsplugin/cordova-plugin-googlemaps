@@ -2,7 +2,7 @@
 //  MyPluginLayerDebugView.h
 //  DevApp
 //
-//  Created by Katsumata Masashi on 9/22/14.
+//  Created by Katsumata Masashi.
 //
 //
 
