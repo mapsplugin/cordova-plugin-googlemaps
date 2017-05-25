@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 
@@ -44,8 +45,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   }
 
   private ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
-  private ArrayList<String> iconCacheKeys = new ArrayList<String>();
   private ArrayList<Bitmap> icons = new ArrayList<Bitmap>();
+  private HashMap<String, Integer> iconCacheKeys = new HashMap<String, Integer>();
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -68,7 +69,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         for (String objectId : objectIdArray) {
           if (objects.containsKey(objectId)) {
             if (objectId.startsWith("marker_") &&
-              !objectId.startsWith("marker_property_")) {
+                !objectId.startsWith("marker_property_") &&
+                !objectId.startsWith("marker_icon_")) {
               Marker marker = (Marker) objects.remove(objectId);
               marker.setIcon(null);
               marker.remove();
@@ -109,10 +111,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     //--------------------------------------
     // Recycle bitmaps as much as possible
     //--------------------------------------
-    String[] cacheKeys = iconCacheKeys.toArray(new String[iconCacheKeys.size()]);
+    String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
     for (int i = 0; i < cacheKeys.length; i++) {
-      AsyncLoadImage.removeBitmapFromMemCahce(iconCacheKeys.remove(0));
+      AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
+      iconCacheKeys.remove(cacheKeys[i]);
     }
+    cacheKeys = null;
     Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
     Bitmap image;
     for (int i = 0; i < cachedBitmaps.length; i++) {
@@ -139,7 +143,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         for (String objectId : objectIdArray) {
           if (objects.containsKey(objectId)) {
             if (objectId.startsWith("marker_") &&
-                !objectId.startsWith("marker_property_")) {
+                !objectId.startsWith("marker_property_") &&
+                !objectId.startsWith("marker_icon_")) {
               Marker marker = (Marker) objects.remove(objectId);
               marker.setIcon(null);
               marker.remove();
@@ -743,10 +748,15 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       return;
     }
 
+    /*
     String[] cacheKeys = iconCacheKeys.toArray(new String[iconCacheKeys.size()]);
     for (int i = 0; i < cacheKeys.length; i++) {
       AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
     }
+    */
+
+    String propertyId = "marker_property_" + id;
+    objects.remove(propertyId);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -755,10 +765,23 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         if (objects != null) {
           objects.remove(id);
         }
+        String iconCacheKey = "marker_icon_" + marker.getId();
+        if (objects.containsKey(iconCacheKey)) {
+          String cacheKey = (String) objects.remove(iconCacheKey);
+          if (iconCacheKeys.containsKey(cacheKey)) {
+            int count = iconCacheKeys.get(cacheKey);
+            count--;
+            if (count < 1) {
+              // gc
+              AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+              iconCacheKeys.remove(cacheKey);
+            } else {
+              iconCacheKeys.put(cacheKey, count);
+            }
+          }
+          objects.remove(iconCacheKey);
+        }
 
-
-        String propertyId = "marker_property_" + id;
-        objects.remove(propertyId);
         sendNoResult(callbackContext);
       }
     });
@@ -1091,7 +1114,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
 
       String cacheKey = AsyncLoadImage.getCacheKey(iconUrl, width, height);
-      iconCacheKeys.add(cacheKey);
+      objects.put("marker_icon_" + marker.getId(), cacheKey);
+      if (!iconCacheKeys.containsKey(cacheKey)) {
+        iconCacheKeys.put(cacheKey, 1);
+      } else {
+        int count = iconCacheKeys.get(cacheKey);
+        iconCacheKeys.put(cacheKey, count + 1);
+      }
 
       AsyncLoadImage task = new AsyncLoadImage("Mozilla", width, height, noCaching, new AsyncLoadImageInterface() {
 
