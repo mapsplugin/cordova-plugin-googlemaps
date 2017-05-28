@@ -254,6 +254,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 }
 
               }
+              //styles
+              if (params.has("styles")) {
+                JSONArray styles = params.getJSONArray("styles");
+                boolean success = map.setMapStyle(new MapStyleOptions(styles.toString()));
+              }
               //preferences
               if (params.has("preferences")) {
                 JSONObject preferences = params.getJSONObject("preferences");
