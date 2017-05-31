@@ -479,7 +479,7 @@
   }
 
   double zoom;
-  if ([json valueForKey:@"zoom"]) {
+  if ([json valueForKey:@"zoom"] && [json valueForKey:@"zoom"] != [NSNull null]) {
     zoom = [[json valueForKey:@"zoom"] doubleValue];
   } else {
     zoom = self.mapCtrl.map.camera.zoom;
