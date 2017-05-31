@@ -341,8 +341,8 @@
     [self triggerMarkerEvent:@"info_close" marker:marker];
   }
 
-  //self.map.selectedMarker = nil; // <-- this cause the didCloseInfoWindowOfMarker event again
-  self.activeMarker = nil;
+  //self.map.selectedMarker = nil; // <-- this causes the didCloseInfoWindowOfMarker event again
+  //self.activeMarker = nil; // <-- This causes HTMLinfoWindow is not able to close when you tap on the map.
 }
 
 
