@@ -24,14 +24,14 @@ import org.json.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
-  protected HashMap<String, Object> objects;
+  protected ConcurrentHashMap<String, Object> objects;
   public MyPlugin self = null;
-  public final HashMap<String, Method> methods = new HashMap<String, Method>();
+  public final ConcurrentHashMap<String, Method> methods = new ConcurrentHashMap<String, Method>();
   private static ExecutorService executorService = null;
 
   public CordovaGoogleMaps mapCtrl = null;
@@ -52,7 +52,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-    this.objects = new HashMap<String, Object>();
+    this.objects = new ConcurrentHashMap<String, Object>();
     TAG = this.getServiceName();
     if (executorService == null) {
       executorService = Executors.newFixedThreadPool(5);

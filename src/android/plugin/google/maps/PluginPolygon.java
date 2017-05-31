@@ -144,7 +144,9 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
                     if (objects.containsKey(objectId)) {
                         if (objectId.contains("property")) {
                             Polygon polygon = (Polygon) objects.remove(objectId.replace("property_", ""));
-                            polygon.remove();
+                            if (polygon != null) {
+                                polygon.remove();
+                            }
                         }
                         Object object = objects.remove(objectId);
                         object = null;

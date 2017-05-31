@@ -1,5 +1,6 @@
 module.exports = {
     MAP_READY: 'map_ready',
+    MAP_LOADED: 'map_loaded',
     MAP_CLICK: 'map_click',
     MAP_LONG_CLICK: 'map_long_click',
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',

@@ -359,6 +359,13 @@
 */
 
 /**
+ * Map tiles are loaded
+ */
+- (void) mapViewDidFinishTileRendering:(GMSMapView *)mapView {
+ [self triggerMapEvent:@"map_loaded"];
+}
+
+/**
  * plugin.google.maps.event.MAP_***()) events
  */
 - (void)triggerMapEvent: (NSString *)eventName

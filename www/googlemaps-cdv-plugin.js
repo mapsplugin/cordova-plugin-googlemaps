@@ -121,7 +121,10 @@ var saltHash = Math.floor(Math.random() * Date.now());
           }
           //domPositions[elemId] = common.getDomInfo(child);
           var depth = cacheDepth[elemId];
-          if (elemId in cacheDepth) {
+          var zIndex = common.getZIndex(child);
+          if (elemId in cacheDepth &&
+              elemId in prevDomPositions &&
+              prevDomPositions[elemId].zIndex === zIndex) {
               depth = cacheDepth[elemId];
           } else {
               depth = common.getDomDepth(child, i);
@@ -129,14 +132,16 @@ var saltHash = Math.floor(Math.random() * Date.now());
           }
           domPositions[elemId] = {
               size: common.getDivRect(child),
-              depth: depth
+              depth: depth,
+              zIndex: zIndex
           };
           if (!shouldUpdate) {
               if (elemId in prevDomPositions) {
                   if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
                       domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
                       domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
-                      domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
+                      domPositions[elemId].size.height !== prevDomPositions[elemId].size.height ||
+                      domPositions[elemId].depth !== prevDomPositions[elemId].depth) {
                       shouldUpdate = true;
                   }
               } else {

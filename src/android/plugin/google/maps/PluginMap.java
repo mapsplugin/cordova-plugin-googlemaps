@@ -77,7 +77,7 @@ import java.util.Set;
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnInfoWindowClickListener, OnMapClickListener, OnMapLongClickListener,
-    OnMarkerDragListener,
+    OnMarkerDragListener, GoogleMap.OnMapLoadedCallback,
     OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter,
     GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveCanceledListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
@@ -297,6 +297,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map.setOnMarkerClickListener(PluginMap.this);
               map.setOnMarkerDragListener(PluginMap.this);
               map.setOnMyLocationButtonClickListener(PluginMap.this);
+              map.setOnMapLoadedCallback(PluginMap.this);
               map.setOnIndoorStateChangeListener(PluginMap.this);
               map.setOnInfoWindowClickListener(PluginMap.this);
               map.setOnInfoWindowLongClickListener(PluginMap.this);
@@ -431,7 +432,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   //-----------------------------------
   // Create the instance of class
   //-----------------------------------
-  public void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public synchronized void loadPlugin(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String serviceName = args.getString(0);
     final String pluginName = mapId + "-" + serviceName.toLowerCase();
     //Log.d("PluginMap", "serviceName = " + serviceName + ", pluginName = " + pluginName);
@@ -648,6 +649,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   map.setOnMapLongClickListener(null);
                   map.setOnMarkerClickListener(null);
                   map.setOnMyLocationButtonClickListener(null);
+                  map.setOnMapLoadedCallback(null);
                   map.setOnMarkerDragListener(null);
                 } catch (SecurityException e) {
                   e.printStackTrace();
@@ -2005,6 +2007,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void onInfoWindowClose(Marker marker) {
     this.onMarkerEvent("info_close", marker);
     activeMarker = null;
+  }
+
+  @Override
+  public void onMapLoaded() {
+    this.onMapEvent("map_loaded");
   }
 
 
