@@ -271,14 +271,16 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
-        path.remove(index);
-        if (path.size() > 0) {
-          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
-        } else {
-          self.objects.remove(propertyId);
-        }
+        if (path.size() > index) {
+          path.remove(index);
+          if (path.size() > 0) {
+            self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          } else {
+            self.objects.remove(propertyId);
+          }
 
-        polyline.setPoints(path);
+          polyline.setPoints(path);
+        }
       }
     });
     this.sendNoResult(callbackContext);
@@ -300,9 +302,11 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
-        path.add(index, latLng);
-        polyline.setPoints(path);
-        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+        if (path.size() > index) {
+          path.add(index, latLng);
+          polyline.setPoints(path);
+          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+        }
       }
     });
     this.sendNoResult(callbackContext);
@@ -321,13 +325,15 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
-        path.set(index, latLng);
+        if (path.size() > index) {
+          path.set(index, latLng);
 
-        // Recalculate the polygon bounds
-        String propertyId = "polyline_bounds_" + polyline.getId();
-        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          // Recalculate the polygon bounds
+          String propertyId = "polyline_bounds_" + polyline.getId();
+          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
-        polyline.setPoints(path);
+          polyline.setPoints(path);
+        }
       }
     });
     this.sendNoResult(callbackContext);
