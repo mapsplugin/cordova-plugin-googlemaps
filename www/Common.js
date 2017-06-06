@@ -218,7 +218,9 @@ function getAllChildren(root) {
       return [];
     }
 
-    var ignoreTags = ["pre", "textarea", "p", "form", "input", "table", "caption"];
+    var ignoreTags = ["pre", "textarea",
+      "p", "form", "input", "table", "caption", "canvas",
+      "ion-content", "ion-app", "ion-nav"];
 
     var list;
     if (window.document.querySelectorAll) {
@@ -228,14 +230,22 @@ function getAllChildren(root) {
         var allClickableElements = Array.prototype.slice.call(childNodes);
         list = allClickableElements.filter(function(node) {
             var tagName = node.tagName.toLowerCase();
-            return node !== root && _shouldWatchByNative(node) && ignoreTags.indexOf(tagName) == -1;
+            return node !== root && _shouldWatchByNative(node) &&
+              ignoreTags.indexOf(tagName) == -1 &&
+              node.tagName.indexOf("nav-decor") === -1 &&
+              node.className.indexOf("ion-page") === -1 &&
+              node.className.indexOf("fixed-content") === -1;
         });
     } else {
         var node;
         var clickableElements = root.getElementsByTagName("*");
         for (var i = 0; i < clickableElements.length; i++) {
             node = clickableElements[i];
-            if (_shouldWatchByNative(node) && ignoreTags.indexOf(tagName) == -1) {
+            if (_shouldWatchByNative(node) &&
+              ignoreTags.indexOf(tagName) == -1 &&
+              node.className.indexOf("nav-decor") === -1 &&
+              node.className.indexOf("ion-page") === -1 &&
+              node.className.indexOf("fixed-content") === -1) {
                 list.push(node);
             }
         }
@@ -255,7 +265,9 @@ function _shouldWatchByNative(node) {
   var widthCSS = getStyle(node, 'width');
   var clickableSize = (heightCSS != "0px" && widthCSS != "0px" &&
             (node.offsetHeight > 0 && node.offsetWidth > 0 || node.clientHeight > 0 && node.clientWidth > 0));
-  return displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize;
+  return displayCSS !== "none" &&
+    opacityCSS > 0 && visibilityCSS != "hidden" &&
+    clickableSize;
 }
 
 
