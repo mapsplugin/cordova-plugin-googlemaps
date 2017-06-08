@@ -313,7 +313,7 @@ function getDomDepth(dom, idx) {
     //}
 
     //orgDom.setAttribute("_depth", depth + "_" + zIndex + "_" + idx);
-    var result = parseInt(zIndex, 10) * 100000 + depth * 1000 + idx;
+    var result = idx * 1000 + parseInt(zIndex, 10) + depth;
     orgDom.setAttribute("_result", result);
     return result;
 }
