@@ -718,6 +718,45 @@
 
         NSRange range = [iconPath rangeOfString:@"http"];
         if (range.location != 0) {
+
+            range = [iconPath rangeOfString:@"://"];
+            if (range.location == NSNotFound) {
+
+                range = [iconPath rangeOfString:@"/"];
+                if (range.location != 0) {
+                  // Get the current URL, then calculate the relative path.
+                  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+                  id webview = cdvViewController.webView;
+                  NSString *clsName = [webview className];
+                  NSURL *url;
+                  if ([clsName isEqualToString:@"UIWebView"]) {
+                    url = ((UIWebView *)cdvViewController.webView).request.URL;
+                  } else {
+                    url = [webview URL];
+                  }
+                  NSString *currentURL = url.absoluteString;
+                  currentURL = [currentURL stringByDeletingLastPathComponent];
+
+                  range = [currentURL rangeOfString:@"http"];
+                  if (range.location != 0) {
+
+                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+                    iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
+                  } else {
+                    iconPath = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
+                  }
+                } else {
+                  iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
+                }
+            }
+
+        }
+        //NSLog(@"iconPath = %@", iconPath);
+
+        range = [iconPath rangeOfString:@"http"];
+        if (range.location != 0) {
             /**
              * Load icon from file or Base64 encoded strings
              */
@@ -755,33 +794,6 @@
                         return;
                     }
                 }
-
-                range = [iconPath rangeOfString:@"://"];
-                if (range.location == NSNotFound) {
-
-                    range = [iconPath rangeOfString:@"/"];
-                    if (range.location != 0) {
-                      // Get the current URL, then calculate the relative path.
-                      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
-                      id webview = cdvViewController.webView;
-                      NSString *clsName = [webview className];
-                      NSURL *url;
-                      if ([clsName isEqualToString:@"UIWebView"]) {
-                        url = ((UIWebView *)cdvViewController.webView).request.URL;
-                      } else {
-                        url = [webview URL];
-                      }
-                      NSString *currentURL = url.absoluteString;
-                      currentURL = [currentURL stringByDeletingLastPathComponent];
-                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-                      iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
-                    } else {
-                      iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
-                    }
-                }
-
 
                 range = [iconPath rangeOfString:@"file://"];
                 if (range.location != NSNotFound) {
