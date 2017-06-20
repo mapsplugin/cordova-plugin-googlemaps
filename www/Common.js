@@ -219,7 +219,7 @@ function getAllChildren(root) {
     }
 
     var ignoreTags = ["pre", "textarea",
-      "p", "form", "input", "table", "caption", "canvas",
+      "p", "form", "input", "table", "caption", "canvas", "svg",
       "ion-content", "ion-app", "ion-nav"];
 
     var list;
