@@ -218,28 +218,39 @@ function getAllChildren(root) {
       return [];
     }
 
-    var ignoreTags = ["pre", "textarea", "p", "form", "input", "table", "caption", "canvas", "ion-content", "ion-app", "ion-nav", "svg"];
+    var ignoreTags = [
+      "pre", "textarea", "p", "form", "input", "table", "caption",
+      "canvas", "ion-content", "ion-app", "ion-nav", "svg"
+    ];
     var ignoreClasses = ["nav-decor", "ion-page", "fixed-content"];
+    var list = [];
 
-    var allClickableElements = [];
     if (window.document.querySelectorAll) {
         // Android: v4.3 and over
         // iOS safari: v9.2 and over
         var childNodes = root.querySelectorAll("*");
-
-        allClickableElements = Array.prototype.slice.call(childNodes);
+        var allClickableElements = Array.prototype.slice.call(childNodes);
+        list = allClickableElements.filter(function(node) {
+            var tagName = node.tagName.toLowerCase();
+            return node !== root && _shouldWatchByNative(node) &&
+              ignoreTags.indexOf(tagName) == -1 &&
+              ignoreClasses.indexOf(node.className) === -1;
+        });
     } else {
-        allClickableElements = root.getElementsByTagName("*");
+        var node, tagName;
+        var clickableElements = root.getElementsByTagName("*");
+        for (var i = 0; i < clickableElements.length; i++) {
+            node = clickableElements[i];
+            tagName = node.tagName.toLowerCase();
+            if (_shouldWatchByNative(node) &&
+              ignoreTags.indexOf(tagName) == -1 &&
+              ignoreClasses.indexOf(node.className) === -1) {
+                list.push(node);
+            }
+        }
     }
 
-    return allClickableElements.filter(function (node) {
-        var tagName = node.tagName.toLowerCase();
-
-        return node !== root
-            && _shouldWatchByNative(node)
-            && ignoreTags.indexOf(tagName) === -1
-            && ignoreClasses.indexOf(node.className) === -1;
-    });
+    return list;
 }
 
 function _shouldWatchByNative(node) {
