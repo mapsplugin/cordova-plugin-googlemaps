@@ -306,15 +306,10 @@ function getDomDepth(dom, idx) {
         dom = dom.parentNode;
         depth++;
     }
-    //if (zIndex > -1) {
-    //  depth = depth * 1000 + zIndex;
-    //} else {
-    //  depth = zIndex;
-    //}
-
-    //orgDom.setAttribute("_depth", depth + "_" + zIndex + "_" + idx);
-    var result = idx * 1000 + parseInt(zIndex, 10) + depth;
-    orgDom.setAttribute("_result", result);
+    var zIdx = (parseInt(zIndex, 10) + 1) * 1000000;
+    var idxS = idx * 1000;
+    var result = zIdx + idxS + depth;
+    orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }
 

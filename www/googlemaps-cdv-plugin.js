@@ -286,7 +286,6 @@ module.exports = {
     Map: {
         getMap: function(div) {
             var navDecor = document.getElementsByClassName("nav-decor");
-            console.log(navDecor);
             if (navDecor && navDecor.length > 0) {
               navDecor[0].style.backgroundColor = "rgba(0,0,0,0)";
             }
