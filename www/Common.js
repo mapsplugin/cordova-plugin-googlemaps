@@ -321,15 +321,15 @@ function getDomDepth(dom, idx) {
       return 0;
     }
     var orgDom = dom;
-    var depth = 0;
     var zIndex = getZIndex(dom);
+    /*
+    var depth = 0;
     while (dom.parentNode !== null && dom.parentNode != document) {
         dom = dom.parentNode;
         depth++;
     }
-    var zIdx = (parseInt(zIndex, 10) + 1) * 1000000;
-    var idxS = idx * 1000;
-    var result = zIdx + idxS + depth;
+    */
+    var result = (zIndex + 1) * 1000 + idx;
     orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }
