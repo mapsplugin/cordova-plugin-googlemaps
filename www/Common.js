@@ -226,28 +226,49 @@ function getAllChildren(root) {
     var list = [];
 
     if (window.document.querySelectorAll) {
-        // Android: v4.3 and over
-        // iOS safari: v9.2 and over
-        var childNodes = root.querySelectorAll("*");
-        var allClickableElements = Array.prototype.slice.call(childNodes);
-        list = allClickableElements.filter(function(node) {
-            var tagName = node.tagName.toLowerCase();
-            return node !== root && _shouldWatchByNative(node) &&
-              ignoreTags.indexOf(tagName) == -1 &&
-              ignoreClasses.indexOf(node.className) === -1;
-        });
-    } else {
-        var node, tagName;
-        var clickableElements = root.getElementsByTagName("*");
-        for (var i = 0; i < clickableElements.length; i++) {
-            node = clickableElements[i];
-            tagName = node.tagName.toLowerCase();
-            if (_shouldWatchByNative(node) &&
-              ignoreTags.indexOf(tagName) == -1 &&
-              ignoreClasses.indexOf(node.className) === -1) {
-                list.push(node);
-            }
+      // Android: v4.3 and over
+      // iOS safari: v9.2 and over
+      var childNodes = root.querySelectorAll("*");
+      var allClickableElements = Array.prototype.slice.call(childNodes);
+      list = allClickableElements.filter(function(node) {
+        var tagName = node.tagName.toLowerCase();
+        if (node !== root &&
+          _shouldWatchByNative(node) &&
+          ignoreTags.indexOf(tagName) == -1) {
+
+          var classNames = (node.className || "").split(" ");
+          var matches = classNames.filter(function(clsName) {
+            return ignoreClasses.indexOf(clsName) !== -1;
+          });
+          if (matches && matches.length > 0) {
+            return false;
+          }
+          return true;
+        } else {
+          return false;
         }
+      });
+    } else {
+      var node, tagName, classNames, i, j, hit;
+      var clickableElements = root.getElementsByTagName("*");
+      for (i = 0; i < clickableElements.length; i++) {
+        node = clickableElements[i];
+        tagName = node.tagName.toLowerCase();
+        if (_shouldWatchByNative(node) &&
+          ignoreTags.indexOf(tagName) == -1) {
+          classNames = (node.className || "").split(" ");
+          hit = false;
+          for (j = 0; j < classNames.length; j++) {
+            if (ignoreClasses.indexOf(classNames[j]) > -1) {
+              hit = true;
+              break;
+            }
+          }
+          if (!hit) {
+            list.push(node);
+          }
+        }
+      }
     }
 
     return list;
