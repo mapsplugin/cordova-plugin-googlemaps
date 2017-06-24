@@ -301,18 +301,19 @@ function getZIndex(dom) {
     }
     if (window.getComputedStyle) {
       try {
-        z = document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index');
+        z = parseInt(document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index'), 10);
       } catch(e) {}
     }
     if (dom.currentStyle) {
-        z = dom.currentStyle['z-index'];
+        z = parseInt(dom.currentStyle['z-index']);
     }
     if (dom === document.body && z === "auto") {
       z = 0;
     }
     if (isNaN(z)) {
-        return getZIndex(dom.parentNode);
+        z = 0;
     }
+    z += getZIndex(dom.parentNode);
     return z;
 }
 
