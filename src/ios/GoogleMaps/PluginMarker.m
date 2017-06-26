@@ -183,7 +183,7 @@
                 if (animation) {
                     [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
                 } else {
-                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                    [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
                 }
             });
         }
@@ -207,7 +207,7 @@
       }
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 /**
@@ -220,7 +220,7 @@
       self.mapCtrl.map.selectedMarker = nil;
       self.mapCtrl.activeMarker = nil;
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 /**
@@ -244,7 +244,7 @@
       [json setObject:longitude forKey:@"lng"];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -260,7 +260,7 @@
       marker.title = [command.arguments objectAtIndex:1];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -276,7 +276,7 @@
       marker.snippet = [command.arguments objectAtIndex:1];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -291,6 +291,9 @@
       }
       self.mapCtrl.map.selectedMarker = marker;
       self.mapCtrl.activeMarker = marker;
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -310,7 +313,7 @@
       marker = nil;
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 /**
@@ -334,7 +337,7 @@
       }
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -360,7 +363,7 @@
           } else {
               pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
           }
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
       }];
 
   }];
@@ -379,7 +382,7 @@
       marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -395,7 +398,7 @@
       marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -412,7 +415,7 @@
       [marker setDraggable:isEnabled];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -434,7 +437,7 @@
       [self.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -463,7 +466,7 @@
       [self.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -484,7 +487,7 @@
           [marker setPosition:position];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
       }];
   }];
 }
@@ -502,7 +505,7 @@
       [marker setFlat: isFlat];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -549,7 +552,7 @@
       [marker setRotation:degrees];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -581,7 +584,8 @@
             break;
         }
         DEFAULT {
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
             break;
         }
     }
@@ -627,7 +631,8 @@
     group.animations = @[longitudeAnim, latitudeAnim];
     group.duration = duration;
     [group setCompletionBlock:^(void){
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
     }];
 
     [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
@@ -672,7 +677,8 @@
     group.animations = @[longitudeAnim, latitudeAnim];
     group.duration = duration;
     [group setCompletionBlock:^(void){
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
     }];
 
     [marker.layer addAnimation:group forKey:@"bounceMarkerAnim"];
@@ -718,45 +724,6 @@
 
         NSRange range = [iconPath rangeOfString:@"http"];
         if (range.location != 0) {
-
-            range = [iconPath rangeOfString:@"://"];
-            if (range.location == NSNotFound) {
-
-                range = [iconPath rangeOfString:@"/"];
-                if (range.location != 0) {
-                  // Get the current URL, then calculate the relative path.
-                  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
-                  id webview = cdvViewController.webView;
-                  NSString *clsName = [webview className];
-                  NSURL *url;
-                  if ([clsName isEqualToString:@"UIWebView"]) {
-                    url = ((UIWebView *)cdvViewController.webView).request.URL;
-                  } else {
-                    url = [webview URL];
-                  }
-                  NSString *currentURL = url.absoluteString;
-                  currentURL = [currentURL stringByDeletingLastPathComponent];
-
-                  range = [currentURL rangeOfString:@"http"];
-                  if (range.location != 0) {
-
-                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-                    iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
-                  } else {
-                    iconPath = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
-                  }
-                } else {
-                  iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
-                }
-            }
-
-        }
-        //NSLog(@"iconPath = %@", iconPath);
-
-        range = [iconPath rangeOfString:@"http"];
-        if (range.location != 0) {
             /**
              * Load icon from file or Base64 encoded strings
              */
@@ -790,10 +757,38 @@
                         if (self.mapCtrl.debuggable) {
                             NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
                         }
-                        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
                         return;
                     }
                 }
+
+                range = [iconPath rangeOfString:@"://"];
+                if (range.location == NSNotFound) {
+
+                    range = [iconPath rangeOfString:@"/"];
+                    if (range.location != 0) {
+                      // Get the current URL, then calculate the relative path.
+                      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+                      id webview = cdvViewController.webView;
+                      NSString *clsName = [webview className];
+                      NSURL *url;
+                      if ([clsName isEqualToString:@"UIWebView"]) {
+                        url = ((UIWebView *)cdvViewController.webView).request.URL;
+                      } else {
+                        url = [webview URL];
+                      }
+                      NSString *currentURL = url.absoluteString;
+                      currentURL = [currentURL stringByDeletingLastPathComponent];
+                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+                      iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
+                    } else {
+                      iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
+                    }
+                }
+
 
                 range = [iconPath rangeOfString:@"file://"];
                 if (range.location != NSNotFound) {
@@ -803,7 +798,8 @@
                         //if (self.mapCtrl.debuggable) {
                             NSLog(@"(error)There is no file at '%@'.", iconPath);
                         //}
-                        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
                         return;
                     }
                 }
@@ -847,7 +843,8 @@
                     [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
                 } else {
                     // Send the result
-                    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                    //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                    [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
                 }
             });
         } else {
@@ -866,13 +863,14 @@
                 [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
                     if (!succeeded) {
-
+                        NSLog(@"fail url = %@", url);
                         // The `visible` property
                         if ([[iconProperty valueForKey:@"visible"] boolValue]) {
                             marker.map = self.mapCtrl.map;
                         }
 
-                        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
                         return;
                     }
 
@@ -917,7 +915,8 @@
                             if (self.mapCtrl.debuggable) {
                                 NSLog(@"---- no marker animation");
                             }
-                            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                            //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                            [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
                         }
 
                     });
@@ -941,10 +940,12 @@
 
             if (animation) {
                 // Do animation, then send the result
-                [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+                //[self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+                [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
             } else {
                 // Send the result
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
             }
         });
 

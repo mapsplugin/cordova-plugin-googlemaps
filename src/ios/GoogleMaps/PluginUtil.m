@@ -108,6 +108,24 @@
 @end
 
 
+@implementation CDVCommandDelegateImpl (GoogleMapsPlugin)
+
+- (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId {
+
+  NSRange pos = [callbackId rangeOfString:@"://"];
+  if (pos.location == NSNotFound) {
+    [self sendPluginResult:result callbackId:callbackId];
+  } else {
+    NSArray *tmp = [callbackId componentsSeparatedByString:@"://"];
+    NSString *pluginName = [tmp objectAtIndex:0];
+    CDVPlugin<MyPlgunProtocol> *plugin = [self getCommandInstance:pluginName];
+    [plugin onHookedPluginResult:result callbackId:callbackId];
+  }
+
+}
+@end
+
+
 static char CAAnimationGroupBlockKey;
 @implementation CAAnimationGroup (Blocks)
 
