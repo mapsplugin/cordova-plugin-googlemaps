@@ -15,7 +15,8 @@ var Polygon = require('./Polygon');
 var TileOverlay = require('./TileOverlay');
 var GroundOverlay = require('./GroundOverlay');
 var KmlOverlay = require('./KmlOverlay');
-var CameraPosition = require('./CameraPosition');
+var CameraPosition = require('./CameraPosition');;
+var MarkerClusterer = require('./MarkerClusterer');
 
 
 /**
@@ -592,7 +593,13 @@ Map.prototype.getVisibleRegion = function(callback) {
      callback.call(self, latLngBounds);
    }
 
-   return latLngBounds;
+   return {
+     "latLngBounds" : latLngBounds,
+     "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
+     "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
+     "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
+     "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
+   }
 };
 
 /**
@@ -949,6 +956,25 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
 };
 
+//------------------
+// Marker clusterer
+//------------------
+Map.prototype.addMarkerClusterer = function(markerClustererOptions, callback) {
+  var self = this;
+  if (typeof markerClustererOptions === "function") {
+    callback = markerClustererOptions;
+    markerClustererOptions = null;
+  }
+  markerClustererOptions = markerClustererOptions || {};
+
+  exec(function(result) {
+    markerClustererOptions.hashCode = result.hashCode;
+    self.OVERLAYS[result.id] = new MarkerClusterer(self, result.id, markerClustererOptions);
+
+  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerClusterer', ""]);
+
+};
+
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
@@ -1077,6 +1103,10 @@ Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
     this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
     this.set('camera_northeast', cameraPosition.northeast);
     this.set('camera_southwest', cameraPosition.southwest);
+    this.set('camera_nearLeft', cameraPosition.nearLeft);
+    this.set('camera_nearRight', cameraPosition.nearRight);
+    this.set('camera_farLeft', cameraPosition.farLeft);
+    this.set('camera_farRight', cameraPosition.farRight);
     this.trigger(eventName, cameraPosition, this);
 };
 module.exports = Map;
