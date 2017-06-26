@@ -24,6 +24,7 @@ import org.json.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,7 +56,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     this.objects = new ConcurrentHashMap<String, Object>();
     TAG = this.getServiceName();
     if (executorService == null) {
-      executorService = Executors.newFixedThreadPool(5);
+      executorService = Executors.newCachedThreadPool();
     }
   }
   @Override
@@ -129,7 +130,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     // dummy
   }
 
-  protected Circle getCircle(String id) {
+  protected synchronized Circle getCircle(String id) {
     if (objects == null) {
       return null;
     }
@@ -138,7 +139,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
     return (Circle)this.objects.get(id);
   }
-  protected GroundOverlay getGroundOverlay(String id) {
+  protected synchronized GroundOverlay getGroundOverlay(String id) {
     if (objects == null) {
       return null;
     }
@@ -147,16 +148,17 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
     return (GroundOverlay)this.objects.get(id);
   }
-  protected Marker getMarker(String id) {
+  protected synchronized Marker getMarker(String id) {
     if (objects == null) {
       return null;
     }
     if (!this.objects.containsKey(id)) {
+      Log.e("MyPlugin", "---> !this.objects.containsKey(id) : " + id);
       return null;
     }
     return (Marker)this.objects.get(id);
   }
-  protected Polyline getPolyline(String id) {
+  protected synchronized Polyline getPolyline(String id) {
     if (objects == null) {
       return null;
     }
@@ -165,7 +167,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
     return (Polyline)this.objects.get(id);
   }
-  protected Polygon getPolygon(String id) {
+  protected synchronized Polygon getPolygon(String id) {
     if (objects == null) {
       return null;
     }
@@ -174,7 +176,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
     return (Polygon)this.objects.get(id);
   }
-  protected TileOverlay getTileOverlay(String id) {
+  protected synchronized TileOverlay getTileOverlay(String id) {
     if (objects == null) {
       return null;
     }
