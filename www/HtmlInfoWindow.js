@@ -212,10 +212,10 @@ HTMLInfoWindow.prototype.open = function(marker) {
         map.bindTo("infoPosition", self);
         marker.bindTo("infoWindowAnchor", self);
         marker.bindTo("icon", self);
-        marker.on(event.INFO_CLOSE, self.close.bind(self));
+        //marker.on(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
-        self.trigger("infoWindowAnchor_changed");
+        self.trigger.call(self, "infoWindowAnchor_changed");
     });
 };
 

@@ -62,7 +62,6 @@ var Marker = function(map, id, markerOptions) {
           }
       });
       self.on(event.INFO_CLOSE, function() {
-          map.set('active_marker_id', undefined);
 
           if (markerOptions.infoWindow) {
               markerOptions.infoWindow.close(self);
@@ -257,6 +256,10 @@ Marker.prototype.showInfoWindow = function() {
     return this;
 };
 Marker.prototype.hideInfoWindow = function() {
+    var map = this.getMap();
+    if (map) {
+      map.set('active_marker_id', undefined);
+    }
     exec(null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()]);
     return this;
 };

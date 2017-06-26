@@ -39,8 +39,11 @@ var Map = function(id) {
         writable: false
     });
 
-    self.on("active_marker_id_changed", function() {
-        exec(null, null, self.id + "-marker", 'setActiveMarkerId', [self.get("active_marker_id")]);
+    self.on("active_marker_id_changed", function(prevId, newId) {
+        if (prevId in self.MARKERS) {
+            self.MARKERS[prevId].trigger.call(self.MARKERS[prevId], event.INFO_CLOSE);
+        }
+        exec(null, null, self.id + "-marker", 'setActiveMarkerId', [newId]);
     });
 };
 
