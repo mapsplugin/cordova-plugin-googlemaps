@@ -9,7 +9,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 Before you install, make sure you've read the [instructions](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/Installation/README.md)
 
-*npm (current stable 1.4.0)*
+*npm (current stable 1.4.1)*
 ```bash
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
 ```
@@ -82,7 +82,7 @@ https://github.com/mapsplugin/v2.0-demo
 ### Version 2.0 Beta Roadmap
 
 The version 1.x will be shutdown in 2017.
-The date is not decided yet, but we release the v1.4.0 is the last version of v1.x
+The date is not decided yet, but we release the v1.4.1 is the last version of v1.x
 
 For more details are announced through the [Official community](https://plus.google.com/u/0/communities/117427728522929652853)
 
