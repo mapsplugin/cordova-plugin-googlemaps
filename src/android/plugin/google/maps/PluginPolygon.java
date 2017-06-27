@@ -73,6 +73,10 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         String id = "polygon_"+ polygon.getId();
         this.objects.put(id, polygon);
 
+        if (opts.has("tappable") && opts.getBoolean("tappable")) {
+          this.tappables.put(id, true);
+        }
+
         String boundsId = "polygon_bounds_" + polygon.getId();
         this.objects.put(boundsId, builder.build());
 
@@ -163,6 +167,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             return;
         }
         this.objects.remove(id);
+        this.tappables.remove(id);
 
         id = "polygon_bounds_" + polygon.getId();
         this.objects.remove(id);

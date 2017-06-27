@@ -59,6 +59,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     String id = "polyline_" + polyline.getId();
     this.objects.put(id, polyline);
 
+    if (opts.has("tappable") && opts.getBoolean("tappable")) {
+      this.tappables.put(id, true);
+    }
+
     String boundsId = "polyline_bounds_" + polyline.getId();
     this.objects.put(boundsId, builder.build());
     
@@ -223,6 +227,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       return;
     }
     this.objects.remove(id);
+    this.tappables.remove(id);
     
     id = "polyline_bounds_" + polyline.getId();
     this.objects.remove(id);

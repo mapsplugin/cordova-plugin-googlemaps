@@ -56,7 +56,12 @@
             layer.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
 
-        layer.tappable = YES;
+        if ([[json valueForKey:@"tappable"] boolValue]) {
+          layer.tappable = YES;
+        }
+        else {
+          layer.tappable = NO;
+        }
 
         NSString *id = [NSString stringWithFormat:@"groundOverlay_%lu", (unsigned long)layer.hash];
         [self_.mapCtrl.overlayManager setObject:layer forKey: id];

@@ -51,6 +51,10 @@ public class PluginCircle extends MyPlugin  {
     String id = "circle_" + circle.getId();
     this.objects.put(id, circle);
     
+    if (opts.has("tappable") && opts.getBoolean("tappable")) {
+      this.tappables.put(id, true);
+    }
+
     JSONObject result = new JSONObject();
     result.put("hashCode", circle.hashCode());
     result.put("id", id);
@@ -166,6 +170,7 @@ public class PluginCircle extends MyPlugin  {
     }
     circle.remove();
     this.objects.remove(id);
+    this.tappables.remove(id);
     this.sendNoResult(callbackContext);
   }
 }
