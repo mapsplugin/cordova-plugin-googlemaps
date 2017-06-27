@@ -736,7 +736,7 @@
 
 
             // The `visible` property
-            if (iconProperty[@"visible"]) {
+            if ([[iconProperty valueForKey:@"visible"] boolValue]) {
                 marker.map = self.mapCtrl.map;
             }
 
