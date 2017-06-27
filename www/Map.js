@@ -971,7 +971,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     markerClusterOptions.hashCode = result.hashCode;
     self.OVERLAYS[result.id] = new MarkerCluster(self, result.id, markerClusterOptions);
 
-  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', ""]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster']);
 
 };
 
