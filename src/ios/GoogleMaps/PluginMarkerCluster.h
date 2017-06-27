@@ -24,7 +24,5 @@
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
-- (void)setResolution:(CDVInvokedUrlCommand*)command;
-- (void)deleteClusters:(CDVInvokedUrlCommand*)command;
 - (void)redrawClusters:(CDVInvokedUrlCommand*)command;
 @end

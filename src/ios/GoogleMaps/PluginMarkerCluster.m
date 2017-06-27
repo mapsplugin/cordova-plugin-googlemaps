@@ -57,35 +57,52 @@ const int GEOCELL_GRID_SIZE = 4;
 
 - (void)onHookedPluginResult:(CDVPluginResult*)pluginResult callbackId:(NSString*)callbackId {
   NSArray *tmp = [callbackId componentsSeparatedByString:@"/"];
-  NSString *geocell = [tmp objectAtIndex:4];
+  NSString *method = [tmp objectAtIndex:2];
   NSString *clusterId = [tmp objectAtIndex:3];
-  NSLog(@"tmp = %@, geocell = %@, clusterId = %@", tmp, geocell, clusterId);
-  int currentCellLength = [[self.resolutions objectForKey:clusterId] intValue] + 1;
-
+  NSString *geocell = [tmp objectAtIndex:4];
+  NSString *cluster_geocell = [NSString stringWithFormat:@"%@-%@",clusterId, geocell];
   NSDictionary *result = pluginResult.message;
-  NSString *markerId = [result objectForKey:@"id"];
 
-  if (geocell.length != currentCellLength) {
-
-    NSMutableArray *args2 = [[NSMutableArray alloc] init];
-    [args2 setObject:markerId atIndexedSubscript:0];
+  if ([@"create" isEqualToString:method]) {
+    int reqResolution = [[tmp objectAtIndex:5] intValue];
+    NSString *markerId = [result objectForKey:@"id"];
 
 
-    CDVInvokedUrlCommand *command2 = [[CDVInvokedUrlCommand alloc]
-                                      initWithArguments:args2
-                                      callbackId: @"INVALID"
-                                      className:@"PluginMarker"
-                                      methodName:@"remove"];
-    NSString *pluginName = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
+    @synchronized (self.pluginMarkers) {
+      NSString *storeId = [self.pluginMarkers objectForKey:cluster_geocell];
+      if (![@"(nil)" isEqualToString:storeId] ||
+          reqResolution != [[self.resolutions objectForKey:clusterId] intValue]) {
+
+        [self.executeQueue addOperationWithBlock:^{
+          NSMutableArray *args2 = [[NSMutableArray alloc] init];
+          [args2 setObject:markerId atIndexedSubscript:0];
 
 
-    PluginMarker *pluginMarker = [self.commandDelegate getCommandInstance:pluginName];
-    [pluginMarker remove:command2];
+          CDVInvokedUrlCommand *command2 = [[CDVInvokedUrlCommand alloc]
+                                            initWithArguments:args2
+                                            callbackId: @"INVALID"
+                                            className:@"PluginMarker"
+                                            methodName:@"remove"];
+          NSString *pluginName = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
 
+          PluginMarker *pluginMarker = [self.commandDelegate getCommandInstance:pluginName];
+          [pluginMarker remove:command2];
+        }];
+        return;
+      }
+
+      [self.pluginMarkers setObject:markerId forKey:cluster_geocell];
+      NSLog(@"---> created : %@", cluster_geocell);
+    }
   }
 
-  NSString *clusterId_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
-  [self.pluginMarkers setObject:markerId forKey:clusterId_geocell];
+  if ([@"delete" isEqualToString:method]) {
+    @synchronized (self.pluginMarkers) {
+      [self.pluginMarkers removeObjectForKey:cluster_geocell];
+      NSLog(@"---> removed : %@", cluster_geocell);
+    }
+
+  }
 }
 
 
@@ -99,78 +116,33 @@ const int GEOCELL_GRID_SIZE = 4;
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void)setResolution:(CDVInvokedUrlCommand*)command {
-  NSString *clusterId = [command.arguments objectAtIndex:0];
-  int resolution = [[command.arguments objectAtIndex:1] intValue];
-  int currentCellLength = resolution + 1;
 
-
-  @synchronized(self.resolutions) {
-    [self.resolutions setObject:[NSNumber numberWithInt:resolution] forKey:clusterId];
-  }
-
-  NSString *clusterId_geocell;
-  NSArray *keys = [self.pluginMarkers allKeys];
-  NSArray *tmp;
-  NSString *geocell;
-
-  for (int i = 0; i < [keys count]; i++) {
-    clusterId_geocell = [keys objectAtIndex:i];
-    tmp = [clusterId_geocell componentsSeparatedByString:@"-"];
-    geocell = [tmp objectAtIndex:1];
-    if (geocell == nil || geocell.length == currentCellLength) {
-      continue;
-    }
-    [self.executeQueue addOperationWithBlock:[self deleteOldClusterTaskWithKey:clusterId_geocell]];
-  }
-
-  CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-
-
-}
-- (void)deleteClusters:(CDVInvokedUrlCommand*)command {
-
-
-  NSArray *geocellList = [command.arguments objectAtIndex:1];
-  if ([geocellList count] == 0) {
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-    return;
-  }
-
-  NSString *clusterId = [command.arguments objectAtIndex:0];
-  NSString *geocell, *clusterId_geocell;
-
-
-  for (int i = 0; i < [geocellList count]; i++) {
-    geocell = [geocellList objectAtIndex:i];
-    clusterId_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
-    [self.executeQueue addOperationWithBlock:[self deleteOldClusterTaskWithKey:clusterId_geocell]];
-
-  }
-
-  CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-
-}
-- (void (^)())deleteOldClusterTaskWithKey:(NSString *)clusterId_geocell {
+- (void (^)())deleteOldCluster:(NSString *)clusterId geocell:(NSString*)geocell {
   return ^{
+    NSString *clusterId_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
     NSString *markerId = nil;
-    //
-    markerId = [self.pluginMarkers objectForKey:clusterId_geocell];
-    [self.pluginMarkers removeObjectForKey:clusterId_geocell];
+    @synchronized (self.pluginMarkers) {
+      if ([self.pluginMarkers objectForKey:clusterId_geocell] == nil) {
+        [self.pluginMarkers setObject:@"(deleted)" forKey:clusterId_geocell];
+        return;
+      }
+      markerId = [self.pluginMarkers objectForKey:clusterId_geocell];
+    }
 
-    if (markerId == nil) {
+    if ([@"(deleted)" isEqualToString:markerId] ||
+        [@"(nil)" isEqualToString:markerId]) {
+      NSLog(@"--> markerId = %@ : %@", markerId, clusterId_geocell);
       return;
     }
 
     NSMutableArray *args = [[NSMutableArray alloc] init];
     [args setObject:markerId atIndexedSubscript:0];
 
+    NSString *pluginId = [NSString stringWithFormat:@"%@-markercluster", self.mapCtrl.mapId];
+    NSString *callbackId = [NSString stringWithFormat:@"%@://delete/%@/%@", pluginId, clusterId, geocell];
     CDVInvokedUrlCommand *command = [[CDVInvokedUrlCommand alloc]
                                     initWithArguments:args
-                                    callbackId: @"INVALID"
+                                    callbackId: callbackId
                                     className:@"PluginMarker"
                                     methodName:@"remove"];
 
@@ -182,63 +154,71 @@ const int GEOCELL_GRID_SIZE = 4;
 
 - (void)redrawClusters:(CDVInvokedUrlCommand*)command {
 
+  @synchronized (self) {
 
-  NSArray *clusters = [command.arguments objectAtIndex:1];
-  if ([clusters count] == 0) {
+    NSString *clusterId = [command.arguments objectAtIndex:0];
+    NSDictionary *params = [command.arguments objectAtIndex:1];
+    int resolution = [[params objectForKey:@"resolution"] intValue];
+
+    [self.resolutions setObject:[NSNumber numberWithInt:resolution] forKey:clusterId];
+
+    //--------
+    // delete old clusters
+    //--------
+    NSArray *deleteClusters = [params objectForKey:@"delete"];
+    if (deleteClusters != nil && [deleteClusters count] > 0) {
+
+      NSString *geocell;
+
+      for (int i = 0; i < [deleteClusters count]; i++) {
+        geocell = [deleteClusters objectAtIndex:i];
+        [self.executeQueue addOperationWithBlock:
+         [self deleteOldCluster:clusterId geocell:geocell]];
+      }
+    }
+
+
+    //--------
+    // Create or update clusters
+    //--------
+    NSArray *changeClusters = [params objectForKey:@"new_or_update"];
+    if (changeClusters != nil && [changeClusters count] > 0) {
+
+      NSDictionary *clusterData;
+      NSBlockOperation *task;
+
+      for (int i = 0; i < [changeClusters count]; i++) {
+        clusterData = [changeClusters objectAtIndex:i];
+
+        task = [self createClusterTaskWithClusterId:clusterId
+                                                          clusterData:clusterData
+                                                           resolution:resolution];
+        if (task != nil) {
+          [self.executeQueue addOperation: task];
+        }
+
+      }
+    }
+
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-    return;
   }
-
-  NSString *clusterId = [command.arguments objectAtIndex:0];
-  int resolution = [[self.resolutions objectForKey:clusterId] integerValue];
-  int currentCellLength = resolution + 1;
-  NSLog(@"--->redrawClusters");
-
-  //--------
-  // delete old clusters
-  //--------
-
-  NSString *clusterId_geocell;
-  NSArray *keys = [self.pluginMarkers allKeys];
-  NSArray *tmp;
-  NSString *geocell;
-
-  if ([keys count] > 0) {
-    for (int i = 0; i < [keys count]; i++) {
-      clusterId_geocell = [keys objectAtIndex:i];
-      tmp = [clusterId_geocell componentsSeparatedByString:@"-"];
-      geocell = [tmp objectAtIndex:1];
-      if (geocell == nil || geocell.length == currentCellLength) {
-        continue;
-      }
-      [self deleteOldClusterTaskWithKey:clusterId_geocell];
-    }
-  }
-
-
-  NSString *firstCell = [[clusters objectAtIndex:0] objectForKey:@"geocell"];
-  if (currentCellLength == firstCell.length) {
-
-    NSDictionary *clusterData;
-    for (int i = 0; i < [clusters count]; i++) {
-      clusterData = [clusters objectAtIndex:i];
-      [self.executeQueue addOperationWithBlock:[self createClusterTaskWithClusterId:clusterId clusterData:clusterData]];
-
-    }
-
-  }
-
-
-  CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 
 }
 
-- (void (^)())createClusterTaskWithClusterId:(NSString*)clusterId clusterData:(NSDictionary *)clusterData {
+- (NSBlockOperation *)createClusterTaskWithClusterId:(NSString*)clusterId clusterData:(NSDictionary *)clusterData resolution:(int)resolution {
   NSString *geocell = [clusterData objectForKey:@"geocell"];
-  int itemCnt = [[clusterData objectForKey:@"count"] intValue];
   NSString *cluster_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
+
+  @synchronized(self.pluginMarkers) {
+
+    if ([self.pluginMarkers objectForKey:cluster_geocell]) {
+      NSLog(@"---> (contained) %@ : %@", cluster_geocell, [self.pluginMarkers objectForKey:cluster_geocell]);
+      return nil;
+    }
+    [self.pluginMarkers setObject:@"(nil)" forKey:cluster_geocell];
+  }
+
 
   GMSCoordinateBounds *bounds = [self computeBox:geocell];
   NSMutableDictionary *position = [[NSMutableDictionary alloc] init];
@@ -259,7 +239,7 @@ const int GEOCELL_GRID_SIZE = 4;
   [args setObject:markerOpts atIndexedSubscript:1];
 
   NSString *pluginId = [NSString stringWithFormat:@"%@-markercluster", self.mapCtrl.mapId];
-  NSString *callbackId = [NSString stringWithFormat:@"%@://create/%@/%@", pluginId, clusterId, geocell];
+  NSString *callbackId = [NSString stringWithFormat:@"%@://create/%@/%@/%d", pluginId, clusterId, geocell, resolution];
   CDVInvokedUrlCommand *command2 = [[CDVInvokedUrlCommand alloc]
                                     initWithArguments:args
                                     callbackId:callbackId
@@ -267,17 +247,13 @@ const int GEOCELL_GRID_SIZE = 4;
                                     methodName:@"loadPlugin"];
 
 
-  return ^() {
-    if ([self.pluginMarkers objectForKey:cluster_geocell] != nil) {
-      return;
-    }
-
+  return [NSBlockOperation blockOperationWithBlock:^{
     //------------------
     // Create a marker
     //------------------
     PluginMap *pluginMap = [self.commandDelegate getCommandInstance:self.mapCtrl.mapId];
     [pluginMap loadPlugin:command2];
-  };
+  }];
 }
 
 - (GMSCoordinateBounds *)computeBox:(NSString *) geocell {
