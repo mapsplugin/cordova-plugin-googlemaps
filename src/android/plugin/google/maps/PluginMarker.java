@@ -38,6 +38,9 @@ public class PluginMarker extends MyPlugin {
     DROP,
     BOUNCE
   }
+  private enum LAT_LNG_INTERPOLATOR {
+    linear, linearFixed, spherical
+  }
   
   /**
    * Create a marker
@@ -350,6 +353,50 @@ public class PluginMarker extends MyPlugin {
         callbackContext.error(errorMsg);
       }
       
+    });
+  }
+
+  /**
+   * Animate marker to specified position
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  @SuppressWarnings("unused")
+  private void animateTo(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String id = args.getString(1);
+    LatLng position = new LatLng(args.getDouble(2), args.getDouble(3));
+    final long durationInMs = (long) args.getDouble(4);
+    String interpolatorType = args.getString(5);
+    final Marker marker = this.getMarker(id);
+
+    LatLngInterpolator interpolator = new LatLngInterpolator.Linear();
+    try {
+      switch(LAT_LNG_INTERPOLATOR.valueOf(interpolatorType)) {
+        case linear:
+          interpolator = new LatLngInterpolator.Linear();
+          break;
+        case linearFixed:
+          interpolator = new LatLngInterpolator.LinearFixed();
+          break;
+        case spherical:
+          interpolator = new LatLngInterpolator.Spherical();
+          break;
+      }
+    } catch (Exception e) {}
+
+    MarkerAnimation.animateMarker(marker, position, durationInMs, interpolator, new PluginAsyncInterface() {
+
+      @Override
+      public void onPostExecute(Object object) {
+        callbackContext.success();
+      }
+
+      @Override
+      public void onError(String errorMsg) {
+        callbackContext.error(errorMsg);
+      }
+
     });
   }
 
