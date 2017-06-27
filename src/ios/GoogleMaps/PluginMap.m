@@ -71,7 +71,7 @@
 
           if (!plugin) {
               pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                               messageAsString:[NSString stringWithFormat:@"Class not found: %@", className]];
+                                               messageAsString:[NSString stringWithFormat:@"(PluginMap.loadPlugin) Class not found: %@", className]];
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
               return;
           }

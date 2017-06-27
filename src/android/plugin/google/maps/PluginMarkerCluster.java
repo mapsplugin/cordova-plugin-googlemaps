@@ -56,7 +56,7 @@ public class PluginMarkerCluster extends MyPlugin implements MyPluginInterface  
       @Override
       public void run() {
 
-        String id = "markerclusterer_" + callbackContext.hashCode();
+        String id = "markercluster_" + callbackContext.hashCode();
         final JSONObject result = new JSONObject();
         try {
           result.put("hashCode", callbackContext.hashCode());

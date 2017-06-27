@@ -63,7 +63,7 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
 utils.extend(MarkerCluster, BaseClass);
 
 MarkerCluster.prototype.getPluginName = function() {
-  return this.map.getId() + "-MarkerCluster";
+  return this.map.getId() + "-markercluster";
 };
 MarkerCluster.prototype.getId = function() {
     return this.id;

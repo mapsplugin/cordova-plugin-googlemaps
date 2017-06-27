@@ -44,7 +44,7 @@ document.addEventListener("deviceready", function() {
 function onMapReady() {
   var map = this;
 
-  map.addMarkerClusterer({
+  map.addMarkerCluster({
     markers: data
   }, function(markerCluster) {
 

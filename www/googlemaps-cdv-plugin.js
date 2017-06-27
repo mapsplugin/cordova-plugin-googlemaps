@@ -27,6 +27,8 @@ var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
+var MarkerCluster = require('./MarkerCluster');
+var geomodel = require('./geomodel');
 
 var INTERVAL_TIMER = null;
 var MAPS = {};
@@ -343,8 +345,9 @@ module.exports = {
     Geocoder: Geocoder,
     geometry: {
         encoding: encoding,
-        spherical: spherical
-    }
+        geomodel: geomodel
+    },
+    MarkerCluster: MarkerCluster
 };
 
 document.addEventListener("deviceready", function() {

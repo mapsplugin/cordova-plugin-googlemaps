@@ -258,7 +258,7 @@ const int GEOCELL_GRID_SIZE = 4;
   [args setObject:@"Marker" atIndexedSubscript:0];
   [args setObject:markerOpts atIndexedSubscript:1];
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-markerclusterer", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-markercluster", self.mapCtrl.mapId];
   NSString *callbackId = [NSString stringWithFormat:@"%@://create/%@/%@", pluginId, clusterId, geocell];
   CDVInvokedUrlCommand *command2 = [[CDVInvokedUrlCommand alloc]
                                     initWithArguments:args
