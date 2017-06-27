@@ -13,9 +13,9 @@ var argscheck = require('cordova/argscheck'),
   BaseArrayClass = require('./BaseArrayClass');
 
 /*****************************************************************************
- * MarkerClusterer Class
+ * MarkerCluster Class
  *****************************************************************************/
-var MarkerClusterer = function(map, id, markerClusterOptions) {
+var MarkerCluster = function(map, id, markerClusterOptions) {
   BaseClass.call(this);
 
   var self = this;
@@ -32,7 +32,7 @@ var MarkerClusterer = function(map, id, markerClusterOptions) {
     writable: false
   });
   Object.defineProperty(self, "type", {
-    value: "MarkerClusterer",
+    value: "MarkerCluster",
     writable: false
   });
   Object.defineProperty(self, "id", {
@@ -60,22 +60,22 @@ var MarkerClusterer = function(map, id, markerClusterOptions) {
   self.onCameraMoveEnd();
 };
 
-utils.extend(MarkerClusterer, BaseClass);
+utils.extend(MarkerCluster, BaseClass);
 
-MarkerClusterer.prototype.getPluginName = function() {
-  return this.map.getId() + "-markerclusterer";
+MarkerCluster.prototype.getPluginName = function() {
+  return this.map.getId() + "-MarkerCluster";
 };
-MarkerClusterer.prototype.getId = function() {
+MarkerCluster.prototype.getId = function() {
     return this.id;
 };
-MarkerClusterer.prototype.getMap = function() {
+MarkerCluster.prototype.getMap = function() {
     return this.map;
 };
-MarkerClusterer.prototype.getHashCode = function() {
+MarkerCluster.prototype.getHashCode = function() {
     return this.hashCode;
 };
 
-MarkerClusterer.prototype.onCameraMoveEnd = function() {
+MarkerCluster.prototype.onCameraMoveEnd = function() {
   var self = this;
 
   var prevZoom = self.get("zoom");
@@ -87,7 +87,7 @@ MarkerClusterer.prototype.onCameraMoveEnd = function() {
 };
 
 
-MarkerClusterer.prototype.redraw = function() {
+MarkerCluster.prototype.redraw = function() {
   var self = this,
     map = self.map,
     mapDiv = map.getDiv(),
@@ -117,8 +117,9 @@ MarkerClusterer.prototype.redraw = function() {
   self._clusters[resolution] = self._clusters[resolution] || {};
   var deleteClusters = [];
   var cellLen = resolution + 1;
+  var keys;
   if (resolution === prevResolution) {
-    var keys = Object.keys(self._clusters[resolution]);
+    keys = Object.keys(self._clusters[resolution]);
     keys.forEach(function(geocell) {
       var bounds = self._clusters[resolution][geocell].getBounds();
       if (!extendedBounds.contains(bounds.northeast) &&
@@ -129,7 +130,7 @@ MarkerClusterer.prototype.redraw = function() {
       }
     });
   } else if (prevResolution in self._clusters) {
-    var keys = Object.keys(self._clusters[prevResolution]);
+    keys = Object.keys(self._clusters[prevResolution]);
     keys.forEach(function(geocell) {
         self._clusters[prevResolution][geocell].remove();
     });
@@ -227,4 +228,4 @@ MarkerClusterer.prototype.redraw = function() {
 
 };
 
-module.exports = MarkerClusterer;
+module.exports = MarkerCluster;

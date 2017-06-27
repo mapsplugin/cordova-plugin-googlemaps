@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PluginMarkerClusterer extends MyPlugin implements MyPluginInterface  {
+public class PluginMarkerCluster extends MyPlugin implements MyPluginInterface  {
 
   private final static HashMap<String, String> pluginMarkers = new HashMap<String, String>();
   private final static ConcurrentHashMap<String, String> pluginPolylines = new ConcurrentHashMap<String, String>();

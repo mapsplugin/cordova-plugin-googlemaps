@@ -12,7 +12,7 @@
 #import "PluginMarker.h"
 #import "NSData+Base64.h"
 
-@interface PluginMarkerClusterer : CDVPlugin<MyPlgunProtocol>
+@interface PluginMarkerCluster : CDVPlugin<MyPlgunProtocol>
 
 @property (nonatomic, strong) NSCache* imgCache;
 @property (nonatomic) NSOperationQueue *executeQueue;

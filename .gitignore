@@ -44,10 +44,3 @@ platforms/
 hooks/
 
 out/
-
-
-#other project files
-src/android/plugin/google/maps/experimental
-src/android/plugin/google/maps/PluginMarkerCluster.java
-platforms/android/res/xml/drawable/m1.png
-platforms/android/lint.xml
