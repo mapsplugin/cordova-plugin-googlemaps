@@ -218,16 +218,26 @@ MarkerCluster.prototype.redraw = function() {
 
       for (var i = 0; i < self.icons.length; i++) {
         hit = false;
-        if ("min" in self.icons[i] && self.icons[i].min >= clusterCnt) {
-          hit = true;
-        }
-        if ("max" in self.icons[i]) {
-          hit = (self.icons[i].min >= clusterCnt);
+        if ("min" in self.icons[i]) {
+          if (clusterCnt >= self.icons[i].min) {
+            if ("max" in self.icons[i]) {
+              hit = (clusterCnt <= self.icons[i].max);
+            } else {
+              hit = true;
+            }
+          }
+        } else {
+          if ("max" in self.icons[i]) {
+            hit = (clusterCnt <= self.icons[i].max);
+          }
         }
         if (hit) {
           clusterOpts.icon = self.icons[i];
           break;
         }
+      }
+      if (!hit) {
+        clusterOpts.icon = "https://mt.google.com/vt/icon/text=" + clusterCnt + "&psize=16&font=fonts/arialuni_t.ttf&color=ff330000&name=icons/spotlight/spotlight-waypoint-b.png&ax=44&ay=48&scale=1";
       }
       clusters.push(clusterOpts);
     });

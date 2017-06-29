@@ -2011,6 +2011,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onMapLoaded() {
+    this.onCameraEvent("camera_end");
     this.onMapEvent("map_loaded");
   }
 
@@ -2031,7 +2032,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String markerId = "marker_" + marker.getId();
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
         mapId, eventName, markerId, latLng.latitude, latLng.longitude);
-    Log.d(TAG, js);
     jsCallback(js);
   }
   public void syncInfoWndPosition() {

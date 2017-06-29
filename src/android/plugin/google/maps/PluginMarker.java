@@ -1237,6 +1237,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     }
     Bitmap newIcon = Bitmap.createBitmap(image);
     Canvas canvas = new Canvas(newIcon);
+    image.recycle();
+    image = null;
 
     int fontSize = 10;
     if (labelOptions.containsKey("fontSize")) {

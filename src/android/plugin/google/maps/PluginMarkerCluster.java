@@ -168,13 +168,18 @@ public class PluginMarkerCluster extends MyPlugin implements MyPluginInterface  
     markerOpts.put("position", clusterData.getJSONObject("position"));
     markerOpts.put("title", clusterId_geocell);
     if (clusterData.has("icon")) {
-      JSONObject icon = clusterData.getJSONObject("icon");
-      if (icon.has("label")) {
-        JSONObject label = icon.getJSONObject("label");
-        label.put("text", clusterData.getInt("count") + "");
-        icon.put("label", label);
+      Object iconObj = clusterData.get("icon");
+      if (iconObj instanceof JSONObject) {
+        JSONObject icon = clusterData.getJSONObject("icon");
+        if (icon.has("label")) {
+          JSONObject label = icon.getJSONObject("label");
+          label.put("text", clusterData.getInt("count") + "");
+          icon.put("label", label);
+        }
+        markerOpts.put("icon", icon);
+      } else {
+        markerOpts.put("icon", iconObj);
       }
-      markerOpts.put("icon", icon);
     }
 
     final JSONArray args = new JSONArray();
