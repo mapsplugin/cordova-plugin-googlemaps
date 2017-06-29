@@ -18,11 +18,11 @@ var LatLngBounds = function() {
         args = Array.prototype.slice.call(arguments, 0);
     }
 
-      for (var i = 0; i < args.length; i++) {
-          if ("lat" in args[i] && "lng" in args[i]) {
-              this.extend(args[i]);
-          }
-      }
+    for (var i = 0; i < args.length; i++) {
+        if (args[i] && args[i] && "lat" in args[i] && "lng" in args[i]) {
+            this.extend(args[i]);
+        }
+    }
 };
 
 LatLngBounds.prototype.northeast = null;

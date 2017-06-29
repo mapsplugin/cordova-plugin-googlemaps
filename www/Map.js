@@ -15,7 +15,7 @@ var Polygon = require('./Polygon');
 var TileOverlay = require('./TileOverlay');
 var GroundOverlay = require('./GroundOverlay');
 var KmlOverlay = require('./KmlOverlay');
-var CameraPosition = require('./CameraPosition');;
+var CameraPosition = require('./CameraPosition');
 var MarkerCluster = require('./MarkerCluster');
 
 
@@ -585,6 +585,9 @@ Map.prototype.setDiv = function(div) {
 Map.prototype.getVisibleRegion = function(callback) {
    var self = this;
    var cameraPosition = self.get("camera");
+   if (!cameraPosition) {
+     return null;
+   }
 
    var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
 
@@ -935,6 +938,10 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     }
     if (markerOptions.icon && common.isHTMLColorString(markerOptions.icon)) {
         markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
+    }
+    if (markerOptions.icon && markerOptions.icon.label &&
+      common.isHTMLColorString(markerOptions.icon.label.color)) {
+        markerOptions.icon.label.color = common.HTMLColor2RGBA(markerOptions.icon.label.color);
     }
 
     exec(function(result) {

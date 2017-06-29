@@ -1,10 +1,15 @@
 package plugin.google.maps;
 
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +52,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   private ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
   private ArrayList<Bitmap> icons = new ArrayList<Bitmap>();
   private HashMap<String, Integer> iconCacheKeys = new HashMap<String, Integer>();
+  private static Paint paint = new Paint();
+  private static float density = Resources.getSystem().getDisplayMetrics().density;
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -264,6 +271,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 Object value = opts.get("icon");
                 if (JSONObject.class.isInstance(value)) {
                   JSONObject iconProperty = (JSONObject) value;
+                  if (iconProperty.has("label")) {
+                    JSONObject label = iconProperty.getJSONObject("label");
+                    if (label != null && label.get("color") instanceof JSONArray) {
+                      label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
+                      iconProperty.put("label", label);
+                    }
+                  }
                   bundle = PluginUtil.Json2Bundle(iconProperty);
 
                   // The `anchor` of the `icon` property
@@ -291,6 +305,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                       bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
                     }
                   }
+
                 } else if (JSONArray.class.isInstance(value)) {
                   float[] hsv = new float[3];
                   JSONArray arrayRGBA = (JSONArray) value;
@@ -522,7 +537,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
-  
+
   /**
    *
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
@@ -1048,6 +1063,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
 
           try {
+            if (iconProperty.containsKey("label")) {
+              image = drawLabel(image, iconProperty.getBundle("label"));
+            }
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
             if (bitmapDescriptor == null) {
               callback.onPostExecute(marker);
@@ -1083,7 +1101,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
           } catch (Exception e) {
             Log.e(TAG,"PluginMarker: Warning - marker method called when marker has been disposed, wait for addMarker callback before calling more methods on the marker (setIcon etc).");
-            //e.printStackTrace();
+            e.printStackTrace();
             try {
               marker.remove();
             } catch (Exception ignore) {
@@ -1139,6 +1157,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
           try {
             icons.add(image);
+            if (iconProperty.containsKey("label")) {
+              image = drawLabel(image, iconProperty.getBundle("label"));
+            }
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(image);
             marker.setIcon(bitmapDescriptor);
 
@@ -1207,5 +1228,56 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         marker.setInfoWindowAnchor((float)(fAnchorX / imageWidth), (float)(fAnchorY / imageHeight));
       }
     });
+  }
+
+  private Bitmap drawLabel(Bitmap image, Bundle labelOptions) {
+    String text = labelOptions.getString("text");
+    if (text == null || text.length() == 0) {
+      return image;
+    }
+    Bitmap newIcon = Bitmap.createBitmap(image);
+    Canvas canvas = new Canvas(newIcon);
+
+    int fontSize = 10;
+    if (labelOptions.containsKey("fontSize")) {
+      fontSize = labelOptions.getInt("fontSize");
+    }
+    paint.setTextSize(fontSize * density);
+
+    int color = Color.BLACK;
+    if (labelOptions.containsKey("color")) {
+      color = labelOptions.getInt("color");
+    }
+    boolean bold = false;
+    if (labelOptions.containsKey("bold")) {
+      bold = labelOptions.getBoolean("bold");
+    }
+    paint.setFakeBoldText(bold);
+    boolean italic = false;
+    if (labelOptions.containsKey("italic")) {
+      italic = labelOptions.getBoolean("italic");
+    }
+    if (italic && bold) {
+      paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD_ITALIC));
+    } else if(italic) {
+      paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
+    } else if(bold) {
+      paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+    } else {
+      paint.setTypeface(Typeface.DEFAULT);
+    }
+    paint.setColor(color);
+
+
+    Rect rect = new Rect();
+    canvas.getClipBounds(rect);
+    int cHeight = rect.height();
+    int cWidth = rect.width();
+    paint.setTextAlign(Paint.Align.LEFT);
+    paint.getTextBounds(text, 0, text.length(), rect);
+    float x = cWidth / 2f - rect.width() / 2f - rect.left;
+    float y = cHeight / 2f + rect.height() / 2f - rect.bottom;
+    canvas.drawText(text, x, y, paint);
+    return newIcon;
   }
 }

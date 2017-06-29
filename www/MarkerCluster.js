@@ -40,8 +40,24 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
       writable: false
   });
 
+
+  var icons = markerClusterOptions.icons;
+  for (var i = 0; i < icons.length; i++) {
+    if (icons[i] && icons[i].label &&
+      common.isHTMLColorString(icons[i].label.color)) {
+        icons[i].label.color = common.HTMLColor2RGBA(icons[i].label.color);
+    }
+  }
+
+  Object.defineProperty(self, "icons", {
+      value: icons,
+      writable: false
+  });
+
   var visibleRegion = map.getVisibleRegion();
-  self.set("prevBounds", visibleRegion.latLngBounds);
+  if (visibleRegion) {
+    self.set("prevBounds", visibleRegion.latLngBounds);
+  }
 
   //---------------------------------
   // Creates marker refereces
@@ -144,33 +160,12 @@ MarkerCluster.prototype.redraw = function() {
   var prevBounds = self.get("prevBounds");
   var clusters = [];
 
-  if (resolution !== prevResolution ||
+  if (!prevResolution ||
+    resolution !== prevResolution ||
     !prevBounds.contains(visibleRegion.nearLeft) ||
     !prevBounds.contains(visibleRegion.nearRight) ||
     !prevBounds.contains(visibleRegion.farLeft) ||
     !prevBounds.contains(visibleRegion.farRight)) {
-
-/*
-    //debug
-    if (self.get('polyline')) {
-      self.get('polyline').remove();
-    }
-
-    map.addPolyline({
-      'points': [
-        extendedBounds.northeast,
-        {lat: extendedBounds.northeast.lat, lng: extendedBounds.southwest.lng},
-        extendedBounds.southwest,
-        {lat: extendedBounds.southwest.lat, lng: extendedBounds.northeast.lng},
-        extendedBounds.northeast
-      ],
-      'color' : 'blue',
-      'width': 2
-    }, function(polyline) {
-      self.set("polyline", polyline);
-    });
-*/
-
 
 
     self.set("prevBounds", extendedBounds);
@@ -213,10 +208,28 @@ MarkerCluster.prototype.redraw = function() {
         cluster = new Cluster(geocell, prepareClusters[geocell], resolution);
         self._clusters[resolution][geocell] = cluster;
       }
-      clusters.push({
-        "geocell": geocell,
-        "count": cluster.getItemLength()
-      });
+      var hit,
+          clusterCnt = cluster.getItemLength(),
+          clusterOpts = {
+            "geocell": geocell,
+            "count": clusterCnt,
+            "position": cluster.bounds.getCenter()
+          };
+
+      for (var i = 0; i < self.icons.length; i++) {
+        hit = false;
+        if ("min" in self.icons[i] && self.icons[i].min >= clusterCnt) {
+          hit = true;
+        }
+        if ("max" in self.icons[i]) {
+          hit = (self.icons[i].min >= clusterCnt);
+        }
+        if (hit) {
+          clusterOpts.icon = self.icons[i];
+          break;
+        }
+      }
+      clusters.push(clusterOpts);
     });
   }
 
