@@ -158,10 +158,11 @@ Map.prototype.getMap = function(mapId, div, options) {
     cordova.fireDocumentEvent('plugin_touch', {});
 
     exec(function() {
-      self.one(event.MAP_LOADED, function() {
-        self.refreshLayout();
-        self.trigger(event.MAP_READY, self);
-      });
+      // Prevent too much faster
+      setTimeout(function() {
+          self.refreshLayout();
+          self.trigger(event.MAP_READY, self);
+      }, 100);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
 };
 
@@ -582,26 +583,26 @@ Map.prototype.setDiv = function(div) {
 * Return the visible region of the map.
 */
 Map.prototype.getVisibleRegion = function(callback) {
-  var self = this;
-  var cameraPosition = self.get("camera");
-  if (!cameraPosition) {
-    return null;
-  }
+   var self = this;
+   var cameraPosition = self.get("camera");
+   if (!cameraPosition) {
+     return null;
+   }
 
-  var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
+   var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
 
-  if (typeof callback === "function") {
+   if (typeof callback === "function") {
      console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
      callback.call(self, latLngBounds);
-  }
+   }
 
-  return {
-    "latLngBounds" : latLngBounds,
-    "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
-    "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
-    "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
-    "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
-  };
+   return {
+     "latLngBounds" : latLngBounds,
+     "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
+     "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
+     "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
+     "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
+   }
 };
 
 /**

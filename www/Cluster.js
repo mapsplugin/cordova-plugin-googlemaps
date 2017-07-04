@@ -10,7 +10,7 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Cluster Class
  *****************************************************************************/
-var Cluster = function(geocell, markerRefs, resolution) {
+var Cluster = function(geocell, markerRefs) {
   BaseClass.call(this);
 
   markerRefs = common.createMvcArray(markerRefs);
@@ -24,12 +24,7 @@ var Cluster = function(geocell, markerRefs, resolution) {
     value: geocell,
     writable: false
   });
-/*
-  Object.defineProperty(self, "map", {
-    value: map,
-    writable: false
-  });
-*/
+
   Object.defineProperty(self, "type", {
     value: "Cluster",
     writable: false
@@ -43,39 +38,12 @@ var Cluster = function(geocell, markerRefs, resolution) {
     writable: false
   });
 
-  self.set("resolution", resolution);
-
-/*
-  map.addMarker({
-    'position': self.bounds.getCenter(),
-    'title': geocell,
-    'icon': "https://mt.google.com/vt/icon/text=" + markerRefs.getLength() + "&psize=16&font=fonts/arialuni_t.ttf&color=ff330000&name=icons/spotlight/spotlight-waypoint-b.png&ax=44&ay=48&scale=1"
-  }, function(marker) {
-    self.set("marker", marker);
-
-    self.one("resolution_changed", marker.remove.bind(marker));
-  });
-
-  map.addPolygon({
-    'points': [
-      this.bounds.northeast,
-      {lat: this.bounds.northeast.lat, lng: this.bounds.southwest.lng},
-      this.bounds.southwest,
-      {lat: this.bounds.southwest.lat, lng: this.bounds.northeast.lng}
-    ],
-    'strokeColor' : 'blue',
-    'strokeWidth': 2,
-    'fillColor': 'transparent',
-    'noCache': true
-  }, function(polygon) {
-    self.set("polygon", polygon);
-    self.one("resolution_changed", polygon.remove.bind(polygon));
-  });
-*/
-
 };
 
 utils.extend(Cluster, BaseClass);
+
+Cluster.prototype.NO_CLUSTER_MODE = 1;
+Cluster.prototype.CLUSTER_MODE = 2;
 
 Cluster.prototype.getPluginName = function() {
   return this.map.getId() + "-Cluster";
@@ -95,20 +63,18 @@ Cluster.prototype.addMarkers = function(markerRefs) {
     }
   });
 };
-/*
-Cluster.prototype.getMap = function() {
-  return this.map;
+Cluster.prototype.setMode = function(mode) {
+  this.set("mode", mode);
 };
-*/
+Cluster.prototype.getMode = function() {
+  return this.get("mode");
+};
+
 Cluster.prototype.remove = function() {
   this.set("isRemoved", true);
   this._markerRefs.forEach(function(markerRef) {
     markerRef.set("isAdded", false);
   });
-/*
-  this.get("marker").remove();
-  this.get("polygon").remove();
-*/
   this.off();
 
 };

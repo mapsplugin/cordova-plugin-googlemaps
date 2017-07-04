@@ -24,7 +24,7 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     writable: false
   });
   Object.defineProperty(self, "_markers", {
-    value: new BaseArrayClass(),
+    value: markerClusterOptions.markers,
     writable: false
   });
   Object.defineProperty(self, "map", {
@@ -40,7 +40,6 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
       writable: false
   });
 
-
   var icons = markerClusterOptions.icons;
   for (var i = 0; i < icons.length; i++) {
     if (icons[i] && icons[i].label &&
@@ -53,23 +52,6 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
       value: icons,
       writable: false
   });
-
-  var visibleRegion = map.getVisibleRegion();
-  if (visibleRegion) {
-    self.set("prevBounds", visibleRegion.latLngBounds);
-  }
-
-  //---------------------------------
-  // Creates marker refereces
-  //---------------------------------
-  markerClusterOptions.markers.forEach(function(markerOpts, idx) {
-    var markerRef = new BaseClass();
-    markerRef.set("isAdded", false);
-    markerRef.set("id", markerRef.id || "marker-" + idx);
-    markerRef.set("position", new LatLng(markerOpts.position.lat, markerOpts.position.lng));
-    self._markers.push(markerRef);
-  });
-
 
   map.on(event.CAMERA_MOVE_END, self.onCameraMoveEnd.bind(self));
 
@@ -123,75 +105,88 @@ MarkerCluster.prototype.redraw = function() {
   var label = document.getElementById("label");
   label.innerHTML = "<b>zoom = " + self.get("zoom") + ", resolution = " + resolution + "</b>";
 
+
+  //----------------------------------------------------------------
+  // Calculates geocells of the current viewport
+  //----------------------------------------------------------------
+  var visibleRegion = map.getVisibleRegion();
+  var swCell = geomodel.getGeocell(visibleRegion.southwest.lat, visibleRegion.southwest.lng, resolution);
+  var neCell = geomodel.getGeocell(visibleRegion.northeast.lat, visibleRegion.northeast.lng, resolution);
+  var swCellBounds = geomodel.computeBox(swCell),
+    neCellBounds = geomodel.computeBox(neCell);
+  var extendedBounds = new LatLngBounds(
+    swCellBounds.southwest,
+    neCellBounds.northeast
+  );
+
   //----------------------------------------------------------------
   // Remove the clusters that is in outside of the visible region
   //----------------------------------------------------------------
-  var removeIdxes = [],
-    visibleRegion = map.getVisibleRegion(),
-    extendedBounds = visibleRegion.latLngBounds;
-
   self._clusters[resolution] = self._clusters[resolution] || {};
   var deleteClusters = [];
   var cellLen = resolution + 1;
   var keys;
   if (resolution === prevResolution) {
+
     keys = Object.keys(self._clusters[resolution]);
     keys.forEach(function(geocell) {
-      var bounds = self._clusters[resolution][geocell].getBounds();
+      var cluster = self._clusters[resolution][geocell];
+      var bounds = cluster.getBounds();
+
       if (!extendedBounds.contains(bounds.northeast) &&
         !extendedBounds.contains(bounds.southwest)) {
-          self._clusters[resolution][geocell].remove();
-          deleteClusters.push(geocell);
+
+          if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
+            cluster._markerRefs.forEach(function(mRef, idx) {
+              deleteClusters.push(geocell + "-" + idx);
+            });
+          } else {
+            deleteClusters.push(geocell);
+          }
+          cluster.remove();
           delete self._clusters[resolution][geocell];
       }
     });
+
   } else if (prevResolution in self._clusters) {
     keys = Object.keys(self._clusters[prevResolution]);
     keys.forEach(function(geocell) {
-        self._clusters[prevResolution][geocell].remove();
+        cluster = self._clusters[prevResolution][geocell];
+        if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
+          cluster._markerRefs.forEach(function(mRef, idx) {
+            deleteClusters.push(geocell + "-" + idx);
+          });
+        } else {
+          deleteClusters.push(geocell);
+        }
+        cluster.remove();
     });
-    deleteClusters = keys;
     delete self._clusters[prevResolution];
   }
 
   //--------------------------------
-  // Calculate the extended bounds
+  // Pick up markers are containted in the current viewport.
   //--------------------------------
-  var prevBounds = self.get("prevBounds");
+  var prevSWcell = self.get("prevSWcell");
+  var prevNEcell = self.get("prevNEcell");
   var clusters = [];
 
-  if (!prevResolution ||
-    resolution !== prevResolution ||
-    !prevBounds.contains(visibleRegion.nearLeft) ||
-    !prevBounds.contains(visibleRegion.nearRight) ||
-    !prevBounds.contains(visibleRegion.farLeft) ||
-    !prevBounds.contains(visibleRegion.farRight)) {
+  if (resolution !== prevResolution ||
+    prevSWcell !== swCell ||
+    prevNEcell !== neCell) {
 
+    self.set("prevSWcell", swCell);
+    self.set("prevNEcell", neCell);
 
-    self.set("prevBounds", extendedBounds);
-
-    var cacheKey = "geocell_" + resolution;
     var prepareClusters = {};
     self._markers.forEach(function(markerRef) {
-
-      // If the marker is in cluster, skip it.
       if (markerRef.get("isAdded")) {
         return;
       }
-
-      // If the marker is in outside of the visible region, skip it.
-      var position = markerRef.get("position");
-      if (!extendedBounds.contains(position)) {
-        markerRef.set("isAdded", false);
+      if (!extendedBounds.contains(markerRef.get("position"))) {
         return;
       }
-
-      // Calcute geocell
-      var geocell = markerRef.get(cacheKey);
-      if (!geocell) {
-        geocell = geomodel.getGeocell(position.lat, position.lng, resolution);
-        markerRef.set(cacheKey, geocell);
-      }
+      var geocell = markerRef.get("geocell").substr(0, resolution + 1);
       prepareClusters[geocell] = prepareClusters[geocell] || [];
       prepareClusters[geocell].push(markerRef);
     });
@@ -205,7 +200,7 @@ MarkerCluster.prototype.redraw = function() {
       if (cluster) {
         cluster.addMarkers.bind(cluster, prepareClusters[geocell]);
       } else {
-        cluster = new Cluster(geocell, prepareClusters[geocell], resolution);
+        cluster = new Cluster(geocell, prepareClusters[geocell]);
         self._clusters[resolution][geocell] = cluster;
       }
       var hit,
@@ -236,10 +231,39 @@ MarkerCluster.prototype.redraw = function() {
           break;
         }
       }
-      if (!hit) {
-        clusterOpts.icon = "https://mt.google.com/vt/icon/text=" + clusterCnt + "&psize=16&font=fonts/arialuni_t.ttf&color=ff330000&name=icons/spotlight/spotlight-waypoint-b.png&ax=44&ay=48&scale=1";
+      if (hit) {
+        if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
+          cluster._markerRefs.forEach(function(mRef, idx) {
+            deleteClusters.push(geocell + "-" + idx);
+          });
+        }
+        cluster.setMode(cluster.CLUSTER_MODE);
+        var nextLevels = {};
+        var max = 0, maxGeocell;
+        cluster._markerRefs.forEach(function(mRef) {
+          var geocell = mRef.get("geocell").substr(0, resolution + 2);
+          nextLevels[geocell] = nextLevels[geocell] || 0;
+          nextLevels[geocell]++;
+          if (nextLevels[geocell] > max) {
+            max = nextLevels[geocell];
+            maxGeocell = geocell;
+          }
+        });
+        var bounds = geomodel.computeBox(maxGeocell);
+        clusterOpts.position = bounds.getCenter();
+        clusters.push(clusterOpts);
+        return;
       }
-      clusters.push(clusterOpts);
+      cluster._markerRefs.forEach(function(mRef, idx) {
+        var markerOpts = {
+          "count": 1,
+          "position": mRef.get("position"),
+          "icon": mRef.get("icon"),
+          "geocell": clusterOpts.geocell + "-" + idx
+        };
+        clusters.push(markerOpts);
+      });
+      cluster.setMode(cluster.NO_CLUSTER_MODE);
     });
   }
 
@@ -248,6 +272,7 @@ MarkerCluster.prototype.redraw = function() {
     "new_or_update": clusters,
     "delete": deleteClusters
   }]);
+
 
 };
 
