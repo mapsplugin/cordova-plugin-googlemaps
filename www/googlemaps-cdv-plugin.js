@@ -86,6 +86,9 @@ var saltHash = Math.floor(Math.random() * Date.now());
 */
   var isChecking = false;
   var cacheDepth = {};
+  var navDecorBlocker = document.createElement("style");
+  navDecorBlocker.innerText = "._gmaps_cdv_ .nav-decor {background-color: rgba(0,0,0,0) !important; display:none !important}";
+  document.head.appendChild(navDecorBlocker);
 
   function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
@@ -280,7 +283,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
 }());
 
-
 /*****************************************************************************
  * Private functions
  *****************************************************************************/
@@ -313,12 +315,6 @@ module.exports = {
     BaseArrayClass: BaseArrayClass,
     Map: {
         getMap: function(div) {
-            var navDecor = document.getElementsByClassName("nav-decor");
-            if (navDecor && navDecor.length > 0) {
-              for (var i = 0; i < navDecor.length; i++) {
-                navDecor[i].style.display = "none !important";
-              }
-            }
             var mapId;
             if (common.isDom(div)) {
               mapId = div.getAttribute("__pluginMapId");
