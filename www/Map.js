@@ -66,6 +66,7 @@ Map.prototype.getMap = function(mapId, div, options) {
 
     if (!common.isDom(div)) {
         self.set("visible", false);
+        options = div;
         options = options || {};
         if (options.camera) {
           if (options.camera.latLng) {
