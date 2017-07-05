@@ -1,6 +1,6 @@
 //
 //  DummyView.m
-//  DevApp
+//  cordova-googlemaps-plugin v2
 //
 //  Created by masashi.
 //
@@ -74,6 +74,28 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
   if (self.pluginScrollView.debugView.debuggable) {
       [self.pluginScrollView.debugView setNeedsDisplay];
   }
+}
+- (void)clearHTMLElements {
+    @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+      NSMutableDictionary *domInfo;
+      NSString *domId;
+      NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
+      NSArray *keys2;
+      int i, j;
+      for (i = 0; i < [keys count]; i++) {
+        domId = [keys objectAtIndex:i];
+        domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+        if (domInfo) {
+            keys2 = [domInfo allKeys];
+            for (j = 0; j < [keys2 count]; j++) {
+                [domInfo removeObjectForKey:[keys2 objectAtIndex:j]];
+            }
+            domInfo = nil;
+        }
+        [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
+      }
+    }
+
 }
 
 - (void)putHTMLElements:(NSDictionary *)elementsDic {

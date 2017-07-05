@@ -82,10 +82,10 @@
   self.pluginLayer.backgroundColor = [UIColor whiteColor];
 
   dispatch_async(dispatch_get_main_queue(), ^{
-    
+
       // Remove all url caches
       [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    
+
       // Remove old plugins that are used in the previous html.
       NSString *mapId;
       NSArray *keys=[self.pluginMaps allKeys];
@@ -100,14 +100,14 @@
         self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
       }
       [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
-    
+
   });
 
 }
 -(void)pageDidLoad {
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
-  
+
 }
 
 - (void)_destroyMap:(NSString *)mapId {
@@ -122,7 +122,7 @@
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
     [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-  
+
     [self.pluginLayer removeMapView:pluginMap.mapCtrl];
 
     pluginMap.mapCtrl.view = nil;
@@ -140,7 +140,7 @@
 - (void)removeMap:(CDVInvokedUrlCommand *)command {
     NSString *mapId = [command.arguments objectAtIndex:0];
     [self _destroyMap:mapId];
-  
+
     if (command != nil) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -284,7 +284,7 @@
 
         //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
         [self.locationManager requestWhenInUseAuthorization];
-        
+
         [self.locationManager stopUpdatingLocation];
         [self.locationManager startUpdatingLocation];
         [self.locationCommandQueue addObject:command];
@@ -341,10 +341,15 @@
     }
 
 }
+- (void)clearHtmlElements:(CDVInvokedUrlCommand *)command {
+    [self.executeQueue addOperationWithBlock:^{
+        [self.pluginLayer clearHTMLElements];
+    }];
+}
 
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
-    
+
         NSDictionary *elements = [command.arguments objectAtIndex:0];
 
         [self.pluginLayer putHTMLElements:elements];

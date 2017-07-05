@@ -1,6 +1,6 @@
 //
 //  MyPluginLayer.h
-//  DevApp
+//  cordova-googlemaps-plugin v2
 //
 //  Created by masashi.
 //
@@ -18,6 +18,7 @@
 
 - (id)initWithWebView:(UIView *)webView;
 - (void)resizeTask:(NSTimer *)timer;
+- (void)clearHTMLElements;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl;
 - (void)removeMapView:(GoogleMapsViewController *)mapCtrl;

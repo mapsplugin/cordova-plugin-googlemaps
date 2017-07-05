@@ -90,9 +90,41 @@ var saltHash = Math.floor(Math.random() * Date.now());
   function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
       if (isChecking || mapIDs.length === 0) {
+        cordova.exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
       isChecking = true;
+
+      //-------------------------------------------
+      // If there is no visible map, stop checking
+      //-------------------------------------------
+      var visibleMapDivList, i, mapId, map;
+      if (window.document.querySelectorAll) {
+        // Android 4.4 and above
+        visibleMapList = mapIDs.filter(function(mapId) {
+          var map = MAPS[mapId];
+          return (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv()));
+        });
+      } else {
+        // for older versions than Android 4.4
+        visibleMapList = [];
+        for (i = 0; i < mapIDs.length; i++) {
+          mapId = mapIDs[i];
+          map = MAPS[mapId];
+          if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
+            visibleMapList.push(mapId);
+          }
+        }
+      }
+      if (visibleMapList.length === 0) {
+        isChecking = false;
+        cordova.exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
+        return;
+      }
+
+      //-------------------------------------------
+      // Should the plugin update the map positions?
+      //-------------------------------------------
       //baseRect = common.getDivRect(baseDom);
       var children = common.getAllChildren(document.body);
       var bodyRect = common.getDivRect(document.body);
@@ -104,7 +136,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
       }
 
       var domPositions = {};
-      var size, elemId, i, child, parentNode;
+      var size, elemId, child, parentNode;
       var shouldUpdate = false;
 
       children.unshift(document.body);
@@ -115,10 +147,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
       for (i = 0; i < children.length; i++) {
           child = children[i];
           elemId = child.getAttribute("__pluginDomId");
-          if (!elemId) {
-              elemId = "pgm" + Math.floor(Math.random() * Date.now());
-              child.setAttribute("__pluginDomId", elemId);
-          }
           //domPositions[elemId] = common.getDomInfo(child);
           var depth = cacheDepth[elemId];
           var zIndex = common.getZIndex(child);
@@ -287,7 +315,9 @@ module.exports = {
         getMap: function(div) {
             var navDecor = document.getElementsByClassName("nav-decor");
             if (navDecor && navDecor.length > 0) {
-              navDecor[0].style.backgroundColor = "rgba(0,0,0,0)";
+              for (var i = 0; i < navDecor.length; i++) {
+                navDecor[i].style.display = "none !important";
+              }
             }
             var mapId;
             if (common.isDom(div)) {

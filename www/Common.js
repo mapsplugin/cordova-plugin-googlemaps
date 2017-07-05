@@ -233,7 +233,7 @@ function getAllChildren(root) {
       list = allClickableElements.filter(function(node) {
         var tagName = node.tagName.toLowerCase();
         if (node !== root &&
-          _shouldWatchByNative(node) &&
+          shouldWatchByNative(node) &&
           ignoreTags.indexOf(tagName) == -1) {
 
           var classNames = (node.className || "").split(" ");
@@ -254,7 +254,7 @@ function getAllChildren(root) {
       for (i = 0; i < clickableElements.length; i++) {
         node = clickableElements[i];
         tagName = node.tagName.toLowerCase();
-        if (_shouldWatchByNative(node) &&
+        if (shouldWatchByNative(node) &&
           ignoreTags.indexOf(tagName) == -1) {
           classNames = (node.className || "").split(" ");
           hit = false;
@@ -274,8 +274,8 @@ function getAllChildren(root) {
     return list;
 }
 
-function _shouldWatchByNative(node) {
-  if (node.nodeType !== Node.ELEMENT_NODE) {
+function shouldWatchByNative(node) {
+  if (node.nodeType !== Node.ELEMENT_NODE || !node.offsetParent) {
     return;
   }
   var visibilityCSS = getStyle(node, 'visibility');
@@ -294,11 +294,17 @@ function _shouldWatchByNative(node) {
 
 // Get z-index order
 // http://stackoverflow.com/a/24136505
+var internalCache = {};
 function getZIndex(dom) {
+    if (dom === document.body) {
+      internalCache = undefined;
+      internalCache = {};
+    }
     var z = null;
     if (!dom) {
       return 0;
     }
+
     if (window.getComputedStyle) {
       try {
         z = parseInt(document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index'), 10);
@@ -313,7 +319,29 @@ function getZIndex(dom) {
     if (isNaN(z)) {
         z = 0;
     }
-    z += getZIndex(dom.parentNode);
+    var parentNode = dom.parentNode;
+    if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
+      var parentElemId = parentNode.getAttribute("__pluginDomId");
+      if (!parentElemId) {
+          parentElemId = "pgm" + Math.floor(Math.random() * Date.now());
+          dom.setAttribute("__pluginDomId", parentElemId);
+      }
+      if (parentElemId in internalCache) {
+        z += internalCache[parentElemId];
+      } else {
+        var parentZIndex = getZIndex(dom.parentNode);
+        internalCache[parentElemId] = parentZIndex;
+        z += parentZIndex;
+      }
+    }
+
+    var elemId = dom.getAttribute("__pluginDomId");
+    if (!elemId) {
+        elemId = "pgm" + Math.floor(Math.random() * Date.now());
+        dom.setAttribute("__pluginDomId", elemId);
+    }
+    internalCache[elemId] = z;
+
     return z;
 }
 
@@ -574,5 +602,6 @@ module.exports = {
     createMvcArray: createMvcArray,
     getStyle: getStyle,
     convertToPositionArray: convertToPositionArray,
-    getLatLng: getLatLng
+    getLatLng: getLatLng,
+    shouldWatchByNative: shouldWatchByNative
 };
