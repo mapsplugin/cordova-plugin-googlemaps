@@ -226,6 +226,19 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
 
 
+  public void clearHtmlElements()  {
+    Bundle bundle;
+    RectF rectF;
+    String[] keys = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
+    for (int i = 0; i < HTMLNodes.size(); i++) {
+      bundle = HTMLNodes.remove(keys[i]);
+      bundle = null;
+      rectF = HTMLNodeRectFs.remove(keys[i]);
+      rectF = null;
+    }
+    keys = null;
+  }
+
   public void putHTMLElements(JSONObject elements)  {
 
 
@@ -501,7 +514,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         // Is the clicked point is in the map rectangle?
         //------------------------------------------------
         drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
-        if (!drawRect.contains(clickPoint.x, clickPoint.y)) {
+        if (drawRect == null || !drawRect.contains(clickPoint.x, clickPoint.y)) {
           continue;
         }
         isMapAction = true;

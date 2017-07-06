@@ -259,6 +259,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         try {
           if (action.equals("putHtmlElements")) {
             CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
+          } else if ("clearHtmlElements".equals(action)) {
+            CordovaGoogleMaps.this.clearHtmlElements(args, callbackContext);
           } else if ("getMyLocation".equals(action)) {
             CordovaGoogleMaps.this.getMyLocation(args, callbackContext);
           } else if ("getMap".equals(action)) {
@@ -304,6 +306,10 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     CordovaGoogleMaps.this.getMyLocation(_saveArgs, _saveCallbackContext);
   }
 
+  public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    mPluginLayout.clearHtmlElements();
+    callbackContext.success();
+  }
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
       final JSONObject elements = args.getJSONObject(0);

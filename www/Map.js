@@ -66,6 +66,7 @@ Map.prototype.getMap = function(mapId, div, options) {
         args = [mapId];
 
     if (!common.isDom(div)) {
+        self.set("visible", false);
         options = div;
         options = options || {};
         if (options.camera) {
@@ -91,6 +92,7 @@ Map.prototype.getMap = function(mapId, div, options) {
     } else {
 
         var currentDiv = self.get("div");
+        self.set("visible", true);
         options = options || {};
         if (options.camera) {
           if (options.camera.latLng) {
@@ -442,9 +444,13 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
 Map.prototype.getFocusedBuilding = function(callback) {
     exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
 };
+Map.prototype.getVisible = function() {
+    return this.get("visible");
+};
 Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
+    self.set("visible", isVisible);
     exec(null, self.errorHandler, this.id, 'setVisible', [isVisible]);
     return this;
 };
