@@ -87,12 +87,22 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var isChecking = false;
   var cacheDepth = {};
   var navDecorBlocker = document.createElement("style");
-  navDecorBlocker.innerText = "._gmaps_cdv_ .nav-decor {background-color: rgba(0,0,0,0) !important; display:none !important}";
+  navDecorBlocker.setAttribute("type", "text/css");
+  navDecorBlocker.innerText = [
+    "._gmaps_cdv_ .nav-decor {",
+    "   background-color: rgba(0,0,0,0) !important;",
+    "   background: rgba(0,0,0,0) !important;",
+    "   display:none !important;",
+    "}"
+  ].join("");
   document.head.appendChild(navDecorBlocker);
 
   function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
-      if (isChecking || mapIDs.length === 0) {
+      if (isChecking) {
+        return;
+      }
+      if (mapIDs.length === 0) {
         cordova.exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
