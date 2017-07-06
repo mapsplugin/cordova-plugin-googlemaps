@@ -3,6 +3,7 @@ var argscheck = require('cordova/argscheck'),
     exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
+    BaseArrayClass = require('./BaseArrayClass'),
     LatLng = require('./LatLng'),
     LatLngBounds = require('./LatLngBounds'),
     MapTypeId = require('./MapTypeId'),
@@ -160,11 +161,10 @@ Map.prototype.getMap = function(mapId, div, options) {
     cordova.fireDocumentEvent('plugin_touch', {});
 
     exec(function() {
-      // Prevent too much faster
-      setTimeout(function() {
-          self.refreshLayout();
-          self.trigger(event.MAP_READY, self);
-      }, 100);
+      self.one(event.MAP_LOADED, function() {
+        self.refreshLayout();
+        self.trigger(event.MAP_READY, self);
+      });
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
 };
 
@@ -602,13 +602,12 @@ Map.prototype.getVisibleRegion = function(callback) {
      callback.call(self, latLngBounds);
    }
 
-   return {
-     "latLngBounds" : latLngBounds,
-     "nearLeft": new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng),
-     "nearRight": new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng),
-     "farLeft": new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng),
-     "farRight": new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng)
-   }
+  latLngBounds.nearLeft = new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng);
+  latLngBounds.nearRight = new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng);
+  latLngBounds.farLeft = new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng);
+  latLngBounds.farRight = new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng);
+
+  return latLngBounds;
 };
 
 /**
@@ -979,12 +978,42 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     markerClusterOptions = null;
   }
   markerClusterOptions = markerClusterOptions || {};
+  var markerMap = new BaseClass();
+  markerClusterOptions.markers.forEach(function(markerOpts, idx) {
+
+    var markerRef = new BaseClass();
+    markerRef.set("isAdded", false);
+    markerRef.set("position", new LatLng(markerOpts.position.lat, markerOpts.position.lng));
+    markerRef.set("icon", markerOpts.icon);
+    markerRef.set("options", markerOpts);
+
+    markerMap.set("marker_" + idx, markerRef);
+  });
+  var positionList = markerClusterOptions.markers.map(function(marker) {
+    return marker.position;
+  });
 
   exec(function(result) {
-    markerClusterOptions.hashCode = result.hashCode;
-    self.OVERLAYS[result.id] = new MarkerCluster(self, result.id, markerClusterOptions);
+    var markers = new BaseArrayClass();
+    result.geocellList.forEach(function(geocell, idx) {
+      var markerOpts = markerClusterOptions.markers[idx];
+      var markerRef = new BaseClass();
+      markerRef.set("geocell", geocell);
+      markerRef.set("icon", markerOpts.icon);
+      markerRef.set("position", markerOpts.position);
+      markerRef.set("options", markerOpts);
+      markers.push(markerRef);
+    });
 
-  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster']);
+    self.OVERLAYS[result.id] = new MarkerCluster(self, result.id, {
+      "hashCode": result.hashCode,
+      "icons": markerClusterOptions.icons,
+      "markers": markers
+    });
+
+  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', {
+    "positionList": positionList
+  }]);
 
 };
 
