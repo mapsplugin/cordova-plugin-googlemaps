@@ -42,7 +42,22 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
 
   var icons = markerClusterOptions.icons;
   for (var i = 0; i < icons.length; i++) {
-    if (icons[i] && icons[i].label &&
+    if (!icons[i]) {
+      continue;
+    }
+    if (icons[i].anchor &&
+      typeof icons[i].anchor === "object" &&
+      "x" in icons[i].anchor &&
+      "y" in icons[i].anchor) {
+      icons[i].anchor = [icons[i].anchor.x, icons[i].anchor.y];
+    }
+    if (icons[i].infoWindowAnchor &&
+      typeof icons[i].infoWindowAnchor === "object" &&
+      "x" in icons[i].infoWindowAnchor &&
+      "y" in icons[i].infoWindowAnchor) {
+      icons[i].infoWindowAnchor = [icons[i].infoWindowAnchor.x, icons[i].infoWindowAnchor.anchor.y];
+    }
+    if (icons[i].label &&
       common.isHTMLColorString(icons[i].label.color)) {
         icons[i].label.color = common.HTMLColor2RGBA(icons[i].label.color);
     }
@@ -238,6 +253,7 @@ MarkerCluster.prototype.redraw = function() {
           });
         }
         cluster.setMode(cluster.CLUSTER_MODE);
+        /*
         var nextLevels = {};
         var max = 0, maxGeocell;
         cluster._markerRefs.forEach(function(mRef) {
@@ -251,6 +267,7 @@ MarkerCluster.prototype.redraw = function() {
         });
         var bounds = geomodel.computeBox(maxGeocell);
         clusterOpts.position = bounds.getCenter();
+        */
         clusters.push(clusterOpts);
         return;
       }

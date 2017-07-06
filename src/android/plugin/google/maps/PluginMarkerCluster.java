@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 public class PluginMarkerCluster extends PluginMarker {
 
   private final static ConcurrentHashMap<String, STATUS> pluginMarkers = new ConcurrentHashMap<String, STATUS>();
-  private final static ConcurrentHashMap<String, Integer> resolutions = new ConcurrentHashMap<String, Integer>();
+  private final static ConcurrentHashMap<String, MarkerClusterOptions> markerClusterOptions = new ConcurrentHashMap<String, MarkerClusterOptions>();
   private final static ConcurrentHashMap<String, Integer> waitCntManager = new ConcurrentHashMap<String, Integer>();
 
   final Object dummyObj = new Object();
@@ -69,8 +69,8 @@ public class PluginMarkerCluster extends PluginMarker {
   @SuppressWarnings("unused")
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    JSONObject markerClusterOptions = args.getJSONObject(1);
-    JSONArray positionList = markerClusterOptions.getJSONArray("positionList");
+    JSONObject params = args.getJSONObject(1);
+    JSONArray positionList = params.getJSONArray("positionList");
     JSONArray geocellList = new JSONArray();
     JSONObject position;
 
@@ -80,6 +80,10 @@ public class PluginMarkerCluster extends PluginMarker {
     }
 
     String id = "markercluster_" + callbackContext.hashCode();
+    MarkerClusterOptions clusterOptions = new MarkerClusterOptions();
+    clusterOptions.debug = params.getBoolean("debug");
+    markerClusterOptions.put(id, clusterOptions);
+
     final JSONObject result = new JSONObject();
     try {
       result.put("geocellList", geocellList);
@@ -104,10 +108,6 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (dummyObj) {
       JSONObject params = args.getJSONObject(1);
       String geocell, clusterId_geocell, deleteGeocell;
-
-      int resolution = params.getInt("resolution");
-      resolutions.put(clusterId, resolution);
-
 
       JSONArray deleteClusters = params.getJSONArray("delete");
       JSONArray new_or_update = params.getJSONArray("new_or_update");
@@ -160,10 +160,12 @@ public class PluginMarkerCluster extends PluginMarker {
 
         if (clusterData.has("icon")) {
           Object iconObj = clusterData.get("icon");
+
           if (iconObj instanceof String) {
             Bundle iconProperties = new Bundle();
             iconProperties.putString("url", (String) iconObj);
             properites.putBundle("icon", iconProperties);
+
           } else if (iconObj instanceof JSONObject) {
             JSONObject icon = clusterData.getJSONObject("icon");
             Bundle iconProperties = PluginUtil.Json2Bundle(icon);
@@ -174,6 +176,48 @@ public class PluginMarkerCluster extends PluginMarker {
                 label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
               }
               iconProperties.putBundle("label", PluginUtil.Json2Bundle(label));
+            } else {
+              Bundle label = new Bundle();
+              label.putInt("fontSize", 20);
+              label.putBoolean("bold", true);
+              label.putString("text", clusterData.getInt("count") + "");
+              iconProperties.putBundle("label", label);
+            }
+            if (icon.has("anchor")) {
+              double[] anchor = new double[2];
+              if (icon.get("anchor") instanceof String) {
+                JSONArray points = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                  points = new JSONArray(icon.getString("anchor"));
+                  anchor[0] = points.getDouble(0);
+                  anchor[1] = points.getDouble(1);
+                }
+              } else if (icon.get("anchor") instanceof JSONObject) {
+                anchor[0] = icon.getJSONObject("anchor").getDouble("x");
+                anchor[1] = icon.getJSONObject("anchor").getDouble("y");
+              } else if (icon.get("anchor") instanceof JSONArray) {
+                anchor[0] = icon.getJSONArray("anchor").getDouble(0);
+                anchor[1] = icon.getJSONArray("anchor").getDouble(1);
+              }
+              iconProperties.putDoubleArray("anchor", anchor);
+            }
+            if (icon.has("infoWindowAnchor")) {
+              double[] anchor = new double[2];
+              if (icon.get("infoWindowAnchor") instanceof String) {
+                JSONArray points = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                  points = new JSONArray(icon.getString("infoWindowAnchor"));
+                  anchor[0] = points.getDouble(0);
+                  anchor[1] = points.getDouble(1);
+                }
+              } else if (icon.get("infoWindowAnchor") instanceof JSONObject) {
+                anchor[0] = icon.getJSONObject("infoWindowAnchor").getDouble("x");
+                anchor[1] = icon.getJSONObject("infoWindowAnchor").getDouble("y");
+              } else if (icon.get("infoWindowAnchor") instanceof JSONArray) {
+                anchor[0] = icon.getJSONArray("infoWindowAnchor").getDouble(0);
+                anchor[1] = icon.getJSONArray("infoWindowAnchor").getDouble(1);
+              }
+              iconProperties.putDoubleArray("infoWindowAnchor", anchor);
             }
             properites.putBundle("icon", iconProperties);
           }
@@ -213,36 +257,35 @@ public class PluginMarkerCluster extends PluginMarker {
               .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")))
               .title(oldGeocell));
           marker.setTag("markercluster");
-
-          bounds = computeBox(oldGeocell);
-          polygon = map.addPolygon(new PolygonOptions()
-                  .add(bounds.northeast)
-                  .add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude))
-                  .add(bounds.southwest)
-                  .add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude))
-                  .visible(true)
-                  .strokeColor(Color.BLUE)
-                  .strokeWidth(2 * density));
-          polygon.setTag("polygon");
-
           synchronized (self.objects) {
             self.objects.put(oldGeocell, marker);
-            self.objects.put("polygon" + oldGeocell, polygon);
             pluginMarkers.put(oldGeocell, STATUS.WORKING);
           }
+
+          if (markerClusterOptions.get(clusterId).debug) {
+            bounds = computeBox(oldGeocell);
+            polygon = map.addPolygon(new PolygonOptions()
+                .add(bounds.northeast)
+                .add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude))
+                .add(bounds.southwest)
+                .add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude))
+                .visible(true)
+                .strokeColor(Color.BLUE)
+                .strokeWidth(2 * density));
+            polygon.setTag("polygon");
+            self.objects.put("polygon" + oldGeocell, polygon);
+          }
+
         } else {
-          //synchronized (pluginMarkers) {
-            if (STATUS.DELETED.equals(pluginMarkers.get(oldGeocell))) {
-              continue;
-            }
-          //}
+          if (STATUS.DELETED.equals(pluginMarkers.get(oldGeocell))) {
+            continue;
+          }
           marker = null;
           polygon = null;
           while (marker == null) {
-            //synchronized (self.objects) {
-              marker = self.getMarker(oldGeocell);
-              polygon = self.getPolygon("polygon" + oldGeocell);
-            //}
+            marker = self.getMarker(oldGeocell);
+            polygon = self.getPolygon("polygon" + oldGeocell);
+
             if (marker == null || marker.getTag() == null) {
               if (deleteClusterIDs.size() > 0) {
                 oldGeocell = deleteClusterIDs.remove(0);
@@ -255,40 +298,42 @@ public class PluginMarkerCluster extends PluginMarker {
           }
           synchronized (marker) {
             markerProperties = changeProperties.get(newGeocell);
-            //synchronized (pluginMarkers) {
-              if (STATUS.DELETED.equals(pluginMarkers.get(newGeocell))) {
-                continue;
-              }
-            //}
+            if (STATUS.DELETED.equals(pluginMarkers.get(newGeocell))) {
+              continue;
+            }
             marker.setPosition(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")));
             marker.setTitle(newGeocell);
             markerGeocell = newGeocell;
-            bounds = computeBox(newGeocell);
-            ArrayList<LatLng> points = new ArrayList<LatLng>();
-            if (polygon == null) {
+            if (markerClusterOptions.get(clusterId).debug) {
+              bounds = computeBox(newGeocell);
+              ArrayList<LatLng> points = new ArrayList<LatLng>();
+              if (polygon == null) {
 
-              polygon = map.addPolygon(new PolygonOptions()
-                      .add(bounds.northeast)
-                      .add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude))
-                      .add(bounds.southwest)
-                      .add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude))
-                      .visible(true)
-                      .strokeColor(Color.BLUE)
-                      .strokeWidth(2 * density));
-              polygon.setTag("polygon");
-            } else {
-              points.add(bounds.northeast);
-              points.add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude));
-              points.add(bounds.southwest);
-              points.add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude));
-              polygon.setPoints(points);
+                polygon = map.addPolygon(new PolygonOptions()
+                    .add(bounds.northeast)
+                    .add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude))
+                    .add(bounds.southwest)
+                    .add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude))
+                    .visible(true)
+                    .strokeColor(Color.BLUE)
+                    .strokeWidth(2 * density));
+                polygon.setTag("polygon");
+              } else {
+                points.add(bounds.northeast);
+                points.add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude));
+                points.add(bounds.southwest);
+                points.add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude));
+                polygon.setPoints(points);
+              }
             }
 
             if (oldGeocell.hashCode() != newGeocell.hashCode()) {
               //Log.d(TAG, "reuse : " + oldGeocell + " -> " + newGeocell);
               synchronized (self.objects) {
                 self.objects.put(newGeocell, marker);
-                self.objects.put("polygon" + newGeocell, polygon);
+                if (polygon != null) {
+                  self.objects.put("polygon" + newGeocell, polygon);
+                }
                 pluginMarkers.put(newGeocell, STATUS.CREATED);
                 self.objects.remove(oldGeocell);
                 self.objects.remove("polygon" + oldGeocell);
@@ -298,7 +343,9 @@ public class PluginMarkerCluster extends PluginMarker {
               //Log.d(TAG, "update : " + newGeocell);
               synchronized (self.objects) {
                 self.objects.put(newGeocell, marker);
-                self.objects.put("polygon" + newGeocell, polygon);
+                if (polygon != null) {
+                  self.objects.put("polygon" + newGeocell, polygon);
+                }
               }
             }
           }
@@ -306,7 +353,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
         Bundle icon = markerProperties.getBundle("icon");
         if (icon != null) {
-          setIconToClusterMarker(markerGeocell, marker, icon, new PluginAsyncInterface() {
+          setIconToClusterMarker(clusterId, markerGeocell, marker, icon, new PluginAsyncInterface() {
             @Override
             public void onPostExecute(Object object) {
 
@@ -374,7 +421,7 @@ public class PluginMarkerCluster extends PluginMarker {
         synchronized (pluginMarkers) {
           if (!STATUS.WORKING.equals(pluginMarkers.get(oldGeocell))) {
             _removeMarker(marker);
-            if (polygon != null) {
+            if (polygon != null && polygon.getTag() != null) {
               polygon.setTag(null);
               polygon.remove();
             }
@@ -399,11 +446,16 @@ public class PluginMarkerCluster extends PluginMarker {
 
   }
 
-  private void setIconToClusterMarker(final String geocell, final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
+  private void setIconToClusterMarker(final String clusterId, final String geocell, final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
     //synchronized (pluginMarkers) {
       if (STATUS.DELETED.equals(pluginMarkers.get(geocell))) {
         PluginMarkerCluster.this._removeMarker(marker);
         pluginMarkers.remove(geocell);
+        Polygon polygon = self.getPolygon("polygon" + geocell);
+        if (polygon != null && polygon.getTag() != null) {
+          polygon.setTag(null);
+          polygon.remove();
+        }
         callback.onError("marker has been removed");
         return;
       }
@@ -417,6 +469,11 @@ public class PluginMarkerCluster extends PluginMarker {
           if (STATUS.DELETED.equals(pluginMarkers.get(geocell))) {
             PluginMarkerCluster.this._removeMarker(marker);
             pluginMarkers.remove(geocell);
+            Polygon polygon = self.getPolygon("polygon" + geocell);
+            if (polygon != null && polygon.getTag() != null) {
+              polygon.setTag(null);
+              polygon.remove();
+            }
             callback.onPostExecute(null);
             return;
           }
@@ -430,7 +487,7 @@ public class PluginMarkerCluster extends PluginMarker {
       public void onError(String errorMsg) {
         try {
           synchronized (marker) {
-            if (marker.getTag() == null) {
+            if (marker.getTag() != null) {
               PluginMarkerCluster.this._removeMarker(marker);
               marker.setTag(null);
               marker.remove();
@@ -556,8 +613,11 @@ public class PluginMarkerCluster extends PluginMarker {
     public double getEast() {
       return east_;
     }
+  }
 
 
+  private class MarkerClusterOptions {
+    boolean debug = false;
   }
 
 }

@@ -295,6 +295,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                         anchorPoints[i] = points.getDouble(i);
                       }
                       bundle.putDoubleArray("anchor", anchorPoints);
+                    } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
+                      double[] anchorPoints = new double[2];
+                      anchorPoints[0] = ((JSONObject) value).getDouble("x");
+                      anchorPoints[1] = ((JSONObject) value).getDouble("y");
+                      bundle.putDoubleArray("anchor", anchorPoints);
                     }
                   }
 
@@ -307,6 +312,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                       for (int i = 0; i < points.length(); i++) {
                         anchorPoints[i] = points.getDouble(i);
                       }
+                      bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
+                    } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
+                      double[] anchorPoints = new double[2];
+                      anchorPoints[0] = ((JSONObject) value).getDouble("x");
+                      anchorPoints[1] = ((JSONObject) value).getDouble("y");
                       bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
                     }
                   }
@@ -892,6 +902,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           for (int i = 0; i < points.length(); i++) {
             anchorPoints[i] = points.getDouble(i);
           }
+          bundle.putDoubleArray("anchor", anchorPoints);
+        } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
+          double[] anchorPoints = new double[2];
+          anchorPoints[0] = ((JSONObject) value).getDouble("x");
+          anchorPoints[1] = ((JSONObject) value).getDouble("y");
           bundle.putDoubleArray("anchor", anchorPoints);
         }
       }

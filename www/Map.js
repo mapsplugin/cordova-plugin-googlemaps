@@ -933,6 +933,20 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
     markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
     markerOptions.noCache = markerOptions.noCache === true; //experimental
+    if (typeof markerOptions.icon === "object") {
+      if ("anchor" in markerOptions.icon &&
+        !Array.isArray(markerOptions.icon.anchor) &&
+        "x" in markerOptions.icon.anchor &&
+        "y" in markerOptions.icon.anchor) {
+        markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
+      }
+      if ("infoWindowAnchor" in markerOptions.icon &&
+        !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
+        "x" in markerOptions.icon.infoWindowAnchor &&
+        "y" in markerOptions.icon.infoWindowAnchor) {
+        markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
+      }
+    }
 
     if ("styles" in markerOptions) {
         markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
@@ -981,6 +995,21 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   var markerMap = new BaseClass();
   markerClusterOptions.markers.forEach(function(markerOpts, idx) {
 
+    if (typeof markerOpts.icon === "object") {
+      if ("anchor" in markerOpts.icon &&
+        typeof markerOpts.icon.anchor === "object" &&
+        "x" in markerOpts.icon.anchor &&
+        "y" in markerOpts.icon.anchor) {
+        markerOpts.icon.anchor = [markerOpts.icon.anchor.x, markerOpts.icon.anchor.y];
+      }
+      if ("infoWindowAnchor" in markerOpts.icon &&
+        typeof markerOpts.icon.infoWindowAnchor === "object" &&
+        "x" in markerOpts.icon.infoWindowAnchor &&
+        "y" in markerOpts.icon.infoWindowAnchor) {
+        markerOpts.icon.infoWindowAnchor = [markerOpts.icon.infoWindowAnchor.x, markerOpts.icon.infoWindowAnchor.anchor.y];
+      }
+    }
+
     var markerRef = new BaseClass();
     markerRef.set("isAdded", false);
     markerRef.set("position", new LatLng(markerOpts.position.lat, markerOpts.position.lng));
@@ -1012,7 +1041,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     });
 
   }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', {
-    "positionList": positionList
+    "positionList": positionList,
+    "debug": markerClusterOptions.debug === true
   }]);
 
 };
