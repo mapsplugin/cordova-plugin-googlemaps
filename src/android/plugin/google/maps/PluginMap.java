@@ -719,6 +719,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
 
     PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    if (pluginEntry == null) {
+      Log.d(TAG, "---> marker.title = " + marker.getTitle());
+      return null;
+    }
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
 
     JSONObject properties = null;
@@ -922,6 +926,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String propertyId = "marker_property_" + marker.getId();
 
     PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    if (pluginEntry == null) {
+      Log.d(TAG, "---> marker.title = " + marker.getTitle());
+      return null;
+    }
     PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
 
     if (pluginMarker.objects.containsKey(propertyId)) {
@@ -1935,27 +1943,38 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMarkerClick(Marker marker) {
-    this.onMarkerEvent("marker_click", marker);
+    Log.d(TAG, "---> marker.title = " + marker.getTitle());
 
     JSONObject properties = null;
-    String propertyId = "marker_property_" + marker.getId();
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
-    if (pluginMarker.objects.containsKey(propertyId)) {
-      properties = (JSONObject) pluginMarker.objects.get(propertyId);
-      if (properties.has("disableAutoPan")) {
-        boolean disableAutoPan = false;
-        try {
-          disableAutoPan = properties.getBoolean("disableAutoPan");
-        } catch (JSONException e) {
-          e.printStackTrace();
-        }
-        if (disableAutoPan) {
-          marker.showInfoWindow();
-          return true;
-        } else {
-          marker.showInfoWindow();
-          return false;
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + marker.getTag());
+    if (pluginEntry == null) {
+      return true;
+    }
+    MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
+    if (myPlugin instanceof PluginMarkerCluster) {
+      marker.showInfoWindow();
+      return true;
+    }
+
+    if (myPlugin instanceof PluginMarker) {
+      this.onMarkerEvent("marker_click", marker);
+      String propertyId = "marker_property_" + marker.getId();
+      if (myPlugin.objects.containsKey(propertyId)) {
+        properties = (JSONObject) myPlugin.objects.get(propertyId);
+        if (properties.has("disableAutoPan")) {
+          boolean disableAutoPan = false;
+          try {
+            disableAutoPan = properties.getBoolean("disableAutoPan");
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+          if (disableAutoPan) {
+            marker.showInfoWindow();
+            return true;
+          } else {
+            marker.showInfoWindow();
+            return false;
+          }
         }
       }
     }

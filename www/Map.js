@@ -589,18 +589,18 @@ Map.prototype.setDiv = function(div) {
 * Return the visible region of the map.
 */
 Map.prototype.getVisibleRegion = function(callback) {
-   var self = this;
-   var cameraPosition = self.get("camera");
-   if (!cameraPosition) {
-     return null;
-   }
+  var self = this;
+  var cameraPosition = self.get("camera");
+  if (!cameraPosition) {
+    return null;
+  }
 
-   var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
+  var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
 
-   if (typeof callback === "function") {
+  if (typeof callback === "function") {
      console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
      callback.call(self, latLngBounds);
-   }
+  }
 
   latLngBounds.nearLeft = new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng);
   latLngBounds.nearRight = new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng);

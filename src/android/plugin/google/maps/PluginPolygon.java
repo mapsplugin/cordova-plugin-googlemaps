@@ -155,7 +155,6 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
                 }
 
                 objects.clear();
-                objects = null;
             }
         });
 

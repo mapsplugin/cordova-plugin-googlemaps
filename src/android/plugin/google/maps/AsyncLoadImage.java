@@ -90,7 +90,7 @@ public class AsyncLoadImage extends AsyncTask<String, Void, Bitmap> {
     image.recycle();
   }
 
-  private static Bitmap getBitmapFromMemCache(String key) {
+  public static Bitmap getBitmapFromMemCache(String key) {
     Bitmap image = mIconCache.get(key);
     if (image == null || image.isRecycled()) {
       return null;

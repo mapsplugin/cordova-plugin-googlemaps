@@ -69,8 +69,23 @@ LatLngBounds.prototype.getCenter = function() {
     }
     return new LatLng(centerLat, centerLng);
 };
-
 LatLngBounds.prototype.contains = function(latLng) {
+    if (!("lat" in latLng) || !("lng" in latLng)) {
+        return false;
+    }
+    var SWLat = this.southwest.lat,
+        NELat = this.northeast.lat,
+        SWLng = this.southwest.lng,
+        NELng = this.northeast.lng;
+
+    if (SWLng > NELng) {
+        return (latLng.lat >= SWLat) && (latLng.lat <= NELat) &&
+            (((SWLng < latLng.lng) && (latLng.lng < 180)) || ((-180 < latLng.lng) && (latLng.lng < NELng)));
+    }
+    return (latLng.lat >= SWLat) && (latLng.lat <= NELat) &&
+        (latLng.lng >= SWLng) && (latLng.lng <= NELng);
+};
+LatLngBounds.prototype.contains2 = function(latLng) {
     if (!("lat" in latLng) || !("lng" in latLng)) {
         return false;
     }

@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
-  protected ConcurrentHashMap<String, Object> objects;
+  protected final HashMap<String, Object> objects = new HashMap<String, Object>();
   public MyPlugin self = null;
   public final ConcurrentHashMap<String, Method> methods = new ConcurrentHashMap<String, Method>();
   private static ExecutorService executorService = null;
@@ -39,7 +39,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   public GoogleMap map = null;
   public PluginMap pluginMap = null;
   protected boolean isRemoved = false;
-  public float density = Resources.getSystem().getDisplayMetrics().density;
+  protected float density = Resources.getSystem().getDisplayMetrics().density;
   public String CURRENT_PAGE_URL;
 
   public void setPluginMap(PluginMap pluginMap) {
@@ -53,7 +53,6 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
-    this.objects = new ConcurrentHashMap<String, Object>();
     TAG = this.getServiceName();
     if (executorService == null) {
       executorService = Executors.newCachedThreadPool();

@@ -23,15 +23,12 @@ var GEOCELL_GRID_SIZE = 4;
 var GEOCELL_ALPHABET = "0123456789abcdef";
 
 function computeBox(geocell) {
-  var geoChar;
-  var pos;
-
   var subcell_lng_span, subcell_lat_span;
   var xy, x, y, i;
   var bbox = _createBoundingBox(90.0, 180.0, -90.0, -180.0);
   while(geocell.length > 0) {
-    geoChar = geocell.charAt(i);
-    pos = GEOCELL_ALPHABET.indexOf(geoChar);
+    //geoChar = geocell.charAt(i);
+    //pos = GEOCELL_ALPHABET.indexOf(geoChar);
 
     subcell_lng_span = (bbox.getEast() - bbox.getWest()) / GEOCELL_GRID_SIZE;
     subcell_lat_span = (bbox.getNorth() - bbox.getSouth()) / GEOCELL_GRID_SIZE;
@@ -80,6 +77,7 @@ function _createBoundingBox(north, east, south, west) {
     }
   };
 }
+
 
 /**
  * https://code.google.com/p/geomodel/source/browse/trunk/geo/geocell.py#370
