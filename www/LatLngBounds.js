@@ -41,18 +41,26 @@ LatLngBounds.prototype.extend = function(latLng) {
             this.southwest = latLng;
             this.northeast = latLng;
         } else {
-            var swLat = Math.min(latLng.lat, this.southwest.lat);
-            var swLng = Math.min(latLng.lng, this.southwest.lng);
-            var neLat = Math.max(latLng.lat, this.northeast.lat);
-            var neLng = Math.max(latLng.lng, this.northeast.lng);
+            var south = Math.min(latLng.lat, this.southwest.lat);
+            var west = Math.min(latLng.lng, this.southwest.lng);
+            var north = Math.max(latLng.lat, this.northeast.lat);
+            var east = Math.max(latLng.lng, this.northeast.lng);
+
+            if (east === 180 & west < 0) {
+              east = west;
+              west = -180;
+            }
+            if (east > 0 && west < 0) {
+              var tmp = west;
+              west = east;
+              east = tmp;
+            }
 
             delete this.southwest;
             delete this.northeast;
-            this.southwest = new LatLng(swLat, swLng);
-            this.northeast = new LatLng(neLat, neLng);
+            this.southwest = new LatLng(south, west);
+            this.northeast = new LatLng(north, east);
         }
-        this[0] = this.southwest;
-        this[1] = this.northeast;
     }
 };
 
@@ -69,120 +77,45 @@ LatLngBounds.prototype.getCenter = function() {
     }
     return new LatLng(centerLat, centerLng);
 };
-LatLngBounds.prototype.contains = function(latLng) {
+LatLngBounds.prototype.contains = function(latLng, geocell) {
     if (!("lat" in latLng) || !("lng" in latLng)) {
         return false;
     }
-    var SWLat = this.southwest.lat,
-        NELat = this.northeast.lat,
-        SWLng = this.southwest.lng,
-        NELng = this.northeast.lng;
+    var y = latLng.lat,
+      x = latLng.lng;
 
-    if (SWLng > NELng) {
-        return (latLng.lat >= SWLat) && (latLng.lat <= NELat) &&
-            (((SWLng < latLng.lng) && (latLng.lng < 180)) || ((-180 < latLng.lng) && (latLng.lng < NELng)));
+    if (y > 90) {
+      y = y - (y % 90) * 90;
+    } else if (y < -90) {
+      y = y + Math.abs(y % 90) * 90;
     }
-    return (latLng.lat >= SWLat) && (latLng.lat <= NELat) &&
-        (latLng.lng >= SWLng) && (latLng.lng <= NELng);
-};
-LatLngBounds.prototype.contains2 = function(latLng) {
-    if (!("lat" in latLng) || !("lng" in latLng)) {
-        return false;
+    if (x > 90) {
+      x = x - (x % 180) * 180;
+    } else if (x < -180) {
+      x = x + Math.abs(x % 180) * 180;
     }
-    var positionLat = latLng.lat + 90,
-        positionLng = latLng.lng + 180;
-    var SWLat = this.southwest.lat + 90,
-        NELat = this.northeast.lat + 90,
-        SWLng = this.southwest.lng + 180,
-        NELng = this.northeast.lng + 180;
+    var x180 = x + 180,
+      y90 = y + 90;
+    var south = this.southwest.lat,
+      north = this.northeast.lat,
+      west = this.southwest.lng,
+      east = this.northeast.lng;
+      east = east === 180 & west < 0 ? -180 : east;
+    var south90 = south + 90,
+      north90 = north + 90,
+      west180 = west + 180,
+      east180 = east + 180;
 
-    var containY = (positionLat >= SWLat) && (positionLat <= NELat);
+    var containX = false,
+      containY = false;
 
-    var containX = false;
-    if (SWLng <= NELng) {
-      containX = (positionLng >= SWLng) && (positionLat <= NELng);
-    } else {
-      containX = (positionLng >= SWLng) && (positionLng <= 360) ||
-                 (positionLng >= 0) && (positionLng <= NELng);
-    }
+    containX = (west180 <= x180 && x180 <= east180) ||  // #1
+              (west >= 0 && east <= 0 && ((west <= x && x <= 180) || (x >= -180 && x <= east)));  // 4
+
+    containY = (south90 <= y90 && y90 <= north90) ||  //#a
+              (south >= 0 && north <= 0 && ((south <= y && y <= 90) || (y >= -90 && y<= north))); // #d
+
     return containX && containY;
-/*
-      if (NELng > 0) {
-        containY = (positionLat >= SWLat) && (positionLat <= NELat);
-      }
-
-
-    if (SWLng < 0) {
-      if (NELng > 0) {
-        //-------------
-        // SWLng < 0 && NELng > 0
-        //-------------
-        if (SWLat < 0) {
-          if (NELat < 0) {
-          // sw: {"lat": -4.298503, "lng": -104.208062}
-          // ne: {"lat": 74.012460, "lng": 176.724306}
-          return ((positionLat >= SWLat) && (positionLat <= 0) ||
-                  (positionLat >= 0) && (positionLat <= NELat)) &&
-                 ((positionLng >= -180) && (positionLng <= SWLng) ||
-                  (positionLng >= NELng) && (positionLng <= 180));
-        } else {
-          // sw: {"lat": 20.598322, "lng": -143.294849}
-          // ne: {"lat": 68.092027, "lng": -70.906448}
-          return (() &&
-                 ((positionLng >= NELng) && (positionLng <= SWLng));
-        }
-      } else {
-        //-------------
-        // SWLng < 0 && NELng < 0
-        //-------------
-        if (SWLat < 0) {
-          if (NELat < 0) {
-            // sw: {"lat": -68.598322, "lng": -143.294849}
-            // ne: {"lat": -20.092027, "lng": -70.906448}
-            return ((positionLat >= SWLat) && (positionLat <= NELat)) &&
-                   (positionLng >= NELng) && (positionLng <= SWLng);
-          } else {
-            // sw: {"lat": -68.598322, "lng": -143.294849}
-            // ne: {"lat": 20.092027, "lng": -70.906448}
-            return ((positionLat >= SWLat) && (positionLat <= 0) ||
-                    (positionLat >= 0) && (positionLat <= NELat)) &&
-                   (positionLng >= NELng) && (positionLng <= SWLng);
-          }
-        } else {
-
-        }
-      }
-    } else {
-      if (NELng > 0) {
-        // sw: {"lat": -68.598322, "lng": 70.906448}
-        // ne: {"lat": 20.092027, "lng": 143.294849}
-        // position: {"lat": -12.360865, "lng": 130.891349}
-        return ((positionLat >= SWLat) && (positionLat <= 0) ||
-                (positionLat >= 0) && (positionLat <= NELat)) &&
-               ((positionLng >= SWLng) && (positionLng <= NELng));
-      } else {
-        // sw: {"lat": -68.598322, "lng": -70.906448}
-        // ne: {"lat": 20.092027, "lng": -143.294849}
-        return ((positionLat >= SWLat) && (positionLat <= 0) ||
-                (positionLat >= 0) && (positionLat <= NELat)) &&
-               ((positionLng >= NELng) && (positionLng <= SWLng));
-      }
-    }
-/*
-    if (SWLng < 0 && NELng > 0) {
-      // sw: {"lat": -58.135933, "lng": -150.782451}
-      // ne: {"lat": -3.656541, "lng": 89.016723}]"
-      // position: {"lat": -12.360865, "lng": 130.891349}
-      return ((positionLng >= NELng) && (positionLng <= 180) ||
-              (positionLng >= -180) && (positionLng <= SWLng)) &&
-             (positionLat >= SWLat) && (positionLat <= NELat);
-    }
-      // sw: {"lat": -58.135933, "lng": -150.782451}
-      // ne: {"lat": -3.656541, "lng": 89.016723}
-      // position: {"lat": -12.360865, "lng": 130.891349}
-    return (positionLat >= SWLat) && (positionLat <= NELat) &&
-        (positionLng >= SWLng) && (positionLng <= NELng);
-*/
 };
 
 module.exports = LatLngBounds;

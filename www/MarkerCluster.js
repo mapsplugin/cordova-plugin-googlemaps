@@ -117,9 +117,6 @@ MarkerCluster.prototype.redraw = function() {
   resolution = currentZoomLevel > 15 ? 8 : resolution;
   self.set("resolution", resolution);
 
-  var label = document.getElementById("label");
-  label.innerHTML = "<b>zoom = " + self.get("zoom") + ", resolution = " + resolution + "</b>";
-
 
   //----------------------------------------------------------------
   // Calculates geocells of the current viewport
@@ -131,8 +128,22 @@ MarkerCluster.prototype.redraw = function() {
     neCellBounds = geomodel.computeBox(neCell);
   var extendedBounds = new LatLngBounds(
     swCellBounds.southwest,
+    swCellBounds.northeast,
+    neCellBounds.southwest,
     neCellBounds.northeast
   );
+  /*
+  map.addPolyline({
+    points: [
+      visibleRegion.southwest,
+      {lat: visibleRegion.southwest.lat, lng: visibleRegion.northeast.lng},
+      visibleRegion.northeast,
+      {lat: visibleRegion.northeast.lat, lng: visibleRegion.southwest.lng},
+      visibleRegion.southwest
+    ],
+    color: "blue"
+  });
+  */
 
   //----------------------------------------------------------------
   // Remove the clusters that is in outside of the visible region
@@ -148,8 +159,8 @@ MarkerCluster.prototype.redraw = function() {
       var cluster = self._clusters[resolution][geocell];
       var bounds = cluster.getBounds();
 
-      if (!extendedBounds.contains(bounds.northeast) &&
-        !extendedBounds.contains(bounds.southwest)) {
+      if (!visibleRegion.contains(bounds.northeast) &&
+        !visibleRegion.contains(bounds.southwest)) {
 
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster._markerRefs.forEach(function(mRef, idx) {
@@ -198,7 +209,7 @@ MarkerCluster.prototype.redraw = function() {
       if (markerRef.get("isAdded")) {
         return;
       }
-      if (!extendedBounds.contains(markerRef.get("position"))) {
+      if (!visibleRegion.contains(markerRef.get("position"), markerRef.get("options").name)) {
         return;
       }
       var geocell = markerRef.get("geocell").substr(0, resolution + 1);
