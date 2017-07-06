@@ -117,7 +117,6 @@ MarkerCluster.prototype.redraw = function() {
   resolution = currentZoomLevel > 15 ? 8 : resolution;
   self.set("resolution", resolution);
 
-
   //----------------------------------------------------------------
   // Calculates geocells of the current viewport
   //----------------------------------------------------------------
@@ -209,7 +208,7 @@ MarkerCluster.prototype.redraw = function() {
       if (markerRef.get("isAdded")) {
         return;
       }
-      if (!visibleRegion.contains(markerRef.get("position"), markerRef.get("options").name)) {
+      if (!visibleRegion.contains(markerRef.get("position"))) {
         return;
       }
       var geocell = markerRef.get("geocell").substr(0, resolution + 1);

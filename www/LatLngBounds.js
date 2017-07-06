@@ -77,13 +77,13 @@ LatLngBounds.prototype.getCenter = function() {
     }
     return new LatLng(centerLat, centerLng);
 };
-LatLngBounds.prototype.contains = function(latLng, geocell) {
+LatLngBounds.prototype.contains = function(latLng) {
     if (!("lat" in latLng) || !("lng" in latLng)) {
         return false;
     }
     var y = latLng.lat,
       x = latLng.lng;
-
+/*
     if (y > 90) {
       y = y - (y % 90) * 90;
     } else if (y < -90) {
@@ -93,7 +93,7 @@ LatLngBounds.prototype.contains = function(latLng, geocell) {
       x = x - (x % 180) * 180;
     } else if (x < -180) {
       x = x + Math.abs(x % 180) * 180;
-    }
+    }*/
     var x180 = x + 180,
       y90 = y + 90;
     var south = this.southwest.lat,
@@ -114,7 +114,11 @@ LatLngBounds.prototype.contains = function(latLng, geocell) {
 
     containY = (south90 <= y90 && y90 <= north90) ||  //#a
               (south >= 0 && north <= 0 && ((south <= y && y <= 90) || (y >= -90 && y<= north))); // #d
-
+/*
+console.log("x = " + x + ", y = " + y);
+console.log("s = " + south + ", w = " + west + ", n = " + north + ", e = " + east);
+console.log("containX = " + containX + ", containY = " + containY);
+*/
     return containX && containY;
 };
 

@@ -716,7 +716,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
             kmlOverlay = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, kmlOverlay, self);
+            callback.call(self, kmlOverlay);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions]);
 
@@ -744,7 +744,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
             groundOverlay = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, groundOverlay, self);
+            callback.call(self, groundOverlay);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions]);
 
@@ -801,7 +801,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             tileOverlay = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, tileOverlay, self);
+            callback.call(self, tileOverlay);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options]);
 };
@@ -847,7 +847,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
             polygon = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, polygon, self);
+            callback.call(self, polygon);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", polygonOptions]);
 };
@@ -877,7 +877,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
             polyline = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, polyline, self);
+            callback.call(self, polyline);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions]);
 };
@@ -908,7 +908,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
             circle = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, circle, self);
+            callback.call(self, circle);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions]);
 };
@@ -977,7 +977,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             marker = undefined;
         });
         if (typeof callback === "function") {
-            callback.call(self, marker, self);
+            callback.call(self, marker);
         }
     }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
 };
@@ -1034,12 +1034,17 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markers.push(markerRef);
     });
 
-    self.OVERLAYS[result.id] = new MarkerCluster(self, result.id, {
+    var markerCluster = new MarkerCluster(self, result.id, {
       "hashCode": result.hashCode,
       "icons": markerClusterOptions.icons,
       "markers": markers
     });
 
+    self.OVERLAYS[result.id] = markerCluster;
+
+    if (typeof callback === "function") {
+        callback.call(self, markerCluster);
+    }
   }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', {
     "positionList": positionList,
     "debug": markerClusterOptions.debug === true
