@@ -1,6 +1,6 @@
 //
 //  Marker.h
-//  SimpleMap
+//  cordova-googlemaps-plugin
 //
 //  Created by masashi on 11/8/13.
 //
