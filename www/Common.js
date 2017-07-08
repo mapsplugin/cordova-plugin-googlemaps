@@ -324,7 +324,7 @@ function getZIndex(dom) {
       var parentElemId = parentNode.getAttribute("__pluginDomId");
       if (!parentElemId) {
           parentElemId = "pgm" + Math.floor(Math.random() * Date.now());
-          dom.setAttribute("__pluginDomId", parentElemId);
+          parentNode.setAttribute("__pluginDomId", parentElemId);
       }
       if (parentElemId in internalCache) {
         z += internalCache[parentElemId];
