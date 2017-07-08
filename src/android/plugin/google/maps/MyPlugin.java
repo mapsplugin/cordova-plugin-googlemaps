@@ -151,10 +151,12 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     if (objects == null) {
       return null;
     }
+    /*
     if (!this.objects.containsKey(id)) {
       Log.e("MyPlugin", "---> !this.objects.containsKey(id) : " + id);
       return null;
     }
+    */
     return (Marker)this.objects.get(id);
   }
   protected synchronized Polyline getPolyline(String id) {

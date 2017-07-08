@@ -88,6 +88,19 @@ MarkerCluster.prototype.getHashCode = function() {
     return this.hashCode;
 };
 
+MarkerCluster.prototype.getCluster = function(clusterId) {
+  var self = this,
+    resolution = self.get("resolution");
+
+  if (!self._clusters[resolution]) {
+    return null;
+  }
+
+  var tmp = clusterId.split(";");
+  clusterId = tmp[0];
+  var cluster = self._clusters[resolution][clusterId];
+  return cluster;
+};
 MarkerCluster.prototype.onCameraMoveEnd = function() {
   var self = this;
 
@@ -162,8 +175,8 @@ MarkerCluster.prototype.redraw = function() {
         !visibleRegion.contains(bounds.southwest)) {
 
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
-            cluster._markerRefs.forEach(function(mRef, idx) {
-              deleteClusters.push(geocell + "-" + idx);
+            cluster.getMarkers().forEach(function(mRef, idx) {
+              deleteClusters.push(geocell + ";" + idx);
             });
           } else {
             deleteClusters.push(geocell);
@@ -178,8 +191,8 @@ MarkerCluster.prototype.redraw = function() {
     keys.forEach(function(geocell) {
         cluster = self._clusters[prevResolution][geocell];
         if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
-          cluster._markerRefs.forEach(function(mRef, idx) {
-            deleteClusters.push(geocell + "-" + idx);
+          cluster.getMarkers().forEach(function(mRef, idx) {
+            deleteClusters.push(geocell + ";" + idx);
           });
         } else {
           deleteClusters.push(geocell);
@@ -204,16 +217,16 @@ MarkerCluster.prototype.redraw = function() {
     self.set("prevNEcell", neCell);
 
     var prepareClusters = {};
-    self._markers.forEach(function(markerRef) {
-      if (markerRef.get("isAdded")) {
+    self._markers.forEach(function(marker) {
+      if (marker.get("isAdded")) {
         return;
       }
-      if (!visibleRegion.contains(markerRef.get("position"))) {
+      if (!visibleRegion.contains(marker.get("position"))) {
         return;
       }
-      var geocell = markerRef.get("geocell").substr(0, resolution + 1);
+      var geocell = marker.get("geocell").substr(0, resolution + 1);
       prepareClusters[geocell] = prepareClusters[geocell] || [];
-      prepareClusters[geocell].push(markerRef);
+      prepareClusters[geocell].push(marker);
     });
 
     //------------------------------------------
@@ -231,9 +244,9 @@ MarkerCluster.prototype.redraw = function() {
       var hit,
           clusterCnt = cluster.getItemLength(),
           clusterOpts = {
-            "geocell": geocell,
             "count": clusterCnt,
-            "position": cluster.bounds.getCenter()
+            "position": cluster.bounds.getCenter(),
+            "id": geocell
           };
 
       for (var i = 0; i < self.icons.length; i++) {
@@ -258,37 +271,19 @@ MarkerCluster.prototype.redraw = function() {
       }
       if (hit) {
         if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
-          cluster._markerRefs.forEach(function(mRef, idx) {
-            deleteClusters.push(geocell + "-" + idx);
+          cluster.getMarkers().forEach(function(marker, idx) {
+            deleteClusters.push(marker.getId());
           });
         }
         cluster.setMode(cluster.CLUSTER_MODE);
-        /*
-        var nextLevels = {};
-        var max = 0, maxGeocell;
-        cluster._markerRefs.forEach(function(mRef) {
-          var geocell = mRef.get("geocell").substr(0, resolution + 2);
-          nextLevels[geocell] = nextLevels[geocell] || 0;
-          nextLevels[geocell]++;
-          if (nextLevels[geocell] > max) {
-            max = nextLevels[geocell];
-            maxGeocell = geocell;
-          }
-        });
-        var bounds = geomodel.computeBox(maxGeocell);
-        clusterOpts.position = bounds.getCenter();
-        */
         clusters.push(clusterOpts);
         return;
       }
-      cluster._markerRefs.forEach(function(mRef, idx) {
-        var markerOpts = {
-          "count": 1,
-          "position": mRef.get("position"),
-          "icon": mRef.get("icon"),
-          "geocell": clusterOpts.geocell + "-" + idx
-        };
-        clusters.push(markerOpts);
+      cluster.getMarkers().forEach(function(marker, idx) {
+        var markerOptions = marker.getOptions();
+        markerOptions.count = 1;
+        markerOptions.id = geocell + ";" + idx;
+        clusters.push(markerOptions);
       });
       cluster.setMode(cluster.NO_CLUSTER_MODE);
     });

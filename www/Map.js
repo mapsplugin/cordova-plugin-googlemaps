@@ -916,56 +916,61 @@ Map.prototype.addCircle = function(circleOptions, callback) {
 //-------------
 // Marker
 //-------------
+function _markerOptionsFilter(markerOptions) {
+  markerOptions = markerOptions || {};
+
+  markerOptions.animation = markerOptions.animation || undefined;
+  markerOptions.position = markerOptions.position || {};
+  markerOptions.position.lat = markerOptions.position.lat || 0.0;
+  markerOptions.position.lng = markerOptions.position.lng || 0.0;
+  markerOptions.draggable = markerOptions.draggable === true;
+  markerOptions.icon = markerOptions.icon || undefined;
+  markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
+  markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
+  markerOptions.visible = common.defaultTrueOption(markerOptions.visible);
+  markerOptions.flat = markerOptions.flat === true;
+  markerOptions.rotation = markerOptions.rotation || 0;
+  markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+  markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
+  markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
+  markerOptions.noCache = markerOptions.noCache === true; //experimental
+  if (typeof markerOptions.icon === "object") {
+    if ("anchor" in markerOptions.icon &&
+      !Array.isArray(markerOptions.icon.anchor) &&
+      "x" in markerOptions.icon.anchor &&
+      "y" in markerOptions.icon.anchor) {
+      markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
+    }
+    if ("infoWindowAnchor" in markerOptions.icon &&
+      !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
+      "x" in markerOptions.icon.infoWindowAnchor &&
+      "y" in markerOptions.icon.infoWindowAnchor) {
+      markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
+    }
+  }
+
+  if ("styles" in markerOptions) {
+      markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
+
+      if ("color" in markerOptions.styles) {
+          markerOptions.styles.color = common.HTMLColor2RGBA(markerOptions.styles.color || "#000000");
+      }
+  }
+  if (markerOptions.icon && common.isHTMLColorString(markerOptions.icon)) {
+      markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
+  }
+  if (markerOptions.icon && markerOptions.icon.label &&
+    common.isHTMLColorString(markerOptions.icon.label.color)) {
+      markerOptions.icon.label.color = common.HTMLColor2RGBA(markerOptions.icon.label.color);
+  }
+  return markerOptions;
+}
 Map.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
-    markerOptions.animation = markerOptions.animation || undefined;
-    markerOptions.position = markerOptions.position || {};
-    markerOptions.position.lat = markerOptions.position.lat || 0.0;
-    markerOptions.position.lng = markerOptions.position.lng || 0.0;
-    markerOptions.draggable = markerOptions.draggable === true;
-    markerOptions.icon = markerOptions.icon || undefined;
-    markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
-    markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
-    markerOptions.visible = common.defaultTrueOption(markerOptions.visible);
-    markerOptions.flat = markerOptions.flat === true;
-    markerOptions.rotation = markerOptions.rotation || 0;
-    markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
-    markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
-    markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
-    markerOptions.noCache = markerOptions.noCache === true; //experimental
-    if (typeof markerOptions.icon === "object") {
-      if ("anchor" in markerOptions.icon &&
-        !Array.isArray(markerOptions.icon.anchor) &&
-        "x" in markerOptions.icon.anchor &&
-        "y" in markerOptions.icon.anchor) {
-        markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
-      }
-      if ("infoWindowAnchor" in markerOptions.icon &&
-        !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
-        "x" in markerOptions.icon.infoWindowAnchor &&
-        "y" in markerOptions.icon.infoWindowAnchor) {
-        markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
-      }
-    }
-
-    if ("styles" in markerOptions) {
-        markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
-
-        if ("color" in markerOptions.styles) {
-            markerOptions.styles.color = common.HTMLColor2RGBA(markerOptions.styles.color || "#000000");
-        }
-    }
-    if (markerOptions.icon && common.isHTMLColorString(markerOptions.icon)) {
-        markerOptions.icon = common.HTMLColor2RGBA(markerOptions.icon);
-    }
-    if (markerOptions.icon && markerOptions.icon.label &&
-      common.isHTMLColorString(markerOptions.icon.label.color)) {
-        markerOptions.icon.label.color = common.HTMLColor2RGBA(markerOptions.icon.label.color);
-    }
-
+    markerOptions = _markerOptionsFilter(markerOptions);
     exec(function(result) {
         markerOptions.hashCode = result.hashCode;
-        var marker = new Marker(self, result.id, markerOptions);
+        var marker = new Marker(self, result.id, markerOptions, "marker");
 
         self.MARKERS[result.id] = marker;
         self.OVERLAYS[result.id] = marker;
@@ -992,46 +997,21 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     markerClusterOptions = null;
   }
   markerClusterOptions = markerClusterOptions || {};
-  var markerMap = new BaseClass();
-  markerClusterOptions.markers.forEach(function(markerOpts, idx) {
-
-    if (typeof markerOpts.icon === "object") {
-      if ("anchor" in markerOpts.icon &&
-        typeof markerOpts.icon.anchor === "object" &&
-        "x" in markerOpts.icon.anchor &&
-        "y" in markerOpts.icon.anchor) {
-        markerOpts.icon.anchor = [markerOpts.icon.anchor.x, markerOpts.icon.anchor.y];
-      }
-      if ("infoWindowAnchor" in markerOpts.icon &&
-        typeof markerOpts.icon.infoWindowAnchor === "object" &&
-        "x" in markerOpts.icon.infoWindowAnchor &&
-        "y" in markerOpts.icon.infoWindowAnchor) {
-        markerOpts.icon.infoWindowAnchor = [markerOpts.icon.infoWindowAnchor.x, markerOpts.icon.infoWindowAnchor.anchor.y];
-      }
-    }
-
-    var markerRef = new BaseClass();
-    markerRef.set("isAdded", false);
-    markerRef.set("position", new LatLng(markerOpts.position.lat, markerOpts.position.lng));
-    markerRef.set("icon", markerOpts.icon);
-    markerRef.set("options", markerOpts);
-
-    markerMap.set("marker_" + idx, markerRef);
-  });
   var positionList = markerClusterOptions.markers.map(function(marker) {
     return marker.position;
   });
 
   exec(function(result) {
+
     var markers = new BaseArrayClass();
     result.geocellList.forEach(function(geocell, idx) {
-      var markerOpts = markerClusterOptions.markers[idx];
-      var markerRef = new BaseClass();
-      markerRef.set("geocell", geocell);
-      markerRef.set("icon", markerOpts.icon);
-      markerRef.set("position", markerOpts.position);
-      markerRef.set("options", markerOpts);
-      markers.push(markerRef);
+      var markerOptions = markerClusterOptions.markers[idx];
+      markerOptions = _markerOptionsFilter(markerOptions);
+      var marker = new Marker(self, "marker_" + idx, markerOptions, "markercluster");
+      marker.set("isAdded", false);
+      marker.set("geocell", geocell);
+      marker.set("position", markerOptions.position);
+      markers.push(marker);
     });
 
     var markerCluster = new MarkerCluster(self, result.id, {
@@ -1073,10 +1053,30 @@ Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
     var marker = self.MARKERS[markerId] || null;
     if (marker) {
         marker.set('position', position);
-        marker.trigger(eventName, position);
+        marker.trigger(eventName, position, marker);
     }
 };
 
+Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, position) {
+    var self = this;
+    var markerCluster = self.OVERLAYS[markerClusterId] || null;
+    if (markerCluster) {
+        var cluster = markerCluster.getCluster(clusterId);
+        if (!cluster) {
+            return;
+        }
+        if (clusterId.indexOf(";") > -1) {
+            var idx = clusterId.split(";")[1];
+            var marker = cluster.getMarkers()[idx];
+            if (marker) {
+                eventName = eventName.replace("cluster", "marker");
+                markerCluster.trigger(eventName, position, marker);
+            }
+        } else {
+            markerCluster.trigger(eventName, cluster);
+        }
+    }
+};
 
 Map.prototype._onOverlayEvent = function(eventName, hashCode) {
     var self = this;

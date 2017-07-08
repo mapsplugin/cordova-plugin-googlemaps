@@ -9,7 +9,7 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
-var Marker = function(map, id, markerOptions) {
+var Marker = function(map, id, markerOptions, className) {
     BaseClass.apply(this);
 
     var self = this;
@@ -29,6 +29,14 @@ var Marker = function(map, id, markerOptions) {
     Object.defineProperty(self, "type", {
         value: "Marker",
         writable: false
+    });
+
+    className = className.toLowerCase();
+    Object.defineProperty(self, "getPluginName", {
+        writable: false,
+        value: function() {
+            return this.map.getId() + "-" + className;
+        }
     });
 
     if (markerOptions && markerOptions.position) {
@@ -117,10 +125,6 @@ var Marker = function(map, id, markerOptions) {
 
 utils.extend(Marker, BaseClass);
 
-Marker.prototype.getPluginName = function() {
-    return this.map.getId() + "-marker";
-};
-
 Marker.prototype.remove = function(callback) {
     var self = this;
     self.trigger(self.id + "_remove");
@@ -131,6 +135,23 @@ Marker.prototype.remove = function(callback) {
     }, self.errorHandler, self.getPluginName(), 'remove', [this.getId()]);
 };
 
+Marker.prototype.getOptions = function() {
+    var self = this;
+    return {
+      "position": self.getPosition(),
+      "disableAutoPan": self.get("disableAutoPan"),
+      "opacity": self.get("opacity"),
+      "icon": self.get("icon"),
+      "zIndex": self.get("zIndex"),
+      "anchor": self.get("anchor"),
+      "infoWindowAnchor": self.get("infoWindowAnchor"),
+      "draggable": self.get("draggable"),
+      "title": self.getTitle(),
+      "snippet": self.getSnippet(),
+      "visible": self.get("visible"),
+      "rotation": self.getRotation()
+    };
+};
 Marker.prototype.getPosition = function() {
     var position = this.get('position');
     if (!(position instanceof LatLng)) {

@@ -718,19 +718,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       return null;
     }
 
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    String className = tmp[0];
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
+
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
     if (pluginEntry == null) {
-      Log.d(TAG, "---> marker.title = " + marker.getTitle());
+      Log.d(TAG, "---> getInfoContents / marker.title = " + marker.getTitle());
       return null;
     }
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
 
     JSONObject properties = null;
     JSONObject styles = null;
-    String propertyId = "marker_property_" + marker.getId();
+    String propertyId = "marker_property_" + markerTag;
+    Log.d(TAG, "---> getInfoContents / propertyId = " + propertyId);
 
-    if (pluginMarker.objects.containsKey(propertyId)) {
-      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+    if (myPlugin.objects.containsKey(propertyId)) {
+      properties = (JSONObject) myPlugin.objects.get(propertyId);
 
       try {
         if (properties.has("styles")) {
@@ -836,7 +843,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     if (title != null) {
       if (title.contains("data:image/") && title.contains(";base64,")) {
-        String[] tmp = title.split(",");
+        tmp = title.split(",");
         Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
         image = PluginUtil.scaleBitmapForDevice(image);
         ImageView imageView = new ImageView(this.activity);
@@ -923,17 +930,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     activeMarker = marker;
 
     JSONObject properties = null;
-    String propertyId = "marker_property_" + marker.getId();
 
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    String className = tmp[0];
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
+
+    String propertyId = "marker_property_" + markerTag;
+
+    Log.e(TAG, "---> getInfoWindow / propertyId = " + propertyId);
+    Log.e(TAG, "---> getInfoWindow / marker.title = " + marker.getTitle());
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
     if (pluginEntry == null) {
-      Log.d(TAG, "---> marker.title = " + marker.getTitle());
+      Log.e(TAG, "---> getInfoWindow / marker.title = " + marker.getTitle());
       return null;
     }
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
 
-    if (pluginMarker.objects.containsKey(propertyId)) {
-      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+    if (myPlugin.objects.containsKey(propertyId)) {
+      properties = (JSONObject) myPlugin.objects.get(propertyId);
       try {
         if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
 
@@ -1943,38 +1959,46 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMarkerClick(Marker marker) {
-    Log.d(TAG, "---> marker.title = " + marker.getTitle());
+    Log.d(TAG, "---> onMarkerClick / marker.tag = " + marker.getTag());
 
     JSONObject properties = null;
-    PluginEntry pluginEntry = plugins.get(mapId + "-" + marker.getTag());
+    String markerTag = (String) marker.getTag();
+    if (markerTag == null) {
+      return true;
+    }
+    String tmp[] = markerTag.split("_");
+    String pluginName = tmp[0];
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
+
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + pluginName);
     if (pluginEntry == null) {
       return true;
     }
     MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
-    if (myPlugin instanceof PluginMarkerCluster) {
-      marker.showInfoWindow();
-      return true;
-    }
-
-    if (myPlugin instanceof PluginMarker) {
+    if ("marker".equals(pluginName)) {
       this.onMarkerEvent("marker_click", marker);
-      String propertyId = "marker_property_" + marker.getId();
-      if (myPlugin.objects.containsKey(propertyId)) {
-        properties = (JSONObject) myPlugin.objects.get(propertyId);
-        if (properties.has("disableAutoPan")) {
-          boolean disableAutoPan = false;
-          try {
-            disableAutoPan = properties.getBoolean("disableAutoPan");
-          } catch (JSONException e) {
-            e.printStackTrace();
-          }
-          if (disableAutoPan) {
-            marker.showInfoWindow();
-            return true;
-          } else {
-            marker.showInfoWindow();
-            return false;
-          }
+    }
+    if ("markercluster".equals(pluginName)) {
+      this.onClusterEvent("cluster_click", marker);
+    }
+    String propertyId = "marker_property_" + marker.getTag();
+    Log.d(TAG, "---> onMarkerClick / propertyId = " + propertyId);
+    if (myPlugin.objects.containsKey(propertyId)) {
+      properties = (JSONObject) myPlugin.objects.get(propertyId);
+      if (properties.has("disableAutoPan")) {
+        boolean disableAutoPan = false;
+        try {
+          disableAutoPan = properties.getBoolean("disableAutoPan");
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        if (disableAutoPan) {
+          marker.showInfoWindow();
+          return true;
+        } else {
+          marker.showInfoWindow();
+          return false;
         }
       }
     }
@@ -2048,9 +2072,24 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void onMarkerEvent(String eventName, Marker marker) {
     LatLng latLng = marker.getPosition();
 
-    String markerId = "marker_" + marker.getId();
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
-        mapId, eventName, markerId, latLng.latitude, latLng.longitude);
+          mapId, eventName, markerId, latLng.latitude, latLng.longitude);
+    jsCallback(js);
+  }
+  public void onClusterEvent(String eventName, Marker marker) {
+    LatLng latLng = marker.getPosition();
+
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
+    String clusterId = tmp[0];
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onClusterEvent', args:['%s', '%s', new plugin.google.maps.LatLng(%f, %f)]})",
+          mapId, eventName, clusterId, markerId, latLng.latitude, latLng.longitude);
     jsCallback(js);
   }
   public void syncInfoWndPosition() {

@@ -247,7 +247,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         final Marker marker = map.addMarker(markerOptions);
-        marker.setTag("marker");
+        final String id = marker.getId();
+        marker.setTag("marker_" + id);
         marker.hideInfoWindow();
 
         cordova.getThreadPool().execute(new Runnable() {
@@ -256,10 +257,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
             try {
               // Store the marker
-              String id = "marker_" + marker.getId();
               self.objects.put(id, marker);
 
-              self.objects.put("marker_property_" + marker.getId(), properties);
+              self.objects.put("marker_property_" + marker.getTag(), properties);
 
               // Prepare the result
               final JSONObject result = new JSONObject();
@@ -684,7 +684,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       this.sendNoResult(callbackContext);
       return;
     }
-    String propertyId = "marker_property_" + marker.getId();
+    String propertyId = "marker_property_" + marker.getTag();
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
       properties = (JSONObject)self.objects.get(propertyId);
@@ -709,7 +709,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       this.sendNoResult(callbackContext);
       return;
     }
-    String propertyId = "marker_property_" + marker.getId();
+    String propertyId = "marker_property_" + marker.getTag();
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
       properties = (JSONObject)self.objects.get(propertyId);
@@ -785,7 +785,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     }
     */
 
-    String propertyId = "marker_property_" + id;
+    String propertyId = "marker_property_" + marker.getTag();
     objects.remove(propertyId);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -808,6 +808,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     synchronized (marker) {
       marker.setTag(null);
       marker.remove();
+
       String iconCacheKey = "marker_icon_" + marker.getId();
       if (objects.containsKey(iconCacheKey)) {
         String cacheKey = (String) objects.remove(iconCacheKey);

@@ -34,7 +34,7 @@ var Cluster = function(geocell, markerRefs) {
     writable: false
   });
   Object.defineProperty(self, "_markerRefs", {
-    value: markerRefs,
+    value: common.createMvcArray(markerRefs),
     writable: false
   });
 
@@ -46,13 +46,17 @@ Cluster.prototype.NO_CLUSTER_MODE = 1;
 Cluster.prototype.CLUSTER_MODE = 2;
 
 Cluster.prototype.getPluginName = function() {
-  return this.map.getId() + "-Cluster";
+  return this.map.getId() + "-cluster";
 };
 Cluster.prototype.getBounds = function() {
   return this.bounds;
 };
 Cluster.prototype.getCenter = function() {
   return this.bounds.getCenter();
+};
+
+Cluster.prototype.getMarkers = function() {
+  return this._markerRefs.getArray();
 };
 
 Cluster.prototype.addMarkers = function(markerRefs) {
