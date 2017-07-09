@@ -150,6 +150,8 @@ var HTMLInfoWindow = function() {
       self.trigger("infoPosition_changed", "", infoPosition);
     };
 
+    var isInfoOpenFired = false;
+
     self.on("infoPosition_changed", function(ignore, point) {
 
         var x = point.x - self.get("offsetX");
@@ -158,6 +160,14 @@ var HTMLInfoWindow = function() {
 
         frame.style.left = x + "px";
         frame.style.top =  y + "px";
+
+        if (!isInfoOpenFired) {
+            isInfoOpenFired = true;
+            self.trigger(event.INFO_OPEN);
+        }
+    });
+    self.on(event.INFO_CLOSE, function() {
+        isInfoOpenFired = false;
     });
     self.on("infoWindowAnchor_changed", calculate);
     self.on("icon_changed", calculate);
@@ -166,16 +176,15 @@ var HTMLInfoWindow = function() {
 
 utils.extend(HTMLInfoWindow, BaseClass);
 
-
 HTMLInfoWindow.prototype.isInfoWindowShown = function() {
-    return self.get("marker") ? true : false;
+    return this.get("marker") ? true : false;
 };
 
 HTMLInfoWindow.prototype.close = function() {
     var self = this;
 
     var marker = self.get("marker");
-    if (!marker) {
+    if (!self.isInfoWindowShown() || !marker) {
       return;
     }
     this.set('marker', undefined);
@@ -184,9 +193,8 @@ HTMLInfoWindow.prototype.close = function() {
     map.off("infoPosition_changed");
     marker.off("icon_changed");
     marker.off("infoWindowAnchor_changed");
-    marker.trigger(event.INFO_CLOSE);
     self.trigger(event.INFO_CLOSE);
-    //marker.off(event.INFO_CLOSE, self.close);
+    marker.off(event.INFO_CLOSE, self.close);  //This event listener is assigned in the open method. So detach it.
     map.set("active_marker_id", null);
 
     var div = map.getDiv();
@@ -226,6 +234,7 @@ HTMLInfoWindow.prototype.open = function(marker) {
         marker.on(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
+        self.on(event.INFO_OPEN);
         self.trigger.call(self, "infoWindowAnchor_changed");
     });
 };
