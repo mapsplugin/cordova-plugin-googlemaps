@@ -76,6 +76,7 @@
   NSArray *keys;
   NSNumber *isVisible, *geodesic, *isClickable;
   NSMutableArray *boundsHitList = [NSMutableArray array];
+  NSMutableArray *boundsPluginList = [NSMutableArray array];
   int i,j;
   float zIndex, maxZIndex;
   NSString* hitKey = nil;
@@ -117,6 +118,7 @@
         bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
         if ([bounds containsCoordinate:coordinate]) {
           [boundsHitList addObject:key];
+          [boundsPluginList addObject:plugin];
         }
       }
     }
@@ -134,6 +136,7 @@
   maxZIndex = -1;
   for (i = 0; i < [boundsHitList count]; i++) {
     key = [boundsHitList objectAtIndex:i];
+    plugin = [boundsPluginList objectAtIndex:i];
     properties = [plugin.objects objectForKey:key];
 
 
