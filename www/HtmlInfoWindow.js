@@ -170,22 +170,24 @@ HTMLInfoWindow.prototype.close = function() {
     var self = this;
 
     var marker = self.get("marker");
-    var map = marker.getMap();
-    map.off("infoPosition_changed");
-    marker.off("icon_changed");
-    marker.off("infoWindowAnchor_changed");
-    marker.off(event.INFO_CLOSE, self.close);
-    map.set("active_marker_id", null);
+    if (marker) {
+        var map = marker.getMap();
+        map.off("infoPosition_changed");
+        marker.off("icon_changed");
+        marker.off("infoWindowAnchor_changed");
+        marker.off(event.INFO_CLOSE, self.close);
+        map.set("active_marker_id", null);
 
-    var div = map.getDiv();
-    var frame = self.get("frame");
-    div.removeChild(frame);
-    this.set('marker', undefined);
+        var div = map.getDiv();
+        var frame = self.get("frame");
+        div.removeChild(frame);
+        this.set('marker', undefined);
 
-    // Remove the contents from this HTMLInfoWindow
-    var contentFrame = frame.firstChild;
-    var contentBox = contentFrame.firstChild;
-    contentBox.innerHTML = "";
+        // Remove the contents from this HTMLInfoWindow
+        var contentFrame = frame.firstChild;
+        var contentBox = contentFrame.firstChild;
+        contentBox.innerHTML = "";
+    }
 };
 
 HTMLInfoWindow.prototype.setContent = function(content) {
