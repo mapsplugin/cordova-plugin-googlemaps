@@ -2070,6 +2070,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param marker
    */
   public void onMarkerEvent(String eventName, Marker marker) {
+    if (marker.getTag() == null) {
+      return;
+    }
     LatLng latLng = marker.getPosition();
 
     String markerTag = (String) marker.getTag();
@@ -2081,6 +2084,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     jsCallback(js);
   }
   public void onClusterEvent(String eventName, Marker marker) {
+    if (marker.getTag() == null) {
+      return;
+    }
     LatLng latLng = marker.getPosition();
 
     String markerTag = (String) marker.getTag();

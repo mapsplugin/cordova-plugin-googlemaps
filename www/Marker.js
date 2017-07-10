@@ -138,6 +138,7 @@ Marker.prototype.remove = function(callback) {
 Marker.prototype.getOptions = function() {
     var self = this;
     return {
+      "id": self.getId(),
       "position": self.getPosition(),
       "disableAutoPan": self.get("disableAutoPan"),
       "opacity": self.get("opacity"),

@@ -79,10 +79,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 !objectId.startsWith("marker_icon_")) {
               Marker marker = (Marker) objects.remove(objectId);
               marker.setIcon(null);
-              synchronized (marker) {
-                marker.setTag(null);
-                marker.remove();
-              }
+              marker.setTag(null);
+              marker.remove();
               marker = null;
             } else {
               Object object = objects.remove(objectId);
@@ -155,10 +153,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 !objectId.startsWith("marker_icon_")) {
               Marker marker = (Marker) objects.remove(objectId);
               marker.setIcon(null);
-              synchronized (marker) {
-                marker.setTag(null);
-                marker.remove();
-              }
+              marker.setTag(null);
+              marker.remove();
               marker = null;
             } else {
               Object object = objects.remove(objectId);
@@ -802,29 +798,28 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     });
   }
   protected void _removeMarker(Marker marker) {
-    if (marker == null) {
+    if (marker == null || marker.getTag() == null) {
       return;
     }
-    synchronized (marker) {
-      marker.setTag(null);
-      marker.remove();
+    //Log.d(TAG, "---->removeMarker = " + marker.getId());
+    marker.setTag(null);
+    marker.remove();
 
-      String iconCacheKey = "marker_icon_" + marker.getId();
-      if (objects.containsKey(iconCacheKey)) {
-        String cacheKey = (String) objects.remove(iconCacheKey);
-        if (iconCacheKeys.containsKey(cacheKey)) {
-          int count = iconCacheKeys.get(cacheKey);
-          count--;
-          if (count < 1) {
-            // gc
-            AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
-            iconCacheKeys.remove(cacheKey);
-          } else {
-            iconCacheKeys.put(cacheKey, count);
-          }
+    String iconCacheKey = "marker_icon_" + marker.getId();
+    if (objects.containsKey(iconCacheKey)) {
+      String cacheKey = (String) objects.remove(iconCacheKey);
+      if (iconCacheKeys.containsKey(cacheKey)) {
+        int count = iconCacheKeys.get(cacheKey);
+        count--;
+        if (count < 1) {
+          // gc
+          AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+          iconCacheKeys.remove(cacheKey);
+        } else {
+          iconCacheKeys.put(cacheKey, count);
         }
-        objects.remove(iconCacheKey);
       }
+      objects.remove(iconCacheKey);
     }
   }
 
@@ -1017,7 +1012,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 image = BitmapFactory.decodeFile(iconUrl);
               } else {
                 //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
-                Log.w("GoogleMaps", "icon is not found (" + iconUrl + ")");
+                Log.w(TAG, "icon is not found (" + iconUrl + ")");
                 //}
               }
             } else {
@@ -1104,7 +1099,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 return;
               }
               synchronized (marker) {
-                if ("removed".equals(marker.getTag()) || marker.getTag() == null) {
+                if (marker.getTag() == null) {
                   image.recycle();
                   bitmapDescriptor = null;
                   callback.onError("marker has been removed");

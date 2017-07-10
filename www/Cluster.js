@@ -10,14 +10,8 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Cluster Class
  *****************************************************************************/
-var Cluster = function(geocell, markerRefs) {
+var Cluster = function(geocell) {
   BaseClass.call(this);
-
-  markerRefs = common.createMvcArray(markerRefs);
-
-  markerRefs.forEach(function(markerRef) {
-    markerRef.set("isAdded", true);
-  });
 
   var self = this;
   Object.defineProperty(self, "geocell", {
@@ -34,7 +28,7 @@ var Cluster = function(geocell, markerRefs) {
     writable: false
   });
   Object.defineProperty(self, "_markerRefs", {
-    value: common.createMvcArray(markerRefs),
+    value: new BaseArrayClass(),
     writable: false
   });
 
@@ -62,7 +56,8 @@ Cluster.prototype.getMarkers = function() {
 Cluster.prototype.addMarkers = function(markerRefs) {
   var self = this;
   markerRefs.forEach(function(markerRef) {
-    if (self._markerRefs.indexOf(markerRef) > -1) {
+    if (self._markerRefs.indexOf(markerRef) === -1) {
+      markerRef.set("isAdded", true);
       self._markerRefs.push(markerRef);
     }
   });
