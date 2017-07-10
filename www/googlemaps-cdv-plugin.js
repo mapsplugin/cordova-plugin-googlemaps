@@ -4,6 +4,18 @@ var MARKERS = {};
 var KML_LAYERS = {};
 var OVERLAYS = {};
 
+// Anti the .nav-decor class of ionic framework
+var navDecorBlocker = document.createElement("style");
+navDecorBlocker.setAttribute("type", "text/css");
+navDecorBlocker.innerText = [
+    "._gmaps_cdv_ .nav-decor {",
+    "   background-color: rgba(0,0,0,0) !important;",
+    "   background: rgba(0,0,0,0) !important;",
+    "   display:none !important;",
+    "}"
+].join("");
+document.head.appendChild(navDecorBlocker);
+
 /**
  * Google Maps model.
  */
