@@ -387,11 +387,14 @@ module.exports = {
 document.addEventListener("deviceready", function() {
     document.removeEventListener("deviceready", arguments.callee);
 
-    //------------------------------------------------------------------------
-    // If Google Maps Android API v2 is not available,
-    // display the warning alert.
-    //------------------------------------------------------------------------
-    cordova.exec(null, function(message) {
-        alert(message);
-    }, 'Environment', 'isAvailable', ['']);
+    // Check the Google Maps Android API v2 if the device platform is Android.
+    if (/Android/i.test(window.navigator.userAgent)) {
+        //------------------------------------------------------------------------
+        // If Google Maps Android API v2 is not available,
+        // display the warning alert.
+        //------------------------------------------------------------------------
+        cordova.exec(null, function(message) {
+            alert(message);
+        }, 'Environment', 'isAvailable', ['']);
+    }
 });
