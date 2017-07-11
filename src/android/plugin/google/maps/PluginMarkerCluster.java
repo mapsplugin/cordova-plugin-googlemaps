@@ -131,7 +131,6 @@ public class PluginMarkerCluster extends PluginMarker {
       //---------------------------
       // Determine new or update
       //---------------------------
-      Log.d(TAG, "-------------");
       JSONObject clusterData, positionJSON;
       Bundle properites;
       for (int i = 0; i < new_or_updateCnt; i++) {
@@ -139,7 +138,6 @@ public class PluginMarkerCluster extends PluginMarker {
         positionJSON = clusterData.getJSONObject("position");
         markerId = clusterData.getString("id");
         clusterId_markerId = clusterId + "-" + markerId;
-        Log.d(TAG, "--> new or update = " + markerId);
 
         self.objects.put("marker_property_" + clusterId_markerId, clusterData);
 
@@ -151,7 +149,6 @@ public class PluginMarkerCluster extends PluginMarker {
             // Reuse a marker
             //---------------
             deleteMarkerId = deleteClusterIDs.remove(0);
-            Log.d(TAG, "--> delete = " + deleteMarkerId);
             deleteCnt--;
             updateClusterIDs.put(deleteMarkerId, clusterId_markerId);
             reuseCnt++;
@@ -302,8 +299,8 @@ public class PluginMarkerCluster extends PluginMarker {
 
           } else {
             //if (STATUS.DELETED.equals(pluginMarkers.get(oldMarkerId))) {
-              //  continue;
-              //}
+            //  continue;
+            //}
             marker = null;
             polygon = null;
             while (marker == null) {
@@ -338,6 +335,18 @@ public class PluginMarkerCluster extends PluginMarker {
 
             markerProperties = changeProperties.get(newMarkerId);
             if (STATUS.DELETED.equals(pluginMarkers.get(newMarkerId))) {
+
+              synchronized (waitCntManager) {
+                int waitCnt = waitCntManager.get(clusterId);
+                waitCnt = waitCnt - 1;
+                if (waitCnt == 0) {
+                  synchronized (dummyObj) {
+                    dummyObj.notify();
+                  }
+
+                }
+                waitCntManager.put(clusterId, waitCnt);
+              }
               continue;
             }
             marker.setPosition(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")));
@@ -382,7 +391,7 @@ public class PluginMarkerCluster extends PluginMarker {
             }
 
             if (oldMarkerId.hashCode() != newMarkerId.hashCode()) {
-              Log.d(TAG, "reuse : " + oldMarkerId + " -> " + newMarkerId + ", polygon = " + polygon);
+              //Log.d(TAG, "reuse : " + oldMarkerId + " -> " + newMarkerId + ", polygon = " + polygon);
               synchronized (self.objects) {
                 self.objects.put(newMarkerId, marker);
                 ////////self.objects.put("marker_property_" + newMarkerId, markerProperties);
@@ -408,7 +417,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
           if (markerProperties.containsKey("icon")) {
             Bundle icon = markerProperties.getBundle("icon");
-            //Log.d(TAG, "---> targetMarkerId = " + targetMarkerId + ", status = " + pluginMarkers.get(targetMarkerId));
+            //Log.d(TAG, "---> targetMarkerId = " + targetMarkerId + ", marker = " + marker);
             setIconToClusterMarker(targetMarkerId, marker, icon, new PluginAsyncInterface() {
               @Override
               public void onPostExecute(Object object) {
@@ -453,9 +462,6 @@ public class PluginMarkerCluster extends PluginMarker {
             // No icon for marker
             //--------------------
             marker.setIcon(null);
-            synchronized (pluginMarkers) {
-              pluginMarkers.put(oldMarkerId, STATUS.CREATED);
-            }
             synchronized (waitCntManager) {
               int waitCnt = waitCntManager.get(clusterId);
               waitCnt = waitCnt - 1;
@@ -478,14 +484,11 @@ public class PluginMarkerCluster extends PluginMarker {
         iterator = deleteClusterIDs.iterator();
         while (iterator.hasNext()) {
           oldMarkerId = iterator.next();
-          Log.d(TAG, "--> delete = " + oldMarkerId);
-
+          //Log.d(TAG, "delete : " + oldMarkerId);
           marker = self.getMarker(oldMarkerId);
           polygon = self.getPolygon("polygon" + oldMarkerId);
           synchronized (pluginMarkers) {
-            //Log.d(TAG, "delete : " + oldMarkerId + ", STATUS = " + pluginMarkers.get(oldMarkerId));
             if (!STATUS.WORKING.equals(pluginMarkers.get(oldMarkerId))) {
-              Log.d(TAG, "delete : " + oldMarkerId + ", _removeMarker(marker)");
               if (polygon != null && polygon.getTag() != null) {
                 polygon.setTag(null);
                 polygon.remove();
@@ -561,10 +564,10 @@ public class PluginMarkerCluster extends PluginMarker {
             callback.onPostExecute(null);
             return;
           }
-          pluginMarkers.put(markerId, STATUS.CREATED);
-          callback.onPostExecute(object);
         }
 
+        pluginMarkers.put(markerId, STATUS.CREATED);
+        callback.onPostExecute(object);
       }
 
       @Override
