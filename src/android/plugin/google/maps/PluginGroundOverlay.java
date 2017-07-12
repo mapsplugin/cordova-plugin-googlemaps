@@ -30,7 +30,6 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
   private ArrayList<AsyncTask> imageLoadingTasks = new ArrayList<AsyncTask>();
 
-  private String userAgent = "Mozilla";
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -306,8 +305,40 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     this.sendNoResult(callbackContext);
   }
 
-  private void setImage_(final GroundOverlayOptions options, String imgUrl, final PluginAsyncInterface callback) {
+  private void setImage_(final GroundOverlayOptions options, final String imgUrl, final PluginAsyncInterface callback) {
+    if (imgUrl == null) {
+      callback.onPostExecute(null);
+      return;
+    }
 
+    AsyncLoadImage.AsyncLoadImageOptions imageOptions = new AsyncLoadImage.AsyncLoadImageOptions();
+    imageOptions.height = -1;
+    imageOptions.width = -1;
+    imageOptions.noCaching = true;
+    imageOptions.url = imgUrl;
+
+    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, new AsyncLoadImageInterface() {
+      @Override
+      public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
+        if (result == null || result.image == null) {
+          callback.onError("Can not read image from " + imgUrl);
+          return;
+        }
+
+        GroundOverlay groundOverlay = null;
+        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
+        options.image(bitmapDescriptor);
+        groundOverlay = self.map.addGroundOverlay(options);
+
+        callback.onPostExecute(groundOverlay);
+
+      }
+    });
+    task.execute();
+    imageLoadingTasks.add(task);
+
+
+/*
     if (imgUrl == null) {
       callback.onPostExecute(null);
       return;
@@ -482,6 +513,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imageUrl);
       imageLoadingTasks.add(task);
     }
+*/
   }
 
 

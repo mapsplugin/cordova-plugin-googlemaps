@@ -261,7 +261,11 @@ public class PluginMarkerCluster extends PluginMarker {
         while (iterator.hasNext()) {
           oldMarkerId = iterator.next();
           newMarkerId = updateClusterIDs.get(oldMarkerId);
+
           if (newMarkerId == null) {
+            //--------------------------------------
+            // Creates a new marker
+            //--------------------------------------
             targetMarkerId = oldMarkerId;
             markerProperties = changeProperties.get(oldMarkerId);
             marker = map.addMarker(new MarkerOptions()
@@ -283,6 +287,9 @@ public class PluginMarkerCluster extends PluginMarker {
               pluginMarkers.put(oldMarkerId, STATUS.WORKING);
             }
 
+            //--------------------------------------------------
+            // If debug mode, draw bounds
+            //--------------------------------------------------
             if (markerProperties.containsKey("geocell")) {
               bounds = computeBox(markerProperties.getString("geocell"));
               polygon = map.addPolygon(new PolygonOptions()
@@ -298,9 +305,9 @@ public class PluginMarkerCluster extends PluginMarker {
             }
 
           } else {
-            //if (STATUS.DELETED.equals(pluginMarkers.get(oldMarkerId))) {
-            //  continue;
-            //}
+            //--------------------------------------
+            // Reuse a marker
+            //--------------------------------------
             marker = null;
             polygon = null;
             while (marker == null) {
@@ -333,6 +340,9 @@ public class PluginMarkerCluster extends PluginMarker {
               }
             }
 
+            //--------------------------------------------
+            // If the marker is already removed, skip it
+            //--------------------------------------------
             markerProperties = changeProperties.get(newMarkerId);
             if (STATUS.DELETED.equals(pluginMarkers.get(newMarkerId))) {
 
@@ -349,6 +359,11 @@ public class PluginMarkerCluster extends PluginMarker {
               }
               continue;
             }
+
+
+            //--------------------------------------------
+            // Sets the title and snippet properties
+            //--------------------------------------------
             marker.setPosition(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")));
             if (markerProperties.containsKey("title")) {
               marker.setTitle(markerProperties.getString("title"));
@@ -360,8 +375,37 @@ public class PluginMarkerCluster extends PluginMarker {
             } else {
               marker.setSnippet(null);
             }
+
+
+            //--------------------------------------------------
+            // If reuse a marker, decrease the marker hit count
+            //--------------------------------------------------
+            String iconCacheKey = "marker_icon_" + marker.getTag();
+            if (objects.containsKey(iconCacheKey)) {
+              String cacheKey = (String) objects.remove(iconCacheKey);
+              if (iconCacheKeys.containsKey(cacheKey)) {
+                int count = iconCacheKeys.get(cacheKey);
+                count--;
+                if (count < 1) {
+                  AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+                  iconCacheKeys.remove(cacheKey);
+                } else {
+                  iconCacheKeys.put(cacheKey, count);
+                }
+              }
+              objects.remove(iconCacheKey);
+            }
+
+
+            //--------------------------------------------------
+            // Sets a new MarkerId to tag
+            //--------------------------------------------------
             marker.setTag(newMarkerId);
             targetMarkerId = newMarkerId;
+
+            //--------------------------------------------------
+            // If debug mode, draw bounds
+            //--------------------------------------------------
             if (markerProperties.containsKey("geocell")) {
               bounds = computeBox(markerProperties.getString("geocell"));
               if (polygon == null || polygon.getTag() == null) {
@@ -390,6 +434,9 @@ public class PluginMarkerCluster extends PluginMarker {
               objects.remove("polygon" + newMarkerId);
             }
 
+            //--------------------------------------------------
+            // Stores the instances of marker and polygon
+            //--------------------------------------------------
             if (oldMarkerId.hashCode() != newMarkerId.hashCode()) {
               //Log.d(TAG, "reuse : " + oldMarkerId + " -> " + newMarkerId + ", polygon = " + polygon);
               synchronized (self.objects) {
@@ -415,6 +462,9 @@ public class PluginMarkerCluster extends PluginMarker {
             }
           }
 
+          //--------------------------------------------------------------------------
+          // If the markerProperties has icon field, load image and set it to icon
+          //--------------------------------------------------------------------------
           if (markerProperties.containsKey("icon")) {
             Bundle icon = markerProperties.getBundle("icon");
             //Log.d(TAG, "---> targetMarkerId = " + targetMarkerId + ", marker = " + marker);
@@ -422,7 +472,7 @@ public class PluginMarkerCluster extends PluginMarker {
               @Override
               public void onPostExecute(Object object) {
                 //--------------------------------------
-                // Icon is set to marker
+                // The image is already set as icon.
                 //--------------------------------------
 
                 synchronized (waitCntManager) {
