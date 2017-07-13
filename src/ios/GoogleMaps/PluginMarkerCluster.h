@@ -1,8 +1,8 @@
 //
-//  Marker.h
+//  PluginMarkerCluster.h
 //  cordova-googlemaps-plugin
 //
-//  Created by masashi on 11/8/13.
+//  Created by masashi.
 //
 //
 
@@ -14,12 +14,9 @@
 
 @interface PluginMarkerCluster : CDVPlugin<MyPlgunProtocol>
 
-@property (nonatomic, strong) NSCache* imgCache;
-@property (nonatomic) NSOperationQueue *executeQueue;
 @property (nonatomic) NSMutableDictionary *objects;
 @property (nonatomic) NSMutableDictionary *pluginMarkers;
-@property (nonatomic) NSMutableDictionary *resolutions;
-@property (nonatomic) int waitCnt;
+@property (nonatomic) NSMutableDictionary *waitCntManager;
 @property (nonatomic) NSMutableDictionary *_pluginResults;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;

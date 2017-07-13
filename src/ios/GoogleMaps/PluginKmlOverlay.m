@@ -1,5 +1,5 @@
 //
-//  GroundOverlay.m
+//  PluginKmlOverlay.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Katsumata Masashi.

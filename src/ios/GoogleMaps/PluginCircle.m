@@ -1,5 +1,5 @@
 //
-//  Circle.m
+//  PluginCircle.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by masashi.
@@ -25,7 +25,7 @@
         self.executeQueue.suspended = NO;
         self.executeQueue = nil;
     }
-    
+
     // Plugin destroy
     NSArray *keys = [self.objects allKeys];
     NSString *key;
@@ -40,7 +40,7 @@
         [self.objects removeObjectForKey:key];
     }
     self.objects = nil;
-    
+
     key = nil;
     keys = nil;
 
@@ -62,7 +62,7 @@
     float latitude = [[latLng valueForKey:@"lat"] floatValue];
     float longitude = [[latLng valueForKey:@"lng"] floatValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
-    
+
     float radius = [[json valueForKey:@"radius"] floatValue];
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -80,7 +80,7 @@
         if ([json valueForKey:@"zIndex"]) {
             circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
         }
-      
+
         BOOL isVisible = NO;
         if ([[json valueForKey:@"visible"] boolValue]) {
             circle.map = self.mapCtrl.map;
@@ -90,8 +90,8 @@
         if ([[json valueForKey:@"clickable"] boolValue]) {
             isClickable = YES;
         }
-        
-      
+
+
         // Since this plugin uses own touch-detection,
         // set NO to the tappable property.
         circle.tappable = NO;
@@ -100,14 +100,14 @@
         NSString *circleId = [NSString stringWithFormat:@"circle_%lu", (unsigned long)circle.hash];
         circle.title = circleId;
         [self.objects setObject:circle forKey: circleId];
-      
-      
+
+
         [self.executeQueue addOperationWithBlock:^{
             //---------------------------
             // Keep the properties
             //---------------------------
             NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
-        
+
             // points
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
             GMSMutablePath *mutablePath = [PluginUtil getMutablePathFromCircle:circle.position radius:circle.radius];
@@ -132,7 +132,7 @@
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }];
-      
+
     });
 }
 /**
@@ -141,7 +141,7 @@
  */
 -(void)setCenter:(CDVInvokedUrlCommand *)command
 {
-    
+
     [self.executeQueue addOperationWithBlock:^{
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.objects objectForKey:circleId];
@@ -189,7 +189,7 @@
     [self.executeQueue addOperationWithBlock:^{
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.objects objectForKey:circleId];
-      
+
         NSArray *rgbColor = [command.arguments objectAtIndex:1];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [circle setStrokeColor:[rgbColor parsePluginColor]];
@@ -209,7 +209,7 @@
     [self.executeQueue addOperationWithBlock:^{
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.objects objectForKey:circleId];
-      
+
         float width = [[command.arguments objectAtIndex:1] floatValue];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [circle setStrokeWidth:width];
@@ -269,7 +269,7 @@
         NSString *key = [command.arguments objectAtIndex:0];
         GMSCircle *circle = (GMSCircle *)[self.objects objectForKey:key];
         Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
-      
+
         // Update the property
         NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
         NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
@@ -303,7 +303,7 @@
       NSString *key = [command.arguments objectAtIndex:0];
       GMSCircle *circle = (GMSCircle *)[self.objects objectForKey:key];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
-    
+
       // Update the property
       NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
@@ -325,14 +325,14 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.objects objectForKey:circleId];
-        
+
         NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
         [self.objects removeObjectForKey:propertyId];
-      
+
         circle.map = nil;
         [self.objects removeObjectForKey:circleId];
 
-      
+
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];

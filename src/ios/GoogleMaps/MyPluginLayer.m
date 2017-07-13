@@ -1,5 +1,5 @@
 //
-//  DummyView.m
+//  MyPluginLayer.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by masashi.
@@ -204,16 +204,16 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
 
-      CGFloat zoomScale = self.webView.scrollView.zoomScale;
+    CGFloat zoomScale = self.webView.scrollView.zoomScale;
 
-      CGPoint offset = self.webView.scrollView.contentOffset;
-      offset.x *= zoomScale;
-      offset.y *= zoomScale;
-      [self.pluginScrollView setContentOffset:offset];
+    CGPoint offset = self.webView.scrollView.contentOffset;
+    offset.x *= zoomScale;
+    offset.y *= zoomScale;
+    [self.pluginScrollView setContentOffset:offset];
 
-      if (!mapCtrl.mapDivId) {
-          return;
-      }
+    if (!mapCtrl.mapDivId) {
+        return;
+    }
 
     NSDictionary *domInfo = nil;
     @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
@@ -223,63 +223,64 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
       }
 
     }
-      NSString *rectStr = [domInfo objectForKey:@"size"];
-      if (rectStr == nil || [rectStr  isEqual: @"null"]) {
+    NSString *rectStr = [domInfo objectForKey:@"size"];
+    if (rectStr == nil || [rectStr  isEqual: @"null"]) {
+      return;
+    }
+
+    __block CGRect rect = CGRectFromString(rectStr);
+    rect.origin.x *= zoomScale;
+    rect.origin.y *= zoomScale;
+    rect.size.width *= zoomScale;
+    rect.size.height *= zoomScale;
+    rect.origin.x += offset.x;
+    rect.origin.y += offset.y;
+
+    float webviewWidth = self.webView.frame.size.width;
+    float webviewHeight = self.webView.frame.size.height;
+
+
+    // Is the map is displayed?
+    if (rect.origin.y + rect.size.height >= offset.y &&
+        rect.origin.x + rect.size.width >= offset.x &&
+        rect.origin.y < offset.y + webviewHeight &&
+        rect.origin.x < offset.x + webviewWidth &&
+        mapCtrl.view.hidden == NO) {
+
+        // Attach the map view to the parent.
+        if (mapCtrl.isRenderedAtOnce == YES ||
+            (mapCtrl.map.mapType != kGMSTypeSatellite &&
+            mapCtrl.map.mapType != kGMSTypeHybrid)) {
+            [self.pluginScrollView attachView:mapCtrl.view];
+        }
+
+    } else {
+        // Detach from the parent view
+        if (mapCtrl.isRenderedAtOnce == YES ||
+            (mapCtrl.map.mapType != kGMSTypeSatellite &&
+            mapCtrl.map.mapType != kGMSTypeHybrid)) {
+            [mapCtrl.view removeFromSuperview];
+        }
+    }
+
+    if (mapCtrl.isRenderedAtOnce == YES &&
+        rect.origin.x == mapCtrl.view.frame.origin.x &&
+        rect.origin.y == mapCtrl.view.frame.origin.y &&
+        rect.size.width == mapCtrl.view.frame.size.width &&
+        rect.size.height == mapCtrl.view.frame.size.height) {
         return;
-      }
+    }
 
-      __block CGRect rect = CGRectFromString(rectStr);
-      rect.origin.x *= zoomScale;
-      rect.origin.y *= zoomScale;
-      rect.size.width *= zoomScale;
-      rect.size.height *= zoomScale;
-      rect.origin.x += offset.x;
-      rect.origin.y += offset.y;
-///*
-      float webviewWidth = self.webView.frame.size.width;
-      float webviewHeight = self.webView.frame.size.height;
-
-
-      // Is the map is displayed?
-      if (rect.origin.y + rect.size.height >= offset.y &&
-          rect.origin.x + rect.size.width >= offset.x &&
-          rect.origin.y < offset.y + webviewHeight &&
-          rect.origin.x < offset.x + webviewWidth &&
-          mapCtrl.view.hidden == NO) {
-
-          // Attach the map view to the parent.
-          if (mapCtrl.isRenderedAtOnce == YES ||
-              (mapCtrl.map.mapType != kGMSTypeSatellite &&
-              mapCtrl.map.mapType != kGMSTypeHybrid)) {
-              [self.pluginScrollView attachView:mapCtrl.view];
-          }
-
-      } else {
-          // Detach from the parent view
-          if (mapCtrl.isRenderedAtOnce == YES ||
-              (mapCtrl.map.mapType != kGMSTypeSatellite &&
-              mapCtrl.map.mapType != kGMSTypeHybrid)) {
-              [mapCtrl.view removeFromSuperview];
-          }
-      }
-///*/
+    dispatch_async(dispatch_get_main_queue(), ^{
       mapCtrl.isRenderedAtOnce = YES;
 
-      if (rect.origin.x == mapCtrl.view.frame.origin.x &&
-          rect.origin.y == mapCtrl.view.frame.origin.y &&
-          rect.size.width == mapCtrl.view.frame.size.width &&
-          rect.size.height == mapCtrl.view.frame.size.height) {
-          return;
-      }
+        [mapCtrl.view setFrame:rect];
 
-  dispatch_async(dispatch_get_main_queue(), ^{
-      [mapCtrl.view setFrame:rect];
-
-      rect.origin.x = 0;
-      rect.origin.y = 0;
+        rect.origin.x = 0;
+        rect.origin.y = 0;
       [mapCtrl.map setFrame:rect];
 
-  });
+    });
 
 }
 

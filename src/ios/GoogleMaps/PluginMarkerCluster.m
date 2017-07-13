@@ -1,8 +1,8 @@
 //
-//  Marker.m
+//  PluginMarkerCluster.m
 //  cordova-googlemaps-plugin
 //
-//  Created by masashi on 11/8/13.
+//  Created by masashi.
 //
 //
 
@@ -19,24 +19,19 @@ const int GEOCELL_GRID_SIZE = 4;
 
 - (void)pluginInitialize
 {
+  if (self.objects) {
+    return;
+  }
   // Initialize this plugin
-  self.imgCache = [[NSCache alloc]init];
-  self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
-  self.executeQueue =  [NSOperationQueue new];
   self.objects = [[NSMutableDictionary alloc] init];
-  self._pluginResults = [[NSMutableDictionary alloc] init];  self.resolutions = [NSMutableDictionary dictionary];
+  self._pluginResults = [[NSMutableDictionary alloc] init];
+  self.waitCntManager = [NSMutableDictionary dictionary];
   self.pluginMarkers = [NSMutableDictionary dictionary];
 }
 
 - (void)pluginUnload
 {
 
-  if (self.executeQueue != nil){
-      self.executeQueue.suspended = YES;
-      [self.executeQueue cancelAllOperations];
-      self.executeQueue.suspended = NO;
-      self.executeQueue = nil;
-  }
 
   // Plugin destroy
   NSArray *keys = [self.objects allKeys];
@@ -56,6 +51,7 @@ const int GEOCELL_GRID_SIZE = 4;
 }
 
 - (void)onHookedPluginResult:(CDVPluginResult*)pluginResult callbackId:(NSString*)callbackId {
+  /*
   NSArray *tmp = [callbackId componentsSeparatedByString:@"/"];
   NSString *method = [tmp objectAtIndex:2];
   NSString *clusterId = [tmp objectAtIndex:3];
@@ -103,12 +99,28 @@ const int GEOCELL_GRID_SIZE = 4;
     }
 
   }
+   */
 }
 
 
 - (void)create:(CDVInvokedUrlCommand*)command {
+  NSLog(@"--->create");
+  NSDictionary *params = [command.arguments objectAtIndex:1];
+  NSArray *positionList = [params objectForKey:@"positionList"];
+  NSMutableArray *geocellList = [NSMutableArray array];
+  NSMutableDictionary *position;
+  double lat, lng;
+
+  for (int i = 0; i < [positionList count]; i++) {
+    position = [positionList objectAtIndex:i];
+    lat = [[position objectForKey:@"lat"] doubleValue];
+    lng = [[position objectForKey:@"lng"] doubleValue];
+    [geocellList addObject:[self getGeocell:lat lng:lng resolution:9]];
+  }
+
   NSString *clusterId = [NSString stringWithFormat:@"markercluster_%lu", command.hash];
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  [result setObject:geocellList forKey:@"geocellList"];
   [result setObject:clusterId forKey:@"id"];
   [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)command.hash] forKey:@"hashCode"];
 
@@ -118,6 +130,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
 
 - (void (^)())deleteOldCluster:(NSString *)clusterId geocell:(NSString*)geocell {
+  /*
   return ^{
     NSString *clusterId_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
     NSString *markerId = nil;
@@ -150,10 +163,11 @@ const int GEOCELL_GRID_SIZE = 4;
     PluginMarker *pluginMarker = [self.commandDelegate getCommandInstance:pluginName];
     [pluginMarker remove:command];
   };
+   */
 }
 
 - (void)redrawClusters:(CDVInvokedUrlCommand*)command {
-
+/*
   @synchronized (self) {
 
     NSString *clusterId = [command.arguments objectAtIndex:0];
@@ -203,10 +217,11 @@ const int GEOCELL_GRID_SIZE = 4;
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
   }
-
+*/
 }
 
 - (NSBlockOperation *)createClusterTaskWithClusterId:(NSString*)clusterId clusterData:(NSDictionary *)clusterData resolution:(int)resolution {
+  /*
   NSString *geocell = [clusterData objectForKey:@"geocell"];
   NSString *cluster_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
 
@@ -254,6 +269,44 @@ const int GEOCELL_GRID_SIZE = 4;
     PluginMap *pluginMap = [self.commandDelegate getCommandInstance:self.mapCtrl.mapId];
     [pluginMap loadPlugin:command2];
   }];
+   */
+}
+
+
+- (NSString *)getGeocell:(double) lat lng:(double) lng resolution:(int)resolution {
+
+  NSMutableString *cell = [NSMutableString string];
+  double north = 90.0;
+  double south = -90.0;
+  double east = 180.0;
+  double west = -180.0;
+  double subcell_lng_span, subcell_lat_span;
+  char x, y;
+
+  while ([cell length] < resolution) {
+    subcell_lng_span = (east - west) / GEOCELL_GRID_SIZE;
+    subcell_lat_span = (north - south) / GEOCELL_GRID_SIZE;
+
+    x = (char)MIN(floor(GEOCELL_GRID_SIZE * (lng - west) / (east - west)), GEOCELL_GRID_SIZE - 1);
+    y = (char)MIN(floor(GEOCELL_GRID_SIZE * (lat - south) / (north - south)), GEOCELL_GRID_SIZE - 1);
+    [cell appendString:[NSString stringWithFormat:@"%c", [self _subdiv_char:x y:y]]];
+
+    south += subcell_lat_span * y;
+    north = south + subcell_lat_span;
+
+    west += subcell_lng_span * x;
+    east = west + subcell_lng_span;
+  }
+
+  return cell;
+}
+
+- (char) _subdiv_char:(int) posX y:(int)posY {
+  return [GEOCELL_ALPHABET characterAtIndex:(
+          (posY & 2) << 2 |
+          (posX & 2) << 1 |
+          (posY & 1) << 1 |
+          (posX & 1))];
 }
 
 - (GMSCoordinateBounds *)computeBox:(NSString *) geocell {

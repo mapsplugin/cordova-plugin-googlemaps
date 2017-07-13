@@ -1,5 +1,5 @@
 //
-//  Map.h
+//  PluginMap.h
 //  cordova-googlemaps-plugin v2
 //
 //  Created by masashi.

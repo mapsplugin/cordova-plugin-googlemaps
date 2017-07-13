@@ -1,5 +1,5 @@
 //
-//  Geocoder.m
+//  PluginGeocoder.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Katsumata Masashi.
@@ -35,7 +35,7 @@
   self.codeForCountryDictionary = [[NSDictionary alloc] initWithObjects:countryCodes forKeys:countries];
   self.executeQueue =  [NSOperationQueue new];
   self.executeQueue.maxConcurrentOperationCount = 6;
-  
+
 }
 
 -(void)geocode:(CDVInvokedUrlCommand *)command
@@ -45,7 +45,7 @@
       NSDictionary *position = [json objectForKey:@"position"];
       NSString *address = [json objectForKey:@"address"];
       int idx = 0;
-    
+
       if ([json objectForKey:@"idx"]) {
           idx = [[json objectForKey:@"idx"] integerValue];
       }
@@ -85,14 +85,14 @@
               [geocoder geocodeAddressString:address inRegion:region completionHandler:^(NSArray *placemarks, NSError *error) {
 
                   CDVPluginResult* pluginResult;
-                  
+
                   if (error) {
                       if (placemarks.count == 0) {
                           NSMutableDictionary *resultJson = [[NSMutableDictionary alloc] init];
                           [resultJson setObject:[NSNumber numberWithInt:idx] forKey:@"idx"];
                           [resultJson setObject:[[NSArray alloc] init] forKey:@"results"];
                           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultJson];
-                        
+
                       } else {
                           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.description];
                       }
@@ -101,7 +101,7 @@
                       NSMutableDictionary *resultJson = [[NSMutableDictionary alloc] init];
                       [resultJson setObject:[NSNumber numberWithInt:idx] forKey:@"idx"];
                       [resultJson setObject:results forKey:@"results"];
-                      
+
                       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultJson];
                   }
                   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -117,7 +117,7 @@
                           [resultJson setObject:[NSNumber numberWithInt:idx] forKey:@"idx"];
                           [resultJson setObject:[[NSArray alloc] init] forKey:@"results"];
                           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultJson];
-                        
+
                       } else {
                           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.description];
                       }
@@ -126,7 +126,7 @@
                       NSMutableDictionary *resultJson = [[NSMutableDictionary alloc] init];
                       [resultJson setObject:[NSNumber numberWithInt:idx] forKey:@"idx"];
                       [resultJson setObject:results forKey:@"results"];
-                      
+
                       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultJson];
                   }
                   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -145,7 +145,7 @@
               CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
 
               [reverseGeocoder reverseGeocodeCoordinate:position completionHandler:^(GMSReverseGeocodeResponse *response, NSError *error) {
-                
+
                   [self.executeQueue addOperationWithBlock:^{
                       CDVPluginResult* pluginResult;
                       if (error) {
