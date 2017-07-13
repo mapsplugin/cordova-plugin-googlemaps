@@ -522,7 +522,7 @@
 
       NSString *polygonKey = [command.arguments objectAtIndex:0];
       GMSPolygon *polygon = [self.objects objectForKey:polygonKey];
-      NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
+      int zIndex = [[command.arguments objectAtIndex:1] intValue];
 
       // Get properties
       NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];

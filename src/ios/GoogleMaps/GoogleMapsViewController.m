@@ -307,14 +307,25 @@
  * @callback plugin.google.maps.event.MARKER_CLICK
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
-  [self triggerMarkerEvent:@"marker_click" marker:marker];
+
+  NSString *markerId = [NSString stringWithString:marker.userData];
+  NSArray *tmp = [markerId componentsSeparatedByString:@"_"];
+  NSString *className = [tmp objectAtIndex:0];
+
+  if ([className isEqualToString:@"marker"]) {
+    [self triggerMarkerEvent:@"marker_click" marker:marker];
+  }
+
+  if ([className isEqualToString:@"markercluster"]) {
+    [self triggerClusterEvent:@"cluster_click" marker:marker];
+  }
 
   // Get the marker plugin
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
   CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
   NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
 
   BOOL disableAutoPan = false;
@@ -463,13 +474,40 @@
 }
 
 /**
+ * cluster_*** events
+ */
+- (void)triggerClusterEvent: (NSString *)eventName marker:(GMSMarker *)marker
+{
+  if (marker.userData == nil) {
+    return;
+  }
+
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  NSArray *tmp = [markerTag componentsSeparatedByString:@"-"];
+  NSString *clusterId = [tmp objectAtIndex:0];
+  NSString *markerId = [tmp objectAtIndex:1];
+
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        self.mapId, eventName, clusterId, markerId,
+                        marker.position.latitude,
+                        marker.position.longitude];
+  [self execJS:jsString];
+}
+
+/**
  * plugin.google.maps.event.MARKER_*** events
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
+
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  NSArray *tmp = [markerTag componentsSeparatedByString:@"-"];
+  NSString *markerId = [tmp objectAtIndex:([tmp count] - 1)];
+
   NSString* jsString = [NSString
-                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['marker_%lu', {lat: %f, lng: %f}]});",
-                              self.mapId, eventName, (unsigned long)marker.hash,
+                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                              self.mapId, eventName, markerId,
                               marker.position.latitude,
                               marker.position.longitude];
   [self execJS:jsString];

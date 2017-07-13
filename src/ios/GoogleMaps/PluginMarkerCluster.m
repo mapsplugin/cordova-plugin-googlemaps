@@ -11,6 +11,8 @@
 
 const NSString *GEOCELL_ALPHABET = @"0123456789abcdef";
 const int GEOCELL_GRID_SIZE = 4;
+NSObject *dummyObject;
+
 
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -23,10 +25,12 @@ const int GEOCELL_GRID_SIZE = 4;
     return;
   }
   // Initialize this plugin
+  dummyObject = [[NSObject alloc] init];
   self.objects = [[NSMutableDictionary alloc] init];
   self._pluginResults = [[NSMutableDictionary alloc] init];
   self.waitCntManager = [NSMutableDictionary dictionary];
   self.pluginMarkers = [NSMutableDictionary dictionary];
+  self.executeQueue =  [NSOperationQueue new];
 }
 
 - (void)pluginUnload
@@ -50,61 +54,7 @@ const int GEOCELL_GRID_SIZE = 4;
   self._pluginResults = nil;
 }
 
-- (void)onHookedPluginResult:(CDVPluginResult*)pluginResult callbackId:(NSString*)callbackId {
-  /*
-  NSArray *tmp = [callbackId componentsSeparatedByString:@"/"];
-  NSString *method = [tmp objectAtIndex:2];
-  NSString *clusterId = [tmp objectAtIndex:3];
-  NSString *geocell = [tmp objectAtIndex:4];
-  NSString *cluster_geocell = [NSString stringWithFormat:@"%@-%@",clusterId, geocell];
-  NSDictionary *result = pluginResult.message;
-
-  if ([@"create" isEqualToString:method]) {
-    int reqResolution = [[tmp objectAtIndex:5] intValue];
-    NSString *markerId = [result objectForKey:@"id"];
-
-
-    @synchronized (self.pluginMarkers) {
-      NSString *storeId = [self.pluginMarkers objectForKey:cluster_geocell];
-      if (![@"(nil)" isEqualToString:storeId] ||
-          reqResolution != [[self.resolutions objectForKey:clusterId] intValue]) {
-
-        [self.executeQueue addOperationWithBlock:^{
-          NSMutableArray *args2 = [[NSMutableArray alloc] init];
-          [args2 setObject:markerId atIndexedSubscript:0];
-
-
-          CDVInvokedUrlCommand *command2 = [[CDVInvokedUrlCommand alloc]
-                                            initWithArguments:args2
-                                            callbackId: @"INVALID"
-                                            className:@"PluginMarker"
-                                            methodName:@"remove"];
-          NSString *pluginName = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
-
-          PluginMarker *pluginMarker = [self.commandDelegate getCommandInstance:pluginName];
-          [pluginMarker remove:command2];
-        }];
-        return;
-      }
-
-      [self.pluginMarkers setObject:markerId forKey:cluster_geocell];
-      NSLog(@"---> created : %@", cluster_geocell);
-    }
-  }
-
-  if ([@"delete" isEqualToString:method]) {
-    @synchronized (self.pluginMarkers) {
-      [self.pluginMarkers removeObjectForKey:cluster_geocell];
-      NSLog(@"---> removed : %@", cluster_geocell);
-    }
-
-  }
-   */
-}
-
-
 - (void)create:(CDVInvokedUrlCommand*)command {
-  NSLog(@"--->create");
   NSDictionary *params = [command.arguments objectAtIndex:1];
   NSArray *positionList = [params objectForKey:@"positionList"];
   NSMutableArray *geocellList = [NSMutableArray array];
@@ -128,150 +78,428 @@ const int GEOCELL_GRID_SIZE = 4;
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-
-- (void (^)())deleteOldCluster:(NSString *)clusterId geocell:(NSString*)geocell {
-  /*
-  return ^{
-    NSString *clusterId_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
-    NSString *markerId = nil;
-    @synchronized (self.pluginMarkers) {
-      if ([self.pluginMarkers objectForKey:clusterId_geocell] == nil) {
-        [self.pluginMarkers setObject:@"(deleted)" forKey:clusterId_geocell];
-        return;
-      }
-      markerId = [self.pluginMarkers objectForKey:clusterId_geocell];
-    }
-
-    if ([@"(deleted)" isEqualToString:markerId] ||
-        [@"(nil)" isEqualToString:markerId]) {
-      NSLog(@"--> markerId = %@ : %@", markerId, clusterId_geocell);
-      return;
-    }
-
-    NSMutableArray *args = [[NSMutableArray alloc] init];
-    [args setObject:markerId atIndexedSubscript:0];
-
-    NSString *pluginId = [NSString stringWithFormat:@"%@-markercluster", self.mapCtrl.mapId];
-    NSString *callbackId = [NSString stringWithFormat:@"%@://delete/%@/%@", pluginId, clusterId, geocell];
-    CDVInvokedUrlCommand *command = [[CDVInvokedUrlCommand alloc]
-                                    initWithArguments:args
-                                    callbackId: callbackId
-                                    className:@"PluginMarker"
-                                    methodName:@"remove"];
-
-    NSString *pluginName = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
-    PluginMarker *pluginMarker = [self.commandDelegate getCommandInstance:pluginName];
-    [pluginMarker remove:command];
-  };
-   */
-}
-
 - (void)redrawClusters:(CDVInvokedUrlCommand*)command {
-/*
-  @synchronized (self) {
 
-    NSString *clusterId = [command.arguments objectAtIndex:0];
+
+  __block NSMutableDictionary *updateClusterIDs = [NSMutableDictionary dictionary];
+  __block NSMutableArray *deleteClusterIDs = [NSMutableArray array];
+  __block NSMutableDictionary *changeProperties = [NSMutableDictionary dictionary];
+  __block NSString *clusterId = [command.arguments objectAtIndex: 0];
+
+  @synchronized (dummyObject) {
     NSDictionary *params = [command.arguments objectAtIndex:1];
-    int resolution = [[params objectForKey:@"resolution"] intValue];
+    NSString *clusterId_markerId, *deleteMarkerId, *markerId;
+    NSMutableArray *deleteClusters = nil;
 
-    [self.resolutions setObject:[NSNumber numberWithInt:resolution] forKey:clusterId];
+    if ([params objectForKey:@"delete"]) {
+      deleteClusters = [params objectForKey:@"delete"];
+    }
+    NSMutableArray *new_or_update = nil;
+    if ([params objectForKey:@"new_or_update"]) {
+      new_or_update = [params objectForKey:@"new_or_update"];
+    }
 
-    //--------
-    // delete old clusters
-    //--------
-    NSArray *deleteClusters = [params objectForKey:@"delete"];
-    if (deleteClusters != nil && [deleteClusters count] > 0) {
-
-      NSString *geocell;
-
-      for (int i = 0; i < [deleteClusters count]; i++) {
-        geocell = [deleteClusters objectAtIndex:i];
-        [self.executeQueue addOperationWithBlock:
-         [self deleteOldCluster:clusterId geocell:geocell]];
-      }
+    int deleteCnt = 0;
+    int new_or_updateCnt = 0;
+    if (deleteClusters != nil) {
+      deleteCnt = (int)[deleteClusters count];
+    }
+    if (new_or_update != nil) {
+      new_or_updateCnt = (int)[new_or_update count];
+    }
+    for (int i = 0; i < deleteCnt; i++) {
+      markerId = [deleteClusters objectAtIndex:i];
+      [deleteClusterIDs addObject:[NSString stringWithFormat:@"%@-%@", clusterId, markerId]];
     }
 
 
-    //--------
-    // Create or update clusters
-    //--------
-    NSArray *changeClusters = [params objectForKey:@"new_or_update"];
-    if (changeClusters != nil && [changeClusters count] > 0) {
+    //---------------------------
+    // Determine new or update
+    //---------------------------
+    NSDictionary *clusterData, *positionJSON;
+    NSMutableDictionary *properties;
+    for (int i = 0; i < new_or_updateCnt; i++) {
+      clusterData = [new_or_update objectAtIndex:i];
+      positionJSON = [clusterData objectForKey:@"position"];
+      markerId = [clusterData objectForKey:@"id"];
+      clusterId_markerId = [NSString stringWithFormat:@"%@-%@", clusterId, markerId];
 
-      NSDictionary *clusterData;
-      NSBlockOperation *task;
+      @synchronized (self.objects) {
+        [self.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
+      }
 
-      for (int i = 0; i < [changeClusters count]; i++) {
-        clusterData = [changeClusters objectAtIndex:i];
+      if ([self.objects objectForKey:clusterId_markerId] != nil || [_pluginMarkers objectForKey:clusterId_markerId] != nil) {
+        [updateClusterIDs setObject:clusterId_markerId forKey:clusterId_markerId];
+      } else {
+        if (deleteCnt > 0) {
+          //---------------
+          // Reuse a marker
+          //---------------
+          deleteMarkerId = [deleteClusterIDs objectAtIndex:0];
+          [deleteClusterIDs removeObjectAtIndex:0];
+          deleteCnt--;
+          [updateClusterIDs setObject:clusterId_markerId forKey:deleteMarkerId];
+        } else {
+          [_pluginMarkers setObject:@"WORKING" forKey:clusterId_markerId];
+          [updateClusterIDs setObject:@"nil" forKey:clusterId_markerId];
+        }
+      }
 
-        task = [self createClusterTaskWithClusterId:clusterId
-                                                          clusterData:clusterData
-                                                           resolution:resolution];
-        if (task != nil) {
-          [self.executeQueue addOperation: task];
+      properties = [NSMutableDictionary dictionary];
+      if ([clusterData objectForKey:@"geocell"]) {
+        [properties setObject:[clusterData objectForKey:@"geocell"] forKey:@"geocell"];
+      }
+      [properties setObject:[positionJSON objectForKey:@"lat"] forKey:@"lat"];
+      [properties setObject:[positionJSON objectForKey:@"lng"] forKey:@"lng"];
+      if ([clusterData objectForKey:@"title"]) {
+        [properties setObject:[clusterData objectForKey:@"title"] forKey:@"title"];
+      }
+      [properties setObject:clusterId_markerId forKey:@"id"];
+
+      if ([clusterData objectForKey:@"icon"]) {
+        id iconObj = [clusterData objectForKey:@"icon"];
+        if ([[iconObj class] isSubclassOfClass:[NSString class]]) {
+          NSMutableDictionary *iconProperties = [NSMutableDictionary dictionary];
+          [iconProperties setObject:iconObj forKey:@"url"];
+          [properties setObject:iconProperties forKey:@"icon"];
+
+        } else if ([[iconObj class] isSubclassOfClass:[NSDictionary class]]) {
+          NSMutableDictionary *iconProperties = [NSMutableDictionary dictionaryWithDictionary:iconObj];
+          if ([iconProperties objectForKey:@"label"]) {
+            NSMutableDictionary *label = [NSMutableDictionary dictionaryWithDictionary:[iconProperties objectForKey:@"label"]];
+            [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
+            [iconProperties setObject:label forKey:@"label"];
+          } else {
+            NSMutableDictionary *label = [NSMutableDictionary dictionary];
+            [label setObject:[NSNumber numberWithInt:20] forKey:@"fontSize"];
+            [label setObject:[NSNumber numberWithBool:TRUE] forKey:@"bold"];
+            [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
+            [iconProperties setObject:label forKey:@"label"];
+          }
+
+          if ([iconProperties objectForKey:@"anchor"]) {
+            [iconProperties setObject:[iconProperties objectForKey:@"anchor"] forKey:@"anchor"];
+          }
+          if ([iconProperties objectForKey:@"infoWindowAnchor"]) {
+            [iconProperties setObject:[iconProperties objectForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+          }
+
+          [properties setObject:iconProperties forKey:@"icon"];
+        }
+      }
+      [changeProperties setObject:properties forKey:clusterId_markerId];
+    }
+  }
+
+  //---------------------------
+  // mapping markers on the map
+  //---------------------------
+  [[NSOperationQueue mainQueue] addOperationWithBlock: ^{
+    self.mapCtrl.map.selectedMarker = nil;
+    NSString *oldMakrerId, *newMarkerId, *targetMarkerId, *iconCacheKey;
+    NSMutableDictionary *markerProperties;
+    GMSMarker *marker;
+    GMSPolygon *polygon;
+    GMSCoordinateBounds *bounds;
+    GMSMutablePath *boundsPath;
+    CLLocationCoordinate2D position;
+    double latitude, longitude;
+
+    //---------------------
+    // reuse or update
+    //---------------------
+    [_waitCntManager setObject:[NSNumber numberWithInteger:[updateClusterIDs count]] forKey:clusterId];
+    NSArray<NSString *> *markerIDList = [updateClusterIDs allKeys];
+    for (int i = 0; i < [markerIDList count]; i++) {
+      oldMakrerId = [markerIDList objectAtIndex:i];
+      newMarkerId = [updateClusterIDs objectForKey:oldMakrerId];
+      if ([newMarkerId isEqualToString:@"nil"]) {
+        targetMarkerId = oldMakrerId;
+        markerProperties = [changeProperties objectForKey:targetMarkerId];
+
+        latitude = [[markerProperties objectForKey:@"lat"] doubleValue];
+        longitude = [[markerProperties objectForKey:@"lng"] doubleValue];
+        position = CLLocationCoordinate2DMake(latitude, longitude);
+        marker = [GMSMarker markerWithPosition:position];
+        marker.tracksViewChanges = NO;
+        marker.tracksInfoWindowChanges = NO;
+        marker.appearAnimation = NO;
+        marker.map = self.mapCtrl.map;
+        if ([markerProperties objectForKey:@"title"]) {
+          marker.title = [markerProperties objectForKey:@"title"];
+        }
+        if ([markerProperties objectForKey:@"snippet"]) {
+          marker.snippet = [markerProperties objectForKey:@"snippet"];
+        }
+        marker.userData = targetMarkerId;
+        @synchronized (self.objects) {
+          [self.objects setObject:marker forKey:targetMarkerId];
+          [_pluginMarkers setObject:@"WORKING" forKey:targetMarkerId];
         }
 
+        if ([markerProperties objectForKey:@"geocell"]) {
+          bounds = [self computeBox:[markerProperties objectForKey:@"geocell"]];
+
+          boundsPath = [GMSMutablePath path];
+          [boundsPath addCoordinate:bounds.northEast];
+          [boundsPath addLatitude:bounds.northEast.latitude longitude:bounds.southWest.longitude];
+          [boundsPath addCoordinate:bounds.southWest];
+          [boundsPath addLatitude:bounds.southWest.latitude longitude:bounds.northEast.longitude];
+          polygon = [GMSPolygon polygonWithPath: boundsPath];
+          polygon.map = self.mapCtrl.map;
+          polygon.strokeColor = UIColor.blackColor;
+          polygon.strokeWidth = 2;
+          polygon.userData = @"polygon";
+          [self.objects setObject:polygon forKey:[NSString stringWithFormat:@"polygon%@", targetMarkerId]];
+        }
+      } else {
+        marker = nil;
+        polygon = nil;
+        while (marker == nil) {
+          marker = [self.objects objectForKey:oldMakrerId];
+          polygon = [self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]];
+
+          if (marker == nil || marker.userData == nil) {
+            @synchronized (self.objects) {
+              if ([self.objects objectForKey:oldMakrerId]) {
+                [self.objects removeObjectForKey:oldMakrerId];
+              }
+              if ([self.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", oldMakrerId]]) {
+                [self.objects removeObjectForKey:[NSString stringWithFormat:@"marker_property_%@", oldMakrerId]];
+              }
+              if ([[self.pluginMarkers objectForKey:oldMakrerId] isEqualToString:@"DELETED"]) {
+                [self.pluginMarkers removeObjectForKey:oldMakrerId];
+              } else {
+                [self.pluginMarkers setObject:@"DELETED" forKey:oldMakrerId];
+              }
+              polygon = [self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]];
+              if (polygon != nil && polygon.userData != nil) {
+                polygon.userData = nil;
+                polygon.map = nil;
+                polygon = nil;
+                [self.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]];
+              }
+            }
+            if ([deleteClusterIDs count] > 0) {
+              oldMakrerId = [deleteClusterIDs objectAtIndex:0];
+              [deleteClusterIDs removeObjectAtIndex:0];
+            } else {
+              marker = [GMSMarker markerWithPosition:CLLocationCoordinate2DMake(0, 0)];
+              marker.tracksViewChanges = NO;
+              marker.tracksInfoWindowChanges = NO;
+              marker.map = nil;
+            }
+          }
+        }
+
+        markerProperties = [changeProperties objectForKey:newMarkerId];
+        if ([[_pluginMarkers objectForKey:newMarkerId] isEqualToString:@"DELETED"]) {
+
+          if ([self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", newMarkerId]]) {
+            [self.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", newMarkerId]];
+          }
+
+          [self decreaseWaitCntOrExit:clusterId command:command];
+          continue;
+        }
+
+        marker.position = CLLocationCoordinate2DMake(
+            [[markerProperties objectForKey:@"lat"] doubleValue], [[markerProperties objectForKey:@"lng"] doubleValue]);
+        if ([markerProperties objectForKey:@"title"]) {
+          marker.title = [markerProperties objectForKey:@"title"];
+        } else {
+          marker.title = nil;
+        }
+        if ([markerProperties objectForKey:@"snippet"]) {
+          marker.snippet = [markerProperties objectForKey:@"snippet"];
+        } else {
+          marker.snippet = nil;
+        }
+        marker.userData = newMarkerId;
+        marker.map = self.mapCtrl.map;
+
+        targetMarkerId = newMarkerId;
+        if ([markerProperties objectForKey:@"geocell"]) {
+          bounds = [self computeBox:[markerProperties objectForKey:@"geocell"]];
+          boundsPath = [GMSMutablePath path];
+          [boundsPath addCoordinate:bounds.northEast];
+          [boundsPath addLatitude:bounds.northEast.latitude longitude:bounds.southWest.longitude];
+          [boundsPath addCoordinate:bounds.southWest];
+          [boundsPath addLatitude:bounds.southWest.latitude longitude:bounds.northEast.longitude];
+
+          if (polygon == nil || polygon.userData == nil) {
+            polygon = [GMSPolygon polygonWithPath: boundsPath];
+            polygon.map = self.mapCtrl.map;
+            polygon.strokeColor = UIColor.blackColor;
+            polygon.strokeWidth = 2;
+            polygon.userData = @"polygon";
+          } else {
+            polygon.path = boundsPath;
+          }
+        } else if (polygon != nil && polygon.userData != nil) {
+          polygon.userData = nil;
+          polygon.map = nil;
+          polygon = nil;
+
+          if ([self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]]) {
+            [self.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]];
+          }
+        }
+
+        if (![oldMakrerId isEqualToString:newMarkerId]) {
+          @synchronized (self.objects) {
+            [self.objects setObject:marker forKey:newMarkerId];
+            if (polygon != nil && polygon.userData != nil) {
+              [self.objects setObject:polygon forKey:[NSString stringWithFormat:@"polygon%@", newMarkerId]];
+            }
+            [_pluginMarkers setObject:@"CREATD" forKey:newMarkerId];
+            [self.objects removeObjectForKey:oldMakrerId];
+            iconCacheKey = [self.objects objectForKey:[NSString stringWithFormat:@"marker_icon_%@", oldMakrerId]];
+            if (iconCacheKey != nil) {
+              [self.objects removeObjectForKey:[NSString stringWithFormat:@"marker_icon_%@", oldMakrerId]];
+              [self.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", newMarkerId]];
+            }
+            [_pluginMarkers removeObjectForKey:oldMakrerId];
+          }
+        } else {
+          @synchronized (self.objects) {
+            [self.objects setObject:marker forKey:newMarkerId];
+            if (polygon != nil && polygon.userData != nil) {
+              [self.objects setObject:polygon forKey:[NSString stringWithFormat:@"polygon%@", newMarkerId]];
+            }
+          }
+        }
+      }
+
+      if ([markerProperties objectForKey:@"icon"]) {
+        PluginMarkerCluster *self_ = self;
+        NSDictionary *icon = [markerProperties objectForKey:@"icon"];
+        [self setIconToClusterMarker:targetMarkerId marker:marker iconProperty:icon callbackBlock:^(BOOL successed, id resultObj) {
+          if (successed == NO) {
+            NSLog(@"(error) %@", resultObj);
+          }
+          [self_ decreaseWaitCntOrExit:clusterId command:command];
+        }];
+      } else {
+        [self decreaseWaitCntOrExit:clusterId command:command];
+        marker.icon = nil;
       }
     }
 
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-  }
-*/
-}
 
-- (NSBlockOperation *)createClusterTaskWithClusterId:(NSString*)clusterId clusterData:(NSDictionary *)clusterData resolution:(int)resolution {
-  /*
-  NSString *geocell = [clusterData objectForKey:@"geocell"];
-  NSString *cluster_geocell = [NSString stringWithFormat:@"%@-%@", clusterId, geocell];
-
-  @synchronized(self.pluginMarkers) {
-
-    if ([self.pluginMarkers objectForKey:cluster_geocell]) {
-      NSLog(@"---> (contained) %@ : %@", cluster_geocell, [self.pluginMarkers objectForKey:cluster_geocell]);
-      return nil;
+    //---------
+    // delete
+    //---------
+    for (int i = 0; i < [deleteClusterIDs count]; i++) {
+      oldMakrerId = [deleteClusterIDs objectAtIndex:i];
+      @synchronized (self.objects) {
+        marker = [self.objects objectForKey:oldMakrerId];
+        polygon = [self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]];
+      }
+      @synchronized (self.pluginMarkers) {
+        if (![[self.pluginMarkers objectForKey:oldMakrerId] isEqualToString:@"WORKING"]) {
+          if (polygon != nil && polygon.userData != nil) {
+            polygon.userData = nil;
+            polygon.map = nil;
+            polygon = nil;
+          }
+          @synchronized (self.objects) {
+            [self _removeMarker:marker];
+            marker = nil;
+            if ([self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]]) {
+              [self.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", oldMakrerId]];
+            }
+          }
+          [self.pluginMarkers removeObjectForKey:oldMakrerId];
+        } else {
+          [self.pluginMarkers setObject:@"DELETED" forKey:oldMakrerId];
+        }
+      }
     }
-    [self.pluginMarkers setObject:@"(nil)" forKey:cluster_geocell];
-  }
-
-
-  GMSCoordinateBounds *bounds = [self computeBox:geocell];
-  NSMutableDictionary *position = [[NSMutableDictionary alloc] init];
-  [position setObject:[NSNumber numberWithFloat:bounds.center.latitude] forKey:@"lat"];
-  [position setObject:[NSNumber numberWithFloat:bounds.center.longitude] forKey:@"lng"];
-
-  NSMutableDictionary *markerOpts = [[NSMutableDictionary alloc] init];
-  [markerOpts setObject:position forKey:@"position"];
-  [markerOpts setObject:[NSString stringWithFormat:@"%@-%@", clusterId, geocell] forKey:@"title"];
-  [markerOpts setObject:@"true" forKey:@"visible"];
-  [markerOpts setObject:[NSString
-    stringWithFormat:@"https://mt.google.com/vt/icon/text=%lu&psize=16&font=fonts/arialuni_t.ttf&color=ff330000&name=icons/spotlight/spotlight-waypoint-b.png&ax=44&ay=48&scale=1",
-      (unsigned long)geocell.length]
-    forKey:@"icon"];
-
-  NSMutableArray *args = [[NSMutableArray alloc] init];
-  [args setObject:@"Marker" atIndexedSubscript:0];
-  [args setObject:markerOpts atIndexedSubscript:1];
-
-  NSString *pluginId = [NSString stringWithFormat:@"%@-markercluster", self.mapCtrl.mapId];
-  NSString *callbackId = [NSString stringWithFormat:@"%@://create/%@/%@/%d", pluginId, clusterId, geocell, resolution];
-  CDVInvokedUrlCommand *command2 = [[CDVInvokedUrlCommand alloc]
-                                    initWithArguments:args
-                                    callbackId:callbackId
-                                    className:@"PluginMap"
-                                    methodName:@"loadPlugin"];
-
-
-  return [NSBlockOperation blockOperationWithBlock:^{
-    //------------------
-    // Create a marker
-    //------------------
-    PluginMap *pluginMap = [self.commandDelegate getCommandInstance:self.mapCtrl.mapId];
-    [pluginMap loadPlugin:command2];
   }];
-   */
+
 }
 
+- (void) setIconToClusterMarker:(NSString *) markerId marker:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock {
+  PluginMarkerCluster *self_ = self;
+  @synchronized (_pluginMarkers) {
+    if ([[_pluginMarkers objectForKey:markerId] isEqualToString:@"DELETED"]) {
+      [self _removeMarker:marker];
+      if ([self.pluginMarkers objectForKey:markerId]) {
+        [_pluginMarkers removeObjectForKey:markerId];
+      }
+      GMSPolygon *polygon = [self.objects objectForKey:[NSString stringWithFormat:@"polygon%@", markerId]];
+      if (polygon != nil && polygon.userData != nil) {
+        polygon.userData = nil;
+        polygon.map = nil;
+        polygon = nil;
+        [self.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", markerId]];
+      }
+
+      callbackBlock(NO, @"marker has been removed");
+      return;
+    }
+    [_pluginMarkers setObject:@"WORKING" forKey:markerId];
+  }
+  [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id resultObj) {
+    if (successed) {
+      //----------------------------------------------------------------------
+      // If marker has been already marked as DELETED, remove the marker.
+      //----------------------------------------------------------------------
+      GMSMarker *marker = resultObj;
+      @synchronized (self_.pluginMarkers) {
+        if ([[self_.pluginMarkers objectForKey:markerId] isEqualToString:@"DELETED"]) {
+            [self_ _removeMarker:marker];
+            [self_.pluginMarkers removeObjectForKey:markerId];
+
+            GMSPolygon *polygon = [self_.objects objectForKey:[NSString stringWithFormat:@"polygon%@", markerId]];
+            if (polygon != nil && polygon.userData != nil) {
+                [self_.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", markerId]];
+                polygon.userData = nil;
+                polygon.map = nil;
+                polygon = nil;
+            }
+            callbackBlock(YES, nil);
+            return;
+        }
+
+        [self_.pluginMarkers setObject:@"CREATED" forKey:markerId];
+        callbackBlock(YES, marker);
+        return;
+      }
+    } else {
+      if (marker != nil && marker.userData != nil) {
+        [self_ _removeMarker:marker];
+      }
+      @synchronized (self_.pluginMarkers) {
+        [self_.pluginMarkers removeObjectForKey:markerId];
+      }
+
+      GMSPolygon *polygon = [self_.objects objectForKey:[NSString stringWithFormat:@"polygon%@", markerId]];
+      if (polygon != nil && polygon.userData != nil) {
+          [self_.objects removeObjectForKey:[NSString stringWithFormat:@"polygon%@", markerId]];
+          polygon.userData = nil;
+          polygon.map = nil;
+          polygon = nil;
+      }
+      callbackBlock(NO, resultObj);
+    }
+  }];
+}
+
+- (void) decreaseWaitCntOrExit:(NSString *) key command: (CDVInvokedUrlCommand*)command{
+
+  @synchronized (_waitCntManager) {
+    int waitCnt = [[_waitCntManager objectForKey:key] intValue];
+    waitCnt = waitCnt - 1;
+    [_waitCntManager setObject:[NSNumber numberWithInt:waitCnt] forKey:key];
+
+    if (waitCnt == 0) {
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+  }
+}
 
 - (NSString *)getGeocell:(double) lat lng:(double) lng resolution:(int)resolution {
 
@@ -308,6 +536,7 @@ const int GEOCELL_GRID_SIZE = 4;
           (posY & 1) << 1 |
           (posX & 1))];
 }
+
 
 - (GMSCoordinateBounds *)computeBox:(NSString *) geocell {
   NSString *geoChar;

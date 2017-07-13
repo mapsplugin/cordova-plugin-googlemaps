@@ -16,10 +16,11 @@
 - (void)pluginInitialize
 {
   // Initialize this plugin
-  self.imgCache = [[NSCache alloc]init];
-  self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
+  self.icons = [[NSCache alloc]init];
+  self.icons.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
   self.executeQueue =  [NSOperationQueue new];
-  self.objects = [[NSMutableDictionary alloc] init];
+  self.objects = [NSMutableDictionary dictionary];
+  self.iconCacheKeys = [NSMutableDictionary dictionary];
 }
 
 - (void)pluginUnload
@@ -46,8 +47,8 @@
   }
   self.objects = nil;
 
-  [self.imgCache removeAllObjects];
-  self.imgCache = nil;
+  [self.icons removeAllObjects];
+  self.icons = nil;
   key = nil;
   keys = nil;
 
@@ -78,6 +79,7 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSMutableDictionary *iconProperty = nil;
         NSString *animation = nil;
+        CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
 
         // Create a marker
         GMSMarker *marker = [GMSMarker markerWithPosition:position];
@@ -110,6 +112,7 @@
 
         NSString *markerId = [NSString stringWithFormat:@"marker_%lu", (unsigned long)marker.hash];
         [self.objects setObject:marker forKey: markerId];
+        marker.userData = markerId;
 
         [result setObject:markerId forKey:@"id"];
         [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)marker.hash] forKey:@"hashCode"];
@@ -170,8 +173,10 @@
             }
 
             // Load icon in asynchronise
-            CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-            [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+            [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id result) {
+                CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+                [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+            }];
 
         } else {
 
@@ -179,12 +184,23 @@
                 if ([[json valueForKey:@"visible"] boolValue]) {
                     marker.map = self.mapCtrl.map;
                 }
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+
+
                 if (animation) {
-                    [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:command.callbackId];
+                    [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id resultObj) {
+                        CDVPluginResult* pluginResult;
+                        if (successed == NO) {
+                            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:resultObj];
+                        } else {
+                            pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+                        }
+                        [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+                    }];
                 } else {
-                    [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+                    CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+                    [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
                 }
+
             });
         }
     }];
@@ -306,16 +322,53 @@
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
       GMSMarker *marker = [self.objects objectForKey:markerId];
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-      marker.map = nil;
-      [self.objects removeObjectForKey:markerId];
-      [self.objects removeObjectForKey:propertyId];
-      marker = nil;
+      [self _removeMarker:marker];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
+
+-(void)_removeMarker:(GMSMarker *)marker {
+  if (marker == nil || marker.userData == nil) {
+    return;
+  }
+
+  @synchronized (self.objects) {
+    NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+    NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
+    [self.objects removeObjectForKey:marker.userData];
+    [self.objects removeObjectForKey:propertyId];
+    marker.map = nil;
+    marker = nil;
+
+    if ([self.objects objectForKey:iconCacheKey]) {
+      NSString *cacheKey = [self.objects objectForKey:iconCacheKey];
+      if ([self.objects objectForKey:iconCacheKey]) {
+        [self.objects removeObjectForKey:iconCacheKey];
+
+        if ([self.iconCacheKeys objectForKey:cacheKey]) {
+          int count = [[self.iconCacheKeys objectForKey:cacheKey] intValue];
+          count--;
+          if (count < 1) {
+            UIImage *image = [self.icons objectForKey:cacheKey];
+            if (image != nil) {
+              image = nil;
+            }
+            [self.icons removeObjectForKey:cacheKey];
+            [self.iconCacheKeys removeObjectForKey:cacheKey];
+          } else {
+            [self.iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:cacheKey];
+          }
+        }
+      }
+      if ([self.objects objectForKey:iconCacheKey]) {
+        [self.objects removeObjectForKey:iconCacheKey];
+      }
+    }
+  }
+}
+
 /**
  * Set anchor of the marker
  * @params markerId
@@ -534,9 +587,16 @@
           [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
       }
 
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self setIcon_:marker iconProperty:iconProperty pluginResult:pluginResult callbackId:command.callbackId];
+      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
+      [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id resultObj) {
+        CDVPluginResult* pluginResult;
+        if (successed == NO) {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:resultObj];
+        } else {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        }
+        [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 }
 /**
@@ -565,27 +625,29 @@
       GMSMarker *marker = [self.objects objectForKey:markerId];
 
       NSString *animation = [command.arguments objectAtIndex:1];
+      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
 
-      CDVPluginResult* successResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self setMarkerAnimation_:animation marker:marker pluginResult:successResult callbackId:command.callbackId];
+      [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
   }];
 }
 
--(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId {
+-(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
 
     animation = [animation uppercaseString];
     SWITCH(animation) {
         CASE (@"DROP") {
-            [self setDropAnimation_:marker pluginResult:pluginResult callbackId:callbackId];
+            [self setDropAnimation_:marker callbackBlock:callbackBlock];
             break;
         }
         CASE (@"BOUNCE") {
-            [self setBounceAnimation_:marker pluginResult:pluginResult callbackId:callbackId];
+            [self setBounceAnimation_:marker callbackBlock:callbackBlock];
             break;
         }
         DEFAULT {
-            //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-            [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+            callbackBlock();
             break;
         }
     }
@@ -597,7 +659,7 @@
  * (memo) http://qiita.com/edo_m18/items/4309d01b67ee42c35b3c
  * (memo) http://stackoverflow.com/questions/12164049/animationdidstop-for-group-animation
  */
--(void)setDropAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId {
+-(void)setDropAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
     int duration = 1;
 
     CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
@@ -630,16 +692,12 @@
     CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
     group.animations = @[longitudeAnim, latitudeAnim];
     group.duration = duration;
-    [group setCompletionBlock:^(void){
-        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
-    }];
+    [group setCompletionBlock: callbackBlock];
 
     [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
 
 }
--(void)setBounceAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId
-{
+-(void)setBounceAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
     /**
      * Marker drop animation
      */
@@ -676,10 +734,7 @@
     CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
     group.animations = @[longitudeAnim, latitudeAnim];
     group.duration = duration;
-    [group setCompletionBlock:^(void){
-        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
-    }];
+    [group setCompletionBlock: callbackBlock];
 
     [marker.layer addAnimation:group forKey:@"bounceMarkerAnim"];
 }
@@ -688,16 +743,15 @@
  * @private
  * Load the icon; then set to the marker
  */
--(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
-   pluginResult:(CDVPluginResult *)pluginResult
-     callbackId:(NSString*)callbackId {
+
+-(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock {
 
     if (self.mapCtrl.debuggable) {
         NSLog(@"---- setIcon_");
     }
     NSString *iconPath = nil;
-    CGFloat width = 0;
-    CGFloat height = 0;
+    CGFloat width = -1;
+    CGFloat height = -1;
 
     // `url` property
     iconPath = [iconProperty valueForKey:@"url"];
@@ -715,6 +769,60 @@
         animationValue = [iconProperty valueForKey:@"animation"];
     }
     __block NSString *animation = animationValue;
+
+    NSString *iconCacheKey = [NSString stringWithFormat:@"%lu/%d,%d", (unsigned long)iconPath.hash, (int)width, (int)height];
+    NSData *cache = [self.icons objectForKey:iconCacheKey];
+    if (cache != nil) {
+        int cacheHitCount = [[self.iconCacheKeys objectForKey:iconCacheKey] intValue];
+        cacheHitCount++;
+        [self.iconCacheKeys setObject:[NSNumber numberWithInt:cacheHitCount] forKey:iconCacheKey];
+
+        UIImage *image = [[UIImage alloc] initWithData:cache];
+
+        if ([iconProperty objectForKey:@"label"]) {
+            image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            marker.icon = image;
+
+            CGFloat anchorX = 0;
+            CGFloat anchorY = 0;
+            // The `anchor` property for the icon
+            if ([iconProperty valueForKey:@"anchor"]) {
+                NSArray *points = [iconProperty valueForKey:@"anchor"];
+                anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                marker.groundAnchor = CGPointMake(anchorX, anchorY);
+            }
+
+            // The `infoWindowAnchor` property
+            if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+                NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+                anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+            }
+
+
+            // The `visible` property
+            if (iconProperty[@"visible"]) {
+                marker.map = self.mapCtrl.map;
+            }
+
+            if (animation) {
+                // Do animation, then send the result
+                [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                    callbackBlock(YES, marker);
+                }];
+            } else {
+                // Send the result
+                callbackBlock(YES, marker);
+            }
+        });
+
+        return;
+    }
 
     if (iconPath) {
 
@@ -758,7 +866,7 @@
                             NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
                         }
                         //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                        callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
                         return;
                     }
                 }
@@ -799,7 +907,7 @@
                             NSLog(@"(error)There is no file at '%@'.", iconPath);
                         //}
                         //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                        callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
                         return;
                     }
                 }
@@ -809,6 +917,18 @@
                 if (width && height) {
                     image = [image resize:width height:height];
                 }
+            }
+
+            // Cache the icon image
+            NSData *imgData = UIImagePNGRepresentation(image);
+            [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
+            imgData = nil;
+            [self.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
+            [self.iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
+
+
+            if ([iconProperty objectForKey:@"label"]) {
+              image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
             }
 
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -840,11 +960,12 @@
 
                 if (animation) {
                     // Do animation, then send the result
-                    [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+                    [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                        callbackBlock(YES, marker);
+                    }];
                 } else {
                     // Send the result
-                    //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                    [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                    callbackBlock(YES, marker);
                 }
             });
         } else {
@@ -854,6 +975,7 @@
             /***
              * Load the icon from over the internet
              */
+            [self.iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
 
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
             dispatch_async(queue, ^{
@@ -868,15 +990,26 @@
                         if ([[iconProperty valueForKey:@"visible"] boolValue]) {
                             marker.map = self.mapCtrl.map;
                         }
+                        if ([self.iconCacheKeys objectForKey:iconCacheKey]) {
+                            [self.iconCacheKeys removeObjectForKey:iconCacheKey];
+                        }
 
-                        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                        [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                        callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
                         return;
                     }
+
+
 
                     if (width && height) {
                         image = [image resize:width height:height];
                     }
+
+                    // Cache the icon image
+                    NSData *imgData = UIImagePNGRepresentation(image);
+                    [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
+                    imgData = nil;
+                    [self.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
+
 
                     dispatch_async(dispatch_get_main_queue(), ^{
                         marker.icon = image;
@@ -906,17 +1039,12 @@
 
                         if (animation) {
                             // Do animation, then send the result
-                            if (self.mapCtrl.debuggable) {
-                                NSLog(@"---- do animation animation = %@", animation);
-                            }
-                            [self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
+                            [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                                callbackBlock(YES, marker);
+                            }];
                         } else {
                             // Send the result
-                            if (self.mapCtrl.debuggable) {
-                                NSLog(@"---- no marker animation");
-                            }
-                            //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                            [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                            callbackBlock(YES, marker);
                         }
 
                     });
@@ -940,17 +1068,96 @@
 
             if (animation) {
                 // Do animation, then send the result
-                //[self setMarkerAnimation_:animation marker:marker pluginResult:pluginResult callbackId:callbackId];
-                [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                    callbackBlock(YES, marker);
+                }];
             } else {
                 // Send the result
-                //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:callbackId];
+                callbackBlock(YES, marker);
             }
         });
 
     }
 
+}
+
+- (UIImage *)drawLabel:(UIImage *) image labelOptions:(NSDictionary *)labelOptions {
+  NSString *text = [NSString stringWithFormat:@"%@", [labelOptions objectForKey:@"text"]];
+  if (text == nil) {
+    return image;
+  }
+
+  UIFont *font;
+  float fontSize = 10;
+  BOOL isBold = NO;
+  BOOL isItalic = NO;
+  UIColor *textColor = UIColor.blackColor;
+
+  if ([labelOptions objectForKey:@"fontSize"]) {
+    fontSize = [[labelOptions objectForKey:@"fontSize"] floatValue];
+  }
+  if ([labelOptions objectForKey:@"bold"]) {
+    isBold = [[labelOptions objectForKey:@"bold"] boolValue];
+  }
+  if ([labelOptions objectForKey:@"italic"]) {
+    isItalic = [[labelOptions objectForKey:@"italic"] boolValue];
+  }
+
+  if (isBold == YES && isItalic == YES) {
+    // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
+    font = [UIFont systemFontOfSize:17.0f];
+    UIFontDescriptor *fontDescriptor = [font.fontDescriptor
+                                        fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
+    font = [UIFont fontWithDescriptor:fontDescriptor size:fontSize];
+  } else if (isBold == TRUE && isItalic == FALSE) {
+    font = [UIFont boldSystemFontOfSize:fontSize];
+  } else if (isBold == TRUE && isItalic == FALSE) {
+    font = [UIFont italicSystemFontOfSize:fontSize];
+  } else {
+    font = [UIFont systemFontOfSize:fontSize];
+  }
+
+
+  if ([labelOptions objectForKey:@"color"]) {
+    textColor = [[labelOptions objectForKey:@"color"] parsePluginColor];
+  }
+
+  // Calculate the size for the title strings
+  CGRect rect = [text
+                   boundingRectWithSize: CGSizeMake(image.size.width, image.size.height)
+                   options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
+                   attributes:[NSDictionary
+                               dictionaryWithObject:font
+                               forKey:NSFontAttributeName]
+                   context:nil];
+
+  NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+  style.lineBreakMode = NSLineBreakByWordWrapping;
+  style.alignment = NSTextAlignmentCenter;
+
+
+  NSDictionary *attributes = @{
+                               NSForegroundColorAttributeName : textColor,
+                               NSFontAttributeName : font,
+                               NSParagraphStyleAttributeName : style
+                               };
+
+  UIGraphicsBeginImageContext(image.size);
+  [image drawInRect:CGRectMake(0,0, image.size.width, image.size.height)];
+  [text drawInRect:CGRectMake((image.size.width - rect.size.width) /2 , (image.size.height - rect.size.height) /2, rect.size.width, rect.size.height) withAttributes:attributes];
+  /*
+  //(debug)
+  CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 0.5);
+  CGContextFillRect(context, rect);
+   */
+
+  UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  image = nil;
+
+
+  return newImage;
 }
 
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
@@ -968,7 +1175,7 @@
         }
 
         NSString *uniqueKey = url.absoluteString;
-        NSData *cache = [self.imgCache objectForKey:uniqueKey];
+        NSData *cache = [self.icons objectForKey:uniqueKey];
         if (cache != nil) {
             UIImage *image = [[UIImage alloc] initWithData:cache];
             completionBlock(YES, image);
@@ -981,7 +1188,7 @@
               queue:self.executeQueue
               completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
                 if ( !error ) {
-                  [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
+                  [self.icons setObject:data forKey:uniqueKey cost:data.length];
                   UIImage *image = [UIImage imageWithData:data];
                   completionBlock(YES, image);
                 } else {

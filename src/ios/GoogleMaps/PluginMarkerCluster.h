@@ -12,14 +12,11 @@
 #import "PluginMarker.h"
 #import "NSData+Base64.h"
 
-@interface PluginMarkerCluster : CDVPlugin<MyPlgunProtocol>
+@interface PluginMarkerCluster : PluginMarker<MyPlgunProtocol>
+@property (atomic, strong) NSMutableDictionary *pluginMarkers;
+@property (atomic, strong) NSMutableDictionary *waitCntManager;
+@property (atomic, strong) NSMutableDictionary *_pluginResults;
 
-@property (nonatomic) NSMutableDictionary *objects;
-@property (nonatomic) NSMutableDictionary *pluginMarkers;
-@property (nonatomic) NSMutableDictionary *waitCntManager;
-@property (nonatomic) NSMutableDictionary *_pluginResults;
-
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)redrawClusters:(CDVInvokedUrlCommand*)command;
 @end

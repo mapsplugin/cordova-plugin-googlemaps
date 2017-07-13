@@ -300,7 +300,7 @@
   [self.executeQueue addOperationWithBlock:^{
       NSString *polylineKey = [command.arguments objectAtIndex:0];
       GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
-      NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
+      int zIndex = [[command.arguments objectAtIndex:1] intValue];
 
       // Update the property
       NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
