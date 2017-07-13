@@ -287,10 +287,24 @@ var saltHash = Math.floor(Math.random() * Date.now());
     cacheZIndex = {};
     setTimeout(putHtmlElements, 0);
   }
-  //document.addEventListener("backbutton", resetTimer); // <-- Cordova allows to register only one event listener
+
   document.addEventListener("deviceready", resetTimer);
   document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
+
+  // Catches the backbutton event
+  // https://github.com/apache/cordova-android/blob/55d7cf38654157187c4a4c2b8784191acc97c8ee/bin/templates/project/assets/www/cordova.js#L1796-L1802
+  var APP_PLUGIN_NAME = Number(require('cordova').platformVersion.split('.')[0]) >= 4 ? 'CoreAndroid' : 'App';
+  document.addEventListener("backbutton", function() {
+    // Executes the browser back history action
+    exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
+    resetTimer();
+
+    // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
+    var event = document.createEvent('plugin_buckbutton');
+    event.initEvent(eventName, false, false);
+    document.dispatchEvent(event);
+  }, false);
 
 }());
 
