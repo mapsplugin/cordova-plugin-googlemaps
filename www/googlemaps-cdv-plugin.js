@@ -301,9 +301,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
     resetTimer();
 
     // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
-    var event = document.createEvent('plugin_buckbutton');
-    event.initEvent(eventName, false, false);
-    document.dispatchEvent(event);
+    cordova.fireDocumentEvent('plugin_backbutton', {});
   }, false);
 
 }());
