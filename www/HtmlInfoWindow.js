@@ -28,6 +28,7 @@ var HTMLInfoWindow = function() {
     contentFrame.style.border = "1px solid rgb(204, 204, 204)";
     contentFrame.style.left = "0px";
     contentFrame.style.right = "0px";
+    contentFrame.style.zIndex = "1";  // In order to set higher depth than the map div certainly
     frame.appendChild(contentFrame);
     contentFrame.appendChild(contentBox);
 
