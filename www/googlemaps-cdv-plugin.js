@@ -287,7 +287,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
     cacheZIndex = {};
     setTimeout(putHtmlElements, 0);
   }
-  document.addEventListener("backbutton", resetTimer);
+  //document.addEventListener("backbutton", resetTimer); // <-- Cordova allows to register only one event listener
   document.addEventListener("deviceready", resetTimer);
   document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
