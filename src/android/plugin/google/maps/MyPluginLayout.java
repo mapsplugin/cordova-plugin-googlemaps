@@ -565,8 +565,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
+        webView.loadUrl("javascript:cordova.fireDocumentEvent('plugin_touch', {});");
       }
-      webView.loadUrl("javascript:cordova.fireDocumentEvent('plugin_touch', {});");
 
       MyPluginLayout.this.stopFlag = false;
       return isMapAction;

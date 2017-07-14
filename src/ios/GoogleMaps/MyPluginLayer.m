@@ -406,7 +406,9 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
         //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
 
-        [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+        if (isMapAction == NO) {
+          [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+        }
 
         return hitView;
     }
