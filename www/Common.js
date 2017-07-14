@@ -276,18 +276,18 @@ function getAllChildren(root) {
 
 function shouldWatchByNative(node) {
   if (node.nodeType !== Node.ELEMENT_NODE || !node.offsetParent) {
-    return;
+    if (node === document.body) {
+      return true;
+    }
+    return false;
   }
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
   var opacityCSS = getStyle(node, 'opacity');
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-  var heightCSS = getStyle(node, 'height');
-  var widthCSS = getStyle(node, 'width');
-  var clickableSize = (heightCSS != "0px" && widthCSS != "0px" &&
-            (node.offsetHeight > 0 && node.offsetWidth > 0 || node.clientHeight > 0 && node.clientWidth > 0));
+  var clickableSize = (node.offsetHeight > 0 && node.offsetWidth > 0 || node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
-    opacityCSS > 0 && visibilityCSS != "hidden" &&
+    opacityCSS > 0 && visibilityCSS !== "hidden" &&
     clickableSize;
 }
 
@@ -322,10 +322,6 @@ function getZIndex(dom) {
     var parentNode = dom.parentNode;
     if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
       var parentElemId = parentNode.getAttribute("__pluginDomId");
-      if (!parentElemId) {
-          parentElemId = "pgm" + Math.floor(Math.random() * Date.now());
-          parentNode.setAttribute("__pluginDomId", parentElemId);
-      }
       if (parentElemId in internalCache) {
         z += internalCache[parentElemId];
       } else {
@@ -334,12 +330,7 @@ function getZIndex(dom) {
         z += parentZIndex;
       }
     }
-
     var elemId = dom.getAttribute("__pluginDomId");
-    if (!elemId) {
-        elemId = "pgm" + Math.floor(Math.random() * Date.now());
-        dom.setAttribute("__pluginDomId", elemId);
-    }
     internalCache[elemId] = z;
 
     return z;
