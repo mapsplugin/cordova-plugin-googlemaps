@@ -51,26 +51,27 @@ var Marker = function(map, id, markerOptions) {
 
     if (markerOptions.infoWindow) {
       console.log("[deprecated] the infoWindow option is deprecated. Please use event listener.");
-      self.on(event.INFO_OPEN, function() {
-          if (map.get("active_marker_id") === id) {
-            return;
-          }
-          map.set('active_marker_id', id);
-
-          if (markerOptions.infoWindow) {
-              markerOptions.infoWindow.open(self);
-          }
-      });
-      self.on(event.INFO_CLOSE, function() {
-
-          if (markerOptions.infoWindow) {
-              markerOptions.infoWindow.close(self);
-          }
-      });
-      self.on(event.MARKER_CLICK, function() {
-          self.trigger(event.INFO_OPEN);
-      });
     }
+
+    self.on(event.INFO_OPEN, function() {
+        if (map.get("active_marker_id") === id) {
+          return;
+        }
+        map.set('active_marker_id', id);
+
+        if (markerOptions.infoWindow) {
+            markerOptions.infoWindow.open(self);
+        }
+    });
+    self.on(event.INFO_CLOSE, function() {
+
+        if (markerOptions.infoWindow) {
+            markerOptions.infoWindow.close(self);
+        }
+    });
+    self.on(event.MARKER_CLICK, function() {
+        self.trigger(event.INFO_OPEN);
+    });
 
 
     self.on("position_changed", function(oldValue, position) {
@@ -265,7 +266,8 @@ Marker.prototype.hideInfoWindow = function() {
 };
 Marker.prototype.isInfoWindowShown = function() {
     var map = this.getMap();
-    return map && map.get('active_marker_id') === this.id;
+    return map && (map.get('active_marker_id') === this.id ||
+      this.get("infoWindow"));
 };
 Marker.prototype.isVisible = function() {
     return this.get("visible") === true;
