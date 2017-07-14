@@ -213,74 +213,34 @@ function getDivRect(div) {
     };
 }
 
-function getAllChildren(root) {
-    if (!root) {
-      return [];
-    }
-
-    var ignoreTags = [
-      "pre", "textarea", "p", "form", "input", "table", "caption",
-      "canvas", "ion-content", "ion-app", "ion-nav", "svg"
-    ];
-    var ignoreClasses = ["nav-decor", "ion-page", "fixed-content"];
-    var list = [];
-
-    if (window.document.querySelectorAll) {
-      // Android: v4.3 and over
-      // iOS safari: v9.2 and over
-      var childNodes = root.querySelectorAll("*");
-      var allClickableElements = Array.prototype.slice.call(childNodes);
-      list = allClickableElements.filter(function(node) {
-        var tagName = node.tagName.toLowerCase();
-        if (node !== root &&
-          shouldWatchByNative(node) &&
-          ignoreTags.indexOf(tagName) == -1) {
-
-          var classNames = (node.className || "").split(" ");
-          var matches = classNames.filter(function(clsName) {
-            return ignoreClasses.indexOf(clsName) !== -1;
-          });
-          if (matches && matches.length > 0) {
-            return false;
-          }
-          return true;
-        } else {
-          return false;
-        }
-      });
-    } else {
-      var node, tagName, classNames, i, j, hit;
-      var clickableElements = root.getElementsByTagName("*");
-      for (i = 0; i < clickableElements.length; i++) {
-        node = clickableElements[i];
-        tagName = node.tagName.toLowerCase();
-        if (shouldWatchByNative(node) &&
-          ignoreTags.indexOf(tagName) == -1) {
-          classNames = (node.className || "").split(" ");
-          hit = false;
-          for (j = 0; j < classNames.length; j++) {
-            if (ignoreClasses.indexOf(classNames[j]) > -1) {
-              hit = true;
-              break;
-            }
-          }
-          if (!hit) {
-            list.push(node);
-          }
-        }
-      }
-    }
-
-    return list;
-}
+var ignoreTags = [
+  "pre", "textarea", "p", "form", "input", "table", "caption",
+  "canvas", "ion-content", "ion-app", "ion-nav", "svg"
+];
+var ignoreClasses = ["nav-decor", "ion-page", "fixed-content"];
 
 function shouldWatchByNative(node) {
-  if (node.nodeType !== Node.ELEMENT_NODE || !node.offsetParent) {
+  if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
     if (node === document.body) {
       return true;
     }
     return false;
   }
+
+  var tagName = node.tagName.toLowerCase();
+  if (ignoreTags.indexOf(tagName) == -1) {
+
+    var classNames = (node.className || "").split(" ");
+    var matches = classNames.filter(function(clsName) {
+      return ignoreClasses.indexOf(clsName) !== -1;
+    });
+    if (matches && matches.length > 0) {
+      return false;
+    }
+  } else {
+    return false;
+  }
+
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
   var opacityCSS = getStyle(node, 'opacity');
@@ -583,7 +543,6 @@ module.exports = {
     deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
-    getAllChildren: getAllChildren,
     isDom: isDom,
     parseBoolean: parseBoolean,
     HLStoRGB: HLStoRGB,
