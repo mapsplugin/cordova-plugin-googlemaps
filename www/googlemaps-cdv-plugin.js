@@ -177,13 +177,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
                   shouldUpdate = true;
               }
           }
-
-          if (element.childNodes.length > 0) {
-            for (var i = 0; i < element.childNodes.length; i++) {
-              traceDomTree(element.childNodes[i], domIdx + i + 1);
-            }
-          }
-
         } else {
           if (element.nodeType === Node.ELEMENT_NODE) {
             if (element.hasAttribute("__pluginDomId")) {
@@ -191,6 +184,13 @@ var saltHash = Math.floor(Math.random() * Date.now());
                 element.removeAttribute("__pluginDomId");
             }
 
+          }
+        }
+        if (element.nodeType === Node.ELEMENT_NODE) {
+          if (element.childNodes.length > 0) {
+            for (var i = 0; i < element.childNodes.length; i++) {
+              traceDomTree(element.childNodes[i], domIdx + i + 1);
+            }
           }
         }
 
