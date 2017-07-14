@@ -76,16 +76,7 @@ var saltHash = Math.floor(Math.random() * Date.now());
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
   var idlingCnt = -1;
-/*
-  var baseDom = document.createElement("div");
-  baseDom.style.width = "1px";
-  baseDom.style.height = "1px";
-  baseDom.style.position = "absolute";
-  baseDom.style.zIndex = 9999;
-  baseDom.style.visibility = "hidden";
-  document.body.insertBefore(baseDom, document.body.firstChild);
-  var baseRect;
-*/
+
   var isChecking = false;
   var cacheDepth = {};
   var navDecorBlocker = document.createElement("style");
@@ -132,52 +123,49 @@ var saltHash = Math.floor(Math.random() * Date.now());
         }
       }
       if (visibleMapList.length === 0) {
+        idlingCnt++;
+        if (idlingCnt < 10) {
+          setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
+        }
         isChecking = false;
-        cordova.exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
 
       //-------------------------------------------
       // Should the plugin update the map positions?
       //-------------------------------------------
-      //baseRect = common.getDivRect(baseDom);
-      var children = common.getAllChildren(document.body);
-      var bodyRect = common.getDivRect(document.body);
-
-      if (children.length === 0) {
-          children = null;
-          isChecking = false;
-          return;
-      }
-
       var domPositions = {};
-      var size, elemId, child, parentNode;
       var shouldUpdate = false;
+      var traceDomTree = function(element, domIdx) {
 
-      children.unshift(document.body);
-      if (children.length !== prevChildrenCnt) {
-          shouldUpdate = true;
-      }
-      prevChildrenCnt = children.length;
-      for (i = 0; i < children.length; i++) {
-          child = children[i];
-          elemId = child.getAttribute("__pluginDomId");
-          //domPositions[elemId] = common.getDomInfo(child);
-          var depth = cacheDepth[elemId];
-          var zIndex = common.getZIndex(child);
+        if (common.shouldWatchByNative(element)) {
+
+          // Generates a __pluginDomId
+          var elemId = element.getAttribute("__pluginDomId");
+          if (!elemId) {
+              elemId = "pgm" + Math.floor(Math.random() * Date.now());
+              element.setAttribute("__pluginDomId", elemId);
+          }
+
+          // get dom depth
+          var depth;
+          var zIndex = common.getZIndex(element);
           if (elemId in cacheDepth &&
               elemId in prevDomPositions &&
               prevDomPositions[elemId].zIndex === zIndex) {
               depth = cacheDepth[elemId];
           } else {
-              depth = common.getDomDepth(child, i);
+              depth = common.getDomDepth(element, domIdx);
               cacheDepth[elemId] = depth;
           }
+
+          // Stores dom bounds and depth
           domPositions[elemId] = {
-              size: common.getDivRect(child),
-              depth: depth,
-              zIndex: zIndex
+            size: common.getDivRect(element),
+            depth: depth,
+            zIndex: zIndex
           };
+
           if (!shouldUpdate) {
               if (elemId in prevDomPositions) {
                   if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
@@ -191,30 +179,26 @@ var saltHash = Math.floor(Math.random() * Date.now());
                   shouldUpdate = true;
               }
           }
-      }
-      /*
-      for (i = 0; i < children.length; i++) {
-          child = children[i];
-          elemId = child.getAttribute("__pluginDomId");
-          if (!elemId) {
-              elemId = "pgm" + Math.floor(Math.random() * Date.now());
-              child.setAttribute("__pluginDomId", elemId);
+        } else {
+          if (element.nodeType === Node.ELEMENT_NODE) {
+            if (element.hasAttribute("__pluginDomId")) {
+                shouldUpdate = true;
+                element.removeAttribute("__pluginDomId");
+            }
+
           }
-          domPositions[elemId] = common.getDomInfo(child);
-          if (!shouldUpdate) {
-              if (elemId in prevDomPositions) {
-                  if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
-                      domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
-                      domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
-                      domPositions[elemId].size.height !== prevDomPositions[elemId].size.height) {
-                      shouldUpdate = true;
-                  }
-              } else {
-                  shouldUpdate = true;
-              }
+        }
+        if (element.nodeType === Node.ELEMENT_NODE) {
+          if (element.childNodes.length > 0) {
+            for (var i = 0; i < element.childNodes.length; i++) {
+              traceDomTree(element.childNodes[i], domIdx + i + 1);
+            }
           }
-      }
-      */
+        }
+
+      };
+      traceDomTree(document.body, 0);
+
       if (!shouldUpdate && idlingCnt > -1) {
           idlingCnt++;
           if (idlingCnt === 2) {
@@ -232,8 +216,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
           return;
       }
       idlingCnt = 0;
-      //console.log(domPositions);
-      //return;
 
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
@@ -289,10 +271,22 @@ var saltHash = Math.floor(Math.random() * Date.now());
     cacheZIndex = {};
     setTimeout(putHtmlElements, 0);
   }
-  document.addEventListener("backbutton", resetTimer);
+
   document.addEventListener("deviceready", resetTimer);
   document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
+
+  // Catches the backbutton event
+  // https://github.com/apache/cordova-android/blob/55d7cf38654157187c4a4c2b8784191acc97c8ee/bin/templates/project/assets/www/cordova.js#L1796-L1802
+  var APP_PLUGIN_NAME = Number(require('cordova').platformVersion.split('.')[0]) >= 4 ? 'CoreAndroid' : 'App';
+  document.addEventListener("backbutton", function() {
+    // Executes the browser back history action
+    exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
+    resetTimer();
+
+    // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
+    cordova.fireDocumentEvent('plugin_backbutton', {});
+  }, false);
 
 }());
 
@@ -387,17 +381,29 @@ module.exports = {
     MarkerCluster: MarkerCluster
 };
 
-document.addEventListener("deviceready", function() {
-    document.removeEventListener("deviceready", arguments.callee);
-
-    // Check the Google Maps Android API v2 if the device platform is Android.
-    if (/Android/i.test(window.navigator.userAgent)) {
-        //------------------------------------------------------------------------
-        // If Google Maps Android API v2 is not available,
-        // display the warning alert.
-        //------------------------------------------------------------------------
-        cordova.exec(null, function(message) {
-            alert(message);
-        }, 'Environment', 'isAvailable', ['']);
+cordova.addConstructor(function() {
+    if (!window.Cordova) {
+        window.Cordova = cordova;
     }
+    window.plugin = window.plugin || {};
+    window.plugin.google = window.plugin.google || {};
+    window.plugin.google.maps = window.plugin.google.maps || module.exports;
+    document.addEventListener("deviceready", function() {
+        document.removeEventListener("deviceready", arguments.callee);
+        // workaround for issue on android-19: Cannot read property 'maps' of undefined
+        if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
+        if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
+        if (!window.plugin.google.maps) { console.warn('re-init window.plugin.google.maps'); window.plugin.google.maps = window.plugin.google.maps || module.exports; }
+
+        // Check the Google Maps Android API v2 if the device platform is Android.
+        if (/Android/i.test(window.navigator.userAgent)) {
+            //------------------------------------------------------------------------
+            // If Google Maps Android API v2 is not available,
+            // display the warning alert.
+            //------------------------------------------------------------------------
+            cordova.exec(null, function(message) {
+                alert(message);
+            }, 'Environment', 'isAvailable', ['']);
+        }
+    });
 });

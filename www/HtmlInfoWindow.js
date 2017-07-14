@@ -28,6 +28,7 @@ var HTMLInfoWindow = function() {
     contentFrame.style.border = "1px solid rgb(204, 204, 204)";
     contentFrame.style.left = "0px";
     contentFrame.style.right = "0px";
+    contentFrame.style.zIndex = "1";  // In order to set higher depth than the map div certainly
     frame.appendChild(contentFrame);
     contentFrame.appendChild(contentBox);
 
@@ -165,6 +166,8 @@ var HTMLInfoWindow = function() {
             isInfoOpenFired = true;
             self.trigger(event.INFO_OPEN);
         }
+
+        cordova.fireDocumentEvent('plugin_touch', {});
     });
     self.on(event.INFO_CLOSE, function() {
         isInfoOpenFired = false;
@@ -187,6 +190,7 @@ HTMLInfoWindow.prototype.close = function() {
     if (!self.isInfoWindowShown() || !marker) {
       return;
     }
+    marker.set("infoWindow", undefined);
     this.set('marker', undefined);
 
     var map = marker.getMap();
@@ -222,8 +226,10 @@ HTMLInfoWindow.prototype.open = function(marker) {
         return;
     }
     var map = marker.getMap();
-    var self = this;
+    var self = this,
+      markerId = marker.getId();
 
+    marker.set("infoWindow", self);
 
     map.fromLatLngToPoint(marker.getPosition(), function(point) {
         map.set("infoPosition", {x: point[0], y: point[1]});
