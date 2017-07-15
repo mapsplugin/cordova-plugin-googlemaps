@@ -18,7 +18,7 @@ var argscheck = require('cordova/argscheck'),
 var MarkerCluster = function(map, id, markerClusterOptions) {
   BaseClass.call(this);
 
-  var idxCount = markerClusterOptions.length;
+  var idxCount = markerClusterOptions.markers.getLength() - 1;
 
   var self = this;
   Object.defineProperty(self, "maxZoomLevel", {
