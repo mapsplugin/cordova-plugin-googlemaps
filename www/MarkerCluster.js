@@ -42,8 +42,23 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     writable: false
   });
   Object.defineProperty(self, "id", {
-      value: id,
-      writable: false
+    value: id,
+    writable: false
+  });
+
+  //----------------------------------------------------
+  // If a marker has been removed,
+  // remove it from markerClusterOptions.markers also.
+  //----------------------------------------------------
+  var onRemoveMarker = function() {
+    var marker = this;
+    var idx = markerClusterOptions.markers.indexOf(marker);
+    if (idx > -1) {
+      markerClusterOptions.markers.removeAt(idx);
+    }
+  };
+  markerClusterOptions.markers.forEach(function(marker) {
+    marker.one(marker.getId() + "_remove", onRemoveMarker);
   });
 
   var icons = markerClusterOptions.icons;
@@ -81,7 +96,8 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     markerOptions = common.markerOptionsFilter(markerOptions);
     var geocell = geomodel.getGeocell(markerOptions.position.lat, markerOptions.position.lng, 9);
 
-    var marker = new Marker(self, "marker_" + idxCount, markerOptions, "markercluster");
+    var markerId = markerOptions.id || "marker_" + idx;
+    var marker = new Marker(self, markerId, markerOptions, "markercluster");
     marker.set("isAdded", false);
     marker.set("geocell", geocell);
     marker.set("position", markerOptions.position);

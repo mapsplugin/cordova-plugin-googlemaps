@@ -959,7 +959,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     result.geocellList.forEach(function(geocell, idx) {
       var markerOptions = markerClusterOptions.markers[idx];
       markerOptions = common.markerOptionsFilter(markerOptions);
-      var marker = new Marker(self, "marker_" + idx, markerOptions, "markercluster");
+      var markerId = markerOptions.id || "marker_" + idx;
+      var marker = new Marker(self, markerId, markerOptions, "markercluster");
       marker.set("isAdded", false);
       marker.set("geocell", geocell);
       marker.set("position", markerOptions.position);
@@ -984,7 +985,6 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   }]);
 
 };
-
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
