@@ -144,6 +144,7 @@ public class PluginMarkerCluster extends PluginMarker {
         if (self.objects.containsKey(clusterId_markerId) || pluginMarkers.containsKey(clusterId_markerId)) {
           updateClusterIDs.put(clusterId_markerId, clusterId_markerId);
         } else {
+
           if (reuseCnt < deleteCnt) {
             //---------------
             // Reuse a marker
@@ -332,10 +333,10 @@ public class PluginMarkerCluster extends PluginMarker {
                 }
               }
             }
+            marker.hideInfoWindow();
 
             markerProperties = changeProperties.get(newMarkerId);
             if (STATUS.DELETED.equals(pluginMarkers.get(newMarkerId))) {
-
               synchronized (waitCntManager) {
                 int waitCnt = waitCntManager.get(clusterId);
                 waitCnt = waitCnt - 1;
@@ -462,6 +463,9 @@ public class PluginMarkerCluster extends PluginMarker {
             // No icon for marker
             //--------------------
             marker.setIcon(null);
+            synchronized (pluginMarkers) {
+              pluginMarkers.put(targetMarkerId, STATUS.CREATED);
+            }
             synchronized (waitCntManager) {
               int waitCnt = waitCntManager.get(clusterId);
               waitCnt = waitCnt - 1;
@@ -484,10 +488,10 @@ public class PluginMarkerCluster extends PluginMarker {
         iterator = deleteClusterIDs.iterator();
         while (iterator.hasNext()) {
           oldMarkerId = iterator.next();
-          //Log.d(TAG, "delete : " + oldMarkerId);
           marker = self.getMarker(oldMarkerId);
           polygon = self.getPolygon("polygon" + oldMarkerId);
           synchronized (pluginMarkers) {
+            //Log.d(TAG, "delete : " + oldMarkerId + " = " + pluginMarkers.get(oldMarkerId));
             if (!STATUS.WORKING.equals(pluginMarkers.get(oldMarkerId))) {
               if (polygon != null && polygon.getTag() != null) {
                 polygon.setTag(null);

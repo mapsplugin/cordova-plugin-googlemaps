@@ -81,45 +81,17 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     markerOptions = common.markerOptionsFilter(markerOptions);
     var geocell = geomodel.getGeocell(markerOptions.position.lat, markerOptions.position.lng, 9);
 
-
     var marker = new Marker(self, "marker_" + idxCount, markerOptions, "markercluster");
-    marker.set("isAdded", true);
+    marker.set("isAdded", false);
     marker.set("geocell", geocell);
     marker.set("position", markerOptions.position);
     self._markers.push(marker);
-
-    // Add or pdate the cluster
-
-    var geocell = geocell.substr(0, resolution + 1)
-    var clusterId = geocell;
-    var cluster = self.getClusterByGeocellAndResolution(geocell, resolution);
-    cluster.addMarkers([marker]);
-    var clusterIcon = self.getClusterIcon(cluster);
-    if (!clusterIcon) {
-      clusterIcon = markerOptions.icon;
-      cluster.setMode(cluster.NO_CLUSTER_MODE);
-      clusterId += ";" + (cluster.getItemLength() - 1);
-      geocell = undefined;
-    } else {
-      cluster.setMode(cluster.CLUSTER_MODE);
-    }
-    var clusters = [{
-      "count": cluster.getItemLength(),
-      "position": markerOptions.position,
-      "id": clusterId,
-      "icon": clusterIcon,
-      "geocell": geocell
-    }];
-
-    exec(null, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
-      "resolution": resolution,
-      "new_or_update": clusters
-    }]);
+    self.redraw(true);
   };
 
   map.on(event.CAMERA_MOVE_END, self.redraw.bind(self));
 
-  self.redraw();
+  self.redraw(false);
 
   return self;
 };
@@ -154,7 +126,7 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
 };
 
 
-MarkerCluster.prototype.redraw = function() {
+MarkerCluster.prototype.redraw = function(force) {
   var self = this,
     map = self.map,
     currentZoomLevel = Math.floor(self.map.getCameraZoom()),
@@ -188,7 +160,7 @@ MarkerCluster.prototype.redraw = function() {
   // Remove the clusters that is in outside of the visible region
   //----------------------------------------------------------------
   self._clusters[resolution] = self._clusters[resolution] || {};
-  var deleteClusters = [];
+  var deleteClusters = {};
   var cellLen = resolution + 1;
   var keys;
   if (prevResolution === -1) {
@@ -198,7 +170,7 @@ MarkerCluster.prototype.redraw = function() {
       }
       if (resolution !== -1 || !visibleRegion.contains(marker.getPosition())) {
         marker.set("isAdded", false);
-        deleteClusters.push(marker.getId());
+        deleteClusters[marker.getId()] = 1;
       }
     });
   } else if (resolution === prevResolution) {
@@ -213,10 +185,10 @@ MarkerCluster.prototype.redraw = function() {
 
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function(marker, idx) {
-              deleteClusters.push(marker.getId());
+              deleteClusters[marker.getId()] = 1;
             });
           } else {
-            deleteClusters.push(geocell);
+            deleteClusters[geocell] = 1;
           }
           cluster.remove();
           delete self._clusters[resolution][geocell];
@@ -229,10 +201,10 @@ MarkerCluster.prototype.redraw = function() {
         cluster = self._clusters[prevResolution][geocell];
         if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
           cluster.getMarkers().forEach(function(marker, idx) {
-            deleteClusters.push(marker.getId());
+            deleteClusters[marker.getId()] = 1;
           });
         } else {
-          deleteClusters.push(geocell);
+          deleteClusters[geocell] = 1;
         }
         cluster.remove();
     });
@@ -244,9 +216,10 @@ MarkerCluster.prototype.redraw = function() {
   //--------------------------------
   var prevSWcell = self.get("prevSWcell");
   var prevNEcell = self.get("prevNEcell");
-  var clusters = [];
+  var new_or_update_clusters = [];
 
-  if (resolution !== prevResolution ||
+  if (force ||
+    resolution !== prevResolution ||
     prevSWcell !== swCell ||
     prevNEcell !== neCell) {
 
@@ -290,18 +263,19 @@ MarkerCluster.prototype.redraw = function() {
           clusterOpts.icon = icon;
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function(marker, idx) {
-              deleteClusters.push(marker.getId());
+              deleteClusters[marker.getId()] = 1;
             });
           }
           cluster.setMode(cluster.CLUSTER_MODE);
-          clusters.push(clusterOpts);
+          new_or_update_clusters.push(clusterOpts);
           return;
         }
 
         cluster.getMarkers().forEach(function(marker, idx) {
+          delete deleteClusters[marker.getId()];
           var markerOptions = marker.getOptions();
           markerOptions.count = 1;
-          clusters.push(markerOptions);
+          new_or_update_clusters.push(markerOptions);
         });
         cluster.setMode(cluster.NO_CLUSTER_MODE);
       });
@@ -313,20 +287,22 @@ MarkerCluster.prototype.redraw = function() {
         if (visibleRegion.contains(marker.getPosition())) {
           var markerOptions = marker.getOptions();
           markerOptions.count = 1;
+          delete deleteClusters[marker.getId()];
           marker.set("isAdded", true);
-          clusters.push(markerOptions);
+          new_or_update_clusters.push(markerOptions);
         }
       });
     }
   }
-  if (clusters.length === 0 && deleteClusters === 0) {
+  var delete_clusters = Object.keys(deleteClusters);
+  if (new_or_update_clusters.length === 0 && delete_clusters === 0) {
     return;
   }
 
   exec(null, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
-    "new_or_update": clusters,
-    "delete": deleteClusters
+    "new_or_update": new_or_update_clusters,
+    "delete": delete_clusters
   }]);
 
 

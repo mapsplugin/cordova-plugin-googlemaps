@@ -537,6 +537,56 @@ function convertToPositionArray(array) {
     return array;
 }
 
+function markerOptionsFilter(markerOptions) {
+  markerOptions = markerOptions || {};
+
+  markerOptions.animation = markerOptions.animation || undefined;
+  markerOptions.position = markerOptions.position || {};
+  markerOptions.position.lat = markerOptions.position.lat || 0.0;
+  markerOptions.position.lng = markerOptions.position.lng || 0.0;
+  markerOptions.draggable = markerOptions.draggable === true;
+  markerOptions.icon = markerOptions.icon || undefined;
+  markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
+  markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
+  markerOptions.visible = defaultTrueOption(markerOptions.visible);
+  markerOptions.flat = markerOptions.flat === true;
+  markerOptions.rotation = markerOptions.rotation || 0;
+  markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+  markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
+  markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
+  markerOptions.noCache = markerOptions.noCache === true; //experimental
+  if (typeof markerOptions.icon === "object") {
+    if ("anchor" in markerOptions.icon &&
+      !Array.isArray(markerOptions.icon.anchor) &&
+      "x" in markerOptions.icon.anchor &&
+      "y" in markerOptions.icon.anchor) {
+      markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
+    }
+    if ("infoWindowAnchor" in markerOptions.icon &&
+      !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
+      "x" in markerOptions.icon.infoWindowAnchor &&
+      "y" in markerOptions.icon.infoWindowAnchor) {
+      markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
+    }
+  }
+
+  if ("styles" in markerOptions) {
+      markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
+
+      if ("color" in markerOptions.styles) {
+          markerOptions.styles.color = HTMLColor2RGBA(markerOptions.styles.color || "#000000");
+      }
+  }
+  if (markerOptions.icon && isHTMLColorString(markerOptions.icon)) {
+      markerOptions.icon = HTMLColor2RGBA(markerOptions.icon);
+  }
+  if (markerOptions.icon && markerOptions.icon.label &&
+    isHTMLColorString(markerOptions.icon.label.color)) {
+      markerOptions.icon.label.color = HTMLColor2RGBA(markerOptions.icon.label.color);
+  }
+  return markerOptions;
+}
+
 module.exports = {
     getZIndex: getZIndex,
     getDomDepth: getDomDepth,
@@ -553,5 +603,6 @@ module.exports = {
     getStyle: getStyle,
     convertToPositionArray: convertToPositionArray,
     getLatLng: getLatLng,
-    shouldWatchByNative: shouldWatchByNative
+    shouldWatchByNative: shouldWatchByNative,
+    markerOptionsFilter: markerOptionsFilter
 };

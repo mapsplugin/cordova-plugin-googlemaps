@@ -289,6 +289,8 @@ NSObject *dummyObject;
               marker.tracksInfoWindowChanges = NO;
               marker.map = nil;
             }
+          } else {
+            marker.map = nil;
           }
         }
 
@@ -316,7 +318,6 @@ NSObject *dummyObject;
           marker.snippet = nil;
         }
         marker.userData = newMarkerId;
-        marker.map = self.mapCtrl.map;
 
         targetMarkerId = newMarkerId;
         if ([markerProperties objectForKey:@"geocell"]) {
@@ -377,10 +378,16 @@ NSObject *dummyObject;
         [self setIconToClusterMarker:targetMarkerId marker:marker iconProperty:icon callbackBlock:^(BOOL successed, id resultObj) {
           if (successed == NO) {
             NSLog(@"(error) %@", resultObj);
+          } else {
+            marker.map = self_.mapCtrl.map;
           }
           [self_ decreaseWaitCntOrExit:clusterId command:command];
         }];
       } else {
+        marker.map = self.mapCtrl.map;
+        @synchronized (self.pluginMarkers) {
+          [self.pluginMarkers setObject:@"CREATED" forKey:targetMarkerId];
+        }
         [self decreaseWaitCntOrExit:clusterId command:command];
         marker.icon = nil;
       }
