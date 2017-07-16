@@ -124,6 +124,7 @@ Marker.prototype.getPluginName = function() {
 
 Marker.prototype.remove = function(callback) {
     var self = this;
+    self.trigger(event.INFO_CLOSE);     // close open infowindow, otherwise it will stay
     self.trigger(self.id + "_remove");
     exec(function() {
         if (typeof callback === "function") {
