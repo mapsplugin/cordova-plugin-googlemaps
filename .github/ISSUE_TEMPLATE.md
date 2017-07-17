@@ -1,6 +1,7 @@
 Before asking your question, problem or request , please read this page
 https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles/before_post_your_issue/README.md
-If you are Japanese, you can make an issue written in Japanese. Otherwise, in English please.
+
+(Optional) If you are Japanese, you can make an issue written in Japanese. Otherwise, in English please.
 
 - What is your question, problem or request?
 
