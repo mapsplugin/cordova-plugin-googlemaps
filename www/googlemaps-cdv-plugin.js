@@ -89,6 +89,9 @@ var saltHash = Math.floor(Math.random() * Date.now());
     "}"
   ].join("");
   document.head.appendChild(navDecorBlocker);
+  var doNotTraceTags = [
+    "svg"
+  ];
 
   function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
@@ -136,7 +139,9 @@ var saltHash = Math.floor(Math.random() * Date.now());
       //-------------------------------------------
       var domPositions = {};
       var shouldUpdate = false;
+      var doNotTrace = false;
       var traceDomTree = function(element, domIdx) {
+        doNotTrace = false;
 
         if (common.shouldWatchByNative(element)) {
 
@@ -185,10 +190,14 @@ var saltHash = Math.floor(Math.random() * Date.now());
                 shouldUpdate = true;
                 element.removeAttribute("__pluginDomId");
             }
-
+            if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1) {
+              doNotTrace = true;
+            }
+          } else {
+            doNotTrace = true;
           }
         }
-        if (element.nodeType === Node.ELEMENT_NODE) {
+        if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
           if (element.childNodes.length > 0) {
             for (var i = 0; i < element.childNodes.length; i++) {
               traceDomTree(element.childNodes[i], domIdx + i + 1);
