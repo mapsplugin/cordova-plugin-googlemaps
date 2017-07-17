@@ -16,10 +16,6 @@ var Polyline = function(map, polylineId, polylineOptions) {
         value: map,
         writable: false
     });
-    Object.defineProperty(self, "hashCode", {
-        value: polylineOptions.hashCode,
-        writable: false
-    });
     Object.defineProperty(self, "id", {
         value: polylineId,
         writable: false

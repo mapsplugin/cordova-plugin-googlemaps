@@ -735,7 +735,6 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
 
     exec(function(result) {
-        groundOverlayOptions.hashCode = result.hashCode;
         var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
         self.OVERLAYS[result.id] = groundOverlay;
         groundOverlay.one(result.id + "_remove", function() {
@@ -792,7 +791,6 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     });
 
     exec(function(result) {
-        tilelayerOptions.hashCode = result.hashCode;
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
         self.OVERLAYS[result.id] = tileOverlay;
         tileOverlay.one(result.id + "_remove", function() {
@@ -837,7 +835,6 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     polygonOptions.geodesic = polygonOptions.geodesic === true;
 
     exec(function(result) {
-        polygonOptions.hashCode = result.hashCode;
         polygonOptions.points = _orgs;
         var polygon = new Polygon(self, result.id, polygonOptions);
         self.OVERLAYS[result.id] = polygon;
@@ -868,7 +865,6 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.geodesic = polylineOptions.geodesic === true;
     exec(function(result) {
         polylineOptions.points = _orgs;
-        polylineOptions.hashCode = result.hashCode;
         var polyline = new Polyline(self, result.id, polylineOptions);
         self.OVERLAYS[result.id] = polyline;
         polyline.one(result.id + "_remove", function() {
@@ -898,7 +894,6 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.radius = circleOptions.radius || 1;
 
     exec(function(result) {
-        circleOptions.hashCode = result.hashCode;
         var circle = new Circle(self, result.id, circleOptions);
         self.OVERLAYS[result.id] = circle;
 
@@ -921,7 +916,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
     markerOptions = common.markerOptionsFilter(markerOptions);
     exec(function(result) {
-        markerOptions.hashCode = result.hashCode;
         var marker = new Marker(self, result.id, markerOptions, "marker");
 
         self.MARKERS[result.id] = marker;
@@ -959,16 +953,17 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     result.geocellList.forEach(function(geocell, idx) {
       var markerOptions = markerClusterOptions.markers[idx];
       markerOptions = common.markerOptionsFilter(markerOptions);
+
       var markerId = markerOptions.id || "marker_" + idx;
       var marker = new Marker(self, markerId, markerOptions, "markercluster");
       marker.set("isAdded", false);
       marker.set("geocell", geocell);
       marker.set("position", markerOptions.position);
       markers.push(marker);
+
     });
 
     var markerCluster = new MarkerCluster(self, result.id, {
-      "hashCode": result.hashCode,
       "icons": markerClusterOptions.icons,
       "markers": markers,
       "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 15)
@@ -985,6 +980,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   }]);
 
 };
+
 /*****************************************************************************
  * Callbacks from the native side
  *****************************************************************************/
@@ -1031,9 +1027,9 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
     }
 };
 
-Map.prototype._onOverlayEvent = function(eventName, hashCode) {
+Map.prototype._onOverlayEvent = function(eventName, overlayId) {
     var self = this;
-    var overlay = self.OVERLAYS[hashCode] || null;
+    var overlay = self.OVERLAYS[overlayId] || null;
     if (overlay) {
         var args = [eventName];
         for (var i = 2; i < arguments.length; i++) {
@@ -1043,6 +1039,7 @@ Map.prototype._onOverlayEvent = function(eventName, hashCode) {
     }
 };
 
+/*
 Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, options) {
     var self = this;
     var kmlLayer = self.KML_LAYERS[kmlLayerId] || null;
@@ -1109,6 +1106,7 @@ Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, 
     }
     //kmlLayer.trigger.apply(kmlLayer, args);
 };
+*/
 
 
 Map.prototype.getCameraTarget = function() {

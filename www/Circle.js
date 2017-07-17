@@ -24,10 +24,6 @@ var Circle = function(map, circleId, circleOptions) {
         value: "Circle",
         writable: false
     });
-    Object.defineProperty(self, "hashCode", {
-        value: circleOptions.hashCode,
-        writable: false
-    });
 
     //-----------------------------------------------
     // Sets the initialize option to each property

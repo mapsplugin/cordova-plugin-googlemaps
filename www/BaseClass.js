@@ -1,8 +1,32 @@
+
+var _globalListeners = {};
+
+function globalEventListener(e) {
+  var eventName = e.type;
+  if (!_globalListeners[eventName]) {
+    return;
+  }
+
+  var hashCode = e.myself.hashCode;
+  if (!hashCode || !_globalListeners[eventName][hashCode]) {
+    return;
+  }
+  var callbacks = _globalListeners[eventName][hashCode];
+  for (var i = 0; i < callbacks.length; i++) {
+    callbacks[i].listener(e);
+  }
+}
+
 var BaseClass = function() {
   var self = this;
   var _vars = {};
-  var _listeners = {};
 
+  var hashCode = Math.floor(Date.now() * Math.random());
+
+  Object.defineProperty(self, "hashCode", {
+      value: hashCode,
+      writable: false
+  });
   self.empty = function() {
     for (var key in Object.keys(_vars)) {
       _vars[key] = null;
@@ -28,9 +52,10 @@ var BaseClass = function() {
   };
 
   self.trigger = function(eventName) {
-    if (!eventName) {
+    if (!eventName || !_globalListeners[eventName] || !_globalListeners[eventName][hashCode]) {
       return;
     }
+
     var args = [];
     for (var i = 1; i < arguments.length; i++) {
       args.push(arguments[i]);
@@ -39,13 +64,18 @@ var BaseClass = function() {
     event.initEvent(eventName, false, false);
     event.mydata = args;
     event.myself = self;
-    document.dispatchEvent(event);
+
+    var callbacks = _globalListeners[eventName][hashCode];
+    for (var i = 0; i < callbacks.length; i++) {
+      callbacks[i].listener(event);
+    }
   };
   self.on = function(eventName, callback) {
     if (!eventName || !callback || typeof callback !== "function") {
       return;
     }
-    _listeners[eventName] = _listeners[eventName] || [];
+
+    _globalListeners[eventName] = _globalListeners[eventName] || {};
 
     var listener = function(e) {
       if (!e.myself || e.myself !== self) {
@@ -58,8 +88,11 @@ var BaseClass = function() {
       self.event = evt;
       callback.apply(self, mydata);
     };
-    document.addEventListener(eventName, listener, false);
-    _listeners[eventName].push({
+    if (!(hashCode in _globalListeners[eventName])) {
+      document.addEventListener(eventName, globalEventListener, false);
+      _globalListeners[eventName][hashCode] = [];
+    }
+    _globalListeners[eventName][hashCode].push({
       'callback': callback,
       'listener': listener
     });
@@ -67,36 +100,38 @@ var BaseClass = function() {
   self.addEventListener = self.on;
 
   self.off = function(eventName, callback) {
-    var i;
+    var i, j, callbacks;
     if (typeof eventName === "string") {
-      if (eventName in _listeners) {
+      if (eventName in _globalListeners) {
 
         if (typeof callback === "function") {
-          for (i = 0; i < _listeners[eventName].length; i++) {
-            if (_listeners[eventName][i].callback === callback) {
-              document.removeEventListener(eventName, _listeners[eventName][i].listener);
-              _listeners[eventName].splice(i, 1);
+          callbacks = _globalListeners[eventName][hashCode] ||[];
+          for (i = 0; i < callbacks.length; i++) {
+            if (callbacks[i].callback === callback) {
+              callbacks.splice(i, 1);
               break;
             }
           }
-        } else {
-          for (i = 0; i < _listeners[eventName].length; i++) {
-            document.removeEventListener(eventName, _listeners[eventName][i].listener);
+          if (callbacks.length === 0) {
+            delete _globalListeners[eventName][hashCode];
           }
-          delete _listeners[eventName];
+        } else {
+          delete _globalListeners[eventName][hashCode];
+        }
+        if (Object.keys(_globalListeners[eventName]) === 0) {
+          document.removeEventListener(eventName, globalEventListener);
         }
       }
     } else {
       //Remove all event listeners
-      var eventNames = Object.keys(_listeners);
-      for (i = 0; i < eventNames.length; i++) {
-        eventName = eventNames[i];
-        for (var j = 0; j < _listeners[eventName].length; j++) {
-          document.removeEventListener(eventName, _listeners[eventName][j].listener);
+      var eventNames = Object.keys(_globalListeners);
+      for (j = 0; j < eventNames.length; j++) {
+        eventName = eventNames[j];
+        delete _globalListeners[eventName][hashCode];
+        if (Object.keys(_globalListeners[eventName]) === 0) {
+          document.removeEventListener(eventName, globalEventListener);
         }
-        delete _listeners[eventName];
       }
-      _listeners = {};
     }
   };
 
@@ -104,7 +139,6 @@ var BaseClass = function() {
 
 
   self.one = function(eventName, callback) {
-    _listeners[eventName] = _listeners[eventName] || [];
 
     var listener = function(e) {
       if (!e.myself || e.myself !== self) {
@@ -118,8 +152,14 @@ var BaseClass = function() {
       callback.apply(self, mydata);
       self.off(eventName, callback);
     };
-    document.addEventListener(eventName, listener, false);
-    _listeners[eventName].push({
+
+    _globalListeners[eventName] = _globalListeners[eventName] || {};
+
+    if (!(hashCode in _globalListeners[eventName])) {
+      document.addEventListener(eventName, globalEventListener, false);
+      _globalListeners[eventName][hashCode] = [];
+    }
+    _globalListeners[eventName][hashCode].push({
       'callback': callback,
       'listener': listener
     });
