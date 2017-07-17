@@ -104,7 +104,7 @@ document.head.appendChild(navDecorBlocker);
   var cacheDepth = {};
   document.head.appendChild(navDecorBlocker);
   var doNotTraceTags = [
-    "svg"
+    "svg", "p", "pre"
   ];
 
   function putHtmlElements() {
