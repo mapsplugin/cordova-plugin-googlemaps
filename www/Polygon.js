@@ -16,10 +16,6 @@ var Polygon = function(map, polygonId, polygonOptions) {
         value: map,
         writable: false
     });
-    Object.defineProperty(self, "hashCode", {
-        value: polygonOptions.hashCode,
-        writable: false
-    });
     Object.defineProperty(self, "id", {
         value: polygonId,
         writable: false

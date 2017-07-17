@@ -18,10 +18,6 @@ var Marker = function(map, id, markerOptions) {
         value: map,
         writable: false
     });
-    Object.defineProperty(self, "hashCode", {
-        value: markerOptions.hashCode,
-        writable: false
-    });
     Object.defineProperty(self, "id", {
         value: id,
         writable: false

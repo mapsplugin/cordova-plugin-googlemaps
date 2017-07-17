@@ -29,10 +29,6 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
      value: map,
      writable: false
   });
-  Object.defineProperty(self, "hashCode", {
-     value: groundOverlayOptions.hashCode,
-     writable: false
-  });
   var ignores = ["map", "id", "hashCode", "type"];
   for (var key in groundOverlayOptions) {
       if (ignores.indexOf(key) === -1) {

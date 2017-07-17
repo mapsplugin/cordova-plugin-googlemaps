@@ -26,10 +26,6 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
         value: map,
         writable: false
     });
-    Object.defineProperty(self, "hashCode", {
-        value: kmlOverlayOptions.hashCode,
-        writable: false
-    });
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {
         if (ignores.indexOf(key) === -1) {

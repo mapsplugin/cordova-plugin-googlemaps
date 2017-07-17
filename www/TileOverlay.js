@@ -23,10 +23,6 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
         value: map,
         writable: false
     });
-    Object.defineProperty(self, "hashCode", {
-        value: tileOverlayOptions.hashCode,
-        writable: false
-    });
     //-----------------------------------------------
     // Sets the initialize option to each property
     //-----------------------------------------------
