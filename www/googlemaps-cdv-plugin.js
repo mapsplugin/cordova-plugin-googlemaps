@@ -54,6 +54,31 @@ var saltHash = Math.floor(Math.random() * Date.now());
 })();
 
 /*****************************************************************************
+ * Prevent background, background-color, background-image properties
+ *****************************************************************************/
+document.body.style.backgroundImage = 'url() !important';
+document.body.parentNode.style.backgroundColor = 'rgba(0,0,0,0) !important';
+document.body.parentNode.style.background = 'rgba(0,0,0,0) !important';
+document.head.style.backgroundColor = 'rgba(0,0,0,0) !important';
+document.head.style.background = 'rgba(0,0,0,0) !important';
+
+var navDecorBlocker = document.createElement("style");
+navDecorBlocker.setAttribute("type", "text/css");
+navDecorBlocker.innerText = [
+  "._gmaps_cdv_ {",
+  "   background-image: url() !important;",
+  "   background: rgba(0,0,0,0) url() !important;",
+  "   background-color: rgba(0,0,0,0) !important;",
+  "}",
+  "._gmaps_cdv_ .nav-decor {",
+  "   background-color: rgba(0,0,0,0) !important;",
+  "   background: rgba(0,0,0,0) !important;",
+  "   display:none !important;",
+  "}"
+].join("");
+document.head.appendChild(navDecorBlocker);
+
+/*****************************************************************************
  * Add event lister to all html nodes under the <body> tag.
  *****************************************************************************/
 (function() {
@@ -77,15 +102,6 @@ var saltHash = Math.floor(Math.random() * Date.now());
 
   var isChecking = false;
   var cacheDepth = {};
-  var navDecorBlocker = document.createElement("style");
-  navDecorBlocker.setAttribute("type", "text/css");
-  navDecorBlocker.innerText = [
-    "._gmaps_cdv_ .nav-decor {",
-    "   background-color: rgba(0,0,0,0) !important;",
-    "   background: rgba(0,0,0,0) !important;",
-    "   display:none !important;",
-    "}"
-  ].join("");
   document.head.appendChild(navDecorBlocker);
   var doNotTraceTags = [
     "svg"
