@@ -347,6 +347,18 @@
     }];
 }
 
+- (void)resume:(CDVInvokedUrlCommand *)command {
+    self.pluginLayer.isSuspended = NO;
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+- (void)pause:(CDVInvokedUrlCommand *)command {
+    self.pluginLayer.isSuspended = YES;
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
 

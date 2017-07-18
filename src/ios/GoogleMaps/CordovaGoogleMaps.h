@@ -27,4 +27,6 @@
 - (void)clearHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)removeMap:(CDVInvokedUrlCommand *)command;
+- (void)pause:(CDVInvokedUrlCommand *)command;
+- (void)resume:(CDVInvokedUrlCommand *)command;
 @end

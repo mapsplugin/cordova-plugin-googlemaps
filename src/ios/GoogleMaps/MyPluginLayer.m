@@ -19,6 +19,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
     self = [super initWithFrame:[webView frame]];
     self.webView = webView;
+    self.isSuspended = NO;
     self.opaque = NO;
     [self.webView removeFromSuperview];
     // prevent webView from bouncing
@@ -178,7 +179,10 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 }
 
 - (void)resizeTask:(NSTimer *)timer {
-
+    if (self.isSuspended) {
+      // Assumes all touches for the browser
+      return;
+    }
     if (stopFlag) {
         return;
     }
@@ -283,8 +287,19 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     });
 
 }
-
+- (void)execJS: (NSString *)jsString {
+    if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+        [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+    } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+        [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+    }
+}
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    if (self.isSuspended) {
+      // Assumes all touches for the browser
+      [self execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+      return [self.webView hitTest:point withEvent:event];
+    }
 
     float offsetX = self.webView.scrollView.contentOffset.x;
     float offsetY = self.webView.scrollView.contentOffset.y;
@@ -407,7 +422,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
 
         if (isMapAction == NO) {
-          [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+          [self execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
         }
 
         return hitView;
@@ -416,7 +431,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
     UIView *hitView =[self.webView hitTest:point withEvent:event];
     //NSLog(@"--> (hit test) hit = %@", hitView.class);
-    [mapCtrl execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+    [self execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
     return hitView;
 
 }
