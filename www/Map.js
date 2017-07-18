@@ -92,7 +92,11 @@ Map.prototype.getMap = function(mapId, div, options) {
         args.push(options);
     } else {
 
-        var currentDiv = self.get("div");
+        var positionCSS = common.getStyle(div, "position");
+        if (!positionCSS || positionCSS === "static") {
+          // important for HtmlInfoWindow
+          div.style.position = "relative";
+        }
         self.set("visible", true);
         options = options || {};
         if (options.camera) {
@@ -551,7 +555,6 @@ Map.prototype.setDiv = function(div) {
         }
         self.set("div", null);
     } else {
-        var currentDiv = self.get("div");
         div.setAttribute("__pluginMapId", self.id);
 
         // Webkit redraw mandatory
@@ -561,6 +564,11 @@ Map.prototype.setDiv = function(div) {
         div.style.display='';
 
         self.set("div", div);
+
+        var positionCSS = common.getStyle(div, "position");
+        if (!positionCSS || positionCSS === "static") {
+          div.style.position = "relative";
+        }
         elemId = div.getAttribute("__pluginDomId");
         if (!elemId) {
             elemId = "pgm" + Math.floor(Math.random() * Date.now());
