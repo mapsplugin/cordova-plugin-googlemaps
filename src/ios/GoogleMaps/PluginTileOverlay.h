@@ -1,5 +1,5 @@
 //
-//  TileOverlay.h
+//  PluginTileOverlay.h
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.

@@ -1,5 +1,5 @@
 //
-//  GroundOverlay.m
+//  PluginGroundOverlay.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Katsumata Masashi.
@@ -43,10 +43,10 @@
         [self.objects removeObjectForKey:key];
     }
     self.objects = nil;
-  
+
   //[self.imgCache removeAllObjects];
   //self.imgCache = nil;
-  
+
   key = nil;
   keys = nil;
 
@@ -82,10 +82,10 @@
         }
     }
     bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-  
+
     dispatch_async(dispatch_get_main_queue(), ^{
         GMSGroundOverlay *groundOverlay = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
-      
+
         NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%lu", (unsigned long)groundOverlay.hash];
         [self.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;
@@ -97,7 +97,7 @@
         if ([json valueForKey:@"bearing"]) {
             groundOverlay.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
-      
+
         BOOL isVisible = NO;
         if ([[json valueForKey:@"visible"] boolValue]) {
             groundOverlay.map = self.mapCtrl.map;
@@ -107,12 +107,12 @@
         if ([[json valueForKey:@"clickable"] boolValue]) {
             isClickable = YES;
         }
-      
-        
+
+
         // Since this plugin uses own touch-detection,
         // set NO to the tappable property.
         groundOverlay.tappable = NO;
-      
+
         __block PluginGroundOverlay *me = self;
 
         // Load image
@@ -128,18 +128,18 @@
 
                   //NSString *imgId = [NSString stringWithFormat:@"groundoverlay_image_%lu", (unsigned long)groundOverlay.hash];
                   //[me.imgCache setObject:groundOverlay.icon forKey:imgId];
-                
+
                   if ([json valueForKey:@"opacity"]) {
                       CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
                       groundOverlay.icon = [groundOverlay.icon imageByApplyingAlpha:opacity];
                   }
 
-                  
+
                   //---------------------------
                   // Keep the properties
                   //---------------------------
                   NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
-              
+
                   // points
                   NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
                   // bounds (pre-calculate for click detection)
@@ -175,7 +175,7 @@
 - (void)_setImage:(GMSGroundOverlay *)groundOverlay urlStr:(NSString *)urlStr completionHandler:(void (^)(BOOL succeeded))completionHandler {
 
     NSRange range = [urlStr rangeOfString:@"http"];
-  
+
     if (range.location != 0) {
         /**
          * Load icon from file or Base64 encoded strings
@@ -252,8 +252,8 @@
             groundOverlay.icon = [UIImage imageNamed:urlStr];
             completionHandler(YES);
         });
-  
-      
+
+
     } else {
         NSURL *url = [NSURL URLWithString:urlStr];
         [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
@@ -283,9 +283,9 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
-      
+
         //[self.imgCache removeObjectForKey:groundOverlayId];
-        
+
         NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
         [self.objects removeObjectForKey:propertyId];
         [self.objects removeObjectForKey:groundOverlayId];
@@ -312,7 +312,7 @@
         NSString *key = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:key];
         Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
-      
+
         // Update the property
         NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
         NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
@@ -342,7 +342,7 @@
 {
 
     [self.executeQueue addOperationWithBlock:^{
-    
+
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
         NSString *urlStr = [command.arguments objectAtIndex:1];
@@ -388,7 +388,7 @@
         }
         GMSCoordinateBounds *bounds;
         bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-        
+
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [groundOverlay setBounds:bounds];
 
@@ -409,7 +409,7 @@
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
         CGFloat opacity = [[command.arguments objectAtIndex:1] floatValue];
-      
+
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             groundOverlay.opacity = opacity;
 
@@ -451,7 +451,7 @@
       NSString *key = [command.arguments objectAtIndex:0];
       GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.objects objectForKey:key];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
-    
+
       // Update the property
       NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
@@ -474,11 +474,11 @@
     [self.executeQueue addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
-      
+
         NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [groundOverlay setZIndex:(int)zIndex];
-          
+
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }];
@@ -490,7 +490,7 @@
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
     [self.executeQueue addOperationWithBlock:^{
-  
+
         NSURLRequest *req = [NSURLRequest requestWithURL:url
                                           cachePolicy:NSURLRequestReturnCacheDataElseLoad
                                           timeoutInterval:5];
@@ -501,7 +501,7 @@
           return;
         }
 
-      
+
         [NSURLConnection sendAsynchronousRequest:req
               queue:self.executeQueue
               completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {

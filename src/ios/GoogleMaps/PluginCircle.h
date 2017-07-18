@@ -1,8 +1,8 @@
 //
-//  Circle.h
+//  PluginCircle.h
 //  cordova-googlemaps-plugin v2
 //
-//  Created by masashi.
+//  Created by Masashi Katsumata.
 //
 //
 

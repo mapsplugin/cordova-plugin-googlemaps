@@ -1,5 +1,5 @@
 //
-//  Geocoder.h
+//  PluginGeocoder.h
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Katsumata Masashi.

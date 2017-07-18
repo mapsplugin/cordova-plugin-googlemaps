@@ -1,8 +1,8 @@
 //
-//  GoogleMaps.m
+//  CordovaGoogleMaps.m
 //  cordova-googlemaps-plugin v2
 //
-//  Created by masashi.
+//  Created by Masashi Katsumata.
 //
 //
 
@@ -157,6 +157,7 @@
 
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         NSString *mapId = [command.arguments objectAtIndex:0];
+        NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
         // Wrapper view
         GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
@@ -206,6 +207,32 @@
                                             viewingAngle:0];
 
         pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+
+        //mapType
+        NSString *typeStr = [initOptions valueForKey:@"mapType"];
+        if (typeStr) {
+
+          NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
+                                    ^() {return kGMSTypeSatellite; }, @"MAP_TYPE_SATELLITE",
+                                    ^() {return kGMSTypeTerrain; }, @"MAP_TYPE_TERRAIN",
+                                    ^() {return kGMSTypeNormal; }, @"MAP_TYPE_NORMAL",
+                                    ^() {return kGMSTypeNone; }, @"MAP_TYPE_NONE",
+                                    nil];
+
+          typedef GMSMapViewType (^CaseBlock)();
+          GMSMapViewType mapType;
+          CaseBlock caseBlock = mapTypes[typeStr];
+          if (caseBlock) {
+            // Change the map type
+            mapType = caseBlock();
+
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                pluginMap.mapCtrl.map.mapType = mapType;
+            }];
+          }
+        }
+
         pluginMap.mapCtrl.map.delegate = mapCtrl;
         pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
