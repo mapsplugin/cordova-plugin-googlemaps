@@ -399,9 +399,7 @@ module.exports = {
     Geocoder: Geocoder,
     geometry: {
         encoding: encoding,
-        spherical: spherical,
-        Encoding: encoding,    // for ionic
-        Spherical: spherical   // for ionic
+        spherical: spherical
     }
 };
 
