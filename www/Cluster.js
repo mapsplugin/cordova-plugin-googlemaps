@@ -11,7 +11,7 @@ var argscheck = require('cordova/argscheck'),
  * Cluster Class
  *****************************************************************************/
 var Cluster = function(geocell) {
-  BaseClass.call(this);
+  var obj = {};
 
   var self = this;
   Object.defineProperty(self, "geocell", {
@@ -23,18 +23,26 @@ var Cluster = function(geocell) {
     value: "Cluster",
     writable: false
   });
-  Object.defineProperty(self, "bounds", {
-    value: geomodel.computeBox(geocell),
-    writable: false
-  });
   Object.defineProperty(self, "_markerRefs", {
     value: new BaseArrayClass(),
     writable: false
   });
 
-};
 
-utils.extend(Cluster, BaseClass);
+  Object.defineProperty(self, "set", {
+    value: function(key, value) {
+      obj[key] = value;
+    },
+    writable: false
+  });
+
+  Object.defineProperty(self, "get", {
+    value: function(key) {
+      return obj[key];
+    },
+    writable: false
+  });
+};
 
 Cluster.prototype.NO_CLUSTER_MODE = 1;
 Cluster.prototype.CLUSTER_MODE = 2;
@@ -43,10 +51,15 @@ Cluster.prototype.getPluginName = function() {
   return this.map.getId() + "-cluster";
 };
 Cluster.prototype.getBounds = function() {
-  return this.bounds;
+  var bounds = this.get("bounds");
+  if (!bounds) {
+    bounds = geomodel.computeBox(this.geocell);
+    this.set("bounds", bounds);
+  }
+  return bounds;
 };
 Cluster.prototype.getCenter = function() {
-  return this.bounds.getCenter();
+  return this.getBounds().getCenter();
 };
 
 Cluster.prototype.getMarkers = function() {
@@ -74,7 +87,6 @@ Cluster.prototype.remove = function() {
   this._markerRefs.forEach(function(markerRef) {
     markerRef.set("isAdded", false);
   });
-  this.off();
 
 };
 Cluster.prototype.getItemLength = function() {

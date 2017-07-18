@@ -933,6 +933,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
 };
 
+
 //------------------
 // Marker cluster
 //------------------
@@ -956,9 +957,9 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
       var markerId = markerOptions.id || "marker_" + idx;
       var marker = new Marker(self, markerId, markerOptions, "markercluster");
-      marker.set("isAdded", false);
-      marker.set("geocell", geocell);
-      marker.set("position", markerOptions.position);
+      marker.set("isAdded", false, true);
+      marker.set("geocell", geocell, true);
+      marker.set("position", markerOptions.position, true);
       markers.push(marker);
 
     });
