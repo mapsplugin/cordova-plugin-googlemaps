@@ -2,7 +2,7 @@
 //  MyPluginLayer.h
 //  cordova-googlemaps-plugin v2
 //
-//  Created by masashi.
+//  Created by Masashi Katsumata.
 //
 //
 
@@ -15,6 +15,7 @@
 @property (nonatomic) UIView *webView;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 @property (nonatomic) NSTimer *redrawTimer;
+@property (nonatomic) BOOL *isSuspended;
 
 - (id)initWithWebView:(UIView *)webView;
 - (void)resizeTask:(NSTimer *)timer;

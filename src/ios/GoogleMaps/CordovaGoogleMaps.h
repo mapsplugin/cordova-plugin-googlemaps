@@ -2,7 +2,7 @@
 //  CordovaGoogleMaps.h
 //  cordova-googlemaps-plugin v2
 //
-//  Created by masashi.
+//  Created by Masashi Katsumata.
 //
 //
 
@@ -27,4 +27,6 @@
 - (void)clearHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)removeMap:(CDVInvokedUrlCommand *)command;
+- (void)pause:(CDVInvokedUrlCommand *)command;
+- (void)resume:(CDVInvokedUrlCommand *)command;
 @end

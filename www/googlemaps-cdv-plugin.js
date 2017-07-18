@@ -101,6 +101,7 @@ document.head.appendChild(navDecorBlocker);
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
   var idlingCnt = -1;
+  var isSuspended = false;
 
   var isChecking = false;
   var cacheDepth = {};
@@ -143,11 +144,19 @@ document.head.appendChild(navDecorBlocker);
       }
       if (visibleMapList.length === 0) {
         idlingCnt++;
-        if (idlingCnt < 10) {
-          setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
+        if (!isSuspended) {
+          cordova.exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+          isSuspended = true;
+        }
+        if (idlingCnt < 5) {
+          setTimeout(putHtmlElements, 50);
         }
         isChecking = false;
         return;
+      }
+      if (isSuspended) {
+        isSuspended = false;
+        cordova.exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
 
       //-------------------------------------------

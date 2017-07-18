@@ -2,7 +2,7 @@
 //  PluginMarker.m
 //  cordova-googlemaps-plugin v2
 //
-//  Created by masashi.
+//  Created by Masashi Katsumata.
 //
 //
 
@@ -1184,6 +1184,28 @@
 
 
 
+    //-------------------------------------------------------------
+    // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
+    // https://stackoverflow.com/a/20871647
+    //-------------------------------------------------------------
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                             completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                               if ( !error ) {
+                                 [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
+                                 UIImage *image = [UIImage imageWithData:data];
+                                 completionBlock(YES, image);
+                               } else {
+                                 completionBlock(NO, nil);
+                               }
+
+                            }];
+    [getTask resume];
+    //-------------------------------------------------------------
+    // NSURLConnection sendAsynchronousRequest is deprecated.
+    //-------------------------------------------------------------
+/*
         [NSURLConnection sendAsynchronousRequest:req
               queue:self.executeQueue
               completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
@@ -1196,6 +1218,9 @@
                 }
 
         }];
+*/
+
+
     }];
 }
 @end

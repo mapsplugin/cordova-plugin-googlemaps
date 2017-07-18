@@ -48,19 +48,25 @@
 
 - (void)requestTileForX:(NSUInteger)x   y:(NSUInteger)y    zoom:(NSUInteger)zoom    receiver:(id<GMSTileReceiver>)receiver {
 
+  NSUInteger orginalZoom = zoom;
 
+  if (floor(self.map.camera.zoom) < zoom) {
+    zoom = zoom - 1;  // Why does Google provides different zoom level?
+  }
 
   @synchronized (self.semaphore) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
 
           // Execute the getTile() callback
           NSString* jsString = [NSString
                                 stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@-%@-tileoverlay', {x: %lu, y: %lu, zoom: %lu});",
                                 self.mapId, self.pluginId, (unsigned long)x, (unsigned long)y, (unsigned long)zoom];
+
           [self execJS:jsString];
 
 
-      });
+      }];
       dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
 
   }
@@ -70,7 +76,7 @@
     //-------------------------
     // No image tile
     //-------------------------
-    return [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
+    return [receiver receiveTileWithX:x y:y zoom:orginalZoom image:kGMSTileLayerNoTile];
   }
 
   NSRange range = [urlStr rangeOfString:@"http"];
@@ -78,7 +84,7 @@
       //-------------------------
       // http:// or https://
       //-------------------------
-      [self downloadImageWithX:x y:y zoom:zoom url:[NSURL URLWithString:urlStr] receiver:receiver];
+      [self downloadImageWithX:x y:y zoom:orginalZoom url:[NSURL URLWithString:urlStr] receiver:receiver];
       return;
   }
 
@@ -102,7 +108,6 @@
           urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
       }
 
-
       range = [urlStr rangeOfString:@"file://"];
       if (range.location != NSNotFound) {
           //-------------------------
@@ -112,7 +117,7 @@
 
           NSFileManager *fileManager = [NSFileManager defaultManager];
           if (![fileManager fileExistsAtPath:urlStr]) {
-              [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
+              [receiver receiveTileWithX:x y:y zoom:orginalZoom image:kGMSTileLayerNoTile];
               return;
           }
       }
@@ -128,9 +133,9 @@
       }
 
       if (image != nil) {
-          [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+          [receiver receiveTileWithX:x y:y zoom:orginalZoom image:image];
       } else {
-          [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
+          [receiver receiveTileWithX:x y:y zoom:orginalZoom image:kGMSTileLayerNoTile];
       }
       return;
 
@@ -161,8 +166,28 @@
       return;
     }
 
+    //-------------------------------------------------------------
+    // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
+    // https://stackoverflow.com/a/20871647
+    //-------------------------------------------------------------
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                             completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                               if ( !error ) {
+                                 [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
+                                 UIImage *image = [UIImage imageWithData:data];
+                                 [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+                               } else {
+                                 [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
+                               }
 
-
+                            }];
+    [getTask resume];
+    //-------------------------------------------------------------
+    // NSURLConnection sendAsynchronousRequest is deprecated.
+    //-------------------------------------------------------------
+/*
     [NSURLConnection sendAsynchronousRequest:req
                                        queue:self.executeQueue
                            completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
@@ -175,7 +200,9 @@
                              }
 
                            }];
+*/
   }];
+
 }
 
 @end

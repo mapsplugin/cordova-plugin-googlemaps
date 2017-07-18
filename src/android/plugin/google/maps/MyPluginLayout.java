@@ -34,6 +34,7 @@ import java.util.TimerTask;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener, ViewTreeObserver.OnGlobalLayoutListener {
+  private static final String TAG = "MyPluginLayout";
   private CordovaWebView webView;
   private View browserView;
   private ViewGroup root;
@@ -51,6 +52,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private Paint debugPaint = new Paint();
   public boolean stopFlag = false;
   public boolean needUpdatePosition = false;
+  public boolean isSuspended = false;
   private float zoomScale;
 
   public Timer redrawTimer;
@@ -71,6 +73,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
+      if (isSuspended) {
+        return;
+      }
       //final PluginMap pluginMap = pluginMaps.get(mapId);
       //if (pluginMap.mapDivId == null) {
       //  return;
@@ -467,7 +472,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (pluginMaps == null || pluginMaps.size() == 0) {
+      if (isSuspended || pluginMaps == null || pluginMaps.size() == 0) {
+        webView.loadUrl("javascript:cordova.fireDocumentEvent('plugin_touch', {});");
         return false;
       }
       MyPluginLayout.this.stopFlag = true;
@@ -574,7 +580,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     @Override
     protected void onDraw(Canvas canvas) {
-      if (HTMLNodes.isEmpty() || !isDebug) {
+      if (isSuspended || HTMLNodes.isEmpty() || !isDebug) {
         return;
       }
 
