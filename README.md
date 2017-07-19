@@ -84,7 +84,7 @@ map.addMarkerCluster({
 
 -------
 
-## marker click event?
+## marker click event
 
 If you click on a regular marker (not cluster marker), the `MARKER_CLICK` event occurs on the makrer cluster instance.
 You can receive the marker instance in the second argument.
