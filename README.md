@@ -5,8 +5,6 @@ A cluster marker indicates there are multiple markers in the around.
 
 If you tap on the cluster icon, map camera will be changed to the around the area.
 
-![](https://user-images.githubusercontent.com/167831/28303766-8851617c-6b49-11e7-9679-f31673e2b9ec.gif)
-
 ## Notice
 
 This is the alpha version. Masashi may change the feature and/or property names without notification in advance.
@@ -180,3 +178,59 @@ If you have a question, feature request, and bug report etc, please let me know 
 Or send e-mail to me if you want to hide your information.
 
 (But I will ask to share your project files anyway)
+
+
+-------
+
+## Demo
+
+code
+
+https://bitbucket.org/wf9a5m75/markercluster
+
+[demo.apk](./demo.apk)
+
+![](https://user-images.githubusercontent.com/167831/28303766-8851617c-6b49-11e7-9679-f31673e2b9ec.gif)
+
+```js
+function onMapReady() {
+  var map = this;
+
+  var label = document.getElementById("label");
+
+  map.addMarkerCluster({
+    debug: false,
+    //maxZoomLevel: 5,
+    markers: data,
+    icons: [
+      {min: 2, max: 100, url: "./img/blue.png", anchor: {x: 16, y: 16}},
+      {min: 100, max: 1000, url: "./img/yellow.png", anchor: {x: 16, y: 16}},
+      {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
+      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}},
+    ]
+  }, function(markerCluster) {
+    map.set("markerCluster", markerCluster);
+
+    markerCluster.on("resolution_changed", function(prev, newResolution) {
+      var self = this;
+      label.innerHTML = "<b>zoom = " + self.get("zoom") + ", resolution = " + self.get("resolution") + "</b>";
+    });
+    markerCluster.trigger("resolution_changed");
+
+    markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marker) {
+      marker.showInfoWindow();
+    });
+
+
+  });
+
+  map.on(plugin.google.maps.event.MAP_CLICK, function(position) {
+    var markerCluster = map.get("markerCluster");
+
+    markerCluster.addMarker({
+      position: position,
+      title: "clicked point"
+    });
+  });
+}
+```
