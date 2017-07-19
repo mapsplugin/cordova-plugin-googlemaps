@@ -5,6 +5,8 @@ A cluster marker indicates there are multiple markers in the around.
 
 If you tap on the cluster icon, map camera will be changed to the around the area.
 
+![](https://user-images.githubusercontent.com/167831/28303766-8851617c-6b49-11e7-9679-f31673e2b9ec.gif)
+
 ## Notice
 
 This is the alpha version. Masashi may change the feature and/or property names without notification in advance.
