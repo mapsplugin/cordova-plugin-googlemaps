@@ -173,7 +173,9 @@ Blue polygon will be drawn.
 
 ## Questions
 
-If you have a question, feature request, and bug report etc, please let me know at the [issue list](https://github.com/mapsplugin/cordova-plugin-googlemaps/issues).
+If you have a question, feature request, and bug report etc, please let me know at the [issue list](https://bitbucket.org/markercluster_test/cordova-plugin-googlemaps-cluster/issues).
+
+https://bitbucket.org/markercluster_test/cordova-plugin-googlemaps-cluster/issues
 
 Or send e-mail to me if you want to hide your information.
 
