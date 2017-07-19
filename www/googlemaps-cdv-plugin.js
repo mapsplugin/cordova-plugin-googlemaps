@@ -105,7 +105,7 @@ document.head.appendChild(navDecorBlocker);
   var cacheDepth = {};
   document.head.appendChild(navDecorBlocker);
   var doNotTraceTags = [
-    "svg", "p", "pre"
+    "svg", "p", "pre", "script", "style"
   ];
 
   function putHtmlElements() {
@@ -222,8 +222,15 @@ document.head.appendChild(navDecorBlocker);
         }
         if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
           if (element.childNodes.length > 0) {
+            var child;
             for (var i = 0; i < element.childNodes.length; i++) {
-              traceDomTree(element.childNodes[i], domIdx + i + 1);
+              child = element.childNodes[i];
+              if (child.nodeType !== Node.ELEMENT_NODE ||
+                doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
+                common.getStyle(child, "display") === "none") {
+                continue;
+              }
+              traceDomTree(child, domIdx + i + 1);
             }
           }
         }
@@ -286,7 +293,7 @@ document.head.appendChild(navDecorBlocker);
                   MAPS[mapId].refreshLayout();
               }
           });
-          setTimeout(putHtmlElements, 25);
+          setTimeout(putHtmlElements, 50);
           isChecking = false;
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
