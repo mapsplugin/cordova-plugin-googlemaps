@@ -36,7 +36,7 @@ So you can use this version as well as the github version.
 
 ----
 
-## Usage of the marker cluster?
+## Usage of the marker cluster
 
 You can create a marker cluster through `map.addMarkerCluster()`.
 
