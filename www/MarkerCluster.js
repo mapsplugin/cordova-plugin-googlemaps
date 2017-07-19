@@ -104,7 +104,7 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     markerOptions = common.markerOptionsFilter(markerOptions);
     var geocell = geomodel.getGeocell(markerOptions.position.lat, markerOptions.position.lng, 9);
 
-    var markerId = markerOptions.id || "marker_" + idx;
+    var markerId = markerOptions.id || "marker_" + idxCount;
     var marker = new Marker(self, markerId, markerOptions, "markercluster");
     marker.set("isAdded", false, true);
     marker.set("geocell", geocell, true);
@@ -212,7 +212,7 @@ MarkerCluster.prototype.redraw = function(force) {
       if (ignoreGeocells.indexOf(geocell) === -1) {
         if (!visibleRegion.contains(marker.getPosition())) {
           marker.set("isAdded", false, true);
-          ignoreGeocells.push(geocell)
+          ignoreGeocells.push(geocell);
         } else {
           allGeocells.push(geocell);
         }

@@ -1,125 +1,180 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.0 beta)
+# Marker cluster for Cordova GoogleMaps plugin the v2.0
 
-==========================
+The marker cluster displays the organized markers that collected by algorithm.
+A cluster marker indicates there are multiple markers in the around.
 
-This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
-Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
+If you tap on the cluster icon, map camera will be changed to the around the area.
 
------
+## Notice
 
-### Quick install
+This is the alpha version. Masashi may change the feature and/or property names without notification in advance.
 
-Since this version is still in beta, you need to install the plugin from github directory.
+----
 
-*Github (current multiple_maps branch)*
-```bash
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
+## Algorithm
+
+There are some algorithms, but **the geocell algorithm is only available at this time**.
+Masashi will add another algorithms in the future, but not now.
+
+----
+
+## Install
+
+Since the code is not merged to the github repository, you need to install from the bitbacket private repository.
+
+Adding the `--no-fetch` option is recommended (this prevents the caching by npm command).
+
+```js
+$> cordova plugin rm cordova-googlmaps-plugin // if you installed the regular version
+
+$> cordova plugin add https://bitbucket.org/wf9a5m75/cordova-plugin-googlemaps-cluster#cluster_work --variable API_KEY_FOR_ANDROID=... --variable API_KEY_FOR_IOS=... --no-fetch
 ```
 
-If you re-install the plugin, please always remove the plugin first, then remove the SDK
+I will update this private repository if the github repository is updated (at least one time per day).
+So you can use this version as well as the github version.
+(It means the bug fixes are applied to this version as well.)
 
-```bash
-$> cordova plugin rm cordova-plugin-googlemaps
-$> cordova plugin rm com.googlemaps.ios
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE"
+----
+
+## Usage of the marker cluster?
+
+You can create a marker cluster through `map.addMarkerCluster()`.
+
+You need to configure **require parameters**:
+- `markers`: Array of marker options (not actual markers)
+- `icons`: Array of conditions for cluster icon
+
+And other optional parameters are:
+
+- `debug`: draw bounds of geocell grid
+- `maxZoomLevel`: maximum zoom level of clustering
+
+```js
+var data = [
+  {
+    "position": {"lat": 21.382314, "lng": -157.933097},
+    "title": "Starbucks - HI - Aiea  03641",
+    "icon": "img/starbucks.gif"
+  },
+  {
+    "position": {"lat": 21.3871, "lng": -157.9482},
+    "title": "Starbucks - HI - Aiea  03642",
+    "icon": "img/starbucks.gif"
+  },
+  ...
+  {
+    "position": {"lat": 21.363402, "lng": -157.928275},
+    "title": "Starbucks - HI - Aiea  03643",
+    "icon": "img/starbucks.gif"
+  }
+];
+
+map.addMarkerCluster({
+  debug: false,
+  maxZoomLevel: 10,  //default: 15
+  markers: data,
+  icons: [
+    {min: 3, max: 100, url: "./img/blue.png", anchor: {x: 16, y: 16}},
+    {min: 100, max: 1000, url: "./img/yellow.png", anchor: {x: 16, y: 16}},
+    {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
+    {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}},
+  ]
+});
 ```
 
-### Configuration
+-------
 
-You can also configure the following variables to customize the iOS location plist entries
+## marker click event?
 
-- `LOCATION_WHEN_IN_USE_DESCRIPTION` for `NSLocationWhenInUseUsageDescription` (defaults to "Show your location on the map")
-- `LOCATION_ALWAYS_USAGE_DESCRIPTION` for `NSLocationAlwaysUsageDescription` (defaults t "Trace your location on the map")
+If you click on a regular marker (not cluster marker), the `MARKER_CLICK` event occurs on the makrer cluster instance.
+You can receive the marker instance in the second argument.
 
-Exmaple using the cordova CLI
+```js
+markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marker) {
 
-```bash
-$> cordova plugin rm cordova-plugin-googlemaps
-$> cordova plugin rm com.googlemaps.ios
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps --variable API_KEY_FOR_ANDROID="YOUR_ANDROID_API_KEY_IS_HERE" --variable API_KEY_FOR_IOS="YOUR_IOS_API_KEY_IS_HERE" --variable LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message" --variable LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"
+  marker.showInfoWindow();
+
+});
 ```
 
-Example using config.xml
-```xml
-<plugin name="cordova-plugin-googlemaps" spec="1.4.0">
-    <variable name="API_KEY_FOR_ANDROID" value="YOUR_ANDROID_API_KEY_IS_HERE" />
-    <variable name="API_KEY_FOR_IOS" value="YOUR_IOS_API_KEY_IS_HERE" />
-    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="My custom when in use message" />
-    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="My custom always usage message" />
-</plugin>
+## Add a marker
+
+If you want to a marker later, you can do that using `markerCluster.addMarker(marker)`;
+The marker cluster will redraw the clusters every times.
+
+```js
+
+markerCluster.addMarker({
+  position: {lat: ..., lng: ...}
+});
 ```
 
 
-### Quick demo
+## Remove a marker
 
-```html
-<script type="text/javascript">
-var map;
-document.addEventListener("deviceready", function() {
-  var div = document.getElementById("map_canvas");
+Currently, the only way is like this. This maybe changed in the future.
 
-  // Initialize the map view
-  map = plugin.google.maps.Map.getMap(div);
+```js
+markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marker) {
 
-  // Wait until the map is ready status.
-  map.addEventListener(plugin.google.maps.event.MAP_READY, onMapReady);
-}, false);
+  marker.remove();
 
-function onMapReady() {
-  var button = document.getElementById("button");
-  button.addEventListener("click", onBtnClicked);
+});
+```
+
+-------
+
+## Properties
+
+### markers `(required)`
+
+Array of marker option properties.
+You can specify the same options as the regular way (`map.addMarker()`)
+
+### icons `(required)`
+
+The number of collected markers are drew in the center of the icon.
+Array of conditions for cluster icons. You can specify your image files.
+
+The format is like this:
+
+```js
+{
+  min: 3,                   // minimal number of markers
+  max: 100,                 // maximum number of markers
+  url: "./img/blue.png",    // the same as markerOptions.url
+  anchor: {x: 16, y: 16},   // the same as markerOptions.anchor
+  label: {
+    color: "blue"           // color for the number
+    bold: true/false,
+    italic: true/false,
+    fontSize: 10            // default: 10px
+  }
 }
-
-function onBtnClicked() {
-
-  // Move to the position with animation
-  map.animateCamera({
-    target: {lat: 37.422359, lng: -122.084344},
-    zoom: 17,
-    tilt: 60,
-    bearing: 140,
-    duration: 5000
-  }, function() {
-
-    // Add a maker
-    map.addMarker({
-      position: {lat: 37.422359, lng: -122.084344},
-      title: "Welecome to \n" +
-             "Cordova GoogleMaps plugin for iOS and Android",
-      snippet: "This plugin is awesome!",
-      animation: plugin.google.maps.Animation.BOUNCE
-    }, function(marker) {
-
-      // Show the info window
-      marker.showInfoWindow();
-
-      // Catch the click event
-      marker.on(plugin.google.maps.event.INFO_CLICK, function() {
-
-        // To do something...
-        alert("Hello world!");
-
-      });
-    });
-  });
-}
-</script>
 ```
 
------
+### maxZoomLevel
 
-### Documentation
+The marker cluster stops clustering if the map zoom level becomes over this number.
 
-[All documentations are here!!](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
+### debug
 
------
+In order to confirm the clustered bounds for a cluster icon, you can set true of this flag.
+Blue polygon will be drawn.
 
-### Buy me a beer
 
-I have been spend tons of time for this plugin project, but even though the plugin is still free.
+-------
 
-I appreciate if you donate some amount to help this project from this button.
+## Known issues
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
+- The clustering calculation is kind of slow when you zoom out.
 
-The donated amount is used for buying testing machine (such as iPhone, Android) or new software.
+-------
+
+## Questions
+
+If you have a question, feature request, and bug report etc, please let me know at the [issue list](https://github.com/mapsplugin/cordova-plugin-googlemaps/issues).
+
+Or send e-mail to me if you want to hide your information.
+
+(But I will ask to share your project files anyway)
