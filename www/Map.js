@@ -165,11 +165,10 @@ Map.prototype.getMap = function(mapId, div, options) {
     cordova.fireDocumentEvent('plugin_touch', {});
 
     exec(function() {
-      // Prevent too much faster
-      setTimeout(function() {
-          self.refreshLayout();
-          self.trigger(event.MAP_READY, self);
-      }, 100);
+      self.one(event.MAP_LOADED, function() {
+        self.refreshLayout();
+        self.trigger(event.MAP_READY, self);
+      });
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
 };
 

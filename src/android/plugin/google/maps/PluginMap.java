@@ -1636,7 +1636,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
             }
             if (callbackContext != null) {
-              sendNoResult(callbackContext);
+              callbackContext.success();
             }
           }
         });
