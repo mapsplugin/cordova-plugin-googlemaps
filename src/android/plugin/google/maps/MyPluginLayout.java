@@ -234,14 +234,16 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public void clearHtmlElements()  {
     Bundle bundle;
     RectF rectF;
-    String[] keys = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
-    for (int i = 0; i < HTMLNodes.size(); i++) {
-      bundle = HTMLNodes.remove(keys[i]);
-      bundle = null;
-      rectF = HTMLNodeRectFs.remove(keys[i]);
-      rectF = null;
+    synchronized (HTMLNodes) {
+      String[] keys = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
+      for (int i = 0; i < HTMLNodes.size(); i++) {
+        bundle = HTMLNodes.remove(keys[i]);
+        bundle = null;
+        rectF = HTMLNodeRectFs.remove(keys[i]);
+        rectF = null;
+      }
+      keys = null;
     }
-    keys = null;
   }
 
   public void putHTMLElements(JSONObject elements)  {
@@ -276,8 +278,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     HashMap<String, Bundle> oldBuffer = HTMLNodes;
     HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
 
-    HTMLNodes = newBuffer;
-    HTMLNodeRectFs = newBufferRectFs;
+    synchronized (HTMLNodes) {
+      HTMLNodes = newBuffer;
+      HTMLNodeRectFs = newBufferRectFs;
+    }
 
     String[] keys = oldBuffer.keySet().toArray(new String[oldBuffer.size()]);
     for (int i = 0; i < oldBuffer.size(); i++) {
@@ -500,70 +504,72 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       boolean isMapAction = false;
 
 
-      while(iterator.hasNext()) {
-        entry = iterator.next();
-        mapId = entry.getKey();
-        pluginMap = entry.getValue();
+      synchronized (HTMLNodes) {
+        while (iterator.hasNext()) {
+          entry = iterator.next();
+          mapId = entry.getKey();
+          pluginMap = entry.getValue();
 
-        //-----------------------
-        // Is the map clickable?
-        //-----------------------
-        if (!pluginMap.isVisible || !pluginMap.isClickable) {
-          continue;
-        }
-
-        if (pluginMap.mapDivId == null) {
-          continue;
-        }
-
-        //------------------------------------------------
-        // Is the clicked point is in the map rectangle?
-        //------------------------------------------------
-        drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
-        if (drawRect == null || !drawRect.contains(clickPoint.x, clickPoint.y)) {
-          continue;
-        }
-        isMapAction = true;
-
-        //-----------------------------------------------------------
-        // Is the clicked point is on the html elements in the map?
-        //-----------------------------------------------------------
-        String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
-        Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
-        RectF htmlElementRect;
-        int mapDivDepth = domInfo.getInt("depth");
-
-        for (String domId : domIDs) {
-          if (pluginMap.mapDivId.equals(domId)) {
-            continue;
-          }
-          if (!HTMLNodes.containsKey(domId)) {
-            continue;
-          }
-          domInfo = HTMLNodes.get(domId);
-          if (domInfo == null) {
-            continue;
-          }
-          if (domInfo.getInt("depth") <= mapDivDepth) {
+          //-----------------------
+          // Is the map clickable?
+          //-----------------------
+          if (!pluginMap.isVisible || !pluginMap.isClickable) {
             continue;
           }
 
-          htmlElementRect = HTMLNodeRectFs.get(domId);
-          if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {
+          if (pluginMap.mapDivId == null) {
             continue;
           }
 
-          if (clickPoint.x >= htmlElementRect.left &&
-              clickPoint.x <= (htmlElementRect.right) &&
-              clickPoint.y >= htmlElementRect.top &&
-              clickPoint.y <= htmlElementRect.bottom) {
-            isMapAction = false;
+          //------------------------------------------------
+          // Is the clicked point is in the map rectangle?
+          //------------------------------------------------
+          drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+          if (drawRect == null || !drawRect.contains(clickPoint.x, clickPoint.y)) {
+            continue;
+          }
+          isMapAction = true;
+
+          //-----------------------------------------------------------
+          // Is the clicked point is on the html elements in the map?
+          //-----------------------------------------------------------
+          String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
+          Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
+          RectF htmlElementRect;
+          int mapDivDepth = domInfo.getInt("depth");
+
+          for (String domId : domIDs) {
+            if (pluginMap.mapDivId.equals(domId)) {
+              continue;
+            }
+            if (!HTMLNodes.containsKey(domId)) {
+              continue;
+            }
+            domInfo = HTMLNodes.get(domId);
+            if (domInfo == null) {
+              continue;
+            }
+            if (domInfo.getInt("depth") <= mapDivDepth) {
+              continue;
+            }
+
+            htmlElementRect = HTMLNodeRectFs.get(domId);
+            if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {
+              continue;
+            }
+
+            if (clickPoint.x >= htmlElementRect.left &&
+                clickPoint.x <= (htmlElementRect.right) &&
+                clickPoint.y >= htmlElementRect.top &&
+                clickPoint.y <= htmlElementRect.bottom) {
+              isMapAction = false;
+              break;
+            }
+
+          }
+          if (isMapAction) {
             break;
           }
-
-        }
-        if (isMapAction) {
-          break;
         }
       }
       isScrolling = (!isMapAction && action == MotionEvent.ACTION_DOWN) || isScrolling;
@@ -588,16 +594,18 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
       Entry<String, PluginMap> entry;
       RectF mapRect;
-      while(iterator.hasNext()) {
-        entry = iterator.next();
-        pluginMap = entry.getValue();
-        if (pluginMap.mapDivId == null) {
-          continue;
-        }
-        mapRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+      synchronized (HTMLNodeRectFs) {
+        while (iterator.hasNext()) {
+          entry = iterator.next();
+          pluginMap = entry.getValue();
+          if (pluginMap.mapDivId == null) {
+            continue;
+          }
+          mapRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
 
-        debugPaint.setColor(Color.argb(100, 0, 255, 0));
-        canvas.drawRect(mapRect, debugPaint);
+          debugPaint.setColor(Color.argb(100, 0, 255, 0));
+          canvas.drawRect(mapRect, debugPaint);
+        }
       }
 
 
