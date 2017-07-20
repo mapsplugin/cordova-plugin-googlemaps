@@ -477,7 +477,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (isSuspended || pluginMaps == null || pluginMaps.size() == 0) {
-        webView.loadUrl("javascript:(cordova && cordova.fireDocumentEvent('plugin_touch', {}));");
+        webView.loadUrl("javascript:if(cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
         return false;
       }
       MyPluginLayout.this.stopFlag = true;
