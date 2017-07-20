@@ -295,9 +295,9 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     }
 }
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    if (self.isSuspended) {
+    if (self.isSuspended || self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
       // Assumes all touches for the browser
-      [self execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+      [self execJS:@"javascript:(cordova && cordova.fireDocumentEvent('plugin_touch', {}));"];
       return [self.webView hitTest:point withEvent:event];
     }
 
@@ -407,31 +407,26 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
             }
         }
 
-        if (isMapAction == NO) {
-            continue;
+        if (isMapAction == YES) {
+
+          // If user click on the map, return the mapCtrl.view.
+          offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
+          offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
+          CGPoint point2 = CGPointMake(point.x * zoomScale, point.y * zoomScale);
+          point2.x -= offsetX;
+          point2.y -= offsetY;
+
+          UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
+          //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
+
+          return hitView;
         }
-
-        // If user click on the map, return the mapCtrl.view.
-        offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
-        offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
-        CGPoint point2 = CGPointMake(point.x * zoomScale, point.y * zoomScale);
-        point2.x -= offsetX;
-        point2.y -= offsetY;
-
-        UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
-        //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
-
-        if (isMapAction == NO) {
-          [self execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
-        }
-
-        return hitView;
     }
 }
 
     UIView *hitView =[self.webView hitTest:point withEvent:event];
     //NSLog(@"--> (hit test) hit = %@", hitView.class);
-    [self execJS:@"javascript:cordova.fireDocumentEvent('plugin_touch', {});"];
+    [self execJS:@"javascript:(cordova && cordova.fireDocumentEvent('plugin_touch', {}));"];
     return hitView;
 
 }

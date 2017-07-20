@@ -473,7 +473,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (isSuspended || pluginMaps == null || pluginMaps.size() == 0) {
-        webView.loadUrl("javascript:cordova.fireDocumentEvent('plugin_touch', {});");
+        webView.loadUrl("javascript:(cordova && cordova.fireDocumentEvent('plugin_touch', {}));");
         return false;
       }
       MyPluginLayout.this.stopFlag = true;
@@ -571,7 +571,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
-        webView.loadUrl("javascript:cordova.fireDocumentEvent('plugin_touch', {});");
+        webView.loadUrl("javascript:(cordova && cordova.fireDocumentEvent('plugin_touch', {}));");
       }
 
       MyPluginLayout.this.stopFlag = false;

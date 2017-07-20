@@ -1,6 +1,10 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var MAP_CNT = 0;
 
+if (!cordova) {
+  return;
+}
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
@@ -207,6 +211,7 @@ document.head.appendChild(navDecorBlocker);
                   shouldUpdate = true;
               }
           }
+
         } else {
           if (element.nodeType === Node.ELEMENT_NODE) {
             if (element.hasAttribute("__pluginDomId")) {
@@ -237,6 +242,13 @@ document.head.appendChild(navDecorBlocker);
 
       };
       traceDomTree(document.body, 0);
+
+      // If some elements has been removed, should update the positions
+      var elementCnt = Object.keys(domPositions).length;
+      var prevElementCnt = Object.keys(prevDomPositions).length;
+      if (elementCnt !== prevElementCnt) {
+        shouldUpdate = true;
+      }
 
       if (!shouldUpdate && idlingCnt > -1) {
           idlingCnt++;
