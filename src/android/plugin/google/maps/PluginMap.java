@@ -314,7 +314,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               // ------------------------------
               if (args.length() == 3) {
                 mapDivId = args.getString(2);
-                RectF rectF;
 
                 mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
                 PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
@@ -325,6 +324,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                         @Override
                         public void onCameraIdle() {
+                          mapView.setVisibility(View.INVISIBLE);
                           PluginMap.this.onCameraIdle();
                           map.setOnCameraIdleListener(PluginMap.this);
                           Handler handler = new Handler();
@@ -345,6 +345,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       handler.postDelayed(new AdjustInitCamera(params), 500);
                     }
                   });
+                } else {
+                  mapView.setVisibility(View.VISIBLE);
                 }
               }
               if (params.has("controls")) {
@@ -424,6 +426,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         e.printStackTrace();
       }
       map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+      mapView.setVisibility(View.VISIBLE);
 
       //fitBounds(initCameraBounds, CAMERA_PADDING);
     }

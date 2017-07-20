@@ -124,6 +124,7 @@
         // case: plugin.google.maps.getMap([options]) (no the mapDiv is given)
         //-----------------------------------------------------------------------
         [self setOptions:command];
+        [self.mapCtrl.view setHidden:NO];
         //[self.mapCtrl.view setHidden:true];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -579,6 +580,7 @@
                 GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
                 [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
               }
+              [self.mapCtrl.view setHidden:NO];
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }];
 
@@ -606,12 +608,14 @@
                 dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                     GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
                     [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
+                    [self.mapCtrl.view setHidden:NO];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                 });
 
             });
 
           } else {
+              [self.mapCtrl.view setHidden:NO];
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
           }
 
@@ -882,6 +886,7 @@
           NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
           [self _changeCameraPosition:@"moveCamera" params:cameraOpts command:command];
       } else {
+          [self.mapCtrl.view setHidden:NO];
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }
