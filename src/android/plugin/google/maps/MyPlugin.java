@@ -55,7 +55,12 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     super.initialize(cordova, webView);
     TAG = this.getServiceName();
     if (executorService == null) {
-      executorService = Executors.newCachedThreadPool();
+      cordova.getThreadPool().execute(new Runnable() {
+        @Override
+        public void run() {
+          executorService = Executors.newCachedThreadPool();
+        }
+      });
     }
   }
   @Override
@@ -130,58 +135,43 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   protected synchronized Circle getCircle(String id) {
-    if (objects == null) {
-      return null;
-    }
     if (!this.objects.containsKey(id)) {
+      Log.e(TAG, "---> can not find the circle : " + id);
       return null;
     }
     return (Circle)this.objects.get(id);
   }
   protected synchronized GroundOverlay getGroundOverlay(String id) {
-    if (objects == null) {
-      return null;
-    }
     if (!this.objects.containsKey(id)) {
+      Log.e(TAG, "---> can not find the ground overlay : " + id);
       return null;
     }
     return (GroundOverlay)this.objects.get(id);
   }
   protected synchronized Marker getMarker(String id) {
-    if (objects == null) {
-      return null;
-    }
-    /*
     if (!this.objects.containsKey(id)) {
-      Log.e("MyPlugin", "---> !this.objects.containsKey(id) : " + id);
+      Log.e(TAG, "---> can not find the maker : " + id);
       return null;
     }
-    */
     return (Marker)this.objects.get(id);
   }
   protected synchronized Polyline getPolyline(String id) {
-    if (objects == null) {
-      return null;
-    }
     if (!this.objects.containsKey(id)) {
+      Log.e(TAG, "---> can not find the polyline : " + id);
       return null;
     }
     return (Polyline)this.objects.get(id);
   }
   protected synchronized Polygon getPolygon(String id) {
-    if (objects == null) {
-      return null;
-    }
     if (!this.objects.containsKey(id)) {
+      Log.e(TAG, "---> can not find the polygon : " + id);
       return null;
     }
     return (Polygon)this.objects.get(id);
   }
   protected synchronized TileOverlay getTileOverlay(String id) {
-    if (objects == null) {
-      return null;
-    }
     if (!this.objects.containsKey(id)) {
+      Log.e(TAG, "---> can not find the tileoverlay : " + id);
       return null;
     }
     return (TileOverlay)this.objects.get(id);

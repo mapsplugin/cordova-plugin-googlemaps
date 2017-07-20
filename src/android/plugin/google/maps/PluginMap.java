@@ -729,7 +729,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
     if (pluginEntry == null) {
-      Log.d(TAG, "---> getInfoContents / marker.title = " + marker.getTitle());
+      //Log.d(TAG, "---> getInfoContents / marker.title = " + marker.getTitle());
       return null;
     }
     MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
@@ -737,7 +737,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     JSONObject properties = null;
     JSONObject styles = null;
     String propertyId = "marker_property_" + markerTag;
-    Log.d(TAG, "---> getInfoContents / propertyId = " + propertyId);
+    //Log.d(TAG, "---> getInfoContents / propertyId = " + propertyId);
 
     if (myPlugin.objects.containsKey(propertyId)) {
       properties = (JSONObject) myPlugin.objects.get(propertyId);
@@ -942,11 +942,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     String propertyId = "marker_property_" + markerTag;
 
-    Log.e(TAG, "---> getInfoWindow / propertyId = " + propertyId);
-    Log.e(TAG, "---> getInfoWindow / marker.title = " + marker.getTitle());
+    //Log.e(TAG, "---> getInfoWindow / propertyId = " + propertyId);
+    //Log.e(TAG, "---> getInfoWindow / marker.title = " + marker.getTitle());
     PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
     if (pluginEntry == null) {
-      Log.e(TAG, "---> getInfoWindow / marker.title = " + marker.getTitle());
+      //Log.e(TAG, "---> getInfoWindow / marker.title = " + marker.getTitle());
       return null;
     }
     MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
@@ -1962,7 +1962,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMarkerClick(Marker marker) {
-    Log.d(TAG, "---> onMarkerClick / marker.tag = " + marker.getTag());
+    //Log.d(TAG, "---> onMarkerClick / marker.tag = " + marker.getTag());
 
     JSONObject properties = null;
     String markerTag = (String) marker.getTag();

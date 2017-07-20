@@ -242,7 +242,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       public void run() {
         final Marker marker = map.addMarker(markerOptions);
         final String id = marker.getId();
-        marker.setTag("marker_" + id);
+        final String markerId = "marker_" + id;
+        marker.setTag(markerId);
         marker.hideInfoWindow();
 
         cordova.getThreadPool().execute(new Runnable() {
@@ -251,14 +252,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
             try {
               // Store the marker
-              self.objects.put(id, marker);
+              self.objects.put(markerId, marker);
 
-              self.objects.put("marker_property_" + marker.getTag(), properties);
+              self.objects.put("marker_property_" + markerId, properties);
 
               // Prepare the result
               final JSONObject result = new JSONObject();
-              result.put("hashCode", marker.hashCode());
-              result.put("id", id);
+              result.put("id", markerId);
 
 
               // Load icon

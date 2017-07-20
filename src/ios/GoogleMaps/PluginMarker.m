@@ -1193,7 +1193,7 @@
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
                              completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
                                if ( !error ) {
-                                 [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
+                                 [self.icons setObject:data forKey:uniqueKey cost:data.length];
                                  UIImage *image = [UIImage imageWithData:data];
                                  completionBlock(YES, image);
                                } else {
