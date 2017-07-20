@@ -309,6 +309,54 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
      * @param callbackContext
      * @throws JSONException
      */
+    public void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+        String id = args.getString(0);
+        final JSONArray positionList = args.getJSONArray(1);
+
+
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_path_" + polygon.getId();
+        final ArrayList<LatLng> path = (ArrayList<LatLng>)self.objects.get(propertyId);
+        path.clear();
+        JSONObject position;
+        for (int i = 0; i < positionList.length(); i++) {
+            position = positionList.getJSONObject(i);
+            path.add(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
+        }
+        self.objects.put(propertyId, path);
+
+        //-----------------------------------
+        // Recalculate the polygon bounds
+        //-----------------------------------
+        propertyId = "polygon_bounds_" + polygon.getId();
+        self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setPoints(path);
+                if (path.size() > 0) {
+                    polygon.setVisible(true);
+                } else {
+                    polygon.setVisible(false);
+                }
+                sendNoResult(callbackContext);
+            }
+        });
+    }
+
+    /**
+     * Insert a point
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
     public void insertPointAt(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
         final int index = args.getInt(1);
@@ -390,6 +438,50 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         });
     }
 
+    /**
+     * Set points
+     * @param args
+     * @param callbackContext
+     * @throws JSONException
+     */
+    public void setHoles(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        String id = args.getString(0);
+        final JSONArray holeList = args.getJSONArray(1);
+        final Polygon polygon = this.getPolygon(id);
+
+        //------------------------
+        // Update the hole list
+        //------------------------
+        String propertyId = "polygon_holePaths_" + polygon.getId();
+        final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) self.objects.get(propertyId);
+        for (int i = 0; i < holes.size(); i++) {
+            holes.get(i).clear();
+        }
+        holes.clear();
+
+        JSONObject position;
+        for (int i = 0; i < holeList.length(); i++) {
+            ArrayList<LatLng> hole = new ArrayList<LatLng>();
+            JSONArray holePositions = holeList.getJSONArray(i);
+            for (int j = 0; j < holePositions.length(); j++) {
+                position = holePositions.getJSONObject(j);
+                hole.add(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
+            }
+            holes.add(hole);
+        }
+
+
+        self.objects.put(propertyId, holes);
+
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the polygon
+                polygon.setHoles(holes);
+                sendNoResult(callbackContext);
+            }
+        });
+    }
     /**
      * Set points
      * @param args

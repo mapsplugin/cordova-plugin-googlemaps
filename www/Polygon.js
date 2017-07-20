@@ -140,20 +140,26 @@ Polygon.prototype.getId = function() {
 };
 
 Polygon.prototype.setPoints = function(points) {
-    var mvcArray = this.points;
-    mvcArray.empty();
+    var self = this;
+    var mvcArray = self.points;
+    mvcArray.empty(true);
 
-    points.forEach(function(point) {
-      mvcArray.push(common.getLatLng(point));
-    });
-    return this;
+    var i,
+        path = [];
+
+    for (i = 0; i < points.length; i++) {
+        mvcArray.push(common.getLatLng(points[i]), true);
+    }
+    exec(null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
+    return self;
 };
 Polygon.prototype.getPoints = function() {
     return this.points;
 };
 Polygon.prototype.setHoles = function(holes) {
+    var self = this;
     var mvcArray = this.holes;
-    mvcArray.empty();
+    mvcArray.empty(true);
 
     holes = holes || [];
     if (holes.length > 0 && !utils.isArray(holes[0])) {
@@ -162,9 +168,16 @@ Polygon.prototype.setHoles = function(holes) {
     holes.forEach(function(hole) {
         if (!utils.isArray(hole)) {
             hole = [hole];
+            mvcArray.push(hole, true);
+        } else {
+            var newHole = [];
+            for (var i = 0; i < hole.length; i++) {
+              newHole.push(common.getLatLng(hole[i]));
+            }
+            mvcArray.push(newHole, true);
         }
-        mvcArray.push(hole);
     });
+    exec(null, self.errorHandler, self.getPluginName(), 'setHoles', [self.id, mvcArray.getArray()]);
     return this;
 };
 Polygon.prototype.getHoles = function() {
