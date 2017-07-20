@@ -176,6 +176,45 @@
   }];
 
 }
+-(void)setPoints:(CDVInvokedUrlCommand *)command
+{
+
+  [self.executeQueue addOperationWithBlock:^{
+
+      NSString *polylineKey = [command.arguments objectAtIndex:0];
+      NSArray *positionList = [command.arguments objectAtIndex:1];
+      GMSPolyline *polyline = (GMSPolyline *)[self.objects objectForKey:polylineKey];
+
+      // Get properties
+      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+
+      GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
+      [mutablePath removeAllCoordinates];
+
+      CLLocationCoordinate2D position;
+      NSDictionary *latLng;
+      for (int i = 0; i < positionList.count; i++) {
+          latLng = [positionList objectAtIndex:i];
+          position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      }
+
+      // update the property
+      [properties setObject:mutablePath forKey:@"mutablePath"];
+      [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
+      [self.objects setObject:properties forKey:propertyId];
+
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polyline setPath:mutablePath];
+
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+  }];
+
+}
+
 -(void)insertPointAt:(CDVInvokedUrlCommand *)command
 {
 

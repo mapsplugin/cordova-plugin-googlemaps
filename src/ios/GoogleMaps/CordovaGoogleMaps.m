@@ -200,12 +200,77 @@
 
 
         // Generate an instance of GMSMapView;
-        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
-                                            longitude:0
-                                            zoom:0
-                                            bearing:0
-                                            viewingAngle:0];
+        GMSCameraPosition *camera = nil;
+        int bearing = 0;
+        double angle = 0, zoom = 0;
+        NSDictionary *latLng = nil;
+        double latitude = 0;
+        double longitude = 0;
+        GMSCoordinateBounds *cameraBounds = nil;
+        NSDictionary *cameraOptions = [initOptions valueForKey:@"camera"];
+        if (cameraOptions) {
 
+          if ([cameraOptions valueForKey:@"bearing"]) {
+            bearing = (int)[[cameraOptions valueForKey:@"bearing"] integerValue];
+          } else {
+            bearing = 0;
+          }
+
+          if ([cameraOptions valueForKey:@"tilt"]) {
+            angle = [[cameraOptions valueForKey:@"tilt"] doubleValue];
+          } else {
+            angle = 0;
+          }
+
+          if ([cameraOptions valueForKey:@"zoom"] && [cameraOptions valueForKey:@"zoom"] != [NSNull null]) {
+            zoom = [[cameraOptions valueForKey:@"zoom"] doubleValue];
+          } else {
+            zoom = 0;
+          }
+          if ([cameraOptions objectForKey:@"target"]) {
+            NSString *targetClsName = [[cameraOptions objectForKey:@"target"] className];
+            if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
+              //--------------------------------------------
+              //  cameraPosition.target = [
+              //    new plugin.google.maps.LatLng(),
+              //    ...
+              //    new plugin.google.maps.LatLng()
+              //  ]
+              //---------------------------------------------
+              int i = 0;
+              NSArray *latLngList = [cameraOptions objectForKey:@"target"];
+              GMSMutablePath *path = [GMSMutablePath path];
+              for (i = 0; i < [latLngList count]; i++) {
+                latLng = [latLngList objectAtIndex:i];
+                latitude = [[latLng valueForKey:@"lat"] doubleValue];
+                longitude = [[latLng valueForKey:@"lng"] doubleValue];
+                [path addLatitude:latitude longitude:longitude];
+              }
+
+              cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+              //CLLocationCoordinate2D center = cameraBounds.center;
+
+              latitude = cameraBounds.center.latitude;
+              longitude = cameraBounds.center.longitude;
+            } else {
+              //------------------------------------------------------------------
+              //  cameraPosition.target = new plugin.google.maps.LatLng();
+              //------------------------------------------------------------------
+
+              latLng = [cameraOptions objectForKey:@"target"];
+              latitude = [[latLng valueForKey:@"lat"] floatValue];
+              longitude = [[latLng valueForKey:@"lng"] floatValue];
+
+            }
+          }
+        }
+        camera = [GMSCameraPosition cameraWithLatitude:latitude
+                                          longitude:longitude
+                                          zoom: zoom
+                                          bearing: bearing
+                                          viewingAngle: angle];
+
+        [pluginMap.mapCtrl.view setHidden:YES];
         pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
 
         //mapType

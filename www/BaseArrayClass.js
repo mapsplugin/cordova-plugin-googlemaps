@@ -143,11 +143,10 @@ function BaseArrayClass(array) {
     self.indexOf = function(item) {
         return _array.indexOf(item);
     };
-
-    self.empty = function() {
+    self.empty = function(noNotify) {
         var cnt = _array.length;
-        for (var i = 0; i < _array.length; i++) {
-          self.pop();
+        for (var i = 0; i < cnt; i++) {
+          self.removeAt(0, noNotify);
         }
     };
 
@@ -159,14 +158,16 @@ function BaseArrayClass(array) {
         return _array.length;
     };
 
-    self.insertAt = function(index, value) {
+    self.insertAt = function(index, value, noNotify) {
         if (index > _array.length) {
           for (var i = _array.length; i <= index; i++) {
             _array[i] = undefined;
           }
         }
         _array[index] = value;
-        self.trigger("insert_at", index);
+        if (noNotify !== true) {
+          self.trigger("insert_at", index);
+        }
     };
 
     self.getArray = function() {
@@ -177,24 +178,30 @@ function BaseArrayClass(array) {
         return _array[index];
     };
 
-    self.setAt = function(index, value) {
+    self.setAt = function(index, value, noNotify) {
         var prev = _array[index];
         _array[index] = value;
-        self.trigger("set_at", index, prev);
+        if (noNotify !== true) {
+          self.trigger("set_at", index, prev);
+        }
     };
 
 
-    self.removeAt = function(index) {
+    self.removeAt = function(index, noNotify) {
         var value = _array[index];
         _array.splice(index, 1);
-        self.trigger("remove_at", index, value);
+        if (noNotify !== true) {
+          self.trigger("remove_at", index, value);
+        }
         return value;
     };
 
-    self.pop = function() {
+    self.pop = function(noNotify) {
         var index = _array.length - 1;
         var value = _array.pop();
-        self.trigger("remove_at", index, value);
+        if (noNotify !== true) {
+          self.trigger("remove_at", index, value);
+        }
         return value;
     };
 

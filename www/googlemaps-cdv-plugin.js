@@ -1,6 +1,9 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var MAP_CNT = 0;
 
+if (!cordova) {
+  return;
+}
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
@@ -101,13 +104,14 @@ document.head.appendChild(navDecorBlocker);
   var prevDomPositions = {};
   var prevChildrenCnt = 0;
   var idlingCnt = -1;
+  var longIdlingCnt = -1;
   var isSuspended = false;
 
   var isChecking = false;
   var cacheDepth = {};
   document.head.appendChild(navDecorBlocker);
   var doNotTraceTags = [
-    "svg", "p", "pre"
+    "svg", "p", "pre", "script", "style"
   ];
 
   function putHtmlElements() {
@@ -125,21 +129,12 @@ document.head.appendChild(navDecorBlocker);
       // If there is no visible map, stop checking
       //-------------------------------------------
       var visibleMapDivList, i, mapId, map;
-      if (window.document.querySelectorAll) {
-        // Android 4.4 and above
-        visibleMapList = mapIDs.filter(function(mapId) {
-          var map = MAPS[mapId];
-          return (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv()));
-        });
-      } else {
-        // for older versions than Android 4.4
-        visibleMapList = [];
-        for (i = 0; i < mapIDs.length; i++) {
-          mapId = mapIDs[i];
-          map = MAPS[mapId];
-          if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
-            visibleMapList.push(mapId);
-          }
+      visibleMapList = [];
+      for (i = 0; i < mapIDs.length; i++) {
+        mapId = mapIDs[i];
+        map = MAPS[mapId];
+        if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
+          visibleMapList.push(mapId);
         }
       }
       if (visibleMapList.length === 0) {
@@ -148,9 +143,9 @@ document.head.appendChild(navDecorBlocker);
           cordova.exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
         }
-        if (idlingCnt < 5) {
-          setTimeout(putHtmlElements, 50);
-        }
+        //if (idlingCnt < 5) {
+        //  setTimeout(putHtmlElements, 50);
+        //}
         isChecking = false;
         return;
       }
@@ -159,12 +154,15 @@ document.head.appendChild(navDecorBlocker);
         cordova.exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
 
+
+
       //-------------------------------------------
       // Should the plugin update the map positions?
       //-------------------------------------------
       var domPositions = {};
       var shouldUpdate = false;
       var doNotTrace = false;
+
       var traceDomTree = function(element, domIdx) {
         doNotTrace = false;
 
@@ -209,6 +207,7 @@ document.head.appendChild(navDecorBlocker);
                   shouldUpdate = true;
               }
           }
+
         } else {
           if (element.nodeType === Node.ELEMENT_NODE) {
             if (element.hasAttribute("__pluginDomId")) {
@@ -224,14 +223,28 @@ document.head.appendChild(navDecorBlocker);
         }
         if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
           if (element.childNodes.length > 0) {
+            var child;
             for (var i = 0; i < element.childNodes.length; i++) {
-              traceDomTree(element.childNodes[i], domIdx + i + 1);
+              child = element.childNodes[i];
+              if (child.nodeType !== Node.ELEMENT_NODE ||
+                doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
+                common.getStyle(child, "display") === "none") {
+                continue;
+              }
+              traceDomTree(child, domIdx + i + 1);
             }
           }
         }
 
       };
       traceDomTree(document.body, 0);
+
+      // If some elements has been removed, should update the positions
+      var elementCnt = Object.keys(domPositions).length;
+      var prevElementCnt = Object.keys(prevDomPositions).length;
+      if (elementCnt !== prevElementCnt) {
+        shouldUpdate = true;
+      }
 
       if (!shouldUpdate && idlingCnt > -1) {
           idlingCnt++;
@@ -244,12 +257,16 @@ document.head.appendChild(navDecorBlocker);
           // (50ms * 5times + 200ms * 5times).
           // This save really the battery life significantly.
           if (idlingCnt < 10) {
+            if (idlingCnt === 8) {
+              cordova.fireDocumentEvent("ecocheck", {});
+            }
             setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
           }
           isChecking = false;
           return;
       }
       idlingCnt = 0;
+      longIdlingCnt = 0;
 
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
@@ -288,7 +305,7 @@ document.head.appendChild(navDecorBlocker);
                   MAPS[mapId].refreshLayout();
               }
           });
-          setTimeout(putHtmlElements, 25);
+          setTimeout(putHtmlElements, 50);
           isChecking = false;
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
@@ -301,12 +318,38 @@ document.head.appendChild(navDecorBlocker);
   // (Not generic plugin)
   function resetTimer() {
     idlingCnt = -1;
+    longIdlingCnt = -1;
     delete cacheDepth;
     cacheZIndex = {};
-    setTimeout(putHtmlElements, 0);
+    putHtmlElements();
   }
 
-  document.addEventListener("deviceready", resetTimer);
+  var intervalTimer = null;
+  document.addEventListener("ecocheck", function() {
+    if (intervalTimer || idlingCnt < 8) {
+      return;
+    }
+    // In order to detect the DOM nodes that are inserted very later,
+    // monitoring HTML elements every 1 sec.
+    intervalTimer = setInterval(function() {
+      if (idlingCnt > 8) {
+        idlingCnt = 9;
+        // If no update in 10 sec,
+        // the plugin belives no more update.
+        if (longIdlingCnt < 10) {
+          longIdlingCnt++;
+          putHtmlElements();
+        } else {
+          clearInterval(intervalTimer);
+          intervalTimer = null;
+        }
+      }
+    }, 1000);
+  });
+
+  document.addEventListener("deviceready", putHtmlElements, {
+    once: true
+  });
   document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
 
@@ -423,7 +466,6 @@ cordova.addConstructor(function() {
     window.plugin.google = window.plugin.google || {};
     window.plugin.google.maps = window.plugin.google.maps || module.exports;
     document.addEventListener("deviceready", function() {
-        document.removeEventListener("deviceready", arguments.callee);
         // workaround for issue on android-19: Cannot read property 'maps' of undefined
         if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
         if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
@@ -439,5 +481,7 @@ cordova.addConstructor(function() {
                 alert(message);
             }, 'Environment', 'isAvailable', ['']);
         }
+    }, {
+      once: true
     });
 });

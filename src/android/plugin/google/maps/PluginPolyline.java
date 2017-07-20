@@ -1,6 +1,7 @@
 package plugin.google.maps;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -20,7 +21,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * Create polyline
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     self = this;
@@ -29,7 +30,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     int color;
     final LatLngBounds.Builder builder = new LatLngBounds.Builder();
     final JSONObject properties = new JSONObject();
-    
+
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
@@ -91,12 +92,12 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
           callbackContext.error("" + e.getMessage());
         }
       }
-      
+
     });
   }
-  
+
   /**
-   * Draw geodesic line 
+   * Draw geodesic line
    * @ref http://jamesmccaffrey.wordpress.com/2011/04/17/drawing-a-geodesic-line-for-bing-maps-ajax/
    * @ref http://spphire9.wordpress.com/2014/02/11/%E4%BA%8C%E6%AC%A1%E3%83%99%E3%82%B8%E3%82%A7%E6%9B%B2%E7%B7%9A%E3%81%A8%E7%B7%9A%E5%88%86%E3%81%AE%E5%BD%93%E3%81%9F%E3%82%8A%E5%88%A4%E5%AE%9A/
    * @ref http://my-clip-devdiary.blogspot.com/2014/01/html5canvas.html
@@ -108,61 +109,61 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
   public void createPolyline2(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final PolylineOptions polylineOptions = new PolylineOptions();
     int color;
-    
+
     JSONObject opts = args.getJSONObject(1);
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
       List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
-      
+
       for (int k = 0; k < path.size() - 1; k++) {
         LatLng start = path.get(k);
         LatLng finish = path.get(k + 1);
-        
+
         if (start.longitude > finish.longitude) {
           start = finish;
           finish = path.get(k);
         }
-        
+
         // convert to radians
         double lat1 = start.latitude * (Math.PI / 180.0);
         double lng1 = start.longitude * (Math.PI / 180.0);
         double lat2 = finish.latitude * (Math.PI / 180.0);
         double lng2 = finish.longitude * (Math.PI / 180.0);
-        
+
         double d = 2 * Math.asin(Math.sqrt(Math.pow((Math.sin((lat1 - lat2) / 2)), 2) +
             Math.cos(lat1) * Math.cos(lat2) * Math.pow((Math.sin((lng1 - lng2) / 2)), 2)));
         List<LatLng> wayPoints = new ArrayList<LatLng>();
         double f = 0.00000000f; // fraction of the curve
         double finc = 0.01000000f; // fraction increment
-        
+
         while (f <= 1.00000000f) {
           double A = Math.sin((1.0 - f) * d) / Math.sin(d);
           double B = Math.sin(f * d) / Math.sin(d);
-  
+
           double x = A * Math.cos(lat1) * Math.cos(lng1) + B * Math.cos(lat2) * Math.cos(lng2);
           double y = A * Math.cos(lat1) * Math.sin(lng1) + B * Math.cos(lat2) * Math.sin(lng2);
           double z = A * Math.sin(lat1) + B * Math.sin(lat2);
           double lat = Math.atan2(z, Math.sqrt((x*x) + (y*y)));
           double lng = Math.atan2(y, x);
-  
+
           LatLng wp = new LatLng(lat / (Math.PI / 180.0), lng / ( Math.PI / 180.0));
           wayPoints.add(wp);
-          
+
           f += finc;
         } // while
-  
+
         // break into waypoints with negative longitudes and those with positive longitudes
         List<LatLng> negLons = new ArrayList<LatLng>(); // lat-lons where the lon part is negative
         List<LatLng> posLons = new ArrayList<LatLng>();
         List<LatLng> connect = new ArrayList<LatLng>();
-  
+
         for (int i = 0; i < wayPoints.size(); ++i) {
           if (wayPoints.get(i).longitude <= 0.0f)
             negLons.add(wayPoints.get(i));
           else
             posLons.add(wayPoints.get(i));
         }
-        
+
         // we may have to connect over 0.0 longitude
         for (int i = 0; i < wayPoints.size() - 1; ++i) {
           if (wayPoints.get(i).longitude <= 0.0f && wayPoints.get(i+1).longitude >= 0.0f ||
@@ -180,11 +181,11 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
         if (negLons.size() >= 2) {
           options.addAll(negLons);
         }
-  
+
         if (posLons.size() >= 2) {
           options.addAll(posLons);
-        } 
-  
+        }
+
         if (connect.size() >= 2) {
           options.addAll(connect);
         }
@@ -194,7 +195,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
     this.sendNoResult(callbackContext);
   }
-  
+
   /**
    * set color
    * @param args
@@ -206,7 +207,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
     this.setInt("setColor", id, color, callbackContext);
   }
-  
+
   /**
    * set width
    * @param args
@@ -218,7 +219,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     float width = (float) args.getDouble(1) * this.density;
     this.setFloat("setWidth", id, width, callbackContext);
   }
-  
+
   /**
    * set z-index
    * @param args
@@ -230,7 +231,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     float zIndex = (float) args.getDouble(1);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
-  
+
 
   /**
    * Remove the polyline
@@ -254,6 +255,36 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         polyline.remove();
+        sendNoResult(callbackContext);
+      }
+    });
+  }
+  public void setPoints(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+    String id = args.getString(0);
+    final JSONArray positionList = args.getJSONArray(1);
+
+    final Polyline polyline = this.getPolyline(id);
+    // Recalculate the polygon bounds
+    final String propertyId = "polyline_bounds_" + polyline.getId();
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        try {
+          List<LatLng> path = polyline.getPoints();
+          path.clear();
+          JSONObject position;
+          for (int i = 0; i < positionList.length(); i++) {
+            position = positionList.getJSONObject(i);
+            path.add(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
+          }
+          polyline.setPoints(path);
+          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
         sendNoResult(callbackContext);
       }
     });
@@ -302,7 +333,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         List<LatLng> path = polyline.getPoints();
-        if (path.size() > index) {
+        if (path.size() >= index) {
           path.add(index, latLng);
           polyline.setPoints(path);
           self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
@@ -355,7 +386,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    * Set visibility for the object
    * @param args
    * @param callbackContext
-   * @throws JSONException 
+   * @throws JSONException
    */
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
