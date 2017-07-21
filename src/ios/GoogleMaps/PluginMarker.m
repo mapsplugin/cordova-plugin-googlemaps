@@ -254,10 +254,6 @@
       GMSMarker *marker = [self.objects objectForKey:markerId];
       marker.title = [command.arguments objectAtIndex:1];
 
-      [self.objects setObject:properties forKey:propertyId];
-
-
-
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
