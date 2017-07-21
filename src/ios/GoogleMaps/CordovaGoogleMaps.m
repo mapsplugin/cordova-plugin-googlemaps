@@ -263,6 +263,7 @@
 
             }
           }
+          [pluginMap.mapCtrl.view setHidden:YES];
         }
         camera = [GMSCameraPosition cameraWithLatitude:latitude
                                           longitude:longitude
@@ -270,7 +271,6 @@
                                           bearing: bearing
                                           viewingAngle: angle];
 
-        [pluginMap.mapCtrl.view setHidden:YES];
         pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
 
         //mapType
