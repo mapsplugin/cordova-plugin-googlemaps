@@ -275,6 +275,17 @@
       GMSMarker *marker = [self.objects objectForKey:markerId];
       marker.title = [command.arguments objectAtIndex:1];
 
+      BOOL useHtmlInfoWnd = marker.title == nil &&
+                            marker.snippet == nil;
+
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.objects objectForKey:propertyId]];
+      [properties setObject:[NSNumber numberWithBool:useHtmlInfoWnd] forKey:@"useHtmlInfoWnd"];
+      [self.objects setObject:properties forKey:propertyId];
+
+
+
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
   }];
