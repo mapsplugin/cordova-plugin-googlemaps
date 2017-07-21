@@ -297,7 +297,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     if (self.isSuspended || self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
       // Assumes all touches for the browser
-      [self execJS:@"javascript:if(cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
+      [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
       return [self.webView hitTest:point withEvent:event];
     }
 
