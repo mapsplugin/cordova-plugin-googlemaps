@@ -714,7 +714,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
-    Log.d(TAG, "--->getInfoContents");
+    //Log.d(TAG, "--->getInfoContents");
     activeMarker = marker;
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
