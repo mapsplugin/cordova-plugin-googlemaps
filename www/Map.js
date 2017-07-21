@@ -926,7 +926,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.rotation = markerOptions.rotation || 0;
     markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
     markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
-    markerOptions.useHtmlInfoWnd = !markerOptions.title && !markerOptions.snippet;
     markerOptions.noCache = markerOptions.noCache === true; //experimental
 
     if ("styles" in markerOptions) {

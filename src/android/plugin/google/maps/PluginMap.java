@@ -930,7 +930,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (pluginMarker.objects.containsKey(propertyId)) {
       properties = (JSONObject) pluginMarker.objects.get(propertyId);
       try {
-        if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
+        if (marker.getTitle() == null && marker.getSnippet() == null) {
 
           syncInfoWndPosition();
           this.onMarkerEvent("info_open", marker);

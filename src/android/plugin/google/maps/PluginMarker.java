@@ -226,11 +226,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     } else {
       properties.put("noCache", false);
     }
-    if (opts.has("useHtmlInfoWnd")) {
-      properties.put("useHtmlInfoWnd", opts.getBoolean("useHtmlInfoWnd"));
-    } else {
-      properties.put("useHtmlInfoWnd", false);
-    }
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -706,20 +701,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         Marker marker = getMarker(id);
         if (marker != null) {
           marker.setTitle(title);
-
-          try {
-            String propertyId = "marker_property_" + id;
-            JSONObject properties = null;
-            if (self.objects.containsKey(propertyId)) {
-              properties = (JSONObject) self.objects.get(propertyId);
-            } else {
-              properties = new JSONObject();
-            }
-            properties.put("useHtmlInfoWnd", title == null && marker.getSnippet() == null);
-            self.objects.put(propertyId, properties);
-          } catch (JSONException e) {
-            e.printStackTrace();
-          }
         }
         sendNoResult(callbackContext);
       }

@@ -129,11 +129,6 @@
         }
         [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
 
-        BOOL useHtmlInfoWnd = NO;
-        if ([json valueForKey:@"useHtmlInfoWnd"] != nil) {
-            useHtmlInfoWnd = [[json valueForKey:@"useHtmlInfoWnd"] boolValue];
-        }
-        [properties setObject:[NSNumber numberWithBool:useHtmlInfoWnd] forKey:@"useHtmlInfoWnd"];
         [self.objects setObject:properties forKey: propertyId];
 
         // Create icon
@@ -259,13 +254,6 @@
       GMSMarker *marker = [self.objects objectForKey:markerId];
       marker.title = [command.arguments objectAtIndex:1];
 
-      BOOL useHtmlInfoWnd = marker.title == nil &&
-                            marker.snippet == nil;
-
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
-      [properties setObject:[NSNumber numberWithBool:useHtmlInfoWnd] forKey:@"useHtmlInfoWnd"];
       [self.objects setObject:properties forKey:propertyId];
 
 
