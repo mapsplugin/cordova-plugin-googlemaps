@@ -522,7 +522,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     });
   }
-  
+
   /**
    *
    * http://android-er.blogspot.com/2013/01/implement-bouncing-marker-for-google.html
@@ -697,9 +697,33 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @throws JSONException
    */
   public void setTitle(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String title = args.getString(1);
-    String id = args.getString(0);
-    this.setString("setTitle", id, title, callbackContext);
+    final String title = args.getString(1);
+    final String id = args.getString(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Marker marker = getMarker(id);
+        if (marker != null) {
+          marker.setTitle(title);
+
+          try {
+            String propertyId = "marker_property_" + id;
+            JSONObject properties = null;
+            if (self.objects.containsKey(propertyId)) {
+              properties = (JSONObject) self.objects.get(propertyId);
+            } else {
+              properties = new JSONObject();
+            }
+            properties.put("useHtmlInfoWnd", title == null && marker.getSnippet() == null);
+            self.objects.put(propertyId, properties);
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+        }
+        sendNoResult(callbackContext);
+      }
+    });
   }
 
   /**
