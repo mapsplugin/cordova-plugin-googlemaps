@@ -175,7 +175,7 @@
             // Load icon in asynchronise
             [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id result) {
                 CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-                [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+                [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }];
 
         } else {
@@ -194,11 +194,11 @@
                         } else {
                             pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
                         }
-                        [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+                        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                     }];
                 } else {
                     CDVPluginResult* pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-                    [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+                    [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                 }
 
             });
@@ -223,7 +223,7 @@
       }
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 /**
@@ -236,7 +236,7 @@
       self.mapCtrl.map.selectedMarker = nil;
       self.mapCtrl.activeMarker = nil;
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 /**
@@ -260,7 +260,7 @@
       [json setObject:longitude forKey:@"lng"];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -287,7 +287,7 @@
 
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -303,7 +303,7 @@
       marker.snippet = [command.arguments objectAtIndex:1];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -320,7 +320,7 @@
       self.mapCtrl.activeMarker = marker;
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -336,7 +336,7 @@
       [self _removeMarker:marker];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -401,7 +401,7 @@
       }
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -427,7 +427,7 @@
           } else {
               pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
           }
-          [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+          [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
 
   }];
@@ -446,7 +446,7 @@
       marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -462,7 +462,7 @@
       marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -479,7 +479,7 @@
       [marker setDraggable:isEnabled];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -501,7 +501,7 @@
       [self.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -530,7 +530,7 @@
       [self.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -551,7 +551,7 @@
           [marker setPosition:position];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+          [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
   }];
 }
@@ -569,7 +569,7 @@
       [marker setFlat: isFlat];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -606,7 +606,7 @@
         } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
-        [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
   }];
 }
@@ -623,7 +623,7 @@
       [marker setRotation:degrees];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -640,7 +640,7 @@
 
       [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [cmdDelegate hookSendPluginResult:pluginResult callbackId:command.callbackId];
+        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       }];
   }];
 }
