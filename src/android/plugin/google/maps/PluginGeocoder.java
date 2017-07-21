@@ -69,6 +69,7 @@ public class PluginGeocoder extends CordovaPlugin {
     List<Address> geoResults = null;
     JSONArray results = new JSONArray();
     Iterator<Address> iterator = null;
+    int retryLimit = 10;
 
     // Geocoding
     if (!opts.has("position") && opts.has("address")) {
@@ -79,7 +80,7 @@ public class PluginGeocoder extends CordovaPlugin {
           LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
 
           boolean retry = true;
-          while (retry) {
+          while (retry && retryLimit > 0) {
             retry = false;
             try {
               geoResults = geocoder.getFromLocationName(address, 5,
@@ -88,6 +89,7 @@ public class PluginGeocoder extends CordovaPlugin {
             } catch (IOException e) {
               if ("Timed out waiting for response from server".equals(e.getMessage())) {
                 retry = true;
+                retryLimit--;
                 try {
                   Thread.sleep((int)(150 + Math.random() * 100));  // wait (150 + random)ms before retry
                 } catch (InterruptedException e1) {
@@ -130,7 +132,7 @@ public class PluginGeocoder extends CordovaPlugin {
             e.printStackTrace();
           }
         }
-        if (geoResults != null && geoResults.size() == 0) {
+        if (geoResults == null || geoResults.size() == 0) {
           JSONObject methodResult = new JSONObject();
           methodResult.put("idx", opts.getInt("idx"));
           methodResult.put("results", new JSONArray());
@@ -149,7 +151,7 @@ public class PluginGeocoder extends CordovaPlugin {
       JSONObject position = opts.getJSONObject("position");
 
       boolean retry = true;
-      while (retry) {
+      while (retry && retryLimit > 0) {
         retry = false;
         try {
           geoResults = geocoder.getFromLocation(
@@ -158,6 +160,7 @@ public class PluginGeocoder extends CordovaPlugin {
         } catch (IOException e) {
           if ("Timed out waiting for response from server".equals(e.getMessage())) {
             retry = true;
+            retryLimit--;
             try {
               Thread.sleep((int)(150 + Math.random() * 100));  // wait (150 + random)ms before retry
             } catch (InterruptedException e1) {
@@ -169,7 +172,10 @@ public class PluginGeocoder extends CordovaPlugin {
         }
       }
 
-      if (geoResults != null && geoResults.size() == 0) {
+      if (geoResults == null || geoResults.size() == 0) {
+        //-------------
+        // No results
+        //-------------
         JSONObject methodResult = new JSONObject();
         methodResult.put("idx", opts.getInt("idx"));
         methodResult.put("results", new JSONArray());
@@ -181,12 +187,12 @@ public class PluginGeocoder extends CordovaPlugin {
       }
       iterator = geoResults.iterator();
     }
-    
+
     if (iterator == null) {
       callbackContext.error( "Invalid request for geocoder");
       return;
     }
-    
+
     while(iterator.hasNext()) {
       JSONObject result = new JSONObject();
       Address addr = iterator.next();
@@ -206,7 +212,7 @@ public class PluginGeocoder extends CordovaPlugin {
       result.put("subLocality", addr.getSubLocality());
       result.put("subThoroughfare", addr.getSubThoroughfare());
       result.put("thoroughfare", addr.getThoroughfare());
-      
+
 
       JSONObject extra = new JSONObject();
       extra.put("featureName", addr.getFeatureName());
@@ -220,7 +226,7 @@ public class PluginGeocoder extends CordovaPlugin {
       }
       extra.put("lines", lines);
 
-      
+
       Bundle extraInfo = addr.getExtras();
       if (extraInfo != null) {
         Set<String> keys = extraInfo.keySet();

@@ -538,7 +538,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Marker marker = (Marker) objects.get(id);
+        Marker marker = getMarker(id);
         if (marker == null) {
           return;
         }
@@ -626,7 +626,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     float zIndex = (float)args.getDouble(1);
     String id = args.getString(0);
-    Marker marker = getMarker(id);
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
 
@@ -669,50 +668,50 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
    * @param callbackContext
    * @throws JSONException
    */
-  public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean isVisible = args.getBoolean(1);
-    String id = args.getString(0);
-
-    Marker marker = this.getMarker(id);
+  public void setVisible(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean isVisible = args.getBoolean(1);
+    final String id = args.getString(0);
+    final Marker marker = getMarker(id);
     if (marker == null) {
-      this.sendNoResult(callbackContext);
+      sendNoResult(callbackContext);
       return;
     }
-    String propertyId = "marker_property_" + marker.getTag();
+
+    String propertyId = "marker_property_" + id;
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
-      properties = (JSONObject)self.objects.get(propertyId);
+      properties = (JSONObject) self.objects.get(propertyId);
     } else {
       properties = new JSONObject();
     }
     properties.put("isVisible", isVisible);
     self.objects.put(propertyId, properties);
+    setBoolean("setVisible", id, isVisible, callbackContext);
 
-    this.setBoolean("setVisible", id, isVisible, callbackContext);
   }
   /**
    * @param args
    * @param callbackContext
    * @throws JSONException
    */
-  public void setDisableAutoPan(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    boolean disableAutoPan = args.getBoolean(1);
+  public void setDisableAutoPan(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean disableAutoPan = args.getBoolean(1);
     String id = args.getString(0);
-    Marker marker = this.getMarker(id);
+    final Marker marker = this.getMarker(id);
     if (marker == null) {
       this.sendNoResult(callbackContext);
       return;
     }
-    String propertyId = "marker_property_" + marker.getTag();
+    String propertyId = "marker_property_" + id;
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
-      properties = (JSONObject)self.objects.get(propertyId);
+      properties = (JSONObject) self.objects.get(propertyId);
     } else {
       properties = new JSONObject();
     }
     properties.put("disableAutoPan", disableAutoPan);
     self.objects.put(propertyId, properties);
-    this.sendNoResult(callbackContext);
+    sendNoResult(callbackContext);
   }
   /**
    * Set title for the marker
@@ -778,17 +777,14 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
     }
     */
-
-    String propertyId = "marker_property_" + marker.getTag();
+    String propertyId = "marker_property_" + id;
     objects.remove(propertyId);
+    objects.remove(id);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
 
-        if (objects != null) {
-          objects.remove(id);
-        }
         _removeMarker(marker);
 
         sendNoResult(callbackContext);
@@ -974,7 +970,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.height = height;
     options.noCaching = noCaching;
 
-    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, new AsyncLoadImageInterface() {
+    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
         if (result == null || result.image == null) {
@@ -1048,8 +1044,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         callback.onPostExecute(marker);
       }
     });
-    task.execute();
-    iconLoadingTasks.add(task);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        task.execute();
+        iconLoadingTasks.add(task);
+      }
+    });
   }
 
   private void _setIconAnchor(final Marker marker, double anchorX, double anchorY, final int imageWidth, final int imageHeight) {
