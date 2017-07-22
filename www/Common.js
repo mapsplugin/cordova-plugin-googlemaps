@@ -215,7 +215,7 @@ function getDivRect(div) {
 
 var ignoreTags = [
   "pre", "textarea", "p", "form", "input", "table", "caption",
-  "canvas", "ion-content", "ion-app", "ion-nav", "svg"
+  "canvas", "ion-content", "ion-app", "ion-nav", "svg", "circle"
 ];
 var ignoreClasses = ["nav-decor", "ion-page", "fixed-content"];
 
