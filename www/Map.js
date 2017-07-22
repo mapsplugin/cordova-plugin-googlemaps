@@ -779,6 +779,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
     tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
+    tilelayerOptions.debug = tilelayerOptions.debug === true;
     tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
 
     var options = {
@@ -787,6 +788,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         tileSize: tilelayerOptions.tileSize,
         opacity: tilelayerOptions.opacity,
         userAgent: tilelayerOptions.userAgent,
+        debug: tilelayerOptions.debug,
         _id : Math.floor(Math.random() * Date.now())
     };
 
@@ -795,7 +797,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         if (!url || url === "(null)" || url === "undefined" || url === "null") {
           url = "(null)";
         }
-        exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, url]);
+        exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
     });
 
     exec(function(result) {

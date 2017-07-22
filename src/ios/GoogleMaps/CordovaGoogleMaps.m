@@ -263,6 +263,7 @@
 
             }
           }
+          [pluginMap.mapCtrl.view setHidden:YES];
         }
         camera = [GMSCameraPosition cameraWithLatitude:latitude
                                           longitude:longitude
@@ -270,7 +271,6 @@
                                           bearing: bearing
                                           viewingAngle: angle];
 
-        [pluginMap.mapCtrl.view setHidden:YES];
         pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
 
         //mapType
@@ -435,18 +435,26 @@
 }
 - (void)clearHtmlElements:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
-        [self.pluginLayer clearHTMLElements];
+        if (self.pluginLayer != nil) {
+          [self.pluginLayer clearHTMLElements];
+        }
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
 
 - (void)resume:(CDVInvokedUrlCommand *)command {
-    self.pluginLayer.isSuspended = NO;
+    if (self.pluginLayer != nil) {
+      self.pluginLayer.isSuspended = false;
+    }
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
 }
 - (void)pause:(CDVInvokedUrlCommand *)command {
-    self.pluginLayer.isSuspended = YES;
+    if (self.pluginLayer != nil) {
+      self.pluginLayer.isSuspended = true;
+    }
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -456,7 +464,9 @@
 
         NSDictionary *elements = [command.arguments objectAtIndex:0];
 
-        [self.pluginLayer putHTMLElements:elements];
+        if (self.pluginLayer != nil) {
+          [self.pluginLayer putHTMLElements:elements];
+        }
 /*
         if (self.pluginLayer.needUpdatePosition) {
             self.pluginLayer.needUpdatePosition = NO;

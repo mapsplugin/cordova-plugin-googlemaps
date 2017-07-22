@@ -95,6 +95,7 @@
 
           ///[options setObject:tileUrlFormat forKey:@"tileUrlFormat"];
           [options setObject:[json objectForKey:@"tileSize"] forKey:@"tileSize"];
+          [options setObject:[json objectForKey:@"debug"] forKey:@"debug"];
 
           layer = [[PluginTileProvider alloc] initWithOptions:options webView:webview];
       /*
@@ -147,7 +148,8 @@
 
   [self.executeQueue addOperationWithBlock:^{
     NSString *_id = [command.arguments objectAtIndex:0];
-    NSString *tileUrl = [command.arguments objectAtIndex:1];
+    NSString *urlKey = [command.arguments objectAtIndex:1];
+    NSString *tileUrl = [command.arguments objectAtIndex:2];
     NSString *pluginId = [NSString stringWithFormat:@"tileoverlay_%@", _id];
     GMSTileLayer *tileLayer = [self.objects objectForKey:pluginId];
 
@@ -155,7 +157,7 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     if (tileLayer) {
         PluginTileProvider *localLayer =(PluginTileProvider *)tileLayer;
-        [localLayer onGetTileUrlFromJS:tileUrl];
+        [localLayer onGetTileUrlFromJS:urlKey tileUrl:tileUrl];
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 

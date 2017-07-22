@@ -311,14 +311,26 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   }
 
   public void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    if (mPluginLayout == null) {
+      callbackContext.success();
+      return;
+    }
     mPluginLayout.isSuspended = true;
     callbackContext.success();
   }
   public void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    if (mPluginLayout == null) {
+      callbackContext.success();
+      return;
+    }
     mPluginLayout.isSuspended = false;
     callbackContext.success();
   }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    if (mPluginLayout == null) {
+      callbackContext.success();
+      return;
+    }
     mPluginLayout.clearHtmlElements();
     callbackContext.success();
   }

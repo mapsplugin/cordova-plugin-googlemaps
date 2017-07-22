@@ -956,7 +956,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (myPlugin.objects.containsKey(propertyId)) {
       properties = (JSONObject) myPlugin.objects.get(propertyId);
       try {
-        if (properties.has("useHtmlInfoWnd") && properties.getBoolean("useHtmlInfoWnd")) {
+        if (marker.getTitle() == null && marker.getSnippet() == null) {
 
           syncInfoWndPosition();
           this.onMarkerEvent("info_open", marker);
@@ -1664,7 +1664,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
             }
             if (callbackContext != null) {
-              sendNoResult(callbackContext);
+              callbackContext.success();
             }
           }
         });

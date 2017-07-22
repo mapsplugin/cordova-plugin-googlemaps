@@ -351,7 +351,11 @@
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
   NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
 
-  if (![[properties objectForKey:@"useHtmlInfoWnd"] boolValue]) {
+
+  BOOL useHtmlInfoWnd = marker.title == nil &&
+                        marker.snippet == nil;
+
+  if (useHtmlInfoWnd) {
     [self triggerMarkerEvent:@"info_close" marker:marker];
   }
 

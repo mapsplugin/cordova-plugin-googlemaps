@@ -6,10 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -27,11 +31,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 
 public class PluginTileProvider implements TileProvider  {
   private int tileSize = 256;
   private Paint tilePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+  private Paint debugPaint = null;
+  private TextPaint debugTextPaint = null;
   private String userAgent = null;
   private static BitmapCache tileCache = null;
   private OnCacheClear listener = null;
@@ -39,12 +49,15 @@ public class PluginTileProvider implements TileProvider  {
   private AssetManager assetManager;
   private CordovaWebView webView;
   private String mapId, pluginId;
-  private String tileUrl;
+  private final HashMap<String, String> tileUrlMap = new HashMap<String, String>();
+  private boolean isDebug = false;
   private Handler handler;
-  private Object semaphore = new Object();
+  private final Object semaphore = new Object();
+  private Bitmap emptyBitmap = null;
+  private final HashSet<String> cacheKeys = new HashSet<String>();
 
   @SuppressLint({"NewApi", "JavascriptInterface"})
-  public PluginTileProvider(String mapId, String pluginId, CordovaWebView webView, AssetManager assetManager, String webPageUrl, String userAgent, int tileSize) {
+  public PluginTileProvider(String mapId, String pluginId, CordovaWebView webView, AssetManager assetManager, String webPageUrl, String userAgent, int tileSize, boolean isDebug) {
     this.tileSize = tileSize;
     //this.tilePaint.setAlpha((int) (opacity * 255));
     this.userAgent = userAgent == null ? "Mozilla" : userAgent;
@@ -64,6 +77,20 @@ public class PluginTileProvider implements TileProvider  {
 
     tileCache = new BitmapCache(cacheSize);
 
+    this.isDebug = isDebug;
+    if (isDebug) {
+      debugPaint = new Paint();
+      debugPaint.setTextSize(20);
+      debugPaint.setColor(Color.RED);
+      debugPaint.setStrokeWidth(1);
+      debugPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+
+      debugTextPaint = new TextPaint();
+      debugTextPaint.setTextSize(20);
+      debugTextPaint.setColor(Color.RED);
+      debugTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+    }
+
     handler = new Handler(Looper.getMainLooper());
 
   }
@@ -72,13 +99,32 @@ public class PluginTileProvider implements TileProvider  {
     public void onCacheClear(int hashCode);
   }
 
-  public void onGetTileUrlFromJS(String tileUrl) {
-    this.tileUrl = tileUrl;
+
+  public void onGetTileUrlFromJS(String urlKey, String tileUrl) {
+    synchronized (tileUrlMap) {
+      tileUrlMap.put(urlKey, tileUrl);
+    }
     synchronized (semaphore) {
       semaphore.notify();
     }
   }
 
+  public void remove() {
+    synchronized (cacheKeys) {
+      Iterator<String> iterator = cacheKeys.iterator();
+      String cacheKey;
+      Bitmap image;
+      while(iterator.hasNext()) {
+        cacheKey = iterator.next();
+        image = tileCache.remove(cacheKey);
+        if (image != null && !image.isRecycled()) {
+          image.recycle();
+          image = null;
+        }
+      }
+    }
+    tileCache.evictAll();
+  }
   public void setOnCacheClear(OnCacheClear listener) {
     this.listener = listener;
   }
@@ -87,9 +133,11 @@ public class PluginTileProvider implements TileProvider  {
   public Tile getTile(int x, int y, int zoom) {
 
     String urlStr = null;
+    String originalUrlStr = null;
+    final String urlKey = String.format(Locale.US, "%s-%s-%d-%d-%d", mapId, pluginId, x, y, zoom);
     synchronized (semaphore) {
-      final String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s-%s-tileoverlay', {x: %d, y: %d, zoom: %d})",
-              mapId, pluginId, x, y, zoom);
+      final String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s-%s-tileoverlay', {key: \"%s\", x: %d, y: %d, zoom: %d})",
+              mapId, pluginId, urlKey, x, y, zoom);
 
       handler.post(new Runnable() {
         @Override
@@ -98,18 +146,33 @@ public class PluginTileProvider implements TileProvider  {
         }
       });
       try {
-        semaphore.wait();
+        semaphore.wait(10 * 1000); // Maximum wait 10sec
       } catch (InterruptedException e) {
         e.printStackTrace();
         return null;
       }
-      urlStr = tileUrl;
     }
-    if ("(null)".equals(urlStr)) {
-      return null;
+    synchronized (tileUrlMap) {
+      urlStr = tileUrlMap.remove(urlKey);
     }
+    originalUrlStr = urlStr;
 
     Tile tile = null;
+    if (urlStr == null || "(null)".equals(urlStr)) {
+      if (isDebug) {
+        if (emptyBitmap == null) {
+          emptyBitmap = Bitmap.createBitmap(tileSize, tileSize, Config.ARGB_8888);
+        }
+        Bitmap dummyBitmap = emptyBitmap.copy(Config.ARGB_8888, true);
+        drawDebugInfo(dummyBitmap, x, y, zoom, originalUrlStr);
+        tile = new Tile(tileSize, tileSize, bitmapToByteArray(dummyBitmap));
+        dummyBitmap.recycle();
+        return tile;
+      } else {
+        return null;
+      }
+    }
+
     try {
       InputStream inputStream = null;
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
@@ -121,8 +184,17 @@ public class PluginTileProvider implements TileProvider  {
         URL url = new URL(urlStr);
         String cacheKey = url.hashCode() + "";
         Bitmap cachedImage = tileCache.get(cacheKey);
-        if (cachedImage != null) {
-          return new Tile(tileSize, tileSize, bitmapToByteArray(cachedImage));
+        if (cachedImage != null && !cachedImage.isRecycled()) {
+          if (isDebug) {
+            Bitmap copyImage = cachedImage.copy(Config.ARGB_8888, true);
+            drawDebugInfo(copyImage, x, y, zoom, originalUrlStr);
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(copyImage));
+            copyImage.recycle();
+          } else {
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(cachedImage));
+          }
+          //cachedImage.recycle(); // Don't recycle it. Need to keep the bitmap instance
+          return tile;
         }
 
         HttpURLConnection http = null;
@@ -164,15 +236,24 @@ public class PluginTileProvider implements TileProvider  {
           inputStream = http.getInputStream();
 
           Bitmap image = BitmapFactory.decodeStream(inputStream);
-          if (image.getWidth() != tileSize || image.getHeight() != tileSize) {
-            Bitmap tileImage = this.resizeForTile(image);
-            tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
-            tileCache.put(cacheKey, tileImage.copy(tileImage.getConfig(), false));
-            tileImage.recycle();
-            image.recycle();
-          } else {
-            tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
-            tileCache.put(cacheKey, image.copy(image.getConfig(), false));
+          if (image != null) {
+            if (image.getWidth() != tileSize || image.getHeight() != tileSize) {
+              Bitmap tileImage = this.resizeForTile(image);
+              tileCache.put(cacheKey, tileImage.copy(Config.ARGB_8888, true));
+              if (isDebug) {
+                drawDebugInfo(tileImage, x, y, zoom, originalUrlStr);
+              }
+              tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
+              tileImage.recycle();
+            } else {
+              tileCache.put(cacheKey, image.copy(Config.ARGB_8888, true));
+
+              if (isDebug) {
+                drawDebugInfo(image, x, y, zoom, originalUrlStr);
+              }
+              tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
+            }
+            cacheKeys.add(cacheKey);
             image.recycle();
           }
           http.disconnect();
@@ -198,8 +279,18 @@ public class PluginTileProvider implements TileProvider  {
         }
         String cacheKey = new File(urlStr).hashCode() + "";
         Bitmap cachedImage = tileCache.get(cacheKey);
-        if (cachedImage != null) {
-          return new Tile(tileSize, tileSize, bitmapToByteArray(cachedImage));
+        if (cachedImage != null && !cachedImage.isRecycled()) {
+          if (isDebug) {
+            Bitmap copyImage = cachedImage.copy(Config.ARGB_8888, true);
+            drawDebugInfo(copyImage, x, y, zoom, originalUrlStr);
+            cachedImage.recycle();
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(copyImage));
+            copyImage.recycle();
+          } else {
+            tile = new Tile(tileSize, tileSize, bitmapToByteArray(cachedImage));
+          }
+          //cachedImage.recycle(); // Don't recycle it. Need to keep the bitmap instance
+          return tile;
         }
 
         Bitmap image = null;
@@ -236,6 +327,9 @@ public class PluginTileProvider implements TileProvider  {
           try {
             inputStream = assetManager.open(urlStr);
             image = BitmapFactory.decodeStream(inputStream);
+            Bitmap tmpImage = image.copy(Config.ARGB_8888, true);
+            image.recycle();
+            image = tmpImage;
           } catch (IOException e) {
             //e.printStackTrace();
             return null;
@@ -244,13 +338,21 @@ public class PluginTileProvider implements TileProvider  {
         if (image != null) {
           if (image.getWidth() != tileSize || image.getHeight() != tileSize) {
             Bitmap tileImage = this.resizeForTile(image);
+            tileCache.put(cacheKey, tileImage.copy(Config.ARGB_8888, true));
+            if (isDebug) {
+              drawDebugInfo(tileImage, x, y, zoom, originalUrlStr);
+            }
             tile = new Tile(tileSize, tileSize, bitmapToByteArray(tileImage));
-            tileCache.put(cacheKey, tileImage.copy(tileImage.getConfig(), false));
             tileImage.recycle();
           } else {
+            tileCache.put(cacheKey, image.copy(Config.ARGB_8888, true));
+            if (isDebug) {
+              drawDebugInfo(image, x, y, zoom, originalUrlStr);
+            }
             tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
-            tileCache.put(cacheKey, image);
           }
+          image.recycle();
+          cacheKeys.add(cacheKey);
         }
 
       }
@@ -268,9 +370,21 @@ public class PluginTileProvider implements TileProvider  {
     return  outputStream.toByteArray();
   }
 
-  //public void setOpacity(double opacity) {
-  //  this.tilePaint.setAlpha((int) (opacity * 255));
-  //}
+  private void drawDebugInfo(Bitmap bitmap, int x, int y, int zoom, String url) {
+    Canvas canvas = new Canvas(bitmap);
+    canvas.drawLine(0, 0, tileSize, 0, debugPaint);
+    canvas.drawLine(0, 0, 0, tileSize, debugPaint);
+    canvas.drawText(String.format(Locale.US, "x = %d, y = %d, zoom = %d", x, y, zoom), 30, 30, debugPaint);
+    if (url != null) {
+      StaticLayout mTextLayout = new StaticLayout(url, debugTextPaint,
+          tileSize * 4 / 5, Layout.Alignment.ALIGN_NORMAL,
+          1.0f, 0.0f, false);
+      canvas.save();
+      canvas.translate(30, 60);
+      mTextLayout.draw(canvas);
+      canvas.restore();
+    }
+  }
 
   private Bitmap resizeForTile(Bitmap bitmap) {
 

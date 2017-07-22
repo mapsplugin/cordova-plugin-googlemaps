@@ -132,11 +132,6 @@
         }
         [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
 
-        BOOL useHtmlInfoWnd = NO;
-        if ([json valueForKey:@"useHtmlInfoWnd"] != nil) {
-            useHtmlInfoWnd = [[json valueForKey:@"useHtmlInfoWnd"] boolValue];
-        }
-        [properties setObject:[NSNumber numberWithBool:useHtmlInfoWnd] forKey:@"useHtmlInfoWnd"];
         [self.objects setObject:properties forKey: propertyId];
 
         // Create icon
@@ -290,6 +285,7 @@
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
+
 
 /**
  * Set title to the specified marker

@@ -41,7 +41,13 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     if (opts.has("opacity")) {
       options.transparency((float)(1 - opts.getDouble("opacity")));
     }
+
+    boolean isDebug = false;
+    if (opts.has("debug")) {
+      isDebug = opts.getBoolean("debug");
+    }
     final String id = opts.getString("_id");
+    final boolean _isDebug = isDebug;
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -58,7 +64,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         String currentPageUrl = webView.getUrl();
 
         AssetManager assetManager = cordova.getActivity().getAssets();
-        final PluginTileProvider tileProvider = new PluginTileProvider(pluginMap.mapId, id, webView, assetManager, currentPageUrl, userAgent, tileSize);
+        final PluginTileProvider tileProvider = new PluginTileProvider(pluginMap.mapId, id, webView, assetManager, currentPageUrl, userAgent, tileSize, _isDebug);
         tileProvider.setOnCacheClear(new PluginTileProvider.OnCacheClear() {
           @Override
           public void onCacheClear(int hashCode) {
@@ -94,10 +100,11 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
   @SuppressWarnings("unused")
   public void onGetTileUrlFromJS(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    String tileUrl = args.getString(1);
+    String urlKey = args.getString(1);
+    String tileUrl = args.getString(2);
     String pluginId = "tileprovider_" + id;
     if (objects.containsKey(pluginId)) {
-      ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(tileUrl);
+      ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(urlKey, tileUrl);
     }
     callbackContext.success();
   }
@@ -149,6 +156,9 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         try {
           String id = args.getString(0);
           id = id.replace("tileoverlay_", "tileprovider_");
+          if (objects.containsKey(id)) {
+            ((PluginTileProvider)(objects.get(id))).remove();
+          }
           self.objects.put(id, null);
           self.objects.remove(id);
           sendNoResult(callbackContext);
