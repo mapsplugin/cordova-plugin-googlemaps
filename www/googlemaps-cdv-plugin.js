@@ -62,10 +62,11 @@ var saltHash = Math.floor(Math.random() * Date.now());
  * Prevent background, background-color, background-image properties
  *****************************************************************************/
 document.body.style.backgroundImage = 'url() !important';
+document.body.style.backgroundColor = 'rgba(0,0,0,0) !important';
+document.body.style.background = 'rgba(0,0,0,0) !important';
+document.body.parentNode.style.backgroundImage = 'url() !important';
 document.body.parentNode.style.backgroundColor = 'rgba(0,0,0,0) !important';
 document.body.parentNode.style.background = 'rgba(0,0,0,0) !important';
-document.head.style.backgroundColor = 'rgba(0,0,0,0) !important';
-document.head.style.background = 'rgba(0,0,0,0) !important';
 
 var navDecorBlocker = document.createElement("style");
 navDecorBlocker.setAttribute("type", "text/css");
