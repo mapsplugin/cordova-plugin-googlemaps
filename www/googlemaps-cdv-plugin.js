@@ -59,17 +59,10 @@ var saltHash = Math.floor(Math.random() * Date.now());
 /*****************************************************************************
  * Prevent background, background-color, background-image properties
  *****************************************************************************/
-document.body.style.backgroundImage = 'url() !important';
-document.body.style.backgroundColor = 'rgba(0,0,0,0) !important';
-document.body.style.background = 'rgba(0,0,0,0) !important';
-document.body.parentNode.style.backgroundImage = 'url() !important';
-document.body.parentNode.style.backgroundColor = 'rgba(0,0,0,0) !important';
-document.body.parentNode.style.background = 'rgba(0,0,0,0) !important';
-
 var navDecorBlocker = document.createElement("style");
 navDecorBlocker.setAttribute("type", "text/css");
 navDecorBlocker.innerText = [
-  "._gmaps_cdv_ {",
+  "html, body, ._gmaps_cdv_ {",
   "   background-image: url() !important;",
   "   background: rgba(0,0,0,0) url() !important;",
   "   background-color: rgba(0,0,0,0) !important;",
