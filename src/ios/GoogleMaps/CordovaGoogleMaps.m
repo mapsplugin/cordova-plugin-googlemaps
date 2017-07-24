@@ -293,7 +293,10 @@
             mapType = caseBlock();
 
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+              if (mapType != kGMSTypeNone) {
                 pluginMap.mapCtrl.map.mapType = mapType;
+                [pluginMap.mapCtrl.view setHidden:YES];
+              }
             }];
           }
         }
