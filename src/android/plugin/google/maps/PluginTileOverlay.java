@@ -1,14 +1,14 @@
 package plugin.google.maps;
 
 import android.content.res.AssetManager;
-import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
 
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPreferences;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +53,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
       @Override
       public void run() {
 
-        String userAgent = "Mozilla";
+        String userAgent = "";
         if (opts.has("userAgent")) {
           try {
             userAgent = opts.getString("userAgent");
@@ -61,6 +61,28 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
             //e.printStackTrace();
           }
         }
+        if ("".equals(userAgent)) {
+          View browserView = webView.getView();
+          String browserViewName = browserView.getClass().getName();
+          if ("org.xwalk.core.XWalkView".equals(browserViewName) ||
+              "org.crosswalk.engine.XWalkCordovaView".equals(browserViewName)) {
+
+            CordovaPreferences preferences = webView.getPreferences();
+            // Set xwalk webview settings by Cordova preferences.
+            String xwalkUserAgent = preferences == null ? "" : preferences.getString("xwalkUserAgent", "");
+            if (!xwalkUserAgent.isEmpty()) {
+              userAgent = xwalkUserAgent;
+            }
+
+            String appendUserAgent = preferences.getString("AppendUserAgent", "");
+            if (!appendUserAgent.isEmpty()) {
+              userAgent = userAgent + " " + appendUserAgent;
+            }
+          } else {
+            userAgent = ((WebView) webView.getEngine().getView()).getSettings().getUserAgentString();
+          }
+        }
+
         String currentPageUrl = webView.getUrl();
 
         AssetManager assetManager = cordova.getActivity().getAssets();

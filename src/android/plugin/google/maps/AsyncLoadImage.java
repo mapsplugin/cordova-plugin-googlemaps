@@ -1,15 +1,5 @@
 package plugin.google.maps;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -21,12 +11,21 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.LruCache;
+import android.view.View;
 import android.webkit.WebView;
 
 import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLoadImageResult> {
   private AsyncLoadImageInterface callback;
@@ -127,7 +126,32 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     }
 
     this.currentPageUrl = webView.getUrl();
-    this.userAgent = ((WebView) webView.getEngine().getView()).getSettings().getUserAgentString();
+
+    View browserView = webView.getView();
+    String browserViewName = browserView.getClass().getName();
+    this.userAgent = "";
+
+    if("org.xwalk.core.XWalkView".equals(browserViewName) ||
+        "org.crosswalk.engine.XWalkCordovaView".equals(browserViewName)) {
+
+      CordovaPreferences preferences = webView.getPreferences();
+      // Set xwalk webview settings by Cordova preferences.
+      String xwalkUserAgent = preferences == null ? "" : preferences.getString("xwalkUserAgent", "");
+      if (!xwalkUserAgent.isEmpty()) {
+        this.userAgent = xwalkUserAgent;
+      }
+
+      String appendUserAgent = preferences.getString("AppendUserAgent", "");
+      if (!appendUserAgent.isEmpty()) {
+        this.userAgent = this.userAgent + " " + appendUserAgent;
+      }
+      if ("".equals(this.userAgent)) {
+        this.userAgent = "Mozilla";
+      }
+    } else {
+      this.userAgent = ((WebView) webView.getEngine().getView()).getSettings().getUserAgentString();
+    }
+
   }
 
   protected AsyncLoadImageResult doInBackground(Void... params) {
