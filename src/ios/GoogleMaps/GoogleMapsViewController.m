@@ -371,7 +371,6 @@
  * Map tiles are loaded
  */
 - (void) mapViewDidFinishTileRendering:(GMSMapView *)mapView {
-  self.view.alpha = 1;
   [self triggerMapEvent:@"map_loaded"];
 }
 

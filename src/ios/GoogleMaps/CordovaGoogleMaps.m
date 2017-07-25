@@ -165,7 +165,7 @@
         mapCtrl.isFullScreen = YES;
         mapCtrl.mapId = mapId;
         mapCtrl.mapDivId = nil;
-        mapCtrl.view.alpha = 0;
+        [mapCtrl.view setHidden:YES];
 
         // Create an instance of the Map class everytime.
         PluginMap *pluginMap = [[PluginMap alloc] init];
@@ -294,14 +294,7 @@
             mapType = caseBlock();
 
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-              if (mapType != kGMSTypeNone) {
-                pluginMap.mapCtrl.map.mapType = mapType;
-              } else {
-                NSError *error;
-                pluginMap.mapCtrl.view.backgroundColor = [UIColor colorWithRed:239/255.0 green:237/255.0 blue:230/255.0 alpha:1.0];
-                pluginMap.mapCtrl.map.mapStyle = [GMSMapStyle styleWithJSONString:@"[{\"stylers\":[{\"color\":\"#EFEDE6\"}]}]" error:&error];
-                //NSLog(@"-->error: %@", error);
-              }
+              pluginMap.mapCtrl.map.mapType = mapType;
             }];
           }
         }

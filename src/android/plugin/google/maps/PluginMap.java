@@ -309,6 +309,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
               mapView.onResume();
 
+              if (params.has("controls")) {
+                JSONObject controls = params.getJSONObject("controls");
+
+                if (controls.has("myLocationButton")) {
+                  final Boolean isEnabled = controls.getBoolean("myLocationButton");
+                  cordova.getThreadPool().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                      if (isEnabled) {
+                        try {
+                          JSONArray args = new JSONArray();
+                          args.put(isEnabled);
+                          PluginMap.this.setMyLocationEnabled(args, callbackContext);
+                        } catch (JSONException e) {
+                          e.printStackTrace();
+                          callbackContext.error(e.getMessage() + "");
+                        }
+                      }
+                    }
+                  });
+                }
+              }
+
               // ------------------------------
               // Embed the map if a container is specified.
               // ------------------------------
@@ -328,9 +351,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                           PluginMap.this.onCameraIdle();
                           map.setOnCameraIdleListener(PluginMap.this);
                           Handler handler = new Handler();
-                          handler.postDelayed(new AdjustInitCamera(params), 500);
+                          handler.postDelayed(new AdjustInitCamera(params, callbackContext), 500);
                         }
                       });
+                    } else {
+                      mapView.setVisibility(View.VISIBLE);
+                      callbackContext.success();
+                      if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+                        PluginMap.this.onMapLoaded();
+                      }
                     }
                   }
                 });
@@ -341,42 +370,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     public void onCameraIdle() {
                       PluginMap.this.onCameraIdle();
                       map.setOnCameraIdleListener(PluginMap.this);
+                      mapView.setVisibility(View.INVISIBLE);
                       Handler handler = new Handler();
-                      handler.postDelayed(new AdjustInitCamera(params), 500);
+                      handler.postDelayed(new AdjustInitCamera(params, callbackContext), 500);
                     }
                   });
                 } else {
                   mapView.setVisibility(View.VISIBLE);
-                }
-              }
-              if (params.has("controls")) {
-                JSONObject controls = params.getJSONObject("controls");
-
-                if (controls.has("myLocationButton")) {
-                  final Boolean isEnabled = controls.getBoolean("myLocationButton");
-                  cordova.getThreadPool().submit(new Runnable() {
-                    @Override
-                    public void run() {
-                      if (isEnabled) {
-                        try {
-                          JSONArray args = new JSONArray();
-                          args.put(isEnabled);
-                          PluginMap.this.setMyLocationEnabled(args, callbackContext);
-                        } catch (JSONException e) {
-                          e.printStackTrace();
-                          callbackContext.error(e.getMessage() + "");
-                        }
-                      } else {
-                        callbackContext.success();
-                      }
-                    }
-                  });
-
-                } else {
                   callbackContext.success();
+                  if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+                    PluginMap.this.onMapLoaded();
+                  }
                 }
-              } else {
-                callbackContext.success();
               }
             } catch (Exception e) {
               callbackContext.error(e.getMessage());
@@ -391,8 +396,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   private class AdjustInitCamera implements Runnable {
     private JSONObject mParams;
-    public AdjustInitCamera(JSONObject params) {
+    private CallbackContext mCallback;
+    public AdjustInitCamera(JSONObject params, CallbackContext callbackContext) {
       mParams = params;
+      mCallback = callbackContext;
     }
     @Override
     public void run() {
@@ -427,6 +434,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
       mapView.setVisibility(View.VISIBLE);
+
+      mCallback.success();
+      if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+        PluginMap.this.onMapLoaded();
+      }
 
       //fitBounds(initCameraBounds, CAMERA_PADDING);
     }

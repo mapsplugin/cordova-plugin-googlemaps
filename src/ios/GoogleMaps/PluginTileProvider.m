@@ -23,7 +23,7 @@ NSDictionary *debugAttributes;
     if ([options objectForKey:@"tileSize"]) {
         self.tileSize = [[options objectForKey:@"tileSize"] floatValue];
     } else {
-        self.tileSize = 256.0f;
+        self.tileSize = 512.0f;
     }
     self.mapId = [options objectForKey:@"mapId"];
     self.pluginId = [options objectForKey:@"pluginId"];

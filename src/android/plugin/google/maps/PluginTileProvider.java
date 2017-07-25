@@ -38,7 +38,7 @@ import java.util.Iterator;
 import java.util.Locale;
 
 public class PluginTileProvider implements TileProvider  {
-  private int tileSize = 256;
+  private int tileSize = 512;
   private Paint tilePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
   private Paint debugPaint = null;
   private TextPaint debugTextPaint = null;
