@@ -263,7 +263,9 @@
 
             }
           }
-          [pluginMap.mapCtrl.view setHidden:YES];
+          if (pluginMap.mapCtrl.map.mapType != kGMSTypeNone) {
+            [pluginMap.mapCtrl.view setHidden:YES];
+          }
         }
         camera = [GMSCameraPosition cameraWithLatitude:latitude
                                           longitude:longitude
@@ -293,8 +295,8 @@
             mapType = caseBlock();
 
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+              pluginMap.mapCtrl.map.mapType = mapType;
               if (mapType != kGMSTypeNone) {
-                pluginMap.mapCtrl.map.mapType = mapType;
                 [pluginMap.mapCtrl.view setHidden:YES];
               }
             }];

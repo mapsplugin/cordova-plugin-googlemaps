@@ -610,13 +610,28 @@
                     [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
                     [self.mapCtrl.view setHidden:NO];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+                    if (self.mapCtrl.map.mapType == kGMSTypeNone) {
+                      double delayInSeconds = 2;
+                      dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                      dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                        [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+                      });
+                    }
                 });
 
             });
 
           } else {
-              [self.mapCtrl.view setHidden:NO];
               [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+              [self.mapCtrl.view setHidden:NO];
+              if (self.mapCtrl.map.mapType == kGMSTypeNone) {
+                double delayInSeconds = 2;
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                  [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+                });
+              }
           }
 
       }
