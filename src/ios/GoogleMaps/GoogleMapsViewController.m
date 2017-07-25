@@ -331,16 +331,7 @@
 
 - (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
 
-
   // Get the marker plugin
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
-  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
-
-  // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
-
-
   BOOL useHtmlInfoWnd = marker.title == nil &&
                         marker.snippet == nil;
 
@@ -369,7 +360,8 @@
  * Map tiles are loaded
  */
 - (void) mapViewDidFinishTileRendering:(GMSMapView *)mapView {
- [self triggerMapEvent:@"map_loaded"];
+  self.view.alpha = 1;
+  [self triggerMapEvent:@"map_loaded"];
 }
 
 /**
