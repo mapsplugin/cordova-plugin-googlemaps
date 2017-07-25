@@ -32,7 +32,7 @@ NSDictionary *debugAttributes;
 
 
     self.isDebug = NO;
-    if ([options objectForKey:@"debug"]) {
+    if ([[options objectForKey:@"debug"] boolValue]) {
       self.isDebug = YES;
       tileRect = CGRectMake(0, 0 , self.tileSize, self.tileSize);
       debugRect = CGRectMake(30, 30 , self.tileSize - 30, self.tileSize - 30);
@@ -185,6 +185,8 @@ NSDictionary *debugAttributes;
                                              y:y
                                              zoom:zoom
                                              url: originalUrlStr];
+           [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+         } else {
            [receiver receiveTileWithX:x y:y zoom:zoom image:image];
          }
       } else {

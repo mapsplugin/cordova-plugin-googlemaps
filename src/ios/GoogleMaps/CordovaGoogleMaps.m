@@ -165,6 +165,7 @@
         mapCtrl.isFullScreen = YES;
         mapCtrl.mapId = mapId;
         mapCtrl.mapDivId = nil;
+        mapCtrl.view.alpha = 0;
 
         // Create an instance of the Map class everytime.
         PluginMap *pluginMap = [[PluginMap alloc] init];
@@ -263,7 +264,7 @@
 
             }
           }
-          [pluginMap.mapCtrl.view setHidden:YES];
+          //[pluginMap.mapCtrl.view setHidden:YES];
         }
         camera = [GMSCameraPosition cameraWithLatitude:latitude
                                           longitude:longitude
@@ -295,12 +296,15 @@
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
               if (mapType != kGMSTypeNone) {
                 pluginMap.mapCtrl.map.mapType = mapType;
-                [pluginMap.mapCtrl.view setHidden:YES];
+              } else {
+                NSError *error;
+                pluginMap.mapCtrl.view.backgroundColor = [UIColor colorWithRed:239/255.0 green:237/255.0 blue:230/255.0 alpha:1.0];
+                pluginMap.mapCtrl.map.mapStyle = [GMSMapStyle styleWithJSONString:@"[{\"stylers\":[{\"color\":\"#EFEDE6\"}]}]" error:&error];
+                //NSLog(@"-->error: %@", error);
               }
             }];
           }
         }
-
         pluginMap.mapCtrl.map.delegate = mapCtrl;
         pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
