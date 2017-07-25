@@ -770,7 +770,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     tilelayerOptions.visible = common.defaultTrueOption(tilelayerOptions.visible);
     tilelayerOptions.zIndex = tilelayerOptions.zIndex || 0;
     tilelayerOptions.tileSize = tilelayerOptions.tileSize || 256;
-    tilelayerOptions.opacity = tilelayerOptions.opacity || 1;
+    tilelayerOptions.opacity = (tilelayerOptions.opacity === null || tilelayerOptions.opacity === undefined) ? 1 : tilelayerOptions.opacity;
     tilelayerOptions.debug = tilelayerOptions.debug === true;
     tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
 
