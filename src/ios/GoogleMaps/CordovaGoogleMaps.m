@@ -298,6 +298,7 @@
                 pluginMap.mapCtrl.map.mapType = mapType;
               } else {
                 NSError *error;
+                pluginMap.mapCtrl.view.backgroundColor = [UIColor colorWithRed:239/255.0 green:237/255.0 blue:230/255.0 alpha:1.0];
                 pluginMap.mapCtrl.map.mapStyle = [GMSMapStyle styleWithJSONString:@"[{\"stylers\":[{\"color\":\"#EFEDE6\"}]}]" error:&error];
                 //NSLog(@"-->error: %@", error);
               }
