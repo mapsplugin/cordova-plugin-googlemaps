@@ -127,19 +127,27 @@
     //[self.mapCtrl.view setHidden:true];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+    // Trigger the map_loaded event if current mapType == kMapTypeNone && request method is `getMap()`
+    if (self.mapCtrl.map.mapType == kGMSTypeNone) {
+      dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+      dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+      });
+    }
+
     return;
   }
 
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
-  [initOptions setValue:@"getMap" forKeyPath:@"method"];
   if ([initOptions valueForKey:@"camera"]) {
     double delayInSeconds = 1;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-      [self _setOptions:initOptions command:command];
+      [self _setOptions:initOptions requestMethod:@"getMap" command:command];
     });
   } else {
-    [self _setOptions:initOptions command:command];
+    [self _setOptions:initOptions requestMethod:@"getMap" command:command];
   }
 
 }
@@ -463,7 +471,7 @@
 
 }
 
--(void)_changeCameraPosition: (NSString*)action params:(NSDictionary *)json command:(CDVInvokedUrlCommand *)command {
+-(void)_changeCameraPosition: (NSString*)action requestMethod:(NSString *)requestMethod params:(NSDictionary *)json command:(CDVInvokedUrlCommand *)command {
 
   int bearing;
   if ([json valueForKey:@"bearing"]) {
@@ -586,7 +594,6 @@
         [self.mapCtrl.map animateToCameraPosition: cameraPosition];
       }[CATransaction commit];
     }
-
     if ([action  isEqual: @"moveCamera"]) {
       [self.mapCtrl.map setCamera:cameraPosition];
 
@@ -607,13 +614,32 @@
           dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
             GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
             [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
+            [self.mapCtrl.view setHidden:NO];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+            // Trigger the map_loaded event if current mapType == kMapTypeNone && request method is `getMap()`
+            if (self.mapCtrl.map.mapType == kGMSTypeNone && [requestMethod isEqualToString:@"getMap"]) {
+              dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+              dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+              });
+            }
+
           });
 
         });
 
       } else {
+        [self.mapCtrl.view setHidden:NO];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+        // Trigger the map_loaded event if current mapType == kMapTypeNone && request method is `getMap()`
+        if (self.mapCtrl.map.mapType == kGMSTypeNone && [requestMethod isEqualToString:@"getMap"]) {
+          dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+          dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+          });
+        }
       }
 
     }
@@ -623,7 +649,7 @@
 -(void)updateCameraPosition: (NSString*)action command:(CDVInvokedUrlCommand *)command {
   [self.executeQueue addOperationWithBlock:^{
     NSDictionary *json = [command.arguments objectAtIndex:0];
-    [self _changeCameraPosition:action params:json command:command];
+    [self _changeCameraPosition:action requestMethod:@"updateCameraPosition" params:json command:command];
   }];
 }
 
@@ -704,7 +730,7 @@
   }];
 }
 
-- (void)_setOptions:(NSDictionary *)initOptions command:(CDVInvokedUrlCommand *)command {
+- (void)_setOptions:(NSDictionary *)initOptions requestMethod:(NSString *)requestMethod command:(CDVInvokedUrlCommand *)command {
 
   [self.executeQueue addOperationWithBlock:^{
 
@@ -881,10 +907,20 @@
       // Case : The camera option is specified.
       //------------------------------------------
       NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-      [self _changeCameraPosition:@"moveCamera" params:cameraOpts command:command];
+      [self _changeCameraPosition:@"moveCamera" requestMethod:requestMethod params:cameraOpts command:command];
     } else {
+
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+      // Trigger the map_loaded event if current mapType == kMapTypeNone && request method is `getMap()`
+      if (self.mapCtrl.map.mapType == kGMSTypeNone &&
+        [[initOptions objectForKey:@"method"] isEqualToString:@"getMap"]) {
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+          [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+        });
+      }
     }
   }];
 
@@ -893,7 +929,7 @@
 - (void)setOptions:(CDVInvokedUrlCommand *)command {
   NSDictionary *initOptions = [command.arguments objectAtIndex:0];
   [initOptions setValue:@"setOptions" forKeyPath:@"method"];
-  [self _setOptions:initOptions command:command];
+  [self _setOptions:initOptions requestMethod:@"setOptions" command:command];
 }
 
 
