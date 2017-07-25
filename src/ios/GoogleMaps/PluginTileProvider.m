@@ -186,6 +186,8 @@ NSDictionary *debugAttributes;
                                              zoom:zoom
                                              url: originalUrlStr];
            [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+         } else {
+           [receiver receiveTileWithX:x y:y zoom:zoom image:image];
          }
       } else {
          if (self.isDebug) {
