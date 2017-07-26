@@ -12,7 +12,7 @@
 const NSString *GEOCELL_ALPHABET = @"0123456789abcdef";
 const int GEOCELL_GRID_SIZE = 4;
 NSObject *dummyObject;
-
+BOOL recyleOption = NO;
 
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
@@ -131,7 +131,7 @@ NSObject *dummyObject;
       if ([self.objects objectForKey:clusterId_markerId] != nil || [_pluginMarkers objectForKey:clusterId_markerId] != nil) {
         [updateClusterIDs setObject:clusterId_markerId forKey:clusterId_markerId];
       } else {
-        if (deleteCnt > 0) {
+        if (recyleOption && deleteCnt > 0) {
           //---------------
           // Reuse a marker
           //---------------

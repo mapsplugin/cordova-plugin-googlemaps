@@ -33,7 +33,8 @@ public class PluginMarkerCluster extends PluginMarker {
   private final static ConcurrentHashMap<String, STATUS> pluginMarkers = new ConcurrentHashMap<String, STATUS>();
   private final static ConcurrentHashMap<String, Integer> waitCntManager = new ConcurrentHashMap<String, Integer>();
 
-  final Object dummyObj = new Object();
+  private final Object dummyObj = new Object();
+  private boolean recyleOption = false;
 
   enum STATUS {
     WORKING,
@@ -145,7 +146,8 @@ public class PluginMarkerCluster extends PluginMarker {
           updateClusterIDs.put(clusterId_markerId, clusterId_markerId);
         } else {
 
-          if (reuseCnt < deleteCnt) {
+
+          if (recyleOption && reuseCnt < deleteCnt) {
             //---------------
             // Reuse a marker
             //---------------
