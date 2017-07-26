@@ -1,4 +1,6 @@
-All date times indicate the Pacific Time (California in US)
+# Change logs
+
+**Note that all date times indicate the Pacific Time (California in US)**
 
 ## Jul/26
 
