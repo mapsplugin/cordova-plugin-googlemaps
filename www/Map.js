@@ -960,7 +960,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
   exec(function(result) {
 
-    var markers = new BaseArrayClass();
+    var markerMap = {};
     result.geocellList.forEach(function(geocell, idx) {
       var markerOptions = markerClusterOptions.markers[idx];
       markerOptions = common.markerOptionsFilter(markerOptions);
@@ -970,13 +970,12 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       marker.set("isAdded", false, true);
       marker.set("geocell", geocell, true);
       marker.set("position", markerOptions.position, true);
-      markers.push(marker);
-
+      markerMap[markerId] = marker;
     });
 
     var markerCluster = new MarkerCluster(self, result.id, {
       "icons": markerClusterOptions.icons,
-      "markers": markers,
+      "markerMap": markerMap,
       "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 15)
     });
 
@@ -1021,20 +1020,15 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
     var self = this;
     var markerCluster = self.OVERLAYS[markerClusterId] || null;
     if (markerCluster) {
+      if (/marker_/i.test(clusterId)) {
+        // regular marker
+        var marker = markerCluster.getMarkerById(clusterId);
+        markerCluster.trigger(event.MARKER_CLICK, position, marker);
+      } else {
+        // clusterred marker
         var cluster = markerCluster.getClusterByClusterId(clusterId);
-        if (!cluster) {
-            return;
-        }
-        if (clusterId.indexOf(";") > -1) {
-            var idx = clusterId.split(";")[1];
-            var marker = cluster.getMarkers()[idx];
-            if (marker) {
-                eventName = eventName.replace("cluster", "marker");
-                markerCluster.trigger(eventName, position, marker);
-            }
-        } else {
-            markerCluster.trigger(eventName, cluster);
-        }
+        markerCluster.trigger(eventName, cluster);
+      }
     }
 };
 

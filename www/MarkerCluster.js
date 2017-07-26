@@ -18,7 +18,7 @@ var argscheck = require('cordova/argscheck'),
 var MarkerCluster = function(map, id, markerClusterOptions) {
   BaseClass.call(this);
 
-  var idxCount = markerClusterOptions.markers.getLength() - 1;
+  var idxCount = Object.keys(markerClusterOptions.markerMap) + 1;
 
   var self = this;
   Object.defineProperty(self, "maxZoomLevel", {
@@ -29,8 +29,8 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     value: {},
     writable: false
   });
-  Object.defineProperty(self, "_markers", {
-    value: markerClusterOptions.markers,
+  Object.defineProperty(self, "_markerMap", {
+    value: markerClusterOptions.markerMap,
     writable: false
   });
   Object.defineProperty(self, "debug", {
@@ -61,7 +61,9 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
       markerClusterOptions.markers.removeAt(idx);
     }
   };
-  markerClusterOptions.markers.forEach(function(marker) {
+  var keys = Object.keys(self._markerMap);
+  keys.forEach(function(markerId) {
+    var marker = self._markerMap[markerId];
     marker.one(marker.getId() + "_remove", onRemoveMarker);
   });
 
@@ -109,7 +111,7 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     marker.set("isAdded", false, true);
     marker.set("geocell", geocell, true);
     marker.set("position", markerOptions.position, true);
-    self._markers.push(marker);
+    self._markerMap[markerId] = marker;
     self.redraw(true);
   };
 
@@ -142,6 +144,10 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
     target: cluster.getBounds(),
     duration: 500
   });
+};
+MarkerCluster.prototype.getMarkerById = function(markerId) {
+  var self = this;
+  return self._markerMap[markerId];
 };
 
 MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
@@ -204,7 +210,9 @@ MarkerCluster.prototype.redraw = function(force) {
     if (resolution === -1) {
       return;
     }
-    self._markers.forEach(function(marker) {
+    keys = Object.keys(self._markerMap);
+    keys.forEach(function(markerId) {
+      var marker = self._markerMap[markerId];
       var geocell = marker.get("geocell");
       //if (!marker.get("isAdded")) {
       //  return;
@@ -219,7 +227,9 @@ MarkerCluster.prototype.redraw = function(force) {
       }
         //deleteClusters[marker.getId()] = 1;
     });
-    self._markers.forEach(function(marker) {
+    keys = Object.keys(self._markerMap);
+    keys.forEach(function(markerId) {
+      var marker = self._markerMap[markerId];
       var geocell = marker.get("geocell");
       if (allGeocells.indexOf(geocell) > -1) {
         targetMarkers.push(marker);
@@ -248,7 +258,9 @@ MarkerCluster.prototype.redraw = function(force) {
           delete self._clusters[resolution][geocell];
       }
     });
-    self._markers.forEach(function(marker) {
+    keys = Object.keys(self._markerMap);
+    keys.forEach(function(markerId) {
+      var marker = self._markerMap[markerId];
       var geocell = marker.get("geocell");
       if (ignoreGeocells.indexOf(geocell) === -1) {
         targetMarkers.push(marker);
@@ -297,7 +309,9 @@ MarkerCluster.prototype.redraw = function(force) {
         geocell = geocell.substr(0, resolution + 1);
         allGeocells.push(geocell);
       });
-      self._markers.forEach(function(marker) {
+      keys = Object.keys(self._markerMap);
+      keys.forEach(function(markerId) {
+        var marker = self._markerMap[markerId];
         var geocell = marker.get("geocell");
         if (allGeocells.indexOf(geocell) > -1) {
           targetMarkers.push(marker);
@@ -317,7 +331,9 @@ MarkerCluster.prototype.redraw = function(force) {
       delete self._clusters[prevResolution];
     }
   } else {
-    self._markers.forEach(function(marker) {
+    keys = Object.keys(self._markerMap);
+    keys.forEach(function(markerId) {
+      var marker = self._markerMap[markerId];
       var geocell = marker.get("geocell");
       if (allGeocells.indexOf(geocell) > -1) {
         targetMarkers.push(marker);
