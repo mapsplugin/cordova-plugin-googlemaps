@@ -27,7 +27,7 @@ Adding the `--no-fetch` option is recommended (this prevents the caching by npm 
 ```js
 $> cordova plugin rm cordova-googlmaps-plugin // if you installed the regular version
 
-$> cordova plugin add https://bitbucket.org/wf9a5m75/cordova-plugin-googlemaps-cluster#cluster_work --variable API_KEY_FOR_ANDROID=... --variable API_KEY_FOR_IOS=... --no-fetch
+$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-cluster.git#cluster_work --variable API_KEY_FOR_ANDROID=... --variable API_KEY_FOR_IOS=... --no-fetch
 ```
 
 I will update this private repository if the github repository is updated (at least one time per day).
