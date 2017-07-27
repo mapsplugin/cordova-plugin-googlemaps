@@ -247,8 +247,8 @@ HTMLInfoWindow.prototype.open = function(marker) {
 
 HTMLInfoWindow.prototype.setBackgroundColor = function(backgroundColor) {
   this.get("frame").children[0].style.backgroundColor = backgroundColor;
-  this.get("frame").children[1].children[0].style.borderColor = backgroundColor + " transparent transparent";
-  this.get("frame").children[1].children[1].style.borderColor = backgroundColor + " transparent transparent";
+  this.get("frame").children[1].children[0].style.borderColor = backgroundColor + " rgba(0,0,0,0) rgba(0,0,0,0)";
+  this.get("frame").children[1].children[1].style.borderColor = backgroundColor + " rgba(0,0,0,0) rgba(0,0,0,0)";
 };
 
 module.exports = HTMLInfoWindow;
