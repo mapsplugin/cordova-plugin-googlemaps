@@ -5,6 +5,7 @@ var argscheck = require('cordova/argscheck'),
     Marker = require('./Marker'),
     geomodel = require('./geomodel'),
     BaseClass = require('./BaseClass'),
+    LatLngBounds = require('./LatLngBounds'),
     BaseArrayClass = require('./BaseArrayClass');
 
 /*****************************************************************************
@@ -49,6 +50,14 @@ Cluster.prototype.CLUSTER_MODE = 2;
 
 Cluster.prototype.getPluginName = function() {
   return this.map.getId() + "-cluster";
+};
+Cluster.prototype.getMarkerBounds = function() {
+  var markers = this.getMarkers();
+  var bounds = new LatLngBounds(markers[0].position, markers[0].position);
+  markers.forEach(function(marker) {
+    bounds.extend(marker.getPosition());
+  });
+  return bounds;
 };
 Cluster.prototype.getBounds = function() {
   var bounds = this.get("bounds");

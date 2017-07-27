@@ -112,14 +112,14 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     marker.set("geocell", geocell, true);
     marker.set("position", markerOptions.position, true);
     self._markerMap[markerId] = marker;
-    self.redraw(true);
+    self._onCameraMoved(true);
   };
 
-  map.on(event.CAMERA_MOVE_END, self.redraw.bind(self));
+  map.on(event.CAMERA_MOVE_END, self._onCameraMoved.bind(self));
 
   self.on("cluster_click", self.onClusterClicked);
 
-  self.redraw(false);
+  self._onCameraMoved(false);
 
   return self;
 };
@@ -145,6 +145,21 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
     duration: 500
   });
 };
+
+MarkerCluster.prototype._onCameraMoved = function(force) {
+  var self = this;
+  var visibleRegion = self.map.getVisibleRegion();
+  self.map.fromLatLngToPoint(visibleRegion.southwest, function(swPosition) {
+    swPosition[0] = swPosition[0] + 40;
+
+    // Get the positiion that are far from 40 px
+    self.map.fromPointToLatLng(swPosition, function(position) {
+      var clusterDistance = spherical.computeDistanceBetween(visibleRegion.southwest, position); // distance in meters
+      self.redraw(clusterDistance, force);
+    });
+  });
+};
+
 MarkerCluster.prototype.getMarkerById = function(markerId) {
   var self = this;
   return self._markerMap[markerId];
@@ -165,7 +180,7 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
 };
 
 
-MarkerCluster.prototype.redraw = function(force) {
+MarkerCluster.prototype.redraw = function(clusterDistance, force) {
   var self = this,
     map = self.map,
     currentZoomLevel = Math.floor(self.map.getCameraZoom()),
@@ -392,22 +407,61 @@ MarkerCluster.prototype.redraw = function(force) {
       });
 
       //------------------------------------------
-      // Merge close geocells
+      // Create/update clusters
       //------------------------------------------
       keys = Object.keys(prepareClusters);
+      var sortedClusters = [];
       keys.forEach(function(geocell) {
         var cluster = self.getClusterByGeocellAndResolution(geocell, resolution);
         cluster.addMarkers(prepareClusters[geocell]);
 
+        cluster._markerCenter = cluster.getMarkerBounds().getCenter();
+        cluster._distanceFrom0 = spherical.computeDistanceBetween({lat: 0, lng: 0}, cluster._markerCenter);
+        sortedClusters.push(cluster);
+      });
+      sortedClusters = sortedClusters.sort(function(a, b) {
+        return a._distanceFrom0 - b._distanceFrom0;
+      });
+
+      //-------------------------
+      // Union close clusters
+      //-------------------------
+      var cluster, anotherCluster;
+      var unionedMarkers = [];
+      i = 0;
+      var hit = false;
+      while (i < sortedClusters.length) {
+        cluster = sortedClusters[i];
+        hit = false;
+        for (var j = i + 1; j < sortedClusters.length; j++) {
+          anotherCluster = sortedClusters[j];
+          var distance = spherical.computeDistanceBetween(cluster._markerCenter, anotherCluster._markerCenter);
+          if (distance < clusterDistance) {
+            cluster.addMarkers(anotherCluster.getMarkers());
+            delete self._clusters[resolution][anotherCluster.geocell];
+            self._clusters[resolution][cluster.geocell] = cluster;
+            i = j;
+          } else {
+            hit = true;
+            break;
+          }
+        }
+        i++;
+        cluster._markerCnt= cluster.getItemLength();
+        unionedMarkers.push(cluster);
+      }
+
+      unionedMarkers.forEach(function(cluster) {
+
         var icon = self.getClusterIcon(cluster),
             clusterOpts = {
               "count": cluster.getItemLength(),
-              "position": cluster.getCenter(),
-              "id": geocell
+              "position": cluster.getMarkerBounds().getCenter(),
+              "id": cluster.geocell
             };
 
             if (self.debug) {
-              clusterOpts.geocell = geocell;
+              clusterOpts.geocell = cluster.geocell;
             }
 
         if (icon) {
@@ -449,6 +503,20 @@ MarkerCluster.prototype.redraw = function(force) {
   if (new_or_update_clusters.length === 0 && delete_clusters === 0) {
     return;
   }
+/*
+
+  var mvcArray = new BaseArrayClass(new_or_update_clusters);
+  mvcArray.map(function(cluster, cb) {
+    self.map.fromLatLngToPoint(cluster.position, function(point) {
+      cluster._point = {x: point[0], y: point[1]};
+      cluster._bounds = cluster.getMarkerBounds();
+
+      cb(cluster);
+    });
+  }, function(clusters) {
+
+  });
+*/
 
   exec(null, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
