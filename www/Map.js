@@ -1027,7 +1027,11 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
       } else {
         // clusterred marker
         var cluster = markerCluster.getClusterByClusterId(clusterId);
-        markerCluster.trigger(eventName, cluster);
+        if (cluster) {
+          markerCluster.trigger(eventName, cluster);
+        } else {
+          console.log("-----> This is remained cluster icon : " + clusterId);
+        }
       }
     }
 };

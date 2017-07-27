@@ -51,14 +51,10 @@ Cluster.prototype.CLUSTER_MODE = 2;
 Cluster.prototype.getPluginName = function() {
   return this.map.getId() + "-cluster";
 };
-Cluster.prototype.getMarkerBounds = function() {
-  var markers = this.getMarkers();
-  var bounds = new LatLngBounds(markers[0].position, markers[0].position);
-  markers.forEach(function(marker) {
-    bounds.extend(marker.getPosition());
-  });
-  return bounds;
+Cluster.prototype.getBounds = function() {
+  return this.get("bounds");
 };
+/*
 Cluster.prototype.getBounds = function() {
   var bounds = this.get("bounds");
   if (!bounds) {
@@ -67,6 +63,7 @@ Cluster.prototype.getBounds = function() {
   }
   return bounds;
 };
+*/
 Cluster.prototype.getCenter = function() {
   return this.getBounds().getCenter();
 };
@@ -77,12 +74,17 @@ Cluster.prototype.getMarkers = function() {
 
 Cluster.prototype.addMarkers = function(markerRefs) {
   var self = this;
+  var bounds = this.get("bounds") || new LatLngBounds(markerRefs[0].getPosition(), markerRefs[0].getPosition());
+
   markerRefs.forEach(function(markerRef) {
     if (self._markerRefs.indexOf(markerRef) === -1) {
       markerRef.set("isAdded", true);
       self._markerRefs.push(markerRef);
+      bounds.extend(markerRef.getPosition());
     }
   });
+
+  this.set("bounds", bounds);
 };
 Cluster.prototype.setMode = function(mode) {
   this.set("mode", mode);

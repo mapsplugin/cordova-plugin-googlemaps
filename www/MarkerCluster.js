@@ -415,7 +415,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
         var cluster = self.getClusterByGeocellAndResolution(geocell, resolution);
         cluster.addMarkers(prepareClusters[geocell]);
 
-        cluster._markerCenter = cluster.getMarkerBounds().getCenter();
+        cluster._markerCenter = cluster.getBounds().getCenter();
         cluster._distanceFrom0 = spherical.computeDistanceBetween({lat: 0, lng: 0}, cluster._markerCenter);
         sortedClusters.push(cluster);
       });
@@ -456,7 +456,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
         var icon = self.getClusterIcon(cluster),
             clusterOpts = {
               "count": cluster.getItemLength(),
-              "position": cluster.getMarkerBounds().getCenter(),
+              "position": cluster.getBounds().getCenter(),
               "id": cluster.geocell
             };
 
@@ -503,20 +503,6 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
   if (new_or_update_clusters.length === 0 && delete_clusters === 0) {
     return;
   }
-/*
-
-  var mvcArray = new BaseArrayClass(new_or_update_clusters);
-  mvcArray.map(function(cluster, cb) {
-    self.map.fromLatLngToPoint(cluster.position, function(point) {
-      cluster._point = {x: point[0], y: point[1]};
-      cluster._bounds = cluster.getMarkerBounds();
-
-      cb(cluster);
-    });
-  }, function(clusters) {
-
-  });
-*/
 
   exec(null, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
