@@ -231,7 +231,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       var marker = self._markerMap[markerId];
-      var geocell = marker.get("geocell");
+      var geocell = marker.get("geocell").substr(0, cellLen);
       //if (!marker.get("isAdded")) {
       //  return;
       //}
@@ -279,7 +279,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       var marker = self._markerMap[markerId];
-      var geocell = marker.get("geocell");
+      var geocell = marker.get("geocell").substr(0, cellLen);
       if (ignoreGeocells.indexOf(geocell) === -1) {
         targetMarkers.push(marker);
       }
@@ -324,13 +324,13 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
         }
         cluster.remove();
 
-        geocell = geocell.substr(0, resolution + 1);
+        geocell = geocell.substr(0, cellLen);
         allGeocells.push(geocell);
       });
       keys = Object.keys(self._markerMap);
       keys.forEach(function(markerId) {
         var marker = self._markerMap[markerId];
-        var geocell = marker.get("geocell");
+        var geocell = marker.get("geocell").substr(0, cellLen);
         if (allGeocells.indexOf(geocell) > -1) {
           targetMarkers.push(marker);
           return;
@@ -352,7 +352,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       var marker = self._markerMap[markerId];
-      var geocell = marker.get("geocell");
+      var geocell = marker.get("geocell").substr(0, cellLen);
       if (allGeocells.indexOf(geocell) > -1) {
         targetMarkers.push(marker);
         return;
