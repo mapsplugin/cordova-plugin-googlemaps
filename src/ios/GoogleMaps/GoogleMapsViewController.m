@@ -424,7 +424,7 @@
     self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
 
-  if (self.map.selectedMarker) {
+  if (self.activeMarker) {
     [self syncInfoWndPosition];
   }
 }
