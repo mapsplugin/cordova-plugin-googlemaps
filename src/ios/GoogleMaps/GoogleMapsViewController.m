@@ -303,6 +303,7 @@
   //NSLog(@"--->%@", jsString);
   [self execJS:jsString];
 }
+
 /**
  * @callback plugin.google.maps.event.MARKER_CLICK
  */
@@ -326,7 +327,15 @@
       return YES;
     }
   }
-	return NO;
+
+  //--------------------------
+  // Pan the camera mondatory
+  //--------------------------
+  GMSCameraPosition* cameraPosition = [GMSCameraPosition
+          cameraWithTarget:marker.position zoom:self.map.camera.zoom];
+
+  [self.map animateToCameraPosition:cameraPosition];
+  return YES;
 }
 
 - (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
