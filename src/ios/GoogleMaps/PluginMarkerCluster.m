@@ -14,6 +14,7 @@ const int GEOCELL_GRID_SIZE = 4;
 NSObject *dummyObject;
 BOOL recyleOption = NO;
 
+
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
     self.mapCtrl = viewCtrl;
@@ -224,7 +225,6 @@ BOOL recyleOption = NO;
         marker.tracksViewChanges = NO;
         marker.tracksInfoWindowChanges = NO;
         marker.appearAnimation = NO;
-        marker.map = self.mapCtrl.map;
         if ([markerProperties objectForKey:@"title"]) {
           marker.title = [markerProperties objectForKey:@"title"];
         }

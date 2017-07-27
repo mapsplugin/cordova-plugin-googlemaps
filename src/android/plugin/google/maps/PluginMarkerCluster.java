@@ -268,7 +268,8 @@ public class PluginMarkerCluster extends PluginMarker {
             targetMarkerId = oldMarkerId;
             markerProperties = changeProperties.get(oldMarkerId);
             marker = map.addMarker(new MarkerOptions()
-                .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng"))));
+                .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")))
+                .visible(false));
             if (markerProperties.containsKey("title")) {
               marker.setTitle(markerProperties.getString("title"));
             } else {
@@ -331,7 +332,8 @@ public class PluginMarkerCluster extends PluginMarker {
                   oldMarkerId = deleteClusterIDs.remove(0);
                 } else {
                   marker = map.addMarker(new MarkerOptions()
-                      .position(new LatLng(0, 0)));
+                      .position(new LatLng(0, 0))
+                      .visible(false));
                 }
               }
             }
@@ -427,7 +429,6 @@ public class PluginMarkerCluster extends PluginMarker {
                 //--------------------------------------
                 // Icon is set to marker
                 //--------------------------------------
-
                 synchronized (waitCntManager) {
                   int waitCnt = waitCntManager.get(clusterId);
                   waitCnt = waitCnt - 1;
@@ -571,6 +572,8 @@ public class PluginMarkerCluster extends PluginMarker {
             return;
           }
         }
+
+        marker.setVisible(true);
 
         pluginMarkers.put(markerId, STATUS.CREATED);
         callback.onPostExecute(object);
