@@ -65,7 +65,7 @@ BOOL recyleOption = NO;
     position = [positionList objectAtIndex:i];
     lat = [[position objectForKey:@"lat"] doubleValue];
     lng = [[position objectForKey:@"lng"] doubleValue];
-    [geocellList addObject:[self getGeocell:lat lng:lng resolution:9]];
+    [geocellList addObject:[self getGeocell:lat lng:lng resolution:12]];
   }
 
   NSString *clusterId = [NSString stringWithFormat:@"markercluster_%lu", command.hash];

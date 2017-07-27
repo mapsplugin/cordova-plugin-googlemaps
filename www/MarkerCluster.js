@@ -182,6 +182,9 @@ MarkerCluster.prototype.redraw = function(force) {
   resolution = currentZoomLevel > 11 ? 6 : resolution;
   resolution = currentZoomLevel > 13 ? 7 : resolution;
   resolution = currentZoomLevel > 15 ? 8 : resolution;
+  resolution = currentZoomLevel > 17 ? 9 : resolution;
+  resolution = currentZoomLevel > 19 ? 10 : resolution;
+  resolution = currentZoomLevel > 21 ? 11 : resolution;
 
   //----------------------------------------------------------------
   // Calculates geocells of the current viewport

@@ -76,7 +76,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
     for (int i = 0; i < positionList.length(); i++) {
       position = positionList.getJSONObject(i);
-      geocellList.put(getGeocell(position.getDouble("lat"), position.getDouble("lng"), 9));
+      geocellList.put(getGeocell(position.getDouble("lat"), position.getDouble("lng"), 12));
     }
 
     String id = "markercluster_" + callbackContext.hashCode();
