@@ -236,7 +236,7 @@ public class PluginMarkerCluster extends PluginMarker {
               if (isDebug) {
                 label.putString("text", markerId);
               } else {
-                label.putInt("fontSize", 20);
+                label.putInt("fontSize", 15);
                 label.putBoolean("bold", true);
                 label.putString("text", clusterData.getInt("count") + "");
               }
@@ -430,7 +430,7 @@ public class PluginMarkerCluster extends PluginMarker {
           }
           marker.setVisible(true);
 
-          Log.d(TAG, "create : " + markerId + " = CREATED");
+          //Log.d(TAG, "create : " + markerId + " = CREATED");
           pluginMarkers.put(markerId, STATUS.CREATED);
           callback.onPostExecute(object);
         }

@@ -976,7 +976,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     var markerCluster = new MarkerCluster(self, result.id, {
       "icons": markerClusterOptions.icons,
       "markerMap": markerMap,
-      "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 15)
+      "maxZoomLevel": markerClusterOptions.maxZoomLevel || 15,
+      "debug": markerClusterOptions.debug === true
     });
 
     self.OVERLAYS[result.id] = markerCluster;

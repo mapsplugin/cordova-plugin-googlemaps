@@ -473,11 +473,6 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
           anotherCluster = sortedClusters[j];
           var distance = spherical.computeDistanceBetween(cluster._markerCenter, anotherCluster._markerCenter);
           if (distance < clusterDistance) {
-            if (cluster.getItemLength() < anotherCluster.getItemLength()) {
-              tmp = anotherCluster;
-              anotherCluster = cluster;
-              cluster = tmp;
-            }
             if (self.debug) {
               console.log("---> (js)delete:" + anotherCluster.geocell);
             }
