@@ -24,16 +24,15 @@ import org.json.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
-  protected final HashMap<String, Object> objects = new HashMap<String, Object>();
+  protected final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
   public MyPlugin self = null;
   public final ConcurrentHashMap<String, Method> methods = new ConcurrentHashMap<String, Method>();
-  private static ExecutorService executorService = null;
+  protected static ExecutorService executorService = null;
 
   public CordovaGoogleMaps mapCtrl = null;
   public GoogleMap map = null;
@@ -66,7 +65,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext)  {
     self = this;
-    executorService.execute(new Runnable() {
+    executorService.submit(new Runnable() {
       @Override
       public void run() {
 
@@ -136,14 +135,14 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
 
   protected synchronized Circle getCircle(String id) {
     if (!this.objects.containsKey(id)) {
-      Log.e(TAG, "---> can not find the circle : " + id);
+      //Log.e(TAG, "---> can not find the circle : " + id);
       return null;
     }
     return (Circle)this.objects.get(id);
   }
   protected synchronized GroundOverlay getGroundOverlay(String id) {
     if (!this.objects.containsKey(id)) {
-      Log.e(TAG, "---> can not find the ground overlay : " + id);
+      //Log.e(TAG, "---> can not find the ground overlay : " + id);
       return null;
     }
     return (GroundOverlay)this.objects.get(id);
@@ -157,21 +156,21 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
   protected synchronized Polyline getPolyline(String id) {
     if (!this.objects.containsKey(id)) {
-      Log.e(TAG, "---> can not find the polyline : " + id);
+      //Log.e(TAG, "---> can not find the polyline : " + id);
       return null;
     }
     return (Polyline)this.objects.get(id);
   }
   protected synchronized Polygon getPolygon(String id) {
     if (!this.objects.containsKey(id)) {
-      Log.e(TAG, "---> can not find the polygon : " + id);
+      //Log.e(TAG, "---> can not find the polygon : " + id);
       return null;
     }
     return (Polygon)this.objects.get(id);
   }
   protected synchronized TileOverlay getTileOverlay(String id) {
     if (!this.objects.containsKey(id)) {
-      Log.e(TAG, "---> can not find the tileoverlay : " + id);
+      //Log.e(TAG, "---> can not find the tileoverlay : " + id);
       return null;
     }
     return (TileOverlay)this.objects.get(id);

@@ -49,6 +49,7 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     value: id,
     writable: false
   });
+  self.taskQueue = [];
 
   //----------------------------------------------------
   // If a marker has been removed,
@@ -121,6 +122,12 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
 
   self._onCameraMoved(false);
 
+  if (self.debug) {
+    setInterval(function() {
+      console.log("self.taskQueue.push = " + self.taskQueue.length);
+    }, 5000);
+  }
+
   return self;
 };
 
@@ -181,6 +188,19 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
 
 
 MarkerCluster.prototype.redraw = function(clusterDistance, force) {
+  var self = this;
+
+  self.taskQueue.push([clusterDistance, force]);
+  if (self.debug) {
+    console.log("self.taskQueue.push = " + self.taskQueue.length);
+  }
+  if (self.taskQueue.length > 1) {
+    return;
+  }
+  var taskParams = self.taskQueue.shift();
+  self._redraw.apply(self, taskParams);
+};
+MarkerCluster.prototype._redraw = function(clusterDistance, force) {
   var self = this,
     map = self.map,
     currentZoomLevel = Math.floor(self.map.getCameraZoom()),
@@ -226,6 +246,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
   var allGeocells = [];
   if (prevResolution === -1) {
     if (resolution === -1) {
+      self.nextTask();
       return;
     }
     keys = Object.keys(self._markerMap);
@@ -268,9 +289,15 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function(marker, idx) {
               deleteClusters[marker.getId()] = 1;
+              if (self.debug) {
+                console.log("---> (js)delete:" + marker.getId());
+              }
             });
           } else {
             deleteClusters[geocell] = 1;
+            if (self.debug) {
+              console.log("---> (js)delete:" + geocell);
+            }
           }
           cluster.remove();
           delete self._clusters[resolution][geocell];
@@ -298,10 +325,16 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
           marker.set("isAdded", false, true);
           targetMarkers.push(marker);
           if (noClusterMode) {
+            if (self.debug) {
+              console.log("---> (js)delete:" + marker.getId());
+            }
             deleteClusters[marker.getId()] = 1;
           }
         });
         if (!noClusterMode) {
+          if (self.debug) {
+            console.log("---> (js)delete:" + geocell);
+          }
           deleteClusters[geocell] = 1;
         }
         cluster.remove();
@@ -316,6 +349,9 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
         cluster.getMarkers().forEach(function(marker, idx) {
           marker.set("isAdded", false, true);
           if (noClusterMode) {
+            if (self.debug) {
+              console.log("---> (js)delete:" + marker.getId());
+            }
             deleteClusters[marker.getId()] = 1;
           }
         });
@@ -429,7 +465,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
       var cluster, anotherCluster;
       var unionedMarkers = [];
       i = 0;
-      var hit = false;
+      var tmp, hit = false;
       while (i < sortedClusters.length) {
         cluster = sortedClusters[i];
         hit = false;
@@ -437,7 +473,16 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
           anotherCluster = sortedClusters[j];
           var distance = spherical.computeDistanceBetween(cluster._markerCenter, anotherCluster._markerCenter);
           if (distance < clusterDistance) {
+            if (cluster.getItemLength() < anotherCluster.getItemLength()) {
+              tmp = anotherCluster;
+              anotherCluster = cluster;
+              cluster = tmp;
+            }
+            if (self.debug) {
+              console.log("---> (js)delete:" + anotherCluster.geocell);
+            }
             cluster.addMarkers(anotherCluster.getMarkers());
+            deleteClusters[anotherCluster.geocell] = 1;
             delete self._clusters[resolution][anotherCluster.geocell];
             self._clusters[resolution][cluster.geocell] = cluster;
             i = j;
@@ -469,7 +514,13 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function(marker, idx) {
               deleteClusters[marker.getId()] = 1;
+              if (self.debug) {
+                console.log("---> (js)delete:" + marker.getId());
+              }
             });
+          }
+          if (self.debug) {
+            console.log("---> (js)add:" + clusterOpts.id);
           }
           cluster.setMode(cluster.CLUSTER_MODE);
           new_or_update_clusters.push(clusterOpts);
@@ -480,6 +531,10 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
           delete deleteClusters[marker.getId()];
           var markerOptions = marker.getOptions();
           markerOptions.count = 1;
+          markerOptions.title = marker.getId();
+          if (self.debug) {
+            console.log("---> (js)add:" + marker.getId());
+          }
           new_or_update_clusters.push(markerOptions);
         });
         cluster.setMode(cluster.NO_CLUSTER_MODE);
@@ -492,6 +547,9 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
         if (visibleRegion.contains(marker.getPosition())) {
           var markerOptions = marker.getOptions();
           markerOptions.count = 1;
+          if (self.debug) {
+            console.log("---> (js)add:" + marker.getId());
+          }
           delete deleteClusters[marker.getId()];
           marker.set("isAdded", true, true);
           new_or_update_clusters.push(markerOptions);
@@ -501,10 +559,14 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
   }
   var delete_clusters = Object.keys(deleteClusters);
   if (new_or_update_clusters.length === 0 && delete_clusters === 0) {
+    self.nextTask();
     return;
   }
 
-  exec(null, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
+
+  exec(function() {
+    self.nextTask();
+  }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
     "new_or_update": new_or_update_clusters,
     "delete": delete_clusters
@@ -512,6 +574,11 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
 
 
 };
+MarkerCluster.prototype.nextTask = function() {
+  var self = this;
+  self.redraw();
+};
+
 MarkerCluster.prototype.getClusterIcon = function(cluster) {
   var self = this,
       hit,
