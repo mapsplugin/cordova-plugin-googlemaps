@@ -15,6 +15,15 @@
   self.mapCtrl = viewCtrl;
 }
 
+- (void)pluginInitialize
+{
+  if (self.objects) {
+    return;
+  }
+  // Initialize this plugin
+  self.objects = [NSMutableDictionary dictionary];
+}
+
 - (void)pluginUnload
 {
   if (self.executeQueue != nil){
@@ -128,11 +137,13 @@
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-    // Trigger the map_loaded event if request method is `getMap()`
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-      [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
-    });
+    // Trigger the map_loaded event if current mapType == kMapTypeNone && request method is `getMap()`
+    if (self.mapCtrl.map.mapType == kGMSTypeNone) {
+      dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
+      dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];
+      });
+    }
 
     return;
   }
@@ -907,13 +918,13 @@
       NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
       [self _changeCameraPosition:@"moveCamera" requestMethod:requestMethod params:cameraOpts command:command];
     } else {
-      [self.mapCtrl.view setHidden:NO];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-      // Trigger the map_loaded event if request method is `getMap()`
-      if ([requestMethod isEqualToString:@"getMap"]) {
+      // Trigger the map_loaded event if current mapType == kMapTypeNone && request method is `getMap()`
+      if (self.mapCtrl.map.mapType == kGMSTypeNone &&
+        [[initOptions objectForKey:@"method"] isEqualToString:@"getMap"]) {
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
           [self.mapCtrl mapViewDidFinishTileRendering:self.mapCtrl.map];

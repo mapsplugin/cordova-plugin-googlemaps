@@ -14,6 +14,7 @@
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) BOOL isRemoved;
 @property (nonatomic) NSOperationQueue *executeQueue;
+@property (nonatomic) NSMutableDictionary* objects;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;

@@ -8,18 +8,16 @@
 
 #import "MyPluginLayer.h"
 
-NSOperationQueue *executeQueue;
-BOOL stopFlag = NO;
 BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
 @implementation MyPluginLayer
 
 - (id)initWithWebView:(UIView *)webView {
-    executeQueue = [NSOperationQueue new];
+    self.executeQueue = [NSOperationQueue new];
 
     self = [super initWithFrame:[webView frame]];
     self.webView = webView;
-    self.isSuspended = NO;
+    self.isSuspended = false;
     self.opaque = NO;
     [self.webView removeFromSuperview];
     // prevent webView from bouncing
@@ -101,7 +99,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
 - (void)putHTMLElements:(NSDictionary *)elementsDic {
 
-    [executeQueue addOperationWithBlock:^{
+    [self.executeQueue addOperationWithBlock:^{
         CGRect rect = CGRectMake(0, 0, 0, 0);
         NSMutableDictionary *domInfo, *size;
         NSString *domId;
@@ -183,10 +181,10 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
       // Assumes all touches for the browser
       return;
     }
-    if (stopFlag) {
+    if (self.stopFlag) {
         return;
     }
-    stopFlag = YES;
+    self.stopFlag = YES;
     NSArray *keys=[self.pluginScrollView.debugView.mapCtrls allKeys];
     NSString *mapId;
     GoogleMapsViewController *mapCtrl;
@@ -203,7 +201,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
             [self.pluginScrollView.debugView setNeedsDisplay];
         });
     }
-    stopFlag = NO;
+    self.stopFlag = NO;
 }
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {

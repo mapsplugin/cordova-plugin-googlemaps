@@ -47,7 +47,7 @@
       int idx = 0;
 
       if ([json objectForKey:@"idx"]) {
-          idx = [[json objectForKey:@"idx"] integerValue];
+          idx = (int)[[json objectForKey:@"idx"] integerValue];
       }
 
       if (address && position == nil) {

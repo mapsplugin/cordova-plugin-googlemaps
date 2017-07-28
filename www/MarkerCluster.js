@@ -127,7 +127,6 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
       console.log("self.taskQueue.push = " + self.taskQueue.length);
     }, 5000);
   }
-
   return self;
 };
 
@@ -225,8 +224,12 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
   // Calculates geocells of the current viewport
   //----------------------------------------------------------------
   var visibleRegion = map.getVisibleRegion();
-  var swCell = geomodel.getGeocell(visibleRegion.southwest.lat, visibleRegion.southwest.lng, resolution);
-  var neCell = geomodel.getGeocell(visibleRegion.northeast.lat, visibleRegion.northeast.lng, resolution);
+  var expandedRegion = new LatLngBounds();
+  expandedRegion.extend(spherical.computeOffset(visibleRegion.farLeft, clusterDistance * 2, 315));
+  expandedRegion.extend(spherical.computeOffsetOrigin(visibleRegion.nearRight, clusterDistance * 2, 315));
+
+  var swCell = geomodel.getGeocell(expandedRegion.southwest.lat, expandedRegion.southwest.lng, resolution);
+  var neCell = geomodel.getGeocell(expandedRegion.northeast.lat, expandedRegion.northeast.lng, resolution);
 
   if (currentZoomLevel > self.maxZoomLevel) {
     resolution = -1;
@@ -257,7 +260,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
       //  return;
       //}
       if (ignoreGeocells.indexOf(geocell) === -1) {
-        if (!visibleRegion.contains(marker.getPosition())) {
+        if (!expandedRegion.contains(marker.getPosition())) {
           marker.set("isAdded", false, true);
           ignoreGeocells.push(geocell);
         } else {
@@ -282,8 +285,8 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
       var cluster = self._clusters[prevResolution][geocell];
       var bounds = cluster.getBounds();
 
-      if (!visibleRegion.contains(bounds.northeast) &&
-        !visibleRegion.contains(bounds.southwest)) {
+      if (!expandedRegion.contains(bounds.northeast) &&
+        !expandedRegion.contains(bounds.southwest)) {
           ignoreGeocells.push(geocell);
 
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
@@ -313,6 +316,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
     });
 
   } else if (prevResolution in self._clusters) {
+
     keys = Object.keys(self._clusters[prevResolution]);
     if (prevResolution < resolution) {
       //--------------
@@ -373,8 +377,8 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         }
         if (ignoreGeocells.indexOf(geocell) === -1) {
           var bounds = geomodel.computeBox(geocell);
-          if (visibleRegion.contains(bounds.northeast) ||
-            visibleRegion.contains(bounds.southwest)) {
+          if (expandedRegion.contains(bounds.northeast) ||
+            expandedRegion.contains(bounds.southwest)) {
             targetMarkers.push(marker);
             allGeocells.push(geocell);
           } else {
@@ -395,8 +399,8 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
       }
       if (ignoreGeocells.indexOf(geocell) === -1) {
         var bounds = geomodel.computeBox(geocell);
-        if (visibleRegion.contains(bounds.northeast) ||
-          visibleRegion.contains(bounds.southwest)) {
+        if (expandedRegion.contains(bounds.northeast) ||
+          expandedRegion.contains(bounds.southwest)) {
           targetMarkers.push(marker);
           allGeocells.push(geocell);
         } else {
@@ -434,7 +438,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         if (marker.get("isAdded")) {
           return;
         }
-        if (!visibleRegion.contains(marker.get("position"))) {
+        if (!expandedRegion.contains(marker.get("position"))) {
           return;
         }
         var geocell = marker.get("geocell").substr(0, resolution + 1);
@@ -539,7 +543,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         if (marker.get("isAdded")) {
           return;
         }
-        if (visibleRegion.contains(marker.getPosition())) {
+        if (expandedRegion.contains(marker.getPosition())) {
           var markerOptions = marker.getOptions();
           markerOptions.count = 1;
           if (self.debug) {

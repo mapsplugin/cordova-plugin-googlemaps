@@ -23,7 +23,6 @@
 -(void)setZIndex:(CDVInvokedUrlCommand *)command;
 -(void)setFadeIn:(CDVInvokedUrlCommand *)command;
 -(void)setOpacity:(CDVInvokedUrlCommand *)command;
--(void)setVisible:(CDVInvokedUrlCommand *)command;
 -(void)onGetTileUrlFromJS:(CDVInvokedUrlCommand *)command;
 
 @end

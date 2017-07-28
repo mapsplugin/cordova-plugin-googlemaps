@@ -75,7 +75,6 @@
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
 
-
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSMutableDictionary *iconProperty = nil;
         NSString *animation = nil;
