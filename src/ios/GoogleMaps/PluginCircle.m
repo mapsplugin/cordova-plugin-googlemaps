@@ -127,7 +127,6 @@
             //---------------------------
             NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
             [result setObject:circleId forKey:@"id"];
-            [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)circle.hash] forKey:@"hashCode"];
 
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

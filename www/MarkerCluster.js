@@ -225,8 +225,8 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
   //----------------------------------------------------------------
   var visibleRegion = map.getVisibleRegion();
   var expandedRegion = new LatLngBounds();
-  expandedRegion.extend(spherical.computeOffset(visibleRegion.farLeft, clusterDistance * 2, 315));
-  expandedRegion.extend(spherical.computeOffsetOrigin(visibleRegion.nearRight, clusterDistance * 2, 315));
+  expandedRegion.extend(spherical.computeOffset(visibleRegion.farLeft, clusterDistance, 315));
+  expandedRegion.extend(spherical.computeOffsetOrigin(visibleRegion.nearRight, clusterDistance, 315));
 
   var swCell = geomodel.getGeocell(expandedRegion.southwest.lat, expandedRegion.southwest.lng, resolution);
   var neCell = geomodel.getGeocell(expandedRegion.northeast.lat, expandedRegion.northeast.lng, resolution);
@@ -297,7 +297,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
               }
             });
           } else {
-            deleteClusters[geocell] = 1;
+            deleteClusters[self.id + "-" + geocell] = 1;
             if (self.debug) {
               console.log("---> (js)delete:" + geocell);
             }
@@ -339,7 +339,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
           if (self.debug) {
             console.log("---> (js)delete:" + geocell);
           }
-          deleteClusters[geocell] = 1;
+          deleteClusters[self.id + "-" + geocell] = 1;
         }
         cluster.remove();
       });
@@ -360,7 +360,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
           }
         });
         if (!noClusterMode) {
-          deleteClusters[geocell] = 1;
+          deleteClusters[self.id + "-" + geocell] = 1;
         }
         cluster.remove();
 
@@ -481,7 +481,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
               console.log("---> (js)delete:" + anotherCluster.geocell);
             }
             cluster.addMarkers(anotherCluster.getMarkers());
-            deleteClusters[anotherCluster.geocell] = 1;
+            deleteClusters[anotherCluster.getId()] = 1;
             delete self._clusters[resolution][anotherCluster.geocell];
             self._clusters[resolution][cluster.geocell] = cluster;
             i = j;
@@ -501,7 +501,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
             clusterOpts = {
               "count": cluster.getItemLength(),
               "position": cluster.getBounds().getCenter(),
-              "id": cluster.geocell
+              "id": cluster.getId()
             };
 
             if (self.debug) {
@@ -510,6 +510,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
 
         if (icon) {
           clusterOpts.icon = icon;
+          clusterOpts.isClusterIcon = true;
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function(marker, idx) {
               deleteClusters[marker.getId()] = 1;
@@ -529,8 +530,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         cluster.getMarkers().forEach(function(marker, idx) {
           delete deleteClusters[marker.getId()];
           var markerOptions = marker.getOptions();
-          markerOptions.count = 1;
-          markerOptions.title = marker.getId();
+          markerOptions.isClusterIcon = false;
           if (self.debug) {
             console.log("---> (js)add:" + marker.getId());
           }
@@ -545,7 +545,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         }
         if (expandedRegion.contains(marker.getPosition())) {
           var markerOptions = marker.getOptions();
-          markerOptions.count = 1;
+          clusterOpts.isClusterIcon = false;
           if (self.debug) {
             console.log("---> (js)add:" + marker.getId());
           }
@@ -611,7 +611,7 @@ MarkerCluster.prototype.getClusterByGeocellAndResolution = function(geocell, res
 
   var cluster = self._clusters[resolution][geocell];
   if (!cluster) {
-    cluster = new Cluster(geocell);
+    cluster = new Cluster(self.id + "-" +geocell, geocell);
     self._clusters[resolution][geocell] = cluster;
   }
   return cluster;

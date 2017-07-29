@@ -134,7 +134,6 @@
 
           NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
           [result setObject:_id forKey:@"id"];
-          [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)layer.hash] forKey:@"hashCode"];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

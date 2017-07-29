@@ -117,7 +117,6 @@
           //---------------------------
           NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
           [result setObject:id forKey:@"id"];
-          [result setObject:[NSString stringWithFormat:@"%lu", (unsigned long)polyline.hash] forKey:@"hashCode"];
 
           //---------------------------
           // Keep the properties

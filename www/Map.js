@@ -970,6 +970,9 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       marker.set("isAdded", false, true);
       marker.set("geocell", geocell, true);
       marker.set("position", markerOptions.position, true);
+      marker.getId = function() {
+        return result.id + "-" + markerId;
+      };
       markerMap[markerId] = marker;
     });
 

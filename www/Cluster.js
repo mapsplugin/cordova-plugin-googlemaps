@@ -11,10 +11,14 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Cluster Class
  *****************************************************************************/
-var Cluster = function(geocell) {
+var Cluster = function(id, geocell) {
   var obj = {};
 
   var self = this;
+  Object.defineProperty(self, "id", {
+    value: id,
+    writable: false
+  });
   Object.defineProperty(self, "geocell", {
     value: geocell,
     writable: false
@@ -85,6 +89,9 @@ Cluster.prototype.addMarkers = function(markerRefs) {
   });
 
   this.set("bounds", bounds);
+};
+Cluster.prototype.getId = function() {
+  return this.id;
 };
 Cluster.prototype.setMode = function(mode) {
   this.set("mode", mode);
