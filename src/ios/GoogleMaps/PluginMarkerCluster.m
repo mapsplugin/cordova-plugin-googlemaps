@@ -39,6 +39,11 @@ const int GEOCELL_GRID_SIZE = 4;
 
     while(!self.stopFlag) {
 
+      [NSThread sleepForTimeInterval:0.01f];
+      if ([self.deleteMarkers count] == 0) {
+        continue;
+      }
+        
       dispatch_async(dispatch_get_main_queue(), ^(void) {
         @synchronized (self.deleteMarkers) {
           NSString *markerId;
