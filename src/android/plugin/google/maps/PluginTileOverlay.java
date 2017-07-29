@@ -155,11 +155,12 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
         try {
           String id = args.getString(0);
+          objects.remove(id);
           id = id.replace("tileoverlay_", "tileprovider_");
           if (objects.containsKey(id)) {
             ((PluginTileProvider)(objects.get(id))).remove();
           }
-          self.objects.put(id, null);
+          //self.objects.put(id, null);
           self.objects.remove(id);
           sendNoResult(callbackContext);
         } catch (JSONException e) {
