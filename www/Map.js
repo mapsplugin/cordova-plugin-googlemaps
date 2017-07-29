@@ -45,7 +45,7 @@ var Map = function(id) {
         if (prevId in self.MARKERS) {
             self.MARKERS[prevId].trigger.call(self.MARKERS[prevId], event.INFO_CLOSE);
         }
-        exec(null, null, self.id + "-marker", 'setActiveMarkerId', [newId]);
+        exec(null, null, self.id, 'setActiveMarkerId', [newId]);
     });
 };
 
@@ -926,7 +926,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
     markerOptions = common.markerOptionsFilter(markerOptions);
     exec(function(result) {
-        var marker = new Marker(self, result.id, markerOptions, "marker");
+        var marker = new Marker(self, result.id, markerOptions, "Marker");
 
         self.MARKERS[result.id] = marker;
         self.OVERLAYS[result.id] = marker;
@@ -966,7 +966,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markerOptions = common.markerOptionsFilter(markerOptions);
 
       var markerId = markerOptions.id || "marker_" + idx;
-      var marker = new Marker(self, markerId, markerOptions, "markercluster");
+      var marker = new Marker(self, markerId, markerOptions, "MarkerCluster");
       marker.set("isAdded", false, true);
       marker.set("geocell", geocell, true);
       marker.set("position", markerOptions.position, true);
@@ -974,6 +974,9 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
         return result.id + "-" + markerId;
       };
       markerMap[markerId] = marker;
+
+      self.MARKERS[marker.getId()] = marker;
+      self.OVERLAYS[marker.getId()] = marker;
     });
 
     var markerCluster = new MarkerCluster(self, result.id, {
@@ -1027,7 +1030,12 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
       if (/marker_/i.test(clusterId)) {
         // regular marker
         var marker = markerCluster.getMarkerById(clusterId);
-        markerCluster.trigger(event.MARKER_CLICK, position, marker);
+        if (eventName === event.INFO_CLOSE ||
+          eventName === event.INFO_OPEN) {
+          marker.trigger(eventName, position);
+        } else {
+          markerCluster.trigger(event.MARKER_CLICK, position, marker);
+        }
       } else {
         // clusterred marker
         var cluster = markerCluster.getClusterByClusterId(clusterId);

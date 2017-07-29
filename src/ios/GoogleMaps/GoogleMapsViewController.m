@@ -62,7 +62,15 @@
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
 
   if (self.activeMarker) {
-    [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+    NSString *clusterId_markerId =[NSString stringWithFormat:@"%@", self.activeMarker.userData];
+    NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
+    NSString *className = [tmp objectAtIndex:0];
+    if ([className isEqualToString:@"markercluster"]) {
+      [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+    } else {
+      [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+    }
+
     //self.map.selectedMarker = nil;
     self.activeMarker = nil;
   }
@@ -294,13 +302,16 @@
 }
 
 - (void) syncInfoWndPosition {
-  CLLocationCoordinate2D position = self.map.selectedMarker.position;
+  if (self.activeMarker == nil) {
+    NSLog(@"-->no active marker");
+    return;
+  }
+  CLLocationCoordinate2D position = self.activeMarker.position;
   CGPoint point = [self.map.projection
                       pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
   NSString* jsString = [NSString
                               stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
                               self.mapId, point.x, point.y ];
-  //NSLog(@"--->%@", jsString);
   [self execJS:jsString];
 }
 
@@ -309,17 +320,24 @@
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
 
-  NSString *markerId = [NSString stringWithString:marker.userData];
-  NSArray *tmp = [markerId componentsSeparatedByString:@"_"];
-  NSString *className = [tmp objectAtIndex:0];
+  NSString *clusterId_markerId = [NSString stringWithString:marker.userData];
 
-  if ([className isEqualToString:@"marker"]) {
-    [self triggerMarkerEvent:@"marker_click" marker:marker];
-  }
-
-  if ([className isEqualToString:@"markercluster"]) {
+  if ([clusterId_markerId containsString:@"markercluster_"]) {
+    if ([clusterId_markerId containsString:@"-marker_"]) {
+      NSLog(@"--->activeMarker = %@", marker.userData);
+      self.map.selectedMarker = marker;
+      self.activeMarker = marker;
+    }
     [self triggerClusterEvent:@"cluster_click" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"marker_click" marker:marker];
+    NSLog(@"--->activeMarker = %@", marker.userData);
+    self.map.selectedMarker = marker;
+    self.activeMarker = marker;
   }
+
+  NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
+  NSString *className = [tmp objectAtIndex:0];
 
   // Get the marker plugin
   NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
@@ -333,8 +351,6 @@
   if ([properties objectForKey:@"disableAutoPan"] != nil) {
     disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
     if (disableAutoPan) {
-      self.map.selectedMarker = marker;
-      self.activeMarker = marker;
       return YES;
     }
   }
@@ -346,7 +362,7 @@
           cameraWithTarget:marker.position zoom:self.map.camera.zoom];
 
   [self.map animateToCameraPosition:cameraPosition];
-  return YES;
+  return NO;
 }
 
 - (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
@@ -464,9 +480,7 @@
     self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
 
-  if (self.activeMarker) {
-    [self syncInfoWndPosition];
-  }
+  [self syncInfoWndPosition];
 }
 
 - (void)execJS: (NSString *)jsString {
@@ -491,6 +505,7 @@
   NSString *clusterId = [tmp objectAtIndex:0];
   NSString *markerId = [tmp objectAtIndex:1];
 
+  // Get the marker plugin
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});",
                         self.mapId, eventName, clusterId, markerId,

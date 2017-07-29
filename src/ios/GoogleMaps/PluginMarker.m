@@ -303,23 +303,6 @@
   }];
 }
 
-- (void)setActiveMarkerId:(CDVInvokedUrlCommand*)command {
-
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      if (marker == nil) {
-        return ;
-      }
-      self.mapCtrl.map.selectedMarker = marker;
-      self.mapCtrl.activeMarker = marker;
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  }];
-}
-
 /**
  * Remove the specified marker
  * @params markerId

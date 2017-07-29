@@ -23,7 +23,7 @@ var Marker = function(map, id, markerOptions, className) {
         writable: false
     });
     Object.defineProperty(self, "type", {
-        value: "Marker",
+        value: className,
         writable: false
     });
 
@@ -31,7 +31,7 @@ var Marker = function(map, id, markerOptions, className) {
     Object.defineProperty(self, "getPluginName", {
         writable: false,
         value: function() {
-            return this.map.getId() + "-" + className;
+            return this.map.getId() + "-" + className.toLowerCase();
         }
     });
 
