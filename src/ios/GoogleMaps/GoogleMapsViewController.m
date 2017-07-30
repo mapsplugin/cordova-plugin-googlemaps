@@ -324,14 +324,18 @@
 
   if ([clusterId_markerId containsString:@"markercluster_"]) {
     if ([clusterId_markerId containsString:@"-marker_"]) {
-      NSLog(@"--->activeMarker = %@", marker.userData);
+      //NSLog(@"--->activeMarker = %@", marker.userData);
       self.map.selectedMarker = marker;
       self.activeMarker = marker;
+    } else {
+      if (self.activeMarker != nil) {
+        [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+      }
     }
     [self triggerClusterEvent:@"cluster_click" marker:marker];
   } else {
     [self triggerMarkerEvent:@"marker_click" marker:marker];
-    NSLog(@"--->activeMarker = %@", marker.userData);
+    //NSLog(@"--->activeMarker = %@", marker.userData);
     self.map.selectedMarker = marker;
     self.activeMarker = marker;
   }
@@ -344,7 +348,7 @@
   CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", clusterId_markerId];
   NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
 
   BOOL disableAutoPan = false;

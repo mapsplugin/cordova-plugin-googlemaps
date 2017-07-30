@@ -50,6 +50,7 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
     writable: false
   });
   self.taskQueue = [];
+  self._isRemove = false;
 
   //----------------------------------------------------
   // If a marker has been removed,
@@ -119,6 +120,12 @@ var MarkerCluster = function(map, id, markerClusterOptions) {
   map.on(event.CAMERA_MOVE_END, self._onCameraMoved.bind(self));
 
   self.on("cluster_click", self.onClusterClicked);
+  self.on("nextTask", function(){
+    if (self.taskQueue.length === 0) {
+      return;
+    }
+    sel.redraw();
+  });
 
   self._onCameraMoved(false);
 
@@ -166,6 +173,45 @@ MarkerCluster.prototype._onCameraMoved = function(force) {
   });
 };
 
+MarkerCluster.prototype.remove = function() {
+  var self = this;
+  if (self._isRemove) {
+    return;
+  }
+
+  var resolution = self.get("resolution"),
+    activeMarkerId = self.map.get("active_marker_id"),
+    deleteClusters = [];
+
+  self.trigger("remove");
+  self.taskQueue = [];
+  self._isRemove = true;
+
+  var keys = Object.keys(self._clusters[resolution]);
+  keys.forEach(function(geocell) {
+    var cluster = self._clusters[resolution][geocell];
+    var noClusterMode = cluster.getMode() === cluster.NO_CLUSTER_MODE;
+    if (noClusterMode) {
+      cluster.getMarkers().forEach(function(marker, idx) {
+        if (marker.getId() === activeMarkerId) {
+          marker.trigger(event.INFO_CLOSE);
+          marker.hideInfoWindow();
+        }
+        deleteClusters.push(marker.getId());
+      });
+    }
+    if (!noClusterMode) {
+      deleteClusters.push(self.id + "-" + geocell);
+    }
+    cluster.remove();
+  });
+  exec(null, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
+    "resolution": resolution,
+    "new_or_update": [],
+    "delete": deleteClusters
+  }]);
+
+};
 MarkerCluster.prototype.getMarkerById = function(markerId) {
   var self = this;
   return self._markerMap[markerId];
@@ -193,7 +239,7 @@ MarkerCluster.prototype.redraw = function(clusterDistance, force) {
   if (self.debug) {
     console.log("self.taskQueue.push = " + self.taskQueue.length);
   }
-  if (self.taskQueue.length > 1) {
+  if (self._isRemove || self.taskQueue.length > 1) {
     return;
   }
   var taskParams = self.taskQueue.shift();
@@ -204,6 +250,10 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
     map = self.map,
     currentZoomLevel = Math.floor(self.map.getCameraZoom()),
     prevResolution = self.get("resolution");
+
+  if (self._isRemove) {
+    return;
+  }
 
   currentZoomLevel = currentZoomLevel < 0 ? 0 : currentZoomLevel;
   self.set("zoom", currentZoomLevel);
@@ -247,9 +297,10 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
   var keys;
   var ignoreGeocells = [];
   var allGeocells = [];
+  var activeMarkerId = self.map.get("active_marker_id");
   if (prevResolution === -1) {
     if (resolution === -1) {
-      self.nextTask();
+      self.trigger("nextTask");
       return;
     }
     keys = Object.keys(self._markerMap);
@@ -295,6 +346,10 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
               if (self.debug) {
                 console.log("---> (js)delete:" + marker.getId());
               }
+              if (marker.getId() === activeMarkerId) {
+                marker.trigger(event.INFO_CLOSE);
+                marker.hideInfoWindow();
+              }
             });
           } else {
             deleteClusters[self.id + "-" + geocell] = 1;
@@ -332,6 +387,10 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
             if (self.debug) {
               console.log("---> (js)delete:" + marker.getId());
             }
+            if (marker.getId() === activeMarkerId) {
+              marker.trigger(event.INFO_CLOSE);
+              marker.hideInfoWindow();
+            }
             deleteClusters[marker.getId()] = 1;
           }
         });
@@ -355,6 +414,10 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
           if (noClusterMode) {
             if (self.debug) {
               console.log("---> (js)delete:" + marker.getId());
+            }
+            if (marker.getId() === activeMarkerId) {
+              marker.trigger(event.INFO_CLOSE);
+              marker.hideInfoWindow();
             }
             deleteClusters[marker.getId()] = 1;
           }
@@ -545,7 +608,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         }
         if (expandedRegion.contains(marker.getPosition())) {
           var markerOptions = marker.getOptions();
-          clusterOpts.isClusterIcon = false;
+          markerOptions.isClusterIcon = false;
           if (self.debug) {
             console.log("---> (js)add:" + marker.getId());
           }
@@ -558,13 +621,14 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
   }
   var delete_clusters = Object.keys(deleteClusters);
   if (new_or_update_clusters.length === 0 && delete_clusters === 0) {
-    self.nextTask();
+    self.trigger("nextTask");
     return;
   }
-
-
+  if (self._isRemove) {
+    return;
+  }
   exec(function() {
-    self.nextTask();
+    self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
     "new_or_update": new_or_update_clusters,
@@ -572,10 +636,6 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
   }]);
 
 
-};
-MarkerCluster.prototype.nextTask = function() {
-  var self = this;
-  self.redraw();
 };
 
 MarkerCluster.prototype.getClusterIcon = function(cluster) {

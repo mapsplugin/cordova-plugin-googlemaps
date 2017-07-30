@@ -237,6 +237,9 @@ Map.prototype.clear = function(callback) {
         var id;
         for (var i = 0; i < ids.length; i++) {
             id = ids[i];
+            if (obj[id].type === "MarkerCluster") {
+              obj[id].remove();
+            }
             obj[id].off();
             delete obj[id];
         }
@@ -975,15 +978,31 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       };
       markerMap[markerId] = marker;
 
-      self.MARKERS[marker.getId()] = marker;
-      self.OVERLAYS[marker.getId()] = marker;
+      //self.MARKERS[marker.getId()] = marker;
+      //self.OVERLAYS[marker.getId()] = marker;
     });
 
     var markerCluster = new MarkerCluster(self, result.id, {
       "icons": markerClusterOptions.icons,
       "markerMap": markerMap,
-      "maxZoomLevel": markerClusterOptions.maxZoomLevel || 15,
+      "maxZoomLevel": Math.max(markerClusterOptions.maxZoomLevel, 18) || 15,
       "debug": markerClusterOptions.debug === true
+    });
+    markerCluster.one("remove", function() {
+      delete self.OVERLAYS[result.id];
+/*
+      result.geocellList.forEach(function(geocell, idx) {
+        var markerOptions = markerClusterOptions.markers[idx];
+        var markerId = result.id + "-" + (markerOptions.id || "marker_" + idx);
+        var marker = self.MARKERS[markerId];
+        if (marker) {
+          marker.off();
+        }
+        //delete self.MARKERS[markerId];
+        delete self.OVERLAYS[markerId];
+      });
+*/
+      markerCluster.off();
     });
 
     self.OVERLAYS[result.id] = markerCluster;
@@ -1027,7 +1046,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
     var self = this;
     var markerCluster = self.OVERLAYS[markerClusterId] || null;
     if (markerCluster) {
-      if (/marker_/i.test(clusterId)) {
+      if (/^marker_/i.test(clusterId)) {
         // regular marker
         var marker = markerCluster.getMarkerById(clusterId);
         if (eventName === event.INFO_CLOSE ||

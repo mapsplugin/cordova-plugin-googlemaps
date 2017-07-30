@@ -149,7 +149,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
   protected synchronized Marker getMarker(String id) {
     if (!this.objects.containsKey(id)) {
-      Log.e(TAG, "---> can not find the maker : " + id);
+      //Log.e(TAG, "---> can not find the maker : " + id);
       return null;
     }
     return (Marker)this.objects.get(id);

@@ -1975,34 +1975,57 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     });
   }
 
+  /**
+   * update the active marker (for internal use)
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void setActiveMarkerId(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final String id = args.getString(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Marker marker = (Marker) objects.get(id);
+        if (marker != null) {
+          activeMarker = marker;
+        }
+        sendNoResult(callbackContext);
+      }
+    });
+  }
+
 
   @Override
   public boolean onMarkerClick(Marker marker) {
     //Log.d(TAG, "---> onMarkerClick / marker.tag = " + marker.getTag());
 
     JSONObject properties = null;
-    String markerTag = (String) marker.getTag();
-    if (markerTag == null) {
-      return true;
+    String clusterId_markerId = marker.getTag() + "";
+    if (clusterId_markerId.contains("markercluster_")) {
+      if (clusterId_markerId.contains("-marker_")) {
+        activeMarker = marker;
+      } else {
+        if (activeMarker != null) {
+          this.onClusterEvent("info_close", activeMarker);
+        }
+      }
+      this.onClusterEvent("cluster_click", marker);
+    } else {
+      this.onMarkerEvent("marker_click", marker);
+      activeMarker = marker;
     }
-    String tmp[] = markerTag.split("_");
-    String pluginName = tmp[0];
-    tmp = markerTag.split("-");
-    String markerId = tmp[tmp.length - 1];
 
-    PluginEntry pluginEntry = plugins.get(mapId + "-" + pluginName);
-    //Log.d(TAG, "---> onMarkerClick / pluginEntry = " + pluginEntry);
+    String tmp[] = clusterId_markerId.split("_");
+    String className = tmp[0];
+
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
     if (pluginEntry == null) {
       return true;
     }
     MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
-    if ("marker".equals(pluginName)) {
-      this.onMarkerEvent("marker_click", marker);
-    }
-    if ("markercluster".equals(pluginName)) {
-      this.onClusterEvent("cluster_click", marker);
-    }
-    String propertyId = "marker_property_" + marker.getTag();
+    String propertyId = "marker_property_" + clusterId_markerId;
     //Log.d(TAG, "---> onMarkerClick / propertyId = " + propertyId);
     if (myPlugin.objects.containsKey(propertyId)) {
       properties = (JSONObject) myPlugin.objects.get(propertyId);
@@ -2068,8 +2091,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onInfoWindowClose(Marker marker) {
-    this.onMarkerEvent("info_close", marker);
-    activeMarker = null;
+    boolean useHtmlInfoWnd = marker.getTitle() == null &&
+                             marker.getSnippet() == null;
+    if (useHtmlInfoWnd) {
+      this.onMarkerEvent("info_close", marker);
+    }
+    //activeMarker = null; // <-- This causes HTMLinfoWindow is not able to close when you tap on the map.
   }
 
   @Override
@@ -2110,15 +2137,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     LatLng latLng = marker.getPosition();
 
     String markerTag = (String) marker.getTag();
-    String tmp[] = markerTag.split("_");
-    tmp = markerTag.split("-");
-    String markerId = tmp[tmp.length - 1];
+    String tmp[] = markerTag.split("-");
     String clusterId = tmp[0];
+    String markerId = tmp[1];
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onClusterEvent', args:['%s', '%s', new plugin.google.maps.LatLng(%f, %f)]})",
           mapId, eventName, clusterId, markerId, latLng.latitude, latLng.longitude);
     jsCallback(js);
   }
   public void syncInfoWndPosition() {
+    if (activeMarker == null) {
+      Log.d(TAG, "--->no active marker");
+      return;
+    }
     LatLng latLng = activeMarker.getPosition();
     Point point = projection.toScreenLocation(latLng);
 
@@ -2541,9 +2571,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           @Override
           public void run() {
 
+            //Log.d(TAG, "---> onMapClick : " + activeMarker);
             if (activeMarker != null) {
-              onInfoWindowClose(activeMarker);
-
+              //Log.d(TAG, "---> activeMarker.getTag() : " + activeMarker.getTag());
+              if ((activeMarker.getTag() + "").contains("markercluster")) {
+                onClusterEvent("info_close", activeMarker);
+              } else {
+                onInfoWindowClose(activeMarker);
+              }
+              activeMarker = null;
             }
             String key;
             Map.Entry<String, Object> entry;

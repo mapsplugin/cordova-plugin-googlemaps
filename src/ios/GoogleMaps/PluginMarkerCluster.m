@@ -231,7 +231,7 @@ const int GEOCELL_GRID_SIZE = 4;
     //---------------------------
     [[NSOperationQueue mainQueue] addOperationWithBlock: ^{
       self.mapCtrl.map.selectedMarker = nil;
-      NSString *markerId;
+      NSString *clusterId_markerId;
       NSMutableDictionary *markerProperties;
       GMSMarker *marker;
       CLLocationCoordinate2D position;
@@ -244,38 +244,43 @@ const int GEOCELL_GRID_SIZE = 4;
       //---------------------
       [self.waitCntManager setObject:[NSNumber numberWithInteger:[updateClusterIDs count]] forKey:clusterId];
       for (int i = 0; i < [updateClusterIDs count]; i++) {
-        markerId = [updateClusterIDs objectAtIndex:i];
+        clusterId_markerId = [updateClusterIDs objectAtIndex:i];
         @synchronized(self.pluginMarkers) {
-            [self.pluginMarkers setObject:@"WORKING" forKey:markerId];
+            [self.pluginMarkers setObject:@"WORKING" forKey:clusterId_markerId];
         }
 
         // Get the marker properties
-        markerProperties = [changeProperties objectForKey:markerId];
+        markerProperties = [changeProperties objectForKey:clusterId_markerId];
 
-        isNew = [self.objects objectForKey:markerId] == nil;
+        isNew = [self.objects objectForKey:clusterId_markerId] == nil;
         //--------------------------
         // regular marker
         //--------------------------
-        if ([markerId containsString:@"-marker_"]) {
+        if ([clusterId_markerId containsString:@"-marker_"]) {
           if (isNew) {
-            [super _create:markerId markerOptions:markerProperties callbackBlock:^(BOOL successed, id resultObj) {
+            [super _create:clusterId_markerId markerOptions:markerProperties callbackBlock:^(BOOL successed, id resultObj) {
 
               @synchronized (self.pluginMarkers) {
                 if (successed) {
                   //((GMSMarker *)resultObj).map = self.mapCtrl.map;
-                  [self.pluginMarkers setObject:@"CREATED" forKey:markerId];
+                  [self.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
                 } else {
                   //--------------------------------------
                   // Could not read icon for some reason
                   //--------------------------------------
-                  [self.pluginMarkers setObject:@"DELETED" forKey:markerId];
+                  [self.pluginMarkers setObject:@"DELETED" forKey:clusterId_markerId];
                   NSLog(@"(error) %@", resultObj);
+                  @synchronized (self.deleteMarkers) {
+                    [self.deleteMarkers addObject:clusterId_markerId];
+                  }
                 }
               }
               [self decreaseWaitWithClusterId:clusterId];
 
             }];
           } else {
+
+            marker = [self.objects objectForKey:clusterId_markerId];
             //----------------------------------------
             // Set the title and snippet properties
             //----------------------------------------
@@ -300,15 +305,15 @@ const int GEOCELL_GRID_SIZE = 4;
           longitude = [[positionJSON objectForKey:@"lng"] doubleValue];
           position = CLLocationCoordinate2DMake(latitude, longitude);
           marker = [GMSMarker markerWithPosition:position];
-          marker.userData = markerId;
+          marker.userData = clusterId_markerId;
 
           // Store the marker instance with markerId
           @synchronized (self.objects) {
-            [self.objects setObject:marker forKey:markerId];
+            [self.objects setObject:marker forKey:clusterId_markerId];
           }
         } else {
           @synchronized (self.objects) {
-            marker = [self.objects objectForKey:markerId];
+            marker = [self.objects objectForKey:clusterId_markerId];
           }
         }
 
@@ -326,24 +331,33 @@ const int GEOCELL_GRID_SIZE = 4;
         if ([markerProperties objectForKey:@"icon"]) {
           PluginMarkerCluster *self_ = self;
           NSDictionary *icon = [markerProperties objectForKey:@"icon"];
-          [self setIconToClusterMarker:markerId marker:marker iconProperty:icon callbackBlock:^(BOOL successed, id resultObj) {
+          [self setIconToClusterMarker:clusterId_markerId marker:marker iconProperty:icon callbackBlock:^(BOOL successed, id resultObj) {
             if (successed == NO) {
               //--------------------------------------
               // Could not read icon for some reason
               //--------------------------------------
               NSLog(@"(error) %@", resultObj);
+              @synchronized (self_.deleteMarkers) {
+                [self_.deleteMarkers addObject:clusterId_markerId];
+              }
+              @synchronized (self_.pluginMarkers) {
+                [self_.pluginMarkers setObject:@"DELETED" forKey:clusterId_markerId];
+              }
             } else {
               //--------------------------------------
               // Marker was updated
               //--------------------------------------
               marker.map = self_.mapCtrl.map;
+              @synchronized (self_.pluginMarkers) {
+                [self_.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
+              }
             }
             [self_ decreaseWaitWithClusterId:clusterId];
           }];
         } else {
           marker.map = self.mapCtrl.map;
           @synchronized (self.pluginMarkers) {
-            [self.pluginMarkers setObject:@"CREATED" forKey:markerId];
+            [self.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
           }
           [self decreaseWaitWithClusterId:clusterId];
         }

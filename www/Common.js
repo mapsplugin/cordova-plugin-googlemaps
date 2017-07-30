@@ -546,6 +546,7 @@ function markerOptionsFilter(markerOptions) {
   markerOptions.position.lng = markerOptions.position.lng || 0.0;
   markerOptions.draggable = markerOptions.draggable === true;
   markerOptions.icon = markerOptions.icon || undefined;
+  markerOptions.zIndex = markerOptions.zIndex || 0;
   markerOptions.snippet = typeof(markerOptions.snippet) === "string" ? markerOptions.snippet : undefined;
   markerOptions.title = typeof(markerOptions.title) === "string" ? markerOptions.title : undefined;
   markerOptions.visible = defaultTrueOption(markerOptions.visible);

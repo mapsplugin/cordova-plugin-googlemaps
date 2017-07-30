@@ -52,7 +52,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   protected ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
   protected ArrayList<Bitmap> icons = new ArrayList<Bitmap>();
   protected HashMap<String, Integer> iconCacheKeys = new HashMap<String, Integer>();
-  private static Paint paint = new Paint();
+  private static final Paint paint = new Paint();
+
+  protected interface ICreateMarkerCallback {
+    void onSuccess(Marker marker);
+    void onError(String message);
+  }
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -173,10 +178,28 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     // Create an instance of Marker class
-    final MarkerOptions markerOptions = new MarkerOptions();
-    final JSONObject properties = new JSONObject();
 
-    final JSONObject opts = args.getJSONObject(1);
+    JSONObject opts = args.getJSONObject(1);
+    final String markerId = "marker_" + callbackContext.hashCode();
+    final JSONObject result = new JSONObject();
+    result.put("id", markerId);
+
+    _create(markerId, opts, new ICreateMarkerCallback() {
+      @Override
+      public void onSuccess(Marker marker) {
+        callbackContext.success(result);
+      }
+
+      @Override
+      public void onError(String message) {
+        callbackContext.error(message);
+      }
+    });
+  }
+
+  protected void _create(final String markerId, final JSONObject opts, final ICreateMarkerCallback callback) throws JSONException {
+    final JSONObject properties = new JSONObject();
+    final MarkerOptions markerOptions = new MarkerOptions();
     if (opts.has("position")) {
       JSONObject position = opts.getJSONObject("position");
       markerOptions.position(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
@@ -200,7 +223,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       markerOptions.draggable(opts.getBoolean("draggable"));
     }
     if (opts.has("rotation")) {
-      markerOptions.rotation((float)opts.getDouble("rotation"));
+      markerOptions.rotation((float) opts.getDouble("rotation"));
     }
     if (opts.has("flat")) {
       markerOptions.flat(opts.getBoolean("flat"));
@@ -235,7 +258,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         final Marker marker = map.addMarker(markerOptions);
-        final String markerId = "marker_" + marker.getId();
         marker.setTag(markerId);
         marker.hideInfoWindow();
 
@@ -247,7 +269,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
               // Store the marker
               self.objects.put(markerId, marker);
 
-              self.objects.put("marker_property_" + marker.getTag(), properties);
+              self.objects.put("marker_property_" + markerId, properties);
 
               // Prepare the result
               final JSONObject result = new JSONObject();
@@ -356,16 +378,16 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                             @Override
                             public void onPostExecute(Object object) {
                               Marker marker = (Marker) object;
-                              callbackContext.success(result);
+                              callback.onSuccess(marker);
                             }
 
                             @Override
                             public void onError(String errorMsg) {
-                              callbackContext.error(errorMsg);
+                              callback.onError(errorMsg);
                             }
                           });
                         } else {
-                          callbackContext.success(result);
+                          callback.onSuccess(marker);
                         }
                       }
                     });
@@ -373,7 +395,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
                   @Override
                   public void onError(String errorMsg) {
-                    callbackContext.error(errorMsg);
+                    callback.onError(errorMsg);
                   }
 
                 });
@@ -391,30 +413,28 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
                     @Override
                     public void onPostExecute(Object object) {
-                      callbackContext.success(result);
+                      callback.onSuccess(marker);
                     }
 
                     @Override
                     public void onError(String errorMsg) {
-                      callbackContext.error(errorMsg);
+                      callback.onError(errorMsg);
                     }
 
                   });
                 } else {
                   // Return the result if does not specify the icon property.
-                  callbackContext.success(result);
+                  callback.onSuccess(marker);
                 }
               }
             } catch (Exception e) {
               e.printStackTrace();
-              callbackContext.error("" + e.getMessage());
+              callback.onError("" + e.getMessage());
             }
           }
         });
       }
     });
-
-
 
   }
 
@@ -522,22 +542,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       default:
         break;
     }
-  }
-
-
-  public void setActiveMarkerId(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final String id = args.getString(0);
-
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Marker marker = (Marker) objects.get(id);
-        if (marker == null) {
-          return;
-        }
-        pluginMap.activeMarker = marker;
-      }
-    });
   }
 
   /**
@@ -967,7 +971,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.height = height;
     options.noCaching = noCaching;
 
-    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, new AsyncLoadImageInterface() {
+    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
         if (result == null || result.image == null) {
@@ -1041,7 +1045,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         callback.onPostExecute(marker);
       }
     });
-    task.execute();
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        task.execute();
+      }
+    });
     iconLoadingTasks.add(task);
   }
 
