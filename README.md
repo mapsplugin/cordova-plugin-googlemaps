@@ -97,29 +97,11 @@ markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marke
 });
 ```
 
-## Add a marker
 
-If you want to a marker later, you can do that using `markerCluster.addMarker(marker)`;
-The marker cluster will redraw the clusters every times.
+## Remove marker cluster
 
 ```js
-
-markerCluster.addMarker({
-  position: {lat: ..., lng: ...}
-});
-```
-
-
-## Remove a marker
-
-Currently, the only way is like this. This maybe changed in the future.
-
-```js
-markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marker) {
-
-  marker.remove();
-
-});
+markerCluster.remove();
 ```
 
 -------
@@ -156,6 +138,7 @@ The format is like this:
 ### maxZoomLevel
 
 The marker cluster stops clustering if the map zoom level becomes over this number.
+Maximum zoom level is 20. Default max zoom level is 15.
 
 ### debug
 
@@ -188,30 +171,50 @@ Or send e-mail to me if you want to hide your information.
 
 code
 
-https://bitbucket.org/wf9a5m75/markercluster
+https://github.com/mapsplugin/markercluster_test
 
 [demo.apk](./demo.apk)
 
-![](https://user-images.githubusercontent.com/167831/28303766-8851617c-6b49-11e7-9679-f31673e2b9ec.gif)
+![](demo.gif)
+
+[js/index.js](https://github.com/mapsplugin/markercluster_test/blob/master/www/js/index.js)
 
 ```js
+document.addEventListener("deviceready", function() {
+  //plugin.google.maps.environment.setDebuggable(true);
+
+  var mapDiv = document.getElementById("map_canvas");
+  var options = {
+    'camera': {
+      'target': data[0].position,
+      'zoom': 10
+    },
+    'gestures': {
+      'rotate': false,
+      'tilt': false
+    }
+  };
+  var map = plugin.google.maps.Map.getMap(mapDiv, options);
+  map.on(plugin.google.maps.event.MAP_READY, onMapReady);
+});
+
 function onMapReady() {
   var map = this;
 
   var label = document.getElementById("label");
 
   map.addMarkerCluster({
-    debug: false,
-    //maxZoomLevel: 5,
+    maxZoomLevel: 15, // default: 15, max: 20
     markers: data,
     icons: [
       {min: 2, max: 100, url: "./img/blue.png", anchor: {x: 16, y: 16}},
       {min: 100, max: 1000, url: "./img/yellow.png", anchor: {x: 16, y: 16}},
       {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
-      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}},
+      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}},  // 2000 - infinity
     ]
   }, function(markerCluster) {
     map.set("markerCluster", markerCluster);
+    var htmlInfoWnd = new plugin.google.maps.HtmlInfoWindow();
 
     markerCluster.on("resolution_changed", function(prev, newResolution) {
       var self = this;
@@ -220,19 +223,83 @@ function onMapReady() {
     markerCluster.trigger("resolution_changed");
 
     markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marker) {
-      marker.showInfoWindow();
+      var iconUrl = "https://mt.google.com/vt/icon/text=a" + "&psize=16&font=fonts/arialuni_t.ttf&color=ff330000&name=icons/spotlight/spotlight-waypoint-b.png&ax=44&ay=48&scale=1";
+      marker.setIcon(iconUrl);
+
+      var html = [
+        "<div style='width:250px;min-height:100px'>",
+        "<img src='img/starbucks_logo.gif' align='right'>",
+        "<strong>" + marker.get("name") + "</strong>",
+        "<div style='font-size:0.8em;'>" + marker.get("address") + "</div>"
+      ];
+      if (marker.get("phone")) {
+        html.push("<a href='tel:" + marker.get("phone") + "' style='font-size:0.8em;color:blue;'>Tel: " + marker.get("phone") + "</div>");
+      }
+      html.push("</div>");
+      htmlInfoWnd.setContent(html.join(""));
+      htmlInfoWnd.open(marker);
     });
+
+    var removeBtn = document.getElementById("removeClusterBtn");
+    removeBtn.addEventListener("click", function() {
+      markerCluster.remove();
+    }, {
+      once: true
+    })
 
 
   });
 
-  map.on(plugin.google.maps.event.MAP_CLICK, function(position) {
-    var markerCluster = map.get("markerCluster");
-
-    markerCluster.addMarker({
-      position: position,
-      title: "clicked point"
-    });
-  });
 }
+```
+
+[www/index.html](https://github.com/mapsplugin/markercluster_test/blob/master/www/index.html)
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link href="css/index.css" rel="stylesheet" type="text/css">
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/starbucks_hawaii_stores.json"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </head>
+    <body>
+        <span id="label" style="background-color:white;padding:.5em;font-size:125%;position:fixed;right:0;top:0;"></span>
+        <div id="map_canvas" style="position:relative">
+        </div>
+        <button id="removeClusterBtn" style="position:fixed;bottom:0;right:0;padding:.5em;font-size:125%;">markerCluster.remove()</button>
+    </body>
+</html>
+```
+
+[js/starbucks_hawaii_stores.json](https://github.com/mapsplugin/markercluster_test/blob/master/js/starbucks_hawaii_stores.json)
+
+```js
+var data = [
+  {
+    "position": {
+      "lat": 21.382314,
+      "lng": -157.933097
+    },
+    "name": "Starbucks - HI - Aiea  03641",
+    "address": "Aiea Shopping Center_99-115 Aiea Heights Drive #125_Aiea, Hawaii 96701",
+    "phone": "808-484-1488",
+    "icon": "img/starbucks.png"
+  },
+  {
+    "position": {
+      "lat": 21.3871,
+      "lng": -157.9482
+    },
+    "name": "Starbucks - HI - Aiea  03642",
+    "address": "Pearlridge Center_98-125 Kaonohi Street_Aiea, Hawaii 96701",
+    "phone": "808-484-9548",
+    "icon": "img/starbucks.png"
+  },
+  ...
+];
 ```
