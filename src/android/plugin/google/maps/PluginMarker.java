@@ -990,6 +990,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         // Counts up the markers that use the same icon image.
         //-------------------------------------------------------
         if (result.cacheHit) {
+          if (marker == null || marker.getTag() == null) {
+            callback.onPostExecute(marker);
+            return;
+          }
           String hitCountKey = "marker_icon_" + marker.getTag();
           objects.put(hitCountKey, result.cacheKey);
           if (!iconCacheKeys.containsKey(result.cacheKey)) {
@@ -1007,7 +1011,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           result.image = drawLabel(result.image, iconProperty.getBundle("label"));
         }
         BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
-        if (bitmapDescriptor == null || marker.getTag() == null) {
+        if (bitmapDescriptor == null || marker == null || marker.getTag() == null) {
           callback.onPostExecute(marker);
           return;
         }
