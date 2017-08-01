@@ -142,8 +142,8 @@ Maximum zoom level is 20. Default max zoom level is 15.
 
 ### debug
 
-In order to confirm the clustered bounds for a cluster icon, you can set true of this flag.
-Blue polygon will be drawn.
+~~In order to confirm the clustered bounds for a cluster icon, you can set true of this flag.
+Blue polygon will be drawn.~~ (Currently not available, but I will implement this again later)
 
 
 -------
