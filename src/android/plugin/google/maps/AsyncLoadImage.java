@@ -65,11 +65,13 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
   }
 
   public static String getCacheKey(String url, int width, int height) {
+    if (url == null) {
+      return null;
+    }
     try {
       return getCacheKey(new URL(url), width, height);
     } catch (MalformedURLException e) {
-      e.printStackTrace();
-      return null;
+      return url.hashCode() + "/" + width + "x" + height;
     }
   }
   public static String getCacheKey(URL url, int width, int height) {

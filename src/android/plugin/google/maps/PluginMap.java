@@ -357,9 +357,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     } else {
                       mapView.setVisibility(View.VISIBLE);
                       callbackContext.success();
-                      if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+                      //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
                         PluginMap.this.onMapLoaded();
-                      }
+                      //}
                     }
                   }
                 });
@@ -378,9 +378,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 } else {
                   mapView.setVisibility(View.VISIBLE);
                   callbackContext.success();
-                  if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+                  //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
                     PluginMap.this.onMapLoaded();
-                  }
+                  //}
                 }
               }
             } catch (Exception e) {

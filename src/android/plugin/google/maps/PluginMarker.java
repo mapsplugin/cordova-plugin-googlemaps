@@ -267,9 +267,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
             try {
               // Store the marker
-              self.objects.put(markerId, marker);
+              synchronized (objects) {
+                objects.put(markerId, marker);
 
-              self.objects.put("marker_property_" + markerId, properties);
+                objects.put("marker_property_" + markerId, properties);
+              }
 
               // Prepare the result
               final JSONObject result = new JSONObject();
@@ -675,7 +677,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       this.sendNoResult(callbackContext);
       return;
     }
-    String propertyId = "marker_property_" + marker.getTag();
+    String propertyId = "marker_property_" + id;
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
       properties = (JSONObject)self.objects.get(propertyId);
@@ -700,7 +702,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       this.sendNoResult(callbackContext);
       return;
     }
-    String propertyId = "marker_property_" + marker.getTag();
+    String propertyId = "marker_property_" + id;
     JSONObject properties = null;
     if (self.objects.containsKey(propertyId)) {
       properties = (JSONObject)self.objects.get(propertyId);
@@ -776,7 +778,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     }
     */
 
-    String propertyId = "marker_property_" + marker.getTag();
+    String propertyId = "marker_property_" + id;
     objects.remove(propertyId);
 
     cordova.getActivity().runOnUiThread(new Runnable() {

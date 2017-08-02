@@ -68,10 +68,9 @@
 {
     NSDictionary *json = [command.arguments objectAtIndex:1];
 
-  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
   NSString *markerId = [NSString stringWithFormat:@"marker_%lu", command.hash];
-  [result setObject:markerId forKey:@"id"];
-
+  [createResult setObject:markerId forKey:@"id"];
 
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
     CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
@@ -80,7 +79,7 @@
       if (successed == NO) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:result];
       } else {
-        pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
+        pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];
       }
       [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -94,7 +93,6 @@
     callbackBlock(NO, @"PluginMarker._create() must run on the main thread.");
     return;
   }
-
 
   NSMutableDictionary *iconProperty = nil;
   NSString *animation = nil;
@@ -138,7 +136,7 @@
 
   // Custom properties
   NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-  NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+  NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", markerId];
 
   if ([json valueForKey:@"styles"]) {
     NSDictionary *styles = [json valueForKey:@"styles"];

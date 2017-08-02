@@ -303,7 +303,7 @@
 
 - (void) syncInfoWndPosition {
   if (self.activeMarker == nil) {
-    NSLog(@"-->no active marker");
+    //NSLog(@"-->no active marker");
     return;
   }
   CLLocationCoordinate2D position = self.activeMarker.position;
