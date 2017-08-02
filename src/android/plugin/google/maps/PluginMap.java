@@ -99,6 +99,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
+  private final Object dummyObj = new Object();
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -356,10 +357,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       });
                     } else {
                       mapView.setVisibility(View.VISIBLE);
+                      PluginMap.this.onCameraEvent("camera_end");
                       callbackContext.success();
-                      //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
-                        PluginMap.this.onMapLoaded();
-                      //}
                     }
                   }
                 });
@@ -377,6 +376,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   });
                 } else {
                   mapView.setVisibility(View.VISIBLE);
+                  PluginMap.this.onCameraEvent("camera_end");
                   callbackContext.success();
                   //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
                     PluginMap.this.onMapLoaded();
@@ -434,11 +434,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
       mapView.setVisibility(View.VISIBLE);
-
       mCallback.success();
-      if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+
+      //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
         PluginMap.this.onMapLoaded();
-      }
+      //}
 
       //fitBounds(initCameraBounds, CAMERA_PADDING);
     }
@@ -577,7 +577,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (args.length() == 0) {
       PluginMap.this.mapDivId = null;
       mapCtrl.mPluginLayout.removePluginMap(mapId);
-      this.sendNoResult(callbackContext);
+      callbackContext.success();
       return;
     }
     PluginMap.this.mapDivId = args.getString(0);
@@ -595,7 +595,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     boolean clickable = args.getBoolean(0);
     this.isClickable = clickable;
     //mapCtrl.mPluginLayout.setClickable(mapId, clickable);
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   /**
@@ -615,7 +615,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         } else {
           mapView.setVisibility(View.INVISIBLE);
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -710,7 +710,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               System.gc();
               Runtime.getRuntime().gc();
               if (callbackContext != null) {
-                sendNoResult(callbackContext);
+                callbackContext.success();
               }
               PluginMap.this.onDestroy();
             }
@@ -1183,10 +1183,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               args.put(isEnabled);
               PluginMap.this.setMyLocationEnabled(args, callbackContext);
             } else {
-              sendNoResult(callbackContext);
+              callbackContext.success();
             }
           } else {
-            sendNoResult(callbackContext);
+            callbackContext.success();
           }
 
         } catch (JSONException e) {
@@ -1645,7 +1645,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @SuppressWarnings("unused")
   public void clear(JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-
     cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
@@ -1697,7 +1696,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setIndoorEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1714,7 +1713,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setTrafficEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1732,7 +1731,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setCompassEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1763,7 +1762,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setMapType(myMapTypeId);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1949,7 +1948,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setAllGesturesEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1970,7 +1969,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setPadding(left, top, right, bottom);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1991,7 +1990,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         if (marker != null) {
           activeMarker = marker;
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -2102,7 +2101,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onMapLoaded() {
     this.onCameraEvent("camera_end");
-    this.onMapEvent("map_loaded");
   }
 
 

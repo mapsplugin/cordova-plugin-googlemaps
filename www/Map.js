@@ -1,6 +1,6 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
+    cordova_exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
     BaseArrayClass = require('./BaseArrayClass'),
@@ -23,9 +23,11 @@ var MarkerCluster = require('./MarkerCluster');
 /**
  * Google Maps model.
  */
-var Map = function(id) {
+var exec;
+var Map = function(id, _exec) {
     var self = this;
     BaseClass.apply(self);
+    exec = _exec;
 
     self.MARKERS = {};
     self.KML_LAYERS = {};
@@ -165,10 +167,8 @@ Map.prototype.getMap = function(mapId, div, options) {
     cordova.fireDocumentEvent('plugin_touch', {});
 
     exec(function() {
-      self.one(event.MAP_LOADED, function() {
-        self.refreshLayout();
-        self.trigger(event.MAP_READY, self);
-      });
+      self.refreshLayout();
+      self.trigger(event.MAP_READY, self);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
 };
 
@@ -715,7 +715,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
     kmlOverlayOptions.kmlId = kmlId;
 
-    var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions);
+    var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions, exec);
     self.OVERLAYS[kmlId] = kmlOverlay;
     self.KML_LAYERS[kmlId] = kmlOverlay;
 
@@ -746,7 +746,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
 
     exec(function(result) {
-        var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions);
+        var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions, exec);
         self.OVERLAYS[result.id] = groundOverlay;
         groundOverlay.one(result.id + "_remove", function() {
             groundOverlay.off();
@@ -804,7 +804,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     });
 
     exec(function(result) {
-        var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions);
+        var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions, exec);
         self.OVERLAYS[result.id] = tileOverlay;
         tileOverlay.one(result.id + "_remove", function() {
             tileOverlay.off();
@@ -849,7 +849,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
 
     exec(function(result) {
         polygonOptions.points = _orgs;
-        var polygon = new Polygon(self, result.id, polygonOptions);
+        var polygon = new Polygon(self, result.id, polygonOptions, exec);
         self.OVERLAYS[result.id] = polygon;
         polygon.one(result.id + "_remove", function() {
             polygon.off();
@@ -878,7 +878,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.geodesic = polylineOptions.geodesic === true;
     exec(function(result) {
         polylineOptions.points = _orgs;
-        var polyline = new Polyline(self, result.id, polylineOptions);
+        var polyline = new Polyline(self, result.id, polylineOptions, exec);
         self.OVERLAYS[result.id] = polyline;
         polyline.one(result.id + "_remove", function() {
             polyline.off();
@@ -907,7 +907,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.radius = circleOptions.radius || 1;
 
     exec(function(result) {
-        var circle = new Circle(self, result.id, circleOptions);
+        var circle = new Circle(self, result.id, circleOptions, exec);
         self.OVERLAYS[result.id] = circle;
 
         circle.one(result.id + "_remove", function() {
@@ -929,7 +929,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
     markerOptions = common.markerOptionsFilter(markerOptions);
     exec(function(result) {
-        var marker = new Marker(self, result.id, markerOptions, "Marker");
+        var marker = new Marker(self, result.id, markerOptions, "Marker", exec);
 
         self.MARKERS[result.id] = marker;
         self.OVERLAYS[result.id] = marker;
@@ -969,7 +969,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markerOptions = common.markerOptionsFilter(markerOptions);
 
       var markerId = markerOptions.id || "marker_" + idx;
-      var marker = new Marker(self, markerId, markerOptions, "MarkerCluster");
+      var marker = new Marker(self, markerId, markerOptions, "MarkerCluster", exec);
       marker.set("isAdded", false, true);
       marker.set("geocell", geocell, true);
       marker.set("position", markerOptions.position, true);
@@ -986,7 +986,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       "icons": markerClusterOptions.icons,
       "markerMap": markerMap,
       "maxZoomLevel": Math.max(markerClusterOptions.maxZoomLevel, 18) || 15,
-      "debug": markerClusterOptions.debug === true
+      "debug": markerClusterOptions.debug === true,
+      "exec": exec
     });
     markerCluster.one("remove", function() {
       delete self.OVERLAYS[result.id];

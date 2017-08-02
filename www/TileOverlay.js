@@ -7,7 +7,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * TileOverlay Class
  *****************************************************************************/
-var TileOverlay = function(map, tileOverlayId, tileOverlayOptions) {
+var exec;
+var TileOverlay = function(map, tileOverlayId, tileOverlayOptions, _exec) {
+    exec = _exec;
     BaseClass.apply(this);
 
     var self = this;

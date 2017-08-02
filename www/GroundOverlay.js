@@ -1,14 +1,15 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass');
 
 /*****************************************************************************
 * GroundOverlay Class
 *****************************************************************************/
-var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions) {
+var exec;
+var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions, _exec) {
   BaseClass.apply(this);
+  exec = _exec;
 
   var self = this;
   groundOverlayOptions.visible = groundOverlayOptions.visible === undefined ? true : groundOverlayOptions.visible;

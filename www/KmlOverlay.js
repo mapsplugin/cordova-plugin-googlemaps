@@ -1,13 +1,13 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass');
 
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
-var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions) {
+var exec;
+var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions, _exec) {
     BaseClass.apply(this);
 
     var self = this;

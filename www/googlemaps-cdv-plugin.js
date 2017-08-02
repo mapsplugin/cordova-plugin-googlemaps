@@ -7,6 +7,7 @@ if (!cordova) {
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
+    cordova_exec = require('cordova/exec'),
     event = require('./event'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
@@ -379,6 +380,57 @@ function nativeCallback(params) {
     this[params.callback].apply(this, args);
 }
 
+var taskQueue = [];
+var _isRemove = false;
+var _isWaitMethod = null;
+var _isExecuting = false;
+function exec_serial(success, error, pluginName, methodName, args) {
+  var self = this;
+  taskQueue.push([function() {
+    if (success) {
+      var results = [];
+      for (var i = 0; i < arguments.length; i++) {
+        results.push(arguments[i]);
+      }
+      success.apply(self, results);
+    }
+    if (methodName === _isWaitMethod) {
+      _isWaitMethod = null;
+    }
+    _exec();
+  }, function() {
+    if (error) {
+      var results = [];
+      for (var i = 0; i < arguments.length; i++) {
+        results.push(arguments[i]);
+      }
+      error.apply(self, results);
+    }
+
+    if (methodName === _isWaitMethod) {
+      _isWaitMethod = null;
+    }
+    _exec();
+  }, pluginName, methodName, args]);
+
+  if (_isRemove || _isExecuting || taskQueue.length > 1) {
+    return;
+  }
+  _exec();
+}
+function _exec() {
+  if (_isRemove || _isExecuting || _isWaitMethod || taskQueue.length === 0) {
+    return;
+  }
+  _isExecuting = true;
+  var taskParams = taskQueue.shift();
+  if (taskParams[3] === "clear") {
+    _isWaitMethod = taskParams[3];
+  }
+  cordova_exec.apply(this, taskParams);
+  _isExecuting = false;
+}
+
 /*****************************************************************************
  * Name space
  *****************************************************************************/
@@ -392,7 +444,7 @@ module.exports = {
     BaseClass: BaseClass,
     BaseArrayClass: BaseArrayClass,
     Map: {
-        getMap: function(div) {
+        getMap: function(div, mapOptions) {
             var mapId;
             if (common.isDom(div)) {
               mapId = div.getAttribute("__pluginMapId");
@@ -412,7 +464,8 @@ module.exports = {
               div.setAttribute("__pluginMapId", mapId);
             }
 
-            var map = new Map(mapId);
+            var exec = mapOptions && mapOptions.execMode === "async" ? cordova_exec : exec_serial;
+            var map = new Map(mapId, exec);
 
             // Catch all events for this map instance, then pass to the instance.
             document.addEventListener(mapId, nativeCallback.bind(map));

@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     LatLng = require('./LatLng'),
     event = require('./event'),
@@ -9,7 +8,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
-var Marker = function(map, id, markerOptions, className) {
+var exec;
+var Marker = function(map, id, markerOptions, className, _exec) {
+    exec = _exec;
     BaseClass.apply(this);
 
     var self = this;

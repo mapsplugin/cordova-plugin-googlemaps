@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
   utils = require('cordova/utils'),
-  exec = require('cordova/exec'),
   common = require('./Common'),
   event = require('./event'),
   geomodel = require('./geomodel'),
@@ -15,7 +14,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * MarkerCluster Class
  *****************************************************************************/
-var MarkerCluster = function(map, id, markerClusterOptions) {
+var exec;
+var MarkerCluster = function(map, id, markerClusterOptions, _exec) {
+  exec = _exec;
   BaseClass.call(this);
 
   var idxCount = Object.keys(markerClusterOptions.markerMap) + 1;
