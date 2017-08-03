@@ -33,6 +33,7 @@ var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
 var MarkerCluster = require('./MarkerCluster');
 var geomodel = require('./geomodel');
+var spherical = require('./spherical');
 
 var INTERVAL_TIMER = null;
 var MAPS = {};
@@ -158,7 +159,7 @@ document.head.appendChild(navDecorBlocker);
       var shouldUpdate = false;
       var doNotTrace = false;
 
-      var traceDomTree = function(element, domIdx) {
+      var traceDomTree = function(element, domIdx, parentRect) {
         doNotTrace = false;
 
         if (common.shouldWatchByNative(element)) {
@@ -183,11 +184,17 @@ document.head.appendChild(navDecorBlocker);
           }
 
           // Stores dom bounds and depth
+          var rect = common.getDivRect(element);
+          rect.left = Math.max(rect.left, parentRect.left);
+          rect.right = Math.min(rect.right, parentRect.right);
+          rect.width = Math.min(rect.width, parentRect.width);
+          rect.height = Math.min(rect.height, parentRect.height);
           domPositions[elemId] = {
-            size: common.getDivRect(element),
+            size: rect,
             depth: depth,
             zIndex: zIndex
           };
+          parentRect = rect;
 
           if (!shouldUpdate) {
               if (elemId in prevDomPositions) {
@@ -226,13 +233,13 @@ document.head.appendChild(navDecorBlocker);
                 common.getStyle(child, "display") === "none") {
                 continue;
               }
-              traceDomTree(child, domIdx + i + 1);
+              traceDomTree(child, domIdx + i + 1, parentRect);
             }
           }
         }
 
       };
-      traceDomTree(document.body, 0);
+      traceDomTree(document.body, 0, common.getDivRect(document.body));
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
@@ -524,6 +531,7 @@ module.exports = {
     Geocoder: Geocoder,
     geometry: {
         encoding: encoding,
+        spherical: spherical,
         geomodel: geomodel
     },
     MarkerCluster: MarkerCluster
