@@ -31,6 +31,7 @@ var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
+var spherical = require('./spherical');
 
 var INTERVAL_TIMER = null;
 var MAPS = {};
@@ -521,7 +522,8 @@ module.exports = {
     environment: Environment,
     Geocoder: Geocoder,
     geometry: {
-        encoding: encoding
+        encoding: encoding,
+        spherical: spherical
     }
 };
 
