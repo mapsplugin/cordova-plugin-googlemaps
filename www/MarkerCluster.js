@@ -621,7 +621,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
     }
   }
   var delete_clusters = Object.keys(deleteClusters);
-  if (new_or_update_clusters.length === 0 && delete_clusters === 0) {
+  if (new_or_update_clusters.length === 0 && delete_clusters.length === 0) {
     self.trigger("nextTask");
     return;
   }
