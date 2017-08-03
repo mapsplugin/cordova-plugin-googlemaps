@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
     BaseArrayClass = require('./BaseArrayClass');
@@ -8,7 +7,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Polyline Class
  *****************************************************************************/
-var Polyline = function(map, polylineId, polylineOptions) {
+var exec;
+var Polyline = function(map, polylineId, polylineOptions, _exec) {
+    exec = _exec;
     BaseClass.apply(this);
 
     var self = this;

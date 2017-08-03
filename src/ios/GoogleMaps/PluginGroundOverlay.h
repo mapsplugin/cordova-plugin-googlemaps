@@ -11,9 +11,8 @@
 #import "PluginUtil.h"
 
 @interface PluginGroundOverlay : CDVPlugin<MyPlgunProtocol>
-@property (nonatomic, strong) NSMutableDictionary* objects;
-@property (nonatomic) NSOperationQueue *executeQueue;
 //@property (nonatomic, strong) NSCache* imgCache;
+@property (nonatomic) BOOL initialized;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;

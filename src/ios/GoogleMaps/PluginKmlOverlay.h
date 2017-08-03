@@ -14,6 +14,7 @@
 
 @interface PluginKmlOverlay : CDVPlugin<MyPlgunProtocol>
 
+@property (nonatomic) BOOL initialized;
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic, strong) NSString* kmlId;
 @property (nonatomic, strong) UIView* _loadingView;

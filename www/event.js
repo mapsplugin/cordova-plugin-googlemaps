@@ -18,6 +18,7 @@ module.exports = {
     INFO_LONG_CLICK: 'info_long_click',
     INFO_CLOSE: 'info_close',
     INFO_OPEN: 'info_open',
+    CLUSTER_CLICK: 'cluster_click',
     MARKER_CLICK: 'marker_click',
     MARKER_DRAG: 'marker_drag',
     MARKER_DRAG_START: 'marker_drag_start',

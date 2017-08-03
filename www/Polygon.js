@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
     BaseArrayClass = require('./BaseArrayClass');
@@ -8,7 +7,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Polygon Class
  *****************************************************************************/
-var Polygon = function(map, polygonId, polygonOptions) {
+var exec;
+var Polygon = function(map, polygonId, polygonOptions, _exec) {
+    exec = _exec;
     BaseClass.apply(this);
 
     var self = this;

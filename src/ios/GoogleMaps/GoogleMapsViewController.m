@@ -22,6 +22,9 @@
     self.clickable = YES;
     self.isRenderedAtOnce = NO;
     self.mapDivId = nil;
+    self.objects = [NSMutableDictionary dictionary];
+    self.executeQueue =  [NSOperationQueue new];
+    self.executeQueue.maxConcurrentOperationCount = 10;
 
     return self;
 }
@@ -62,25 +65,70 @@
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
 
   if (self.activeMarker) {
-    [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+    NSString *clusterId_markerId =[NSString stringWithFormat:@"%@", self.activeMarker.userData];
+    NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
+    NSString *className = [tmp objectAtIndex:0];
+    if ([className isEqualToString:@"markercluster"]) {
+      [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+    } else {
+      [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+    }
+
     //self.map.selectedMarker = nil;
     self.activeMarker = nil;
   }
 
-  NSArray *pluginNames =[self.plugins allKeys];
-  NSString *pluginName, *key;
+  //NSArray *pluginNames =[self.plugins allKeys];
+  //NSString *pluginName;
+  NSString *key;
   NSDictionary *properties;
-  CDVPlugin<MyPlgunProtocol> *plugin;
+  //CDVPlugin<MyPlgunProtocol> *plugin;
   GMSCoordinateBounds *bounds;
   GMSPath *path;
   NSArray *keys;
   NSNumber *isVisible, *geodesic, *isClickable;
   NSMutableArray *boundsHitList = [NSMutableArray array];
-  NSMutableArray *boundsPluginList = [NSMutableArray array];
+  //NSMutableArray *boundsPluginList = [NSMutableArray array];
   int i,j;
   float zIndex, maxZIndex;
   NSString* hitKey = nil;
 
+
+  keys = [self.objects allKeys];
+  for (j = 0; j < [keys count]; j++) {
+    key = [keys objectAtIndex:j];
+    if ([key containsString:@"-marker"] ||
+      [key containsString:@"property"] == NO) {
+      continue;
+    }
+
+    properties = [self.objects objectForKey:key];
+      //NSLog(@"--> key = %@, properties = %@", key, properties);
+
+    // Skip invisible polyline
+    isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
+    if ([isVisible boolValue] == NO) {
+      //NSLog(@"--> key = %@, isVisible = NO", key);
+      continue;
+    }
+
+    // Skip isClickable polyline
+    isClickable = (NSNumber *)[properties objectForKey:@"isClickable"];
+    if ([isClickable boolValue] == NO) {
+      //NSLog(@"--> key = %@, isClickable = NO", key);
+      continue;
+    }
+    //NSLog(@"--> key = %@, isVisible = YES, isClickable = YES", key);
+
+    // Skip if the click point is out of the polyline bounds.
+    bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
+    if ([bounds containsCoordinate:coordinate]) {
+      [boundsHitList addObject:key];
+      //[boundsPluginList addObject:plugin];
+    }
+
+  }
+/*
   for (i = 0; i < [pluginNames count]; i++) {
     pluginName = [pluginNames objectAtIndex:i];
 
@@ -123,7 +171,7 @@
       }
     }
   }
-
+*/
 
 
   CLLocationCoordinate2D origin = [self.map.projection coordinateForPoint:CGPointMake(0, 0)];
@@ -136,8 +184,8 @@
   maxZIndex = -1;
   for (i = 0; i < [boundsHitList count]; i++) {
     key = [boundsHitList objectAtIndex:i];
-    plugin = [boundsPluginList objectAtIndex:i];
-    properties = [plugin.objects objectForKey:key];
+    //plugin = [boundsPluginList objectAtIndex:i];
+    properties = [self.objects objectForKey:key];
 
 
     zIndex = [[properties objectForKey:@"zIndex"] floatValue];
@@ -177,7 +225,7 @@
 
     if ([key hasPrefix:@"circle_"]) {
       key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-      GMSCircle *circle = (GMSCircle *)[plugin.objects objectForKey:key];
+      GMSCircle *circle = (GMSCircle *)[self.objects objectForKey:key];
       if ([PluginUtil isCircleContains:circle coordinate:coordinate]) {
         maxZIndex = zIndex;
         hitKey = key;
@@ -187,7 +235,7 @@
 
     if ([key hasPrefix:@"groundoverlay_"]) {
       key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[plugin.objects objectForKey:key];
+      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.objects objectForKey:key];
       if ([groundOverlay.bounds containsCoordinate:coordinate]) {
         maxZIndex = zIndex;
         hitKey = key;
@@ -294,13 +342,16 @@
 }
 
 - (void) syncInfoWndPosition {
-  CLLocationCoordinate2D position = self.map.selectedMarker.position;
+  if (self.activeMarker == nil) {
+    //NSLog(@"-->no active marker");
+    return;
+  }
+  CLLocationCoordinate2D position = self.activeMarker.position;
   CGPoint point = [self.map.projection
                       pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
   NSString* jsString = [NSString
                               stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
                               self.mapId, point.x, point.y ];
-  //NSLog(@"--->%@", jsString);
   [self execJS:jsString];
 }
 
@@ -308,22 +359,42 @@
  * @callback plugin.google.maps.event.MARKER_CLICK
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
-  [self triggerMarkerEvent:@"marker_click" marker:marker];
+
+  NSString *clusterId_markerId = [NSString stringWithString:marker.userData];
+
+  if ([clusterId_markerId containsString:@"markercluster_"]) {
+    if ([clusterId_markerId containsString:@"-marker_"]) {
+      //NSLog(@"--->activeMarker = %@", marker.userData);
+      self.map.selectedMarker = marker;
+      self.activeMarker = marker;
+    } else {
+      if (self.activeMarker != nil) {
+        [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+      }
+    }
+    [self triggerClusterEvent:@"cluster_click" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"marker_click" marker:marker];
+    //NSLog(@"--->activeMarker = %@", marker.userData);
+    self.map.selectedMarker = marker;
+    self.activeMarker = marker;
+  }
+
+  //NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
+  //NSString *className = [tmp objectAtIndex:0];
 
   // Get the marker plugin
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
-  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
+  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", clusterId_markerId];
+  NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
 
   BOOL disableAutoPan = false;
   if ([properties objectForKey:@"disableAutoPan"] != nil) {
     disableAutoPan = [[properties objectForKey:@"disableAutoPan"] boolValue];
     if (disableAutoPan) {
-      self.map.selectedMarker = marker;
-      self.activeMarker = marker;
       return YES;
     }
   }
@@ -335,7 +406,7 @@
           cameraWithTarget:marker.position zoom:self.map.camera.zoom];
 
   [self.map animateToCameraPosition:cameraPosition];
-  return YES;
+  return NO;
 }
 
 - (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
@@ -426,6 +497,26 @@
   [json setObject:southwest forKey:@"southwest"];
 
 
+  NSMutableDictionary *farLeft = [NSMutableDictionary dictionary];
+  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.latitude] forKey:@"lat"];
+  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.longitude] forKey:@"lng"];
+  [json setObject:farLeft forKey:@"farLeft"];
+
+  NSMutableDictionary *farRight = [NSMutableDictionary dictionary];
+  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.latitude] forKey:@"lat"];
+  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.longitude] forKey:@"lng"];
+  [json setObject:farRight forKey:@"farRight"];
+
+  NSMutableDictionary *nearLeft = [NSMutableDictionary dictionary];
+  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.latitude] forKey:@"lat"];
+  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.longitude] forKey:@"lng"];
+  [json setObject:nearLeft forKey:@"nearLeft"];
+
+  NSMutableDictionary *nearRight = [NSMutableDictionary dictionary];
+  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.latitude] forKey:@"lat"];
+  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.longitude] forKey:@"lng"];
+  [json setObject:nearRight forKey:@"nearRight"];
+
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString
@@ -433,9 +524,7 @@
     self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
 
-  if (self.activeMarker) {
-    [self syncInfoWndPosition];
-  }
+  [self syncInfoWndPosition];
 }
 
 - (void)execJS: (NSString *)jsString {
@@ -447,13 +536,41 @@
 }
 
 /**
+ * cluster_*** events
+ */
+- (void)triggerClusterEvent: (NSString *)eventName marker:(GMSMarker *)marker
+{
+  if (marker.userData == nil) {
+    return;
+  }
+
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  NSArray *tmp = [markerTag componentsSeparatedByString:@"-"];
+  NSString *clusterId = [tmp objectAtIndex:0];
+  NSString *markerId = [tmp objectAtIndex:1];
+
+  // Get the marker plugin
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        self.mapId, eventName, clusterId, markerId,
+                        marker.position.latitude,
+                        marker.position.longitude];
+  [self execJS:jsString];
+}
+
+/**
  * plugin.google.maps.event.MARKER_*** events
  */
 - (void)triggerMarkerEvent: (NSString *)eventName marker:(GMSMarker *)marker
 {
+
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  NSArray *tmp = [markerTag componentsSeparatedByString:@"-"];
+  NSString *markerId = [tmp objectAtIndex:([tmp count] - 1)];
+
   NSString* jsString = [NSString
-                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['marker_%lu', {lat: %f, lng: %f}]});",
-                              self.mapId, eventName, (unsigned long)marker.hash,
+                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                              self.mapId, eventName, markerId,
                               marker.position.latitude,
                               marker.position.longitude];
   [self execJS:jsString];
@@ -486,14 +603,15 @@
 
 
   // Get the marker plugin
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
-  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+  NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
+  Boolean useHtmlInfoWnd = marker.title == nil && marker.snippet == nil;
 
-  if ([[properties objectForKey:@"useHtmlInfoWnd"] boolValue]) {
+  if (useHtmlInfoWnd) {
     [self syncInfoWndPosition];
     [self triggerMarkerEvent:@"info_open" marker:marker];
 

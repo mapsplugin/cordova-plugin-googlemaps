@@ -55,7 +55,7 @@
                               green:[[self objectAtIndex:1] floatValue]/255.0
                               blue:[[self objectAtIndex:2] floatValue]/255.0
                               alpha:[[self objectAtIndex:3] floatValue]/255.0];
-  
+
 }
 @end
 
@@ -108,6 +108,25 @@
 @end
 
 
+/*
+@implementation CDVCommandDelegateImpl (GoogleMapsPlugin)
+
+- (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId {
+
+  NSRange pos = [callbackId rangeOfString:@"://"];
+  if (pos.location == NSNotFound) {
+    [self sendPluginResult:result callbackId:callbackId];
+  } else {
+    NSArray *tmp = [callbackId componentsSeparatedByString:@"://"];
+    NSString *pluginName = [tmp objectAtIndex:0];
+    CDVPlugin<MyPlgunProtocol> *plugin = [self getCommandInstance:pluginName];
+    [plugin onHookedPluginResult:result callbackId:callbackId];
+  }
+
+}
+@end
+*/
+
 static char CAAnimationGroupBlockKey;
 @implementation CAAnimationGroup (Blocks)
 
@@ -152,17 +171,17 @@ static char CAAnimationGroupBlockKey;
   GMSVisibleRegion visibleRegion = projection.visibleRegion;
   GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:visibleRegion];
   CGPoint sw = [projection pointForCoordinate:bounds.southWest];
-  
+
   CGPoint touchPoint = [projection pointForCoordinate:coordinate];
   touchPoint.y = sw.y - touchPoint.y;
   double vt;
-  
+
   for (int i = 0; i < [path count] - 1; i++) {
     CGPoint a = [projection pointForCoordinate:[path coordinateAtIndex:i]];
     a.y = sw.y - a.y;
     CGPoint b = [projection pointForCoordinate:[path coordinateAtIndex:(i + 1)]];
     b.y = sw.y - b.y;
-    
+
     if ((a.y <= touchPoint.y) && (b.y > touchPoint.y)) {
       vt = (touchPoint.y - a.y) / (b.y - a.y);
       if (touchPoint.x < (a.x + (vt * (b.x - a.x)))) {
@@ -175,7 +194,7 @@ static char CAAnimationGroupBlockKey;
       }
     }
   }
-  
+
   return (wn != 0);
 }
 
@@ -188,7 +207,7 @@ static char CAAnimationGroupBlockKey;
   double Sx, Sy;
   CGPoint touchPoint = [projection pointForCoordinate:coordinate];
   CGPoint p0, p1;
-  
+
   p0 = [projection pointForCoordinate:[path coordinateAtIndex:0]];
   for (int i = 1; i < [path count]; i++) {
     p1 = [projection pointForCoordinate:[path coordinateAtIndex:i]];
@@ -212,7 +231,7 @@ static char CAAnimationGroupBlockKey;
   //CGPoint touchPoint = CGPointMake(point.latitude * 100000, point.longitude * 100000);
   CLLocationCoordinate2D position1, position2;
   NSMutableArray *points = [[NSMutableArray alloc] init];
-  
+
   for (int i = 0; i < [path count]; i++) {
     position1 = [path coordinateAtIndex:i];
     p0 = CGPointMake(position1.latitude * 100000, position1.longitude * 100000);
@@ -221,13 +240,13 @@ static char CAAnimationGroupBlockKey;
   for (int i = 0; i < [path count] - 1; i++) {
     value = (NSValue *)[points objectAtIndex:i];
     p0 = [value CGPointValue];
-    
+
     value = (NSValue *)[points objectAtIndex:(i+1)];
     p1 = [value CGPointValue];
-    
+
     position1 = [path coordinateAtIndex:i];
     position2 = [path coordinateAtIndex:(i + 1)];
-    
+
     trueDistance = GMSGeometryDistance(position1, position2);
     testDistance1 = GMSGeometryDistance(position1, point);
     testDistance2 = GMSGeometryDistance(point, position2);
@@ -253,7 +272,7 @@ static char CAAnimationGroupBlockKey;
 }
 
 + (GMSMutablePath *)getMutablePathFromCircle:(CLLocationCoordinate2D)center radius:(double)radius {
-  
+
     double d2r = M_PI / 180;   // degrees to radians
     double r2d = 180 / M_PI;   // radians to degrees
     double earthsradius = 3963.189; // 3963 is the radius of the earth in miles
@@ -288,7 +307,7 @@ static char CAAnimationGroupBlockKey;
   if (CDVFilesystemURLCls != nil && CDVFileCls != nil) {
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-  
+
     SEL fileSystemURLWithString = NSSelectorFromString(@"fileSystemURLWithString:");
     if ([CDVFilesystemURLCls respondsToSelector:fileSystemURLWithString]) {
       id cdvFilesystemURL = [CDVFilesystemURLCls performSelector:fileSystemURLWithString withObject:cdvFilePath];
@@ -299,7 +318,7 @@ static char CAAnimationGroupBlockKey;
         CDVPlugin *filePlugin = (CDVPlugin *)[[CDVFileCls alloc] initWithWebView:webView];
 #endif
         [filePlugin pluginInitialize];
-        
+
         SEL filesystemPathForURL = NSSelectorFromString(@"filesystemPathForURL:");
         filePath = [filePlugin performSelector: filesystemPathForURL withObject:cdvFilesystemURL];
       }
@@ -308,10 +327,8 @@ static char CAAnimationGroupBlockKey;
   } else {
     NSLog(@"(debug)File and FileTransfer plugins are required to convert cdvfile:// to localpath.");
   }
-  
+
   return filePath;
 }
 
 @end
-
-

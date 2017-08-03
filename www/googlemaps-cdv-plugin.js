@@ -7,6 +7,7 @@ if (!cordova) {
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec'),
+    cordova_exec = require('cordova/exec'),
     event = require('./event'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
@@ -378,6 +379,82 @@ function nativeCallback(params) {
 }
 
 /*****************************************************************************
+ * Command queue mechanism
+ * (Save the number of method executing at the same time)
+ *****************************************************************************/
+var commandQueue = [];
+var _isWaitMethod = null;
+var _isExecuting = false;
+var _executingCnt = 0;
+var MAX_EXECUTE_CNT = 10;
+
+function execCmd(success, error, pluginName, methodName, args, execOptions) {
+  execOptions = execOptions || {};
+  var self = this;
+  commandQueue.push({
+    "execOptions": execOptions,
+    "args": [function() {
+      //console.log("success: " + methodName);
+      if (success) {
+        var results = [];
+        for (var i = 0; i < arguments.length; i++) {
+          results.push(arguments[i]);
+        }
+        success.apply(self, results);
+      }
+      if (methodName === _isWaitMethod) {
+        _isWaitMethod = null;
+      }
+      _executingCnt--;
+      _exec();
+    }, function() {
+      //console.log("error: " + methodName);
+      if (error) {
+        var results = [];
+        for (var i = 0; i < arguments.length; i++) {
+          results.push(arguments[i]);
+        }
+        error.apply(self, results);
+      }
+
+      if (methodName === _isWaitMethod) {
+        _isWaitMethod = null;
+      }
+      _executingCnt--;
+      _exec();
+    }, pluginName, methodName, args]
+  });
+
+  //console.log("commandQueue.length: " + commandQueue.length);
+  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || commandQueue.length > 1) {
+    return;
+  }
+  _exec();
+}
+function _exec() {
+  //console.log("commandQueue.length: " + commandQueue.length);
+  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || _isWaitMethod || commandQueue.length === 0) {
+    return;
+  }
+  _isExecuting = true;
+
+  while (commandQueue.length > 0 && _executingCnt < MAX_EXECUTE_CNT) {
+    _executingCnt++;
+    var commandParams = commandQueue.shift();
+    //console.log("start: " + commandParams.args[3]);
+    if (commandParams.execOptions.sync) {
+      _isWaitMethod = commandParams.args[3];
+      cordova_exec.apply(this, commandParams.args);
+      break;
+    }
+    cordova_exec.apply(this, commandParams.args);
+  }
+  //console.log("commandQueue.length: " + commandQueue.length);
+  _isExecuting = false;
+
+}
+
+/*****************************************************************************
  * Name space
  *****************************************************************************/
 module.exports = {
@@ -390,7 +467,7 @@ module.exports = {
     BaseClass: BaseClass,
     BaseArrayClass: BaseArrayClass,
     Map: {
-        getMap: function(div) {
+        getMap: function(div, mapOptions) {
             var mapId;
             if (common.isDom(div)) {
               mapId = div.getAttribute("__pluginMapId");
@@ -410,7 +487,7 @@ module.exports = {
               div.setAttribute("__pluginMapId", mapId);
             }
 
-            var map = new Map(mapId);
+            var map = new Map(mapId, execCmd);
 
             // Catch all events for this map instance, then pass to the instance.
             document.addEventListener(mapId, nativeCallback.bind(map));
@@ -444,8 +521,7 @@ module.exports = {
     environment: Environment,
     Geocoder: Geocoder,
     geometry: {
-        encoding: encoding,
-        spherical: spherical
+        encoding: encoding
     }
 };
 

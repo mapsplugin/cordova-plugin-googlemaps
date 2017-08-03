@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     LatLng = require('./LatLng'),
     event = require('./event'),
@@ -9,7 +8,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
-var Marker = function(map, id, markerOptions) {
+var exec;
+var Marker = function(map, id, markerOptions, className, _exec) {
+    exec = _exec;
     BaseClass.apply(this);
 
     var self = this;
@@ -23,8 +24,16 @@ var Marker = function(map, id, markerOptions) {
         writable: false
     });
     Object.defineProperty(self, "type", {
-        value: "Marker",
+        value: className,
         writable: false
+    });
+
+    className = className.toLowerCase();
+    Object.defineProperty(self, "getPluginName", {
+        writable: false,
+        value: function() {
+            return this.map.getId() + "-" + className.toLowerCase();
+        }
     });
 
     if (markerOptions && markerOptions.position) {
@@ -114,10 +123,6 @@ var Marker = function(map, id, markerOptions) {
 
 utils.extend(Marker, BaseClass);
 
-Marker.prototype.getPluginName = function() {
-    return this.map.getId() + "-marker";
-};
-
 Marker.prototype.remove = function(callback) {
     var self = this;
     self.trigger(event.INFO_CLOSE);     // close open infowindow, otherwise it will stay
@@ -129,6 +134,24 @@ Marker.prototype.remove = function(callback) {
     }, self.errorHandler, self.getPluginName(), 'remove', [this.getId()]);
 };
 
+Marker.prototype.getOptions = function() {
+    var self = this;
+    return {
+      "id": self.getId(),
+      "position": self.getPosition(),
+      "disableAutoPan": self.get("disableAutoPan"),
+      "opacity": self.get("opacity"),
+      "icon": self.get("icon"),
+      "zIndex": self.get("zIndex"),
+      "anchor": self.get("anchor"),
+      "infoWindowAnchor": self.get("infoWindowAnchor"),
+      "draggable": self.get("draggable"),
+      "title": self.getTitle(),
+      "snippet": self.getSnippet(),
+      "visible": self.get("visible"),
+      "rotation": self.getRotation()
+    };
+};
 Marker.prototype.getPosition = function() {
     var position = this.get('position');
     if (!(position instanceof LatLng)) {

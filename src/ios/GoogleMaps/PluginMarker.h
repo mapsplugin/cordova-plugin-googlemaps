@@ -13,9 +13,9 @@
 
 @interface PluginMarker : CDVPlugin<MyPlgunProtocol>
 
-@property (nonatomic, strong) NSCache* imgCache;
-@property (nonatomic) NSOperationQueue *executeQueue;
-@property (nonatomic) NSMutableDictionary* objects;
+@property (nonatomic, strong) NSCache* icons;
+@property (nonatomic) NSMutableDictionary* iconCacheKeys;
+@property (nonatomic) BOOL initialized;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
@@ -24,7 +24,6 @@
 - (void)getPosition:(CDVInvokedUrlCommand*)command;
 - (void)setSnippet:(CDVInvokedUrlCommand*)command;
 - (void)setTitle:(CDVInvokedUrlCommand*)command;
-- (void)setActiveMarkerId:(CDVInvokedUrlCommand*)command;
 - (void)setFlat:(CDVInvokedUrlCommand*)command;
 - (void)setOpacity:(CDVInvokedUrlCommand*)command;
 - (void)setDraggable:(CDVInvokedUrlCommand*)command;
@@ -39,13 +38,16 @@
 - (void)setAnimation:(CDVInvokedUrlCommand*)command;
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock;
 
+
 // Internal use
+/*
 -(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
 -(void)setDropAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
 -(void)setBounceAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
+*/
+- (void)_create:(NSString *)markerId markerOptions:(NSDictionary *)json callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
+-(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
+-(void)_removeMarker:(GMSMarker *)marker;
 
--(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty
-   pluginResult:(CDVPluginResult *)pluginResult
-     callbackId:(NSString*)callbackId;
 
 @end

@@ -57,6 +57,7 @@ import com.google.android.gms.maps.model.VisibleRegion;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginManager;
@@ -83,8 +84,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
     GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener {
 
-  private JSONArray _saveArgs = null;
-  private CallbackContext _saveCallbackContext = null;
   private LatLngBounds initCameraBounds;
   private Activity activity;
   public GoogleMap map;
@@ -95,7 +94,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public final String TAG = mapId;
   public String mapDivId;
   public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
-  final int DEFAULT_CAMERA_PADDING = 20;
+  private final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
@@ -104,9 +103,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
-
-  private final int SET_MY_LOCATION_ENABLED = 0x7f999990;  //random
-  //private final int SET_MY_LOCATION_ENABLED = 0x7f99991; //random
 
   private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
   private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
@@ -356,10 +352,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       });
                     } else {
                       mapView.setVisibility(View.VISIBLE);
+                      PluginMap.this.onCameraEvent("camera_end");
                       callbackContext.success();
-                      //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
-                        PluginMap.this.onMapLoaded();
-                      //}
                     }
                   }
                 });
@@ -377,6 +371,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   });
                 } else {
                   mapView.setVisibility(View.VISIBLE);
+                  PluginMap.this.onCameraEvent("camera_end");
                   callbackContext.success();
                   //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
                     PluginMap.this.onMapLoaded();
@@ -434,11 +429,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
       mapView.setVisibility(View.VISIBLE);
-
       mCallback.success();
-      if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
+
+      //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
         PluginMap.this.onMapLoaded();
-      }
+      //}
 
       //fitBounds(initCameraBounds, CAMERA_PADDING);
     }
@@ -577,7 +572,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (args.length() == 0) {
       PluginMap.this.mapDivId = null;
       mapCtrl.mPluginLayout.removePluginMap(mapId);
-      this.sendNoResult(callbackContext);
+      callbackContext.success();
       return;
     }
     PluginMap.this.mapDivId = args.getString(0);
@@ -595,7 +590,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     boolean clickable = args.getBoolean(0);
     this.isClickable = clickable;
     //mapCtrl.mPluginLayout.setClickable(mapId, clickable);
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   /**
@@ -615,7 +610,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         } else {
           mapView.setVisibility(View.INVISIBLE);
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -699,8 +694,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               plugins = null;
               map = null;
               mapView = null;
-              _saveArgs = null;
-              _saveCallbackContext = null;
               initCameraBounds = null;
               activity = null;
               mapId = null;
@@ -710,7 +703,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               System.gc();
               Runtime.getRuntime().gc();
               if (callbackContext != null) {
-                sendNoResult(callbackContext);
+                callbackContext.success();
               }
               PluginMap.this.onDestroy();
             }
@@ -726,6 +719,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @Override
   public View getInfoContents(Marker marker) {
+    //Log.d(TAG, "--->getInfoContents");
     activeMarker = marker;
     String title = marker.getTitle();
     String snippet = marker.getSnippet();
@@ -733,15 +727,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       return null;
     }
 
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    String className = tmp[0];
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
+
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
+    if (pluginEntry == null) {
+      //Log.d(TAG, "---> getInfoContents / marker.title = " + marker.getTitle());
+      return null;
+    }
+    MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
 
     JSONObject properties = null;
     JSONObject styles = null;
-    String propertyId = "marker_property_" + marker.getId();
+    String propertyId = "marker_property_" + markerTag;
+    //Log.d(TAG, "---> getInfoContents / propertyId = " + propertyId);
 
-    if (pluginMarker.objects.containsKey(propertyId)) {
-      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+    if (myPlugin.objects.containsKey(propertyId)) {
+      properties = (JSONObject) myPlugin.objects.get(propertyId);
 
       try {
         if (properties.has("styles")) {
@@ -847,7 +852,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     if (title != null) {
       if (title.contains("data:image/") && title.contains(";base64,")) {
-        String[] tmp = title.split(",");
+        tmp = title.split(",");
         Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
         image = PluginUtil.scaleBitmapForDevice(image);
         ImageView imageView = new ImageView(this.activity);
@@ -931,16 +936,30 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public View getInfoWindow(Marker marker) {
+    //Log.d(TAG, "--->getInfoWindow");
     activeMarker = marker;
 
     JSONObject properties = null;
-    String propertyId = "marker_property_" + marker.getId();
 
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    String className = tmp[0];
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
 
-    if (pluginMarker.objects.containsKey(propertyId)) {
-      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+    String propertyId = "marker_property_" + markerTag;
+
+    //Log.e(TAG, "---> getInfoWindow / propertyId = " + propertyId);
+    //Log.e(TAG, "---> getInfoWindow / pluginEntryId = " + mapId + "-" + className);
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
+    if (pluginEntry == null) {
+      Log.e(TAG, "---> getInfoWindow / pluginEntry is null");
+      return null;
+    }
+    MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
+
+    if (myPlugin.objects.containsKey(propertyId)) {
+      properties = (JSONObject) myPlugin.objects.get(propertyId);
       try {
         if (marker.getTitle() == null && marker.getSnippet() == null) {
 
@@ -953,6 +972,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       } catch (Exception e) {
         e.printStackTrace();
       }
+    } else {
+      Log.e(TAG, "---> getInfoWindow / can not find the property");
     }
     return null;
   }
@@ -1155,10 +1176,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               args.put(isEnabled);
               PluginMap.this.setMyLocationEnabled(args, callbackContext);
             } else {
-              sendNoResult(callbackContext);
+              callbackContext.success();
             }
           } else {
-            sendNoResult(callbackContext);
+            callbackContext.success();
           }
 
         } catch (JSONException e) {
@@ -1545,21 +1566,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void onRequestPermissionResult(int requestCode, String[] permissions,
                                         int[] grantResults) throws JSONException {
-    PluginResult result;
+    boolean didPermissionGrant = true;
     for (int r : grantResults) {
       if (r == PackageManager.PERMISSION_DENIED) {
-        result = new PluginResult(PluginResult.Status.ERROR, "Geolocation permission request was denied.");
-        _saveCallbackContext.sendPluginResult(result);
-        return;
+        didPermissionGrant = false;
+        break;
       }
     }
-    switch (requestCode) {
-      case SET_MY_LOCATION_ENABLED:
-        this.setMyLocationEnabled(_saveArgs, _saveCallbackContext);
-        break;
+    synchronized (CordovaGoogleMaps.semaphore) {
+      CordovaGoogleMaps.semaphore.put("result_" + requestCode, didPermissionGrant ? "grant" : "denied");
+    }
 
-      default:
-        break;
+    synchronized (CordovaGoogleMaps.semaphore) {
+      CordovaGoogleMaps.semaphore.notify();
     }
   }
 
@@ -1585,12 +1604,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       callbackContext.sendPluginResult(result);
       return;
     }
+    Log.d(TAG, "---> setMyLocationEnabled, hasPermission =  " + locationPermission);
 
     if (!locationPermission) {
-      _saveArgs = args;
-      _saveCallbackContext = callbackContext;
-      mapCtrl.requestPermissions(this, SET_MY_LOCATION_ENABLED, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
-      return;
+      //_saveArgs = args;
+      //_saveCallbackContext = callbackContext;
+      mapCtrl.requestPermissions(this, callbackContext.hashCode(), new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+      synchronized (CordovaGoogleMaps.semaphore) {
+        try {
+          CordovaGoogleMaps.semaphore.wait();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      locationPermission = "grant".equals(CordovaGoogleMaps.semaphore.remove("result_" + callbackContext.hashCode()));
+
+      if (!locationPermission) {
+        callbackContext.error("Geolocation permission request was denied.");
+        return;
+      }
+
     }
 
     final Boolean isEnabled = args.getBoolean(0);
@@ -1616,7 +1649,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   @SuppressWarnings("unused")
   public void clear(JSONArray args, final CallbackContext callbackContext) throws JSONException {
-
 
     cordova.getThreadPool().submit(new Runnable() {
       @Override
@@ -1669,7 +1701,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setIndoorEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1686,7 +1718,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setTrafficEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1704,7 +1736,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setCompassEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1735,7 +1767,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setMapType(myMapTypeId);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1921,7 +1953,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setAllGesturesEnabled(isEnabled);
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -1942,7 +1974,28 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setPadding(left, top, right, bottom);
-        sendNoResult(callbackContext);
+        callbackContext.success();
+      }
+    });
+  }
+
+  /**
+   * update the active marker (for internal use)
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void setActiveMarkerId(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final String id = args.getString(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Marker marker = (Marker) objects.get(id);
+        if (marker != null) {
+          activeMarker = marker;
+        }
+        callbackContext.success();
       }
     });
   }
@@ -1950,14 +2003,36 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMarkerClick(Marker marker) {
-    this.onMarkerEvent("marker_click", marker);
+    //Log.d(TAG, "---> onMarkerClick / marker.tag = " + marker.getTag());
 
     JSONObject properties = null;
-    String propertyId = "marker_property_" + marker.getId();
-    PluginEntry pluginEntry = plugins.get(mapId + "-marker");
-    PluginMarker pluginMarker = (PluginMarker)pluginEntry.plugin;
-    if (pluginMarker.objects.containsKey(propertyId)) {
-      properties = (JSONObject) pluginMarker.objects.get(propertyId);
+    String clusterId_markerId = marker.getTag() + "";
+    if (clusterId_markerId.contains("markercluster_")) {
+      if (clusterId_markerId.contains("-marker_")) {
+        activeMarker = marker;
+      } else {
+        if (activeMarker != null) {
+          this.onClusterEvent("info_close", activeMarker);
+        }
+      }
+      this.onClusterEvent("cluster_click", marker);
+    } else {
+      this.onMarkerEvent("marker_click", marker);
+      activeMarker = marker;
+    }
+
+    String tmp[] = clusterId_markerId.split("_");
+    String className = tmp[0];
+
+    PluginEntry pluginEntry = plugins.get(mapId + "-" + className);
+    if (pluginEntry == null) {
+      return true;
+    }
+    MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
+    String propertyId = "marker_property_" + clusterId_markerId;
+    //Log.d(TAG, "---> onMarkerClick / propertyId = " + propertyId);
+    if (myPlugin.objects.containsKey(propertyId)) {
+      properties = (JSONObject) myPlugin.objects.get(propertyId);
       if (properties.has("disableAutoPan")) {
         boolean disableAutoPan = false;
         try {
@@ -2020,13 +2095,17 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onInfoWindowClose(Marker marker) {
-    this.onMarkerEvent("info_close", marker);
-    activeMarker = null;
+    boolean useHtmlInfoWnd = marker.getTitle() == null &&
+                             marker.getSnippet() == null;
+    if (useHtmlInfoWnd) {
+      this.onMarkerEvent("info_close", marker);
+    }
+    //activeMarker = null; // <-- This causes HTMLinfoWindow is not able to close when you tap on the map.
   }
 
   @Override
   public void onMapLoaded() {
-    this.onMapEvent("map_loaded");
+    this.onCameraEvent("camera_end");
   }
 
 
@@ -2041,14 +2120,38 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param marker
    */
   public void onMarkerEvent(String eventName, Marker marker) {
+    if (marker.getTag() == null) {
+      return;
+    }
     LatLng latLng = marker.getPosition();
 
-    String markerId = "marker_" + marker.getId();
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("_");
+    tmp = markerTag.split("-");
+    String markerId = tmp[tmp.length - 1];
     String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
-        mapId, eventName, markerId, latLng.latitude, latLng.longitude);
+          mapId, eventName, markerId, latLng.latitude, latLng.longitude);
+    jsCallback(js);
+  }
+  public void onClusterEvent(String eventName, Marker marker) {
+    if (marker.getTag() == null) {
+      return;
+    }
+    LatLng latLng = marker.getPosition();
+
+    String markerTag = (String) marker.getTag();
+    String tmp[] = markerTag.split("-");
+    String clusterId = tmp[0];
+    String markerId = tmp[1];
+    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onClusterEvent', args:['%s', '%s', new plugin.google.maps.LatLng(%f, %f)]})",
+          mapId, eventName, clusterId, markerId, latLng.latitude, latLng.longitude);
     jsCallback(js);
   }
   public void syncInfoWndPosition() {
+    if (activeMarker == null) {
+      Log.d(TAG, "--->no active marker");
+      return;
+    }
     LatLng latLng = activeMarker.getPosition();
     Point point = projection.toScreenLocation(latLng);
 
@@ -2411,14 +2514,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param point
    */
   public void onMapClick(final LatLng point) {
-    AsyncTask<Void, Void, HashMap<String, Object>> task = new AsyncTask<Void, Void, HashMap<String, Object>>() {
+    cordova.getThreadPool().submit(new Runnable() {
       @Override
-      protected HashMap<String, Object> doInBackground(Void... voids) {
+      public void run() {
+
         //----------------------------------------------------------------------
         // Pick up overlays that contains the touchpoint in the hit area bounds
         //----------------------------------------------------------------------
         LatLngBounds bounds;
-        HashMap<String, Object> results = new HashMap<String, Object>();
+        final HashMap<String, Object> boundsHitList = new HashMap<String, Object>();
 
         PluginEntry pluginEntry;
         MyPlugin myPlugin;
@@ -2426,7 +2530,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         JSONObject properties;
         String pluginName, key;
         String pluginNames[] = plugins.keySet().toArray(new String[plugins.size()]);
-        int i,j;
+        int i, j;
         try {
           for (i = 0; i < pluginNames.length; i++) {
             pluginName = pluginNames[i];
@@ -2446,7 +2550,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
                   // skip invisible overlay
                   if (!properties.getBoolean("isVisible") ||
-                    !properties.getBoolean("isClickable")) {
+                      !properties.getBoolean("isClickable")) {
                     continue;
                   }
                 } catch (JSONException e) {
@@ -2455,7 +2559,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 bounds = (LatLngBounds) myPlugin.objects.get(key.replace("property", "bounds"));
                 if (bounds.contains(point)) {
                   //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
-                  results.put(key, myPlugin.objects.get(key.replace("property_", "")));
+                  boundsHitList.put(key, myPlugin.objects.get(key.replace("property_", "")));
                 }
 
               }
@@ -2466,124 +2570,141 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           //e.printStackTrace();
         }
 
-        return results;
-      }
+        cordova.getActivity().runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
 
-      @Override
-      public void onPostExecute(HashMap<String, Object> boundsHitList) {
+            //Log.d(TAG, "---> onMapClick : " + activeMarker);
+            if (activeMarker != null) {
+              //Log.d(TAG, "---> activeMarker.getTag() : " + activeMarker.getTag());
+              if ((activeMarker.getTag() + "").contains("markercluster")) {
+                onClusterEvent("info_close", activeMarker);
+              } else {
+                onInfoWindowClose(activeMarker);
+              }
+              activeMarker = null;
+            }
+            String key;
+            Map.Entry<String, Object> entry;
 
-        if (activeMarker != null) {
-          onInfoWindowClose(activeMarker);
-
-        }
-        String key;
-        Map.Entry<String, Object> entry;
-
-        Set<Map.Entry<String, Object>> entrySet = boundsHitList.entrySet();
-        Iterator<Map.Entry<String, Object>> iterator = entrySet.iterator();
-
-
-        List<LatLng> points ;
-        Point origin = new Point();
-        Point hitArea = new Point();
-        hitArea.x = 1;
-        hitArea.y = 1;
-        double threshold = calculateDistance(
-            projection.fromScreenLocation(origin),
-            projection.fromScreenLocation(hitArea));
-
-        float zIndex = -1;
-        float maxZIndex = -1;
-        Object hitOverlay = null;
-        Object overlay;
-
-        while(iterator.hasNext()) {
-          entry = iterator.next();
-          key = entry.getKey();
-          overlay = entry.getValue();
+            Set<Map.Entry<String, Object>> entrySet = boundsHitList.entrySet();
+            Iterator<Map.Entry<String, Object>> iterator = entrySet.iterator();
 
 
-          if (key.startsWith("polyline")) {
+            List<LatLng> points ;
+            Point origin = new Point();
+            Point hitArea = new Point();
+            hitArea.x = 1;
+            hitArea.y = 1;
+            double threshold = calculateDistance(
+                projection.fromScreenLocation(origin),
+                projection.fromScreenLocation(hitArea));
 
-            Polyline polyline = (Polyline)overlay;
-            zIndex = polyline.getZIndex();
-            if (zIndex < maxZIndex) {
-              continue;
+            float zIndex = -1;
+            float maxZIndex = -1;
+            Object hitOverlay = null;
+            Object overlay;
+
+            while(iterator.hasNext()) {
+              entry = iterator.next();
+              key = entry.getKey();
+              overlay = entry.getValue();
+
+              if (key.startsWith("polyline")) {
+
+                Polyline polyline = (Polyline)overlay;
+                if (polyline == null) {
+                  continue;
+                }
+                zIndex = polyline.getZIndex();
+                if (zIndex < maxZIndex) {
+                  continue;
+                }
+
+                points = polyline.getPoints();
+
+                if (polyline.isGeodesic()) {
+                  if (isPointOnTheGeodesicLine(points, point, threshold)) {
+                    hitOverlay = polyline;
+                    maxZIndex = zIndex;
+                    continue;
+                  }
+                } else {
+                  if (isPointOnTheLine(points, point)) {
+                    hitOverlay = polyline;
+                    maxZIndex = zIndex;
+                    continue;
+                  }
+                }
+              }
+
+              if (key.startsWith("polygon")) {
+                Polygon polygon = (Polygon)overlay;
+                if (polygon == null) {
+                  continue;
+                }
+                zIndex = polygon.getZIndex();
+                if (zIndex < maxZIndex) {
+                  continue;
+                }
+                if (isPolygonContains(polygon.getPoints(), point)) {
+                  hitOverlay = polygon;
+                  maxZIndex = zIndex;
+                  continue;
+                }
+              }
+
+
+              if (key.startsWith("circle")) {
+                Circle circle = (Circle)overlay;
+                if (circle == null) {
+                  continue;
+                }
+                zIndex = circle.getZIndex();
+                if (zIndex < maxZIndex) {
+                  continue;
+                }
+                if (isCircleContains(circle, point)) {
+                  hitOverlay = circle;
+                  maxZIndex = zIndex;
+                  continue;
+                }
+              }
+              if (key.startsWith("groundoverlay")) {
+                GroundOverlay groundOverlay = (GroundOverlay)overlay;
+                if (groundOverlay == null) {
+                  continue;
+                }
+                zIndex = groundOverlay.getZIndex();
+                if (zIndex < maxZIndex) {
+                  continue;
+                }
+                if (isGroundOverlayContains(groundOverlay, point)) {
+                  hitOverlay = groundOverlay;
+                  maxZIndex = zIndex;
+                  //continue;
+                }
+              }
             }
 
-            points = polyline.getPoints();
-
-            if (polyline.isGeodesic()) {
-              if (isPointOnTheGeodesicLine(points, point, threshold)) {
-                hitOverlay = polyline;
-                maxZIndex = zIndex;
-                continue;
-              }
+            //Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
+            if (hitOverlay instanceof Polygon) {
+              onPolygonClick((Polygon)hitOverlay, point);
+            } else if (hitOverlay instanceof Polyline) {
+              onPolylineClick((Polyline)hitOverlay, point);
+            } else if (hitOverlay instanceof Circle) {
+              onCircleClick((Circle)hitOverlay, point);
+            } else if (hitOverlay instanceof GroundOverlay) {
+              onGroundOverlayClick((GroundOverlay)hitOverlay, point);
             } else {
-              if (isPointOnTheLine(points, point)) {
-                hitOverlay = polyline;
-                maxZIndex = zIndex;
-                continue;
-              }
+              // Only emit click event if no overlays are hit
+              onMapEvent("map_click", point);
             }
           }
-
-          if (key.startsWith("polygon")) {
-            Polygon polygon = (Polygon)overlay;
-            zIndex = polygon.getZIndex();
-            if (zIndex < maxZIndex) {
-              continue;
-            }
-            if (isPolygonContains(polygon.getPoints(), point)) {
-              hitOverlay = polygon;
-              maxZIndex = zIndex;
-              continue;
-            }
-          }
-
-
-          if (key.startsWith("circle")) {
-            Circle circle = (Circle)overlay;
-            zIndex = circle.getZIndex();
-            if (zIndex < maxZIndex) {
-              continue;
-            }
-            if (isCircleContains(circle, point)) {
-              hitOverlay = circle;
-              maxZIndex = zIndex;
-              continue;
-            }
-          }
-          if (key.startsWith("groundoverlay")) {
-            GroundOverlay groundOverlay = (GroundOverlay)overlay;
-            zIndex = groundOverlay.getZIndex();
-            if (zIndex < maxZIndex) {
-              continue;
-            }
-            if (isGroundOverlayContains(groundOverlay, point)) {
-              hitOverlay = groundOverlay;
-              maxZIndex = zIndex;
-              continue;
-            }
-          }
-        }
-
-        //Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
-        if (hitOverlay instanceof Polygon) {
-          onPolygonClick((Polygon)hitOverlay, point);
-        } else if (hitOverlay instanceof Polyline) {
-          onPolylineClick((Polyline)hitOverlay, point);
-        } else if (hitOverlay instanceof Circle) {
-          onCircleClick((Circle)hitOverlay, point);
-        } else if (hitOverlay instanceof GroundOverlay) {
-          onGroundOverlayClick((GroundOverlay)hitOverlay, point);
-        } else {
-          // Only emit click event if no overlays are hit
-          onMapEvent("map_click", point);
-        }
+        });
       }
+    });
 
-    };
-    task.execute();
   }
+
 }

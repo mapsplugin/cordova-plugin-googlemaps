@@ -10,8 +10,7 @@
 #import "MyPlgunProtocol.h"
 @interface PluginPolygon : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-@property (nonatomic) NSMutableDictionary* objects;
-@property (nonatomic) NSOperationQueue *executeQueue;
+@property (nonatomic) BOOL initialized;
 
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)setFillColor:(CDVInvokedUrlCommand*)command;

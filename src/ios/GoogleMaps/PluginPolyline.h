@@ -11,10 +11,9 @@
 
 @interface PluginPolyline : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-@property (nonatomic) NSMutableDictionary* objects;
-@property (nonatomic) NSOperationQueue *executeQueue;
-- (void)create:(CDVInvokedUrlCommand*)command;
+@property (nonatomic) BOOL initialized;
 
+- (void)create:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeColor:(CDVInvokedUrlCommand*)command;
 - (void)setStrokeWidth:(CDVInvokedUrlCommand*)command;
 - (void)setPoints:(CDVInvokedUrlCommand*)command;

@@ -19,7 +19,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
   /**
    * Create kml overlay
-   * 
+   *
    * @param args
    * @param callbackContext
    * @throws JSONException

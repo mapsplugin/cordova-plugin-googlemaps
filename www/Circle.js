@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     LatLngBounds = require('./LatLngBounds'),
     BaseClass = require('./BaseClass');
@@ -8,7 +7,9 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Circle Class
  *****************************************************************************/
-var Circle = function(map, circleId, circleOptions) {
+var exec;
+var Circle = function(map, circleId, circleOptions, _exec) {
+    exec = _exec;
     BaseClass.apply(this);
 
     var self = this;
