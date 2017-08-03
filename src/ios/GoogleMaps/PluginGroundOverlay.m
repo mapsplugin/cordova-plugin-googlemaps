@@ -11,38 +11,32 @@
 @implementation PluginGroundOverlay
 - (void)pluginInitialize
 {
+  if (self.initialized) {
+    return;
+  }
+  [super pluginInitialize];
   // Initialize this plugin
-  self.objects = [[NSMutableDictionary alloc] init];
   //self.imgCache = [[NSCache alloc]init];
   //self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
-  self.executeQueue =  [NSOperationQueue new];
 }
 
 - (void)pluginUnload
 {
 
-  if (self.executeQueue != nil){
-      self.executeQueue.suspended = YES;
-      [self.executeQueue cancelAllOperations];
-      self.executeQueue.suspended = NO;
-      self.executeQueue = nil;
-  }
-
 
     // Plugin destroy
-    NSArray *keys = [self.objects allKeys];
+    NSArray *keys = [self.mapCtrl.objects allKeys];
     NSString *key;
     for (int i = 0; i < [keys count]; i++) {
         key = [keys objectAtIndex:i];
         if ([key hasPrefix:@"groundoverlay_property"]) {
           key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-          GMSGroundOverlay *groundoverlay = (GMSGroundOverlay *)[self.objects objectForKey:key];
+          GMSGroundOverlay *groundoverlay = (GMSGroundOverlay *)[self.mapCtrl.objects objectForKey:key];
           groundoverlay.map = nil;
           groundoverlay = nil;
         }
-        [self.objects removeObjectForKey:key];
+        [self.mapCtrl.objects removeObjectForKey:key];
     }
-    self.objects = nil;
 
   //[self.imgCache removeAllObjects];
   //self.imgCache = nil;
@@ -87,7 +81,7 @@
         GMSGroundOverlay *groundOverlay = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
         NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%lu", (unsigned long)groundOverlay.hash];
-        [self.objects setObject:groundOverlay forKey: groundOverlayId];
+        [self.mapCtrl.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;
 
         if ([json valueForKey:@"zIndex"]) {
@@ -116,7 +110,7 @@
         __block PluginGroundOverlay *me = self;
 
         // Load image
-        [self.executeQueue addOperationWithBlock:^{
+        [self.mapCtrl.executeQueue addOperationWithBlock:^{
             NSString *urlStr = [json objectForKey:@"url"];
             if (urlStr) {
                 [self _setImage:groundOverlay urlStr:urlStr completionHandler:^(BOOL successed) {
@@ -150,7 +144,7 @@
                   [properties setObject:[NSNumber numberWithBool:isClickable] forKey:@"isClickable"];
                   // zIndex
                   [properties setObject:[NSNumber numberWithFloat:groundOverlay.zIndex] forKey:@"zIndex"];;
-                  [me.objects setObject:properties forKey:propertyId];
+                  [me.mapCtrl.objects setObject:properties forKey:propertyId];
 
                   //---------------------------
                   // Result for JS
@@ -281,17 +275,17 @@
 {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
 
         //[self.imgCache removeObjectForKey:groundOverlayId];
 
         NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
-        [self.objects removeObjectForKey:propertyId];
-        [self.objects removeObjectForKey:groundOverlayId];
+        [self.mapCtrl.objects removeObjectForKey:propertyId];
+        [self.mapCtrl.objects removeObjectForKey:groundOverlayId];
 
         groundOverlay.map = nil;
         groundOverlay = nil;
-        [self.objects removeObjectForKey:groundOverlayId];
+        [self.mapCtrl.objects removeObjectForKey:groundOverlayId];
 
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -306,18 +300,18 @@
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
 
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
         NSString *key = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:key];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:key];
         Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
         // Update the property
         NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
         NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                           [self.objects objectForKey:propertyId]];
+                                           [self.mapCtrl.objects objectForKey:propertyId]];
         [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
-        [self.objects setObject:properties forKey:propertyId];
+        [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if (isVisible) {
@@ -340,10 +334,10 @@
 -(void)setImage:(CDVInvokedUrlCommand *)command
 {
 
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
         NSString *urlStr = [command.arguments objectAtIndex:1];
         if (urlStr) {
             __block PluginGroundOverlay *self_ = self;
@@ -373,9 +367,9 @@
  */
 -(void)setBounds:(CDVInvokedUrlCommand *)command
 {
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
         GMSMutablePath *path = [GMSMutablePath path];
 
         NSArray *points = [command.arguments objectAtIndex:1];
@@ -404,9 +398,9 @@
 -(void)setOpacity:(CDVInvokedUrlCommand *)command
 {
 
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
         CGFloat opacity = [[command.arguments objectAtIndex:1] floatValue];
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -425,9 +419,9 @@
 -(void)setBearing:(CDVInvokedUrlCommand *)command
 {
 
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             groundOverlay.bearing = [[command.arguments objectAtIndex:1] floatValue];
             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -445,18 +439,18 @@
  */
 -(void)setClickable:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
       NSString *key = [command.arguments objectAtIndex:0];
-      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.objects objectForKey:key];
+      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.mapCtrl.objects objectForKey:key];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property
       NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
+                                         [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isClickable] forKey:@"isClickable"];
-      [self.objects setObject:properties forKey:propertyId];
+      [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -470,9 +464,9 @@
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
 
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
-        GMSGroundOverlay *groundOverlay = [self.objects objectForKey:groundOverlayId];
+        GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
 
         NSInteger zIndex = [[command.arguments objectAtIndex:1] integerValue];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -488,7 +482,7 @@
 
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
         NSURLRequest *req = [NSURLRequest requestWithURL:url
                                           cachePolicy:NSURLRequestReturnCacheDataElseLoad
@@ -502,7 +496,7 @@
 
 
         [NSURLConnection sendAsynchronousRequest:req
-              queue:self.executeQueue
+              queue:self.mapCtrl.executeQueue
               completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
                 if ( !error ) {
                   UIImage *image = [UIImage imageWithData:data];

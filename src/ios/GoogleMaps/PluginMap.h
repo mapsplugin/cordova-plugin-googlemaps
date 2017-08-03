@@ -13,8 +13,7 @@
 @interface PluginMap : CDVPlugin<MyPlgunProtocol>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) BOOL isRemoved;
-@property (nonatomic) NSOperationQueue *executeQueue;
-@property (nonatomic) NSMutableDictionary* objects;
+@property (nonatomic) BOOL initialized;
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
 - (void)setClickable:(CDVInvokedUrlCommand*)command;
@@ -33,12 +32,13 @@
 - (void)setIndoorEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setTrafficEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setCompassEnabled:(CDVInvokedUrlCommand*)command;
-- (void)getCameraPosition:(CDVInvokedUrlCommand*)command;
+//- (void)getCameraPosition:(CDVInvokedUrlCommand*)command;
 - (void)toDataURL:(CDVInvokedUrlCommand*)command;
 - (void)setOptions:(CDVInvokedUrlCommand*)command;
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setPadding:(CDVInvokedUrlCommand*)command;
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
+- (void)setActiveMarkerId:(CDVInvokedUrlCommand*)command;
 
 @end

@@ -25,9 +25,9 @@ var MarkerCluster = require('./MarkerCluster');
  */
 var exec;
 var Map = function(id, _exec) {
+    exec = _exec;
     var self = this;
     BaseClass.apply(self);
-    exec = _exec;
 
     self.MARKERS = {};
     self.KML_LAYERS = {};
@@ -164,12 +164,16 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
     }
 
-    cordova.fireDocumentEvent('plugin_touch', {});
+    cordova.fireDocumentEvent('ecocheck', {});
 
     exec(function() {
-      self.refreshLayout();
-      self.trigger(event.MAP_READY, self);
-    }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args);
+      cordova.fireDocumentEvent('ecocheck', {});
+      // In order to work map.getVisibleRegion() correctly, wait a little.
+      setTimeout(function() {
+        self.refreshLayout();
+        self.trigger(event.MAP_READY, self);
+      }, 250);
+    }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {sync: true});
 };
 
 Map.prototype.setOptions = function(options) {
@@ -237,11 +241,13 @@ Map.prototype.clear = function(callback) {
         var id;
         for (var i = 0; i < ids.length; i++) {
             id = ids[i];
-            if (obj[id].type === "MarkerCluster") {
-              obj[id].remove();
+            if (obj[id]) {
+              if (obj[id].type === "MarkerCluster") {
+                obj[id].remove();
+              }
+              obj[id].off();
+              delete obj[id];
             }
-            obj[id].off();
-            delete obj[id];
         }
         obj = {};
     };
@@ -254,7 +260,7 @@ Map.prototype.clear = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, this.id, 'clear', []);
+    }, self.errorHandler, this.id, 'clear', [], {sync: true});
 };
 
 /**
@@ -405,7 +411,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    exec(null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled]);
+    exec(null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled], {sync: true});
     return this;
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
@@ -446,7 +452,7 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params]);
+    exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params], {sync: true});
 };
 Map.prototype.getFocusedBuilding = function(callback) {
     exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
@@ -514,7 +520,7 @@ Map.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id]);
+    }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {sync: true});
 };
 
 
@@ -591,8 +597,9 @@ Map.prototype.setDiv = function(div) {
         }
     }
     exec(function() {
-        self.refreshLayout();
-    }, self.errorHandler, self.id, 'setDiv', args);
+      cordova.fireDocumentEvent('ecocheck', {});
+      self.refreshLayout();
+    }, self.errorHandler, self.id, 'setDiv', args, {sync: true});
     return self;
 };
 
@@ -888,7 +895,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, polyline);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions], {sync: true});
 };
 
 //-------------
@@ -986,9 +993,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       "icons": markerClusterOptions.icons,
       "markerMap": markerMap,
       "maxZoomLevel": Math.max(markerClusterOptions.maxZoomLevel, 18) || 15,
-      "debug": markerClusterOptions.debug === true,
-      "exec": exec
-    });
+      "debug": markerClusterOptions.debug === true
+    }, exec);
     markerCluster.one("remove", function() {
       delete self.OVERLAYS[result.id];
 /*

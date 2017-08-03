@@ -210,7 +210,7 @@ MarkerCluster.prototype.remove = function() {
     "resolution": resolution,
     "new_or_update": [],
     "delete": deleteClusters
-  }]);
+  }], {sync: true});
 
 };
 MarkerCluster.prototype.getMarkerById = function(markerId) {
@@ -634,7 +634,7 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
     "resolution": resolution,
     "new_or_update": new_or_update_clusters,
     "delete": delete_clusters
-  }]);
+  }], {sync: true});
 
 
 };

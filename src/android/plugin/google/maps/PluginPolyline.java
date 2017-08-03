@@ -46,7 +46,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       polylineOptions.color(color);
     }
     if (opts.has("width")) {
-      polylineOptions.width(opts.getInt("width") * this.density);
+      polylineOptions.width(opts.getInt("width") * density);
     }
     if (opts.has("visible")) {
       polylineOptions.visible(opts.getBoolean("visible"));
@@ -74,13 +74,13 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
         Polyline polyline = map.addPolyline(polylineOptions);
         String id = "polyline_" + polyline.getId();
-        self.objects.put(id, polyline);
+        objects.put(id, polyline);
 
         String boundsId = "polyline_bounds_" + polyline.getId();
-        self.objects.put(boundsId, builder.build());
+        objects.put(boundsId, builder.build());
 
         String propertyId = "polyline_property_" + polyline.getId();
-        self.objects.put(propertyId, properties);
+        objects.put(propertyId, properties);
 
         try {
           JSONObject result = new JSONObject();
@@ -193,7 +193,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       }
     }
 
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   /**
@@ -243,19 +243,19 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(0);
     final Polyline polyline = this.getPolyline(id);
     if (polyline == null) {
-      this.sendNoResult(callbackContext);
+      callbackContext.success();
       return;
     }
-    self.objects.remove(id);
+    objects.remove(id);
 
     id = "polyline_bounds_" + polyline.getId();
-    self.objects.remove(id);
+    objects.remove(id);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         polyline.remove();
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -281,11 +281,11 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
             path.add(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
           }
           polyline.setPoints(path);
-          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
         } catch (JSONException e) {
           e.printStackTrace();
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -305,16 +305,16 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
         if (path.size() > index) {
           path.remove(index);
           if (path.size() > 0) {
-            self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+            objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
           } else {
-            self.objects.remove(propertyId);
+            objects.remove(propertyId);
           }
 
           polyline.setPoints(path);
         }
       }
     });
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
   public void insertPointAt(final JSONArray args, CallbackContext callbackContext) throws JSONException {
 
@@ -336,11 +336,11 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
         if (path.size() >= index) {
           path.add(index, latLng);
           polyline.setPoints(path);
-          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
         }
       }
     });
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
   public void setPointAt(final JSONArray args, CallbackContext callbackContext) throws JSONException {
 
@@ -361,13 +361,13 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
           // Recalculate the polygon bounds
           String propertyId = "polyline_bounds_" + polyline.getId();
-          self.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
           polyline.setPoints(path);
         }
       }
     });
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   /**
@@ -401,10 +401,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       }
     });
     String propertyId = "polyline_property_" + polyline.getId();
-    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    JSONObject properties = (JSONObject)objects.get(propertyId);
     properties.put("isVisible", isVisible);
-    self.objects.put(propertyId, properties);
-    this.sendNoResult(callbackContext);
+    objects.put(propertyId, properties);
+    callbackContext.success();
   }
 
   /**
@@ -417,9 +417,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(0);
     final boolean clickable = args.getBoolean(1);
     String propertyId = id.replace("polyline_", "polyline_property_");
-    JSONObject properties = (JSONObject)self.objects.get(propertyId);
+    JSONObject properties = (JSONObject)objects.get(propertyId);
     properties.put("isClickable", clickable);
-    self.objects.put(propertyId, properties);
-    this.sendNoResult(callbackContext);
+    objects.put(propertyId, properties);
+    callbackContext.success();
   }
 }

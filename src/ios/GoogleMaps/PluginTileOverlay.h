@@ -11,11 +11,10 @@
 #import "PluginTileProvider.h"
 
 @interface PluginTileOverlay : CDVPlugin<MyPlgunProtocol>
-
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-@property (nonatomic, strong) NSMutableDictionary* objects;
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (nonatomic, strong) NSCache* imgCache;
+@property (nonatomic) BOOL initialized;
 
 -(void)create:(CDVInvokedUrlCommand*)command;
 -(void)setVisible:(CDVInvokedUrlCommand *)command;

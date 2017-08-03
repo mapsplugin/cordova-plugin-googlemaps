@@ -134,46 +134,46 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   protected synchronized Circle getCircle(String id) {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the circle : " + id);
       return null;
     }
-    return (Circle)this.objects.get(id);
+    return (Circle)objects.get(id);
   }
   protected synchronized GroundOverlay getGroundOverlay(String id) {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the ground overlay : " + id);
       return null;
     }
-    return (GroundOverlay)this.objects.get(id);
+    return (GroundOverlay)objects.get(id);
   }
   protected synchronized Marker getMarker(String id) {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the maker : " + id);
       return null;
     }
-    return (Marker)this.objects.get(id);
+    return (Marker)objects.get(id);
   }
   protected synchronized Polyline getPolyline(String id) {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the polyline : " + id);
       return null;
     }
-    return (Polyline)this.objects.get(id);
+    return (Polyline)objects.get(id);
   }
   protected synchronized Polygon getPolygon(String id) {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the polygon : " + id);
       return null;
     }
-    return (Polygon)this.objects.get(id);
+    return (Polygon)objects.get(id);
   }
   protected synchronized TileOverlay getTileOverlay(String id) {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the tileoverlay : " + id);
       return null;
     }
-    return (TileOverlay)this.objects.get(id);
+    return (TileOverlay)objects.get(id);
   }
 
   protected void setInt(String methodName, String id, int value, final CallbackContext callbackContext) throws JSONException {
@@ -194,10 +194,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   private void setValue(String methodName, Class<?> methodClass, String id, final Object value, final CallbackContext callbackContext) throws JSONException {
-    if (!this.objects.containsKey(id)) {
+    if (!objects.containsKey(id)) {
       return;
     }
-    final Object object = this.objects.get(id);
+    final Object object = objects.get(id);
     try {
       final Method method = object.getClass().getDeclaredMethod(methodName, methodClass);
       cordova.getActivity().runOnUiThread(new Runnable() {
@@ -205,7 +205,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
         public void run() {
           try {
             method.invoke(object, value);
-            sendNoResult(callbackContext);
+            callbackContext.success();
           } catch (Exception e) {
             e.printStackTrace();
             callbackContext.error(e.getMessage());
@@ -224,13 +224,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
       object = objects.remove(key);
       object = null;
     }
-    this.objects.clear();
-  }
-
-  protected void sendNoResult(CallbackContext callbackContext) {
-    PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-    pluginResult.setKeepCallback(true);
-    callbackContext.sendPluginResult(pluginResult);
+    objects.clear();
   }
 
 

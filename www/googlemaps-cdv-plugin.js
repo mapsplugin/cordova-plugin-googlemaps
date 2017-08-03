@@ -380,55 +380,80 @@ function nativeCallback(params) {
     this[params.callback].apply(this, args);
 }
 
-var taskQueue = [];
-var _isRemove = false;
+/*****************************************************************************
+ * Command queue mechanism
+ * (Save the number of method executing at the same time)
+ *****************************************************************************/
+var commandQueue = [];
 var _isWaitMethod = null;
 var _isExecuting = false;
-function exec_serial(success, error, pluginName, methodName, args) {
+var _executingCnt = 0;
+var MAX_EXECUTE_CNT = 10;
+
+function execCmd(success, error, pluginName, methodName, args, execOptions) {
+  execOptions = execOptions || {};
   var self = this;
-  taskQueue.push([function() {
-    if (success) {
-      var results = [];
-      for (var i = 0; i < arguments.length; i++) {
-        results.push(arguments[i]);
+  commandQueue.push({
+    "execOptions": execOptions,
+    "args": [function() {
+      //console.log("success: " + methodName);
+      if (success) {
+        var results = [];
+        for (var i = 0; i < arguments.length; i++) {
+          results.push(arguments[i]);
+        }
+        success.apply(self, results);
       }
-      success.apply(self, results);
-    }
-    if (methodName === _isWaitMethod) {
-      _isWaitMethod = null;
-    }
-    _exec();
-  }, function() {
-    if (error) {
-      var results = [];
-      for (var i = 0; i < arguments.length; i++) {
-        results.push(arguments[i]);
+      if (methodName === _isWaitMethod) {
+        _isWaitMethod = null;
       }
-      error.apply(self, results);
-    }
+      _executingCnt--;
+      _exec();
+    }, function() {
+      //console.log("error: " + methodName);
+      if (error) {
+        var results = [];
+        for (var i = 0; i < arguments.length; i++) {
+          results.push(arguments[i]);
+        }
+        error.apply(self, results);
+      }
 
-    if (methodName === _isWaitMethod) {
-      _isWaitMethod = null;
-    }
-    _exec();
-  }, pluginName, methodName, args]);
+      if (methodName === _isWaitMethod) {
+        _isWaitMethod = null;
+      }
+      _executingCnt--;
+      _exec();
+    }, pluginName, methodName, args]
+  });
 
-  if (_isRemove || _isExecuting || taskQueue.length > 1) {
+  //console.log("commandQueue.length: " + commandQueue.length);
+  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || commandQueue.length > 1) {
     return;
   }
   _exec();
 }
 function _exec() {
-  if (_isRemove || _isExecuting || _isWaitMethod || taskQueue.length === 0) {
+  //console.log("commandQueue.length: " + commandQueue.length);
+  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || _isWaitMethod || commandQueue.length === 0) {
     return;
   }
   _isExecuting = true;
-  var taskParams = taskQueue.shift();
-  if (taskParams[3] === "clear") {
-    _isWaitMethod = taskParams[3];
+
+  while (commandQueue.length > 0 && _executingCnt < MAX_EXECUTE_CNT) {
+    _executingCnt++;
+    var commandParams = commandQueue.shift();
+    //console.log("start: " + commandParams.args[3]);
+    if (commandParams.execOptions.sync) {
+      _isWaitMethod = commandParams.args[3];
+      cordova_exec.apply(this, commandParams.args);
+      break;
+    }
+    cordova_exec.apply(this, commandParams.args);
   }
-  cordova_exec.apply(this, taskParams);
+  //console.log("commandQueue.length: " + commandQueue.length);
   _isExecuting = false;
+
 }
 
 /*****************************************************************************
@@ -464,8 +489,7 @@ module.exports = {
               div.setAttribute("__pluginMapId", mapId);
             }
 
-            var exec = mapOptions && mapOptions.execMode === "async" ? cordova_exec : exec_serial;
-            var map = new Map(mapId, exec);
+            var map = new Map(mapId, execCmd);
 
             // Catch all events for this map instance, then pass to the instance.
             document.addEventListener(mapId, nativeCallback.bind(map));

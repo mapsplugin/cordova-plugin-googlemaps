@@ -22,6 +22,9 @@
     self.clickable = YES;
     self.isRenderedAtOnce = NO;
     self.mapDivId = nil;
+    self.objects = [NSMutableDictionary dictionary];
+    self.executeQueue =  [NSOperationQueue new];
+    self.executeQueue.maxConcurrentOperationCount = 10;
 
     return self;
 }
@@ -75,20 +78,57 @@
     self.activeMarker = nil;
   }
 
-  NSArray *pluginNames =[self.plugins allKeys];
-  NSString *pluginName, *key;
+  //NSArray *pluginNames =[self.plugins allKeys];
+  //NSString *pluginName;
+  NSString *key;
   NSDictionary *properties;
-  CDVPlugin<MyPlgunProtocol> *plugin;
+  //CDVPlugin<MyPlgunProtocol> *plugin;
   GMSCoordinateBounds *bounds;
   GMSPath *path;
   NSArray *keys;
   NSNumber *isVisible, *geodesic, *isClickable;
   NSMutableArray *boundsHitList = [NSMutableArray array];
-  NSMutableArray *boundsPluginList = [NSMutableArray array];
+  //NSMutableArray *boundsPluginList = [NSMutableArray array];
   int i,j;
   float zIndex, maxZIndex;
   NSString* hitKey = nil;
 
+
+  keys = [self.objects allKeys];
+  for (j = 0; j < [keys count]; j++) {
+    key = [keys objectAtIndex:j];
+    if ([key containsString:@"-marker"] ||
+      [key containsString:@"property"] == NO) {
+      continue;
+    }
+
+    properties = [self.objects objectForKey:key];
+      //NSLog(@"--> key = %@, properties = %@", key, properties);
+
+    // Skip invisible polyline
+    isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
+    if ([isVisible boolValue] == NO) {
+      //NSLog(@"--> key = %@, isVisible = NO", key);
+      continue;
+    }
+
+    // Skip isClickable polyline
+    isClickable = (NSNumber *)[properties objectForKey:@"isClickable"];
+    if ([isClickable boolValue] == NO) {
+      //NSLog(@"--> key = %@, isClickable = NO", key);
+      continue;
+    }
+    //NSLog(@"--> key = %@, isVisible = YES, isClickable = YES", key);
+
+    // Skip if the click point is out of the polyline bounds.
+    bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
+    if ([bounds containsCoordinate:coordinate]) {
+      [boundsHitList addObject:key];
+      //[boundsPluginList addObject:plugin];
+    }
+
+  }
+/*
   for (i = 0; i < [pluginNames count]; i++) {
     pluginName = [pluginNames objectAtIndex:i];
 
@@ -131,7 +171,7 @@
       }
     }
   }
-
+*/
 
 
   CLLocationCoordinate2D origin = [self.map.projection coordinateForPoint:CGPointMake(0, 0)];
@@ -144,8 +184,8 @@
   maxZIndex = -1;
   for (i = 0; i < [boundsHitList count]; i++) {
     key = [boundsHitList objectAtIndex:i];
-    plugin = [boundsPluginList objectAtIndex:i];
-    properties = [plugin.objects objectForKey:key];
+    //plugin = [boundsPluginList objectAtIndex:i];
+    properties = [self.objects objectForKey:key];
 
 
     zIndex = [[properties objectForKey:@"zIndex"] floatValue];
@@ -185,7 +225,7 @@
 
     if ([key hasPrefix:@"circle_"]) {
       key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-      GMSCircle *circle = (GMSCircle *)[plugin.objects objectForKey:key];
+      GMSCircle *circle = (GMSCircle *)[self.objects objectForKey:key];
       if ([PluginUtil isCircleContains:circle coordinate:coordinate]) {
         maxZIndex = zIndex;
         hitKey = key;
@@ -195,7 +235,7 @@
 
     if ([key hasPrefix:@"groundoverlay_"]) {
       key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[plugin.objects objectForKey:key];
+      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.objects objectForKey:key];
       if ([groundOverlay.bounds containsCoordinate:coordinate]) {
         maxZIndex = zIndex;
         hitKey = key;
@@ -340,16 +380,16 @@
     self.activeMarker = marker;
   }
 
-  NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
-  NSString *className = [tmp objectAtIndex:0];
+  //NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
+  //NSString *className = [tmp objectAtIndex:0];
 
   // Get the marker plugin
-  NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
-  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
+  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", clusterId_markerId];
-  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+  NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
 
   BOOL disableAutoPan = false;
   if ([properties objectForKey:@"disableAutoPan"] != nil) {
@@ -563,14 +603,15 @@
 
 
   // Get the marker plugin
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
-  CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-  NSDictionary *properties = [plugin.objects objectForKey:markerPropertyId];
+  NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
+  Boolean useHtmlInfoWnd = marker.title == nil && marker.snippet == nil;
 
-  if ([[properties objectForKey:@"useHtmlInfoWnd"] boolValue]) {
+  if (useHtmlInfoWnd) {
     [self syncInfoWndPosition];
     [self triggerMarkerEvent:@"info_open" marker:marker];
 

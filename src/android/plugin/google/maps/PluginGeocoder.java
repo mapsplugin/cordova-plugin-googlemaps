@@ -1,10 +1,8 @@
 package plugin.google.maps;
 
-import android.app.Activity;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 

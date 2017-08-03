@@ -1,6 +1,5 @@
 package plugin.google.maps;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,7 +8,6 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -21,7 +19,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.lang.reflect.Method;
-import java.sql.Time;
 
 public class Environment extends CordovaPlugin {
   public PluginManager pluginManager;

@@ -10,7 +10,6 @@
 #import <Cordova/CDV.h>
 
 @protocol MyPlgunProtocol <NSObject>
-@property (nonatomic) NSMutableDictionary* objects;
 //- (void)onHookedPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId;
 - (void)pluginUnload;
 @end

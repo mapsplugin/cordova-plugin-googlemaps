@@ -57,6 +57,7 @@ import com.google.android.gms.maps.model.VisibleRegion;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.PluginManager;
@@ -83,8 +84,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
     GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener {
 
-  private JSONArray _saveArgs = null;
-  private CallbackContext _saveCallbackContext = null;
   private LatLngBounds initCameraBounds;
   private Activity activity;
   public GoogleMap map;
@@ -95,19 +94,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public final String TAG = mapId;
   public String mapDivId;
   public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
-  final int DEFAULT_CAMERA_PADDING = 20;
+  private final int DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
-  private final Object dummyObj = new Object();
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
   }
-
-  private final int SET_MY_LOCATION_ENABLED = 0x7f999990;  //random
-  //private final int SET_MY_LOCATION_ENABLED = 0x7f99991; //random
 
   private final String ANIMATE_CAMERA_DONE = "animate_camera_done";
   private final String ANIMATE_CAMERA_CANCELED = "animate_camera_canceled";
@@ -699,8 +694,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               plugins = null;
               map = null;
               mapView = null;
-              _saveArgs = null;
-              _saveCallbackContext = null;
               initCameraBounds = null;
               activity = null;
               mapId = null;
@@ -1573,21 +1566,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void onRequestPermissionResult(int requestCode, String[] permissions,
                                         int[] grantResults) throws JSONException {
-    PluginResult result;
+    boolean didPermissionGrant = true;
     for (int r : grantResults) {
       if (r == PackageManager.PERMISSION_DENIED) {
-        result = new PluginResult(PluginResult.Status.ERROR, "Geolocation permission request was denied.");
-        _saveCallbackContext.sendPluginResult(result);
-        return;
+        didPermissionGrant = false;
+        break;
       }
     }
-    switch (requestCode) {
-      case SET_MY_LOCATION_ENABLED:
-        this.setMyLocationEnabled(_saveArgs, _saveCallbackContext);
-        break;
+    synchronized (CordovaGoogleMaps.semaphore) {
+      CordovaGoogleMaps.semaphore.put("result_" + requestCode, didPermissionGrant ? "grant" : "denied");
+    }
 
-      default:
-        break;
+    synchronized (CordovaGoogleMaps.semaphore) {
+      CordovaGoogleMaps.semaphore.notify();
     }
   }
 
@@ -1613,12 +1604,26 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       callbackContext.sendPluginResult(result);
       return;
     }
+    Log.d(TAG, "---> setMyLocationEnabled, hasPermission =  " + locationPermission);
 
     if (!locationPermission) {
-      _saveArgs = args;
-      _saveCallbackContext = callbackContext;
-      mapCtrl.requestPermissions(this, SET_MY_LOCATION_ENABLED, new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
-      return;
+      //_saveArgs = args;
+      //_saveCallbackContext = callbackContext;
+      mapCtrl.requestPermissions(this, callbackContext.hashCode(), new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+      synchronized (CordovaGoogleMaps.semaphore) {
+        try {
+          CordovaGoogleMaps.semaphore.wait();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      locationPermission = "grant".equals(CordovaGoogleMaps.semaphore.remove("result_" + callbackContext.hashCode()));
+
+      if (!locationPermission) {
+        callbackContext.error("Geolocation permission request was denied.");
+        return;
+      }
+
     }
 
     final Boolean isEnabled = args.getBoolean(0);

@@ -15,37 +15,38 @@
 
 - (void)pluginInitialize
 {
+  if (self.initialized) {
+    return;
+  }
+  self.initialized = YES;
+  [super pluginInitialize];
   // Initialize this plugin
   self.icons = [[NSCache alloc]init];
   self.icons.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
-  self.executeQueue =  [NSOperationQueue new];
-  self.objects = [NSMutableDictionary dictionary];
   self.iconCacheKeys = [NSMutableDictionary dictionary];
 }
 
 - (void)pluginUnload
 {
-  if (self.executeQueue != nil){
-      self.executeQueue.suspended = YES;
-      [self.executeQueue cancelAllOperations];
-      self.executeQueue.suspended = NO;
-      self.executeQueue = nil;
-  }
 
   // Plugin destroy
-  NSArray *keys = [self.objects allKeys];
+  NSArray *keys = [self.mapCtrl.objects allKeys];
   NSString *key;
   for (int i = 0; i < [keys count]; i++) {
       key = [keys objectAtIndex:i];
       if ([key hasPrefix:@"marker_"] &&
+        ![key hasPrefix:@"marker_icon_"] &&
         ![key hasPrefix:@"marker_property"]) {
-          GMSMarker *marker = (GMSMarker *)[self.objects objectForKey:key];
-          [marker.layer removeAllAnimations];
+          GMSMarker *marker = (GMSMarker *)[self.mapCtrl.objects objectForKey:key];
+          if (marker) {
+            marker.userData = nil;
+            marker.map = nil;
+            [marker.layer removeAllAnimations];
+          }
           marker = nil;
       }
-      [self.objects removeObjectForKey:key];
+      [self.mapCtrl.objects removeObjectForKey:key];
   }
-  self.objects = nil;
 
   [self.icons removeAllObjects];
   self.icons = nil;
@@ -66,24 +67,27 @@
  */
 -(void)create:(CDVInvokedUrlCommand *)command
 {
+
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
     NSDictionary *json = [command.arguments objectAtIndex:1];
 
-  __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
-  NSString *markerId = [NSString stringWithFormat:@"marker_%lu", command.hash];
-  [createResult setObject:markerId forKey:@"id"];
+    __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
+    NSString *markerId = [NSString stringWithFormat:@"marker_%lu", command.hash];
+    [createResult setObject:markerId forKey:@"id"];
 
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-    CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
-    [self _create:markerId markerOptions:json callbackBlock:^(BOOL successed, id result) {
-      CDVPluginResult* pluginResult;
-      if (successed == NO) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:result];
-      } else {
-        pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];
-      }
-      [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
+      [self _create:markerId markerOptions:json callbackBlock:^(BOOL successed, id result) {
+        CDVPluginResult* pluginResult;
+        if (successed == NO) {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:result];
+        } else {
+          pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];
+        }
+        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
+
     }];
-
   }];
 
 }
@@ -130,8 +134,7 @@
     [marker setZIndex:[[json valueForKey:@"zIndex"] intValue]];
   }
 
-
-  [self.objects setObject:marker forKey: markerId];
+  [self.mapCtrl.objects setObject:marker forKey: markerId];
   marker.userData = markerId;
 
   // Custom properties
@@ -149,7 +152,7 @@
   }
   [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
 
-  [self.objects setObject:properties forKey: propertyId];
+  [self.mapCtrl.objects setObject:properties forKey: propertyId];
 
   // Create icon
   NSObject *icon = [json valueForKey:@"icon"];
@@ -206,17 +209,19 @@
  */
 -(void)showInfoWindow:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *hashCode = [command.arguments objectAtIndex:0];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *hashCode = [command.arguments objectAtIndex:0];
 
-      GMSMarker *marker = [self.objects objectForKey:hashCode];
-      if (marker) {
-          self.mapCtrl.map.selectedMarker = marker;
-          self.mapCtrl.activeMarker = marker;
-      }
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:hashCode];
+        if (marker) {
+            self.mapCtrl.map.selectedMarker = marker;
+            self.mapCtrl.activeMarker = marker;
+        }
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 /**
@@ -225,11 +230,13 @@
  */
 -(void)hideInfoWindow:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      self.mapCtrl.map.selectedMarker = nil;
-      self.mapCtrl.activeMarker = nil;
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        self.mapCtrl.map.selectedMarker = nil;
+        self.mapCtrl.activeMarker = nil;
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 /**
@@ -238,10 +245,10 @@
  */
 -(void)getPosition:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
 
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
       NSNumber *latitude = @0.0;
       NSNumber *longitude = @0.0;
       if (marker) {
@@ -263,24 +270,22 @@
  */
 -(void)setTitle:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      marker.title = [command.arguments objectAtIndex:1];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        marker.title = [command.arguments objectAtIndex:1];
 
-      BOOL useHtmlInfoWnd = marker.title == nil &&
-                            marker.snippet == nil;
-
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
-      [properties setObject:[NSNumber numberWithBool:useHtmlInfoWnd] forKey:@"useHtmlInfoWnd"];
-      [self.objects setObject:properties forKey:propertyId];
+        NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                           [self.mapCtrl.objects objectForKey:propertyId]];
+        [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
 
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -291,13 +296,15 @@
  */
 -(void)setSnippet:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      marker.snippet = [command.arguments objectAtIndex:1];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        marker.snippet = [command.arguments objectAtIndex:1];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -307,13 +314,15 @@
  */
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      [self _removeMarker:marker];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        [self _removeMarker:marker];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -322,18 +331,18 @@
     return;
   }
 
-  @synchronized (self.objects) {
+  @synchronized (self.mapCtrl.objects) {
     NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
     NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
-    [self.objects removeObjectForKey:marker.userData];
-    [self.objects removeObjectForKey:propertyId];
+    [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
+    [self.mapCtrl.objects removeObjectForKey:propertyId];
     marker.map = nil;
     marker = nil;
 
-    if ([self.objects objectForKey:iconCacheKey]) {
-      NSString *cacheKey = [self.objects objectForKey:iconCacheKey];
-      if ([self.objects objectForKey:iconCacheKey]) {
-        [self.objects removeObjectForKey:iconCacheKey];
+    if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
+      NSString *cacheKey = [self.mapCtrl.objects objectForKey:iconCacheKey];
+      if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
+        [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
 
         if ([self.iconCacheKeys objectForKey:cacheKey]) {
           int count = [[self.iconCacheKeys objectForKey:cacheKey] intValue];
@@ -350,8 +359,8 @@
           }
         }
       }
-      if ([self.objects objectForKey:iconCacheKey]) {
-        [self.objects removeObjectForKey:iconCacheKey];
+      if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
+        [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
       }
     }
   }
@@ -363,9 +372,9 @@
  */
 -(void)setIconAnchor:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
       CGFloat anchorX = [[command.arguments objectAtIndex:1] floatValue];
       CGFloat anchorY = [[command.arguments objectAtIndex:2] floatValue];
 
@@ -388,9 +397,9 @@
  */
 -(void)setInfoWindowAnchor:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           float anchorX = [[command.arguments objectAtIndex:1] floatValue];
@@ -417,13 +426,15 @@
  */
 -(void)setOpacity:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -433,13 +444,15 @@
  */
 -(void)setZIndex:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -449,14 +462,16 @@
  */
 -(void)setDraggable:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-      [marker setDraggable:isEnabled];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
+        [marker setDraggable:isEnabled];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -466,16 +481,16 @@
  */
 -(void)setDisableAutoPan:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
       BOOL disableAutoPan = [[command.arguments objectAtIndex:1] boolValue];
 
       NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
+                                         [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
-      [self.objects setObject:properties forKey:propertyId];
+      [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -488,26 +503,28 @@
  */
 -(void)setVisible:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
 
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
-      if (isVisible) {
-          marker.map = self.mapCtrl.map;
-      } else {
-          marker.map = nil;
-      }
+        if (isVisible) {
+            marker.map = self.mapCtrl.map;
+        } else {
+            marker.map = nil;
+        }
 
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
-      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.objects objectForKey:propertyId]];
-      [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
-      [self.objects setObject:properties forKey:propertyId];
+        NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.hash];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                           [self.mapCtrl.objects objectForKey:propertyId]];
+        [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
+        [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -517,9 +534,9 @@
  */
 -(void)setPosition:(CDVInvokedUrlCommand *)command
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
       float latitude = [[command.arguments objectAtIndex:1] floatValue];
       float longitude = [[command.arguments objectAtIndex:2] floatValue];
@@ -539,14 +556,16 @@
  */
 -(void)setFlat:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
-      Boolean isFlat = [[command.arguments objectAtIndex:1] boolValue];
-      [marker setFlat: isFlat];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+        Boolean isFlat = [[command.arguments objectAtIndex:1] boolValue];
+        [marker setFlat: isFlat];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -557,9 +576,9 @@
 -(void)setIcon:(CDVInvokedUrlCommand *)command
 {
 
-  [self.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
       if (marker == nil) {
         NSLog(@"--> can not find the maker : %@", markerId);
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
@@ -599,15 +618,17 @@
  */
 -(void)setRotation:(CDVInvokedUrlCommand *)command
 {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-      CLLocationDegrees degrees = [[command.arguments objectAtIndex:1] doubleValue];
-      [marker setRotation:degrees];
+        CLLocationDegrees degrees = [[command.arguments objectAtIndex:1] doubleValue];
+        [marker setRotation:degrees];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -615,17 +636,19 @@
 -(void)setAnimation:(CDVInvokedUrlCommand *)command
 {
 
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.objects objectForKey:markerId];
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *markerId = [command.arguments objectAtIndex:0];
+        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-      NSString *animation = [command.arguments objectAtIndex:1];
-      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
+        NSString *animation = [command.arguments objectAtIndex:1];
+        CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
 
-      [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
+        [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }];
+    }];
   }];
 }
 
@@ -921,7 +944,7 @@
             NSData *imgData = UIImagePNGRepresentation(image);
             [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
             imgData = nil;
-            [self.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
+            [self.mapCtrl.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
             [self.iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
 
 
@@ -1009,7 +1032,7 @@
                     NSData *imgData = UIImagePNGRepresentation(image);
                     [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
                     imgData = nil;
-                    [self.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
+                    [self.mapCtrl.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
 
                     dispatch_async(dispatch_get_main_queue(), ^{
                         marker.icon = image;
@@ -1162,7 +1185,7 @@
 
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
-    [self.executeQueue addOperationWithBlock:^{
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
         NSURLRequest *req = [NSURLRequest requestWithURL:url
                                           cachePolicy:NSURLRequestReturnCacheDataElseLoad
@@ -1207,7 +1230,7 @@
     //-------------------------------------------------------------
 /*
         [NSURLConnection sendAsynchronousRequest:req
-              queue:self.executeQueue
+              queue:self.mapCtrl.executeQueue
               completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
                 if ( !error ) {
                   [self.icons setObject:data forKey:uniqueKey cost:data.length];

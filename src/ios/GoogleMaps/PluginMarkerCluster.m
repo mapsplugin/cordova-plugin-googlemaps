@@ -15,9 +15,10 @@ const int GEOCELL_GRID_SIZE = 4;
 
 - (void)pluginInitialize
 {
-  if (self.objects) {
+  if (self.initialized) {
     return;
   }
+  self.initialized = YES;
   [super pluginInitialize];
 
   // Initialize this plugin
@@ -48,17 +49,17 @@ const int GEOCELL_GRID_SIZE = 4;
           //---------
           for (int i = (int)([self.deleteMarkers count] - 1); i > -1; i--) {
             markerId = [self.deleteMarkers objectAtIndex:i];
-            @synchronized (self.objects) {
-              marker = [self.objects objectForKey: markerId];
+            @synchronized (self.mapCtrl.objects) {
+              marker = [self.mapCtrl.objects objectForKey: markerId];
             }
 
             @synchronized (self.pluginMarkers) {
               if (![[self.pluginMarkers objectForKey:markerId] isEqualToString:@"WORKING"]) {
-                @synchronized (self.objects) {
+                @synchronized (self.mapCtrl.objects) {
                   [self _removeMarker:marker];
                   marker = nil;
-                  if ([self.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]]) {
-                    [self.objects removeObjectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]];
+                  if ([self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]]) {
+                    [self.mapCtrl.objects removeObjectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]];
                   }
                 }
                 [self.pluginMarkers removeObjectForKey:markerId];
@@ -114,9 +115,9 @@ const int GEOCELL_GRID_SIZE = 4;
   __block NSMutableDictionary *changeProperties = [NSMutableDictionary dictionary];
   __block NSString *clusterId = [command.arguments objectAtIndex: 0];
 
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
     @synchronized (self.semaphore) {
-      BOOL isDebug = [[self.objects objectForKey:clusterId] boolValue];
+      BOOL isDebug = [[self.mapCtrl.objects objectForKey:clusterId] boolValue];
 
       NSDictionary *params = [command.arguments objectAtIndex:1];
       NSString *clusterId_markerId;
@@ -159,7 +160,7 @@ const int GEOCELL_GRID_SIZE = 4;
         clusterId_markerId = [clusterData objectForKey:@"id"];
 
         // Save the marker properties
-        [self.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
+        [self.mapCtrl.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
 
         // Set the WORKING status flag
         [updateClusterIDs addObject:clusterId_markerId];
@@ -226,6 +227,12 @@ const int GEOCELL_GRID_SIZE = 4;
 
     } // @synchronized (self.semaphore)
 
+    if ([updateClusterIDs count] == 0) {
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      return;
+    }
+
     //---------------------------
     // mapping markers on the map
     //---------------------------
@@ -252,7 +259,7 @@ const int GEOCELL_GRID_SIZE = 4;
         // Get the marker properties
         markerProperties = [changeProperties objectForKey:clusterId_markerId];
 
-        isNew = [self.objects objectForKey:clusterId_markerId] == nil;
+        isNew = [self.mapCtrl.objects objectForKey:clusterId_markerId] == nil;
         //--------------------------
         // regular marker
         //--------------------------
@@ -280,7 +287,7 @@ const int GEOCELL_GRID_SIZE = 4;
             }];
           } else {
 
-            marker = [self.objects objectForKey:clusterId_markerId];
+            marker = [self.mapCtrl.objects objectForKey:clusterId_markerId];
             //----------------------------------------
             // Set the title and snippet properties
             //----------------------------------------
@@ -290,6 +297,7 @@ const int GEOCELL_GRID_SIZE = 4;
             if ([markerProperties objectForKey:@"snippet"]) {
               marker.snippet = [markerProperties objectForKey:@"snippet"];
             }
+            [self decreaseWaitWithClusterId:clusterId];
           }
           continue;
         }
@@ -308,12 +316,12 @@ const int GEOCELL_GRID_SIZE = 4;
           marker.userData = clusterId_markerId;
 
           // Store the marker instance with markerId
-          @synchronized (self.objects) {
-            [self.objects setObject:marker forKey:clusterId_markerId];
+          @synchronized (self.mapCtrl.objects) {
+            [self.mapCtrl.objects setObject:marker forKey:clusterId_markerId];
           }
         } else {
-          @synchronized (self.objects) {
-            marker = [self.objects objectForKey:clusterId_markerId];
+          @synchronized (self.mapCtrl.objects) {
+            marker = [self.mapCtrl.objects objectForKey:clusterId_markerId];
           }
         }
 
@@ -366,12 +374,12 @@ const int GEOCELL_GRID_SIZE = 4;
 
     }]; // [[NSOperationQueue mainQueue] addOperationWithBlock: ^{..}
 
+
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-
-  }); // dispatch_async
+  }]; // dispatch_async
 }
 
 - (void) setIconToClusterMarker:(NSString *) markerId marker:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock {

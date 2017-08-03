@@ -90,7 +90,7 @@ public class PluginMarkerCluster extends PluginMarker {
             status =  pluginMarkers.get(markerId);
             //Log.d(TAG, "delete : " + markerId + " = " + status);
             if (!STATUS.WORKING.equals(status)) {
-              synchronized (self.objects) {
+              synchronized (objects) {
                 _removeMarker(marker);
                 marker = null;
                 objects.remove(markerId);
@@ -192,7 +192,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
 
         // Save the marker properties
-        self.objects.put("marker_property_" + clusterId_markerId, clusterData);
+        objects.put("marker_property_" + clusterId_markerId, clusterData);
 
         // Set the WORKING status flag
         synchronized (pluginMarkers) {
@@ -263,6 +263,10 @@ public class PluginMarkerCluster extends PluginMarker {
 
       //Log.d(TAG, "---> deleteCnt : " + deleteCnt + ", newCnt : " + newCnt + ", updateCnt : " + updateCnt + ", reuseCnt : " + reuseCnt);
     }
+    if (updateClusterIDs.size() == 0) {
+      callbackContext.success();
+      return;
+    }
 
     //---------------------------
     // mapping markers on the map
@@ -291,6 +295,9 @@ public class PluginMarkerCluster extends PluginMarker {
           // Get the marker properties
           markerProperties = changeProperties.get(clusterId_markerId);
           if (clusterId_markerId.contains("-marker_")) {
+            //-------------------
+            // regular marker
+            //-------------------
             if (isNew) {
               final String fMarkerId = clusterId_markerId;
               JSONObject properties = (JSONObject) objects.get("marker_property_" + clusterId_markerId);
@@ -332,6 +339,7 @@ public class PluginMarkerCluster extends PluginMarker {
               if (markerProperties.containsKey("snippet")) {
                 marker.setSnippet(markerProperties.getString("snippet"));
               }
+              decreaseWaitCnt(clusterId);
             }
             continue;
           }
@@ -346,8 +354,8 @@ public class PluginMarkerCluster extends PluginMarker {
             marker.setTag(markerProperties.getString("id"));
 
             // Store the marker instance with markerId
-            synchronized (self.objects) {
-              self.objects.put(clusterId_markerId, marker);
+            synchronized (objects) {
+              objects.put(clusterId_markerId, marker);
             }
           } else {
             marker = getMarker(clusterId_markerId);
@@ -382,6 +390,7 @@ public class PluginMarkerCluster extends PluginMarker {
                 //--------------------------------------
                 decreaseWaitCnt(clusterId);
                 synchronized (pluginMarkers) {
+                  Log.d(TAG, "create : " + fMarkerId + " = CREATED");
                   pluginMarkers.put(fMarkerId, STATUS.CREATED);
                 }
               }
@@ -406,7 +415,7 @@ public class PluginMarkerCluster extends PluginMarker {
             // No icon for marker
             //--------------------
             synchronized (pluginMarkers) {
-              //Log.d(TAG, "create : " + markerId + " = CREATED");
+              Log.d(TAG, "create : " + clusterId_markerId + " = CREATED");
               pluginMarkers.put(clusterId_markerId, STATUS.CREATED);
             }
             decreaseWaitCnt(clusterId);
@@ -436,6 +445,7 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (waitCntManager) {
       int waitCnt = waitCntManager.get(clusterId);
       waitCnt = waitCnt - 1;
+      //Log.d(TAG, "--->waitCnt = " + waitCnt);
       if (waitCnt == 0) {
         synchronized (semaphore) {
           semaphore.notify();
@@ -449,10 +459,10 @@ public class PluginMarkerCluster extends PluginMarker {
   private void setIconToClusterMarker(final String markerId, final Marker marker, final Bundle iconProperty, final PluginAsyncInterface callback) {
     synchronized (pluginMarkers) {
       if (STATUS.DELETED.equals(pluginMarkers.get(markerId))) {
-        synchronized (self.objects) {
+        synchronized (objects) {
           PluginMarkerCluster.this._removeMarker(marker);
-          self.objects.remove(markerId);
-          self.objects.remove("marker_property_" + markerId);
+          objects.remove(markerId);
+          objects.remove("marker_property_" + markerId);
         }
         pluginMarkers.remove(markerId);
         callback.onError("marker has been removed");
@@ -465,10 +475,10 @@ public class PluginMarkerCluster extends PluginMarker {
         Marker marker = (Marker) object;
         synchronized (pluginMarkers) {
           if (STATUS.DELETED.equals(pluginMarkers.get(markerId))) {
-            synchronized (self.objects) {
+            synchronized (objects) {
               PluginMarkerCluster.this._removeMarker(marker);
-              self.objects.remove(markerId);
-              self.objects.remove("marker_property_" + markerId);
+              objects.remove(markerId);
+              objects.remove("marker_property_" + markerId);
             }
             pluginMarkers.remove(markerId);
             callback.onPostExecute(null);
@@ -488,8 +498,8 @@ public class PluginMarkerCluster extends PluginMarker {
           if (marker != null && marker.getTag() != null) {
             PluginMarkerCluster.this._removeMarker(marker);
           }
-          self.objects.remove(markerId);
-          self.objects.remove("marker_property_" + markerId);
+          objects.remove(markerId);
+          objects.remove("marker_property_" + markerId);
           pluginMarkers.remove(markerId);
           objects.remove(markerId);
           pluginMarkers.put(markerId, STATUS.DELETED);

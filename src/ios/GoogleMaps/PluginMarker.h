@@ -15,8 +15,7 @@
 
 @property (nonatomic, strong) NSCache* icons;
 @property (nonatomic) NSMutableDictionary* iconCacheKeys;
-@property (nonatomic) NSOperationQueue *executeQueue;
-@property (nonatomic) NSMutableDictionary* objects;
+@property (nonatomic) BOOL initialized;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
@@ -25,7 +24,6 @@
 - (void)getPosition:(CDVInvokedUrlCommand*)command;
 - (void)setSnippet:(CDVInvokedUrlCommand*)command;
 - (void)setTitle:(CDVInvokedUrlCommand*)command;
-- (void)setActiveMarkerId:(CDVInvokedUrlCommand*)command;
 - (void)setFlat:(CDVInvokedUrlCommand*)command;
 - (void)setOpacity:(CDVInvokedUrlCommand*)command;
 - (void)setDraggable:(CDVInvokedUrlCommand*)command;

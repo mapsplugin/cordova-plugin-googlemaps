@@ -587,7 +587,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         if (marker != null) {
           marker.showInfoWindow();
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -645,7 +645,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         if (marker != null) {
           marker.setPosition(position);
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -674,7 +674,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
     Marker marker = this.getMarker(id);
     if (marker == null) {
-      this.sendNoResult(callbackContext);
+      callbackContext.success();
       return;
     }
     String propertyId = "marker_property_" + id;
@@ -699,7 +699,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
     if (marker == null) {
-      this.sendNoResult(callbackContext);
+      callbackContext.success();
       return;
     }
     String propertyId = "marker_property_" + id;
@@ -711,7 +711,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     }
     properties.put("disableAutoPan", disableAutoPan);
     self.objects.put(propertyId, properties);
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
   /**
    * Set title for the marker
@@ -752,7 +752,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         if (marker != null) {
           marker.hideInfoWindow();
         }
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -790,7 +790,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         }
         _removeMarker(marker);
 
-        sendNoResult(callbackContext);
+        callbackContext.success();
       }
     });
   }
@@ -841,7 +841,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     if (imageSize != null) {
       this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
 
@@ -861,7 +861,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     if (imageSize != null) {
       this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
-    this.sendNoResult(callbackContext);
+    callbackContext.success();
   }
 
   /**
@@ -923,7 +923,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
         @Override
         public void onPostExecute(Object object) {
-          PluginMarker.this.sendNoResult(callbackContext);
+          callbackContext.success();
         }
 
         @Override
@@ -932,7 +932,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         }
       });
     } else {
-      this.sendNoResult(callbackContext);
+      callbackContext.success();
     }
   }
 
