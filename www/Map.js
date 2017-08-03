@@ -164,10 +164,10 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
     }
 
-    cordova.fireDocumentEvent('ecocheck', {});
+    cordova.fireDocumentEvent('plugin_touch', {});
 
     exec(function() {
-      cordova.fireDocumentEvent('ecocheck', {});
+      cordova.fireDocumentEvent('plugin_touch', {});
       // In order to work map.getVisibleRegion() correctly, wait a little.
       setTimeout(function() {
         self.refreshLayout();
@@ -597,7 +597,7 @@ Map.prototype.setDiv = function(div) {
         }
     }
     exec(function() {
-      cordova.fireDocumentEvent('ecocheck', {});
+      cordova.fireDocumentEvent('plugin_touch', {});
       self.refreshLayout();
     }, self.errorHandler, self.id, 'setDiv', args, {sync: true});
     return self;
