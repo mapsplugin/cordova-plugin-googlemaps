@@ -52,6 +52,24 @@ public class PluginMarkerCluster extends PluginMarker {
 
   }
 
+  @Override
+  protected void clear() {
+    synchronized (semaphore) {
+      synchronized (pluginMarkers) {
+        synchronized (deleteMarkers) {
+          String clusterId_markerId;
+          String[] keys = pluginMarkers.keySet().toArray(new String[pluginMarkers.size()]);
+          for (int i = 0; i < keys.length; i++) {
+            clusterId_markerId = keys[i];
+            pluginMarkers.put(clusterId_markerId, STATUS.DELETED);
+            deleteMarkers.add(clusterId_markerId);
+          }
+        }
+      }
+    }
+
+  }
+
   //---------------------
   // Delete thread
   //---------------------
