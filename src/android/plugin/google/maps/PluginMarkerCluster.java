@@ -238,27 +238,29 @@ public class PluginMarkerCluster extends PluginMarker {
           } else if (iconObj instanceof JSONObject) {
             JSONObject icon = clusterData.getJSONObject("icon");
             Bundle iconProperties = PluginUtil.Json2Bundle(icon);
-            if (icon.has("label")) {
-              JSONObject label = icon.getJSONObject("label");
-              if (isDebug) {
-                label.put("text", clusterId_markerId.replace(clusterId, ""));
+            if (clusterData.has("isClusterIcon") && clusterData.getBoolean("isClusterIcon")) {
+              if (icon.has("label")) {
+                JSONObject label = icon.getJSONObject("label");
+                if (isDebug) {
+                  label.put("text", clusterId_markerId.replace(clusterId, ""));
+                } else {
+                  label.put("text", clusterData.getInt("count") + "");
+                }
+                if (label.has("color")) {
+                  label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
+                }
+                iconProperties.putBundle("label", PluginUtil.Json2Bundle(label));
               } else {
-                label.put("text", clusterData.getInt("count") + "");
+                Bundle label = new Bundle();
+                if (isDebug) {
+                  label.putString("text", clusterId_markerId.replace(clusterId, ""));
+                } else {
+                  label.putInt("fontSize", 15);
+                  label.putBoolean("bold", true);
+                  label.putString("text", clusterData.getInt("count") + "");
+                }
+                iconProperties.putBundle("label", label);
               }
-              if (label.has("color")) {
-                label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
-              }
-              iconProperties.putBundle("label", PluginUtil.Json2Bundle(label));
-            } else {
-              Bundle label = new Bundle();
-              if (isDebug) {
-                label.putString("text", clusterId_markerId.replace(clusterId, ""));
-              } else {
-                label.putInt("fontSize", 15);
-                label.putBoolean("bold", true);
-                label.putString("text", clusterData.getInt("count") + "");
-              }
-              iconProperties.putBundle("label", label);
             }
             if (icon.has("anchor")) {
               double[] anchor = new double[2];
