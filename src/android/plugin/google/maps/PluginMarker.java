@@ -53,6 +53,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   protected ArrayList<Bitmap> icons = new ArrayList<Bitmap>();
   protected HashMap<String, Integer> iconCacheKeys = new HashMap<String, Integer>();
   private static final Paint paint = new Paint();
+  private final HashMap<String, Integer> semaphoreAsync = new HashMap<String, Integer>();
 
   protected interface ICreateMarkerCallback {
     void onSuccess(Marker marker);
@@ -97,74 +98,101 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
   @Override
   protected void clear() {
-    //--------------------------------------
-    // Cancel tasks
-    //--------------------------------------
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-        AsyncTask task;
-        int i, ilen=iconLoadingTasks.size();
-        for (i = 0; i < ilen; i++) {
-          task = iconLoadingTasks.remove(i);
-          task.cancel(true);
-          task = null;
-        }
-        iconLoadingTasks = null;
-      }
-    });
+    synchronized (semaphoreAsync) {
+      semaphoreAsync.put("waitCnt", 2);
 
-    //--------------------------------------
-    // Recycle bitmaps as much as possible
-    //--------------------------------------
-    String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
-    for (int i = 0; i < cacheKeys.length; i++) {
-      AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
-      iconCacheKeys.remove(cacheKeys[i]);
-    }
-    cacheKeys = null;
-    Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
-    Bitmap image;
-    for (int i = 0; i < cachedBitmaps.length; i++) {
-      image = icons.remove(0);
-      if (image != null && !image.isRecycled()) {
-        image.recycle();
-      }
-      image = null;
-    }
-    icons.clear();
-
-    //--------------------------------------
-    // clean up properties as much as possible
-    //--------------------------------------
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Set<String> keySet = objects.keySet();
-        String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
-
-        for (String objectId : objectIdArray) {
-          if (objects.containsKey(objectId)) {
-            if (objectId.startsWith("marker_") &&
-                !objectId.startsWith("marker_property_") &&
-                !objectId.startsWith("marker_icon_")) {
-              Marker marker = (Marker) objects.remove(objectId);
-              marker.setIcon(null);
-              marker.setTag(null);
-              marker.remove();
-              marker = null;
-            } else {
-              Object object = objects.remove(objectId);
-              object = null;
+      //--------------------------------------
+      // Cancel tasks
+      //--------------------------------------
+      cordova.getThreadPool().submit(new Runnable() {
+        @Override
+        public void run() {
+          AsyncTask task;
+          int i, ilen = iconLoadingTasks.size();
+          for (i = 0; i < ilen; i++) {
+            task = iconLoadingTasks.remove(i);
+            task.cancel(true);
+            task = null;
+          }
+          iconLoadingTasks = null;
+          synchronized (semaphoreAsync) {
+            int waitCnt = semaphoreAsync.get("waitCnt");
+            waitCnt = waitCnt - 1;
+            semaphoreAsync.put("waitCnt", waitCnt);
+            if (waitCnt < 1) {
+              semaphoreAsync.notify();
             }
           }
         }
+      });
 
-        objects.clear();
-        PluginMarker.super.clear();
-
+      //--------------------------------------
+      // Recycle bitmaps as much as possible
+      //--------------------------------------
+      String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
+      for (int i = 0; i < cacheKeys.length; i++) {
+        AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
+        iconCacheKeys.remove(cacheKeys[i]);
       }
-    });
+      cacheKeys = null;
+      Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
+      Bitmap image;
+      for (int i = 0; i < cachedBitmaps.length; i++) {
+        image = icons.remove(0);
+        if (image != null && !image.isRecycled()) {
+          image.recycle();
+        }
+        image = null;
+      }
+      icons.clear();
+
+      //--------------------------------------
+      // clean up properties as much as possible
+      //--------------------------------------
+      cordova.getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          Set<String> keySet = objects.keySet();
+          String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+
+          for (String objectId : objectIdArray) {
+            if (objects.containsKey(objectId)) {
+              if (objectId.startsWith("marker_") &&
+                  !objectId.startsWith("marker_property_") &&
+                  !objectId.startsWith("marker_icon_")) {
+                Marker marker = (Marker) objects.remove(objectId);
+                marker.setIcon(null);
+                marker.setTag(null);
+                marker.remove();
+                marker = null;
+              } else {
+                Object object = objects.remove(objectId);
+                object = null;
+              }
+            }
+          }
+
+          objects.clear();
+          PluginMarker.super.clear();
+
+          synchronized (semaphoreAsync) {
+            int waitCnt = semaphoreAsync.get("waitCnt");
+            waitCnt = waitCnt - 1;
+            semaphoreAsync.put("waitCnt", waitCnt);
+            if (waitCnt < 1) {
+              semaphoreAsync.notify();
+            }
+          }
+
+        }
+      });
+
+      try {
+        semaphoreAsync.wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
 
   }
 
