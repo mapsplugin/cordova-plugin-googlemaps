@@ -100,6 +100,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   protected void clear() {
     synchronized (semaphoreAsync) {
       semaphoreAsync.put("waitCnt", 2);
+      Log.d(TAG, "--->waitCnt = 2");
 
       //--------------------------------------
       // Cancel tasks
@@ -108,11 +109,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         @Override
         public void run() {
           AsyncTask task;
-          int i, ilen = iconLoadingTasks.size();
-          for (i = 0; i < ilen; i++) {
-            task = iconLoadingTasks.remove(i);
-            task.cancel(true);
-            task = null;
+          if (iconLoadingTasks != null && iconLoadingTasks.size() > 0) {
+            int i, ilen = iconLoadingTasks.size();
+            for (i = 0; i < ilen; i++) {
+              task = iconLoadingTasks.remove(i);
+              task.cancel(true);
+              task = null;
+            }
           }
           iconLoadingTasks = null;
           synchronized (semaphoreAsync) {
