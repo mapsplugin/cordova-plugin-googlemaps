@@ -392,6 +392,7 @@ var _isWaitMethod = null;
 var _isExecuting = false;
 var _executingCnt = 0;
 var MAX_EXECUTE_CNT = 10;
+var _lastGetMapExecuted = 0;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
   execOptions = execOptions || {};
@@ -407,11 +408,20 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         }
         success.apply(self, results);
       }
+
+      var delay = 0;
       if (methodName === _isWaitMethod) {
+        // Prevent device crash when the map.getMap() executes multiple time in short period
+        if (_isWaitMethod === "getMap" && Date.now() - _lastGetMapExecuted < 1500) {
+          delay = 1500;
+        }
+        _lastGetMapExecuted = Date.now();
         _isWaitMethod = null;
       }
-      _executingCnt--;
-      _exec();
+      setTimeout(function() {
+        _executingCnt--;
+        _exec();
+      }, delay);
     }, function() {
       //console.log("error: " + methodName);
       if (error) {
