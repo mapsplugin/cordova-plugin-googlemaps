@@ -97,13 +97,13 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         GroundOverlay groundOverlay = (GroundOverlay)object;
         String id = groundOverlay.getId();
 
-        objects.put("groundoverlay_" + id, groundOverlay);
+        pluginMap.objects.put("groundoverlay_" + id, groundOverlay);
 
-        objects.put("groundoverlay_bounds_" + id, groundOverlay.getBounds());
+        pluginMap.objects.put("groundoverlay_bounds_" + id, groundOverlay.getBounds());
 
-        objects.put("groundoverlay_property_" + id, properties);
+        pluginMap.objects.put("groundoverlay_property_" + id, properties);
 
-        objects.put("groundoverlay_initOpts_" + id, opts);
+        pluginMap.objects.put("groundoverlay_initOpts_" + id, opts);
 
         JSONObject result = new JSONObject();
         try {
@@ -132,21 +132,21 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void remove(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final String id = args.getString(0);
-    final GroundOverlay groundOverlay = (GroundOverlay)objects.get(id);
+    final GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
     if (groundOverlay == null) {
       callbackContext.success();
       return;
     }
 
-    objects.remove(id.replace("groundoverlay_", "groundoverlay_property_"));
-    objects.remove(id.replace("groundoverlay_", "groundoverlay_initOpts_"));
-    objects.remove(id.replace("groundoverlay_", "groundoverlay_bounds_"));
+    pluginMap.objects.remove(id.replace("groundoverlay_", "groundoverlay_property_"));
+    pluginMap.objects.remove(id.replace("groundoverlay_", "groundoverlay_initOpts_"));
+    pluginMap.objects.remove(id.replace("groundoverlay_", "groundoverlay_bounds_"));
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        GroundOverlay groundOverlay = (GroundOverlay)objects.get(id);
+        GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
         groundOverlay.remove();
-        objects.remove(id);
+        pluginMap.objects.remove(id);
         callbackContext.success();
       }
     });
@@ -161,13 +161,13 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void setImage(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    GroundOverlay groundOverlay = (GroundOverlay)objects.get(id);
+    GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
     String url = args.getString(1);
 
     String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
-    JSONObject opts = (JSONObject) objects.get(propertyId);
+    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
     opts.put("url", url);
-    objects.put(propertyId, opts);
+    pluginMap.objects.put(propertyId, opts);
 
     _createGroundOverlay(opts, callbackContext);
   }
@@ -181,14 +181,14 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void setBounds(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    final GroundOverlay groundOverlay = (GroundOverlay)objects.get(id);
+    final GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
 
     String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
-    JSONObject opts = (JSONObject) objects.get(propertyId);
+    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
 
     JSONArray points = args.getJSONArray(1);
     opts.put("bounds", points);
-    objects.put(propertyId, opts);
+    pluginMap.objects.put(propertyId, opts);
 
     final LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -199,7 +199,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     });
 
     String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
-    objects.put(boundsId, bounds);
+    pluginMap.objects.put(boundsId, bounds);
 
     callbackContext.success();
   }
@@ -215,9 +215,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     String id = args.getString(0);
 
     String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
-    JSONObject opts = (JSONObject) objects.get(propertyId);
+    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
     opts.put("opacity", opacity);
-    objects.put(propertyId, opts);
+    pluginMap.objects.put(propertyId, opts);
 
     this.setFloat("setTransparency", id, 1 - opacity, callbackContext);
   }
@@ -232,9 +232,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     String id = args.getString(0);
 
     String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
-    JSONObject opts = (JSONObject) objects.get(propertyId);
+    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
     opts.put("bearing", bearing);
-    objects.put(propertyId, opts);
+    pluginMap.objects.put(propertyId, opts);
 
     this.setFloat("setBearing", id, bearing, callbackContext);
   }
@@ -249,9 +249,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     float zIndex = (float) args.getDouble(1);
 
     String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
-    JSONObject opts = (JSONObject) objects.get(propertyId);
+    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
     opts.put("zIndex", zIndex);
-    objects.put(propertyId, opts);
+    pluginMap.objects.put(propertyId, opts);
 
     this.setFloat("setZIndex", id, zIndex, callbackContext);
   }
@@ -276,14 +276,14 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       }
     });
     String propertyId = "groundoverlay_property_" + groundOverlay.getId();
-    JSONObject properties = (JSONObject)objects.get(propertyId);
+    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isVisible", isVisible);
-    objects.put(propertyId, properties);
+    pluginMap.objects.put(propertyId, properties);
 
     propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
-    JSONObject opts = (JSONObject) objects.get(propertyId);
+    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
     opts.put("visible", isVisible);
-    objects.put(propertyId, opts);
+    pluginMap.objects.put(propertyId, opts);
 
     callbackContext.success();
   }
@@ -298,9 +298,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     String id = args.getString(0);
     final boolean clickable = args.getBoolean(1);
     String propertyId = id.replace("groundoverlay_", "groundoverlay_property_");
-    JSONObject properties = (JSONObject)objects.get(propertyId);
+    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isClickable", clickable);
-    objects.put(propertyId, properties);
+    pluginMap.objects.put(propertyId, properties);
     callbackContext.success();
   }
 
@@ -316,7 +316,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     imageOptions.noCaching = true;
     imageOptions.url = imgUrl;
 
-    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, new AsyncLoadImageInterface() {
+    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
         if (result == null || result.image == null) {
@@ -333,7 +333,12 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
       }
     });
-    task.execute();
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        task.execute();
+      }
+    });
     imageLoadingTasks.add(task);
 
 
