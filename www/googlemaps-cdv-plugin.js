@@ -354,7 +354,7 @@ document.head.appendChild(navDecorBlocker);
   function onBackButton() {
     // Request stop all tasks.
     _stopRequested = true;
-    if (_executingCnt > 0) {
+    if (_isWaitMethod && _executingCnt > 0) {
       // Wait until all tasks currently running are stopped.
       setTimeout(arguments.callee, 100);
       return;
@@ -414,7 +414,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       if (methodName === "resizeMap") {
         _isResizeMapExecuting = false;
       }
-      if (success) {
+      if (!_stopRequested && success) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
@@ -442,7 +442,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       if (methodName === "resizeMap") {
         _isResizeMapExecuting = false;
       }
-      if (error) {
+      if (!_stopRequested && error) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
