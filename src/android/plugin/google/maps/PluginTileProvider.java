@@ -136,7 +136,7 @@ public class PluginTileProvider implements TileProvider  {
     String originalUrlStr = null;
     final String urlKey = String.format(Locale.US, "%s-%s-%d-%d-%d", mapId, pluginId, x, y, zoom);
     synchronized (semaphore) {
-      final String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s-%s-tileoverlay', {key: \"%s\", x: %d, y: %d, zoom: %d})",
+      final String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s-%s-tileoverlay', {key: \"%s\", x: %d, y: %d, zoom: %d});}",
               mapId, pluginId, urlKey, x, y, zoom);
 
       handler.post(new Runnable() {

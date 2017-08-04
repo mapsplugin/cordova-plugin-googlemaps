@@ -41,7 +41,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private CallbackContext mCallback;
   private String kmlId = null;
   private static ExecutorService executorService = Executors.newCachedThreadPool();
-  
+
   private enum KML_TAG {
     style,
     stylemap,
@@ -66,11 +66,11 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     description,
     icon,
     href,
-    
+
     coordinates
   };
   private Bundle mOption = null;
-  
+
   public AsyncKmlParser(Activity activity, PluginMap pluginMap, String kmlId, Bundle option, CallbackContext callbackContext) {
     this.kmlId = kmlId;
     mCallback = callbackContext;
@@ -78,7 +78,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     mActivity = activity;
     mOption = option;
 
-    
+
     try {
       parser = XmlPullParserFactory.newInstance().newPullParser();
     } catch (Exception e) {
@@ -88,7 +88,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   }
   @Override
   protected Bundle doInBackground(String... params) {
-    
+
     Bundle kmlData = null;
     try {
       InputStream inputStream = null;
@@ -172,7 +172,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
         Log.d("AsyncKmlParser", "---> url = " + urlStr);
         inputStream = mActivity.getResources().getAssets().open(urlStr);
       }
-      
+
       parser.setInput(inputStream, null);
       kmlData = parseXML(parser);
       inputStream.close();
@@ -180,11 +180,11 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       e.printStackTrace();
       return null;
     }
-    
 
-    
-    
-    
+
+
+
+
     if (kmlData == null) {
       mCallback.error("KML Parse error");
       return null;
@@ -444,7 +444,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       }
     }
   }
-  
+
   private Bundle getStyleById(Bundle styles, String styleId) {
     Bundle style = null;
     Bundle tmpBundle;
@@ -453,21 +453,21 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     Iterator<Bundle> bundleIterator;
     if (styles.containsKey(styleId)) {
       style = styles.getBundle(styleId);
-      
+
       tagName = style.getString("tagName");
       if ("stylemap".equals(tagName)) {
 
         bundleList = style.getParcelableArrayList("children");
-        
+
         bundleIterator = bundleList.iterator();
         while(bundleIterator.hasNext()) {
           tmpBundle = bundleIterator.next();
           if ("normal".equals(tmpBundle.getString("key")) &&
               tmpBundle.containsKey("styleurl")) {
-            
+
             tmp = tmpBundle.getString("styleurl");
             style = styles.getBundle(tmp);
-            
+
             break;
           }
         }
@@ -475,14 +475,14 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     }
     return style;
   }
-  
+
   protected void onPostExecute(Bundle parseResult) {
 
     this.mCallback.success();
   }
-  
 
-  
+
+
   private void execOtherClassMethod(final JSONArray params, final CallbackContext callback) {
     executorService.submit(new Runnable() {
       @Override
@@ -509,17 +509,17 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       @Override
       public void onResult(PluginResult pluginResult) {
         String jsStr = String.format(Locale.ENGLISH,
-          "javascript:cordova.fireDocumentEvent('%s_%s', {class:'%s', placeMarkId:'%s', options:%s})",
+          "javascript:if(window.cordova){cordova.fireDocumentEvent('%s_%s', {class:'%s', placeMarkId:'%s', options:%s});}",
           mPluginMap.mapId, kmlId, className, placeMarkId, options.toString());
 
         Log.d("AsyncKmlParse", "--> " + jsStr);
           mPluginMap.webView.loadUrl(jsStr);
       }
-      
+
     });
-    
+
   }
-  
+
   private JSONArray kmlColor2PluginColor(String colorStr) {
     JSONArray rgba = new JSONArray();
     colorStr = colorStr.replace("#", "");
@@ -529,7 +529,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     rgba.put(Integer.parseInt(colorStr.substring(0, 2), 16));
     return rgba;
   }
-  
+
   private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
   {
     ArrayList<Bundle> placeMarks = new ArrayList<Bundle>();
@@ -538,7 +538,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
     Bundle result = new Bundle();
     ArrayList<Bundle> nodeStack = new ArrayList<Bundle>();
     Bundle styles = new Bundle();
-    
+
     Bundle parentNode;
     ArrayList<Bundle> pairList = null;
     KML_TAG kmlTag;
@@ -559,18 +559,18 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             // ignore
             //e.printStackTrace();
           }
-          
+
           if (kmlTag == null) {
             eventType = parser.next();
             continue;
           }
-          
+
           switch (kmlTag) {
           case stylemap:
           case style:
             //push
             nodeStack.add(currentNode);
-            
+
             currentNode = new Bundle();
             currentNode.putString("tagName", tagName);
             tmp = parser.getAttributeValue(null, "id");
@@ -584,7 +584,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             if (currentNode != null) {
               //push
               nodeStack.add(currentNode);
-              
+
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
               pairList = new ArrayList<Bundle>();
@@ -608,7 +608,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             if (currentNode != null) {
               //push
               nodeStack.add(currentNode);
-              
+
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
             }
@@ -625,12 +625,12 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               currentNode.putString(tagName, parser.nextText());
             }
             break;
-          
+
           case coordinates:
             if (currentNode != null) {
 
               ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
-              
+
               String txt = parser.nextText();
               txt = txt.replaceAll("\\s+", "\n");
               txt = txt.replaceAll("\\n+", "\n");
@@ -648,7 +648,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                   latLngList.add(latLng);
                 }
               }
-              
+
               currentNode.putParcelableArrayList(tagName, latLngList);
             }
             break;
@@ -658,7 +658,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
           break;
         case XmlPullParser.END_TAG:
           if (currentNode != null) {
-            
+
             tagName = parser.getName().toLowerCase(Locale.US);
             kmlTag = null;
             try {
@@ -667,12 +667,12 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
               //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
               //e.printStackTrace();
             }
-            
+
             if (kmlTag == null) {
               eventType = parser.next();
               continue;
             }
-            
+
             switch (kmlTag) {
             case stylemap:
             case style:
@@ -706,7 +706,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
             case polystyle:
               if (currentNode != null) {
                 pairList.add(currentNode);
-  
+
                 //pop
                 nodeIndex = nodeStack.size() - 1;
                 parentNode = nodeStack.get(nodeIndex);
@@ -726,7 +726,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
                 nodeIndex = nodeStack.size() - 1;
                 parentNode = nodeStack.get(nodeIndex);
                 nodeStack.remove(nodeIndex);
-                
+
                 if (parentNode.containsKey("children")) {
                   pairList = parentNode.getParcelableArrayList("children");
                   pairList.add(currentNode);
