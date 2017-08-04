@@ -355,6 +355,11 @@ document.head.appendChild(navDecorBlocker);
   // https://github.com/apache/cordova-android/blob/55d7cf38654157187c4a4c2b8784191acc97c8ee/bin/templates/project/assets/www/cordova.js#L1796-L1802
   var APP_PLUGIN_NAME = Number(require('cordova').platformVersion.split('.')[0]) >= 4 ? 'CoreAndroid' : 'App';
   document.addEventListener("backbutton", function() {
+    _stopRequested = true;
+    if (_executingCnt > 0) {
+      setTimeout(arguments.callee, 100);
+      return;
+    }
     // Executes the browser back history action
     cordova_exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
     resetTimer();
@@ -393,6 +398,7 @@ var _isExecuting = false;
 var _executingCnt = 0;
 var MAX_EXECUTE_CNT = 10;
 var _lastGetMapExecuted = 0;
+var _stopRequested = false;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
   execOptions = execOptions || {};
@@ -453,12 +459,19 @@ function _exec() {
   }
   _isExecuting = true;
 
+  var methodName;
   while (commandQueue.length > 0 && _executingCnt < MAX_EXECUTE_CNT) {
-    _executingCnt++;
+    if (!_stopRequested) {
+      _executingCnt++;
+    }
     var commandParams = commandQueue.shift();
+    methodName = commandParams.args[3];
     //console.log("start: " + commandParams.args[3]);
+    if (_stopRequested && methodName !== "remove") {
+      continue;
+    }
     if (commandParams.execOptions.sync) {
-      _isWaitMethod = commandParams.args[3];
+      _isWaitMethod = methodName;
       cordova_exec.apply(this, commandParams.args);
       break;
     }
