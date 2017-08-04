@@ -270,6 +270,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.getMap(args, callbackContext);
           } else if ("removeMap".equals(action)) {
             CordovaGoogleMaps.this.removeMap(args, callbackContext);
+          } else if ("backHistory".equals(action)) {
+            CordovaGoogleMaps.this.backHistory(args, callbackContext);
           }
 
         } catch (JSONException e) {
@@ -281,6 +283,17 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
+  public void backHistory(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (!webView.backHistory()) {
+          // If no more history back, exit the app
+          cordova.getActivity().finish();
+        }
+      }
+    });
+  }
 
 
   public void requestPermissions(CordovaPlugin plugin, int requestCode, String[] permissions) {

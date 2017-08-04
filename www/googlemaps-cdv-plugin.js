@@ -351,22 +351,25 @@ document.head.appendChild(navDecorBlocker);
   document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
 
-  // Catches the backbutton event
-  // https://github.com/apache/cordova-android/blob/55d7cf38654157187c4a4c2b8784191acc97c8ee/bin/templates/project/assets/www/cordova.js#L1796-L1802
-  var APP_PLUGIN_NAME = Number(require('cordova').platformVersion.split('.')[0]) >= 4 ? 'CoreAndroid' : 'App';
-  document.addEventListener("backbutton", function() {
+  function onBackButton() {
+    // Request stop all tasks.
     _stopRequested = true;
     if (_executingCnt > 0) {
+      // Wait until all tasks currently running are stopped.
       setTimeout(arguments.callee, 100);
       return;
     }
     // Executes the browser back history action
-    cordova_exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
-    resetTimer();
+    // Since the cordova can not exit from app sometimes, handle the backbutton action in CordovaGoogleMaps
+    cordova_exec(null, null, 'CordovaGoogleMaps', "backHistory", []);
 
-    // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
-    cordova.fireDocumentEvent('plugin_backbutton', {});
-  }, false);
+    if (cordova) {
+      resetTimer();
+      // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
+      cordova.fireDocumentEvent('plugin_backbutton', {});
+    }
+  }
+  document.addEventListener("backbutton", onBackButton, false);
 
 }());
 
@@ -398,6 +401,7 @@ var _isExecuting = false;
 var _executingCnt = 0;
 var MAX_EXECUTE_CNT = 10;
 var _lastGetMapExecuted = 0;
+var _isResizeMapExecuting = false;
 var _stopRequested = false;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
@@ -407,12 +411,17 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
     "execOptions": execOptions,
     "args": [function() {
       //console.log("success: " + methodName);
+      if (methodName === "resizeMap") {
+        _isResizeMapExecuting = false;
+      }
       if (success) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        success.apply(self, results);
+        setTimeout(function() {
+          success.apply(self,results);
+        }, 0);
       }
 
       var delay = 0;
@@ -430,12 +439,17 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       }, delay);
     }, function() {
       //console.log("error: " + methodName);
+      if (methodName === "resizeMap") {
+        _isResizeMapExecuting = false;
+      }
       if (error) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        error.apply(self, results);
+        setTimeout(function() {
+          error.apply(self,results);
+        }, 0);
       }
 
       if (methodName === _isWaitMethod) {
@@ -466,10 +480,18 @@ function _exec() {
     }
     var commandParams = commandQueue.shift();
     methodName = commandParams.args[3];
-    //console.log("start: " + commandParams.args[3]);
+    if (methodName === "resizeMap") {
+      if (_isResizeMapExecuting) {
+        _executingCnt--;
+        continue;
+      }
+      _isResizeMapExecuting = true;
+    }
     if (_stopRequested && methodName !== "remove") {
+      _executingCnt--;
       continue;
     }
+    //console.log("start: " + methodName);
     if (commandParams.execOptions.sync) {
       _isWaitMethod = methodName;
       cordova_exec.apply(this, commandParams.args);
