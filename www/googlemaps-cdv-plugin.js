@@ -6,7 +6,6 @@ if (!cordova) {
 }
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     cordova_exec = require('cordova/exec'),
     event = require('./event'),
     common = require('./Common'),
@@ -31,7 +30,6 @@ var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
-var spherical = require('./spherical');
 
 var INTERVAL_TIMER = null;
 var MAPS = {};
@@ -114,7 +112,7 @@ document.head.appendChild(navDecorBlocker);
         return;
       }
       if (mapIDs.length === 0) {
-        cordova.exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
       isChecking = true;
@@ -134,7 +132,7 @@ document.head.appendChild(navDecorBlocker);
       if (visibleMapList.length === 0) {
         idlingCnt++;
         if (!isSuspended) {
-          cordova.exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+          cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
         }
         //if (idlingCnt < 5) {
@@ -145,7 +143,7 @@ document.head.appendChild(navDecorBlocker);
       }
       if (isSuspended) {
         isSuspended = false;
-        cordova.exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
 
 
@@ -298,7 +296,7 @@ document.head.appendChild(navDecorBlocker);
           }
       });
 
-      cordova.exec(function() {
+      cordova_exec(function() {
           prevDomPositions = domPositions;
           mapIDs.forEach(function(mapId) {
               if (mapId in MAPS) {
@@ -358,7 +356,7 @@ document.head.appendChild(navDecorBlocker);
   var APP_PLUGIN_NAME = Number(require('cordova').platformVersion.split('.')[0]) >= 4 ? 'CoreAndroid' : 'App';
   document.addEventListener("backbutton", function() {
     // Executes the browser back history action
-    exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
+    cordova_exec(null, null, APP_PLUGIN_NAME, "backHistory", []);
     resetTimer();
 
     // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
