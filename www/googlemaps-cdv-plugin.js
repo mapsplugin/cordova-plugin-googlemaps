@@ -486,6 +486,10 @@ module.exports = {
             var mapId;
             if (common.isDom(div)) {
               mapId = div.getAttribute("__pluginMapId");
+              if (!mapOptions || mapOptions.visible !== false) {
+                // Add gray color until the map is displayed.
+                div.style.backgroundColor = "rgba(255, 30, 30, 0.5);";
+              }
             }
             if (mapId in MAPS) {
               //--------------------------------------------------

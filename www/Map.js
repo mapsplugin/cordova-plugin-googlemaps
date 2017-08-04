@@ -149,6 +149,18 @@ Map.prototype.getMap = function(mapId, div, options) {
         }
         args.push(elemId);
 
+    }
+
+    cordova.fireDocumentEvent('plugin_touch', {});
+
+    exec(function() {
+      cordova.fireDocumentEvent('plugin_touch', {});
+
+      //------------------------------------------------------------------------
+      // Clear background colors of map div parents after the map is created
+      //------------------------------------------------------------------------
+      var div = self.get("div");
+      if (common.isDom(div)) {
         while (div.parentNode) {
             div.style.backgroundColor = 'rgba(0,0,0,0)';
 
@@ -161,13 +173,10 @@ Map.prototype.getMap = function(mapId, div, options) {
 
             div = div.parentNode;
         }
-    }
-
-    cordova.fireDocumentEvent('plugin_touch', {});
-
-    exec(function() {
-      cordova.fireDocumentEvent('plugin_touch', {});
+      }
+      //------------------------------------------------------------------------
       // In order to work map.getVisibleRegion() correctly, wait a little.
+      //------------------------------------------------------------------------
       setTimeout(function() {
         self.refreshLayout();
         self.trigger(event.MAP_READY, self);
