@@ -110,7 +110,8 @@ public class Environment extends CordovaPlugin {
     Handler handler = new Handler(cordova.getActivity().getMainLooper());
     handler.postDelayed(new Runnable() {
       public void run() {
-        googleMaps.mPluginLayout.setBackgroundColor(finalBackgroundColor);
+        googleMaps.mPluginLayout.backgroundWebview.loadUrl("javascript:onSetBackgroundCSS(\"url('./images/starbucks.gif')\");" );
+        //googleMaps.mPluginLayout.setBackgroundColor(finalBackgroundColor);
         sendNoResult(callbackContext);
       }
     }, googleMaps.initialized ? 0 : 250);

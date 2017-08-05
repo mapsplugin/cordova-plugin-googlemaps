@@ -351,6 +351,9 @@ document.head.appendChild(navDecorBlocker);
   document.addEventListener("plugin_touch", resetTimer);
   window.addEventListener("orientationchange", resetTimer);
 
+  /*******************************
+   * backbutton action of Android
+   *******************************/
   function onBackButton() {
     // Request stop all tasks.
     _stopRequested = true;
@@ -371,6 +374,17 @@ document.head.appendChild(navDecorBlocker);
   }
   document.addEventListener("backbutton", onBackButton, false);
 
+  /*******************************
+   * Window.onScroll
+   *******************************/
+/*
+  document.body.addEventListener("resize", function() {
+    cordova_exec(null, null, 'CordovaGoogleMaps', "onBodyResize", [common.getDivRect(document.body)]);
+  }, false);
+  window.addEventListener("scroll", function() {
+   cordova_exec(null, null, 'CordovaGoogleMaps', "onBodyResize", [common.getDivRect(document.body)]);
+ }, false);
+*/
 }());
 
 /*****************************************************************************

@@ -381,7 +381,7 @@
         [self.locationManager startUpdatingLocation];
         [self.locationCommandQueue addObject:command];
 
-        //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+        //CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         //[pluginResult setKeepCallbackAsBool:YES];
         //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }

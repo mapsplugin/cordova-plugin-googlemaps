@@ -206,7 +206,7 @@
     //self.debugView.clickable = isClickable;
     //[self.pluginScrollView.debugView setNeedsDisplay];
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }

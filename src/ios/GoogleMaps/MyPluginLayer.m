@@ -31,6 +31,16 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         }
     }
 
+    self.backgroundWebview = [[UIWebView alloc] initWithFrame:webView.frame];
+    NSMutableArray *html = [NSMutableArray array];
+    [html addObject:@"<!DocType html>"];
+    [html addObject:@"<html><head>"];
+    [html addObject:@"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no\">"];
+    [html addObject:@"<script type=\"text/javascript\">function onSetBackgroundCSS(css){document.body.style.background=css;}</script>"];
+    [html addObject:@"</head><body><h1>hello</h1></body></html>"];
+    [self.backgroundWebview loadHTMLString:[html componentsJoinedByString:@""] baseURL:nil];
+    self.backgroundWebview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
     self.pluginScrollView = [[MyPluginScrollView alloc] initWithFrame:[self.webView frame]];
 
     self.pluginScrollView.debugView.webView = self.webView;
@@ -41,6 +51,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     uiview.scrollView.delegate = self;
     [self.pluginScrollView setContentSize:self.webView.scrollView.frame.size ];
 
+    [self addSubview:self.backgroundWebview];
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
 

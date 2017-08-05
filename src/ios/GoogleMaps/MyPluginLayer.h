@@ -13,6 +13,7 @@
 @interface MyPluginLayer : UIView<UIScrollViewDelegate>
 
 @property (nonatomic) UIView *webView;
+@property (nonatomic) UIWebView *backgroundWebview;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 @property (nonatomic) NSTimer *redrawTimer;
 @property (nonatomic) BOOL isSuspended;

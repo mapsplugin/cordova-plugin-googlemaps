@@ -16,6 +16,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -54,6 +57,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
   private float zoomScale;
+  public WebView backgroundWebview = null;
 
   public Timer redrawTimer;
 
@@ -165,10 +169,29 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
   };
 
-  @SuppressLint("NewApi")
+  @SuppressLint({"NewApi", "SetJavaScriptEnabled"})
   public MyPluginLayout(CordovaWebView webView, Activity activity) {
     super(webView.getView().getContext());
     this.browserView = webView.getView();
+    this.backgroundWebview = new WebView(activity);
+    this.backgroundWebview.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    this.backgroundWebview.getSettings().setJavaScriptEnabled(true);
+    this.backgroundWebview.getSettings().setAllowFileAccessFromFileURLs(true);
+    this.backgroundWebview.getSettings().setLoadsImagesAutomatically(true);
+    this.backgroundWebview.getSettings().setAllowFileAccess(true);
+    this.backgroundWebview.getSettings().setUseWideViewPort(true);;
+    this.backgroundWebview.setWebViewClient(new WebViewClient());
+    this.backgroundWebview.setWebChromeClient(new WebChromeClient());
+
+    String js = "<!DOCTYPE html><html>" +
+        "<head>" +
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no\">" +
+        //"<style type='text/css'>body {background:url(./images/starbucks.gif);}</style>" +
+        "<script type='text/javascript'>function onSetBackgroundCSS(css){document.body.style.background=css;}</script>" +
+        "</head>" +
+        "<body></body><html>";
+    this.backgroundWebview.loadDataWithBaseURL("file:///android_asset/www/", js, "text/html", "UTF-8", "");
+
     browserView.getViewTreeObserver().addOnGlobalLayoutListener(this);
     mActivity = activity;
     this.webView = webView;
@@ -201,11 +224,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     browserView.setDrawingCacheEnabled(false);
 
-
+    this.addView(this.backgroundWebview);
     this.addView(scrollView);
     this.addView(frontLayer);
     root.addView(this);
     browserView.setBackgroundColor(Color.TRANSPARENT);
+    this.setBackgroundColor(Color.TRANSPARENT);
     /*
     if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
       || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
