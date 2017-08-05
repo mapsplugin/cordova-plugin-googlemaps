@@ -103,8 +103,8 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         TileOverlay tileOverlay = map.addTileOverlay(options);
         //String id = tileOverlay.getId();
 
-        objects.put("tileoverlay_" + id, tileOverlay);
-        objects.put("tileprovider_" + id, tileProvider);
+        pluginMap.objects.put("tileoverlay_" + id, tileOverlay);
+        pluginMap.objects.put("tileprovider_" + id, tileProvider);
 
         try {
           JSONObject result = new JSONObject();
@@ -125,8 +125,8 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     String urlKey = args.getString(1);
     String tileUrl = args.getString(2);
     String pluginId = "tileprovider_" + id;
-    if (objects.containsKey(pluginId)) {
-      ((PluginTileProvider)(this.objects.get(pluginId))).onGetTileUrlFromJS(urlKey, tileUrl);
+    if (pluginMap.objects.containsKey(pluginId)) {
+      ((PluginTileProvider)(this.pluginMap.objects.get(pluginId))).onGetTileUrlFromJS(urlKey, tileUrl);
     }
     callbackContext.success();
   }
@@ -163,7 +163,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    */
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    final TileOverlay tileOverlay = (TileOverlay)objects.get(id);
+    final TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.get(id);
     if (tileOverlay == null) {
       callbackContext.success();
       return;
@@ -177,13 +177,13 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
         try {
           String id = args.getString(0);
-          objects.remove(id);
+          pluginMap.objects.remove(id);
           id = id.replace("tileoverlay_", "tileprovider_");
-          if (objects.containsKey(id)) {
-            ((PluginTileProvider)(objects.get(id))).remove();
+          if (pluginMap.objects.containsKey(id)) {
+            ((PluginTileProvider)(pluginMap.objects.get(id))).remove();
           }
-          //objects.put(id, null);
-          objects.remove(id);
+          //pluginMap.objects.put(id, null);
+          pluginMap.objects.remove(id);
           callbackContext.success();
         } catch (JSONException e) {
           e.printStackTrace();

@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
-  protected static final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
   public MyPlugin self = null;
   public final ConcurrentHashMap<String, Method> methods = new ConcurrentHashMap<String, Method>();
   protected static ExecutorService executorService = null;
@@ -134,46 +133,46 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   protected synchronized Circle getCircle(String id) {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the circle : " + id);
       return null;
     }
-    return (Circle)objects.get(id);
+    return (Circle)pluginMap.objects.get(id);
   }
   protected synchronized GroundOverlay getGroundOverlay(String id) {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the ground overlay : " + id);
       return null;
     }
-    return (GroundOverlay)objects.get(id);
+    return (GroundOverlay)pluginMap.objects.get(id);
   }
   protected synchronized Marker getMarker(String id) {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the maker : " + id);
       return null;
     }
-    return (Marker)objects.get(id);
+    return (Marker)pluginMap.objects.get(id);
   }
   protected synchronized Polyline getPolyline(String id) {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the polyline : " + id);
       return null;
     }
-    return (Polyline)objects.get(id);
+    return (Polyline)pluginMap.objects.get(id);
   }
   protected synchronized Polygon getPolygon(String id) {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the polygon : " + id);
       return null;
     }
-    return (Polygon)objects.get(id);
+    return (Polygon)pluginMap.objects.get(id);
   }
   protected synchronized TileOverlay getTileOverlay(String id) {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the tileoverlay : " + id);
       return null;
     }
-    return (TileOverlay)objects.get(id);
+    return (TileOverlay)pluginMap.objects.get(id);
   }
 
   protected void setInt(String methodName, String id, int value, final CallbackContext callbackContext) throws JSONException {
@@ -194,10 +193,10 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   }
 
   private void setValue(String methodName, Class<?> methodClass, String id, final Object value, final CallbackContext callbackContext) throws JSONException {
-    if (!objects.containsKey(id)) {
+    if (!pluginMap.objects.containsKey(id)) {
       return;
     }
-    final Object object = objects.get(id);
+    final Object object = pluginMap.objects.get(id);
     try {
       final Method method = object.getClass().getDeclaredMethod(methodName, methodClass);
       cordova.getActivity().runOnUiThread(new Runnable() {
@@ -218,13 +217,13 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
   }
   protected void clear() {
-    String[] keys = objects.keySet().toArray(new String[objects.size()]);
+    String[] keys = pluginMap.objects.keySet().toArray(new String[pluginMap.objects.size()]);
     Object object;
     for (String key : keys) {
-      object = objects.remove(key);
+      object = pluginMap.objects.remove(key);
       object = null;
     }
-    objects.clear();
+    pluginMap.objects.clear();
   }
 
 

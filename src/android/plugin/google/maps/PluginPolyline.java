@@ -74,13 +74,13 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
         Polyline polyline = map.addPolyline(polylineOptions);
         String id = "polyline_" + polyline.getId();
-        objects.put(id, polyline);
+        pluginMap.objects.put(id, polyline);
 
         String boundsId = "polyline_bounds_" + polyline.getId();
-        objects.put(boundsId, builder.build());
+        pluginMap.objects.put(boundsId, builder.build());
 
         String propertyId = "polyline_property_" + polyline.getId();
-        objects.put(propertyId, properties);
+        pluginMap.objects.put(propertyId, properties);
 
         try {
           JSONObject result = new JSONObject();
@@ -246,10 +246,10 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       callbackContext.success();
       return;
     }
-    objects.remove(id);
+    pluginMap.objects.remove(id);
 
     id = "polyline_bounds_" + polyline.getId();
-    objects.remove(id);
+    pluginMap.objects.remove(id);
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -281,7 +281,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
             path.add(new LatLng(position.getDouble("lat"), position.getDouble("lng")));
           }
           polyline.setPoints(path);
-          objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
         } catch (JSONException e) {
           e.printStackTrace();
         }
@@ -305,9 +305,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
         if (path.size() > index) {
           path.remove(index);
           if (path.size() > 0) {
-            objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+            pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
           } else {
-            objects.remove(propertyId);
+            pluginMap.objects.remove(propertyId);
           }
 
           polyline.setPoints(path);
@@ -336,7 +336,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
         if (path.size() >= index) {
           path.add(index, latLng);
           polyline.setPoints(path);
-          objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
         }
       }
     });
@@ -361,7 +361,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
 
           // Recalculate the polygon bounds
           String propertyId = "polyline_bounds_" + polyline.getId();
-          objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
+          pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
           polyline.setPoints(path);
         }
@@ -401,9 +401,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       }
     });
     String propertyId = "polyline_property_" + polyline.getId();
-    JSONObject properties = (JSONObject)objects.get(propertyId);
+    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isVisible", isVisible);
-    objects.put(propertyId, properties);
+    pluginMap.objects.put(propertyId, properties);
     callbackContext.success();
   }
 
@@ -417,9 +417,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(0);
     final boolean clickable = args.getBoolean(1);
     String propertyId = id.replace("polyline_", "polyline_property_");
-    JSONObject properties = (JSONObject)objects.get(propertyId);
+    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isClickable", clickable);
-    objects.put(propertyId, properties);
+    pluginMap.objects.put(propertyId, properties);
     callbackContext.success();
   }
 }

@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
@@ -98,6 +99,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
+  public final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -683,10 +685,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 if (pluginEntry == null) {
                   continue;
                 }
+                pluginEntry.plugin.onDestroy();
                 ((MyPlugin)pluginEntry.plugin).map = null;
                 ((MyPlugin)pluginEntry.plugin).mapCtrl = null;
-                ((MyPlugin)pluginEntry.plugin).pluginMap = null;
-                pluginEntry.plugin.onDestroy();
+                //((MyPlugin)pluginEntry.plugin).pluginMap = null; // Do not clear at here.
                 pluginEntry = null;
               }
               //Log.d("pluginMap", "--> mapView = " + mapView);
@@ -745,8 +747,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String propertyId = "marker_property_" + markerTag;
     //Log.d(TAG, "---> getInfoContents / propertyId = " + propertyId);
 
-    if (myPlugin.objects.containsKey(propertyId)) {
-      properties = (JSONObject) myPlugin.objects.get(propertyId);
+    if (objects.containsKey(propertyId)) {
+      properties = (JSONObject) objects.get(propertyId);
 
       try {
         if (properties.has("styles")) {
@@ -958,8 +960,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
     MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
 
-    if (myPlugin.objects.containsKey(propertyId)) {
-      properties = (JSONObject) myPlugin.objects.get(propertyId);
+    if (objects.containsKey(propertyId)) {
+      properties = (JSONObject) objects.get(propertyId);
       try {
         if (marker.getTitle() == null && marker.getSnippet() == null) {
 
@@ -1675,7 +1677,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 map.clear();
                 isSuccess = true;
               } catch (Exception e) {
-                //e.printStackTrace();
+                e.printStackTrace();
                 isSuccess = false;
               }
             }
@@ -2031,8 +2033,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     MyPlugin myPlugin = (MyPlugin)pluginEntry.plugin;
     String propertyId = "marker_property_" + clusterId_markerId;
     //Log.d(TAG, "---> onMarkerClick / propertyId = " + propertyId);
-    if (myPlugin.objects.containsKey(propertyId)) {
-      properties = (JSONObject) myPlugin.objects.get(propertyId);
+    if (objects.containsKey(propertyId)) {
+      properties = (JSONObject) objects.get(propertyId);
       if (properties.has("disableAutoPan")) {
         boolean disableAutoPan = false;
         try {
@@ -2129,7 +2131,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String tmp[] = markerTag.split("_");
     tmp = markerTag.split("-");
     String markerId = tmp[tmp.length - 1];
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMarkerEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]});}",
           mapId, eventName, markerId, latLng.latitude, latLng.longitude);
     jsCallback(js);
   }
@@ -2143,7 +2145,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String tmp[] = markerTag.split("-");
     String clusterId = tmp[0];
     String markerId = tmp[1];
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onClusterEvent', args:['%s', '%s', new plugin.google.maps.LatLng(%f, %f)]})",
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onClusterEvent', args:['%s', '%s', new plugin.google.maps.LatLng(%f, %f)]});}",
           mapId, eventName, clusterId, markerId, latLng.latitude, latLng.longitude);
     jsCallback(js);
   }
@@ -2155,13 +2157,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     LatLng latLng = activeMarker.getPosition();
     Point point = projection.toScreenLocation(latLng);
 
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: 'syncPosition', callback:'_onSyncInfoWndPosition', args:[{'x': %d, 'y': %d}]})",
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: 'syncPosition', callback:'_onSyncInfoWndPosition', args:[{'x': %d, 'y': %d}]});}",
         mapId, (int)(point.x / density), (int)(point.y / density));
     jsCallback(js);
   }
 
   public void onOverlayEvent(String eventName, String overlayId, LatLng point) {
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onOverlayEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]})",
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onOverlayEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]});}",
         mapId, eventName, overlayId, point.latitude, point.longitude);
     jsCallback(js);
   }
@@ -2187,7 +2189,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param eventName
    */
   public void onMapEvent(final String eventName) {
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:[]})",
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:[]});}",
             mapId, eventName);
     jsCallback(js);
   }
@@ -2198,7 +2200,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param point
    */
   public void onMapEvent(final String eventName, final LatLng point) {
-    String js = String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:[new plugin.google.maps.LatLng(%f, %f)]})",
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:[new plugin.google.maps.LatLng(%f, %f)]});}",
         mapId, eventName, point.latitude, point.longitude);
     jsCallback(js);
   }
@@ -2353,7 +2355,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public boolean onMyLocationButtonClick() {
-    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s',{evtName: 'my_location_button_click', callback:'_onMapEvent'})", mapId));
+    jsCallback(String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s',{evtName: 'my_location_button_click', callback:'_onMapEvent'});}", mapId));
     return false;
   }
 
@@ -2420,7 +2422,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         jsCallback(
             String.format(
                 Locale.ENGLISH,
-                "javascript:cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onCameraEvent', args: [%s]})",
+                "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName:'%s', callback:'_onCameraEvent', args: [%s]});}",
                 mapId, eventName, jsonStr));
       }
     });
@@ -2485,7 +2487,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         jsonStr = result.toString();
       }
     }
-    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_building_focused', callback:'_onMapEvent', args: [%s]})", mapId, jsonStr));
+    jsCallback(String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName:'indoor_building_focused', callback:'_onMapEvent', args: [%s]});}", mapId, jsonStr));
   }
 
   @Override
@@ -2497,7 +2499,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         jsonStr = result.toString();
       }
     }
-    jsCallback(String.format(Locale.ENGLISH, "javascript:cordova.fireDocumentEvent('%s', {evtName:'indoor_level_activated', callback:'_onMapEvent', args: [%s]})", mapId, jsonStr));
+    jsCallback(String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName:'indoor_level_activated', callback:'_onMapEvent', args: [%s]});}", mapId, jsonStr));
   }
 
   private void jsCallback(final String js) {
@@ -2529,24 +2531,28 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         String[] keys;
         JSONObject properties;
         String pluginName, key;
-        String pluginNames[] = plugins.keySet().toArray(new String[plugins.size()]);
+        //String pluginNames[] = plugins.keySet().toArray(new String[plugins.size()]);
         int i, j;
         try {
-          for (i = 0; i < pluginNames.length; i++) {
-            pluginName = pluginNames[i];
+          //for (i = 0; i < pluginNames.length; i++) {
+            //pluginName = pluginNames[i];
 
-            if (pluginName.contains("marker")) {
-              continue;
-            }
-            pluginEntry = plugins.get(pluginName);
-            myPlugin = (MyPlugin) pluginEntry.plugin;
+            //if (pluginName.contains("marker")) {
+            //  continue;
+            //}
+            //pluginEntry = plugins.get(pluginName);
+            //myPlugin = (MyPlugin) pluginEntry.plugin;
 
-            keys = myPlugin.objects.keySet().toArray(new String[myPlugin.objects.size()]);
+            keys = objects.keySet().toArray(new String[objects.size()]);
             for (j = 0; j < keys.length; j++) {
               key = keys[j];
+              if (key.contains("marker")) {
+                continue;
+              }
               if (key.contains("property")) {
-                properties = (JSONObject) myPlugin.objects.get(key);
+                properties = (JSONObject) objects.get(key);
                 try {
+                  //Log.d("PluginMap", "-----> key = " + key + ", " + properties.toString(2));
                   //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
                   // skip invisible overlay
                   if (!properties.getBoolean("isVisible") ||
@@ -2556,16 +2562,16 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 } catch (JSONException e) {
                   e.printStackTrace();
                 }
-                bounds = (LatLngBounds) myPlugin.objects.get(key.replace("property", "bounds"));
+                bounds = (LatLngBounds) objects.get(key.replace("property", "bounds"));
                 if (bounds.contains(point)) {
                   //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
-                  boundsHitList.put(key, myPlugin.objects.get(key.replace("property_", "")));
+                  boundsHitList.put(key, objects.get(key.replace("property_", "")));
                 }
 
               }
             }
 
-          }
+          //}
         } catch (Exception e) {
           //e.printStackTrace();
         }

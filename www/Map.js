@@ -168,7 +168,9 @@ Map.prototype.getMap = function(mapId, div, options) {
 
     exec(function() {
       cordova.fireDocumentEvent('plugin_touch', {});
+      //------------------------------------------------------------------------
       // In order to work map.getVisibleRegion() correctly, wait a little.
+      //------------------------------------------------------------------------
       setTimeout(function() {
         self.refreshLayout();
         self.trigger(event.MAP_READY, self);

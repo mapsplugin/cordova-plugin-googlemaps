@@ -64,13 +64,13 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       public void run() {
         Circle circle = map.addCircle(circleOptions);
         String id =  circle.getId();
-        objects.put("circle_" + id, circle);
+        pluginMap.objects.put("circle_" + id, circle);
 
-        objects.put("circle_property_" + id, properties);
+        pluginMap.objects.put("circle_property_" + id, properties);
 
         // Recalculate the circle bounds
         LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circleOptions.getCenter(), circleOptions.getRadius());
-        objects.put("circle_bounds_" + id, bounds);
+        pluginMap.objects.put("circle_bounds_" + id, bounds);
 
         JSONObject result = new JSONObject();
         try {
@@ -105,7 +105,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
         // Recalculate the circle bounds
         String propertyId = "circle_bounds_" + circle.getId();
         LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
-        objects.put(propertyId, bounds);
+        pluginMap.objects.put(propertyId, bounds);
 
         circle.setCenter(center);
         callbackContext.success();
@@ -171,7 +171,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
         // Recalculate the circle bounds
         String propertyId = "circle_bounds_" + circle.getId();
         LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
-        objects.put(propertyId, bounds);
+        pluginMap.objects.put(propertyId, bounds);
 
         // Update the overlay
         circle.setRadius(radius);
@@ -214,9 +214,9 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       }
     });
     String propertyId = "circle_property_" + circle.getId();
-    JSONObject properties = (JSONObject)objects.get(propertyId);
+    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isVisible", isVisible);
-    objects.put(propertyId, properties);
+    pluginMap.objects.put(propertyId, properties);
     callbackContext.success();
   }
 
@@ -230,9 +230,9 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     String id = args.getString(0);
     final boolean clickable = args.getBoolean(1);
     String propertyId = id.replace("circle_", "circle_property_");
-    JSONObject properties = (JSONObject)objects.get(propertyId);
+    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isClickable", clickable);
-    objects.put(propertyId, properties);
+    pluginMap.objects.put(propertyId, properties);
     callbackContext.success();
   }
   /**
@@ -252,8 +252,8 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       @Override
       public void run() {
         circle.remove();
-        if (objects != null) {
-          objects.remove(id);
+        if (pluginMap.objects != null) {
+          pluginMap.objects.remove(id);
         }
         callbackContext.success();
       }
