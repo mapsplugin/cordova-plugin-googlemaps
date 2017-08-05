@@ -592,11 +592,15 @@ MarkerCluster.prototype._redraw = function(clusterDistance, force) {
         }
 
         cluster.getMarkers().forEach(function(marker, idx) {
+          if (!marker.get("isAdded")) {
+            return;
+          }
           delete deleteClusters[marker.getId()];
           var markerOptions = marker.getOptions();
           markerOptions.isClusterIcon = false;
           if (self.debug) {
-            console.log("---> (js)add:" + marker.getId());
+            console.log("---> (js)add:" + marker.getId() + ", isAdded = " + marker.get("isAdded"));
+            markerOptions.title= marker.getId();
           }
           new_or_update_clusters.push(markerOptions);
         });
