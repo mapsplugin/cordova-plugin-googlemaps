@@ -1,181 +1,130 @@
+var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol.for('vars');
+var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol.for('subscriptions');
 
-var _globalListeners = {};
+function BaseClass() {
+  this[VARS_FIELD] = {};
+  this[SUBSCRIPTIONS_FIELD] = {};
+  this.errorHandler = this.errorHandler.bind(this);
 
-function globalEventListener(e) {
-  var eventName = e.type;
-  if (!_globalListeners[eventName]) {
-    return;
-  }
-
-  var hashCode = e.myself.hashCode;
-  if (!hashCode || !_globalListeners[eventName][hashCode]) {
-    return;
-  }
-  var callbacks = _globalListeners[eventName][hashCode];
-  for (var i = 0; i < callbacks.length; i++) {
-    callbacks[i].listener(e);
-  }
+  Object.defineProperty(this, 'hashCode', { value: Math.floor(Date.now() * Math.random()) })
 }
 
-var BaseClass = function() {
-  var self = this;
-  var _vars = {};
+BaseClass.prototype = {
+  empty: function() {
+    var vars = this[VARS_FIELD];
 
-  var hashCode = Math.floor(Date.now() * Math.random());
+    Object.keys(vars).forEach(function(name) {
+      vars[name] = null;
+    });
+  },
 
-  Object.defineProperty(self, "hashCode", {
-      value: hashCode,
-      writable: false
-  });
-  self.empty = function() {
-    for (var key in Object.keys(_vars)) {
-      _vars[key] = null;
-      delete _vars[key];
-    }
-  };
+  get: function(key) {
+    return this[VARS_FIELD].hasOwnProperty(key) ? this[VARS_FIELD][key] : undefined;
+  },
 
-  self.get = function(key) {
-    return key in _vars ? _vars[key] : null;
-  };
-  self.set = function(key, value, noNotify) {
-    var prev = _vars[key];
-    _vars[key] = value;
+  set: function(key, value, noNotify) {
+    var prev = this.get(key);
+
+    this[VARS_FIELD][key] = value;
+
     if (!noNotify && prev !== value) {
-      self.trigger(key + "_changed", prev, value);
+      this.trigger(key + '_changed', prev, value, key);
     }
-  };
-  self.bindTo = function(key, target, targetKey, noNotify) {
-    targetKey = targetKey === undefined || targetKey === null ? key : targetKey;
-    self.on(key + "_changed", function(prevValue, newValue) {
-      target.set(targetKey, newValue, noNotify === true);
+
+    return this;
+  },
+
+  bindTo: function(key, target, targetKey, noNotify) {
+    var targetKey = targetKey || key;
+
+    this.on(key + '_changed', function(oldValue, value) {
+      target.set(targetKey, value, noNotify);
     });
-  };
+  },
 
-  self.trigger = function(eventName) {
-    if (!eventName || !_globalListeners[eventName] || !_globalListeners[eventName][hashCode]) {
-      return;
+  trigger: function(eventName) {
+    if (!eventName || !this[SUBSCRIPTIONS_FIELD][eventName]) {
+      return this;
     }
 
-    var args = [];
-    for (var i = 1; i < arguments.length; i++) {
-      args.push(arguments[i]);
-    }
-    var event = document.createEvent('Event');
-    event.initEvent(eventName, false, false);
-    event.mydata = args;
-    event.myself = self;
+    var listeners = this[SUBSCRIPTIONS_FIELD][eventName];
+    var i = listeners.length;
+    var args = Array.prototype.slice.call(arguments, 1);
 
-    var callbacks = _globalListeners[eventName][hashCode];
-    for (var i = 0; i < callbacks.length; i++) {
-      callbacks[i].listener(event);
-    }
-  };
-  self.on = function(eventName, callback) {
-    if (!eventName || !callback || typeof callback !== "function") {
-      return;
+    while (i--) {
+      listeners[i].apply(this, args);
     }
 
-    _globalListeners[eventName] = _globalListeners[eventName] || {};
+    return this;
+  },
 
-    var listener = function(e) {
-      if (!e.myself || e.myself !== self) {
-        return;
-      }
-      var evt = Object.create(e);
-      var mydata = evt.mydata;
-      delete evt.mydata;
-      delete evt.myself;
-      self.event = evt;
-      callback.apply(self, mydata);
+  on: function(eventName, listener) {
+    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
+    var topic = this[SUBSCRIPTIONS_FIELD][eventName];
+    var index = topic.push(listener);
+    var self = this;
+
+    return function() {
+      self.off(eventName, listener);
     };
-    if (!(hashCode in _globalListeners[eventName])) {
-      document.addEventListener(eventName, globalEventListener, false);
-      _globalListeners[eventName][hashCode] = [];
+  },
+
+  off: function(eventName, listener) {
+    if (!eventName && !listener) {
+      this[SUBSCRIPTIONS_FIELD] = {};
+    } else if (eventName && !listener) {
+      this[SUBSCRIPTIONS_FIELD][eventName] = null;
+    } else if (this[SUBSCRIPTIONS_FIELD][eventName]) {
+      var index = this[SUBSCRIPTIONS_FIELD][eventName].indexOf(listener);
+
+      if (index !== -1) {
+        this[SUBSCRIPTIONS_FIELD][eventName].splice(index, 1);
+      }
     }
-    _globalListeners[eventName][hashCode].push({
-      'callback': callback,
-      'listener': listener
+
+    return this;
+  },
+
+  one: function(eventName, listener) {
+    var unlisten = this.on(eventName, function() {
+      unlisten();
+      listener.apply(this, arguments);
     });
-  };
-  self.addEventListener = self.on;
 
-  self.off = function(eventName, callback) {
-    var i, j, callbacks;
-    if (typeof eventName === "string") {
-      if (eventName in _globalListeners) {
+    return this;
+  },
 
-        if (typeof callback === "function") {
-          callbacks = _globalListeners[eventName][hashCode] ||[];
-          for (i = 0; i < callbacks.length; i++) {
-            if (callbacks[i].callback === callback) {
-              callbacks.splice(i, 1);
-              break;
-            }
-          }
-          if (callbacks.length === 0) {
-            delete _globalListeners[eventName][hashCode];
-          }
-        } else {
-          delete _globalListeners[eventName][hashCode];
-        }
-        if (Object.keys(_globalListeners[eventName]) === 0) {
-          document.removeEventListener(eventName, globalEventListener);
-        }
-      }
-    } else {
-      //Remove all event listeners
-      var eventNames = Object.keys(_globalListeners);
-      for (j = 0; j < eventNames.length; j++) {
-        eventName = eventNames[j];
-        delete _globalListeners[eventName][hashCode];
-        if (Object.keys(_globalListeners[eventName]) === 0) {
-          document.removeEventListener(eventName, globalEventListener);
-        }
-      }
+  destroy: function() {
+    this.off();
+    this.empty();
+  },
+
+  errorHandler: function(error) {
+    if (error) {
+      console.log(error);
+      this.trigger('error', error instanceof Error ? error : createError(error));
     }
-  };
 
-  self.removeEventListener = self.off;
-
-
-  self.one = function(eventName, callback) {
-
-    var listener = function(e) {
-      if (!e.myself || e.myself !== self) {
-        return;
-      }
-      var evt = Object.create(e);
-      var mydata = evt.mydata;
-      delete evt.mydata;
-      delete evt.myself;
-      self.event = evt;
-      callback.apply(self, mydata);
-      self.off(eventName, callback);
-    };
-
-    _globalListeners[eventName] = _globalListeners[eventName] || {};
-
-    if (!(hashCode in _globalListeners[eventName])) {
-      document.addEventListener(eventName, globalEventListener, false);
-      _globalListeners[eventName][hashCode] = [];
-    }
-    _globalListeners[eventName][hashCode].push({
-      'callback': callback,
-      'listener': listener
-    });
-  };
-  self.addEventListenerOnce = self.one;
-
-  self.errorHandler = function(msg) {
-    if (msg) {
-      console.log(msg);
-      self.trigger('error', msg);
-    }
     return false;
-  };
-
-  return self;
+  }
 };
 
+BaseClass.prototype.addEventListener = BaseClass.prototype.on;
+BaseClass.prototype.addEventListenerOnce = BaseClass.prototype.one;
+BaseClass.prototype.removeEventListener = BaseClass.prototype.off;
+
+function createError(message, methodName, args) {
+  var error = new Error(methodName ? [
+    'Got error with message: "', message, '" ',
+    'after calling "', methodName, '"'
+  ].join('') : message);
+
+  Object.defineProperties(error, {
+    methodName: { value: methodName },
+    args: { value: args }
+  });
+
+  return error;
+}
 
 module.exports = BaseClass;

@@ -978,6 +978,15 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markerOptions = common.markerOptionsFilter(markerOptions);
 
       var markerId = markerOptions.id || "marker_" + idx;
+      markerId = result.id + "-" + markerId;
+      markerOptions.id = markerId;
+      markerOptions._cluster = {
+        isRemoved: false,
+        isAdded: false,
+        geocell: geocell,
+        _marker: null
+      };
+/*
       var marker = new Marker(self, markerId, markerOptions, "MarkerCluster", exec);
       marker.set("isAdded", false, true);
       marker.set("geocell", geocell, true);
@@ -985,7 +994,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       marker.getId = function() {
         return result.id + "-" + markerId;
       };
-      markerMap[markerId] = marker;
+*/
+      markerMap[markerId] = markerOptions;
 
       //self.MARKERS[marker.getId()] = marker;
       //self.OVERLAYS[marker.getId()] = marker;

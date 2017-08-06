@@ -5,8 +5,7 @@ var argscheck = require('cordova/argscheck'),
     Marker = require('./Marker'),
     geomodel = require('./geomodel'),
     BaseClass = require('./BaseClass'),
-    LatLngBounds = require('./LatLngBounds'),
-    BaseArrayClass = require('./BaseArrayClass');
+    LatLngBounds = require('./LatLngBounds');
 
 /*****************************************************************************
  * Cluster Class
@@ -28,8 +27,8 @@ var Cluster = function(id, geocell) {
     value: "Cluster",
     writable: false
   });
-  Object.defineProperty(self, "_markerRefs", {
-    value: new BaseArrayClass(),
+  Object.defineProperty(self, "_markerOptsArray", {
+    value: [],
     writable: false
   });
 
@@ -73,18 +72,18 @@ Cluster.prototype.getCenter = function() {
 };
 
 Cluster.prototype.getMarkers = function() {
-  return this._markerRefs.getArray();
+  return this._markerOptsArray;
 };
 
 Cluster.prototype.addMarkers = function(markerRefs) {
   var self = this;
-  var bounds = this.get("bounds") || new LatLngBounds(markerRefs[0].getPosition(), markerRefs[0].getPosition());
+  var bounds = this.get("bounds") || new LatLngBounds(markerRefs[0].position, markerRefs[0].position);
 
-  markerRefs.forEach(function(markerRef) {
-    if (self._markerRefs.indexOf(markerRef) === -1) {
-      markerRef.set("isAdded", true);
-      self._markerRefs.push(markerRef);
-      bounds.extend(markerRef.getPosition());
+  markerRefs.forEach(function(markerOpts) {
+    if (self._markerOptsArray.indexOf(markerOpts) === -1) {
+      markerOpts._cluster.isAdded = true;
+      self._markerOptsArray.push(markerOpts);
+      bounds.extend(markerOpts.position);
     }
   });
 
@@ -99,16 +98,23 @@ Cluster.prototype.setMode = function(mode) {
 Cluster.prototype.getMode = function() {
   return this.get("mode");
 };
+Cluster.prototype.removeMarker = function(markerOpts) {
+
+  var idx = this._markerOptsArray.indexOf(markerOpts);
+  if (idx !== -1) {
+    this._markerOptsArray.splice(idx, 1);
+  }
+};
 
 Cluster.prototype.remove = function() {
   this.set("isRemoved", true);
-  this._markerRefs.forEach(function(markerRef) {
-    markerRef.set("isAdded", false);
+  this._markerOptsArray.forEach(function(markerOpts) {
+    markerOpts._cluster.isAdded = false;
   });
 
 };
 Cluster.prototype.getItemLength = function() {
-  return this._markerRefs.getLength();
+  return this._markerOptsArray.length;
 };
 
 module.exports = Cluster;

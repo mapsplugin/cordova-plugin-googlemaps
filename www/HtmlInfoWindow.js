@@ -242,7 +242,6 @@ HTMLInfoWindow.prototype.open = function(marker) {
         marker.on(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
-        self.on(event.INFO_OPEN);
         self.trigger.call(self, "infoWindowAnchor_changed");
     });
 };
