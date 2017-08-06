@@ -19,7 +19,7 @@ var LatLngBounds = function() {
     }
 
     for (var i = 0; i < args.length; i++) {
-        if (args[i] && args[i] && "lat" in args[i] && "lng" in args[i]) {
+        if (args[i] && "lat" in args[i] && "lng" in args[i]) {
             this.extend(args[i]);
         }
     }
