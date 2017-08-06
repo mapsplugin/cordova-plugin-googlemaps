@@ -36,7 +36,7 @@ LatLngBounds.prototype.toUrlValue = function(precision) {
 };
 
 LatLngBounds.prototype.extend = function(latLng) {
-    if ("lat" in latLng && "lng" in latLng) {
+    if (latLng && "lat" in latLng && "lng" in latLng) {
         if (!this.southwest && !this.northeast) {
             this.southwest = latLng;
             this.northeast = latLng;
@@ -78,7 +78,7 @@ LatLngBounds.prototype.getCenter = function() {
     return new LatLng(centerLat, centerLng);
 };
 LatLngBounds.prototype.contains = function(latLng) {
-    if (!("lat" in latLng) || !("lng" in latLng)) {
+    if (!latLng || !("lat" in latLng) || !("lng" in latLng)) {
         return false;
     }
     var y = latLng.lat,
