@@ -97,6 +97,15 @@ markerCluster.on(plugin.google.maps.event.MARKER_CLICK, function(position, marke
 });
 ```
 
+## Add a marker to the marker cluster
+
+```js
+markerCluster.addMarker({
+   position: {lat: ..., lng: ...},
+   ...
+});
+```
+
 
 ## Remove marker cluster
 
