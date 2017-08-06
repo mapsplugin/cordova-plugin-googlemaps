@@ -19,7 +19,7 @@ BaseClass.prototype = {
   },
 
   get: function(key) {
-    return this[VARS_FIELD].hasOwnProperty(key) ? this[VARS_FIELD][key] : null;
+    return this[VARS_FIELD].hasOwnProperty(key) ? this[VARS_FIELD][key] : undefined;
   },
 
   set: function(key, value, noNotify) {
@@ -28,7 +28,7 @@ BaseClass.prototype = {
     this[VARS_FIELD][key] = value;
 
     if (!noNotify && prev !== value) {
-      this.trigger(key + '_changed', prev, value);
+      this.trigger(key + '_changed', prev, value, key);
     }
 
     return this;
