@@ -402,9 +402,10 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
         mWidth = Math.round(mWidth * density);
         mHeight = Math.round(mHeight * density);
         image = PluginUtil.resizeBitmap(image, mWidth, mHeight);
+      } else {
+        image = PluginUtil.scaleBitmapForDevice(image);
       }
 
-      image = PluginUtil.scaleBitmapForDevice(image);
       AsyncLoadImageResult result = new AsyncLoadImageResult();
       result.image = image;
       result.cacheHit = false;
