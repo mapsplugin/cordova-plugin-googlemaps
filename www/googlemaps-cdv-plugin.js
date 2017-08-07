@@ -184,7 +184,6 @@ document.head.appendChild(navDecorBlocker);
 
           // Stores dom bounds and depth
           var rect = common.getDivRect(element);
-          console.log(elemId, rect, parentRect);
           rect.left = Math.max(rect.left, parentRect.left);
           rect.top = Math.min(rect.top, parentRect.top);
           rect.width = Math.min(rect.width, parentRect.width);
