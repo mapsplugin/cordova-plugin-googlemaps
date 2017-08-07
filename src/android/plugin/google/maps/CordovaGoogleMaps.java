@@ -272,6 +272,10 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.removeMap(args, callbackContext);
           } else if ("backHistory".equals(action)) {
             CordovaGoogleMaps.this.backHistory(args, callbackContext);
+          } else if ("resumeResizeTimer".equals(action)) {
+            CordovaGoogleMaps.this.resumeResizeTimer(args, callbackContext);
+          } else if ("pauseResizeTimer".equals(action)) {
+            CordovaGoogleMaps.this.pauseResizeTimer(args, callbackContext);
           }
 
         } catch (JSONException e) {
@@ -283,6 +287,22 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
+  public void resumeResizeTimer(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mPluginLayout.pauseResize = false;
+      }
+    });
+  }
+  public void pauseResizeTimer(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mPluginLayout.pauseResize = true;
+      }
+    });
+  }
   public void backHistory(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override

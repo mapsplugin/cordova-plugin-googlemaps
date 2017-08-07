@@ -30,6 +30,8 @@ var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
+var MarkerCluster = require('./MarkerCluster');
+var geomodel = require('./geomodel');
 
 var INTERVAL_TIMER = null;
 var MAPS = {};
@@ -115,6 +117,7 @@ document.head.appendChild(navDecorBlocker);
         cordova_exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
       isChecking = true;
 
       //-------------------------------------------
@@ -181,8 +184,9 @@ document.head.appendChild(navDecorBlocker);
 
           // Stores dom bounds and depth
           var rect = common.getDivRect(element);
+          console.log(elemId, rect, parentRect);
           rect.left = Math.max(rect.left, parentRect.left);
-          rect.right = Math.min(rect.right, parentRect.right);
+          rect.top = Math.min(rect.top, parentRect.top);
           rect.width = Math.min(rect.width, parentRect.width);
           rect.height = Math.min(rect.height, parentRect.height);
           domPositions[elemId] = {
@@ -233,7 +237,6 @@ document.head.appendChild(navDecorBlocker);
             }
           }
         }
-
       };
       traceDomTree(document.body, 0, common.getDivRect(document.body));
 
@@ -250,6 +253,9 @@ document.head.appendChild(navDecorBlocker);
               mapIDs.forEach(function(mapId) {
                   MAPS[mapId].refreshLayout();
               });
+          }
+          if (idlingCnt > 2) {
+            cordova_exec(null, null, 'CordovaGoogleMaps', 'pauseResizeTimer', []);
           }
           // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
           // (50ms * 5times + 200ms * 5times).
@@ -339,6 +345,7 @@ document.head.appendChild(navDecorBlocker);
           putHtmlElements();
         } else {
           clearInterval(intervalTimer);
+          cordova_exec(null, null, 'CordovaGoogleMaps', 'pauseResizeTimer', []);
           intervalTimer = null;
         }
       }
@@ -574,6 +581,7 @@ module.exports = {
     external: ExternalService,
     environment: Environment,
     Geocoder: Geocoder,
+    MarkerCluster: MarkerCluster,
     geometry: {
         encoding: encoding,
         spherical: spherical

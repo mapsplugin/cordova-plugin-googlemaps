@@ -181,7 +181,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
       // Assumes all touches for the browser
       return;
     }
-    if (self.stopFlag) {
+    if (self.stopFlag || self.pauseResize) {
         return;
     }
     self.stopFlag = YES;
