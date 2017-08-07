@@ -149,7 +149,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               params.height = height;
               params.leftMargin = x;
               params.topMargin = y;
-              Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
+              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
               pluginMap.mapView.setLayoutParams(params);
 
             }
