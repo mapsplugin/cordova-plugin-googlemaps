@@ -108,7 +108,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             if (drawRect == null) {
               continue;
             }
-            Log.d(TAG, "mapDivId = " + pluginMap.mapDivId + ", drawRect = " + drawRect.toShortString());
 
             int width = (int)drawRect.width();
             int height = (int)drawRect.height();
