@@ -120,7 +120,7 @@ Map.prototype.getMap = function(mapId, div, options) {
             this.set('camera_tilt', options.camera.tilt);
           }
         }
-        if (options.styles) {
+        if (utils.isArray(options.styles)) {
           options.styles = JSON.stringify(options.styles);
         }
         args.push(options);
@@ -200,7 +200,7 @@ Map.prototype.setOptions = function(options) {
         this.set('camera_tilt', options.camera.tilt);
       }
     }
-    if (options.styles) {
+    if (utils.isArray(options.styles)) {
       options.styles = JSON.stringify(options.styles);
     }
     exec(null, this.errorHandler, this.id, 'setOptions', [options]);
