@@ -53,6 +53,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean stopFlag = false;
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
+  public boolean pauseResize = false;
   private float zoomScale;
 
   public Timer redrawTimer;
@@ -73,7 +74,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
-      if (isSuspended) {
+      if (isSuspended || pauseResize) {
         return;
       }
       //final PluginMap pluginMap = pluginMaps.get(mapId);

@@ -459,6 +459,22 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+
+- (void)resumeResizeTimer:(CDVInvokedUrlCommand *)command {
+    if (self.pluginLayer != nil) {
+      self.pluginLayer.isSuspended = false;
+    }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+- (void)pauseResizeTimer:(CDVInvokedUrlCommand *)command {
+    if (self.pluginLayer != nil) {
+      self.pluginLayer.isSuspended = true;
+    }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
 

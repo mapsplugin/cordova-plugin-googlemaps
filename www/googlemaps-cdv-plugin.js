@@ -117,6 +117,7 @@ document.head.appendChild(navDecorBlocker);
         cordova_exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
       isChecking = true;
 
       //-------------------------------------------
@@ -183,8 +184,9 @@ document.head.appendChild(navDecorBlocker);
 
           // Stores dom bounds and depth
           var rect = common.getDivRect(element);
+          console.log(elemId, rect, parentRect);
           rect.left = Math.max(rect.left, parentRect.left);
-          rect.right = Math.min(rect.right, parentRect.right);
+          rect.top = Math.min(rect.top, parentRect.top);
           rect.width = Math.min(rect.width, parentRect.width);
           rect.height = Math.min(rect.height, parentRect.height);
           domPositions[elemId] = {
@@ -235,7 +237,6 @@ document.head.appendChild(navDecorBlocker);
             }
           }
         }
-
       };
       traceDomTree(document.body, 0, common.getDivRect(document.body));
 
@@ -252,6 +253,9 @@ document.head.appendChild(navDecorBlocker);
               mapIDs.forEach(function(mapId) {
                   MAPS[mapId].refreshLayout();
               });
+          }
+          if (idlingCnt > 2) {
+            cordova_exec(null, null, 'CordovaGoogleMaps', 'pauseResizeTimer', []);
           }
           // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
           // (50ms * 5times + 200ms * 5times).
@@ -341,6 +345,7 @@ document.head.appendChild(navDecorBlocker);
           putHtmlElements();
         } else {
           clearInterval(intervalTimer);
+          cordova_exec(null, null, 'CordovaGoogleMaps', 'pauseResizeTimer', []);
           intervalTimer = null;
         }
       }
