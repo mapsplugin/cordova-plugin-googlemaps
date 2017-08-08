@@ -462,7 +462,7 @@
 
 - (void)resumeResizeTimer:(CDVInvokedUrlCommand *)command {
     if (self.pluginLayer != nil) {
-      self.pluginLayer.isSuspended = false;
+      self.pluginLayer.pauseResize = false;
     }
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -470,7 +470,7 @@
 }
 - (void)pauseResizeTimer:(CDVInvokedUrlCommand *)command {
     if (self.pluginLayer != nil) {
-      self.pluginLayer.isSuspended = true;
+      self.pluginLayer.pauseResize = true;
     }
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
