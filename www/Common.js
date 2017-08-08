@@ -204,7 +204,16 @@ function getDivRect(div) {
     if (!div) {
         return;
     }
-    var rect = div.getBoundingClientRect();
+    var rect;
+    if (div === document.body) {
+      rect = div.getBoundingClientRect();
+      rect.left = Math.max(rect.left, window.pageOffsetX);
+      rect.top = Math.max(rect.top, window.pageOffsetY);
+      rect.width = Math.max(rect.width, window.innerWidth);
+      rect.height = Math.max(rect.height, window.innerHeight);
+    } else {
+      rect = div.getBoundingClientRect();
+    }
     return {
       left: rect.left,
       top: rect.top,

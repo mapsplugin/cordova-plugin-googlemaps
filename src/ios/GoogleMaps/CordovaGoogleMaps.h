@@ -29,4 +29,6 @@
 - (void)removeMap:(CDVInvokedUrlCommand *)command;
 - (void)pause:(CDVInvokedUrlCommand *)command;
 - (void)resume:(CDVInvokedUrlCommand *)command;
+- (void)pauseResizeTimer:(CDVInvokedUrlCommand *)command;
+- (void)resumeResizeTimer:(CDVInvokedUrlCommand *)command;
 @end
