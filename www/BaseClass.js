@@ -6,7 +6,7 @@ function BaseClass() {
   this[SUBSCRIPTIONS_FIELD] = {};
   this.errorHandler = this.errorHandler.bind(this);
 
-  Object.defineProperty(this, 'hashCode', { value: Math.floor(Date.now() * Math.random()) })
+  Object.defineProperty(this, 'hashCode', { value: Math.floor(Date.now() * Math.random()) });
 }
 
 BaseClass.prototype = {
@@ -35,7 +35,7 @@ BaseClass.prototype = {
   },
 
   bindTo: function(key, target, targetKey, noNotify) {
-    var targetKey = targetKey || key;
+    targetKey = targetKey || key;
 
     this.on(key + '_changed', function(oldValue, value) {
       target.set(targetKey, value, noNotify);
@@ -64,9 +64,7 @@ BaseClass.prototype = {
     var index = topic.push(listener);
     var self = this;
 
-    return function() {
-      self.off(eventName, listener);
-    };
+    return this;
   },
 
   off: function(eventName, listener) {
