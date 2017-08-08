@@ -34,7 +34,7 @@ The SDK-Plugin won't be uninstalled automatically and you will stuck on an old v
 
 **v1.4.0 - 04/Nov/2016**
 - Lots of bugs are fixed.
-- Improve performance (especially adding markers using the same url)
+- Improve performance (especially adding markers using the same url).
 - Updated Google Maps SDK for iOS to 2.1.1
 - StyledMapType is available.
 
