@@ -1,9 +1,5 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var MAP_CNT = 0;
-
-if (!cordova) {
-  return;
-}
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     cordova_exec = require('cordova/exec'),
