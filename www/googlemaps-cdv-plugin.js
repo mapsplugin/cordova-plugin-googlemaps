@@ -30,8 +30,6 @@ var Geocoder = require('./Geocoder');
 var ExternalService = require('./ExternalService');
 var Environment = require('./Environment');
 var MapTypeId = require('./MapTypeId');
-var MarkerCluster = require('./MarkerCluster');
-var geomodel = require('./geomodel');
 
 var INTERVAL_TIMER = null;
 var MAPS = {};
@@ -182,12 +180,50 @@ document.head.appendChild(navDecorBlocker);
               cacheDepth[elemId] = depth;
           }
 
-          // Stores dom bounds and depth
+
+          // Calculate dom clickable region
           var rect = common.getDivRect(element);
-          rect.left = Math.max(rect.left, parentRect.left);
-          rect.top = Math.min(rect.top, parentRect.top);
-          rect.width = Math.min(rect.width, parentRect.width);
-          rect.height = Math.min(rect.height, parentRect.height);
+          rect.right = rect.left + rect.width;
+          rect.bottom = rect.top + rect.height;
+          if (rect.left !== parentRect.left || rect.width !== parentRect.width) {
+            if (rect.left < parentRect.left) {
+              if (rect.right > parentRect.right) {
+                rect.width = parentRect.width;
+                rect.left = parentRect.left;
+              } else {
+                rect.width = rect.width + rect.left - parentRect.left;
+                rect.left = parentRect.left;
+              }
+            } else if (rect.right > parentRect.right) {
+              if (rect.left > parentRect.left) {
+                rect.width = rect.width + parentRect.right - rect.right;
+              } else {
+                rect.width = parentRect.width;
+              }
+            }
+            rect.right = rect.left + rect.width;
+          }
+
+          if (rect.top !== parentRect.top || rect.height !== parentRect.height) {
+            if (rect.top < parentRect.top) {
+              if (rect.bottom > parentRect.bottom) {
+                rect.height = parentRect.height;
+                rect.top = parentRect.top;
+              } else {
+                rect.height = rect.height + rect.top - parentRect.top;
+                rect.top = parentRect.top;
+              }
+            } else if (rect.bottom > parentRect.bottom) {
+              if (rect.top > parentRect.top) {
+                rect.height = rect.height + parentRect.bottom - rect.bottom;
+              } else {
+                rect.height = parentRect.height;
+              }
+            }
+            rect.bottom = rect.top + rect.height;
+          }
+
+          // Stores dom bounds and depth
           domPositions[elemId] = {
             size: rect,
             depth: depth,
@@ -580,7 +616,6 @@ module.exports = {
     external: ExternalService,
     environment: Environment,
     Geocoder: Geocoder,
-    MarkerCluster: MarkerCluster,
     geometry: {
         encoding: encoding,
         spherical: spherical

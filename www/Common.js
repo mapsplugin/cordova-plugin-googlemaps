@@ -206,20 +206,11 @@ function getDivRect(div) {
     }
     var rect;
     if (div === document.body) {
-      var positionCSS = getStyle(document.body, "position");
-      if (["relative", "sticky"].indexOf(positionCSS) === -1) {
-        /*
-         * ionic v1 sets the body.left = 0; .right=0; .width=0; .height=0
-         */
-        return {
-          left: window.pageOffsetX || 0,
-          top: window.pageOffsetY || 0,
-          width: window.innerWidth,
-          height: window.innerHeight
-        };
-      } else {
-        rect = div.getBoundingClientRect();
-      }
+      rect = div.getBoundingClientRect();
+      rect.left = Math.max(rect.left, window.pageOffsetX);
+      rect.top = Math.max(rect.top, window.pageOffsetY);
+      rect.width = Math.max(rect.width, window.innerWidth);
+      rect.height = Math.max(rect.height, window.innerHeight);
     } else {
       rect = div.getBoundingClientRect();
     }
