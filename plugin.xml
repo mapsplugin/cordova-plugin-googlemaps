@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="1.4.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
-    <name>phonegap-googlemaps-plugin</name>
+<plugin id="cordova-plugin-googlemaps" version="1.4.3" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>cordova-googlemaps-plugin</name>
     <js-module name="cordova-plugin-googlemaps" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="cordova-plugin-googlemaps" />
     </js-module>
@@ -25,10 +25,7 @@
 
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for Android.
-             Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
-
-             Check our release notes.
-             https://github.com/wf9a5m75/phonegap-googlemaps-plugin/wiki/Release-Notes
+             Visit https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/Installation/README.md
         </info>
 
         <config-file target="res/xml/config.xml" parent="/*">
@@ -83,7 +80,6 @@
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-            <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
             <!-- The following two permissions are not required to use
                  Google Maps Android API v2, but are recommended. -->
             <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -92,7 +88,7 @@
             <uses-feature android:glEsVersion="0x00020000" android:required="true" />
             <!-- GPS -->
             <uses-feature android:name="android.hardware.location" />
-            <uses-feature android:name="android.hardware.location.gps" />
+            <uses-feature android:name="android.hardware.location.gps"/>
         </config-file>
     </platform>
 
@@ -102,10 +98,7 @@
 
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for iOS.
-             Visit https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Installation
-
-             Check our release notes.
-             https://github.com/mapsplugin/cordova-plugin-googlemaps/wiki/Release-Notes
+             Visit https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/Installation/README.md
         </info>
 
         <config-file target="config.xml" parent="/*">

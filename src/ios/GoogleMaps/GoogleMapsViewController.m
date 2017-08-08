@@ -673,18 +673,18 @@ NSDictionary *initOptions;
   //-------------------------------------
   UIGraphicsBeginImageContextWithOptions(rectSize, NO, 0.0f);
   
-  CGRect trimArea = CGRectMake(15, 0, 5, MIN(45, rectSize.height - 20));
-  
-  trimArea = CGRectMake(15, 0, 15, leftImg.size.height);
+  CGRect trimArea = CGRectMake(15, 0, 15, leftImg.size.height);
   if (scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * scale,
                       trimArea.origin.y * scale,
                       trimArea.size.width * scale +1,
                       trimArea.size.height * scale);
   }
+    
   CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
 
   int y;
   int i = 0;
@@ -714,6 +714,7 @@ NSDictionary *initOptions;
       shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
       shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
       shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+      CGImageRelease(shadowImageRef);
     
     } else {
       x += shadowImageLeft.size.width;
@@ -730,9 +731,12 @@ NSDictionary *initOptions;
                       trimArea.size.width * scale,
                       trimArea.size.height * scale);
   }
+    
   shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
+
   x += shadowImageLeft.size.width;
   
   y = 1;

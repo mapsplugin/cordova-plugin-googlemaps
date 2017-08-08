@@ -1414,6 +1414,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     String key;
     LatLngBounds bounds;
 
+
     // Polyline
     PluginEntry polylinePlugin = this.plugins.get("Polyline");
     if(polylinePlugin != null) {
@@ -1423,12 +1424,6 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       Polyline polyline;
       Point origin = new Point();
       Point hitArea = new Point();
-      hitArea.x = 1;
-      hitArea.y = 1;
-      Projection projection = map.getProjection();
-      double threshold = this.calculateDistance(
-          projection.fromScreenLocation(origin),
-          projection.fromScreenLocation(hitArea));
 
       for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
         key = entry.getKey();
@@ -1441,6 +1436,14 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             points = polyline.getPoints();
 
             if (polyline.isGeodesic()) {
+              hitArea.x = (int)(polyline.getWidth() * density);
+              hitArea.y = hitArea.x;
+              Projection projection = map.getProjection();
+
+              double threshold = this.calculateDistance(
+                  projection.fromScreenLocation(origin),
+                  projection.fromScreenLocation(hitArea));
+
               if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
                 hitPoly = true;
                 this.onPolylineClick(polyline, point);

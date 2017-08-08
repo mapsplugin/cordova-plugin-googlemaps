@@ -115,7 +115,11 @@ static void MyReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 		{
 			returnValue->_MyReachabilityRef = MyReachability;
 			returnValue->_alwaysReturnLocalWiFiStatus = NO;
-		}
+        	} 
+		else 
+		{
+            		CFRelease(MyReachability);
+        	}
 	}
 	return returnValue;
 }
@@ -134,11 +138,14 @@ static void MyReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 		{
 			returnValue->_MyReachabilityRef = reachability;
 			returnValue->_alwaysReturnLocalWiFiStatus = NO;
-		}
-	}
+        	} 
+		else 
+		{
+            		CFRelease(reachability);
+        	}
+    	}
 	return returnValue;
 }
-
 
 
 + (instancetype)reachabilityForInternetConnection
