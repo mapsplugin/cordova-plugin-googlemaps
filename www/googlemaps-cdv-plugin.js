@@ -147,8 +147,6 @@ document.head.appendChild(navDecorBlocker);
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
 
-
-
       //-------------------------------------------
       // Should the plugin update the map positions?
       //-------------------------------------------
@@ -180,12 +178,13 @@ document.head.appendChild(navDecorBlocker);
               cacheDepth[elemId] = depth;
           }
 
-
           // Calculate dom clickable region
           var rect = common.getDivRect(element);
           rect.right = rect.left + rect.width;
           rect.bottom = rect.top + rect.height;
-          if (rect.left !== parentRect.left || rect.width !== parentRect.width) {
+          rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
+          rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
+          if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
             if (rect.left < parentRect.left) {
               if (rect.right > parentRect.right) {
                 rect.width = parentRect.width;
@@ -204,7 +203,7 @@ document.head.appendChild(navDecorBlocker);
             rect.right = rect.left + rect.width;
           }
 
-          if (rect.top !== parentRect.top || rect.height !== parentRect.height) {
+          if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
             if (rect.top < parentRect.top) {
               if (rect.bottom > parentRect.bottom) {
                 rect.height = parentRect.height;
@@ -273,7 +272,11 @@ document.head.appendChild(navDecorBlocker);
           }
         }
       };
-      traceDomTree(document.body, 0, common.getDivRect(document.body));
+      var bodyRect = common.getDivRect(document.body);
+      bodyRect.right = bodyRect.left + bodyRect.width;
+      bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
+
+      traceDomTree(document.body, 0, bodyRect);
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
