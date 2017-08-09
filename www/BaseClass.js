@@ -64,7 +64,12 @@ BaseClass.prototype = {
   },
 
   trigger: function(eventName) {
-    if (!eventName || !this[SUBSCRIPTIONS_FIELD][eventName]) {
+    if (!eventName) {
+      return this;
+    }
+
+    eventName = eventName.replace("promise-", "");
+    if (!this[SUBSCRIPTIONS_FIELD][eventName]) {
       return this;
     }
 
@@ -108,7 +113,11 @@ BaseClass.prototype = {
   off: function(eventName, listener) {
     if (!eventName && !listener) {
       this[SUBSCRIPTIONS_FIELD] = {};
-    } else if (eventName && !listener) {
+      return this;
+    }
+
+    eventName = eventName.replace("promise-", "");
+    if (eventName && !listener) {
       this[SUBSCRIPTIONS_FIELD][eventName] = null;
     } else if (this[SUBSCRIPTIONS_FIELD][eventName]) {
       var index = this[SUBSCRIPTIONS_FIELD][eventName].indexOf(listener);
