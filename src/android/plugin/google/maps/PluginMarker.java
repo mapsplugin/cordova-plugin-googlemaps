@@ -245,6 +245,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         markerOptions.visible(opts.getBoolean("visible"));
         properties.put("isVisible", markerOptions.isVisible());
       }
+    } else {
+      markerOptions.visible(true);
     }
     if (opts.has("draggable")) {
       markerOptions.draggable(opts.getBoolean("draggable"));
