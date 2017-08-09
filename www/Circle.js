@@ -141,6 +141,7 @@ Circle.prototype.setRadius = function(radius) {
 Circle.prototype.remove = function() {
     this.trigger(this.id + "_remove");
     exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    this.destroy();
 };
 
 Circle.prototype.getBounds = function() {

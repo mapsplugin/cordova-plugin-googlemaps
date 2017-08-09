@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     BaseClass = require('./BaseClass');
 
@@ -106,6 +105,7 @@ TileOverlay.prototype.getVisible = function() {
 TileOverlay.prototype.remove = function() {
     this.trigger(this.id + "_remove");
     exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    this.destroy();
 };
 
 module.exports = TileOverlay;

@@ -144,6 +144,7 @@ GroundOverlay.prototype.getClickable = function() {
 GroundOverlay.prototype.remove = function() {
     this.trigger(this.id + "_remove");
     exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    this.destroy();
 };
 
 

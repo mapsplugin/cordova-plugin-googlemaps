@@ -125,6 +125,7 @@ utils.extend(Polygon, BaseClass);
 Polygon.prototype.remove = function() {
     this.trigger(this.id + "_remove");
     exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    this.destroy();
 };
 Polygon.prototype.getPluginName = function() {
     return this.map.getId() + "-polygon";

@@ -128,6 +128,7 @@ Marker.prototype.remove = function(callback) {
     self.trigger(event.INFO_CLOSE);     // close open infowindow, otherwise it will stay
     self.trigger(self.id + "_remove");
     exec(function() {
+        self.destroy();
         if (typeof callback === "function") {
             callback.call(self);
         }

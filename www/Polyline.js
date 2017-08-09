@@ -168,6 +168,6 @@ Polyline.prototype.remove = function() {
     if (points) {
       points.clear();
     }
-    this.off();
+    this.destroy();
 };
 module.exports = Polyline;

@@ -1,6 +1,5 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
     common = require('./Common'),
     Marker = require('./Marker'),
     geomodel = require('./geomodel'),
@@ -111,7 +110,6 @@ Cluster.prototype.remove = function() {
   this._markerOptsArray.forEach(function(markerOpts) {
     markerOpts._cluster.isAdded = false;
   });
-
 };
 Cluster.prototype.getItemLength = function() {
   return this._markerOptsArray.length;

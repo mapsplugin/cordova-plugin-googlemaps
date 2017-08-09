@@ -42,6 +42,7 @@ var Map = function(id, _exec) {
         value: id,
         writable: false
     });
+    this._isReady = false;
 
     self.on("active_marker_id_changed", function(prevId, newId) {
         if (prevId in self.MARKERS) {
@@ -173,6 +174,7 @@ Map.prototype.getMap = function(mapId, div, options) {
       //------------------------------------------------------------------------
       setTimeout(function() {
         self.refreshLayout();
+        self._isReady = true;
         self.trigger(event.MAP_READY, self);
       }, 250);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {sync: true});
@@ -498,6 +500,7 @@ Map.prototype.getCameraPosition = function() {
  */
 Map.prototype.remove = function(callback) {
     var self = this;
+    self._isReady = false;
     var div = this.get('div');
     if (div) {
         while (div) {
@@ -517,7 +520,7 @@ Map.prototype.remove = function(callback) {
     self.set('div', undefined);
     self.clear();
     self.empty();
-    self.off();
+    self.destroy();
     exec(function() {
         if (typeof callback === "function") {
             callback.call(self);
@@ -1021,7 +1024,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
         delete self.OVERLAYS[markerId];
       });
 */
-      markerCluster.off();
+      markerCluster.destroy();
     });
 
     self.OVERLAYS[result.id] = markerCluster;
@@ -1045,6 +1048,9 @@ Map.prototype._onSyncInfoWndPosition = function(eventName, points) {
 };
 
 Map.prototype._onMapEvent = function(eventName) {
+    if (!this._isReady) {
+      return;
+    }
     var args = [eventName];
     for (var i = 1; i < arguments.length; i++) {
         args.push(arguments[i]);
@@ -1194,6 +1200,8 @@ Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
     this.set('camera_nearRight', cameraPosition.nearRight);
     this.set('camera_farLeft', cameraPosition.farLeft);
     this.set('camera_farRight', cameraPosition.farRight);
-    this.trigger(eventName, cameraPosition, this);
+    if (this._isReady) {
+      this.trigger(eventName, cameraPosition, this);
+    }
 };
 module.exports = Map;
