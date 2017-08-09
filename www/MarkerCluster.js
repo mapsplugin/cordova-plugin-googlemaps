@@ -231,7 +231,7 @@ MarkerCluster.prototype.remove = function() {
         marker.hideInfoWindow();
       }
     }
-  } else {
+  } else if (self._clusters[resolution]) {
     var keys = Object.keys(self._clusters[resolution]);
     keys.forEach(function(geocell) {
       var cluster = self._clusters[resolution][geocell];
