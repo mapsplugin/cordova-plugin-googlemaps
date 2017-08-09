@@ -46,7 +46,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       polylineOptions.color(color);
     }
     if (opts.has("width")) {
-      polylineOptions.width(opts.getInt("width") * density);
+      polylineOptions.width((int)(opts.getDouble("width") * density));
     }
     if (opts.has("visible")) {
       polylineOptions.visible(opts.getBoolean("visible"));
@@ -216,8 +216,8 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    */
   public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    float width = (float) args.getDouble(1) * this.density;
-    this.setFloat("setWidth", id, width, callbackContext);
+    int width = (int)(args.getDouble(1) * density);
+    this.setInt("setWidth", id, width, callbackContext);
   }
 
   /**

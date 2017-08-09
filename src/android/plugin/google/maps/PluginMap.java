@@ -95,7 +95,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public final String TAG = mapId;
   public String mapDivId;
   public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
-  private final int DEFAULT_CAMERA_PADDING = 20;
+  private final float DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
@@ -115,14 +115,14 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     CameraUpdate cameraUpdate;
     int durationMS;
     LatLngBounds cameraBounds;
-    int cameraPadding;
+    double cameraPadding;
   }
 
   private class AsyncSetOptionsResult {
     int MAP_TYPE_ID;
     CameraPosition cameraPosition;
     LatLngBounds cameraBounds;
-    int cameraPadding;
+    double cameraPadding;
     String styles;
   }
 
@@ -401,18 +401,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     @Override
     public void run() {
 
-      int CAMERA_PADDING = DEFAULT_CAMERA_PADDING;
+      double CAMERA_PADDING = DEFAULT_CAMERA_PADDING;
       try {
         if (mParams.has("camera")) {
           JSONObject camera = mParams.getJSONObject("camera");
           if (camera.has("padding")) {
-            CAMERA_PADDING = camera.getInt("padding");
+            CAMERA_PADDING = camera.getDouble("padding");
           }
         }
       } catch (Exception e) {
         e.printStackTrace();
       }
-      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, CAMERA_PADDING * (int) density));
+      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, (int) (CAMERA_PADDING * density)));
 
       CameraPosition.Builder builder = CameraPosition.builder(map.getCameraPosition());
 
@@ -1027,7 +1027,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             }
 
             if (camera.has("padding")) {
-              results.cameraPadding = camera.getInt("padding");
+              results.cameraPadding = camera.getDouble("padding");
             }
 
             if (camera.has("target")) {
@@ -1084,7 +1084,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               e.printStackTrace();
           }
           if (results.cameraBounds != null) {
-            fitBounds(results.cameraBounds, results.cameraPadding);
+            fitBounds(results.cameraBounds, (int)(results.cameraPadding * density));
           }
         }
 
@@ -1338,7 +1338,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 result.durationMS = cameraPos.getInt("duration");
               }
               if (cameraPos.has("padding")) {
-                result.cameraPadding = cameraPos.getInt("padding");
+                result.cameraPadding = cameraPos.getDouble("padding");
               }
 
               if (!cameraPos.has("target")) {
@@ -1426,7 +1426,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     }
                   }
 
-                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, finalCameraPosition.cameraPadding * (int)density);
+                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, (int)(finalCameraPosition.cameraPadding * density));
                   try {
                     map.moveCamera(cameraUpdate);
                   } catch (Exception e) {
@@ -1525,8 +1525,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
     int x = args.getInt(0);
     int y = args.getInt(1);
-    float xPixel = -x * this.density;
-    float yPixel = -y * this.density;
+    float xPixel = -x * density;
+    float yPixel = -y * density;
     final CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
 
     this.activity.runOnUiThread(new Runnable() {

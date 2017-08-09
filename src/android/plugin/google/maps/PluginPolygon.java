@@ -80,7 +80,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             polygonOptions.fillColor(color);
         }
         if (opts.has("strokeWidth")) {
-            polygonOptions.strokeWidth(opts.getInt("strokeWidth") * this.density);
+            polygonOptions.strokeWidth((int)(opts.getDouble("strokeWidth") * density));
         }
         if (opts.has("visible")) {
             polygonOptions.visible(opts.getBoolean("visible"));
@@ -188,8 +188,8 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     @SuppressWarnings("unused")
     public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
-        float width = (float) args.getDouble(1) * this.density;
-        this.setFloat("setStrokeWidth", id, width, callbackContext);
+        int width = (int)(args.getDouble(1) * density);
+        this.setInt("setStrokeWidth", id, width, callbackContext);
     }
 
     /**
