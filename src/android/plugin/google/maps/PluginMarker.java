@@ -1087,8 +1087,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
   private void _setIconAnchor(final Marker marker, double anchorX, double anchorY, final int imageWidth, final int imageHeight) {
     // The `anchor` of the `icon` property
-    anchorX = anchorX * this.density;
-    anchorY = anchorY * this.density;
+    anchorX = anchorX * density;
+    anchorY = anchorY * density;
     final double fAnchorX = anchorX;
     final double fAnchorY = anchorY;
     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -1100,8 +1100,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   }
   private void _setInfoWindowAnchor(final Marker marker, double anchorX, double anchorY, final int imageWidth, final int imageHeight) {
     // The `anchor` of the `icon` property
-    anchorX = anchorX * this.density;
-    anchorY = anchorY * this.density;
+    anchorX = anchorX * density;
+    anchorY = anchorY * density;
     final double fAnchorX = anchorX;
     final double fAnchorY = anchorY;
     cordova.getActivity().runOnUiThread(new Runnable() {

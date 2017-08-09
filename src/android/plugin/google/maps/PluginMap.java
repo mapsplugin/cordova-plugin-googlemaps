@@ -1525,8 +1525,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
     int x = args.getInt(0);
     int y = args.getInt(1);
-    float xPixel = -x * this.density;
-    float yPixel = -y * this.density;
+    float xPixel = -x * density;
+    float yPixel = -y * density;
     final CameraUpdate cameraUpdate = CameraUpdateFactory.scrollBy(xPixel, yPixel);
 
     this.activity.runOnUiThread(new Runnable() {
