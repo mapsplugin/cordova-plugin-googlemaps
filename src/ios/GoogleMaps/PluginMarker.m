@@ -170,8 +170,10 @@
   }
 
   // Visible property
-  if (iconProperty) {
-    [iconProperty setObject:[NSNumber numberWithBool:[[json valueForKey:@"visible"] boolValue]] forKey:@"visible"];
+  if ([json valueForKey:@"visible"]) {
+    [iconProperty setObject:[json valueForKey:@"visible"] forKey:@"visible"];
+  } else {
+    [iconProperty setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   }
 
   // Animation
