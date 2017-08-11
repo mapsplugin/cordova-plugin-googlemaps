@@ -709,7 +709,9 @@ MarkerCluster.prototype._redraw = function(params) {
       var prepareClusters = {};
       targetMarkers.forEach(function(markerOpts) {
         if (markerOpts._cluster.isAdded) {
-          console.log("isAdded", markerOpts);
+          if (self.debug) {
+            console.log("isAdded", markerOpts);
+          }
           return;
         }
         var geocell = markerOpts._cluster.geocell.substr(0, resolution + 1);
