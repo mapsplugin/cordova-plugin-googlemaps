@@ -363,7 +363,7 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
 
 MarkerCluster.prototype.redraw = function(params) {
   var self = this;
-  console.log("--->redraw");
+  //console.log("--->redraw");
   if (self._isRemove) {
     return null;
   }
@@ -392,7 +392,7 @@ MarkerCluster.prototype.redraw = function(params) {
 MarkerCluster.prototype._redraw = function(params) {
   var self = this;
 
-console.log("--------------->_redraw");
+  //console.log("--------------->_redraw");
   if (self._isRemove) {
     return null;
   }
@@ -428,7 +428,7 @@ console.log("--------------->_redraw");
     resolution = self.OUT_OF_RESOLUTION;
   }
   self.set("resolution", resolution);
-  console.log("--->prevResolution = " + prevResolution + ", resolution = " + resolution);
+  //console.log("--->prevResolution = " + prevResolution + ", resolution = " + resolution);
 
   var targetMarkers = [];
 
@@ -562,7 +562,7 @@ console.log("--------------->_redraw");
     });
 
   } else if (prevResolution in self._clusters) {
-  console.log("--->prevResolution(" + prevResolution + ") != resolution(" + resolution + ")");
+  //console.log("--->prevResolution(" + prevResolution + ") != resolution(" + resolution + ")");
 
     if (prevResolution < resolution) {
       //--------------
@@ -665,7 +665,7 @@ console.log("--------------->_redraw");
     });
     delete self._clusters[prevResolution];
   } else {
-  console.log("--->init cluster");
+    //console.log("--->init cluster");
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       var markerOpts = self._markerMap[markerId];
@@ -868,18 +868,13 @@ console.log("--------------->_redraw");
       });
     }
   }
-    var delete_clusters = Object.keys(deleteClusters);
-/*
+  var delete_clusters = Object.keys(deleteClusters);
+
   if (new_or_update_clusters.length === 0 && delete_clusters.length === 0) {
     self.trigger("nextTask");
     return;
   }
-*/
-  console.log('result', {
-    "resolution": resolution,
-    "new_or_update": new_or_update_clusters,
-    "delete": delete_clusters
-  });
+
   if (self._isRemove) {
     return;
   }
