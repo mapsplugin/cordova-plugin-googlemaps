@@ -336,6 +336,7 @@
   @synchronized (self.mapCtrl.objects) {
     NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
     NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
+    [self.mapCtrl.objects objectForKey: marker.userData];
     [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
     [self.mapCtrl.objects removeObjectForKey:propertyId];
     marker.map = nil;
@@ -791,7 +792,6 @@
     //--------------------------------
     // the icon property is color name
     //--------------------------------
-    //NSLog(@"iconProperty = %@", iconProperty);
     if ([iconProperty valueForKey:@"iconColor"]) {
       dispatch_async(dispatch_get_main_queue(), ^{
           UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
@@ -888,7 +888,12 @@
           // remove file name (i.e /index.html)
           regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
           iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
-          NSLog(@"--->iconPath = %@", iconPath);
+
+          iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+
+          if (self.mapCtrl.debuggable) {
+              NSLog(@"iconPath = %@", iconPath);
+          }
         }
 
 
@@ -1030,7 +1035,6 @@
 
 
     if (iconPath) {
-            NSLog(@"1030 iconPath = %@", iconPath);
 
         if (self.mapCtrl.debuggable) {
             NSLog(@"iconPath = %@", iconPath);
@@ -1217,6 +1221,11 @@
                     [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
                     imgData = nil;
                     [self.mapCtrl.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
+
+                    // Draw label
+                    if ([iconProperty objectForKey:@"label"]) {
+                        image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+                    }
 
                     dispatch_async(dispatch_get_main_queue(), ^{
                         marker.icon = image;
