@@ -128,6 +128,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     }
 
     this.currentPageUrl = webView.getUrl();
+    Log.d(TAG, "-->currentPageUrl = " + this.currentPageUrl);
 
     View browserView = webView.getView();
     String browserViewName = browserView.getClass().getName();
@@ -393,6 +394,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
           !iconUrl.startsWith("./") &&
           !iconUrl.startsWith("../")) {
         iconUrl = "./" + iconUrl;
+        Log.d(TAG, "--> iconUrl = " + iconUrl);
       }
 
       if (iconUrl.startsWith("./") || iconUrl.startsWith("../")) {
