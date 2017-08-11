@@ -792,7 +792,6 @@
     //--------------------------------
     // the icon property is color name
     //--------------------------------
-    NSLog(@"iconProperty = %@", iconProperty);
     if ([iconProperty valueForKey:@"iconColor"]) {
       dispatch_async(dispatch_get_main_queue(), ^{
           UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
