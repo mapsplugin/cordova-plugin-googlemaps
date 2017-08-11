@@ -519,12 +519,9 @@ Map.prototype.remove = function(callback) {
             div = div.parentNode;
         }
     }
-    self.trigger("remove");
     self.set('div', undefined);
-    self.clear();
-    self.empty();
-    self.off();
     exec(function() {
+        self.trigger("remove");
         if (typeof callback === "function") {
             callback.call(self);
         }

@@ -778,12 +778,6 @@
     if (self.mapCtrl.debuggable) {
       NSLog(@"---- setIcon_ : %@", iconPath);
     }
-    // `size` property
-    if ([iconProperty valueForKey:@"size"]) {
-        NSDictionary *size = [iconProperty valueForKey:@"size"];
-        width = [[size objectForKey:@"width"] floatValue];
-        height = [[size objectForKey:@"height"] floatValue];
-    }
 
     // `animation` property
     NSString *animationValue = nil;
@@ -791,6 +785,188 @@
         animationValue = [iconProperty valueForKey:@"animation"];
     }
     __block NSString *animation = animationValue;
+
+    //--------------------------------
+    // the icon property is color name
+    //--------------------------------
+    NSLog(@"iconProperty = %@", iconProperty);
+    if ([iconProperty valueForKey:@"iconColor"]) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+          UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
+          marker.icon = [GMSMarker markerImageWithColor:iconColor];
+
+          // The `visible` property
+          if (iconProperty[@"visible"]) {
+              marker.map = self.mapCtrl.map;
+          }
+
+          if (animation) {
+              // Do animation, then send the result
+              [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                  callbackBlock(YES, marker);
+              }];
+          } else {
+              // Send the result
+              callbackBlock(YES, marker);
+          }
+      });
+      return;
+    }
+
+    if (iconPath == nil) {
+      callbackBlock(NO, @"icon property is null");
+      return;
+    }
+
+    // `size` property
+    if ([iconProperty valueForKey:@"size"]) {
+        NSDictionary *size = [iconProperty valueForKey:@"size"];
+        width = [[size objectForKey:@"width"] floatValue];
+        height = [[size objectForKey:@"height"] floatValue];
+    }
+
+
+
+
+
+
+
+
+
+
+    if (self.mapCtrl.debuggable) {
+        NSLog(@"iconPath = %@", iconPath);
+    }
+
+    NSRange range = [iconPath rangeOfString:@"data:image"];
+    if (range.location != 0) {
+
+        if (![iconPath containsString:@"://"] &&
+            ![iconPath hasPrefix:@"/"] &&
+            ![iconPath hasPrefix:@"www"] &&
+            ![iconPath hasPrefix:@"./"] &&
+            ![iconPath hasPrefix:@"../"]) {
+          iconPath = [NSString stringWithFormat:@"./%@", iconPath];
+        }
+
+        if ([iconPath hasPrefix:@"./"] || [iconPath hasPrefix:@"../"]) {
+          NSError *error = nil;
+
+          // replace repeated "./" (i.e ./././test.png)
+          NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
+          iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
+
+
+          // Get the current URL, then calculate the relative path.
+          CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+          id webview = cdvViewController.webView;
+          NSString *clsName = [webview className];
+          NSURL *url;
+          if ([clsName isEqualToString:@"UIWebView"]) {
+            url = ((UIWebView *)cdvViewController.webView).request.URL;
+          } else {
+            url = [webview URL];
+          }
+          NSString *currentURL = url.absoluteString;
+
+          // remove page unchor (i.e index.html#page=test, index.html?key=value)
+          regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
+          currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+          // remove file name (i.e /index.html)
+          regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
+          currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+          if (![currentURL hasSuffix:@"/"]) {
+            currentURL = [NSString stringWithFormat:@"%@/", currentURL];
+          }
+          iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
+
+          // remove file name (i.e /index.html)
+          regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
+          iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
+          NSLog(@"--->iconPath = %@", iconPath);
+        }
+
+
+        range = [iconPath rangeOfString:@"cdvfile://"];
+        if ([iconPath hasPrefix:@"cdvfile://"]) {
+
+            iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
+
+            if (iconPath == nil) {
+                if (self.mapCtrl.debuggable) {
+                    NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
+                }
+                //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
+                return;
+            }
+        }
+
+
+        UIImage *image;
+
+        range = [iconPath rangeOfString:@"://"];
+
+        if (range.location == 0) {
+            /**
+             * Load the icon from local path
+             */
+
+            if ([iconPath hasPrefix:@"/"]) {
+              // Get the current URL, then calculate the relative path.
+              CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+              id webview = cdvViewController.webView;
+              NSString *clsName = [webview className];
+              NSURL *url;
+              if ([clsName isEqualToString:@"UIWebView"]) {
+                url = ((UIWebView *)cdvViewController.webView).request.URL;
+              } else {
+                url = [webview URL];
+              }
+              NSString *currentURL = url.absoluteString;
+              currentURL = [currentURL stringByDeletingLastPathComponent];
+              currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+              currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+              iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
+            } else {
+              iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
+            }
+        }
+
+        if ([iconPath hasPrefix:@"file://"]) {
+          iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            if (![fileManager fileExistsAtPath:iconPath]) {
+                //if (self.mapCtrl.debuggable) {
+                    NSLog(@"(error)There is no file at '%@'.", iconPath);
+                //}
+                //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+                callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
+                return;
+            }
+        }
+
+        image = [UIImage imageNamed:iconPath];
+
+        if (width && height) {
+            image = [image resize:width height:height];
+        }
+    }
+
+
+
+
+
+
+
+
+    //---------------------------------------
+    // If the image is cached, return it
+    //---------------------------------------
 
     NSString *iconCacheKey = [NSString stringWithFormat:@"%lu/%d,%d", (unsigned long)iconPath.hash, (int)width, (int)height];
     NSData *cache = [self.icons objectForKey:iconCacheKey];
@@ -846,7 +1022,13 @@
         return;
     }
 
+
+
+
+
+
     if (iconPath) {
+            NSLog(@"1030 iconPath = %@", iconPath);
 
         if (self.mapCtrl.debuggable) {
             NSLog(@"iconPath = %@", iconPath);
@@ -877,7 +1059,7 @@
                 /**
                  * Load the icon from local path
                  */
-
+/*
                 range = [iconPath rangeOfString:@"cdvfile://"];
                 if (range.location != NSNotFound) {
 
@@ -932,7 +1114,7 @@
                         return;
                     }
                 }
-
+*/
                 image = [UIImage imageNamed:iconPath];
 
                 if (width && height) {
@@ -1079,27 +1261,6 @@
 
 
         }
-    } else if ([iconProperty valueForKey:@"iconColor"]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
-            marker.icon = [GMSMarker markerImageWithColor:iconColor];
-
-            // The `visible` property
-            if (iconProperty[@"visible"]) {
-                marker.map = self.mapCtrl.map;
-            }
-
-            if (animation) {
-                // Do animation, then send the result
-                [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                    callbackBlock(YES, marker);
-                }];
-            } else {
-                // Send the result
-                callbackBlock(YES, marker);
-            }
-        });
-
     }
 
 }

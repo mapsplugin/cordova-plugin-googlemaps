@@ -471,9 +471,9 @@ if (!cordova) {
             */
             map.one('remove', function() {
                 document.removeEventListener(mapId, nativeCallback);
-                MAPS[mapId].clear();
+                MAPS[mapId].destroy();
                 delete MAPS[mapId];
-                map = null;
+                map = undefined;
             });
             MAP_CNT++;
             MAPS[mapId] = map;
@@ -642,7 +642,7 @@ function _exec() {
       }
       _isResizeMapExecuting = true;
     }
-    if (_stopRequested && methodName !== "remove") {
+    if (_stopRequested && (methodName !== "remove" || methodName !== "clear")) {
       _executingCnt--;
       continue;
     }
