@@ -54,9 +54,12 @@ const int GEOCELL_GRID_SIZE = 4;
             }
 
             @synchronized (self.pluginMarkers) {
-              if (![[self.pluginMarkers objectForKey:markerId] isEqualToString:@"WORKING"]) {
+              if ([[self.pluginMarkers objectForKey:markerId] isEqualToString:@"WORKING"]) {
+                [self.pluginMarkers setObject:@"DELETED" forKey:markerId];
+              } else {
                 @synchronized (self.mapCtrl.objects) {
                   [self _removeMarker:marker];
+                  [self.mapCtrl.objects removeObjectForKey:markerId];
                   marker = nil;
                   if ([self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]]) {
                     [self.mapCtrl.objects removeObjectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]];
@@ -64,8 +67,6 @@ const int GEOCELL_GRID_SIZE = 4;
                 }
                 [self.pluginMarkers removeObjectForKey:markerId];
                 [self.deleteMarkers removeObjectAtIndex:i];
-              } else {
-                [self.pluginMarkers setObject:@"DELETED" forKey:markerId];
               }
             }
           }

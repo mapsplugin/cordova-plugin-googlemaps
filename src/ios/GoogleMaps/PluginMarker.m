@@ -336,6 +336,7 @@
   @synchronized (self.mapCtrl.objects) {
     NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
     NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
+    [self.mapCtrl.objects objectForKey: marker.userData];
     [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
     [self.mapCtrl.objects removeObjectForKey:propertyId];
     marker.map = nil;
@@ -1035,6 +1036,11 @@
                     [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
                     imgData = nil;
                     [self.mapCtrl.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
+
+                    // Draw label
+                    if ([iconProperty objectForKey:@"label"]) {
+                        image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+                    }
 
                     dispatch_async(dispatch_get_main_queue(), ^{
                         marker.icon = image;
