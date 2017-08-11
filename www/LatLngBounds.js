@@ -29,9 +29,10 @@ LatLngBounds.prototype.northeast = null;
 LatLngBounds.prototype.southwest = null;
 
 LatLngBounds.prototype.toString = function() {
-    return "{\"southwest\": : " + this.southwest.toString() + ", \"northeast\": : " + this.northeast.toString() + "}";
+    return '{"southwest":' + this.southwest.toString() + ', "northeast":' + this.northeast.toString() + '}';
 };
 LatLngBounds.prototype.toUrlValue = function(precision) {
+    precision = precision || 6;
     return "[" + this.southwest.toUrlValue(precision) + "," + this.northeast.toUrlValue(precision) + "]";
 };
 

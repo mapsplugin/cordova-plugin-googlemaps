@@ -189,31 +189,34 @@ const int GEOCELL_GRID_SIZE = 4;
             [properties setObject:iconProperties forKey:@"icon"];
 
           } else if ([[iconObj class] isSubclassOfClass:[NSDictionary class]]) {
+
             NSMutableDictionary *iconProperties = [NSMutableDictionary dictionaryWithDictionary:iconObj];
-            if ([iconProperties objectForKey:@"label"]) {
-              NSMutableDictionary *label = [NSMutableDictionary dictionaryWithDictionary:[iconProperties objectForKey:@"label"]];
-              if (isDebug == YES) {
-                [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
-                [iconProperties setObject:label forKey:@"label"];
-              } else {
-                if ([clusterData objectForKey:@"isClusterIcon"] != nil && [[clusterData objectForKey:@"isClusterIcon"] boolValue] == true) {
+
+            if ([[clusterData objectForKey:@"isClusterIcon"] boolValue]) {
+
+              if ([iconProperties objectForKey:@"label"]) {
+
+                NSMutableDictionary *label = [NSMutableDictionary dictionaryWithDictionary:[iconProperties objectForKey:@"label"]];
+                if (isDebug == YES) {
+                  [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
+                } else {
                   [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
-                  [iconProperties setObject:label forKey:@"label"];
                 }
-              }
-            } else {
-              NSMutableDictionary *label = [NSMutableDictionary dictionary];
-              if (isDebug == YES) {
-                [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
                 [iconProperties setObject:label forKey:@"label"];
+
               } else {
-                if ([clusterData objectForKey:@"isClusterIcon"] != nil && [[clusterData objectForKey:@"isClusterIcon"] boolValue] == true) {
+                NSMutableDictionary *label = [NSMutableDictionary dictionary];
+                if (isDebug == YES) {
+                  [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
+                } else {
                   [label setObject:[NSNumber numberWithInt:15] forKey:@"fontSize"];
                   [label setObject:[NSNumber numberWithBool:TRUE] forKey:@"bold"];
                   [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
-                  [iconProperties setObject:label forKey:@"label"];
                 }
+                [iconProperties setObject:label forKey:@"label"];
               }
+
+
             }
 
             if ([iconProperties objectForKey:@"anchor"]) {
