@@ -150,7 +150,6 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     sel._onCameraMoved();
   });
 
-console.log("--->init");
   self._onCameraMoved(true);
 
   if (self.debug) {
@@ -189,7 +188,6 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
 
 MarkerCluster.prototype._onCameraMoved = function(force) {
   var self = this;
-  console.log("--->_onCameraMoved");
   if (self._isRemove) {
     return null;
   }
@@ -199,7 +197,6 @@ MarkerCluster.prototype._onCameraMoved = function(force) {
   mvcArray.push([visibleRegion.farRight, 40, -40]);
   mvcArray.push([visibleRegion.nearLeft, -40, 40]);
   mvcArray.map(function(data, cb) {
-    console.log(data);
     self.map.fromLatLngToPoint(data[0], function(point) {
       point[0] += data[1];
       point[1] += data[2];
@@ -363,7 +360,6 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
 
 MarkerCluster.prototype.redraw = function(params) {
   var self = this;
-  //console.log("--->redraw");
   if (self._isRemove) {
     return null;
   }
@@ -392,7 +388,6 @@ MarkerCluster.prototype.redraw = function(params) {
 MarkerCluster.prototype._redraw = function(params) {
   var self = this;
 
-  //console.log("--------------->_redraw");
   if (self._isRemove) {
     return null;
   }
@@ -665,7 +660,6 @@ MarkerCluster.prototype._redraw = function(params) {
     });
     delete self._clusters[prevResolution];
   } else {
-    //console.log("--->init cluster");
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       var markerOpts = self._markerMap[markerId];
