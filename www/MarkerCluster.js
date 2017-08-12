@@ -137,7 +137,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     //marker.set("geocell", geocell, true);
     //marker.set("position", markerOptions.position, true);
     self._markerMap[markerId] = markerOptions;
-    self._onCameraMoved(true);
+    self.redraw(true);
   };
 
   map.on(event.CAMERA_MOVE_END, self._onCameraMoved.bind(self));
@@ -147,10 +147,10 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     if (self._isRemove || self.taskQueue.length === 0) {
       return;
     }
-    sel._onCameraMoved();
+    sel.redraw();
   });
 
-  self._onCameraMoved(true);
+  self.redraw(true);
 
   if (self.debug) {
     self.debugTimer = setInterval(function() {
@@ -186,31 +186,16 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
   });
 };
 
-MarkerCluster.prototype._onCameraMoved = function(force) {
+MarkerCluster.prototype._onCameraMoved = function() {
   var self = this;
   if (self._isRemove) {
     return null;
   }
-  var visibleRegion = self.map.getVisibleRegion();
 
-  var mvcArray = new BaseArrayClass();
-  mvcArray.push([visibleRegion.farRight, 40, -40]);
-  mvcArray.push([visibleRegion.nearLeft, -40, 40]);
-  mvcArray.map(function(data, cb) {
-    self.map.fromLatLngToPoint(data[0], function(point) {
-      point[0] += data[1];
-      point[1] += data[2];
-      self.map.fromPointToLatLng(point, cb);
-    });
-  }, function(results) {
-
-    self.redraw({
-      extendedBounds: new LatLngBounds(results[0], results[1]),
-      distance: spherical.computeDistanceBetween(visibleRegion.farRight, results[0]), // distance in meters
-      force: force
-    });
-
+  self.redraw({
+    force: false
   });
+
 };
 
 MarkerCluster.prototype.remove = function() {
@@ -377,12 +362,36 @@ MarkerCluster.prototype.redraw = function(params) {
       cb();
     }, function() {
       self._clusterBounds.empty();
-      var taskParams = self.taskQueue.shift();
+      var taskParams = self.taskQueue.pop();
+      self.taskQueue.length = 0;
       self._redraw.call(self, taskParams);
     });
   } else {
-    var taskParams = self.taskQueue.shift();
-    self._redraw.call(self, taskParams);
+    var taskParams = self.taskQueue.pop();
+    self.taskQueue.length = 0;
+
+
+    var visibleRegion = self.map.getVisibleRegion();
+
+    var mvcArray = new BaseArrayClass();
+    mvcArray.push([visibleRegion.farRight, 40, -40]);
+    mvcArray.push([visibleRegion.nearLeft, -40, 40]);
+    mvcArray.map(function(data, cb) {
+      self.map.fromLatLngToPoint(data[0], function(point) {
+        point[0] += data[1];
+        point[1] += data[2];
+        self.map.fromPointToLatLng(point, cb);
+      });
+    }, function(results) {
+
+      self._redraw.call(self, {
+        visibleRegion: visibleRegion,
+        extendedBounds: new LatLngBounds(results[0], results[1]),
+        distance: spherical.computeDistanceBetween(visibleRegion.farRight, results[0]), // distance in meters
+        force: taskParams.force
+      });
+
+    });
   }
 };
 MarkerCluster.prototype._redraw = function(params) {
@@ -400,25 +409,35 @@ MarkerCluster.prototype._redraw = function(params) {
   self.set("zoom", currentZoomLevel);
 
   var resolution = 1;
-  resolution = currentZoomLevel > 3 ? 2 : resolution;
-  resolution = 3 < self.MAX_RESOLUTION && currentZoomLevel > 5 ? 3 : resolution;
-  resolution = 4 < self.MAX_RESOLUTION && currentZoomLevel > 7 ? 4 : resolution;
-  resolution = 5 < self.MAX_RESOLUTION && currentZoomLevel > 9 ? 5 : resolution;
-  resolution = 6 < self.MAX_RESOLUTION && currentZoomLevel > 11 ? 6 : resolution;
-  resolution = 7 < self.MAX_RESOLUTION && currentZoomLevel > 13 ? 7 : resolution;
-  resolution = 8 < self.MAX_RESOLUTION && currentZoomLevel > 15 ? 8 : resolution;
-  resolution = 9 < self.MAX_RESOLUTION && currentZoomLevel > 17 ? 9 : resolution;
-  resolution = 10 < self.MAX_RESOLUTION && currentZoomLevel > 19 ? 10 : resolution;
-  resolution = 11 < self.MAX_RESOLUTION && currentZoomLevel > 21 ? 11 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 3 ? 2 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 5 ? 3 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 7 ? 4 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 9 ? 5 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 11 ? 6 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 13 ? 7 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 15 ? 8 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 17 ? 9 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 19 ? 10 : resolution;
+  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 21 ? 11 : resolution;
 
-  //----------------------------------------------------------------
-  // Calculates geocells of the current viewport
-  //----------------------------------------------------------------
+  //------------------------------------------------------------------------
+  // If the current viewport contains the previous viewport,
+  // and also the same resolution,
+  // skip this task except the params.force = true (such as addMarker)
+  //------------------------------------------------------------------------
   var expandedRegion = params.extendedBounds;
 
+  var prevSWcell = self.get("prevSWcell");
+  var prevNEcell = self.get("prevNEcell");
   var swCell = geomodel.getGeocell(expandedRegion.southwest.lat, expandedRegion.southwest.lng, resolution);
   var neCell = geomodel.getGeocell(expandedRegion.northeast.lat, expandedRegion.northeast.lng, resolution);
 
+  if (!params.force &&
+    prevSWcell === swCell &&
+    prevNEcell === neCell) {
+    self.trigger("nextTask");
+    return;
+  }
   if (currentZoomLevel > self.maxZoomLevel) {
     resolution = self.OUT_OF_RESOLUTION;
   }
@@ -507,6 +526,7 @@ MarkerCluster.prototype._redraw = function(params) {
     }
 
   } else if (resolution === prevResolution) {
+    //console.log("--->prevResolution(" + prevResolution + ") == resolution(" + resolution + ")");
     //--------------------------------------
     // Just camera move, no zoom changed
     //--------------------------------------
@@ -524,6 +544,7 @@ MarkerCluster.prototype._redraw = function(params) {
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function(markerOpts, idx) {
               deleteClusters[markerOpts.id] = 1;
+              self._markerMap[markerOpts.id]._cluster.isAdded = false;
               if (self.debug) {
                 console.log("---> (js:534)delete:" + markerOpts.id);
               }
@@ -551,13 +572,28 @@ MarkerCluster.prototype._redraw = function(params) {
     keys.forEach(function(markerId) {
       var markerOpts = self._markerMap[markerId];
       var geocell = markerOpts._cluster.geocell.substr(0, cellLen);
-      if (!markerOpts._cluster.isRemoved && ignoreGeocells.indexOf(geocell) === -1) {
+      if (markerOpts._cluster.isRemoved ||
+          ignoreGeocells.indexOf(geocell) > -1 ||
+          markerOpts._cluster.isAdded) {
+        return;
+      }
+
+      if (allowGeocells.indexOf(geocell) > -1) {
         targetMarkers.push(markerOpts);
+        return;
+      }
+      //var bounds = geomodel.computeBox(geocell);
+      if (expandedRegion.contains(markerOpts.position)) {
+        targetMarkers.push(markerOpts);
+        allowGeocells.push(geocell);
+      } else {
+        ignoreGeocells.push(geocell);
+        self._markerMap[markerOpts.id]._cluster.isAdded = false;
       }
     });
 
   } else if (prevResolution in self._clusters) {
-  //console.log("--->prevResolution(" + prevResolution + ") != resolution(" + resolution + ")");
+    //console.log("--->prevResolution(" + prevResolution + ") != resolution(" + resolution + ")");
 
     if (prevResolution < resolution) {
       //--------------
@@ -681,20 +717,18 @@ MarkerCluster.prototype._redraw = function(params) {
     });
   }
 
-  if (self.debug) {
+  //if (self.debug) {
     console.log("targetMarkers = " + targetMarkers.length);
-  }
+  //}
 
   //--------------------------------
   // Pick up markers are containted in the current viewport.
   //--------------------------------
-  var prevSWcell = self.get("prevSWcell");
-  var prevNEcell = self.get("prevNEcell");
   var new_or_update_clusters = [];
 
   if (params.force ||
     resolution == self.OUT_OF_RESOLUTION ||
-    //resolution !== prevResolution ||
+    resolution !== prevResolution ||
     prevSWcell !== swCell ||
     prevNEcell !== neCell) {
 
@@ -709,7 +743,9 @@ MarkerCluster.prototype._redraw = function(params) {
       var prepareClusters = {};
       targetMarkers.forEach(function(markerOpts) {
         if (markerOpts._cluster.isAdded) {
-          console.log("isAdded", markerOpts);
+          if (self.debug) {
+            console.log("isAdded", markerOpts);
+          }
           return;
         }
         var geocell = markerOpts._cluster.geocell.substr(0, resolution + 1);
@@ -872,6 +908,11 @@ MarkerCluster.prototype._redraw = function(params) {
   if (self._isRemove) {
     return;
   }
+console.log({
+  "resolution": resolution,
+  "new_or_update": new_or_update_clusters,
+  "delete": delete_clusters
+});
 
   exec(function() {
     self.trigger("nextTask");

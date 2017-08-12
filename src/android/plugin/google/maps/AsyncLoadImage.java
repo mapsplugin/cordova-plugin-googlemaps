@@ -127,13 +127,14 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       mOptions.url = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, mOptions.url);
     }
 
-    this.currentPageUrl = webView.getUrl();
-    Log.d(TAG, "-->currentPageUrl = " + this.currentPageUrl);
+    this.currentPageUrl = CordovaGoogleMaps.CURRENT_URL; //webView.getUrl();
+    //Log.d(TAG, "-->currentPageUrl = " + this.currentPageUrl);
 
-    View browserView = webView.getView();
-    String browserViewName = browserView.getClass().getName();
-    this.userAgent = "";
+    //View browserView = webView.getView();
+    //String browserViewName = browserView.getClass().getName();
+    this.userAgent = "Mozilla";
 
+    /*
     if("org.xwalk.core.XWalkView".equals(browserViewName) ||
         "org.crosswalk.engine.XWalkCordovaView".equals(browserViewName)) {
 
@@ -154,6 +155,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     } else {
       this.userAgent = ((WebView) webView.getEngine().getView()).getSettings().getUserAgentString();
     }
+    */
 
   }
 
@@ -162,10 +164,23 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     int mWidth = mOptions.width;
     int mHeight = mOptions.height;
     String iconUrl = mOptions.url;
+    String orgIconUrl = iconUrl;
     Bitmap image = null;
 
     if (iconUrl == null) {
       return null;
+    }
+
+    String cacheKey = null;
+    cacheKey = getCacheKey(orgIconUrl, mWidth, mHeight);
+
+    image = getBitmapFromMemCache(cacheKey);
+    if (image != null) {
+      AsyncLoadImageResult result = new AsyncLoadImageResult();
+      result.image = image;
+      result.cacheHit = true;
+      result.cacheKey = cacheKey;
+      return result;
     }
 
     //Log.d(TAG, "--> iconUrl = " + iconUrl);
@@ -225,23 +240,25 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       }
     }
 
+    cacheKey = getCacheKey(iconUrl, mWidth, mHeight);
 
-    String cacheKey = null;
+    image = getBitmapFromMemCache(cacheKey);
+    if (image != null) {
+      AsyncLoadImageResult result = new AsyncLoadImageResult();
+      result.image = image;
+      result.cacheHit = true;
+      result.cacheKey = cacheKey;
+      return result;
+    }
+
+    cacheKey = getCacheKey(orgIconUrl, mWidth, mHeight);
+
     if (iconUrl.indexOf("http") == 0) {
       //--------------------------------
       // Load image from the Internet
       //--------------------------------
       try {
-        cacheKey = getCacheKey(iconUrl, mWidth, mHeight);
         URL url = new URL(iconUrl);
-        image = getBitmapFromMemCache(cacheKey);
-        if (image != null) {
-          AsyncLoadImageResult result = new AsyncLoadImageResult();
-          result.image = image;
-          result.cacheHit = true;
-          result.cacheKey = cacheKey;
-          return result;
-        }
 
         boolean redirect = true;
         HttpURLConnection http = null;
@@ -356,16 +373,6 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
 
     } else {
       //Log.d(TAG, "--> iconUrl = " + iconUrl);
-      cacheKey = getCacheKey(iconUrl, mWidth, mHeight);
-
-      image = getBitmapFromMemCache(cacheKey);
-      if (image != null) {
-        AsyncLoadImageResult result = new AsyncLoadImageResult();
-        result.image = image;
-        result.cacheHit = true;
-        result.cacheKey = cacheKey;
-        return result;
-      }
       if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
 
 

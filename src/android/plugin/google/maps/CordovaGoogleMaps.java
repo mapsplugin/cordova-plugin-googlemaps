@@ -72,7 +72,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   private GoogleApiClient googleApiClient = null;
   public boolean initialized = false;
   public PluginManager pluginManager;
-  private String CURRENT_URL;
+  public static String CURRENT_URL;
   public static final HashMap<String, String> semaphore = new HashMap<String, String>();
 
   @SuppressLint("NewApi") @Override
@@ -238,6 +238,14 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   }
 
   @Override
+  public boolean onOverrideUrlLoading(String url) {
+    Log.d(TAG, "onOverrideUrlLoading = " + url);
+    CURRENT_URL = url;
+    return false;
+  }
+
+
+  @Override
   public void onScrollChanged() {
     if (mPluginLayout == null) {
       return;
@@ -252,7 +260,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    cordova.getThreadPool().execute(new Runnable() {
+    cordova.getThreadPool().submit(new Runnable() {
       @Override
       public void run() {
         try {

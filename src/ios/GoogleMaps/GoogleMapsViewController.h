@@ -27,7 +27,7 @@
 @property (nonatomic) BOOL isRenderedAtOnce;
 @property (nonatomic) GMSMarker* activeMarker;
 @property (nonatomic, readwrite, strong) NSString *mapDivId;
-@property (atomic, strong) NSMutableDictionary* objects;
+@property (nonatomic, strong) NSMutableDictionary* objects;
 @property (atomic, strong) NSOperationQueue *executeQueue;
 
 

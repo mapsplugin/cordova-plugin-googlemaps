@@ -78,7 +78,7 @@ public class PluginMarkerCluster extends PluginMarker {
     public void run() {
       while(!stopFlag) {
         try {
-          Thread.sleep(10);
+          Thread.sleep(100);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
@@ -112,6 +112,7 @@ public class PluginMarkerCluster extends PluginMarker {
                 _removeMarker(marker);
                 marker = null;
                 pluginMap.objects.remove(markerId);
+                pluginMap.objects.remove("marker_icon_" + markerId);
                 pluginMap.objects.remove("marker_property_" + markerId);
               }
               pluginMarkers.remove(markerId);
@@ -170,120 +171,140 @@ public class PluginMarkerCluster extends PluginMarker {
     final HashMap<String, Bundle> changeProperties = new HashMap<String, Bundle>();
     final String clusterId = args.getString(0);
     final boolean isDebug = debugFlags.get(clusterId);
+    final JSONObject params = args.getJSONObject(1);
 
-    synchronized (semaphore) {
-      JSONObject params = args.getJSONObject(1);
-      String clusterId_markerId;
-      JSONArray deleteClusters = null;
-      if (params.has("delete")) {
-        deleteClusters = params.getJSONArray("delete");
+    String clusterId_markerId;
+    JSONArray new_or_update = null;
+    if (params.has("new_or_update")) {
+      new_or_update = params.getJSONArray("new_or_update");
+    }
+
+    /*
+    if (deleteClusters != null) {
+      //-------------------------------------
+      // delete markers on the delete thread
+      //-------------------------------------
+      int deleteCnt = deleteClusters.length();
+      for (int i = 0; i < deleteCnt; i++) {
+        clusterId_markerId = deleteClusters.getString(i);
+        deleteMarkers.add(clusterId_markerId);
       }
-      JSONArray new_or_update = null;
-      if (params.has("new_or_update")) {
-        new_or_update = params.getJSONArray("new_or_update");
+    }
+    */
+
+    //---------------------------
+    // Determine new or update
+    //---------------------------
+    int new_or_updateCnt = 0;
+    if (new_or_update != null) {
+      new_or_updateCnt = new_or_update.length();
+    }
+    JSONObject clusterData, positionJSON;
+    Bundle properties;
+    for (int i = 0; i < new_or_updateCnt; i++) {
+      clusterData = new_or_update.getJSONObject(i);
+      positionJSON = clusterData.getJSONObject("position");
+      clusterId_markerId = clusterData.getString("id");
+
+
+      // Save the marker properties
+      pluginMap.objects.put("marker_property_" + clusterId_markerId, clusterData);
+
+      // Set the WORKING status flag
+      synchronized (pluginMarkers) {
+        pluginMarkers.put(clusterId_markerId, STATUS.WORKING);
       }
+      updateClusterIDs.add(clusterId_markerId);
 
-      if (deleteClusters != null) {
-        //-------------------------------------
-        // delete markers on the delete thread
-        //-------------------------------------
-        int deleteCnt = deleteClusters.length();
-        for (int i = 0; i < deleteCnt; i++) {
-          clusterId_markerId = deleteClusters.getString(i);
-          deleteMarkers.add(clusterId_markerId);
-        }
+      // Prepare the marker properties for addMarker()
+      properties = new Bundle();
+      properties.putDouble("lat", positionJSON.getDouble("lat"));
+      properties.putDouble("lng", positionJSON.getDouble("lng"));
+      if (clusterData.has("title")) {
+        properties.putString("title", clusterData.getString("title"));
       }
+      properties.putString("id", clusterId_markerId);
 
-      //---------------------------
-      // Determine new or update
-      //---------------------------
-      int new_or_updateCnt = 0;
-      if (new_or_update != null) {
-        new_or_updateCnt = new_or_update.length();
-      }
-      JSONObject clusterData, positionJSON;
-      Bundle properties;
-      for (int i = 0; i < new_or_updateCnt; i++) {
-        clusterData = new_or_update.getJSONObject(i);
-        positionJSON = clusterData.getJSONObject("position");
-        clusterId_markerId = clusterData.getString("id");
+      if (clusterData.has("icon")) {
+        Object iconObj = clusterData.get("icon");
 
+        if (iconObj instanceof String) {
+          Bundle iconProperties = new Bundle();
+          iconProperties.putString("url", (String) iconObj);
+          properties.putBundle("icon", iconProperties);
 
-        // Save the marker properties
-        pluginMap.objects.put("marker_property_" + clusterId_markerId, clusterData);
-
-        // Set the WORKING status flag
-        synchronized (pluginMarkers) {
-          pluginMarkers.put(clusterId_markerId, STATUS.WORKING);
-        }
-        updateClusterIDs.add(clusterId_markerId);
-
-        // Prepare the marker properties for addMarker()
-        properties = new Bundle();
-        properties.putDouble("lat", positionJSON.getDouble("lat"));
-        properties.putDouble("lng", positionJSON.getDouble("lng"));
-        if (clusterData.has("title")) {
-          properties.putString("title", clusterData.getString("title"));
-        }
-        properties.putString("id", clusterId_markerId);
-
-        if (clusterData.has("icon")) {
-          Object iconObj = clusterData.get("icon");
-
-          if (iconObj instanceof String) {
-            Bundle iconProperties = new Bundle();
-            iconProperties.putString("url", (String) iconObj);
-            properties.putBundle("icon", iconProperties);
-
-          } else if (iconObj instanceof JSONObject) {
-            JSONObject icon = clusterData.getJSONObject("icon");
-            Bundle iconProperties = PluginUtil.Json2Bundle(icon);
-            if (clusterData.has("isClusterIcon") && clusterData.getBoolean("isClusterIcon")) {
-              if (icon.has("label")) {
-                JSONObject label = icon.getJSONObject("label");
-                if (isDebug) {
-                  label.put("text", clusterId_markerId.replace(clusterId, ""));
-                } else {
-                  label.put("text", clusterData.getInt("count") + "");
-                }
-                if (label.has("color")) {
-                  label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
-                }
-                iconProperties.putBundle("label", PluginUtil.Json2Bundle(label));
+        } else if (iconObj instanceof JSONObject) {
+          JSONObject icon = clusterData.getJSONObject("icon");
+          Bundle iconProperties = PluginUtil.Json2Bundle(icon);
+          if (clusterData.has("isClusterIcon") && clusterData.getBoolean("isClusterIcon")) {
+            if (icon.has("label")) {
+              JSONObject label = icon.getJSONObject("label");
+              if (isDebug) {
+                label.put("text", clusterId_markerId.replace(clusterId, ""));
               } else {
-                Bundle label = new Bundle();
-                if (isDebug) {
-                  label.putString("text", clusterId_markerId.replace(clusterId, ""));
-                } else {
-                  label.putInt("fontSize", 15);
-                  label.putBoolean("bold", true);
-                  label.putString("text", clusterData.getInt("count") + "");
-                }
-                iconProperties.putBundle("label", label);
+                label.put("text", clusterData.getInt("count") + "");
+              }
+              if (label.has("color")) {
+                label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
+              }
+              iconProperties.putBundle("label", PluginUtil.Json2Bundle(label));
+            } else {
+              Bundle label = new Bundle();
+              if (isDebug) {
+                label.putString("text", clusterId_markerId.replace(clusterId, ""));
+              } else {
+                label.putInt("fontSize", 15);
+                label.putBoolean("bold", true);
+                label.putString("text", clusterData.getInt("count") + "");
+              }
+              iconProperties.putBundle("label", label);
+            }
+          }
+          if (icon.has("anchor")) {
+            double[] anchor = new double[2];
+            anchor[0] = icon.getJSONArray("anchor").getDouble(0);
+            anchor[1] = icon.getJSONArray("anchor").getDouble(1);
+            iconProperties.putDoubleArray("anchor", anchor);
+          }
+          if (icon.has("infoWindowAnchor")) {
+            double[] anchor = new double[2];
+            anchor[0] = icon.getJSONArray("infoWindowAnchor").getDouble(0);
+            anchor[1] = icon.getJSONArray("infoWindowAnchor").getDouble(1);
+            iconProperties.putDoubleArray("infoWindowAnchor", anchor);
+          }
+          properties.putBundle("icon", iconProperties);
+        }
+      }
+
+      changeProperties.put(clusterId_markerId, properties);
+    }
+
+    //Log.d(TAG, "---> deleteCnt : " + deleteCnt + ", newCnt : " + newCnt + ", updateCnt : " + updateCnt + ", reuseCnt : " + reuseCnt);
+
+    if (updateClusterIDs.size() == 0) {
+      cordova.getThreadPool().submit(new Runnable() {
+        @Override
+        public void run() {
+
+          try {
+            JSONArray deleteClusters = null;
+            if (params.has("delete")) {
+              deleteClusters = params.getJSONArray("delete");
+            }
+            if (deleteClusters != null) {
+              //-------------------------------------
+              // delete markers on the delete thread
+              //-------------------------------------
+              int deleteCnt = deleteClusters.length();
+              String clusterId_markerId;
+              for (int i = 0; i < deleteCnt; i++) {
+                clusterId_markerId = deleteClusters.getString(i);
+                deleteMarkers.add(clusterId_markerId);
               }
             }
-            if (icon.has("anchor")) {
-              double[] anchor = new double[2];
-              anchor[0] = icon.getJSONArray("anchor").getDouble(0);
-              anchor[1] = icon.getJSONArray("anchor").getDouble(1);
-              iconProperties.putDoubleArray("anchor", anchor);
-            }
-            if (icon.has("infoWindowAnchor")) {
-              double[] anchor = new double[2];
-              anchor[0] = icon.getJSONArray("infoWindowAnchor").getDouble(0);
-              anchor[1] = icon.getJSONArray("infoWindowAnchor").getDouble(1);
-              iconProperties.putDoubleArray("infoWindowAnchor", anchor);
-            }
-            properties.putBundle("icon", iconProperties);
-          }
+          } catch (Exception e) {e.printStackTrace();}
         }
-
-        changeProperties.put(clusterId_markerId, properties);
-      }
-
-      //Log.d(TAG, "---> deleteCnt : " + deleteCnt + ", newCnt : " + newCnt + ", updateCnt : " + updateCnt + ", reuseCnt : " + reuseCnt);
-    }
-    if (updateClusterIDs.size() == 0) {
+      });
       callbackContext.success();
       return;
     }
@@ -303,10 +324,14 @@ public class PluginMarkerCluster extends PluginMarker {
         //---------
         // new or update
         //---------
+        int waitCnt = updateClusterIDs.size();
+        int currentCnt = 0;
         waitCntManager.put(clusterId, updateClusterIDs.size());
         iterator = updateClusterIDs.iterator();
         while (iterator.hasNext()) {
+          currentCnt++;
           clusterId_markerId = iterator.next();
+          //Log.d(TAG, "---> progress = " + currentCnt + "/ " + waitCnt + ", " + clusterId_markerId);
           synchronized (pluginMarkers) {
             pluginMarkers.put(clusterId_markerId, STATUS.WORKING);
           }
@@ -443,6 +468,30 @@ public class PluginMarkerCluster extends PluginMarker {
         }
         updateClusterIDs.clear();
 
+
+        cordova.getThreadPool().submit(new Runnable() {
+          @Override
+          public void run() {
+
+            try {
+              JSONArray deleteClusters = null;
+              if (params.has("delete")) {
+                deleteClusters = params.getJSONArray("delete");
+              }
+              if (deleteClusters != null) {
+                //-------------------------------------
+                // delete markers on the delete thread
+                //-------------------------------------
+                int deleteCnt = deleteClusters.length();
+                String clusterId_markerId;
+                for (int i = 0; i < deleteCnt; i++) {
+                  clusterId_markerId = deleteClusters.getString(i);
+                  deleteMarkers.add(clusterId_markerId);
+                }
+              }
+            } catch (Exception e) {e.printStackTrace();}
+          }
+        });
 
       }
     });
