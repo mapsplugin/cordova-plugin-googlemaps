@@ -9,12 +9,11 @@
 #import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
 #import "PluginUtil.h"
+#import "UIImageCache.h"
 #import "NSData+Base64.h"
 
 @interface PluginMarker : CDVPlugin<MyPlgunProtocol>
 
-@property (nonatomic, strong) NSCache* icons;
-@property (nonatomic) NSMutableDictionary* iconCacheKeys;
 @property (nonatomic) BOOL initialized;
 
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;

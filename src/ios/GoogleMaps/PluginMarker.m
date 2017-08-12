@@ -21,9 +21,6 @@
   self.initialized = YES;
   [super pluginInitialize];
   // Initialize this plugin
-  self.icons = [[NSCache alloc]init];
-  self.icons.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
-  self.iconCacheKeys = [NSMutableDictionary dictionary];
 }
 
 - (void)pluginUnload
@@ -48,8 +45,7 @@
       [self.mapCtrl.objects removeObjectForKey:key];
   }
 
-  [self.icons removeAllObjects];
-  self.icons = nil;
+  [[UIImageCache sharedInstance] removeAllCachedImages];
   key = nil;
   keys = nil;
 
@@ -337,31 +333,28 @@
     NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
     NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
     [self.mapCtrl.objects objectForKey: marker.userData];
-    [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
+    //[self.mapCtrl.objects removeObjectForKey:iconCacheKey];
     [self.mapCtrl.objects removeObjectForKey:propertyId];
     marker.map = nil;
     marker = nil;
 
     if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
-      NSString *cacheKey = [self.mapCtrl.objects objectForKey:iconCacheKey];
-      if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
-        [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
 
-        if ([self.iconCacheKeys objectForKey:cacheKey]) {
-          int count = [[self.iconCacheKeys objectForKey:cacheKey] intValue];
-          count--;
-          if (count < 1) {
-            UIImage *image = [self.icons objectForKey:cacheKey];
-            if (image != nil) {
-              image = nil;
-            }
-            [self.icons removeObjectForKey:cacheKey];
-            [self.iconCacheKeys removeObjectForKey:cacheKey];
-          } else {
-            [self.iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:cacheKey];
-          }
+      NSString *cacheKey = [self.mapCtrl.objects objectForKey:iconCacheKey];
+
+
+      if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey]) {
+        int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey] intValue];
+        count--;
+    NSLog(@"iconCacheKey = %@, count = %d", cacheKey, count);
+        if (count < 1) {
+          [[UIImageCache sharedInstance] removeCachedImageForKey:cacheKey];
+          [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:cacheKey];
+        } else {
+          [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:cacheKey];
         }
       }
+
       if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
         [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
       }
@@ -839,333 +832,342 @@
     if (self.mapCtrl.debuggable) {
         NSLog(@"iconPath = %@", iconPath);
     }
+    NSString *iconCacheKey = [NSString stringWithFormat:@"%lu/%d,%d", (unsigned long)iconPath.hash, (int)width, (int)height];
+    UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
 
-    NSRange range = [iconPath rangeOfString:@"data:image"];
-    if (range.location != 0) {
+    //---------------------------------------
+    // If the image is cached, return it
+    //---------------------------------------
+    if (image != nil) {
 
-        if (![iconPath containsString:@"://"] &&
-            ![iconPath hasPrefix:@"/"] &&
-            ![iconPath hasPrefix:@"www"] &&
-            ![iconPath hasPrefix:@"./"] &&
-            ![iconPath hasPrefix:@"../"]) {
-          iconPath = [NSString stringWithFormat:@"./%@", iconPath];
-        }
+      NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+      [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
 
-        if ([iconPath hasPrefix:@"./"] || [iconPath hasPrefix:@"../"]) {
-          NSError *error = nil;
-
-          // replace repeated "./" (i.e ./././test.png)
-          NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
-          iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
+      int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey] intValue];
+      count++;
+      [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:iconCacheKey];
+      NSLog(@"---> iconCacheKey = %@, count = %d", iconCacheKey, count);
 
 
-          // Get the current URL, then calculate the relative path.
-          CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      if ([iconProperty objectForKey:@"label"]) {
+          image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+      }
 
-          id webview = cdvViewController.webView;
-          NSString *clsName = [webview className];
-          NSURL *url;
-          if ([clsName isEqualToString:@"UIWebView"]) {
-            url = ((UIWebView *)cdvViewController.webView).request.URL;
+      dispatch_async(dispatch_get_main_queue(), ^{
+          marker.icon = image;
+
+          CGFloat anchorX = 0;
+          CGFloat anchorY = 0;
+          // The `anchor` property for the icon
+          if ([iconProperty valueForKey:@"anchor"]) {
+              NSArray *points = [iconProperty valueForKey:@"anchor"];
+              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+              marker.groundAnchor = CGPointMake(anchorX, anchorY);
+          }
+
+          // The `infoWindowAnchor` property
+          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+              NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+              marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+          }
+
+
+          // The `visible` property
+          if (iconProperty[@"visible"]) {
+              marker.map = self.mapCtrl.map;
+          }
+
+          if (animation) {
+              // Do animation, then send the result
+              [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                  callbackBlock(YES, marker);
+              }];
           } else {
-            url = [webview URL];
+              // Send the result
+              callbackBlock(YES, marker);
           }
-          NSString *currentURL = url.absoluteString;
+      });
 
-          // remove page unchor (i.e index.html#page=test, index.html?key=value)
-          regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
-          currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+      return;
+    }
 
-          // remove file name (i.e /index.html)
-          regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
-          currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+    //
+    // Load icon from file or Base64 encoded strings
+    //
 
-          if (![currentURL hasSuffix:@"/"]) {
-            currentURL = [NSString stringWithFormat:@"%@/", currentURL];
-          }
-          iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
+    if ([iconPath rangeOfString:@"data:image/"].location != NSNotFound &&
+        [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
 
-          // remove file name (i.e /index.html)
-          regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
-          iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
+        NSArray *tmp = [iconPath componentsSeparatedByString:@","];
 
-          iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
-
-          if (self.mapCtrl.debuggable) {
-              NSLog(@"iconPath = %@", iconPath);
-          }
-        }
-
-
-        range = [iconPath rangeOfString:@"cdvfile://"];
-        if ([iconPath hasPrefix:@"cdvfile://"]) {
-
-            iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
-
-            if (iconPath == nil) {
-                if (self.mapCtrl.debuggable) {
-                    NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
-                }
-                //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
-                return;
-            }
-        }
-
-
-        UIImage *image;
-
-        range = [iconPath rangeOfString:@"://"];
-
-        if (range.location == 0) {
-            /**
-             * Load the icon from local path
-             */
-
-            if ([iconPath hasPrefix:@"/"]) {
-              // Get the current URL, then calculate the relative path.
-              CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
-              id webview = cdvViewController.webView;
-              NSString *clsName = [webview className];
-              NSURL *url;
-              if ([clsName isEqualToString:@"UIWebView"]) {
-                url = ((UIWebView *)cdvViewController.webView).request.URL;
-              } else {
-                url = [webview URL];
-              }
-              NSString *currentURL = url.absoluteString;
-              currentURL = [currentURL stringByDeletingLastPathComponent];
-              currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-              currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-              iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
-            } else {
-              iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
-            }
-        }
-
-        if ([iconPath hasPrefix:@"file://"]) {
-          iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            if (![fileManager fileExistsAtPath:iconPath]) {
-                //if (self.mapCtrl.debuggable) {
-                    NSLog(@"(error)There is no file at '%@'.", iconPath);
-                //}
-                //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
-                return;
-            }
-        }
-
-        image = [UIImage imageNamed:iconPath];
-
+        NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
+        image = [[UIImage alloc] initWithData:decodedData];
         if (width && height) {
             image = [image resize:width height:height];
         }
     }
 
+    NSRange range;
+    if (image == nil && ![iconPath hasPrefix:@"http"]) {
+
+      if (![iconPath containsString:@"://"] &&
+          ![iconPath hasPrefix:@"/"] &&
+          ![iconPath hasPrefix:@"www"] &&
+          ![iconPath hasPrefix:@"./"] &&
+          ![iconPath hasPrefix:@"../"]) {
+        iconPath = [NSString stringWithFormat:@"./%@", iconPath];
+      }
+
+      if ([iconPath hasPrefix:@"./"] || [iconPath hasPrefix:@"../"]) {
+        NSError *error = nil;
+
+        // replace repeated "./" (i.e ./././test.png)
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
+        iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
 
 
+        // Get the current URL, then calculate the relative path.
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
-
-
-
-
-    //---------------------------------------
-    // If the image is cached, return it
-    //---------------------------------------
-
-    NSString *iconCacheKey = [NSString stringWithFormat:@"%lu/%d,%d", (unsigned long)iconPath.hash, (int)width, (int)height];
-    NSData *cache = [self.icons objectForKey:iconCacheKey];
-    if (cache != nil) {
-        int cacheHitCount = [[self.iconCacheKeys objectForKey:iconCacheKey] intValue];
-        cacheHitCount++;
-        [self.iconCacheKeys setObject:[NSNumber numberWithInt:cacheHitCount] forKey:iconCacheKey];
-
-        UIImage *image = (UIImage *)cache;//[[UIImage alloc] initWithData:cache];
-
-        if ([iconProperty objectForKey:@"label"]) {
-            image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+        id webview = cdvViewController.webView;
+        NSString *clsName = [webview className];
+        NSURL *url;
+        if ([clsName isEqualToString:@"UIWebView"]) {
+          url = ((UIWebView *)cdvViewController.webView).request.URL;
+        } else {
+          url = [webview URL];
         }
+        NSString *currentURL = url.absoluteString;
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            marker.icon = image;
+        // remove page unchor (i.e index.html#page=test, index.html?key=value)
+        regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
+        currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
 
-            CGFloat anchorX = 0;
-            CGFloat anchorY = 0;
-            // The `anchor` property for the icon
-            if ([iconProperty valueForKey:@"anchor"]) {
-                NSArray *points = [iconProperty valueForKey:@"anchor"];
-                anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                marker.groundAnchor = CGPointMake(anchorX, anchorY);
-            }
+        // remove file name (i.e /index.html)
+        regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
+        currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
 
-            // The `infoWindowAnchor` property
-            if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-                NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-                anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-            }
+        if (![currentURL hasSuffix:@"/"]) {
+          currentURL = [NSString stringWithFormat:@"%@/", currentURL];
+        }
+        iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
+
+        // remove file name (i.e /index.html)
+        regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
+        iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
+
+        iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+
+        if (self.mapCtrl.debuggable) {
+            NSLog(@"iconPath = %@", iconPath);
+        }
+      }
 
 
-            // The `visible` property
-            if (iconProperty[@"visible"]) {
-                marker.map = self.mapCtrl.map;
-            }
+      range = [iconPath rangeOfString:@"cdvfile://"];
+      if ([iconPath hasPrefix:@"cdvfile://"]) {
 
-            if (animation) {
-                // Do animation, then send the result
-                [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                    callbackBlock(YES, marker);
-                }];
+          iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
+
+          if (iconPath == nil) {
+              if (self.mapCtrl.debuggable) {
+                  NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
+              }
+              //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+              callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
+              return;
+          }
+      }
+
+
+      range = [iconPath rangeOfString:@"://"];
+
+      if (range.location == 0) {
+          /**
+           * Load the icon from local path
+           */
+
+          if ([iconPath hasPrefix:@"/"]) {
+            // Get the current URL, then calculate the relative path.
+            CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+            id webview = cdvViewController.webView;
+            NSString *clsName = [webview className];
+            NSURL *url;
+            if ([clsName isEqualToString:@"UIWebView"]) {
+              url = ((UIWebView *)cdvViewController.webView).request.URL;
             } else {
-                // Send the result
-                callbackBlock(YES, marker);
+              url = [webview URL];
             }
-        });
+            NSString *currentURL = url.absoluteString;
+            currentURL = [currentURL stringByDeletingLastPathComponent];
+            currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+            currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+            iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
+          } else {
+            iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
+          }
+      }
 
-        return;
+      if ([iconPath hasPrefix:@"file://"]) {
+        iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+          NSFileManager *fileManager = [NSFileManager defaultManager];
+          if (![fileManager fileExistsAtPath:iconPath]) {
+              //if (self.mapCtrl.debuggable) {
+                  NSLog(@"(error)There is no file at '%@'.", iconPath);
+              //}
+              //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+              callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
+              return;
+          }
+      }
+
+      image = [UIImage imageNamed:iconPath];
+    }
+
+    if (image != nil) {
+
+      if (width && height) {
+          image = [image resize:width height:height];
+      }
+
+
+
+      // Cache the icon image
+      NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+      [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
+      [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
+      [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
+      NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
+
+
+
+      if ([iconProperty objectForKey:@"label"]) {
+        image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+      }
+
+      dispatch_async(dispatch_get_main_queue(), ^{
+          marker.icon = image;
+
+          CGFloat anchorX = 0;
+          CGFloat anchorY = 0;
+          // The `anchor` property for the icon
+          if ([iconProperty valueForKey:@"anchor"]) {
+              NSArray *points = [iconProperty valueForKey:@"anchor"];
+              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+              marker.groundAnchor = CGPointMake(anchorX, anchorY);
+          }
+
+          // The `infoWindowAnchor` property
+          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+              NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+              marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+          }
+
+
+          // The `visible` property
+          if (iconProperty[@"visible"]) {
+              marker.map = self.mapCtrl.map;
+          }
+
+          if (animation) {
+              // Do animation, then send the result
+              [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+                  callbackBlock(YES, marker);
+              }];
+          } else {
+              // Send the result
+              callbackBlock(YES, marker);
+          }
+      });
+
+      return;
     }
 
 
 
 
+    if (self.mapCtrl.debuggable) {
+        NSLog(@"---- Load the icon from over the internet");
+    }
 
+    //
+    // Load the icon from over the internet
+    //
 
-    if (iconPath) {
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+    dispatch_async(queue, ^{
 
-        if (self.mapCtrl.debuggable) {
-            NSLog(@"iconPath = %@", iconPath);
-        }
+        NSURL *url = [NSURL URLWithString:iconPath];
 
-        NSRange range = [iconPath rangeOfString:@"http"];
-        if (range.location != 0) {
-            /**
-             * Load icon from file or Base64 encoded strings
-             */
+        [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
-            UIImage *image;
-            if ([iconPath rangeOfString:@"data:image/"].location != NSNotFound &&
-                [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
-
-                /**
-                 * Base64 icon
-                 */
-                NSArray *tmp = [iconPath componentsSeparatedByString:@","];
-
-                NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
-                image = [[UIImage alloc] initWithData:decodedData];
-                if (width && height) {
-                    image = [image resize:width height:height];
+            if (!succeeded) {
+                NSLog(@"[fail] url = %@", url);
+                // The `visible` property
+                if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+                    marker.map = self.mapCtrl.map;
+                }
+                if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
+                    [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
                 }
 
-            } else {
-                /**
-                 * Load the icon from local path
-                 */
-/*
-                range = [iconPath rangeOfString:@"cdvfile://"];
-                if (range.location != NSNotFound) {
+                callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
+                return;
+            }
 
-                    iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
 
-                    if (iconPath == nil) {
-                        if (self.mapCtrl.debuggable) {
-                            NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
-                        }
-                        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                        callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
-                        return;
-                    }
-                }
+            if (self.mapCtrl.debuggable) {
+              NSLog(@"[success] url = %@", url);
+            }
 
-                range = [iconPath rangeOfString:@"://"];
-                if (range.location == NSNotFound) {
-
-                    range = [iconPath rangeOfString:@"/"];
-                    if (range.location != 0) {
-                      // Get the current URL, then calculate the relative path.
-                      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
-                      id webview = cdvViewController.webView;
-                      NSString *clsName = [webview className];
-                      NSURL *url;
-                      if ([clsName isEqualToString:@"UIWebView"]) {
-                        url = ((UIWebView *)cdvViewController.webView).request.URL;
-                      } else {
-                        url = [webview URL];
-                      }
-                      NSString *currentURL = url.absoluteString;
-                      currentURL = [currentURL stringByDeletingLastPathComponent];
-                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-                      currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-                      iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
-                    } else {
-                      iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
-                    }
-                }
-
-                range = [iconPath rangeOfString:@"file://"];
-                if (range.location != NSNotFound) {
-                  iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-                    NSFileManager *fileManager = [NSFileManager defaultManager];
-                    if (![fileManager fileExistsAtPath:iconPath]) {
-                        //if (self.mapCtrl.debuggable) {
-                            NSLog(@"(error)There is no file at '%@'.", iconPath);
-                        //}
-                        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-                        callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
-                        return;
-                    }
-                }
-*/
-                image = [UIImage imageNamed:iconPath];
-
-                if (width && height) {
-                    image = [image resize:width height:height];
-                }
+            if (width && height) {
+                image = [image resize:width height:height];
             }
 
             // Cache the icon image
-            NSData *imgData = UIImagePNGRepresentation(image);
-            [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
-            imgData = nil;
-            [self.mapCtrl.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
-            [self.iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
+            NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+            [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
+            [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
+            [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];;
+            NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
 
-
+            // Draw label
             if ([iconProperty objectForKey:@"label"]) {
-              image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+                image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
             }
 
             dispatch_async(dispatch_get_main_queue(), ^{
                 marker.icon = image;
 
-                CGFloat anchorX = 0;
-                CGFloat anchorY = 0;
                 // The `anchor` property for the icon
                 if ([iconProperty valueForKey:@"anchor"]) {
                     NSArray *points = [iconProperty valueForKey:@"anchor"];
-                    anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                    CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                    CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
                     marker.groundAnchor = CGPointMake(anchorX, anchorY);
                 }
+
 
                 // The `infoWindowAnchor` property
                 if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
                     NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-                    anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+                    CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+                    CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
                     marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
                 }
 
-
                 // The `visible` property
-                if (iconProperty[@"visible"]) {
+                if ([[iconProperty valueForKey:@"visible"] boolValue]) {
                     marker.map = self.mapCtrl.map;
                 }
+
 
                 if (animation) {
                     // Do animation, then send the result
@@ -1176,103 +1178,13 @@
                     // Send the result
                     callbackBlock(YES, marker);
                 }
-            });
-        } else {
-            if (self.mapCtrl.debuggable) {
-                NSLog(@"---- Load the icon from over the internet");
-            }
-            /***
-             * Load the icon from over the internet
-             */
-            [self.iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
-
-            dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
-            dispatch_async(queue, ^{
-
-                NSURL *url = [NSURL URLWithString:iconPath];
-
-                [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
-
-                    if (!succeeded) {
-                        NSLog(@"[fail] url = %@", url);
-                        // The `visible` property
-                        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
-                            marker.map = self.mapCtrl.map;
-                        }
-                        if ([self.iconCacheKeys objectForKey:iconCacheKey]) {
-                            [self.iconCacheKeys removeObjectForKey:iconCacheKey];
-                        }
-
-                        callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
-                        return;
-                    }
-
-
-                    if (self.mapCtrl.debuggable) {
-                      NSLog(@"[success] url = %@", url);
-                    }
-
-                    if (width && height) {
-                        image = [image resize:width height:height];
-                    }
-
-                    // Cache the icon image
-                    NSData *imgData = UIImagePNGRepresentation(image);
-                    [self.icons setObject:image forKey:iconCacheKey cost:[imgData length]];
-                    imgData = nil;
-                    [self.mapCtrl.objects setObject:iconCacheKey forKey:[NSString stringWithFormat:@"marker_icon_%@", marker.userData]];
-
-                    // Draw label
-                    if ([iconProperty objectForKey:@"label"]) {
-                        image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
-                    }
-
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        marker.icon = image;
-
-                        // The `anchor` property for the icon
-                        if ([iconProperty valueForKey:@"anchor"]) {
-                            NSArray *points = [iconProperty valueForKey:@"anchor"];
-                            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                            marker.groundAnchor = CGPointMake(anchorX, anchorY);
-                        }
-
-
-                        // The `infoWindowAnchor` property
-                        if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-                            NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-                            CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                            CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                            marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-                        }
-
-                        // The `visible` property
-                        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
-                            marker.map = self.mapCtrl.map;
-                        }
-
-
-                        if (animation) {
-                            // Do animation, then send the result
-                            [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                                callbackBlock(YES, marker);
-                            }];
-                        } else {
-                            // Send the result
-                            callbackBlock(YES, marker);
-                        }
-
-                    });
-
-
-                }];
 
             });
 
 
-        }
-    }
+        }];
+
+    });
 
 }
 
@@ -1370,9 +1282,8 @@
         }
 
         NSString *uniqueKey = url.absoluteString;
-        NSData *cache = [self.icons objectForKey:uniqueKey];
-        if (cache != nil) {
-            UIImage *image = [[UIImage alloc] initWithData:cache];
+        UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:uniqueKey];
+        if (image != nil) {
             completionBlock(YES, image);
             return;
         }
@@ -1388,8 +1299,8 @@
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
                              completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
                                if ( !error ) {
-                                 [self.icons setObject:data forKey:uniqueKey cost:data.length];
                                  UIImage *image = [UIImage imageWithData:data];
+                                 [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
                                  completionBlock(YES, image);
                                } else {
                                  completionBlock(NO, nil);

@@ -22,7 +22,7 @@
     self.clickable = YES;
     self.isRenderedAtOnce = NO;
     self.mapDivId = nil;
-    self.objects = [NSMutableDictionary dictionary];
+    self.objects = [[NSMutableDictionary alloc] init];
     self.executeQueue =  [NSOperationQueue new];
     self.executeQueue.maxConcurrentOperationCount = 10;
 

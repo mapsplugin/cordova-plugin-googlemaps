@@ -245,6 +245,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         markerOptions.visible(opts.getBoolean("visible"));
         properties.put("isVisible", markerOptions.isVisible());
       }
+    } else {
+      markerOptions.visible(true);
     }
     if (opts.has("draggable")) {
       markerOptions.draggable(opts.getBoolean("draggable"));
@@ -998,7 +1000,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.height = height;
     options.noCaching = noCaching;
 
-    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, new AsyncLoadImageInterface() {
+    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
         if (result == null || result.image == null) {
@@ -1076,12 +1078,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         callback.onPostExecute(marker);
       }
     });
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        task.execute();
-      }
-    });
+    task.execute();
     iconLoadingTasks.add(task);
   }
 
