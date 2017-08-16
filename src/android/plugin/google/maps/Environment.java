@@ -37,7 +37,7 @@ public class Environment extends CordovaPlugin {
           Method method = Environment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
           if (!method.isAccessible()) {
             method.setAccessible(true);
-          }
+          }0
           method.invoke(Environment.this, args, callbackContext);
         } catch (Exception e) {
           Log.e("CordovaLog", "An error occurred", e);
@@ -64,9 +64,11 @@ public class Environment extends CordovaPlugin {
       try {
         cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
       } catch (android.content.ActivityNotFoundException anfe) {
-        cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
+        cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
       }
 
+      // End the app (in order to prevent lots of crashes)
+      cordova.getActivity().finish();
 
       return;
     }
@@ -118,8 +120,7 @@ public class Environment extends CordovaPlugin {
 
   @SuppressWarnings("unused")
   public Boolean getLicenseInfo(JSONArray args, final CallbackContext callbackContext) {
-    String msg = GoogleApiAvailability.getInstance().getOpenSourceSoftwareLicenseInfo(cordova.getActivity());
-    callbackContext.success(msg);
+    callbackContext.success();
     return true;
   }
 
