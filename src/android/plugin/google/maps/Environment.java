@@ -37,7 +37,7 @@ public class Environment extends CordovaPlugin {
           Method method = Environment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
           if (!method.isAccessible()) {
             method.setAccessible(true);
-          }0
+          }
           method.invoke(Environment.this, args, callbackContext);
         } catch (Exception e) {
           Log.e("CordovaLog", "An error occurred", e);
