@@ -46,7 +46,6 @@
         <framework src="com.google.android.gms:play-services-location:11.+" />
 
         <!-- plugin src files -->
-        <source-file src="src/android/plugin/google/maps/AsyncLicenseInfo.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncKmlParser.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />

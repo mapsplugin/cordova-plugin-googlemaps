@@ -714,8 +714,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
 
   @SuppressWarnings("unused")
   private Boolean getLicenseInfo(JSONArray args, CallbackContext callbackContext) {
-    String msg = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(activity);
-    callbackContext.success(msg);
+    callbackContext.success();
     return true;
   }
 
