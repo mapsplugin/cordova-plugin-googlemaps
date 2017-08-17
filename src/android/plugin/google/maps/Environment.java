@@ -118,8 +118,7 @@ public class Environment extends CordovaPlugin {
 
   @SuppressWarnings("unused")
   public Boolean getLicenseInfo(JSONArray args, final CallbackContext callbackContext) {
-    String msg = GoogleApiAvailability.getInstance().getOpenSourceSoftwareLicenseInfo(cordova.getActivity());
-    callbackContext.success(msg);
+    callbackContext.success();
     return true;
   }
 

@@ -45,7 +45,7 @@ static UIImageCache *sharedInstance;
     [self.imageCache removeObjectForKey:key];
 }
 
-- (void)removeAllCachedImages:(NSString*)key {
+- (void)removeAllCachedImages {
     [self.imageCache removeAllObjects];
 }
 

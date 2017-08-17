@@ -36,25 +36,26 @@ LatLngBounds.prototype.toUrlValue = function(precision) {
     return "[" + this.southwest.toUrlValue(precision) + "," + this.northeast.toUrlValue(precision) + "]";
 };
 
-LatLngBounds.prototype.extend = function(latLng) {
+LatLngBounds.prototype.extend = function(latLng, debug) {
     if (latLng && "lat" in latLng && "lng" in latLng) {
         if (!this.southwest && !this.northeast) {
             this.southwest = latLng;
             this.northeast = latLng;
         } else {
             var south = Math.min(latLng.lat, this.southwest.lat);
-            var west = Math.min(latLng.lng, this.southwest.lng);
             var north = Math.max(latLng.lat, this.northeast.lat);
-            var east = Math.max(latLng.lng, this.northeast.lng);
 
-            if (east === 180 & west < 0) {
-              east = west;
-              west = -180;
-            }
-            if (east > 0 && west < 0) {
-              var tmp = west;
-              west = east;
-              east = tmp;
+            var west = this.southwest.lng,
+                east = this.northeast.lng;
+            if (west > 0 && east < 0) {
+              if (latLng.lng > 0) {
+                west = Math.min(latLng.lng, west);
+              } else {
+                east = Math.max(latLng.lng, east);
+              }
+            } else {
+              west = Math.min(latLng.lng, this.southwest.lng);
+              east = Math.max(latLng.lng, this.northeast.lng);
             }
 
             delete this.southwest;
@@ -84,42 +85,31 @@ LatLngBounds.prototype.contains = function(latLng) {
     }
     var y = latLng.lat,
       x = latLng.lng;
-/*
-    if (y > 90) {
-      y = y - (y % 90) * 90;
-    } else if (y < -90) {
-      y = y + Math.abs(y % 90) * 90;
-    }
-    if (x > 90) {
-      x = x - (x % 180) * 180;
-    } else if (x < -180) {
-      x = x + Math.abs(x % 180) * 180;
-    }*/
-    var x180 = x + 180,
-      y90 = y + 90;
+
+    var y90 = y + 90;
     var south = this.southwest.lat,
       north = this.northeast.lat,
       west = this.southwest.lng,
       east = this.northeast.lng;
-      east = east === 180 & west < 0 ? -180 : east;
     var south90 = south + 90,
-      north90 = north + 90,
-      west180 = west + 180,
-      east180 = east + 180;
+      north90 = north + 90;
 
     var containX = false,
       containY = false;
 
-    containX = (west180 <= x180 && x180 <= east180) ||  // #1
-              (west >= 0 && east <= 0 && ((west <= x && x <= 180) || (x >= -180 && x <= east)));  // 4
+    if (west < 0 && east > 0 && (west <= -90 || east >= 90)) {
+      if (x >= 0) {
+        containX = east <= x && x <= 180;
+      } else {
+        containX = x >= -180 && x <= west ;
+      }
+    } else {
+      containX = (west <= x && x <= east);
+    }
 
     containY = (south90 <= y90 && y90 <= north90) ||  //#a
               (south >= 0 && north <= 0 && ((south <= y && y <= 90) || (y >= -90 && y<= north))); // #d
-/*
-console.log("x = " + x + ", y = " + y);
-console.log("s = " + south + ", w = " + west + ", n = " + north + ", e = " + east);
-console.log("containX = " + containX + ", containY = " + containY);
-*/
+
     return containX && containY;
 };
 

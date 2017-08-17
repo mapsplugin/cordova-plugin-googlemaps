@@ -494,9 +494,9 @@
 
 -(void)_changeCameraPosition: (NSString*)action requestMethod:(NSString *)requestMethod params:(NSDictionary *)json command:(CDVInvokedUrlCommand *)command {
 
-  int bearing;
+  __block double bearing;
   if ([json valueForKey:@"bearing"]) {
-    bearing = (int)[[json valueForKey:@"bearing"] integerValue];
+    bearing = [[json valueForKey:@"bearing"] doubleValue];
   } else {
     bearing = self.mapCtrl.map.camera.bearing;
   }
@@ -526,8 +526,9 @@
   double longitude;
   GMSCameraPosition *cameraPosition;
   GMSCoordinateBounds *cameraBounds = nil;
+  CGFloat scale = self.mapCtrl.screenScale;
 
-  UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding, cameraPadding, cameraPadding, cameraPadding);
+  UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding * scale, cameraPadding * scale, cameraPadding * scale, cameraPadding * scale);
 
   if ([json objectForKey:@"target"]) {
     NSString *targetClsName = [[json objectForKey:@"target"] className];
@@ -559,8 +560,8 @@
       //------------------------------------------------------------------
 
       latLng = [json objectForKey:@"target"];
-      latitude = [[latLng valueForKey:@"lat"] floatValue];
-      longitude = [[latLng valueForKey:@"lng"] floatValue];
+      latitude = [[latLng valueForKey:@"lat"] doubleValue];
+      longitude = [[latLng valueForKey:@"lng"] doubleValue];
 
       cameraPosition = [GMSCameraPosition cameraWithLatitude:latitude
                                                    longitude:longitude
@@ -588,7 +589,7 @@
       [CATransaction begin]; {
         [CATransaction setAnimationDuration: duration];
 
-        //[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+        //[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault]];
         [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
 
         [CATransaction setCompletionBlock:^{
@@ -600,14 +601,16 @@
             GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
                                                                              longitude:self.mapCtrl.map.camera.target.longitude
                                                                                   zoom:self.mapCtrl.map.camera.zoom
-                                                                               bearing:[[json objectForKey:@"bearing"] doubleValue]
-                                                                          viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
+                                                                               bearing:bearing
+                                                                          viewingAngle:angle];
 
             [self.mapCtrl.map setCamera:cameraPosition2];
 
           } else {
-            GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
-            [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
+            if (bearing == 0) {
+              GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:self.mapCtrl.map.projection.visibleRegion];
+              [self.mapCtrl.map cameraForBounds:bounds insets:paddingUiEdgeInsets];
+            }
           }
           [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }];
@@ -625,8 +628,8 @@
           GMSCameraPosition *cameraPosition2 = [GMSCameraPosition cameraWithLatitude:self.mapCtrl.map.camera.target.latitude
                                                                            longitude:self.mapCtrl.map.camera.target.longitude
                                                                                 zoom:self.mapCtrl.map.camera.zoom
-                                                                             bearing:[[json objectForKey:@"bearing"] doubleValue]
-                                                                        viewingAngle:[[json objectForKey:@"tilt"] doubleValue]];
+                                                                             bearing:bearing
+                                                                        viewingAngle:angle];
 
           if (self.isRemoved) {
             [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR] callbackId:command.callbackId];

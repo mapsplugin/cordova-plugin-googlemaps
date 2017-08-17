@@ -346,7 +346,6 @@
       if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey]) {
         int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey] intValue];
         count--;
-    NSLog(@"iconCacheKey = %@, count = %d", cacheKey, count);
         if (count < 1) {
           [[UIImageCache sharedInstance] removeCachedImageForKey:cacheKey];
           [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:cacheKey];
@@ -846,7 +845,7 @@
       int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey] intValue];
       count++;
       [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:iconCacheKey];
-      NSLog(@"---> iconCacheKey = %@, count = %d", iconCacheKey, count);
+      //NSLog(@"---> iconCacheKey = %@, count = %d", iconCacheKey, count);
 
 
       if ([iconProperty objectForKey:@"label"]) {
@@ -1041,7 +1040,7 @@
       [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
       [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
       [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
-      NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
+      //NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
 
 
 

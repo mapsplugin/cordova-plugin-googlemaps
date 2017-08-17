@@ -11,6 +11,7 @@ import android.content.IntentSender.SendIntentException;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -53,6 +54,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -933,16 +935,34 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
    *
    * @param newConfig		The new device configuration
    */
-  /*
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-// Checks the orientation of the screen
+
+    Handler handler = new Handler();
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        PluginMap pluginMap;
+        Collection<PluginEntry> collection =  pluginManager.getPluginEntries();
+        for (PluginEntry entry: collection) {
+          if ("plugin.google.maps.PluginMap".equals(entry.pluginClass) && entry.plugin != null) {
+            pluginMap = (PluginMap)entry.plugin;
+
+            // Trigger the CAMERA_MOVE_END mandatory
+            pluginMap.onCameraIdle();
+          }
+        }
+      }
+    }, 500);
+
+    /*
+    // Checks the orientation of the screen
     if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
       Toast.makeText(activity, "landscape", Toast.LENGTH_SHORT).show();
     } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
       Toast.makeText(activity, "portrait", Toast.LENGTH_SHORT).show();
     }
+    */
   }
-  */
 
 }

@@ -27,6 +27,7 @@ const int GEOCELL_GRID_SIZE = 4;
   self.debugFlags = [NSMutableDictionary dictionary];
   self.deleteMarkers = [NSMutableArray array];
   self.semaphore = dispatch_semaphore_create(0);
+  self.deleteThreadLock = dispatch_semaphore_create(0);
   self.stopFlag = NO;
 
   //---------------------
@@ -35,7 +36,9 @@ const int GEOCELL_GRID_SIZE = 4;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 
     while(!self.stopFlag) {
-      [NSThread sleepForTimeInterval:0.01f];
+      @synchronized (self.deleteThreadLock) {
+        dispatch_semaphore_wait(self.deleteThreadLock, DISPATCH_TIME_FOREVER);
+      }
       if ([self.deleteMarkers count] == 0) {
         continue;
       }
@@ -47,8 +50,10 @@ const int GEOCELL_GRID_SIZE = 4;
           //---------
           // delete
           //---------
-          for (int i = (int)([self.deleteMarkers count] - 1); i > -1; i--) {
+          int deleteCnt = (int)[self.deleteMarkers count];
+          for (int i = (deleteCnt - 1); i > -1; i--) {
             markerId = [self.deleteMarkers objectAtIndex:i];
+
             @synchronized (self.mapCtrl.objects) {
               marker = [self.mapCtrl.objects objectForKey: markerId];
             }
@@ -59,10 +64,14 @@ const int GEOCELL_GRID_SIZE = 4;
               } else {
                 @synchronized (self.mapCtrl.objects) {
                   [self _removeMarker:marker];
-                  [self.mapCtrl.objects removeObjectForKey:markerId];
                   marker = nil;
+                  [self.mapCtrl.objects removeObjectForKey:markerId];
                   if ([self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]]) {
                     [self.mapCtrl.objects removeObjectForKey:[NSString stringWithFormat:@"marker_property_%@", markerId]];
+                  }
+
+                  if ([self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_icon_%@", markerId]]) {
+                    [self.mapCtrl.objects removeObjectForKey:[NSString stringWithFormat:@"marker_icon_%@", markerId]];
                   }
                 }
                 [self.pluginMarkers removeObjectForKey:markerId];
@@ -118,106 +127,107 @@ const int GEOCELL_GRID_SIZE = 4;
   __block NSString *clusterId = [command.arguments objectAtIndex: 0];
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-BOOL isDebug = [[self.mapCtrl.objects objectForKey:clusterId] boolValue];
+    BOOL isDebug = [[self.debugFlags objectForKey:clusterId] boolValue];
 
-      NSDictionary *params = [command.arguments objectAtIndex:1];
-      NSString *clusterId_markerId;
+    __block NSDictionary *params = [command.arguments objectAtIndex:1];
+    NSString *clusterId_markerId;
 
-      NSMutableArray *new_or_update = nil;
-      if ([params objectForKey:@"new_or_update"]) {
-        new_or_update = [params objectForKey:@"new_or_update"];
+    NSMutableArray *new_or_update = nil;
+    if ([params objectForKey:@"new_or_update"]) {
+      new_or_update = [params objectForKey:@"new_or_update"];
+    }
+
+    //---------------------------
+    // Determine new or update
+    //---------------------------
+    int new_or_updateCnt = 0;
+    if (new_or_update != nil) {
+      new_or_updateCnt = (int)[new_or_update count];
+    }
+
+    NSDictionary *clusterData;
+    NSMutableDictionary *properties;
+    for (int i = 0; i < new_or_updateCnt; i++) {
+      clusterData = [new_or_update objectAtIndex:i];
+      clusterId_markerId = [clusterData objectForKey:@"id"];
+
+      // Save the marker properties
+      [self.mapCtrl.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
+
+      // Set the WORKING status flag
+      [updateClusterIDs addObject:clusterId_markerId];
+      @synchronized (self.pluginMarkers) {
+        [self.pluginMarkers setObject:@"WORKING" forKey:clusterId_markerId];
       }
 
-      //---------------------------
-      // Determine new or update
-      //---------------------------
-      int new_or_updateCnt = 0;
-      if (new_or_update != nil) {
-        new_or_updateCnt = (int)[new_or_update count];
+      // Prepare the marker properties for addMarker()
+      properties = [NSMutableDictionary dictionary];
+      [properties setObject:[clusterData objectForKey:@"position"] forKey:@"position"];
+      if ([clusterData objectForKey:@"title"]) {
+        [properties setObject:[clusterData objectForKey:@"title"] forKey:@"title"];
       }
+      if ([clusterData objectForKey:@"visible"]) {
+        [properties setObject:[clusterData objectForKey:@"visible"] forKey:@"visible"];
+      } else {
+        [properties setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
+      }
+      [properties setObject:clusterId_markerId forKey:@"id"];
 
-      NSDictionary *clusterData;
-      NSMutableDictionary *properties;
-      for (int i = 0; i < new_or_updateCnt; i++) {
-        clusterData = [new_or_update objectAtIndex:i];
-        clusterId_markerId = [clusterData objectForKey:@"id"];
+      if ([clusterData objectForKey:@"icon"]) {
+        id iconObj = [clusterData objectForKey:@"icon"];
+        if ([[iconObj class] isSubclassOfClass:[NSString class]]) {
+          NSMutableDictionary *iconProperties = [NSMutableDictionary dictionary];
+          [iconProperties setObject:iconObj forKey:@"url"];
+          [properties setObject:iconProperties forKey:@"icon"];
 
-        // Save the marker properties
-        [self.mapCtrl.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
+        } else if ([[iconObj class] isSubclassOfClass:[NSDictionary class]]) {
 
-        // Set the WORKING status flag
-        [updateClusterIDs addObject:clusterId_markerId];
-        @synchronized (self.pluginMarkers) {
-          [self.pluginMarkers setObject:@"WORKING" forKey:clusterId_markerId];
-        }
+          NSMutableDictionary *iconProperties = [NSMutableDictionary dictionaryWithDictionary:iconObj];
 
-        // Prepare the marker properties for addMarker()
-        properties = [NSMutableDictionary dictionary];
-        [properties setObject:[clusterData objectForKey:@"position"] forKey:@"position"];
-        if ([clusterData objectForKey:@"title"]) {
-          [properties setObject:[clusterData objectForKey:@"title"] forKey:@"title"];
-        }
-        if ([clusterData objectForKey:@"visible"]) {
-          [properties setObject:[clusterData objectForKey:@"visible"] forKey:@"visible"];
-        } else {
-          [properties setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
-        }
-        [properties setObject:clusterId_markerId forKey:@"id"];
+          if ([[clusterData objectForKey:@"isClusterIcon"] boolValue]) {
 
-        if ([clusterData objectForKey:@"icon"]) {
-          id iconObj = [clusterData objectForKey:@"icon"];
-          if ([[iconObj class] isSubclassOfClass:[NSString class]]) {
-            NSMutableDictionary *iconProperties = [NSMutableDictionary dictionary];
-            [iconProperties setObject:iconObj forKey:@"url"];
-            [properties setObject:iconProperties forKey:@"icon"];
+            if ([iconProperties objectForKey:@"label"]) {
 
-          } else if ([[iconObj class] isSubclassOfClass:[NSDictionary class]]) {
-
-            NSMutableDictionary *iconProperties = [NSMutableDictionary dictionaryWithDictionary:iconObj];
-
-            if ([[clusterData objectForKey:@"isClusterIcon"] boolValue]) {
-
-              if ([iconProperties objectForKey:@"label"]) {
-
-                NSMutableDictionary *label = [NSMutableDictionary dictionaryWithDictionary:[iconProperties objectForKey:@"label"]];
-                if (isDebug == YES) {
-                  [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
-                } else {
-                  [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
-                }
-                [iconProperties setObject:label forKey:@"label"];
-
+              NSMutableDictionary *label = [NSMutableDictionary dictionaryWithDictionary:[iconProperties objectForKey:@"label"]];
+              if (isDebug == YES) {
+                [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
               } else {
-                NSMutableDictionary *label = [NSMutableDictionary dictionary];
-                if (isDebug == YES) {
-                  [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
-                } else {
-                  [label setObject:[NSNumber numberWithInt:15] forKey:@"fontSize"];
-                  [label setObject:[NSNumber numberWithBool:TRUE] forKey:@"bold"];
-                  [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
-                }
-                [iconProperties setObject:label forKey:@"label"];
+                [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
               }
+              [iconProperties setObject:label forKey:@"label"];
 
-
+            } else {
+              NSMutableDictionary *label = [NSMutableDictionary dictionary];
+              if (isDebug == YES) {
+                [label setObject:[clusterId_markerId stringByReplacingOccurrencesOfString:clusterId withString:@""] forKey:@"text"];
+              } else {
+                [label setObject:[NSNumber numberWithInt:15] forKey:@"fontSize"];
+                [label setObject:[NSNumber numberWithBool:TRUE] forKey:@"bold"];
+                [label setObject:[clusterData objectForKey:@"count"] forKey:@"text"];
+              }
+              [iconProperties setObject:label forKey:@"label"];
             }
 
-            if ([iconProperties objectForKey:@"anchor"]) {
-              [iconProperties setObject:[iconProperties objectForKey:@"anchor"] forKey:@"anchor"];
-            }
-            if ([iconProperties objectForKey:@"infoWindowAnchor"]) {
-              [iconProperties setObject:[iconProperties objectForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
-            }
-            [properties setObject:iconProperties forKey:@"icon"];
+
           }
-        } // if ([clusterData objectForKey:@"icon"]) {..}
 
-        [changeProperties setObject:properties forKey:clusterId_markerId];
+          if ([iconProperties objectForKey:@"anchor"]) {
+            [iconProperties setObject:[iconProperties objectForKey:@"anchor"] forKey:@"anchor"];
+          }
+          if ([iconProperties objectForKey:@"infoWindowAnchor"]) {
+            [iconProperties setObject:[iconProperties objectForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+          }
+          [properties setObject:iconProperties forKey:@"icon"];
+        }
+      } // if ([clusterData objectForKey:@"icon"]) {..}
 
-      } // for (int i = 0; i < new_or_updateCnt; i++) { .. }
+      [changeProperties setObject:properties forKey:clusterId_markerId];
+
+    } // for (int i = 0; i < new_or_updateCnt; i++) { .. }
 
 
     if ([updateClusterIDs count] == 0) {
+      [self deleteProcess:params];
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       return;
@@ -286,6 +296,9 @@ BOOL isDebug = [[self.mapCtrl.objects objectForKey:clusterId] boolValue];
             }
             if ([markerProperties objectForKey:@"snippet"]) {
               marker.snippet = [markerProperties objectForKey:@"snippet"];
+            }
+            @synchronized (self.pluginMarkers) {
+              [self.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
             }
             [self decreaseWaitWithClusterId:clusterId];
           }
@@ -362,23 +375,7 @@ BOOL isDebug = [[self.mapCtrl.objects objectForKey:clusterId] boolValue];
 
       } // for (int i = 0; i < [updateClusterIDs count]; i++) {..}
 
-      NSMutableArray *deleteClusters = nil;
-      if ([params objectForKey:@"delete"]) {
-        deleteClusters = [params objectForKey:@"delete"];
-      }
-      if (deleteClusters != nil) {
-        //-------------------------------------
-        // delete markers on the delete thread
-        //-------------------------------------
-        int deleteCnt = 0;
-        deleteCnt = (int)[deleteClusters count];
-        @synchronized (self.deleteMarkers) {
-          for (int i = 0; i < deleteCnt; i++) {
-            clusterId_markerId = [deleteClusters objectAtIndex:i];
-            [self.deleteMarkers addObject:clusterId_markerId];
-          }
-        }
-      }
+      [self deleteProcess:params];
 
     }]; // [[NSOperationQueue mainQueue] addOperationWithBlock: ^{..}
 
@@ -388,6 +385,32 @@ BOOL isDebug = [[self.mapCtrl.objects objectForKey:clusterId] boolValue];
     [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
   }]; // dispatch_async
+}
+
+- (void) deleteProcess:(NSDictionary *) params{
+
+  NSMutableArray *deleteClusters = nil;
+  if ([params objectForKey:@"delete"]) {
+    deleteClusters = [params objectForKey:@"delete"];
+  }
+  if (deleteClusters != nil) {
+    //-------------------------------------
+    // delete markers on the delete thread
+    //-------------------------------------
+    int deleteCnt = 0;
+    deleteCnt = (int)[deleteClusters count];
+    NSString *clusterId_markerId;
+    @synchronized (self.deleteMarkers) {
+      for (int i = 0; i < deleteCnt; i++) {
+        clusterId_markerId = [deleteClusters objectAtIndex:i];
+        [self.deleteMarkers addObject:clusterId_markerId];
+      }
+    }
+
+    dispatch_semaphore_signal(self.deleteThreadLock);
+  }
+
+
 }
 
 - (void) setIconToClusterMarker:(NSString *) markerId marker:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock {

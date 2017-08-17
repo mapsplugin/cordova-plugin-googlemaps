@@ -20,6 +20,7 @@
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) BOOL isDragging;
 @property (nonatomic) CGRect screenSize;
+@property (nonatomic) CGFloat screenScale;
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic, strong) GMSMapView* map;

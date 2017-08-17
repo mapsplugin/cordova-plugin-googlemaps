@@ -18,6 +18,7 @@
 @property (atomic, strong) NSMutableDictionary *waitCntManager;
 @property (atomic, strong) NSMutableArray *deleteMarkers;
 @property (atomic, strong) dispatch_semaphore_t semaphore;
+@property (atomic, strong) dispatch_semaphore_t deleteThreadLock;
 @property (nonatomic) BOOL stopFlag;
 @property (nonatomic) BOOL initialized;
 
