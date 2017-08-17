@@ -24,7 +24,7 @@ But you can specify the size, position of the map view using `<div>`.
 This plugin changes the background as `transparent` of your app.
 Then the plugin detects your finger tap position which is for: `native map` or `html element`.
 
-**The plugin v1.4.4** recognizes only `the child elements of the map div`.
+**The plugin v1.4.5** recognizes only `the child elements of the map div`.
 
 **The plugin v2.0-beta3** recognizes all html elements.
 
@@ -91,9 +91,9 @@ function onBtnClicked() {
 
 There are two versions:
 
-- v1.4.4
+- v1.4.5
   Only one map is available in your app. Stable, but no more development. Only critical bug fixes.
-  - [Documentation for v1.4.4](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
+  - [Documentation for v1.4.5](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
 
 
 - v2.0-beta3
@@ -104,7 +104,7 @@ There are two versions:
 
 <table>
 <tr>
-  <th>v1.4.4</th>
+  <th>v1.4.5</th>
   <th>v2.0-beta3</th>
 </tr>
 <tr>
@@ -116,11 +116,11 @@ There are two versions:
 I recommended you to use the **v2.0-beta3**.
 
 However if you want to use `map.addKmlOverlay()` or `you don't want to update the plugin frequently`,
-please use the **v1.4.4**.
+please use the **v1.4.5**.
 
 
 
-## How to install v1.4.4?
+## How to install v1.4.5?
 
 ```
 $> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="..." --variable API_KEY_FOR_IOS="..."
@@ -135,8 +135,8 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ### More details
 
-- v1.4.4
-  - [Documentation for v1.4.4](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
+- v1.4.5
+  - [Documentation for v1.4.5](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
 
 
 - v2.0-beta3
