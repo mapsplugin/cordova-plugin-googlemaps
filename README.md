@@ -14,6 +14,22 @@ This plugin provides the features of the native map view to JS developers.
 
 You can write your code `similar like` the Google Maps JavaScript API v3.
 
+## How does this plugin work?
+
+Understanding `how does work this plugin` is very important.
+
+The map view is not an HTML element. It means it is not kind of `<div>` or something.
+But you can specify the size, position of the map view using `<div>`.
+
+This plugin changes the background as `transparent` of your app.
+Then the plugin detects your finger tap position which is for: `native map` or `html element`.
+
+**The plugin v1.4.4** recognizes only `the child elements of the map div`.
+
+**The plugin v2.0-beta3** recognizes all html elements.
+
+![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/class/Map/mechanism.png)
+
 ## Quick demo
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
@@ -101,3 +117,29 @@ I recommended you to use the **v2.0-beta3**.
 
 However if you want to use `map.addKmlOverlay()` or `you don't want to update the plugin frequently`,
 please use the **v1.4.4**.
+
+
+
+## How to install v1.4.4?
+
+```
+$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="..." --variable API_KEY_FOR_IOS="..."
+```
+
+
+## How to install v2.0-beta3?
+
+```
+$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps --variable API_KEY_FOR_ANDROID="..." --variable API_KEY_FOR_IOS="..."
+```
+
+### More details
+
+- v1.4.4
+  - [Documentation for v1.4.4](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
+
+
+- v2.0-beta3
+  - [Documentation for v2.0-beta3](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
+  - [Demo](https://github.com/mapsplugin/v2.0-demo)
+  - [Release notes](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-beta3/README.md)
