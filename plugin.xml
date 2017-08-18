@@ -24,8 +24,8 @@
         <preference name="API_KEY_FOR_ANDROID" />
 
         <info>
-             In order to run this plugin, you need to obtain Google Maps API key for Android.
-             Visit https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/Installation/README.md
+          This is version 1.4.5. The version 1.4.x will be shutdown soon.
+          Please use the v2.0-beta3. More details: https://goo.gl/A1e9EZ
         </info>
 
         <config-file target="res/xml/config.xml" parent="/*">
@@ -96,8 +96,8 @@
         <preference name="API_KEY_FOR_IOS" />
 
         <info>
-             In order to run this plugin, you need to obtain Google Maps API key for iOS.
-             Visit https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/Installation/README.md
+          This is version 1.4.5. The version 1.4.x will be shutdown soon.
+          Please use the v2.0-beta3. More details: https://goo.gl/A1e9EZ
         </info>
 
         <config-file target="config.xml" parent="/*">
