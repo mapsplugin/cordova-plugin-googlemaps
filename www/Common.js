@@ -498,7 +498,22 @@ function defaultTrueOption(value) {
 }
 
 function createMvcArray(array) {
+    if (array.type === "BaseArrayClass") {
+      return array;
+    }
+
     var mvcArray;
+    if (array.type === "LatLngBounds") {
+      array = [
+          array.southwest,
+          {lat: array.northeast.lat, lng: array.southwest.lng},
+          array.northeast,
+          {lat: array.southwest.lat, lng: array.northeast.lng},
+          array.southwest
+        ];
+      array = array.map(getLatLng);
+    }
+
     if (array && typeof array.getArray === "function") {
         mvcArray = new BaseArrayClass(array.getArray());
         array.on('set_at', function(index) {
@@ -528,22 +543,27 @@ function getLatLng(target) {
   };
 }
 function convertToPositionArray(array) {
-    array = array || [];
+  array = array || [];
 
-    if (!utils.isArray(array)) {
-        if (array &&
-            array.type === "LatLngBounds") {
-            array = [array.southwest, array.northeast];
-        } else if (array && typeof array.getArray === "function") {
-            array = array.getArray();
-        } else {
-            array = [array];
-        }
+  if (!utils.isArray(array)) {
+    if (array.type === "LatLngBounds") {
+      array = [
+        array.southwest,
+        {lat: array.northeast.lat, lng: array.southwest.lng},
+        array.northeast,
+        {lat: array.southwest.lat, lng: array.northeast.lng},
+        array.southwest
+      ];
+    } else if (array && typeof array.getArray === "function") {
+      array = array.getArray();
+    } else {
+      array = [array];
     }
+  }
 
-    array = array.map(getLatLng);
+  array = array.map(getLatLng);
 
-    return array;
+  return array;
 }
 
 function markerOptionsFilter(markerOptions) {

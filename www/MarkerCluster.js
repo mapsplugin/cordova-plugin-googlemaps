@@ -71,19 +71,6 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
   self._isRemove = false;
   self._isWorking = false;
 
-  self.map.addPolyline({
-    points: [
-      {lat: 85, lng: 0},
-      {lat: -85, lng: 0}
-    ]
-  });
-
-  self.map.addPolyline({
-    points: [
-      {lat: 85, lng: 180},
-      {lat: -85, lng: 180}
-    ]
-  });
   //----------------------------------------------------
   // If a marker has been removed,
   // remove it from markerClusterOptions.markers also.
@@ -391,7 +378,11 @@ MarkerCluster.prototype.redraw = function(params) {
       self._clusterBounds.empty();
       var taskParams = self.taskQueue.pop();
       self.taskQueue.length = 0;
-      self._redraw.call(self, taskParams);
+      var visibleRegion = self.map.getVisibleRegion();
+      self._redraw.call(self, {
+        visibleRegion: visibleRegion,
+        force: taskParams.force
+      });
     });
   } else {
     var taskParams = self.taskQueue.pop();
@@ -412,15 +403,14 @@ MarkerCluster.prototype._redraw = function(params) {
   }
   self._isWorking = true;
   var map = self.map,
-    currentZoomLevel = Math.floor(self.map.getCameraZoom()),
+    currentZoomLevel = self.map.getCameraZoom(),
     prevResolution = self.get("resolution");
 
 
-  currentZoomLevel = currentZoomLevel < 0 ? 0 : currentZoomLevel;
+  currentZoomLevel = Math.round(currentZoomLevel < 0 ? 0 : currentZoomLevel);
   self.set("zoom", currentZoomLevel);
 
-  var resolution = 0;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 1 ? 1 : resolution;
+  var resolution = 1;
   resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 3 ? 2 : resolution;
   resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 5 ? 3 : resolution;
   resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 7 ? 4 : resolution;
@@ -445,13 +435,14 @@ MarkerCluster.prototype._redraw = function(params) {
   var distanceA = spherical.computeDistanceBetween(params.visibleRegion.farRight, params.visibleRegion.farLeft);
   var distanceB = spherical.computeDistanceBetween(params.visibleRegion.farRight, params.visibleRegion.nearRight);
   params.clusterDistance = Math.min(distanceA, distanceB) / 4;
+/*
   params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.farRight, params.clusterDistance));
   params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.farLeft, -params.clusterDistance));
   params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.nearRight, params.clusterDistance));
   params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.nearLeft, -params.clusterDistance));
-
+*/
   var expandedRegion = params.visibleRegion;
-  var googleBounds = new google.maps.LatLngBounds(expandedRegion.southwest, expandedRegion.northeast);
+
   var swCell = geomodel.getGeocell(expandedRegion.southwest.lat, expandedRegion.southwest.lng, cellLen);
   var neCell = geomodel.getGeocell(expandedRegion.northeast.lat, expandedRegion.northeast.lng, cellLen);
 
@@ -969,7 +960,6 @@ MarkerCluster.prototype._redraw = function(params) {
     "new_or_update": new_or_update_clusters,
     "delete": delete_clusters
   }], {sync: true});
-  start = Date.now();
 
 };
 

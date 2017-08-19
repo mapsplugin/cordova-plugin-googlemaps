@@ -109,7 +109,6 @@ public class PluginMarkerCluster extends PluginMarker {
           marker = self.getMarker(markerId);
           synchronized (pluginMarkers) {
             status =  pluginMarkers.get(markerId);
-            Log.d(TAG, "delete : " + markerId + " = " + status);
             if (!STATUS.WORKING.equals(status)) {
               synchronized (pluginMap.objects) {
                 _removeMarker(marker);

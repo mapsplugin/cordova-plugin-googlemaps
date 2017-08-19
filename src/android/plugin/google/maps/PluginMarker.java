@@ -79,6 +79,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           if (pluginMap.objects.containsKey(objectId)) {
             if (objectId.startsWith("marker_") &&
                 !objectId.startsWith("marker_property_") &&
+                !objectId.startsWith("marker_imgSize_") &&
                 !objectId.startsWith("marker_icon_")) {
               Marker marker = (Marker) pluginMap.objects.remove(objectId);
               _removeMarker(marker);
@@ -864,7 +865,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
 
-    Bundle imageSize = (Bundle) self.pluginMap.objects.get("imageSize");
+    Bundle imageSize = (Bundle) self.pluginMap.objects.get("marker_imageSize_" + id);
     if (imageSize != null) {
       this._setIconAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
@@ -884,7 +885,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     String id = args.getString(0);
     Marker marker = this.getMarker(id);
 
-    Bundle imageSize = (Bundle) self.pluginMap.objects.get("imageSize");
+    Bundle imageSize = (Bundle) self.pluginMap.objects.get("marker_imageSize_" + id);
     if (imageSize != null) {
       this._setInfoWindowAnchor(marker, anchorX, anchorY, imageSize.getInt("width"), imageSize.getInt("height"));
     }
@@ -1056,7 +1057,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         Bundle imageSize = new Bundle();
         imageSize.putInt("width", result.image.getWidth());
         imageSize.putInt("height", result.image.getHeight());
-        self.pluginMap.objects.put("imageSize", imageSize);
+        self.pluginMap.objects.put("marker_imageSize_" + marker.getTag(), imageSize);
 
         // The `anchor` of the `icon` property
         if (iconProperty.containsKey("anchor")) {

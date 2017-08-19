@@ -47,6 +47,7 @@ LatLngBounds.prototype.extend = function(latLng, debug) {
 
             var west = this.southwest.lng,
                 east = this.northeast.lng;
+
             if (west > 0 && east < 0) {
               if (latLng.lng > 0) {
                 west = Math.min(latLng.lng, west);
@@ -54,6 +55,7 @@ LatLngBounds.prototype.extend = function(latLng, debug) {
                 east = Math.max(latLng.lng, east);
               }
             } else {
+
               west = Math.min(latLng.lng, this.southwest.lng);
               east = Math.max(latLng.lng, this.northeast.lng);
             }
@@ -97,11 +99,23 @@ LatLngBounds.prototype.contains = function(latLng) {
     var containX = false,
       containY = false;
 
-    if (west < 0 && east > 0 && (west <= -90 || east >= 90)) {
-      if (x >= 0) {
-        containX = east <= x && x <= 180;
+    if (west <= 0 && east <= 0 && west <= east) {
+      if (x > 0) {
+        containX = false;
       } else {
-        containX = x >= -180 && x <= west ;
+        containX = (west <= x && x <= east);
+      }
+    } else if (east <= 0 && west > 0 && east <= west) {
+      if (x > 0) {
+        containX = (x >= west && x <= 180);
+      } else {
+        containX = (-180 <= x && x <= west);
+      }
+    } else if (west <= 0 && east > 0 && west <= east) {
+      if (x < 0) {
+        containX = (west <= x && x <= 0);
+      } else {
+        containX = (x >= 0 && x <= east);
       }
     } else {
       containX = (west <= x && x <= east);
