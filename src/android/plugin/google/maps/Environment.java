@@ -64,9 +64,11 @@ public class Environment extends CordovaPlugin {
       try {
         cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
       } catch (android.content.ActivityNotFoundException anfe) {
-        cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
+        cordova.getActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
       }
 
+      // End the app (in order to prevent lots of crashes)
+      cordova.getActivity().finish();
 
       return;
     }
