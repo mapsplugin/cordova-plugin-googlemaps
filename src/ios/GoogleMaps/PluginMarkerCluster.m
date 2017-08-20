@@ -94,6 +94,32 @@ const int GEOCELL_GRID_SIZE = 4;
 
 }
 
+- (void)remove:(CDVInvokedUrlCommand*)command {
+
+  NSString *clusterId = [command.arguments objectAtIndex: 0];
+  @synchronized (self.debugFlags) {
+    [self.debugFlags removeObjectForKey:clusterId];
+    [self.waitCntManager removeObjectForKey:clusterId];
+  }
+
+  @synchronized (self.pluginMarkers) {
+    NSString *key;
+    NSArray *keys = self.pluginMarkers.allKeys;
+    for (int i = 0; i < keys.count; i++) {
+      key = [keys objectAtIndex:i];
+      if ([key hasPrefix:clusterId]) {
+        [self.pluginMarkers setObject:@"DELETED" forKey:key];
+        [self.deleteMarkers addObject:key];
+      }
+    }
+  }
+  dispatch_semaphore_signal(self.deleteThreadLock);
+
+
+  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK ];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
 - (void)create:(CDVInvokedUrlCommand*)command {
   NSDictionary *params = [command.arguments objectAtIndex:1];
   NSArray *positionList = [params objectForKey:@"positionList"];

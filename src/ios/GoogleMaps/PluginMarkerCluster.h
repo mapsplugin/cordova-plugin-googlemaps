@@ -20,8 +20,8 @@
 @property (atomic, strong) dispatch_semaphore_t semaphore;
 @property (atomic, strong) dispatch_semaphore_t deleteThreadLock;
 @property (nonatomic) BOOL stopFlag;
-@property (nonatomic) BOOL initialized;
 
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)redrawClusters:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand*)command;
 @end
