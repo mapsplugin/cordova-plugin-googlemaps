@@ -980,9 +980,11 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         for (PluginEntry entry: collection) {
           if ("plugin.google.maps.PluginMap".equals(entry.pluginClass) && entry.plugin != null) {
             pluginMap = (PluginMap)entry.plugin;
+            if (pluginMap.map != null) {
 
-            // Trigger the CAMERA_MOVE_END mandatory
-            pluginMap.onCameraIdle();
+              // Trigger the CAMERA_MOVE_END mandatory
+              pluginMap.onCameraIdle();
+            }
           }
         }
       }
