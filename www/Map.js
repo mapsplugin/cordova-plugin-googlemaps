@@ -7,7 +7,8 @@ var argscheck = require('cordova/argscheck'),
     LatLng = require('./LatLng'),
     LatLngBounds = require('./LatLngBounds'),
     MapTypeId = require('./MapTypeId'),
-    event = require('./event');
+    event = require('./event'),
+    VisibleRegion = require('./VisibleRegion');
 
 var Marker = require('./Marker');
 var Circle = require('./Circle');
@@ -618,18 +619,19 @@ Map.prototype.getVisibleRegion = function(callback) {
     return null;
   }
 
-  var latLngBounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
+  var latLngBounds = new VisibleRegion(
+    cameraPosition.southwest,
+    cameraPosition.northeast,
+    cameraPosition.farLeft,
+    cameraPosition.farRight,
+    cameraPosition.nearLeft,
+    cameraPosition.nearRight
+  );
 
   if (typeof callback === "function") {
      console.log("[deprecated] getVisibleRegion() is changed. Please check out the https://goo.gl/yHstHQ");
      callback.call(self, latLngBounds);
   }
-
-  latLngBounds.nearLeft = new LatLng(cameraPosition.nearLeft.lat, cameraPosition.nearLeft.lng);
-  latLngBounds.nearRight = new LatLng(cameraPosition.nearRight.lat, cameraPosition.nearRight.lng);
-  latLngBounds.farLeft = new LatLng(cameraPosition.farLeft.lat, cameraPosition.farLeft.lng);
-  latLngBounds.farRight = new LatLng(cameraPosition.farRight.lat, cameraPosition.farRight.lng);
-
   return latLngBounds;
 };
 
