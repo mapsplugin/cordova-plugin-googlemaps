@@ -25,7 +25,7 @@ Since the code is not merged to the github repository, you need to install from 
 Adding the `--no-fetch` option is recommended (this prevents the caching by npm command).
 
 ```js
-$> cordova plugin rm cordova-googlmaps-plugin // if you installed the regular version
+$> cordova plugin rm cordova-plugin-googlemaps // if you installed the regular version
 
 $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-cluster.git#cluster_work --variable API_KEY_FOR_ANDROID=... --variable API_KEY_FOR_IOS=... --no-fetch
 ```
