@@ -219,7 +219,7 @@ function onMapReady() {
       {min: 2, max: 100, url: "./img/blue.png", anchor: {x: 16, y: 16}},
       {min: 100, max: 1000, url: "./img/yellow.png", anchor: {x: 16, y: 16}},
       {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
-      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}},  // 2000 - infinity
+      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}}  // 2000 - infinity
     ]
   }, function(markerCluster) {
     map.set("markerCluster", markerCluster);
