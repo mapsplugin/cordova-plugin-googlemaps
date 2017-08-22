@@ -285,7 +285,7 @@ function onMapReady() {
 </html>
 ```
 
-[js/starbucks_hawaii_stores.json](https://github.com/mapsplugin/markercluster_test/blob/master/js/starbucks_hawaii_stores.json)
+[js/starbucks_hawaii_stores.json](https://github.com/mapsplugin/markercluster_test/blob/master/www/js/starbucks_hawaii_stores.json)
 
 ```js
 var data = [
