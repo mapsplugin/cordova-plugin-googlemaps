@@ -11,9 +11,13 @@ https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles
 [ ] any problem or bug report
 [ ] feature request
 
-**plugin version:**  (check one with "x")
+**The plugin version:**  (check one with "x")
 [ ] **1.4.x**
-[ ] **2.0.0-beta2** 
+[ ] **2.0.0-beta3** 
+
+**If you choose 'problem or bug report', please select OS:**  (check one with "x")
+[ ] **Android**
+[ ] **iOS**
 
 **cordova information:**  (run `$> cordova plugin list`) 
 
