@@ -242,7 +242,7 @@ function onMapReady() {
         "<div style='font-size:0.8em;'>" + marker.get("address") + "</div>"
       ];
       if (marker.get("phone")) {
-        html.push("<a href='tel:" + marker.get("phone") + "' style='font-size:0.8em;color:blue;'>Tel: " + marker.get("phone") + "</div>");
+        html.push("<a href='tel:" + marker.get("phone") + "' style='font-size:0.8em;color:blue;'>Tel: " + marker.get("phone") + "</a>");
       }
       html.push("</div>");
       htmlInfoWnd.setContent(html.join(""));
@@ -254,7 +254,7 @@ function onMapReady() {
       markerCluster.remove();
     }, {
       once: true
-    })
+    });
 
 
   });
