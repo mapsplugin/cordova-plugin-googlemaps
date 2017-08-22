@@ -219,7 +219,7 @@ function onMapReady() {
       {min: 2, max: 100, url: "./img/blue.png", anchor: {x: 16, y: 16}},
       {min: 100, max: 1000, url: "./img/yellow.png", anchor: {x: 16, y: 16}},
       {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
-      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}},  // 2000 - infinity
+      {min: 2000, url: "./img/red.png", anchor: {x: 32, y: 32}}  // 2000 - infinity
     ]
   }, function(markerCluster) {
     map.set("markerCluster", markerCluster);
@@ -242,7 +242,7 @@ function onMapReady() {
         "<div style='font-size:0.8em;'>" + marker.get("address") + "</div>"
       ];
       if (marker.get("phone")) {
-        html.push("<a href='tel:" + marker.get("phone") + "' style='font-size:0.8em;color:blue;'>Tel: " + marker.get("phone") + "</div>");
+        html.push("<a href='tel:" + marker.get("phone") + "' style='font-size:0.8em;color:blue;'>Tel: " + marker.get("phone") + "</a>");
       }
       html.push("</div>");
       htmlInfoWnd.setContent(html.join(""));
@@ -254,7 +254,7 @@ function onMapReady() {
       markerCluster.remove();
     }, {
       once: true
-    })
+    });
 
 
   });
@@ -285,7 +285,7 @@ function onMapReady() {
 </html>
 ```
 
-[js/starbucks_hawaii_stores.json](https://github.com/mapsplugin/markercluster_test/blob/master/js/starbucks_hawaii_stores.json)
+[js/starbucks_hawaii_stores.json](https://github.com/mapsplugin/markercluster_test/blob/master/www/js/starbucks_hawaii_stores.json)
 
 ```js
 var data = [
