@@ -250,14 +250,15 @@ Map.prototype.clear = function(callback) {
 
     var clearObj = function(obj) {
         var ids = Object.keys(obj);
-        var id;
+        var id, instance;
         for (var i = 0; i < ids.length; i++) {
             id = ids[i];
-            if (obj[id]) {
-              if (obj[id].type === "MarkerCluster") {
-                obj[id].remove();
+            instance = obj[id];
+            if (instance) {
+              if (instance.type === "MarkerCluster") {
+                instance.remove();
               }
-              obj[id].off();
+              instance.off();
               delete obj[id];
             }
         }
