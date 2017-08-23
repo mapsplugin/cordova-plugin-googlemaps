@@ -1014,7 +1014,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     var markerCluster = new MarkerCluster(self, result.id, {
       "icons": markerClusterOptions.icons,
       "markerMap": markerMap,
-      "maxZoomLevel": Math.max(markerClusterOptions.maxZoomLevel, 18) || 15,
+      "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
       "debug": markerClusterOptions.debug === true
     }, exec);
     markerCluster.one("remove", function() {

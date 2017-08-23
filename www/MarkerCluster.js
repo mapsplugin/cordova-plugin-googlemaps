@@ -407,7 +407,7 @@ MarkerCluster.prototype._redraw = function(params) {
     prevResolution = self.get("resolution");
 
 
-  currentZoomLevel = Math.round(currentZoomLevel < 0 ? 0 : currentZoomLevel);
+  currentZoomLevel = currentZoomLevel < 0 ? 0 : currentZoomLevel;
   self.set("zoom", currentZoomLevel);
 
   var resolution = 1;
@@ -960,7 +960,13 @@ MarkerCluster.prototype._redraw = function(params) {
     "new_or_update": new_or_update_clusters,
     "delete": delete_clusters
   }], {sync: true});
-
+/*
+    console.log({
+                    "resolution": resolution,
+                    "new_or_update": new_or_update_clusters,
+                    "delete": delete_clusters
+                  });
+*/
 };
 
 MarkerCluster.prototype.getClusterIcon = function(cluster) {
