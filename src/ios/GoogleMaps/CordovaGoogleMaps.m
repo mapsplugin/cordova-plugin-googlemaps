@@ -18,52 +18,54 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
 #endif
     self.executeQueue =  [NSOperationQueue new];
-    //-------------------------------
-    // Check the Google Maps API key
-    //-------------------------------
-    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
-    if (APIKey == nil) {
-        NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-        NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
-        NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      //-------------------------------
+      // Check the Google Maps API key
+      //-------------------------------
+      NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+      if (APIKey == nil) {
+          NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+          NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
+          NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
 
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"API key is not setted."
-                                                        message:message
-                                                       delegate:self
-                                              cancelButtonTitle:@"CLOSE"
-                                              otherButtonTitles:nil];
-        [alert show];
-        return;
-    }
+          UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"API key is not setted."
+                                                          message:message
+                                                         delegate:self
+                                                cancelButtonTitle:@"CLOSE"
+                                                otherButtonTitles:nil];
+          [alert show];
+          return;
+      }
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(didRotate:)
-                                                   name:UIDeviceOrientationDidChangeNotification object:nil];
+      [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didRotate:)
+                                                     name:UIDeviceOrientationDidChangeNotification object:nil];
 
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+      [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 
-    //-------------------------------
-    // Plugin initialization
-    //-------------------------------
-    [GMSServices provideAPIKey:APIKey];
-    self.pluginMaps = [[NSMutableDictionary alloc] init];
-    self.locationCommandQueue = [[NSMutableArray alloc] init];
+      //-------------------------------
+      // Plugin initialization
+      //-------------------------------
+      [GMSServices provideAPIKey:APIKey];
+      self.pluginMaps = [[NSMutableDictionary alloc] init];
+      self.locationCommandQueue = [[NSMutableArray alloc] init];
 
-    self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
-    self.pluginLayer.backgroundColor = [UIColor whiteColor];
-    self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+      self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
+      self.pluginLayer.backgroundColor = [UIColor whiteColor];
+      self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
 
-    NSArray *subViews = self.viewController.view.subviews;
-    UIView *view;
-    for (int i = 0; i < [subViews count]; i++) {
-        view = [subViews objectAtIndex:i];
-        //NSLog(@"remove i=%d class=%@", i, view.class);
-        [view removeFromSuperview];
-        [self.pluginLayer addSubview: view];
-    }
-    [self.viewController.view addSubview:self.pluginLayer];
+      NSArray *subViews = self.viewController.view.subviews;
+      UIView *view;
+      for (int i = 0; i < [subViews count]; i++) {
+          view = [subViews objectAtIndex:i];
+          //NSLog(@"remove i=%d class=%@", i, view.class);
+          [view removeFromSuperview];
+          [self.pluginLayer addSubview: view];
+      }
+      [self.viewController.view addSubview:self.pluginLayer];
 
+    }];
 }
 
 - (void) didRotate:(id)sender
@@ -272,7 +274,7 @@
                                           bearing: bearing
                                           viewingAngle: angle];
 
-        pluginMap.mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+        mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
 
         //mapType
         NSString *typeStr = [initOptions valueForKey:@"mapType"];
@@ -304,9 +306,9 @@
 
         //indoor display
         pluginMap.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
-        [mapCtrl.view addSubview:pluginMap.mapCtrl.map];
-
+        [mapCtrl.view addSubview:mapCtrl.map];
         [self.pluginLayer addMapView:mapCtrl];
+
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [pluginMap getMap:command];
