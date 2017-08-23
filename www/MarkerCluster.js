@@ -233,7 +233,7 @@ MarkerCluster.prototype.remove = function() {
   self.taskQueue = [];
   self._isRemove = true;
 
-  if (resolution === self.MAX_RESOLUTION) {
+  if (resolution === self.OUT_OF_RESOLUTION) {
     while (self._clusters[resolution].length > 0) {
       markerOpts = self._clusters[resolution].shift();
       deleteClusters.push(markerOpts.id);
