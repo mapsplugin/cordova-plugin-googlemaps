@@ -131,7 +131,7 @@ if (!cordova) {
       if (isChecking) {
         return;
       }
-      if (mapIDs.length === 0) {
+      if (idlingCnt > -1 && mapIDs.length === 0) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
         return;
       }
@@ -150,7 +150,7 @@ if (!cordova) {
           visibleMapList.push(mapId);
         }
       }
-      if (visibleMapList.length === 0) {
+      if (idlingCnt > -1 && visibleMapList.length === 0) {
         idlingCnt++;
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
