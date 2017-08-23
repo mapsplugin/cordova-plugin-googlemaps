@@ -331,34 +331,75 @@ if (!cordova) {
 
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
+      var minMapDepth = 9999999;
       mapIDs.forEach(function(mapId) {
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
-          if (elemId && !(elemId in domPositions)) {
-
-            // Is the map div removed?
-            if (window.document.querySelector) {
-              var ele = document.querySelector("[__pluginDomId='" + elemId + "']");
-              if (!ele) {
-                // If no div element, remove the map.
-                MAPS[mapId].remove();
+          if (elemId) {
+            if (elemId in domPositions) {
+              minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
+            } else {
+              // Is the map div removed?
+              if (window.document.querySelector) {
+                var ele = document.querySelector("[__pluginDomId='" + elemId + "']");
+                if (!ele) {
+                  // If no div element, remove the map.
+                  MAPS[mapId].remove();
+                }
               }
-            }
 
-            domPositions[elemId] = {
-              size: {
-                top: 10000,
-                left: 0,
-                width: 100,
-                height: 100
-              },
-              depth: 0
-            };
+              domPositions[elemId] = {
+                size: {
+                  top: 10000,
+                  left: 0,
+                  width: 100,
+                  height: 100
+                },
+                depth: 0
+              };
+            }
           }
         }
       });
 
+      //-----------------------------------------------------------------
+      // Ignore the elements that their z-index is smaller than map div
+      //-----------------------------------------------------------------
+      var quickfilter = function(list, head, tail) {
+        var i = head, j = tail;
+        var leftRight = true;
+        while(i < j) {
+          if (leftRight) {
+            if (domPositions[list[j]].depth < minMapDepth) {
+              list[i] = list[j];
+              i++;
+              leftRight = false;
+            } else {
+              j--;
+            }
+          } else {
+            if (domPositions[list[i]].depth >= minMapDepth) {
+              list[j] = list[i];
+              j--;
+              leftRight = true;
+            } else {
+              i++;
+            }
+          }
+        }
+        list.splice(0, j);
+      };
+      var list = Object.keys(domPositions);
+      quickfilter(list, 0, list.length - 1);
+      var finalDomPositions = {};
+      list.forEach(function(domId) {
+        finalDomPositions[domId] = domPositions[domId];
+      });
+
+      //-----------------------------------------------------------------
+      // Pass information to native
+      //-----------------------------------------------------------------
       cordova_exec(function() {
         prevDomPositions = domPositions;
         mapIDs.forEach(function(mapId) {
@@ -368,7 +409,7 @@ if (!cordova) {
         });
         setTimeout(putHtmlElements, 50);
         isChecking = false;
-      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
+      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [finalDomPositions]);
       child = null;
       parentNode = null;
       elemId = null;
