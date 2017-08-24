@@ -2019,6 +2019,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       this.onClusterEvent("cluster_click", marker);
     } else {
+      webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
       this.onMarkerEvent("marker_click", marker);
       activeMarker = marker;
     }

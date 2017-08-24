@@ -963,7 +963,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     callbackContext.sendPluginResult(pluginResult);
   }
 
-  /**
+ /**
    * Called by the system when the device configuration changes while your activity is running.
    *
    * @param newConfig		The new device configuration
@@ -980,9 +980,11 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         for (PluginEntry entry: collection) {
           if ("plugin.google.maps.PluginMap".equals(entry.pluginClass) && entry.plugin != null) {
             pluginMap = (PluginMap)entry.plugin;
+            if (pluginMap.map != null) {
 
-            // Trigger the CAMERA_MOVE_END mandatory
-            pluginMap.onCameraIdle();
+              // Trigger the CAMERA_MOVE_END mandatory
+              pluginMap.onCameraIdle();
+            }
           }
         }
       }

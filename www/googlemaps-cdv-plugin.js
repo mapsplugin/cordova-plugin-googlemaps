@@ -457,7 +457,10 @@ if (!cordova) {
     document.addEventListener("plugin_touch", resetTimer);
     window.addEventListener("orientationchange", resetTimer);
 
-    function onBackButton() {
+    //----------------------------------------------------
+    // Stop all executions if the page will be closed.
+    //----------------------------------------------------
+    window.addEventListener("unload", function() {
       // Request stop all tasks.
       _stopRequested = true;
       if (_isWaitMethod && _executingCnt > 0) {
@@ -465,17 +468,40 @@ if (!cordova) {
         setTimeout(arguments.callee, 100);
         return;
       }
-      // Executes the browser back history action
-      // Since the cordova can not exit from app sometimes, handle the backbutton action in CordovaGoogleMaps
-      cordova_exec(null, null, 'CordovaGoogleMaps', "backHistory", []);
+    });
 
-      if (cordova) {
-        resetTimer();
-        // For other plugins, fire the `plugin_buckbutton` event instead of the `backbutton` evnet.
-        cordova.fireDocumentEvent('plugin_backbutton', {});
+    //--------------------------------------------
+    // Hook the backbutton of Android action
+    //--------------------------------------------
+    var anotherBackbuttonHandler = null;
+    function onBackButton() {
+      cordova.fireDocumentEvent('plugin_touch', {});
+      if (anotherBackbuttonHandler) {
+        anotherBackbuttonHandler();
       }
     }
-    document.addEventListener("backbutton", onBackButton, false);
+    var _org_addEventListener = document.addEventListener;
+    var _org_removeEventListener = document.removeEventListener;
+    document.addEventListener = function(eventName, callback) {
+      var args = Array.prototype.slice.call(arguments, 0);
+      if (eventName.toLowerCase() !== "backbutton") {
+        _org_addEventListener.apply(this, args);
+        return;
+      }
+      if (!anotherBackbuttonHandler) {
+        anotherBackbuttonHandler = callback;
+      }
+    };
+    document.removeEventListener = function(eventName, callback) {
+      var args = Array.prototype.slice.call(arguments, 0);
+      if (eventName.toLowerCase() !== "backbutton") {
+        _org_removeEventListener.apply(this, args);
+        return;
+      }
+      if (anotherBackbuttonHandler === callback) {
+        anotherBackbuttonHandler = null;
+      }
+    };
 
   }());
 

@@ -376,6 +376,7 @@
     }
     [self triggerClusterEvent:@"cluster_click" marker:marker];
   } else {
+    [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
     [self triggerMarkerEvent:@"marker_click" marker:marker];
     //NSLog(@"--->activeMarker = %@", marker.userData);
     self.map.selectedMarker = marker;
