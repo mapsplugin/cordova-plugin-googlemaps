@@ -69,7 +69,24 @@
 }
 
 - (void) didRotate:(id)sender
-{}
+{
+
+  NSArray *keys = [self.pluginMaps allKeys];
+  NSString *key;
+  PluginMap *pluginMap;
+  for (int i = 0; i < keys.count; i++) {
+    key = [keys objectAtIndex:i];
+    if ([self.pluginMaps objectForKey:key]) {
+      pluginMap = [self.pluginMaps objectForKey:key];
+      if (pluginMap.mapCtrl.map) {
+         // Trigger the CAMERA_MOVE_END mandatory
+        [pluginMap.mapCtrl mapView:pluginMap.mapCtrl.map idleAtCameraPosition:pluginMap.mapCtrl.map.camera];
+      }
+    }
+  }
+
+}
+
 
 -(void)viewDidLayoutSubviews {
     [self.pluginLayer.pluginScrollView setContentSize: self.webView.scrollView.contentSize];
