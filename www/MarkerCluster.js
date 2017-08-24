@@ -222,13 +222,13 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
   var self = this;
   var polygon = self.get("polygon");
   var bounds = cluster.getBounds();
-  polygon.setPoints([
-    bounds.southwest,
-    {lat: bounds.northeast.lat, lng: bounds.southwest.lng},
-    bounds.northeast,
-    {lat: bounds.southwest.lat, lng: bounds.northeast.lng}
-  ]);
   if (self.boundsDraw) {
+    polygon.setPoints([
+      bounds.southwest,
+      {lat: bounds.northeast.lat, lng: bounds.southwest.lng},
+      bounds.northeast,
+      {lat: bounds.southwest.lat, lng: bounds.northeast.lng}
+    ]);
     polygon.setVisible(true);
   }
   this.map.animateCamera({
