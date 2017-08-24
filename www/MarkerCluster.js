@@ -141,7 +141,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
       writable: false
   });
 
-  self.addMarker = function(markerOptions) {
+  self.addMarker = function(markerOptions, skipRedraw) {
     idxCount++;
     var resolution = self.get("resolution");
 
@@ -162,7 +162,18 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     //marker.set("geocell", geocell, true);
     //marker.set("position", markerOptions.position, true);
     self._markerMap[markerId] = markerOptions;
+    if (skipRedraw) {
+      return;
+    }
     self.redraw(true);
+  };
+  self.addMarkers = function(markers) {
+    if (utils.isArray(markers) || Array.isArray(markers)) {
+      for (var i = 0; i < markers.length; i++) {
+        self.addMarker(markers[i], true);
+      }
+      self.redraw(true);
+    }
   };
 
   map.on(event.CAMERA_MOVE_END, self._onCameraMoved.bind(self));
