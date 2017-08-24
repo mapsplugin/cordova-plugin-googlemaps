@@ -66,6 +66,25 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     value: 999,
     writable: false
   });
+  Object.defineProperty(self, "boundsDraw", {
+    value: markerClusterOptions.boundsDraw === true,
+    writable: false
+  });
+
+  if (self.boundsDraw) {
+    self.map.addPolygon({
+      visible: false,
+      points: [
+        {lat: 0, lng: 0},
+        {lat: 0, lng: 0},
+        {lat: 0, lng: 0},
+        {lat: 0, lng: 0}
+      ],
+      strokeWidth: 1
+    }, function(polygon) {
+      self.set("polygon", polygon);
+    });
+  }
   self.taskQueue = [];
   self._stopRequest = false;
   self._isRemove = false;
@@ -189,9 +208,27 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
   if (this._isRemove) {
     return null;
   }
+  var self = this;
+  var polygon = self.get("polygon");
+  var bounds = cluster.getBounds();
+  polygon.setPoints([
+    bounds.southwest,
+    {lat: bounds.northeast.lat, lng: bounds.southwest.lng},
+    bounds.northeast,
+    {lat: bounds.southwest.lat, lng: bounds.northeast.lng}
+  ]);
+  if (self.boundsDraw) {
+    polygon.setVisible(true);
+  }
   this.map.animateCamera({
     target: cluster.getBounds(),
     duration: 500
+  }, function() {
+    if (self.boundsDraw) {
+      setTimeout(function() {
+        polygon.setVisible(false);
+      }, 500);
+    }
   });
 };
 
@@ -274,6 +311,9 @@ MarkerCluster.prototype.remove = function() {
   }
   exec(null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true});
 
+  if (self.boundsDraw && self.get("polygon")) {
+    self.get("polygon").remove();
+  }
   self.off();
 
 };

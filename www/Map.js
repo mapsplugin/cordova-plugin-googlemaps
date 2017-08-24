@@ -1015,7 +1015,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       "icons": markerClusterOptions.icons,
       "markerMap": markerMap,
       "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
-      "debug": markerClusterOptions.debug === true
+      "debug": markerClusterOptions.debug === true,
+      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
     }, exec);
     markerCluster.one("remove", function() {
       delete self.OVERLAYS[result.id];
