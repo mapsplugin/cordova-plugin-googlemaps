@@ -460,15 +460,18 @@ if (!cordova) {
     //----------------------------------------------------
     // Stop all executions if the page will be closed.
     //----------------------------------------------------
-    window.addEventListener("unload", function() {
+    function stopExecution() {
       // Request stop all tasks.
       _stopRequested = true;
+/*
       if (_isWaitMethod && _executingCnt > 0) {
         // Wait until all tasks currently running are stopped.
         setTimeout(arguments.callee, 100);
         return;
       }
-    });
+*/
+    }
+    window.addEventListener("unload", stopExecution);
 
     //--------------------------------------------
     // Hook the backbutton of Android action
