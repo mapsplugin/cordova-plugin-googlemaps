@@ -440,6 +440,8 @@ if (!cordova) {
         anotherBackbuttonHandler();
       }
     }
+    document.addEventListener("backbutton", onBackButton);
+
     var _org_addEventListener = document.addEventListener;
     var _org_removeEventListener = document.removeEventListener;
     document.addEventListener = function(eventName, callback) {
