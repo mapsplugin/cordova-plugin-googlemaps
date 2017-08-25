@@ -571,6 +571,14 @@ MarkerCluster.prototype._redraw = function(params) {
         markerOpts = self._clusters[self.OUT_OF_RESOLUTION].shift();
         self._markerMap[markerOpts.id]._cluster.isAdded = false;
         deleteClusters[markerOpts.id] = 1;
+
+        if (self._markerMap[markerOpts.id].id === activeMarkerId) {
+          var marker = self._markerMap[markerOpts.id]._cluster.marker;
+          if (marker) {
+            marker.trigger(event.INFO_CLOSE);
+            marker.hideInfoWindow();
+          }
+        }
         if (self.debug) {
           console.log("---> (js:489)delete:" + markerOpts.id);
         }
