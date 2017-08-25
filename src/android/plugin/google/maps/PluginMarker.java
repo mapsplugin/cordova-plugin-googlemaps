@@ -100,54 +100,48 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   @Override
   protected void clear() {
     synchronized (semaphoreAsync) {
-      semaphoreAsync.put("waitCnt", 2);
 
-      //--------------------------------------
-      // Cancel tasks
-      //--------------------------------------
       cordova.getThreadPool().submit(new Runnable() {
         @Override
         public void run() {
+          //--------------------------------------
+          // Cancel tasks
+          //--------------------------------------
           AsyncTask task;
           if (iconLoadingTasks != null && iconLoadingTasks.size() > 0) {
             int i, ilen = iconLoadingTasks.size();
             for (i = 0; i < ilen; i++) {
-              task = iconLoadingTasks.remove(i);
+              task = iconLoadingTasks.get(i);
               task.cancel(true);
-              task = null;
-            }
-          }
-          iconLoadingTasks = null;
-          synchronized (semaphoreAsync) {
-            int waitCnt = semaphoreAsync.get("waitCnt");
-            waitCnt = waitCnt - 1;
-            semaphoreAsync.put("waitCnt", waitCnt);
-            if (waitCnt < 1) {
-              semaphoreAsync.notify();
             }
           }
         }
       });
 
+
       //--------------------------------------
       // Recycle bitmaps as much as possible
       //--------------------------------------
-      String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
-      for (int i = 0; i < cacheKeys.length; i++) {
-        AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
-        iconCacheKeys.remove(cacheKeys[i]);
-      }
-      cacheKeys = null;
-      Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
-      Bitmap image;
-      for (int i = 0; i < cachedBitmaps.length; i++) {
-        image = icons.remove(0);
-        if (image != null && !image.isRecycled()) {
-          image.recycle();
+      if (iconCacheKeys != null) {
+        String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
+        for (int i = 0; i < cacheKeys.length; i++) {
+          AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
+          iconCacheKeys.remove(cacheKeys[i]);
         }
-        image = null;
+        cacheKeys = null;
       }
-      icons.clear();
+      if (icons != null) {
+        Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
+        Bitmap image;
+        for (int i = 0; i < cachedBitmaps.length; i++) {
+          image = icons.remove(0);
+          if (image != null && !image.isRecycled()) {
+            image.recycle();
+          }
+          image = null;
+        }
+        icons.clear();
+      }
 
       //--------------------------------------
       // clean up properties as much as possible
@@ -177,19 +171,14 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
 
           synchronized (semaphoreAsync) {
-            int waitCnt = semaphoreAsync.get("waitCnt");
-            waitCnt = waitCnt - 1;
-            semaphoreAsync.put("waitCnt", waitCnt);
-            if (waitCnt < 1) {
-              semaphoreAsync.notify();
-            }
+            semaphoreAsync.notify();
           }
 
         }
       });
 
       try {
-        semaphoreAsync.wait();
+        semaphoreAsync.wait(5);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

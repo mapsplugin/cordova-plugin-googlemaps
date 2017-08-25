@@ -59,9 +59,9 @@ if (!cordova) {
         viewportTag = document.createElement("meta");
         viewportTag.setAttribute('name', 'viewport');
     }
-    
+
     var viewportTagContent = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no';
-    
+
     // Detect if iOS device
     if (/(iPhone|iPod|iPad)/i.test(window.navigator.userAgent)) {
       // Get iOS major version
@@ -72,7 +72,7 @@ if (!cordova) {
         viewportTagContent += ', viewport-fit=cover';
       }
     }
-    
+
     // Update viewport tag attribute
     viewportTag.setAttribute('content', viewportTagContent);
   })();

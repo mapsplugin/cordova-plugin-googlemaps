@@ -1568,17 +1568,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void onRequestPermissionResult(int requestCode, String[] permissions,
                                         int[] grantResults) throws JSONException {
-    boolean didPermissionGrant = true;
-    for (int r : grantResults) {
-      if (r == PackageManager.PERMISSION_DENIED) {
-        didPermissionGrant = false;
-        break;
-      }
-    }
-    synchronized (CordovaGoogleMaps.semaphore) {
-      CordovaGoogleMaps.semaphore.put("result_" + requestCode, didPermissionGrant ? "grant" : "denied");
-    }
-
     synchronized (CordovaGoogleMaps.semaphore) {
       CordovaGoogleMaps.semaphore.notify();
     }
@@ -1593,25 +1582,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     // Request geolocation permission.
-    boolean locationPermission = false;
-    try {
-      Method hasPermission = CordovaInterface.class.getDeclaredMethod("hasPermission", String.class);
-
-      String permission = "android.permission.ACCESS_COARSE_LOCATION";
-      locationPermission = (Boolean) hasPermission.invoke(cordova, permission);
-    } catch (Exception e) {
-      e.printStackTrace();
-      PluginResult result;
-      result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-      callbackContext.sendPluginResult(result);
-      return;
-    }
+    boolean locationPermission = cordova.hasPermission("android.permission.ACCESS_COARSE_LOCATION");
     Log.d(TAG, "---> setMyLocationEnabled, hasPermission =  " + locationPermission);
 
     if (!locationPermission) {
       //_saveArgs = args;
       //_saveCallbackContext = callbackContext;
-      mapCtrl.requestPermissions(this, callbackContext.hashCode(), new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+      cordova.requestPermissions(this, callbackContext.hashCode(), new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
       synchronized (CordovaGoogleMaps.semaphore) {
         try {
           CordovaGoogleMaps.semaphore.wait();
@@ -1619,9 +1596,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           e.printStackTrace();
         }
       }
-      locationPermission = "grant".equals(CordovaGoogleMaps.semaphore.remove("result_" + callbackContext.hashCode()));
-
-      if (!locationPermission) {
+      if (!cordova.hasPermission("android.permission.ACCESS_COARSE_LOCATION")) {
         callbackContext.error("Geolocation permission request was denied.");
         return;
       }

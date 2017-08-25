@@ -1135,7 +1135,7 @@
             [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
             [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
             [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];;
-            NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
+            //NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
 
             // Draw label
             if ([iconProperty objectForKey:@"label"]) {
