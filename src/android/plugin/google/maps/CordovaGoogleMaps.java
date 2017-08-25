@@ -97,6 +97,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
+        CURRENT_URL = webView.getUrl();
 
         // Enable this, webView makes draw cache on the Android action bar issue.
         //View view = webView.getView();
@@ -245,12 +246,14 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public boolean onOverrideUrlLoading(String url) {
     mPluginLayout.isSuspended = true;
+    /*
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_url_changed', {});}");
       }
     });
+    */
     CURRENT_URL = url;
     return false;
   }
@@ -878,6 +881,18 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public void onResume(boolean multitasking) {
     super.onResume(multitasking);
+    if (mPluginLayout != null) {
+      mPluginLayout.isSuspended = false;
+
+      if (mPluginLayout.pluginMaps.size() > 0) {
+        this.activity.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
+          }
+        });
+      }
+    }
 
     cordova.getThreadPool().submit(new Runnable() {
       @Override
