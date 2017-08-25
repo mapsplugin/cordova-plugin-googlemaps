@@ -888,6 +888,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         this.activity.runOnUiThread(new Runnable() {
           @Override
           public void run() {
+            CURRENT_URL = webView.getUrl();
             webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
           }
         });
