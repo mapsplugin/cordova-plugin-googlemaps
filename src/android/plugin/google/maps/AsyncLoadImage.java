@@ -21,6 +21,7 @@ import org.apache.cordova.CordovaWebView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -183,7 +184,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       return result;
     }
 
-    //Log.d(TAG, "--> iconUrl = " + iconUrl);
+    Log.d(TAG, "--> iconUrl = " + iconUrl);
     //--------------------------------
     // Load image from local path
     //--------------------------------
@@ -372,17 +373,22 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
 
 
     } else {
-      //Log.d(TAG, "--> iconUrl = " + iconUrl);
+      Log.d(TAG, "--> iconUrl = " + iconUrl);
       if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
 
 
         String[] tmp = iconUrl.split(",");
         image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
       } else {
-        AssetManager assetManager = cordova.getActivity().getAssets();
-        InputStream inputStream;
         try {
-          inputStream = assetManager.open(iconUrl);
+          InputStream inputStream;
+          if (iconUrl.startsWith("/")) {
+            File file = new File(iconUrl);
+            inputStream = new FileInputStream(file);
+          } else {
+            AssetManager assetManager = cordova.getActivity().getAssets();
+            inputStream = assetManager.open(iconUrl);
+          }
           image = BitmapFactory.decodeStream(inputStream);
           inputStream.close();
         } catch (IOException e) {
