@@ -171,6 +171,10 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
+    if (self.pluginLayer != nil) {
+      self.pluginLayer.isSuspended = false;
+      self.pluginLayer.pauseResize = false;
+    }
 
     dispatch_async(dispatch_get_main_queue(), ^{
 

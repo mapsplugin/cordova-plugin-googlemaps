@@ -526,8 +526,8 @@ Map.prototype.remove = function(callback) {
         }
     }
     self.set('div', undefined);
+    self.trigger("remove");
     exec(function() {
-        self.trigger("remove");
         if (typeof callback === "function") {
             callback.call(self);
         }

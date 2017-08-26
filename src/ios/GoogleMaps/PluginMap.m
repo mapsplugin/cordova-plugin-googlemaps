@@ -119,6 +119,7 @@
 
 - (void)getMap:(CDVInvokedUrlCommand*)command {
 
+
   if ([command.arguments count] == 1) {
     //-----------------------------------------------------------------------
     // case: plugin.google.maps.getMap([options]) (no the mapDiv is given)
@@ -905,7 +906,6 @@
     // Redraw the map mandatory
     [self.mapCtrl.map setNeedsDisplay];
 
-
     if ([initOptions valueForKey:@"camera"]) {
       //------------------------------------------
       // Case : The camera option is specified.
@@ -913,6 +913,7 @@
       NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
       [self _changeCameraPosition:@"moveCamera" requestMethod:requestMethod params:cameraOpts command:command];
     } else {
+      [self.mapCtrl mapView:self.mapCtrl.map didChangeCameraPosition:self.mapCtrl.map.camera];
       [self.mapCtrl.view setHidden:NO];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
