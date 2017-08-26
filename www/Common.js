@@ -497,6 +497,9 @@ function defaultTrueOption(value) {
 }
 
 function createMvcArray(array) {
+    if (!array) {
+      return new BaseArrayClass();
+    }
     if (array.type === "BaseArrayClass") {
       return array;
     }
