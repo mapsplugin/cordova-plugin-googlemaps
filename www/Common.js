@@ -223,10 +223,9 @@ function getDivRect(div) {
 }
 
 var ignoreTags = [
-  "pre", "textarea", "p", "form", "input", "table", "caption",
-  "canvas", "ion-content", "ion-app", "ion-nav", "svg"
+  "pre", "textarea", "p", "form", "input", "caption", "canvas", "svg"
 ];
-var ignoreClasses = ["nav-decor", "ion-page", "fixed-content"];
+var ignoreClasses = ["nav-decor"];
 
 function shouldWatchByNative(node) {
   if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
