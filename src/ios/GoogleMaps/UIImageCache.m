@@ -18,17 +18,21 @@ static UIImageCache *sharedInstance;
 + (UIImageCache*)sharedInstance {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[UIImageCache alloc] init];
+      sharedInstance = [[UIImageCache alloc] init];
+      sharedInstance.imageCache = [[NSCache alloc] init];
+      sharedInstance.imageCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
+      sharedInstance.iconCacheKeys = [[NSMutableDictionary alloc] init];
     });
     return sharedInstance;
 }
 - (instancetype)init {
     self = [super init];
-    if (self) {
+  /*
+    if (self && self.imageCache == nil) {
         self.imageCache = [[NSCache alloc] init];
         self.imageCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
         self.iconCacheKeys = [NSMutableDictionary dictionary];
-    }
+    }*/
     return self;
 }
 

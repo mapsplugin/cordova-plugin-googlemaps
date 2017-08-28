@@ -1004,6 +1004,20 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           return;
         }
 
+        String currentCacheKey = (String) pluginMap.objects.get("marker_icon_" + marker.getTag());
+        synchronized (iconCacheKeys) {
+          if (iconCacheKeys.containsKey(currentCacheKey)) {
+            int count = iconCacheKeys.get(currentCacheKey);
+            count--;
+            if (count < 1) {
+              AsyncLoadImage.removeBitmapFromMemCahce(currentCacheKey);
+              iconCacheKeys.remove(currentCacheKey);
+            } else {
+              iconCacheKeys.put(currentCacheKey, count);
+            }
+          }
+        }
+
         icons.add(result.image);
 
         //-------------------------------------------------------

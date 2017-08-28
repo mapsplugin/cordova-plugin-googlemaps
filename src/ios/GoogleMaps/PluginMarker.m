@@ -10,7 +10,7 @@
 @implementation PluginMarker
 -(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
 {
-    self.mapCtrl = viewCtrl;
+  self.mapCtrl = viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -30,19 +30,19 @@
   NSArray *keys = [self.mapCtrl.objects allKeys];
   NSString *key;
   for (int i = 0; i < [keys count]; i++) {
-      key = [keys objectAtIndex:i];
-      if ([key hasPrefix:@"marker_"] &&
+    key = [keys objectAtIndex:i];
+    if ([key hasPrefix:@"marker_"] &&
         ![key hasPrefix:@"marker_icon_"] &&
         ![key hasPrefix:@"marker_property"]) {
-          GMSMarker *marker = (GMSMarker *)[self.mapCtrl.objects objectForKey:key];
-          if (marker) {
-            marker.userData = nil;
-            marker.map = nil;
-            [marker.layer removeAllAnimations];
-          }
-          marker = nil;
+      GMSMarker *marker = (GMSMarker *)[self.mapCtrl.objects objectForKey:key];
+      if (marker) {
+        marker.userData = nil;
+        marker.map = nil;
+        [marker.layer removeAllAnimations];
       }
-      [self.mapCtrl.objects removeObjectForKey:key];
+      marker = nil;
+    }
+    [self.mapCtrl.objects removeObjectForKey:key];
   }
 
   [[UIImageCache sharedInstance] removeAllCachedImages];
@@ -209,16 +209,16 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *hashCode = [command.arguments objectAtIndex:0];
+      NSString *hashCode = [command.arguments objectAtIndex:0];
 
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:hashCode];
-        if (marker) {
-            self.mapCtrl.map.selectedMarker = marker;
-            self.mapCtrl.activeMarker = marker;
-        }
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:hashCode];
+      if (marker) {
+        self.mapCtrl.map.selectedMarker = marker;
+        self.mapCtrl.activeMarker = marker;
+      }
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -230,10 +230,10 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        self.mapCtrl.map.selectedMarker = nil;
-        self.mapCtrl.activeMarker = nil;
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      self.mapCtrl.map.selectedMarker = nil;
+      self.mapCtrl.activeMarker = nil;
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -244,21 +244,21 @@
 -(void)getPosition:(CDVInvokedUrlCommand *)command
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
+    NSString *markerId = [command.arguments objectAtIndex:0];
 
-      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-      NSNumber *latitude = @0.0;
-      NSNumber *longitude = @0.0;
-      if (marker) {
-          latitude = [NSNumber numberWithFloat: marker.position.latitude];
-          longitude = [NSNumber numberWithFloat: marker.position.longitude];
-      }
-      NSMutableDictionary *json = [NSMutableDictionary dictionary];
-      [json setObject:latitude forKey:@"lat"];
-      [json setObject:longitude forKey:@"lng"];
+    GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+    NSNumber *latitude = @0.0;
+    NSNumber *longitude = @0.0;
+    if (marker) {
+      latitude = [NSNumber numberWithFloat: marker.position.latitude];
+      longitude = [NSNumber numberWithFloat: marker.position.longitude];
+    }
+    NSMutableDictionary *json = [NSMutableDictionary dictionary];
+    [json setObject:latitude forKey:@"lat"];
+    [json setObject:longitude forKey:@"lng"];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
+    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -270,19 +270,19 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        marker.title = [command.arguments objectAtIndex:1];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      marker.title = [command.arguments objectAtIndex:1];
 
-        NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
-        NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                           [self.mapCtrl.objects objectForKey:propertyId]];
-        [self.mapCtrl.objects setObject:properties forKey:propertyId];
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.mapCtrl.objects objectForKey:propertyId]];
+      [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
 
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -296,12 +296,12 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        marker.snippet = [command.arguments objectAtIndex:1];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      marker.snippet = [command.arguments objectAtIndex:1];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -314,12 +314,12 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        [self _removeMarker:marker];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      [self _removeMarker:marker];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -368,21 +368,21 @@
 -(void)setIconAnchor:(CDVInvokedUrlCommand *)command
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-      CGFloat anchorX = [[command.arguments objectAtIndex:1] floatValue];
-      CGFloat anchorY = [[command.arguments objectAtIndex:2] floatValue];
+    NSString *markerId = [command.arguments objectAtIndex:0];
+    GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+    CGFloat anchorX = [[command.arguments objectAtIndex:1] floatValue];
+    CGFloat anchorY = [[command.arguments objectAtIndex:2] floatValue];
 
-      if (marker.icon) {
-          anchorX = anchorX / marker.icon.size.width;
-          anchorY = anchorY / marker.icon.size.height;
-          [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-              [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
-          }];
-      }
+    if (marker.icon) {
+      anchorX = anchorX / marker.icon.size.width;
+      anchorY = anchorY / marker.icon.size.height;
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [marker setGroundAnchor:CGPointMake(anchorX, anchorY)];
+      }];
+    }
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -393,23 +393,23 @@
 -(void)setInfoWindowAnchor:(CDVInvokedUrlCommand *)command
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+    NSString *markerId = [command.arguments objectAtIndex:0];
+    GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          float anchorX = [[command.arguments objectAtIndex:1] floatValue];
-          float anchorY = [[command.arguments objectAtIndex:2] floatValue];
-          CDVPluginResult* pluginResult;
-          if (marker.icon) {
-              anchorX = anchorX / marker.icon.size.width;
-              anchorY = anchorY / marker.icon.size.height;
-              [marker setInfoWindowAnchor:CGPointMake(anchorX, anchorY)];
-              pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          } else {
-              pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-          }
-          [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      float anchorX = [[command.arguments objectAtIndex:1] floatValue];
+      float anchorY = [[command.arguments objectAtIndex:2] floatValue];
+      CDVPluginResult* pluginResult;
+      if (marker.icon) {
+        anchorX = anchorX / marker.icon.size.width;
+        anchorY = anchorY / marker.icon.size.height;
+        [marker setInfoWindowAnchor:CGPointMake(anchorX, anchorY)];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+      }
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 
   }];
 }
@@ -423,12 +423,12 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -441,12 +441,12 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -459,13 +459,13 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
-        [marker setDraggable:isEnabled];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
+      [marker setDraggable:isEnabled];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -477,18 +477,18 @@
 -(void)setDisableAutoPan:(CDVInvokedUrlCommand *)command
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-      BOOL disableAutoPan = [[command.arguments objectAtIndex:1] boolValue];
+    NSString *markerId = [command.arguments objectAtIndex:0];
+    GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+    BOOL disableAutoPan = [[command.arguments objectAtIndex:1] boolValue];
 
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
-      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                         [self.mapCtrl.objects objectForKey:propertyId]];
-      [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
-      [self.mapCtrl.objects setObject:properties forKey:propertyId];
+    NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                       [self.mapCtrl.objects objectForKey:propertyId]];
+    [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
+    [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
@@ -501,24 +501,24 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
 
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
-        if (isVisible) {
-            marker.map = self.mapCtrl.map;
-        } else {
-            marker.map = nil;
-        }
+      if (isVisible) {
+        marker.map = self.mapCtrl.map;
+      } else {
+        marker.map = nil;
+      }
 
-        NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
-        NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
-                                           [self.mapCtrl.objects objectForKey:propertyId]];
-        [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
-        [self.mapCtrl.objects setObject:properties forKey:propertyId];
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+      NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
+                                         [self.mapCtrl.objects objectForKey:propertyId]];
+      [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
+      [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -530,18 +530,18 @@
 -(void)setPosition:(CDVInvokedUrlCommand *)command
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+    NSString *markerId = [command.arguments objectAtIndex:0];
+    GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-      float latitude = [[command.arguments objectAtIndex:1] floatValue];
-      float longitude = [[command.arguments objectAtIndex:2] floatValue];
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          [marker setPosition:position];
+    float latitude = [[command.arguments objectAtIndex:1] floatValue];
+    float longitude = [[command.arguments objectAtIndex:2] floatValue];
+    CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      [marker setPosition:position];
 
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 
@@ -553,13 +553,13 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-        Boolean isFlat = [[command.arguments objectAtIndex:1] boolValue];
-        [marker setFlat: isFlat];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      Boolean isFlat = [[command.arguments objectAtIndex:1] boolValue];
+      [marker setFlat: isFlat];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -572,40 +572,40 @@
 {
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSString *markerId = [command.arguments objectAtIndex:0];
-      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
-      if (marker == nil) {
-        NSLog(@"--> can not find the maker : %@", markerId);
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+    NSString *markerId = [command.arguments objectAtIndex:0];
+    GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+    if (marker == nil) {
+      NSLog(@"--> can not find the maker : %@", markerId);
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                         messageAsString:[NSString stringWithFormat:@"Cannot find the marker : %@", markerId]];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
-      }
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      return;
+    }
 
-      // Create icon
-      NSMutableDictionary *iconProperty;
-      id icon = [command.arguments objectAtIndex:1];
-      if ([icon isKindOfClass:[NSString class]]) {
-          iconProperty = [[NSMutableDictionary alloc] init];
-          [iconProperty setObject:icon forKey:@"url"];
-      } else if ([icon isKindOfClass:[NSDictionary class]]) {
-          iconProperty = [command.arguments objectAtIndex:1];
-      } else if ([icon isKindOfClass:[NSArray class]]) {
-          NSArray *rgbColor = icon;
-          iconProperty = [[NSMutableDictionary alloc] init];
-          [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
-      }
+    // Create icon
+    NSMutableDictionary *iconProperty;
+    id icon = [command.arguments objectAtIndex:1];
+    if ([icon isKindOfClass:[NSString class]]) {
+      iconProperty = [[NSMutableDictionary alloc] init];
+      [iconProperty setObject:icon forKey:@"url"];
+    } else if ([icon isKindOfClass:[NSDictionary class]]) {
+      iconProperty = [command.arguments objectAtIndex:1];
+    } else if ([icon isKindOfClass:[NSArray class]]) {
+      NSArray *rgbColor = icon;
+      iconProperty = [[NSMutableDictionary alloc] init];
+      [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+    }
 
-      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
-      [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id resultObj) {
-        CDVPluginResult* pluginResult;
-        if (successed == NO) {
-          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:resultObj];
-        } else {
-          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        }
-        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
+    CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
+    [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id resultObj) {
+      CDVPluginResult* pluginResult;
+      if (successed == NO) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:resultObj];
+      } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      }
+      [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
   }];
 }
 /**
@@ -615,14 +615,14 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-        CLLocationDegrees degrees = [[command.arguments objectAtIndex:1] doubleValue];
-        [marker setRotation:degrees];
+      CLLocationDegrees degrees = [[command.arguments objectAtIndex:1] doubleValue];
+      [marker setRotation:degrees];
 
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
 }
@@ -633,37 +633,37 @@
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        NSString *markerId = [command.arguments objectAtIndex:0];
-        GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      NSString *markerId = [command.arguments objectAtIndex:0];
+      GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-        NSString *animation = [command.arguments objectAtIndex:1];
-        CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
+      NSString *animation = [command.arguments objectAtIndex:1];
+      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
 
-        [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }];
+      [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
     }];
   }];
 }
 
 -(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
 
-    animation = [animation uppercaseString];
-    SWITCH(animation) {
-        CASE (@"DROP") {
-            [self setDropAnimation_:marker callbackBlock:callbackBlock];
-            break;
-        }
-        CASE (@"BOUNCE") {
-            [self setBounceAnimation_:marker callbackBlock:callbackBlock];
-            break;
-        }
-        DEFAULT {
-            callbackBlock();
-            break;
-        }
+  animation = [animation uppercaseString];
+  SWITCH(animation) {
+    CASE (@"DROP") {
+      [self setDropAnimation_:marker callbackBlock:callbackBlock];
+      break;
     }
+    CASE (@"BOUNCE") {
+      [self setBounceAnimation_:marker callbackBlock:callbackBlock];
+      break;
+    }
+    DEFAULT {
+      callbackBlock();
+      break;
+    }
+  }
 }
 
 /**
@@ -673,83 +673,83 @@
  * (memo) http://stackoverflow.com/questions/12164049/animationdidstop-for-group-animation
  */
 -(void)setDropAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
-    int duration = 1;
+  int duration = 1;
 
-    CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
-    CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
+  CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
+  CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
 
-    GMSProjection *projection = self.mapCtrl.map.projection;
-    CGPoint point = [projection pointForCoordinate:marker.position];
-    double distance = point.y ;
+  GMSProjection *projection = self.mapCtrl.map.projection;
+  CGPoint point = [projection pointForCoordinate:marker.position];
+  double distance = point.y ;
 
-    NSMutableArray *latitudePath = [NSMutableArray array];
-    NSMutableArray *longitudeath = [NSMutableArray array];
-    CLLocationCoordinate2D startLatLng;
+  NSMutableArray *latitudePath = [NSMutableArray array];
+  NSMutableArray *longitudeath = [NSMutableArray array];
+  CLLocationCoordinate2D startLatLng;
 
-    point.y = 0;
-    for (double i = 0.75f; i > 0; i-= 0.25f) {
-        startLatLng = [projection coordinateForPoint:point];
-        [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-        [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+  point.y = 0;
+  for (double i = 0.75f; i > 0; i-= 0.25f) {
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-        point.y = distance;
-        startLatLng = [projection coordinateForPoint:point];
-        [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-        [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+    point.y = distance;
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-        point.y = distance - distance * (i - 0.25f);
-    }
-    longitudeAnim.values = longitudeath;
-    latitudeAnim.values = latitudePath;
+    point.y = distance - distance * (i - 0.25f);
+  }
+  longitudeAnim.values = longitudeath;
+  latitudeAnim.values = latitudePath;
 
-    CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
-    group.animations = @[longitudeAnim, latitudeAnim];
-    group.duration = duration;
-    [group setCompletionBlock: callbackBlock];
+  CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
+  group.animations = @[longitudeAnim, latitudeAnim];
+  group.duration = duration;
+  [group setCompletionBlock: callbackBlock];
 
-    [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
+  [marker.layer addAnimation:group forKey:@"dropMarkerAnim"];
 
 }
 -(void)setBounceAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
-    /**
-     * Marker drop animation
-     */
-    int duration = 1;
+  /**
+   * Marker drop animation
+   */
+  int duration = 1;
 
-    CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
-    CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
+  CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
+  CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
 
-    GMSProjection *projection = self.mapCtrl.map.projection;
-    CGPoint point = [projection pointForCoordinate:marker.position];
-    double distance = point.y;
+  GMSProjection *projection = self.mapCtrl.map.projection;
+  CGPoint point = [projection pointForCoordinate:marker.position];
+  double distance = point.y;
 
-    NSMutableArray *latitudePath = [NSMutableArray array];
-    NSMutableArray *longitudeath = [NSMutableArray array];
-    CLLocationCoordinate2D startLatLng;
+  NSMutableArray *latitudePath = [NSMutableArray array];
+  NSMutableArray *longitudeath = [NSMutableArray array];
+  CLLocationCoordinate2D startLatLng;
 
-    point.y = distance * 0.5f;
+  point.y = distance * 0.5f;
 
-    for (double i = 0.5f; i > 0; i-= 0.15f) {
-        startLatLng = [projection coordinateForPoint:point];
-        [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-        [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+  for (double i = 0.5f; i > 0; i-= 0.15f) {
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-        point.y = distance;
-        startLatLng = [projection coordinateForPoint:point];
-        [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-        [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+    point.y = distance;
+    startLatLng = [projection coordinateForPoint:point];
+    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-        point.y = distance - distance * (i - 0.15f);
-    }
-    longitudeAnim.values = longitudeath;
-    latitudeAnim.values = latitudePath;
+    point.y = distance - distance * (i - 0.15f);
+  }
+  longitudeAnim.values = longitudeath;
+  latitudeAnim.values = latitudePath;
 
-    CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
-    group.animations = @[longitudeAnim, latitudeAnim];
-    group.duration = duration;
-    [group setCompletionBlock: callbackBlock];
+  CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
+  group.animations = @[longitudeAnim, latitudeAnim];
+  group.duration = duration;
+  [group setCompletionBlock: callbackBlock];
 
-    [marker.layer addAnimation:group forKey:@"bounceMarkerAnim"];
+  [marker.layer addAnimation:group forKey:@"bounceMarkerAnim"];
 }
 
 /**
@@ -759,175 +759,252 @@
 
 -(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock {
 
-    if (marker == nil) {
-      callbackBlock(NO, @"marker is null");
-      return;
-    }
+  if (marker == nil) {
+    callbackBlock(NO, @"marker is null");
+    return;
+  }
 
-    NSString *iconPath = nil;
-    CGFloat width = -1;
-    CGFloat height = -1;
+  NSString *iconPath = nil;
+  CGFloat width = -1;
+  CGFloat height = -1;
 
-    // `url` property
-    iconPath = [iconProperty valueForKey:@"url"];
-    if (self.mapCtrl.debuggable) {
-      NSLog(@"---- setIcon_ : %@", iconPath);
-    }
+  // `url` property
+  iconPath = [iconProperty valueForKey:@"url"];
+  if (self.mapCtrl.debuggable) {
+    NSLog(@"---- setIcon_ : %@", iconPath);
+  }
 
-    // `animation` property
-    NSString *animationValue = nil;
-    if ([iconProperty valueForKey:@"animation"]) {
-        animationValue = [iconProperty valueForKey:@"animation"];
-    }
-    __block NSString *animation = animationValue;
+  // `animation` property
+  NSString *animationValue = nil;
+  if ([iconProperty valueForKey:@"animation"]) {
+    animationValue = [iconProperty valueForKey:@"animation"];
+  }
+  __block NSString *animation = animationValue;
 
-    //--------------------------------
-    // the icon property is color name
-    //--------------------------------
-    if ([iconProperty valueForKey:@"iconColor"]) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-          UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
-          marker.icon = [GMSMarker markerImageWithColor:iconColor];
+  //--------------------------------
+  // the icon property is color name
+  //--------------------------------
+  if ([iconProperty valueForKey:@"iconColor"]) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
+      marker.icon = [GMSMarker markerImageWithColor:iconColor];
 
-          // The `visible` property
-          if (iconProperty[@"visible"]) {
-              marker.map = self.mapCtrl.map;
-          }
-
-          if (animation) {
-              // Do animation, then send the result
-              [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                  callbackBlock(YES, marker);
-              }];
-          } else {
-              // Send the result
-              callbackBlock(YES, marker);
-          }
-      });
-      return;
-    }
-
-    if (iconPath == nil) {
-      callbackBlock(NO, @"icon property is null");
-      return;
-    }
-
-    // `size` property
-    if ([iconProperty valueForKey:@"size"]) {
-        NSDictionary *size = [iconProperty valueForKey:@"size"];
-        width = [[size objectForKey:@"width"] floatValue];
-        height = [[size objectForKey:@"height"] floatValue];
-    }
-
-
-
-
-
-
-
-
-
-
-    if (self.mapCtrl.debuggable) {
-        NSLog(@"iconPath = %@", iconPath);
-    }
-    NSString *iconCacheKey = [NSString stringWithFormat:@"%lu/%d,%d", (unsigned long)iconPath.hash, (int)width, (int)height];
-    UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
-
-    //---------------------------------------
-    // If the image is cached, return it
-    //---------------------------------------
-    if (image != nil) {
-
-      NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
-      [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
-
-      int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey] intValue];
-      count++;
-      [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:iconCacheKey];
-      //NSLog(@"---> iconCacheKey = %@, count = %d", iconCacheKey, count);
-
-
-      if ([iconProperty objectForKey:@"label"]) {
-          image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+      // The `visible` property
+      if (iconProperty[@"visible"]) {
+        marker.map = self.mapCtrl.map;
       }
 
-      dispatch_async(dispatch_get_main_queue(), ^{
-          marker.icon = image;
+      if (animation) {
+        // Do animation, then send the result
+        [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+          callbackBlock(YES, marker);
+        }];
+      } else {
+        // Send the result
+        callbackBlock(YES, marker);
+      }
+    });
+    return;
+  }
 
-          CGFloat anchorX = 0;
-          CGFloat anchorY = 0;
-          // The `anchor` property for the icon
-          if ([iconProperty valueForKey:@"anchor"]) {
-              NSArray *points = [iconProperty valueForKey:@"anchor"];
-              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-              marker.groundAnchor = CGPointMake(anchorX, anchorY);
-          }
+  if (iconPath == nil) {
+    callbackBlock(NO, @"icon property is null");
+    return;
+  }
 
-          // The `infoWindowAnchor` property
-          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-              NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-              marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-          }
+  // `size` property
+  if ([iconProperty valueForKey:@"size"]) {
+    NSDictionary *size = [iconProperty valueForKey:@"size"];
+    width = [[size objectForKey:@"width"] floatValue];
+    height = [[size objectForKey:@"height"] floatValue];
+  }
 
 
-          // The `visible` property
-          if (iconProperty[@"visible"]) {
-              marker.map = self.mapCtrl.map;
-          }
 
-          if (animation) {
-              // Do animation, then send the result
-              [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                  callbackBlock(YES, marker);
-              }];
-          } else {
-              // Send the result
-              callbackBlock(YES, marker);
-          }
-      });
 
-      return;
-    }
 
-    //
-    // Load icon from file or Base64 encoded strings
-    //
+  if (self.mapCtrl.debuggable) {
+    NSLog(@"iconPath = %@", iconPath);
+  }
+  NSString *iconCacheKey = [NSString stringWithFormat:@"%lu/%d,%d", (unsigned long)iconPath.hash, (int)width, (int)height];
+  UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
 
-    if ([iconPath rangeOfString:@"data:image/"].location != NSNotFound &&
-        [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
 
-        NSArray *tmp = [iconPath componentsSeparatedByString:@","];
 
-        NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
-        image = [[UIImage alloc] initWithData:decodedData];
-        if (width && height) {
-            image = [image resize:width height:height];
+  //---------------------------------------
+  // If the image is cached, return it
+  //---------------------------------------
+  if (image != nil) {
+
+    NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+
+    // Cache the icon image
+    if ([self.mapCtrl.objects objectForKey:iconKey]) {
+      NSString *currentCacheKey = [self.mapCtrl.objects objectForKey:iconKey];
+      if (currentCacheKey && ![iconCacheKey isEqualToString:currentCacheKey]) {
+
+        int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:currentCacheKey] intValue];
+        count--;
+        if (count < 1) {
+          [[UIImageCache sharedInstance] removeCachedImageForKey:currentCacheKey];
+          [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:currentCacheKey];
+        } else {
+          [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:currentCacheKey];
         }
-    }
-
-    NSRange range;
-    if (image == nil && ![iconPath hasPrefix:@"http"]) {
-
-      if (![iconPath containsString:@"://"] &&
-          ![iconPath hasPrefix:@"/"] &&
-          ![iconPath hasPrefix:@"www"] &&
-          ![iconPath hasPrefix:@"./"] &&
-          ![iconPath hasPrefix:@"../"]) {
-        iconPath = [NSString stringWithFormat:@"./%@", iconPath];
+        //NSLog(@"---> currentKey = %@, count = %d", iconKey, count);
       }
 
-      if ([iconPath hasPrefix:@"./"] || [iconPath hasPrefix:@"../"]) {
-        NSError *error = nil;
+    }
 
-        // replace repeated "./" (i.e ./././test.png)
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
-        iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
+    [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
+    int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey] intValue];
+    count++;
+    [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:iconCacheKey];
+
+    //NSLog(@"--->iconCacheKey = %@, count = %d", iconCacheKey, count);
+
+    if ([iconProperty objectForKey:@"label"]) {
+      image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      marker.icon = image;
+
+      CGFloat anchorX = 0;
+      CGFloat anchorY = 0;
+      // The `anchor` property for the icon
+      if ([iconProperty valueForKey:@"anchor"]) {
+        NSArray *points = [iconProperty valueForKey:@"anchor"];
+        anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+        anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+        marker.groundAnchor = CGPointMake(anchorX, anchorY);
+      }
+
+      // The `infoWindowAnchor` property
+      if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+        NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+        anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+        anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+        marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+      }
 
 
+      // The `visible` property
+      if (iconProperty[@"visible"]) {
+        marker.map = self.mapCtrl.map;
+      }
+
+      if (animation) {
+        // Do animation, then send the result
+        [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+          callbackBlock(YES, marker);
+        }];
+      } else {
+        // Send the result
+        callbackBlock(YES, marker);
+      }
+    });
+
+    return;
+  }
+
+  //
+  // Load icon from file or Base64 encoded strings
+  //
+
+  if ([iconPath rangeOfString:@"data:image/"].location != NSNotFound &&
+      [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
+
+    NSArray *tmp = [iconPath componentsSeparatedByString:@","];
+
+    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
+    image = [[UIImage alloc] initWithData:decodedData];
+    if (width && height) {
+      image = [image resize:width height:height];
+    }
+  }
+
+  NSRange range;
+  if (image == nil && ![iconPath hasPrefix:@"http"]) {
+
+    if (![iconPath containsString:@"://"] &&
+        ![iconPath hasPrefix:@"/"] &&
+        ![iconPath hasPrefix:@"www"] &&
+        ![iconPath hasPrefix:@"./"] &&
+        ![iconPath hasPrefix:@"../"]) {
+      iconPath = [NSString stringWithFormat:@"./%@", iconPath];
+    }
+
+    if ([iconPath hasPrefix:@"./"] || [iconPath hasPrefix:@"../"]) {
+      NSError *error = nil;
+
+      // replace repeated "./" (i.e ./././test.png)
+      NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
+      iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
+
+
+      // Get the current URL, then calculate the relative path.
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+      id webview = cdvViewController.webView;
+      NSString *clsName = [webview className];
+      NSURL *url;
+      if ([clsName isEqualToString:@"UIWebView"]) {
+        url = ((UIWebView *)cdvViewController.webView).request.URL;
+      } else {
+        url = [webview URL];
+      }
+      NSString *currentURL = url.absoluteString;
+
+      // remove page unchor (i.e index.html#page=test, index.html?key=value)
+      regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
+      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+      // remove file name (i.e /index.html)
+      regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
+      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+      if (![currentURL hasSuffix:@"/"]) {
+        currentURL = [NSString stringWithFormat:@"%@/", currentURL];
+      }
+      iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
+
+      // remove file name (i.e /index.html)
+      regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
+      iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
+
+      iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+
+      if (self.mapCtrl.debuggable) {
+        NSLog(@"iconPath = %@", iconPath);
+      }
+    }
+
+
+    range = [iconPath rangeOfString:@"cdvfile://"];
+    if ([iconPath hasPrefix:@"cdvfile://"]) {
+
+      iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
+
+      if (iconPath == nil) {
+        if (self.mapCtrl.debuggable) {
+          NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
+        }
+        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
+        return;
+      }
+    }
+
+
+    range = [iconPath rangeOfString:@"://"];
+
+    if (range.location == 0) {
+      /**
+       * Load the icon from local path
+       */
+
+      if ([iconPath hasPrefix:@"/"]) {
         // Get the current URL, then calculate the relative path.
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
@@ -940,250 +1017,210 @@
           url = [webview URL];
         }
         NSString *currentURL = url.absoluteString;
-
-        // remove page unchor (i.e index.html#page=test, index.html?key=value)
-        regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
-        currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
-
-        // remove file name (i.e /index.html)
-        regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
-        currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
-
-        if (![currentURL hasSuffix:@"/"]) {
-          currentURL = [NSString stringWithFormat:@"%@/", currentURL];
-        }
-        iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
-
-        // remove file name (i.e /index.html)
-        regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
-        iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
-
-        iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
-
-        if (self.mapCtrl.debuggable) {
-            NSLog(@"iconPath = %@", iconPath);
-        }
+        currentURL = [currentURL stringByDeletingLastPathComponent];
+        currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+        currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+        iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
+      } else {
+        iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
       }
-
-
-      range = [iconPath rangeOfString:@"cdvfile://"];
-      if ([iconPath hasPrefix:@"cdvfile://"]) {
-
-          iconPath = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:iconPath];
-
-          if (iconPath == nil) {
-              if (self.mapCtrl.debuggable) {
-                  NSLog(@"(debug)Can not convert '%@' to device full path.", iconPath);
-              }
-              //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-              callbackBlock(NO, [NSString stringWithFormat:@"Can not convert '%@' to device full path.", iconPath]);
-              return;
-          }
-      }
-
-
-      range = [iconPath rangeOfString:@"://"];
-
-      if (range.location == 0) {
-          /**
-           * Load the icon from local path
-           */
-
-          if ([iconPath hasPrefix:@"/"]) {
-            // Get the current URL, then calculate the relative path.
-            CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
-            id webview = cdvViewController.webView;
-            NSString *clsName = [webview className];
-            NSURL *url;
-            if ([clsName isEqualToString:@"UIWebView"]) {
-              url = ((UIWebView *)cdvViewController.webView).request.URL;
-            } else {
-              url = [webview URL];
-            }
-            NSString *currentURL = url.absoluteString;
-            currentURL = [currentURL stringByDeletingLastPathComponent];
-            currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-            currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-            iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
-          } else {
-            iconPath = [NSString stringWithFormat:@"file://%@", iconPath];
-          }
-      }
-
-      if ([iconPath hasPrefix:@"file://"]) {
-        iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-          NSFileManager *fileManager = [NSFileManager defaultManager];
-          if (![fileManager fileExistsAtPath:iconPath]) {
-              //if (self.mapCtrl.debuggable) {
-                  NSLog(@"(error)There is no file at '%@'.", iconPath);
-              //}
-              //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-              callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
-              return;
-          }
-      }
-
-      image = [UIImage imageNamed:iconPath];
     }
 
-    if (image != nil) {
+    if ([iconPath hasPrefix:@"file://"]) {
+      iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if (![fileManager fileExistsAtPath:iconPath]) {
+        //if (self.mapCtrl.debuggable) {
+        NSLog(@"(error)There is no file at '%@'.", iconPath);
+        //}
+        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        callbackBlock(NO, [NSString stringWithFormat:@"There is no file at '%@'.", iconPath]);
+        return;
+      }
+    }
 
-      if (width && height) {
-          image = [image resize:width height:height];
+    image = [UIImage imageNamed:iconPath];
+  }
+
+  if (image != nil) {
+
+    if (width && height) {
+      image = [image resize:width height:height];
+    }
+
+
+
+    // Cache the icon image
+    NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+    if ([self.mapCtrl.objects objectForKey:iconKey]) {
+      NSString *currentCacheKey = [self.mapCtrl.objects objectForKey:iconKey];
+      if (currentCacheKey && ![iconCacheKey isEqualToString:currentCacheKey]) {
+
+        int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:currentCacheKey] intValue];
+        count--;
+        if (count < 1) {
+          [[UIImageCache sharedInstance] removeCachedImageForKey:currentCacheKey];
+          [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:currentCacheKey];
+        } else {
+          [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:currentCacheKey];
+        }
+        //NSLog(@"---> currentKey = %@, count = %d", iconKey, count);
+      }
+
+    }
+
+    [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
+    [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
+    [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
+    //NSLog(@"--->(save)iconCacheKey: key: %@ = %d", iconCacheKey, [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey] intValue]);
+
+
+    //NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+    //[self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
+
+
+
+
+    if ([iconProperty objectForKey:@"label"]) {
+      image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      marker.icon = image;
+
+      CGFloat anchorX = 0;
+      CGFloat anchorY = 0;
+      // The `anchor` property for the icon
+      if ([iconProperty valueForKey:@"anchor"]) {
+        NSArray *points = [iconProperty valueForKey:@"anchor"];
+        anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+        anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+        marker.groundAnchor = CGPointMake(anchorX, anchorY);
+      }
+
+      // The `infoWindowAnchor` property
+      if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+        NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+        anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+        anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+        marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
       }
 
 
+      // The `visible` property
+      if ([iconProperty[@"visible"] boolValue]) {
+        marker.map = self.mapCtrl.map;
+      }
+
+      if (animation) {
+        // Do animation, then send the result
+        [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+          callbackBlock(YES, marker);
+        }];
+      } else {
+        // Send the result
+        callbackBlock(YES, marker);
+      }
+    });
+
+    return;
+  }
+
+
+
+
+  if (self.mapCtrl.debuggable) {
+    NSLog(@"---- Load the icon from over the internet");
+  }
+
+  //
+  // Load the icon from over the internet
+  //
+
+  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+  dispatch_async(queue, ^{
+
+    NSURL *url = [NSURL URLWithString:iconPath];
+
+    [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
+
+      if (!succeeded) {
+        NSLog(@"[fail] url = %@", url);
+        // The `visible` property
+        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+          marker.map = self.mapCtrl.map;
+        }
+        if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
+          [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
+        }
+
+        callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
+        return;
+      }
+
+
+      if (self.mapCtrl.debuggable) {
+        NSLog(@"[success] url = %@", url);
+      }
+
+      if (width && height) {
+        image = [image resize:width height:height];
+      }
 
       // Cache the icon image
       NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
       [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
       [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
-      [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];
+      [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];;
       //NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
 
-
-
+      // Draw label
       if ([iconProperty objectForKey:@"label"]) {
         image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
       }
 
       dispatch_async(dispatch_get_main_queue(), ^{
-          marker.icon = image;
+        marker.icon = image;
 
-          CGFloat anchorX = 0;
-          CGFloat anchorY = 0;
-          // The `anchor` property for the icon
-          if ([iconProperty valueForKey:@"anchor"]) {
-              NSArray *points = [iconProperty valueForKey:@"anchor"];
-              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-              marker.groundAnchor = CGPointMake(anchorX, anchorY);
-          }
-
-          // The `infoWindowAnchor` property
-          if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-              NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-              anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-              anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-              marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-          }
+        // The `anchor` property for the icon
+        if ([iconProperty valueForKey:@"anchor"]) {
+          NSArray *points = [iconProperty valueForKey:@"anchor"];
+          CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+          CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+          marker.groundAnchor = CGPointMake(anchorX, anchorY);
+        }
 
 
-          // The `visible` property
-          if (iconProperty[@"visible"]) {
-              marker.map = self.mapCtrl.map;
-          }
+        // The `infoWindowAnchor` property
+        if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+          NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
+          CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
+          CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
+          marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
+        }
 
-          if (animation) {
-              // Do animation, then send the result
-              [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                  callbackBlock(YES, marker);
-              }];
-          } else {
-              // Send the result
-              callbackBlock(YES, marker);
-          }
+        // The `visible` property
+        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+          marker.map = self.mapCtrl.map;
+        }
+
+
+        if (animation) {
+          // Do animation, then send the result
+          [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+            callbackBlock(YES, marker);
+          }];
+        } else {
+          // Send the result
+          callbackBlock(YES, marker);
+        }
+
       });
 
-      return;
-    }
 
+    }];
 
-
-
-    if (self.mapCtrl.debuggable) {
-        NSLog(@"---- Load the icon from over the internet");
-    }
-
-    //
-    // Load the icon from over the internet
-    //
-
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
-    dispatch_async(queue, ^{
-
-        NSURL *url = [NSURL URLWithString:iconPath];
-
-        [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
-
-            if (!succeeded) {
-                NSLog(@"[fail] url = %@", url);
-                // The `visible` property
-                if ([[iconProperty valueForKey:@"visible"] boolValue]) {
-                    marker.map = self.mapCtrl.map;
-                }
-                if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
-                    [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
-                }
-
-                callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
-                return;
-            }
-
-
-            if (self.mapCtrl.debuggable) {
-              NSLog(@"[success] url = %@", url);
-            }
-
-            if (width && height) {
-                image = [image resize:width height:height];
-            }
-
-            // Cache the icon image
-            NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
-            [[UIImageCache sharedInstance] cacheImage:image forKey:iconCacheKey];
-            [self.mapCtrl.objects setObject:iconCacheKey forKey:iconKey];
-            [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:1] forKey:iconCacheKey];;
-            //NSLog(@"--->confirm: key: %@, iconCacheKey : %@", iconKey, [self.mapCtrl.objects objectForKey:iconKey]);
-
-            // Draw label
-            if ([iconProperty objectForKey:@"label"]) {
-                image = [self drawLabel:image labelOptions:[iconProperty objectForKey:@"label"]];
-            }
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                marker.icon = image;
-
-                // The `anchor` property for the icon
-                if ([iconProperty valueForKey:@"anchor"]) {
-                    NSArray *points = [iconProperty valueForKey:@"anchor"];
-                    CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                    marker.groundAnchor = CGPointMake(anchorX, anchorY);
-                }
-
-
-                // The `infoWindowAnchor` property
-                if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
-                    NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
-                    CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
-                    CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
-                    marker.infoWindowAnchor = CGPointMake(anchorX, anchorY);
-                }
-
-                // The `visible` property
-                if ([[iconProperty valueForKey:@"visible"] boolValue]) {
-                    marker.map = self.mapCtrl.map;
-                }
-
-
-                if (animation) {
-                    // Do animation, then send the result
-                    [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
-                        callbackBlock(YES, marker);
-                    }];
-                } else {
-                    // Send the result
-                    callbackBlock(YES, marker);
-                }
-
-            });
-
-
-        }];
-
-    });
+  });
 
 }
 
@@ -1230,12 +1267,12 @@
 
   // Calculate the size for the title strings
   CGRect rect = [text
-                   boundingRectWithSize: CGSizeMake(image.size.width, image.size.height)
-                   options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
-                   attributes:[NSDictionary
-                               dictionaryWithObject:font
-                               forKey:NSFontAttributeName]
-                   context:nil];
+                 boundingRectWithSize: CGSizeMake(image.size.width, image.size.height)
+                 options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
+                 attributes:[NSDictionary
+                             dictionaryWithObject:font
+                             forKey:NSFontAttributeName]
+                 context:nil];
 
   NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
   style.lineBreakMode = NSLineBreakByWordWrapping;
@@ -1252,10 +1289,10 @@
   [image drawInRect:CGRectMake(0,0, image.size.width, image.size.height)];
   [text drawInRect:CGRectMake((image.size.width - rect.size.width) /2 , (image.size.height - rect.size.height) /2, rect.size.width, rect.size.height) withAttributes:attributes];
   /*
-  //(debug)
-  CGContextRef context = UIGraphicsGetCurrentContext();
-  CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 0.5);
-  CGContextFillRect(context, rect);
+   //(debug)
+   CGContextRef context = UIGraphicsGetCurrentContext();
+   CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 0.5);
+   CGContextFillRect(context, rect);
    */
 
   UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -1268,24 +1305,24 @@
 
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
-    [self.mapCtrl.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-        NSURLRequest *req = [NSURLRequest requestWithURL:url
-                                          cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                          timeoutInterval:5];
-        NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
-        if (cachedResponse != nil) {
-          UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
-          completionBlock(YES, image);
-          return;
-        }
+    NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                         cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                                     timeoutInterval:5];
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
+    if (cachedResponse != nil) {
+      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
+      completionBlock(YES, image);
+      return;
+    }
 
-        NSString *uniqueKey = url.absoluteString;
-        UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:uniqueKey];
-        if (image != nil) {
-            completionBlock(YES, image);
-            return;
-        }
+    NSString *uniqueKey = url.absoluteString;
+    UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:uniqueKey];
+    if (image != nil) {
+      completionBlock(YES, image);
+      return;
+    }
 
 
 
@@ -1296,36 +1333,36 @@
     NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
-                             completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
-                               if ( !error ) {
-                                 UIImage *image = [UIImage imageWithData:data];
-                                 [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
-                                 completionBlock(YES, image);
-                               } else {
-                                 completionBlock(NO, nil);
-                               }
+                                               completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                                 if ( !error ) {
+                                                   UIImage *image = [UIImage imageWithData:data];
+                                                   [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
+                                                   completionBlock(YES, image);
+                                                 } else {
+                                                   completionBlock(NO, nil);
+                                                 }
 
-                            }];
+                                               }];
     [getTask resume];
     //-------------------------------------------------------------
     // NSURLConnection sendAsynchronousRequest is deprecated.
     //-------------------------------------------------------------
-/*
-        [NSURLConnection sendAsynchronousRequest:req
-              queue:self.mapCtrl.executeQueue
-              completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
-                if ( !error ) {
-                  [self.icons setObject:data forKey:uniqueKey cost:data.length];
-                  UIImage *image = [UIImage imageWithData:data];
-                  completionBlock(YES, image);
-                } else {
-                  completionBlock(NO, nil);
-                }
+    /*
+     [NSURLConnection sendAsynchronousRequest:req
+     queue:self.mapCtrl.executeQueue
+     completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
+     if ( !error ) {
+     [self.icons setObject:data forKey:uniqueKey cost:data.length];
+     UIImage *image = [UIImage imageWithData:data];
+     completionBlock(YES, image);
+     } else {
+     completionBlock(NO, nil);
+     }
 
-        }];
-*/
+     }];
+     */
 
 
-    }];
+  }];
 }
 @end
