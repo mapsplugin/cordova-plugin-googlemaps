@@ -50,7 +50,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   }
 
   protected ArrayList<AsyncTask> iconLoadingTasks = new ArrayList<AsyncTask>();
-  protected ArrayList<Bitmap> icons = new ArrayList<Bitmap>();
+  protected ArrayList<Bitmap> usedIcons = new ArrayList<Bitmap>();
+  protected HashMap<String, Bitmap> markersIcons = new HashMap<String, Bitmap>();
   protected HashMap<String, Integer> iconCacheKeys = new HashMap<String, Integer>();
   private static final Paint paint = new Paint();
   private final HashMap<String, Integer> semaphoreAsync = new HashMap<String, Integer>();
@@ -97,6 +98,17 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
   }
 
+  private void clearUsedIcons() {
+    if (usedIcons != null) {
+      for (Bitmap usedIcon : usedIcons) {
+        if ((usedIcon != null) && (!usedIcon.isRecycled())) {
+          usedIcon.recycle();
+        }
+      }
+      usedIcons.clear();
+    }
+  }
+
   @Override
   protected void clear() {
     synchronized (semaphoreAsync) {
@@ -130,18 +142,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         }
         cacheKeys = null;
       }
-      if (icons != null) {
-        Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
-        Bitmap image;
-        for (int i = 0; i < cachedBitmaps.length; i++) {
-          image = icons.remove(0);
-          if (image != null && !image.isRecycled()) {
-            image.recycle();
-          }
-          image = null;
-        }
-        icons.clear();
-      }
+      clearUsedIcons();
 
       //--------------------------------------
       // clean up properties as much as possible
@@ -160,6 +161,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                   !objectId.startsWith("marker_icon_")) {
                 Marker marker = (Marker) pluginMap.objects.remove(objectId);
                 marker.setIcon(null);
+                Bitmap prevIcon = markersIcons.remove(marker.getId());
+                if ((prevIcon != null) && (!prevIcon.isRecycled())) {
+                  prevIcon.recycle();
+                }
                 marker.setTag(null);
                 marker.remove();
                 marker = null;
@@ -1004,8 +1009,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           return;
         }
 
-        icons.add(result.image);
-
         //-------------------------------------------------------
         // Counts up the markers that use the same icon image.
         //-------------------------------------------------------
@@ -1028,6 +1031,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         // Draw label on icon
         //------------------------
         if (iconProperty.containsKey("label")) {
+          // prevents the retrieved (copy of the) image from being leaked after the new image with the label is created
+          usedIcons.add(result.image);
           result.image = drawLabel(result.image, iconProperty.getBundle("label"));
         }
         BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
@@ -1040,6 +1045,16 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         // Sets image as icon
         //------------------------
         marker.setIcon(bitmapDescriptor);
+
+        //------------------------
+        // Updates marker-icon association and releases previously used icons
+        //------------------------
+        Bitmap prevIcon = markersIcons.get(marker.getId());
+        if (prevIcon != result.image) { // this is technically always true, because every call to get a cached bitmap makes a copy of it
+          markersIcons.put(marker.getId(), result.image);
+          usedIcons.add(prevIcon);
+        }
+        clearUsedIcons();
 
         //---------------------------------------------
         // Save the information for the anchor property
