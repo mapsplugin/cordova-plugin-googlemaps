@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PluginMarkerCluster extends PluginMarker {
@@ -50,11 +52,11 @@ public class PluginMarkerCluster extends PluginMarker {
   public void onDestroy() {
     super.onDestroy();
     stopFlag = true;
-
   }
 
   @Override
   protected void clear() {
+    super.clear();
     synchronized (semaphore) {
       synchronized (pluginMarkers) {
         synchronized (deleteMarkers) {
@@ -68,7 +70,6 @@ public class PluginMarkerCluster extends PluginMarker {
         }
       }
     }
-
   }
 
   //---------------------
@@ -146,9 +147,40 @@ public class PluginMarkerCluster extends PluginMarker {
         }
       }
     }
+
+    String cacheKey;
+    Set<String> keySet = pluginMap.objects.keySet();
+    Marker marker;
+    String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+    for (String objectId : objectIdArray) {
+      if (objectId.contains(clusterId)) {
+        if (objectId.startsWith("marker_icon")) {
+          cacheKey = (String) pluginMap.objects.remove(objectId);
+
+          if (iconCacheKeys.containsKey(cacheKey)) {
+            int count = iconCacheKeys.get(cacheKey);
+            if (count < 1) {
+              iconCacheKeys.remove(cacheKey);
+              AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+            } else {
+              iconCacheKeys.put(cacheKey, count - 1);
+            }
+          }
+        } else if (objectId.startsWith("marker_property_") ||
+            objectId.startsWith("marker_imageSize_")) {
+          pluginMap.objects.remove(objectId);
+        } else if (objectId.startsWith("marker_")) {
+          marker = (Marker) pluginMap.objects.remove(objectId);
+          marker.remove();
+        } else {
+          pluginMap.objects.remove(objectId);
+        }
+      }
+    }
     synchronized (deleteThreadLock) {
       deleteThreadLock.notify();
     }
+
     callbackContext.success();
   }
   /**
@@ -618,7 +650,7 @@ public class PluginMarkerCluster extends PluginMarker {
   }
   private char _subdiv_char(int posX, int posY) {
     return GEOCELL_ALPHABET.charAt(
-            (posY & 2) << 2 |
+        (posY & 2) << 2 |
             (posX & 2) << 1 |
             (posY & 1) << 1 |
             (posX & 1) << 0);
@@ -627,8 +659,8 @@ public class PluginMarkerCluster extends PluginMarker {
   private double[] _subdiv_xy(char cellChar) {
     int charI = GEOCELL_ALPHABET.indexOf(cellChar);
     return new double[]{
-            (double)((charI & 4) >> 1 | (charI & 1) >> 0) + 0.0f,
-            (double)((charI & 8) >> 2 | (charI & 2) >> 1) + 0.0f
+        (double)((charI & 4) >> 1 | (charI & 1) >> 0) + 0.0f,
+        (double)((charI & 8) >> 2 | (charI & 2) >> 1) + 0.0f
     };
   }
 
@@ -651,9 +683,9 @@ public class PluginMarkerCluster extends PluginMarker {
       y = xy[1];
 
       bbox = new BoundBox(bbox.getSouth() + subcell_lat_span * (y + 1.0f),
-              bbox.getWest() + subcell_lng_span * (double)(x + 1.0f),
-              bbox.getSouth() + subcell_lat_span * y,
-              bbox.getWest() + subcell_lng_span * x);
+          bbox.getWest() + subcell_lng_span * (double)(x + 1.0f),
+          bbox.getSouth() + subcell_lat_span * y,
+          bbox.getWest() + subcell_lng_span * x);
 
       geocell = geocell.substring(1);
     }

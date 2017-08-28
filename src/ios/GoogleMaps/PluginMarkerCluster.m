@@ -90,7 +90,17 @@ const int GEOCELL_GRID_SIZE = 4;
 - (void)pluginUnload
 {
   self.stopFlag = true;
-  [super pluginInitialize];
+  [super pluginUnload];
+
+  @synchronized (self.pluginMarkers) {
+    NSString *key;
+    NSArray *keys = self.pluginMarkers.allKeys;
+    for (int i = 0; i < keys.count; i++) {
+      key = [keys objectAtIndex:i];
+      [self.pluginMarkers setObject:@"DELETED" forKey:key];
+      [self.deleteMarkers addObject:key];
+    }
+  }
 
 }
 
@@ -113,6 +123,7 @@ const int GEOCELL_GRID_SIZE = 4;
       }
     }
   }
+
   dispatch_semaphore_signal(self.deleteThreadLock);
 
 
