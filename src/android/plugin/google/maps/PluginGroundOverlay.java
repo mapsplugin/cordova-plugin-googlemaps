@@ -4,6 +4,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -24,11 +26,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  {
 
-  private ArrayList<AsyncTask> imageLoadingTasks = new ArrayList<AsyncTask>();
+  private HashMap<Integer, AsyncTask> imageLoadingTasks = new HashMap<Integer, AsyncTask>();
 
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -304,6 +307,38 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     callbackContext.success();
   }
 
+  private AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
+    public GroundOverlayOptions options;
+    public PluginAsyncInterface callback;
+    public String imgUrl;
+
+
+    @Override
+    public void setParams(Object target, Object option, PluginAsyncInterface callback) {
+      this.imgUrl = (String) target;
+      this.options = (GroundOverlayOptions) option;
+      this.callback = callback;
+    }
+
+    @Override
+    public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
+      imageLoadingTasks.remove(this.hashCode());
+      if (result == null || result.image == null) {
+        callback.onError("Can not read image from " + imgUrl);
+        return;
+      }
+
+      GroundOverlay groundOverlay = null;
+      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
+      options.image(bitmapDescriptor);
+      groundOverlay = self.map.addGroundOverlay(options);
+
+      callback.onPostExecute(groundOverlay);
+
+    }
+  };
+
+
   private void setImage_(final GroundOverlayOptions options, final String imgUrl, final PluginAsyncInterface callback) {
     if (imgUrl == null) {
       callback.onPostExecute(null);
@@ -316,30 +351,15 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     imageOptions.noCaching = true;
     imageOptions.url = imgUrl;
 
-    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, new AsyncLoadImageInterface() {
-      @Override
-      public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
-        if (result == null || result.image == null) {
-          callback.onError("Can not read image from " + imgUrl);
-          return;
-        }
-
-        GroundOverlay groundOverlay = null;
-        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
-        options.image(bitmapDescriptor);
-        groundOverlay = self.map.addGroundOverlay(options);
-
-        callback.onPostExecute(groundOverlay);
-
-      }
-    });
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        task.execute();
-      }
-    });
-    imageLoadingTasks.add(task);
+    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, onComplete);
+    //cordova.getActivity().runOnUiThread(new Runnable() {
+    //  @Override
+    //  public void run() {
+    //    task.execute();
+    //  }
+    //});
+    task.execute();
+    imageLoadingTasks.put(task.hashCode(), task);
 
 
 /*
