@@ -227,6 +227,11 @@ HTMLInfoWindow.prototype.open = function(marker) {
     if (!marker) {
         return;
     }
+    if (marker._objectInstance) {
+      // marker is an instance of the ionic-native wrapper plugin.
+      marker = marker._objectInstance;
+    }
+
     var map = marker.getMap();
     var self = this,
       markerId = marker.getId();
@@ -239,7 +244,7 @@ HTMLInfoWindow.prototype.open = function(marker) {
         map.bindTo("infoPosition", self);
         marker.bindTo("infoWindowAnchor", self);
         marker.bindTo("icon", self);
-        marker.on(event.INFO_CLOSE, self.close.bind(self));
+        marker.one(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
         self.trigger.call(self, "infoWindowAnchor_changed");
