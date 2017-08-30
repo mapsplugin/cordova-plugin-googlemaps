@@ -20,14 +20,14 @@
   NSString *from = [json objectForKey:@"from"];
   NSString *to = [json objectForKey:@"to"];
   NSString *directionsRequest = nil;
-  
+
   from = [from stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
   to = [to stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-  
-  
+
+
   NSURL *googleMapsURLScheme = [NSURL URLWithString:@"comgooglemaps-x-callback://"];
   if ([[UIApplication sharedApplication] canOpenURL:googleMapsURLScheme]) {
-  
+
     NSMutableArray *params = [NSMutableArray array];
     [params addObject:[NSString stringWithFormat:@"saddr=%@", from, nil]];
     [params addObject:[NSString stringWithFormat:@"daddr=%@", to, nil]];
@@ -36,11 +36,11 @@
     }
     NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     [params addObject:[NSString stringWithFormat:@"x-success=%@://?resume=true", bundleIdentifier, nil]];
-    
+
     NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
     appName = [appName stringByReplacingOccurrencesOfString:@" " withString:@""];
     [params addObject:[NSString stringWithFormat:@"x-source=%@", appName, nil]];
-    
+
     directionsRequest =
       [NSString stringWithFormat: @"comgooglemaps-x-callback://?%@", [params componentsJoinedByString: @"&"], nil];
   } else {
@@ -50,8 +50,8 @@
   }
   NSURL *directionsURL = [NSURL URLWithString:directionsRequest];
   [[UIApplication sharedApplication] openURL:directionsURL];
-  
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 @end
