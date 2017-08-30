@@ -71,7 +71,9 @@
     NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
     NSString *className = [tmp objectAtIndex:0];
     if ([className isEqualToString:@"markercluster"]) {
-      [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+      if ([clusterId_markerId containsString:@"-marker_"]) {
+        [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+      }
     } else {
       [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
     }
@@ -307,7 +309,12 @@
  */
 - (void) mapView:(GMSMapView *)mapView didTapInfoWindowOfMarker:(GMSMarker *)marker
 {
-  [self triggerMarkerEvent:@"info_click" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    [self triggerClusterEvent:@"info_click" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"info_click" marker:marker];
+  }
   [self syncInfoWndPosition];
 }
 /**
@@ -316,7 +323,12 @@
 - (void)mapView:(GMSMapView *)mapView didLongPressInfoWindowOfMarker:(GMSMarker *)marker {
 
   [self syncInfoWndPosition];
-  [self triggerMarkerEvent:@"info_long_click" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    [self triggerClusterEvent:@"info_long_click" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"info_long_click" marker:marker];
+  }
 }
 /**
  * @callback plugin.google.maps.event.MARKER_DRAG_START
@@ -324,7 +336,12 @@
 - (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
 {
   [self syncInfoWndPosition];
-  [self triggerMarkerEvent:@"marker_drag_start" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    [self triggerClusterEvent:@"marker_drag_start" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"marker_drag_start" marker:marker];
+  }
 }
 /**
  * @callback plugin.google.maps.event.MARKER_DRAG_END
@@ -332,7 +349,12 @@
 - (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
 {
   [self syncInfoWndPosition];
-  [self triggerMarkerEvent:@"marker_drag_end" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    [self triggerClusterEvent:@"marker_drag_end" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"marker_drag_end" marker:marker];
+  }
 }
 /**
  * @callback plugin.google.maps.event.MARKER_DRAG
@@ -340,7 +362,12 @@
 - (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
 {
   [self syncInfoWndPosition];
-  [self triggerMarkerEvent:@"marker_drag" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    [self triggerClusterEvent:@"marker_drag" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"marker_drag" marker:marker];
+  }
 }
 
 - (void) syncInfoWndPosition {
@@ -369,9 +396,22 @@
       //NSLog(@"--->activeMarker = %@", marker.userData);
       self.map.selectedMarker = marker;
       self.activeMarker = marker;
+      NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+      if ([markerTag hasPrefix:@"markercluster_"]) {
+        [self triggerClusterEvent:@"marker_click" marker:marker];
+      } else {
+        [self triggerMarkerEvent:@"marker_click" marker:marker];
+      }
     } else {
       if (self.activeMarker != nil) {
-        [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+        NSString *markerTag = [NSString stringWithFormat:@"%@", self.activeMarker.userData];
+        if ([markerTag hasPrefix:@"markercluster_"]) {
+          if ([markerTag containsString:@"-marker_"]) {
+            [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+          }
+        } else {
+          [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+        }
       }
     }
     [self triggerClusterEvent:@"cluster_click" marker:marker];
@@ -419,7 +459,14 @@
                         marker.snippet == nil;
 
   if (useHtmlInfoWnd) {
-    [self triggerMarkerEvent:@"info_close" marker:marker];
+    NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+    if ([markerTag hasPrefix:@"markercluster_"]) {
+      if ([markerTag containsString:@"-marker_"]) {
+        [self triggerClusterEvent:@"info_close" marker:marker];
+      }
+    } else {
+      [self triggerMarkerEvent:@"info_close" marker:marker];
+    }
   }
 
   //self.map.selectedMarker = nil; // <-- this causes the didCloseInfoWindowOfMarker event again
@@ -618,7 +665,12 @@
 
   if (useHtmlInfoWnd) {
     [self syncInfoWndPosition];
-    [self triggerMarkerEvent:@"info_open" marker:marker];
+    NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+    if ([markerTag hasPrefix:@"markercluster_"]) {
+      [self triggerClusterEvent:@"info_open" marker:marker];
+    } else {
+      [self triggerMarkerEvent:@"info_open" marker:marker];
+    }
 
     return [[UIView alloc]initWithFrame:CGRectMake(0, 0, 1, 1)];
   }
@@ -627,7 +679,12 @@
     return NULL;
   }
 
-  [self triggerMarkerEvent:@"info_open" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    [self triggerClusterEvent:@"info_open" marker:marker];
+  } else {
+    [self triggerMarkerEvent:@"info_open" marker:marker];
+  }
 
   // Load styles
   NSDictionary *styles = nil;
