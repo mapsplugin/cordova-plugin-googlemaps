@@ -1082,14 +1082,13 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
       if (/^marker_/i.test(clusterId)) {
         // regular marker
         var marker = markerCluster.getMarkerById(clusterId);
-        if (eventName === event.INFO_CLOSE ||
-          eventName === event.INFO_OPEN) {
-          marker.trigger(eventName, position);
+        if (eventName === event.MARKER_CLICK) {
+          markerCluster.trigger(eventName, position, marker);
         } else {
-          markerCluster.trigger(event.MARKER_CLICK, position, marker);
+          marker.trigger(eventName, position);
         }
       } else {
-        // clusterred marker
+        // cluster marker
         var cluster = markerCluster.getClusterByClusterId(clusterId);
         if (cluster) {
           markerCluster.trigger(eventName, cluster);
