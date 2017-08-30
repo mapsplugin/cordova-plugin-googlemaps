@@ -637,3 +637,7 @@ module.exports = {
     shouldWatchByNative: shouldWatchByNative,
     markerOptionsFilter: markerOptionsFilter
 };
+
+if (cordova && cordova.platformId === "browser") {
+  require('cordova/exec/proxy').add('common', module.exports);
+}

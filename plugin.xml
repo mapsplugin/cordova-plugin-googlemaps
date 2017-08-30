@@ -82,9 +82,6 @@
     <js-module name="geomodel" src="www/geomodel.js">
       <runs />
     </js-module>
-    <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
-      <clobbers target="plugin.google.maps" />
-    </js-module>
 
 
     <description>Google Maps native SDK for Android and iOS</description>
@@ -100,10 +97,34 @@
       <engine name="cordova-android" version=">=5.1.0" />
       <engine name="cordova-ios" version=">=3.0.0" />
     </engines>
+    <platform name="browser">
+      <preference name="API_KEY_FOR_BROWSER" />
+
+      <config-file target="config.xml" parent="/*">
+        <preference name="API_KEY_FOR_BROWSER" value="$API_KEY_FOR_BROWSER" />
+        <feature name="CordovaGoogleMaps">
+            <param name="browser-package" value="CordovaGoogleMaps" />
+        </feature>
+      </config-file>
+
+      <js-module src="src/browser/googlemaps-cdv-plugin.js">
+        <clobbers target="plugin.google.maps" />
+      </js-module>
+      <js-module src="src/browser/CordovaGoogleMaps.js">
+        <runs />
+      </js-module>
+      <js-module name="PluginMap" src="src/browser/PluginMap.js">
+        <runs />
+      </js-module>
+    </platform>
 
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
+
+        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
+          <clobbers target="plugin.google.maps" />
+        </js-module>
 
         <info>
              In order to run this plugin, you need to obtain Google Maps API key for Android.
@@ -213,6 +234,10 @@
 
     <!-- ios -->
     <platform name="ios">
+        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
+          <clobbers target="plugin.google.maps" />
+        </js-module>
+
         <preference name="API_KEY_FOR_IOS" />
         <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
         <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="Trace your location on the map" />
