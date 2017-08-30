@@ -1,7 +1,8 @@
 
 (function() {
   var utils = require('cordova/utils');
-  var PluginMap = require('cordova-plugin-googlemaps.PluginMap');
+  var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
+      event = require('cordova-plugin-googlemaps.event');
 
   var MAP_CNT = 0;
   var MAPS = {};
@@ -22,8 +23,10 @@
 
       var maps = Object.values(MAPS);
       maps.forEach(function(map) {
-        map.trigger("googleready");
-        console.log(map);
+        console.log(map.get("isGoogleReady"));
+        if (!map.get("isGoogleReady")) {
+          map.trigger("googleready");
+        }
       });
     }, {
       once: true
@@ -41,13 +44,15 @@
 
   var CordovaGoogleMaps = {
     getMap: function(onSuccess, onError, args) {
-      console.log("HelloWorld", args);
       var mapId = args[0];
       var pluginMap = new PluginMap(args);
       MAPS[mapId] = pluginMap;
-      console.log(pluginMap);
 
-      onSuccess();
+      pluginMap.one(event.MAP_READY, onSuccess);
+
+      if (API_LOADED) {
+        pluginMap.trigger("googleready");
+      }
     }
   };
 
