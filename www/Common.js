@@ -253,10 +253,9 @@ function shouldWatchByNative(node) {
   var displayCSS = getStyle(node, 'display');
   var opacityCSS = getStyle(node, 'opacity');
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-  var clickableSize = (node.offsetHeight > 0 && node.offsetWidth > 0 || node.clientHeight > 0 && node.clientWidth > 0);
+  //var clickableSize = (node.offsetHeight > 0 && node.offsetWidth > 0 || node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
-    opacityCSS > 0 && visibilityCSS !== "hidden" &&
-    clickableSize;
+    opacityCSS > 0 && visibilityCSS !== "hidden";
 }
 
 

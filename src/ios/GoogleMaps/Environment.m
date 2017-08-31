@@ -36,13 +36,13 @@ dispatch_queue_t queue;
       // Load the GoogleMap.m
       CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
       CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    
+
       NSArray *rgbColor = [command.arguments objectAtIndex:0];
       dispatch_async(dispatch_get_main_queue(), ^{
           googlemaps.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
       });
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   });
 }
@@ -60,11 +60,11 @@ dispatch_queue_t queue;
 
 - (void)setDebuggable:(CDVInvokedUrlCommand *)command {
     Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
-  
+
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-  
+
     googlemaps.pluginLayer.pluginScrollView.debugView.debuggable = isDebuggable;
     [googlemaps.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
 
