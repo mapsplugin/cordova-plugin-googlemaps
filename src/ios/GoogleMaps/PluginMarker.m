@@ -1285,17 +1285,16 @@
                                NSParagraphStyleAttributeName : style
                                };
 
-  UIGraphicsBeginImageContext(image.size);
+  UIGraphicsBeginImageContextWithOptions(image.size, NO, 0.0);
   [image drawInRect:CGRectMake(0,0, image.size.width, image.size.height)];
   [text drawInRect:CGRectMake((image.size.width - rect.size.width) /2 , (image.size.height - rect.size.height) /2, rect.size.width, rect.size.height) withAttributes:attributes];
+  UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
   /*
    //(debug)
    CGContextRef context = UIGraphicsGetCurrentContext();
    CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 0.5);
    CGContextFillRect(context, rect);
    */
-
-  UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
   image = nil;
 
