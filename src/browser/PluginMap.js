@@ -30,6 +30,8 @@
         var actualMapDiv = document.createElement("div");
         actualMapDiv.style.width = "100%";
         actualMapDiv.style.height = "100%";
+        actualMapDiv.style.absolute = "absolute";
+        actualMapDiv.style.zIndex = "-1";
         if (mapDiv.children.length > 0) {
           mapDiv.insertBefore(actualMapDiv, mapDiv.children[0]);
         } else {
