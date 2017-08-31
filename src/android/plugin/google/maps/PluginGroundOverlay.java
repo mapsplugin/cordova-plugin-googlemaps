@@ -307,37 +307,6 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     callbackContext.success();
   }
 
-  private AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
-    public GroundOverlayOptions options;
-    public PluginAsyncInterface callback;
-    public String imgUrl;
-
-
-    @Override
-    public void setParams(Object target, Object option, PluginAsyncInterface callback) {
-      this.imgUrl = (String) target;
-      this.options = (GroundOverlayOptions) option;
-      this.callback = callback;
-    }
-
-    @Override
-    public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
-      imageLoadingTasks.remove(this.hashCode());
-      if (result == null || result.image == null) {
-        callback.onError("Can not read image from " + imgUrl);
-        return;
-      }
-
-      GroundOverlay groundOverlay = null;
-      BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
-      options.image(bitmapDescriptor);
-      groundOverlay = self.map.addGroundOverlay(options);
-
-      callback.onPostExecute(groundOverlay);
-
-    }
-  };
-
 
   private void setImage_(final GroundOverlayOptions options, final String imgUrl, final PluginAsyncInterface callback) {
     if (imgUrl == null) {
@@ -350,7 +319,25 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     imageOptions.width = -1;
     imageOptions.noCaching = true;
     imageOptions.url = imgUrl;
+    AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
 
+      @Override
+      public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
+        imageLoadingTasks.remove(this.hashCode());
+        if (result == null || result.image == null) {
+          callback.onError("Can not read image from " + imgUrl);
+          return;
+        }
+
+        GroundOverlay groundOverlay = null;
+        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
+        options.image(bitmapDescriptor);
+        groundOverlay = self.map.addGroundOverlay(options);
+
+        callback.onPostExecute(groundOverlay);
+
+      }
+    };
     final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, onComplete);
     //cordova.getActivity().runOnUiThread(new Runnable() {
     //  @Override
