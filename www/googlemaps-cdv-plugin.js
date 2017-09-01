@@ -277,10 +277,10 @@ if (!cordova) {
           }
         }
         if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
-          if (element.childNodes.length > 0) {
+          if (element.children.length > 0) {
             var child;
-            for (var i = 0; i < element.childNodes.length; i++) {
-              child = element.childNodes[i];
+            for (var i = 0; i < element.children.length; i++) {
+              child = element.children[i];
               if (child.nodeType !== Node.ELEMENT_NODE ||
                 doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
                 common.getStyle(child, "display") === "none") {
