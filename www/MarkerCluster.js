@@ -462,16 +462,16 @@ MarkerCluster.prototype._redraw = function(params) {
   self.set("zoom", currentZoomLevel);
 
   var resolution = 1;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 3 ? 2 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 5 ? 3 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 7 ? 4 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 9 ? 5 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 11 ? 6 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 13 ? 7 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 15 ? 8 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 17 ? 9 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 19 ? 10 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 21 ? 11 : resolution;
+  resolution = self.maxZoomLevel > 3 && currentZoomLevel > 3 ? 2 : resolution;
+  resolution = self.maxZoomLevel > 5 && currentZoomLevel > 5 ? 3 : resolution;
+  resolution = self.maxZoomLevel > 7 && currentZoomLevel > 7 ? 4 : resolution;
+  resolution = self.maxZoomLevel > 9 && currentZoomLevel > 9 ? 5 : resolution;
+  resolution = self.maxZoomLevel > 11 && currentZoomLevel > 11 ? 6 : resolution;
+  resolution = self.maxZoomLevel > 13 && currentZoomLevel > 13 ? 7 : resolution;
+  resolution = self.maxZoomLevel > 15 && currentZoomLevel > 15 ? 8 : resolution;
+  resolution = self.maxZoomLevel > 17 && currentZoomLevel > 17 ? 9 : resolution;
+  resolution = self.maxZoomLevel > 19 && currentZoomLevel > 19 ? 10 : resolution;
+  resolution = self.maxZoomLevel > 21 && currentZoomLevel > 21 ? 11 : resolution;
 
   //------------------------------------------------------------------------
   // If the current viewport contains the previous viewport,
@@ -534,7 +534,7 @@ MarkerCluster.prototype._redraw = function(params) {
     expandedRegion.northeast
   ];
   for (var j = 0; j < 4; j++) {
-    for (var i = 0.1; i < 0.9; i+= 0.1) {
+    for (var i = 0.25; i < 1; i+= 0.25) {
       pos = plugin.google.maps.geometry.spherical.interpolate(coners[j], coners[j + 1], i);
 
       cell = geomodel.getGeocell(pos.lat, pos.lng, cellLen);
@@ -1107,4 +1107,3 @@ MarkerCluster.prototype.getClusterByGeocellAndResolution = function(geocell, res
 };
 
 module.exports = MarkerCluster;
-
