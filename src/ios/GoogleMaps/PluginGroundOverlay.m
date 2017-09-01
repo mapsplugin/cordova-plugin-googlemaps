@@ -93,7 +93,7 @@
         }
 
         BOOL isVisible = NO;
-        if ([[json valueForKey:@"visible"] boolValue]) {
+        if (json[@"visible"]) {
             groundOverlay.map = self.mapCtrl.map;
             isVisible = YES;
         }

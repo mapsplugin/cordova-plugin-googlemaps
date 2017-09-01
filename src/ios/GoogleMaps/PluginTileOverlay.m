@@ -117,7 +117,7 @@
 
 
 
-      if ([[json valueForKey:@"visible"] boolValue]) {
+      if (json[@"visible"]) {
         layer.map = self.mapCtrl.map;
       }
       if ([json valueForKey:@"zIndex"]) {

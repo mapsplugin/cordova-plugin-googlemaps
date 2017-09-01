@@ -166,8 +166,8 @@
   }
 
   // Visible property
-  if ([json valueForKey:@"visible"]) {
-    [iconProperty setObject:[json valueForKey:@"visible"] forKey:@"visible"];
+  if (json[@"visible"]) {
+    [iconProperty setObject:json[@"visible"] forKey:@"visible"];
   } else {
     [iconProperty setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   }
@@ -188,7 +188,7 @@
     // Load icon in asynchronise
     [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];
   } else {
-    if ([[json valueForKey:@"visible"] boolValue]) {
+    if (json[@"visible"]) {
       marker.map = self.mapCtrl.map;
     }
 
@@ -1108,7 +1108,7 @@
 
 
       // The `visible` property
-      if ([iconProperty[@"visible"] boolValue]) {
+      if (iconProperty[@"visible"]) {
         marker.map = self.mapCtrl.map;
       }
 
@@ -1147,7 +1147,7 @@
       if (!succeeded) {
         NSLog(@"[fail] url = %@", url);
         // The `visible` property
-        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+        if (iconProperty[@"visible"]) {
           marker.map = self.mapCtrl.map;
         }
         if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
@@ -1200,7 +1200,7 @@
         }
 
         // The `visible` property
-        if ([[iconProperty valueForKey:@"visible"] boolValue]) {
+        if (iconProperty[@"visible"]) {
           marker.map = self.mapCtrl.map;
         }
 

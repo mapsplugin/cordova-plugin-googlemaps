@@ -203,7 +203,7 @@ const int GEOCELL_GRID_SIZE = 4;
       if ([clusterData objectForKey:@"title"]) {
         [properties setObject:[clusterData objectForKey:@"title"] forKey:@"title"];
       }
-      if ([clusterData objectForKey:@"visible"]) {
+      if (clusterData[@"visible"]) {
         [properties setObject:[clusterData objectForKey:@"visible"] forKey:@"visible"];
       } else {
         [properties setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
