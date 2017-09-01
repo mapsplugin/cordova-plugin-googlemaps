@@ -486,12 +486,6 @@ MarkerCluster.prototype._redraw = function(params) {
   var distanceA = spherical.computeDistanceBetween(params.visibleRegion.farRight, params.visibleRegion.farLeft);
   var distanceB = spherical.computeDistanceBetween(params.visibleRegion.farRight, params.visibleRegion.nearRight);
   params.clusterDistance = Math.min(distanceA, distanceB) / 4;
-/*
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.farRight, params.clusterDistance));
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.farLeft, -params.clusterDistance));
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.nearRight, params.clusterDistance));
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.nearLeft, -params.clusterDistance));
-*/
   var expandedRegion = params.visibleRegion;
 
   var swCell = geomodel.getGeocell(expandedRegion.southwest.lat, expandedRegion.southwest.lng, cellLen);
@@ -530,6 +524,26 @@ MarkerCluster.prototype._redraw = function(params) {
   var keys;
   var ignoreGeocells = [];
   var allowGeocells = [swCell, neCell, nwCell, seCell];
+
+  var pos, prevCell = "", cell;
+  var coners = [
+    expandedRegion.northeast,
+    {lat: expandedRegion.northeast.lat, lng: expandedRegion.southwest.lng},
+    expandedRegion.southwest,
+    {lat: expandedRegion.southwest.lat, lng: expandedRegion.northeast.lng},
+    expandedRegion.northeast
+  ];
+  for (var j = 0; j < 4; j++) {
+    for (var i = 0.1; i < 0.9; i+= 0.1) {
+      pos = plugin.google.maps.geometry.spherical.interpolate(coners[j], coners[j + 1], i);
+
+      cell = geomodel.getGeocell(pos.lat, pos.lng, cellLen);
+      if (allowGeocells.indexOf(cell) === -1) {
+        allowGeocells.push(cell);
+      }
+    }
+  }
+
   var activeMarkerId = self.map.get("active_marker_id");
   if (prevResolution === self.OUT_OF_RESOLUTION) {
     if (resolution === self.OUT_OF_RESOLUTION) {
@@ -559,8 +573,8 @@ MarkerCluster.prototype._redraw = function(params) {
         if (expandedRegion.contains(markerOpts.position)) {
           allowGeocells.push(geocell);
           targetMarkers.push(markerOpts);
-        //} else {
-          //ignoreGeocells.push(geocell);
+        } else {
+          ignoreGeocells.push(geocell);
         }
       });
     } else {
@@ -605,8 +619,8 @@ MarkerCluster.prototype._redraw = function(params) {
         if (expandedRegion.contains(markerOpts.position)) {
           allowGeocells.push(geocell);
           targetMarkers.push(markerOpts);
-        //} else {
-          //ignoreGeocells.push(geocell);
+        } else {
+          ignoreGeocells.push(geocell);
         }
       });
     }
@@ -679,7 +693,7 @@ MarkerCluster.prototype._redraw = function(params) {
         targetMarkers.push(markerOpts);
         allowGeocells.push(geocell);
       } else {
-        //ignoreGeocells.push(geocell);
+        ignoreGeocells.push(geocell);
         self._markerMap[markerOpts.id]._cluster.isAdded = false;
       }
     });
@@ -797,7 +811,7 @@ MarkerCluster.prototype._redraw = function(params) {
         targetMarkers.push(markerOpts);
         allowGeocells.push(geocell);
       } else {
-        //ignoreGeocells.push(geocell);
+        ignoreGeocells.push(geocell);
         self._markerMap[markerOpts.id]._cluster.isAdded = false;
       }
     });
@@ -1093,3 +1107,5 @@ MarkerCluster.prototype.getClusterByGeocellAndResolution = function(geocell, res
 };
 
 module.exports = MarkerCluster;
+
+});
