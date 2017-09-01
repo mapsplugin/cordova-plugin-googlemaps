@@ -457,7 +457,6 @@ MarkerCluster.prototype._redraw = function(params) {
     currentZoomLevel = self.map.getCameraZoom(),
     prevResolution = self.get("resolution");
 
-
   currentZoomLevel = currentZoomLevel < 0 ? 0 : currentZoomLevel;
   self.set("zoom", currentZoomLevel);
 
@@ -544,9 +543,11 @@ MarkerCluster.prototype._redraw = function(params) {
     }
   }
 
+  //console.log("---->548");
   var activeMarkerId = self.map.get("active_marker_id");
   if (prevResolution === self.OUT_OF_RESOLUTION) {
     if (resolution === self.OUT_OF_RESOLUTION) {
+      //console.log("---->552");
       //--------------------------------------
       // Just camera move, no zoom changed
       //--------------------------------------
@@ -817,6 +818,7 @@ MarkerCluster.prototype._redraw = function(params) {
     });
     delete self._clusters[prevResolution];
   } else {
+    //console.log("-----> initialize");
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       if (self._stopRequest ||
@@ -825,12 +827,20 @@ MarkerCluster.prototype._redraw = function(params) {
       }
       var markerOpts = self._markerMap[markerId];
       var geocell = markerOpts._cluster.geocell.substr(0, cellLen);
-      if (markerOpts._cluster.isRemoved) {
+      if (markerOpts._cluster.isRemoved ||
+        ignoreGeocells.indexOf(geocell) > -1) {
         return;
       }
 
+      if (allowGeocells.indexOf(geocell) > -1) {
+        targetMarkers.push(markerOpts);
+        return;
+      }
       if (expandedRegion.contains(markerOpts.position)) {
         targetMarkers.push(markerOpts);
+        allowGeocells.push(geocell);
+      } else {
+        ignoreGeocells.push(geocell);
       }
     });
   }
