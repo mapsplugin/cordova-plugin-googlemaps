@@ -274,7 +274,7 @@ const int GEOCELL_GRID_SIZE = 4;
     // mapping markers on the map
     //---------------------------
     [[NSOperationQueue mainQueue] addOperationWithBlock: ^{
-      self.mapCtrl.map.selectedMarker = nil;
+      //self.mapCtrl.map.selectedMarker = nil;
       NSString *clusterId_markerId;
       NSMutableDictionary *markerProperties;
       GMSMarker *marker;

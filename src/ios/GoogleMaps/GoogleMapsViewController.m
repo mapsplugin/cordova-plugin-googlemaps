@@ -413,8 +413,8 @@
           [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
         }
       }
+      [self triggerClusterEvent:@"cluster_click" marker:marker];
     }
-    [self triggerClusterEvent:@"cluster_click" marker:marker];
   } else {
     [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
     [self triggerMarkerEvent:@"marker_click" marker:marker];
