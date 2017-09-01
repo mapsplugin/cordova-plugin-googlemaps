@@ -1108,4 +1108,3 @@ MarkerCluster.prototype.getClusterByGeocellAndResolution = function(geocell, res
 
 module.exports = MarkerCluster;
 
-});
