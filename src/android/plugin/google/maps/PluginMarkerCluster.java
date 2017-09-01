@@ -102,6 +102,7 @@ public class PluginMarkerCluster extends PluginMarker {
         String markerId;
         Marker marker;
         STATUS status;
+        String cacheKey;
         String[] targetIDs = deleteMarkers.toArray(new String[deleteMarkers.size()]);
 
         for (int i = targetIDs.length - 1; i > -1; i--) {
@@ -110,12 +111,25 @@ public class PluginMarkerCluster extends PluginMarker {
           marker = self.getMarker(markerId);
           synchronized (pluginMarkers) {
             status =  pluginMarkers.get(markerId);
+
             if (!STATUS.WORKING.equals(status)) {
               synchronized (pluginMap.objects) {
                 _removeMarker(marker);
                 marker = null;
+
+                cacheKey = (String) pluginMap.objects.remove("marker_icon_" + markerId);
+                if (cacheKey != null && iconCacheKeys.containsKey(cacheKey)) {
+                  int count = iconCacheKeys.get(cacheKey);
+                  if (count < 1) {
+                    iconCacheKeys.remove(cacheKey);
+                    AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+                  } else {
+                    iconCacheKeys.put(cacheKey, count - 1);
+                  }
+                }
+
+
                 pluginMap.objects.remove(markerId);
-                pluginMap.objects.remove("marker_icon_" + markerId);
                 pluginMap.objects.remove("marker_property_" + markerId);
                 pluginMap.objects.remove("marker_imageSize_" + markerId);
               }
@@ -135,6 +149,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String clusterId = args.getString(0);
+    Log.d(TAG, "-->remove = " + clusterId);
     synchronized (debugFlags) {
       debugFlags.remove(clusterId);
       waitCntManager.remove(clusterId);
@@ -142,12 +157,14 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (pluginMarkers) {
       for(String key: pluginMarkers.keySet()) {
         if (key.startsWith(clusterId)) {
-          pluginMarkers.put(key, STATUS.DELETED);
+          Log.d(TAG, "-->delete = " + key);
+          pluginMarkers.put(key, STATUS.CREATED);
           deleteMarkers.add(key);
         }
       }
     }
 
+    /*
     String cacheKey;
     Set<String> keySet = pluginMap.objects.keySet();
     Marker marker;
@@ -169,14 +186,15 @@ public class PluginMarkerCluster extends PluginMarker {
         } else if (objectId.startsWith("marker_property_") ||
             objectId.startsWith("marker_imageSize_")) {
           pluginMap.objects.remove(objectId);
-        } else if (objectId.startsWith("marker_")) {
-          marker = (Marker) pluginMap.objects.remove(objectId);
-          marker.remove();
+        //} else if (objectId.startsWith("marker_")) {
+        //  marker = (Marker) pluginMap.objects.remove(objectId);
+        //  marker.remove();
         } else {
           pluginMap.objects.remove(objectId);
         }
       }
     }
+    */
     synchronized (deleteThreadLock) {
       deleteThreadLock.notify();
     }
