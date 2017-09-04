@@ -481,6 +481,8 @@ if (!cordova) {
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
         anotherBackbuttonHandler();
+      } else {
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
       }
     }
     document.addEventListener("backbutton", onBackButton);
