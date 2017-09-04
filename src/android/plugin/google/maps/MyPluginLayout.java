@@ -451,10 +451,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       @Override
       public void run() {
 
-        TouchableWrapper wrapper = new TouchableWrapper(context);
-        touchableWrappers.put(pluginMap.mapId, wrapper);
-        pluginMap.mapView.addView(wrapper);
-        scrollFrameLayout.addView(pluginMap.mapView);
+        if (pluginMap.mapView.getParent() == null) {
+          TouchableWrapper wrapper = new TouchableWrapper(context);
+          touchableWrappers.put(pluginMap.mapId, wrapper);
+          pluginMap.mapView.addView(wrapper);
+          scrollFrameLayout.addView(pluginMap.mapView);
+        }
 
         mActivity.getWindow().getDecorView().requestFocus();
 

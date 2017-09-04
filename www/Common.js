@@ -314,14 +314,15 @@ function getDomDepth(dom, idx) {
     }
     var orgDom = dom;
     var zIndex = getZIndex(dom);
-    /*
+/*
     var depth = 0;
     while (dom.parentNode !== null && dom.parentNode != document) {
         dom = dom.parentNode;
         depth++;
     }
-    */
-    var result = (zIndex + 1) * 1000 + idx;
+*/
+    //var result = ((zIndex + 1) << (depth + 1)) + idx;
+    var result =  Math.floor(((zIndex + 1) / (idx + 1) + idx) * 1000);
     orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }
