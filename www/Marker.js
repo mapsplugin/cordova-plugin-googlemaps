@@ -53,9 +53,15 @@ var Marker = function(map, id, markerOptions, className, _exec) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    self.on(event.INFO_OPEN, self.showInfoWindow.bind(self));
-    self.on(event.MARKER_CLICK, self.showInfoWindow.bind(self));
-    self.on(event.INFO_CLOSE, self.hideInfoWindow.bind(self));
+    self.on(event.INFO_OPEN, function() {
+      self.showInfoWindow.apply(self);
+    });
+    self.on(event.MARKER_CLICK, function() {
+      self.showInfoWindow.apply(self);
+    });
+    self.on(event.INFO_CLOSE, function() {
+      self.hideInfoWindow.apply(self)
+    });
 
 
     self.on("position_changed", function(oldValue, position) {
