@@ -9,7 +9,7 @@ import org.json.JSONException;
 
 public interface MyPluginInterface {
   public void initialize(CordovaInterface cordova, CordovaWebView webView);
-  public void setMapCtrl(GoogleMaps mapCtrl);
+  public void setPluginMap(PluginMap pluginMap);
   public boolean execute(String action, String rawArgs, CallbackContext callbackContext) throws JSONException;
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException;
   public boolean execute(String action, CordovaArgs args, CallbackContext callbackContext) throws JSONException;

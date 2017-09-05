@@ -1,40 +1,82 @@
-Cordova GoogleMaps plugin for iOS and Android
+# Cordova GoogleMaps plugin for iOS and Android (version 2.0)
+
 ==========================
 
-This plugin provides features of [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
+This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
 
-## How different between Google Maps JavaScript API v3?
+-----
 
-This plugin displays the map view of native(Java and Objective-C) features, which is **faster** than Google Maps JavaScript API v3.
+## Quick install
 
-And the native map view works even if the device is **offline**.
+*Stable version(npm)*
+```
+$> cordova plugin add cordova-plugin-googlemaps \
+    --variable API_KEY_FOR_ANDROID="..." \
+    --variable API_KEY_FOR_IOS="..."
+```
 
-This plugin provides the features of the native map view to JS developers.
+*Develop version (current multiple_maps branch)*
+```bash
+$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
+    --variable API_KEY_FOR_ANDROID="..." \
+    --variable API_KEY_FOR_IOS="..."
+```
 
-You can write your code `similar like` the Google Maps JavaScript API v3.
+If you re-install the plugin, please always remove the plugin first, then remove the SDK
 
-## How does this plugin work?
+```bash
+$> cordova plugin rm cordova-plugin-googlemaps
 
-Understanding `how does work this plugin` is very important.
+$> cordova plugin rm com.googlemaps.ios
 
-The map view is not an HTML element. It means it is not kind of `<div>` or something.
-But you can specify the size, position of the map view using `<div>`.
+$> cordova plugin add cordova-plugin-googlemaps \
+    --variable API_KEY_FOR_ANDROID="..." \
+    --variable API_KEY_FOR_IOS="..." \
+    --no-fetch
+```
 
-This plugin changes the background as `transparent` of your app.
-Then the plugin detects your finger tap position which is for: `native map` or `html element`.
+### Configuration
 
-**The plugin v1.4.5** recognizes only `the child elements of the map div`.
+You can also configure the following variables to customize the iOS location plist entries
 
-**The plugin v2.0-beta3** recognizes all html elements.
+```
+$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="..." --variable API_KEY_FOR_IOS="..."
 
-![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/class/Map/mechanism.png)
+- `LOCATION_WHEN_IN_USE_DESCRIPTION` for `NSLocationWhenInUseUsageDescription` (defaults to "Show your location on the map")
+- `LOCATION_ALWAYS_USAGE_DESCRIPTION` for `NSLocationAlwaysUsageDescription` (defaults t "Trace your location on the map")
+
+Example using the Cordova CLI
+
+```bash
+$> cordova plugin rm cordova-plugin-googlemaps
+
+$> cordova plugin rm com.googlemaps.ios
+
+$> cordova plugin add cordova-plugin-googlemaps \
+    --variable API_KEY_FOR_ANDROID="..." \
+    --variable API_KEY_FOR_IOS="..." \
+    --variable LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message" \
+    --variable LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"
+```
+
+Example using config.xml
+```xml
+<plugin name="cordova-plugin-googlemaps" spec="2.0.0">
+    <variable name="API_KEY_FOR_ANDROID" value="YOUR_ANDROID_API_KEY_IS_HERE" />
+    <variable name="API_KEY_FOR_IOS" value="YOUR_IOS_API_KEY_IS_HERE" />
+    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="My custom when in use message" />
+    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="My custom always usage message" />
+</plugin>
+```
+
 
 ## Quick demo
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
 
-```js
+```html
+<script type="text/javascript">
 var map;
 document.addEventListener("deviceready", function() {
   var div = document.getElementById("map_canvas");
@@ -48,10 +90,10 @@ document.addEventListener("deviceready", function() {
 
 function onMapReady() {
   var button = document.getElementById("button");
-  button.addEventListener("click", onBtnClicked);
+  button.addEventListener("click", onButtonClick);
 }
 
-function onBtnClicked() {
+function onButtonClick() {
 
   // Move to the position with animation
   map.animateCamera({
@@ -84,62 +126,95 @@ function onBtnClicked() {
     });
   });
 }
+</script>
 ```
 
+-----
 
-## Versioning
+## Documentation
 
-There are two versions:
+[All documentations are here!!](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
 
-- v1.4.5
-  Only one map is available in your app. Stable, but no more development. Only critical bug fixes.
-  - [Documentation for v1.4.5](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
+-----
 
+### How different between Google Maps JavaScript API v3?
 
-- v2.0-beta3
-  Multiple maps in your app is available. Mostly stable, but still developing.
-  - [Documentation for v2.0-beta3](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
-  - [Demo](https://github.com/mapsplugin/v2.0-demo)
-  - [Release notes](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-beta3/README.md)
+This plugin displays the map view of native(Java and Objective-C) features, which is **faster** than Google Maps JavaScript API v3.
 
-<table>
-<tr>
-  <th>v1.4.5</th>
-  <th>v2.0-beta3</th>
-</tr>
-<tr>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif" width="250"></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/images/v2demo.gif?raw=true" width="250"></td>
-</tr>
-</table>
+And the native map view works even if the device is **offline**.
 
-I recommended you to use the **v2.0-beta3**.
+This plugin provides the features of the native map view to JS developers.
 
-However if you want to use `map.addKmlOverlay()` or `you don't want to update the plugin frequently`,
-please use the **v1.4.5**.
+You can write your code `similar like` the Google Maps JavaScript API v3.
 
+**Features compare table**
 
+                | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
+----------------|-----------------------------------|---------------------------------------|
+Rendering system| JavaScript + HTML                 | JavaScript + Native APIs              |
+Offline map     | Not possible                      | Possible (only you displayed area)    |
+3D View         | Not possible                      | Possible                              |
+Platform        | All browsers                      | Android and iOS app only              |
+Tile image      | Bitmap                            | Vector                                |
 
-## How to install v1.4.5?
+**Class compare table**
 
-```
-$> cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="..." --variable API_KEY_FOR_IOS="..."
-```
+| Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
+|-----------------------------------|---------------------------------------|
+| google.maps.Map                   | Map                                   |
+| google.maps.Marker                | Marker                                |
+| google.maps.InfoWindow            | Default InfoWindow, and HtmlInfoWindow|
+| google.maps.Circle                | Circle                                |
+| google.maps.Rectangle             | Polygon                               |
+| google.maps.Polyline              | Polyline                              |
+| google.maps.Polygon               | Polygon                               |
+| google.maps.GroundOverlay         | GroundOverlay                         |
+| google.maps.ImageMapType          | TileOverlay                           |
+| google.maps.MVCObject             | BaseClass                             |
+| google.maps.MVCArray              | BaseArrayClass                        |
+| google.maps.Geocoder              | plugin.google.maps.geocoder           |
+| google.maps.geometry.spherical    | plugin.google.maps.geometry.spherical |
+| google.maps.geometry.encoding     | plugin.google.maps.geometry.encoding  |
+| (not available)                   | MarkerCluster                         |
+| google.maps.KmlLayer              | KMLLayer (v1.4.5 is available)        |
+| google.maps.StreetView            | (not available)                       |
+| google.maps.Data                  | (not available)                       |
+| google.maps.DirectionsService     | (not available)                       |
+| google.maps.DistanceMatrixService | (not available)                       |
+| google.maps.FusionTablesLayer     | (not available)                       |
+| google.maps.TransitLayer          | map.setTrafficEnabled()               |
+| google.maps.places.*              | (not available)                       |
+| google.maps.visualization.*       | (not available)                       |
 
+### How does this plugin work?
 
-## How to install v2.0-beta3?
+This plugin generates native map views, and put them **under the browser**.
 
-```
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps --variable API_KEY_FOR_ANDROID="..." --variable API_KEY_FOR_IOS="..."
-```
+The map views are not an HTML element. It means they are not kind of `<div>` or something.
+But you can specify the size, position of the map view using `<div>`.
 
-### More details
+This plugin changes the background as `transparent` of your app.
+Then the plugin detects your finger tap position which is for: `native map` or `html element`.
 
-- v1.4.5
-  - [Documentation for v1.4.5](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v1.4.0/README.md)
+![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/class/Map/mechanism.png)
 
+The benefit of this plugin is able to detect which HTML elements are over the map or not automatically.
 
-- v2.0-beta3
-  - [Documentation for v2.0-beta3](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
-  - [Demo](https://github.com/mapsplugin/v2.0-demo)
-  - [Release notes](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-beta3/README.md)
+In the below image, you tap on the header div, which is over the map view.
+This plugin detects your tap is for the header div or the map view, then pass the mouse event.
+
+It means **you can use the native Google Maps views similar like HTML element**.
+
+<img src="https://user-images.githubusercontent.com/167831/28293819-fa689ee0-6b0a-11e7-9eab-6b981a7084e6.png" width="500">
+
+---
+
+## Buy me a beer
+
+I have been spend **tons of time for this plugin project, but even though the plugin is still FREE!!**.
+
+I appreciate if you donate some amount to help this project from this button.
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
+
+The donated amount is used for buying testing machine (such as iPhone, Android) or new software.

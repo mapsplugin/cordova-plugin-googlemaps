@@ -1,350 +1,633 @@
 package plugin.google.maps;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import android.view.View;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Build;
-import android.os.Build.VERSION;
-import android.view.Gravity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+import org.apache.cordova.CordovaWebView;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 @SuppressWarnings("deprecation")
-public class MyPluginLayout extends FrameLayout  {
-  private View view;
+public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener, ViewTreeObserver.OnGlobalLayoutListener {
+  private static final String TAG = "MyPluginLayout";
+  private CordovaWebView webView;
+  private View browserView;
   private ViewGroup root;
-  private RectF drawRect = new RectF();
   private Context context;
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView = null;
-  private FrameLayout scrollFrameLayout = null;
-  private View backgroundView = null;
-  private TouchableWrapper touchableWrapper;
-  private ViewGroup myView = null;
+  public FrameLayout scrollFrameLayout = null;
+  public HashMap<String, PluginMap> pluginMaps = new HashMap<String, PluginMap>();
+  private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
-  private ViewGroup.LayoutParams orgLayoutParams = null;
-  private boolean isDebug = false;
-  private boolean isClickable = true;
-  private Map<String, RectF> HTMLNodes = new HashMap<String, RectF>();
+  public boolean isDebug = false;
+  public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
+  private HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
-  
-  @SuppressLint("NewApi")
-  public MyPluginLayout(View view, Activity activity) {
-    super(view.getContext());
-    mActivity = activity;
-    this.view = view;
-    this.root = (ViewGroup) view.getParent();
-    this.context = view.getContext();
-    if (VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())) {
-      view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+  private Paint debugPaint = new Paint();
+  public boolean stopFlag = false;
+  public boolean needUpdatePosition = false;
+  public boolean isSuspended = false;
+  public boolean pauseResize = false;
+  private float zoomScale;
+  public final Object timerLock = new Object();
+  public boolean isWaiting = false;
+
+  public Timer redrawTimer;
+
+  @Override
+  public void onGlobalLayout() {
+    Log.d("Layout", "---> onGlobalLayout");
+    ViewTreeObserver observer = browserView.getViewTreeObserver();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      observer.removeOnGlobalLayoutListener(this);
+    } else {
+      observer.removeGlobalOnLayoutListener(this);
     }
+    observer.addOnScrollChangedListener(this);
+  }
+
+
+  private class ResizeTask extends TimerTask {
+    @Override
+    public void run() {
+      if (isSuspended || pauseResize) {
+        synchronized (timerLock) {
+          isWaiting = true;
+          try {
+            timerLock.wait();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+        return;
+      }
+      isWaiting = false;
+      //final PluginMap pluginMap = pluginMaps.get(mapId);
+      //if (pluginMap.mapDivId == null) {
+      //  return;
+      //}
+      //int scrollX = browserView.getScrollX();
+      final int scrollY = browserView.getScrollY();
+      //final int webviewWidth = browserView.getWidth();
+      //final int webviewHeight = browserView.getHeight();
+
+      mActivity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+
+          Set<String> keySet = pluginMaps.keySet();
+          String[] toArrayBuf = new String[pluginMaps.size()];
+          String[] mapIds = keySet.toArray(toArrayBuf);
+          toArrayBuf = null;
+          keySet = null;
+          String mapId;
+          PluginMap pluginMap;
+          RectF drawRect;
+          for (int i = 0; i < mapIds.length; i++) {
+            mapId = mapIds[i];
+            pluginMap = pluginMaps.get(mapId);
+            if (pluginMap == null || pluginMap.mapDivId == null) {
+              continue;
+            }
+            drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+            if (drawRect == null) {
+              continue;
+            }
+
+            int width = (int)drawRect.width();
+            int height = (int)drawRect.height();
+            int x = (int) drawRect.left;
+            int y = (int) drawRect.top + scrollY;
+            ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
+
+            if (lParams instanceof AbsoluteLayout.LayoutParams) {
+              AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+              if (params.x == x && params.y == y &&
+                params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.x = x;
+              params.y = y;
+              pluginMap.mapView.setLayoutParams(params);
+            } else if (lParams instanceof LinearLayout.LayoutParams) {
+              LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+
+              if (params.leftMargin == x && params.topMargin == y &&
+                params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.leftMargin = x;
+              params.topMargin = y;
+              pluginMap.mapView.setLayoutParams(params);
+            } else if (lParams instanceof FrameLayout.LayoutParams) {
+              FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+              if (params.leftMargin == x && params.topMargin == y &&
+                params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.leftMargin = x;
+              params.topMargin = y;
+              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
+              pluginMap.mapView.setLayoutParams(params);
+
+            }
+
+          }
+          mapIds = null;
+          pluginMap = null;
+          mapId = null;
+          pluginMap = null;
+          drawRect = null;
+        }
+      });
+
+    }
+  };
+
+  @SuppressLint("NewApi")
+  public MyPluginLayout(CordovaWebView webView, Activity activity) {
+    super(webView.getView().getContext());
+    this.browserView = webView.getView();
+    browserView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+    mActivity = activity;
+    this.webView = webView;
+    this.root = (ViewGroup) browserView.getParent();
+    this.context = browserView.getContext();
+    //if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(browserView.getClass().getName())) {
+    //  browserView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+    //}
+
+    zoomScale = Resources.getSystem().getDisplayMetrics().density;
     frontLayer = new FrontLayerLayout(this.context);
-    
+
     scrollView = new ScrollView(this.context);
     scrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-    backgroundView = new View(this.context);
-    backgroundView.setBackgroundColor(Color.WHITE);
-    backgroundView.setVerticalScrollBarEnabled(false);
-    backgroundView.setHorizontalScrollBarEnabled(false);
-    backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 9999));
-    
+    root.removeView(browserView);
+    frontLayer.addView(browserView);
+
     scrollFrameLayout = new FrameLayout(this.context);
-    scrollFrameLayout.addView(backgroundView);
     scrollFrameLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-    
-    scrollView.setHorizontalScrollBarEnabled(false);
-    scrollView.setVerticalScrollBarEnabled(false);
-    
-    this.touchableWrapper = new TouchableWrapper(this.context);
-    
-  }
-  
-  public void setDrawingRect(float left, float top, float right, float bottom) {
-    this.drawRect.left = left;
-    this.drawRect.top = top;
-    this.drawRect.right = right;
-    this.drawRect.bottom = bottom;
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
-  }
-  
-  public void putHTMLElement(String domId, float left, float top, float right, float bottom) {
-    RectF rect = null;
-    if (this.HTMLNodes.containsKey(domId)) {
-      rect = this.HTMLNodes.get(domId);
-    } else {
-      rect = new RectF();
-    }
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
-    this.HTMLNodes.put(domId, rect);
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
-  }
-  public void removeHTMLElement(String domId) {
-    this.HTMLNodes.remove(domId);
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
-  }
-  public void clearHTMLElement() {
-    this.HTMLNodes.clear();
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
-  }
 
-  public void setClickable(boolean clickable) {
-    this.isClickable = clickable;
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
-  }
-  
-  public void updateViewPosition() {
-    if (myView == null) {
-      return;
-    }
-    ViewGroup.LayoutParams lParams = this.myView.getLayoutParams();
-    int scrollY = view.getScrollY();
 
-    if (lParams instanceof AbsoluteLayout.LayoutParams) {
-      AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-      params.width = (int) this.drawRect.width();
-      params.height = (int) this.drawRect.height();
-      params.x = (int) this.drawRect.left;
-      params.y = (int) this.drawRect.top + scrollY;
-      myView.setLayoutParams(params);
-    } else if (lParams instanceof LinearLayout.LayoutParams) {
-      LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-      params.width = (int) this.drawRect.width();
-      params.height = (int) this.drawRect.height();
-      params.topMargin = (int) this.drawRect.top + scrollY;
-      params.leftMargin = (int) this.drawRect.left;
-      myView.setLayoutParams(params);
-    } else if (lParams instanceof FrameLayout.LayoutParams) {
-      FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-      params.width = (int) this.drawRect.width();
-      params.height = (int) this.drawRect.height();
-      params.topMargin = (int) this.drawRect.top + scrollY;
-      params.leftMargin = (int) this.drawRect.left;
-      params.gravity = Gravity.TOP;
-      myView.setLayoutParams(params);
-    } 
-    if (android.os.Build.VERSION.SDK_INT < 11) {
-      // Force redraw
-      myView.requestLayout();
-    }
-    this.frontLayer.invalidate();
-  }
+    View dummyView = new View(this.context);
+    dummyView.setLayoutParams(new LayoutParams(1, 99999));
+    scrollFrameLayout.addView(dummyView);
 
-  public View getMyView() {
-    return myView;
-  }
-  public void setDebug(boolean debug) {
-    this.isDebug = debug;
-    if (this.isDebug == true) {
-      this.inValidate();
-    }
-  }
-
-  public void detachMyView() {
-    if (myView == null) {
-      return;
-    }
-    root.removeView(this);
-    this.removeView(frontLayer);
-    frontLayer.removeView(view);
-    
-    scrollFrameLayout.removeView(myView);
-    myView.removeView(this.touchableWrapper);
-    
-    this.removeView(this.scrollView);
-    this.scrollView.removeView(scrollFrameLayout);
-    if (orgLayoutParams != null) {
-      myView.setLayoutParams(orgLayoutParams);
-    }
-    
-    root.addView(view);
-    myView = null;
-    mActivity.getWindow().getDecorView().requestFocus();
-  }
-  
-  public void attachMyView(ViewGroup pluginView) {
-    view.setBackgroundColor(Color.TRANSPARENT);
-    if("org.xwalk.core.XWalkView".equals(view.getClass().getName())
-        || "org.crosswalk.engine.XWalkCordovaView".equals(view.getClass().getName())) {
-      try {
-        /* view.setZOrderOnTop(true)
-         * Called just in time as with root.setBackground(...) the color
-         * come in front and take the whoel screen */
-        view.getClass().getMethod("setZOrderOnTop", boolean.class)
-          .invoke(view, true);
-      }
-      catch(Exception e) {}
-    }
-    scrollView.setHorizontalScrollBarEnabled(false);
-    scrollView.setVerticalScrollBarEnabled(false);
-    
-    scrollView.scrollTo(view.getScrollX(), view.getScrollY());
-    if (myView == pluginView) {
-      return;
-    } else {
-      this.detachMyView();
-    }
-    //backgroundView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (view.getContentHeight() * view.getScale() + view.getHeight())));
-    
-    myView = pluginView;
-    ViewGroup.LayoutParams lParams = myView.getLayoutParams();
-    orgLayoutParams = null;
-    if (lParams != null) {
-      orgLayoutParams = new ViewGroup.LayoutParams(lParams);
-    }
-    root.removeView(view);
-    scrollView.addView(scrollFrameLayout);
-    this.addView(scrollView);
-    
-    pluginView.addView(this.touchableWrapper);
-    scrollFrameLayout.addView(pluginView);
-    
-    frontLayer.addView(view);
-    this.addView(frontLayer);
-    root.addView(this);
-    mActivity.getWindow().getDecorView().requestFocus();
-    
     scrollView.setHorizontalScrollBarEnabled(true);
     scrollView.setVerticalScrollBarEnabled(true);
+    scrollView.addView(scrollFrameLayout);
+
+    browserView.setDrawingCacheEnabled(false);
+
+
+    this.addView(scrollView);
+    this.addView(frontLayer);
+    root.addView(this);
+    browserView.setBackgroundColor(Color.TRANSPARENT);
+    /*
+    if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
+      || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
+      try {
+    // view.setZOrderOnTop(true)
+    // Called just in time as with root.setBackground(...) the color
+    // come in front and take the whole screen
+        browserView.getClass().getMethod("setZOrderOnTop", boolean.class)
+          .invoke(browserView, true);
+      }
+      catch(Exception e) {
+        e.printStackTrace();
+      }
+    }
+    */
+    scrollView.setHorizontalScrollBarEnabled(false);
+    scrollView.setVerticalScrollBarEnabled(false);
+
+    redrawTimer = new Timer();
+    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 100, 25);
+    mActivity.getWindow().getDecorView().requestFocus();
   }
-  
-  public void setPageSize(int width, int height) {
-    android.view.ViewGroup.LayoutParams lParams = backgroundView.getLayoutParams();
-    lParams.width = width;
-    lParams.height = height;
-    backgroundView.setLayoutParams(lParams);
+
+
+
+  public void clearHtmlElements()  {
+    Bundle bundle;
+    RectF rectF;
+    synchronized (HTMLNodes) {
+      String[] keys = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
+      for (int i = 0; i < HTMLNodes.size(); i++) {
+        bundle = HTMLNodes.remove(keys[i]);
+        bundle = null;
+        rectF = HTMLNodeRectFs.remove(keys[i]);
+        rectF = null;
+      }
+      keys = null;
+    }
   }
-  
+
+  public void putHTMLElements(JSONObject elements)  {
+
+
+    HashMap<String, Bundle> newBuffer = new HashMap<String, Bundle>();
+    HashMap<String, RectF> newBufferRectFs = new HashMap<String, RectF>();
+
+    Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
+
+    Iterator<String> domIDs = elementsBundle.keySet().iterator();
+    String domId;
+    Bundle domInfo, size;
+    while (domIDs.hasNext()) {
+      domId = domIDs.next();
+      domInfo = elementsBundle.getBundle(domId);
+
+      size = domInfo.getBundle("size");
+      RectF rectF = new RectF();
+      rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
+      rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
+      rectF.right = rectF.left  + (float)(Double.parseDouble(size.get("width") + "") * zoomScale);
+      rectF.bottom = rectF.top  + (float)(Double.parseDouble(size.get("height") + "") * zoomScale);
+      newBufferRectFs.put(domId, rectF);
+
+      domInfo.remove("size");
+      newBuffer.put(domId, domInfo);
+    }
+
+    Bundle bundle;
+    RectF rectF;
+    HashMap<String, Bundle> oldBuffer = HTMLNodes;
+    HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
+
+    synchronized (HTMLNodes) {
+      HTMLNodes = newBuffer;
+      HTMLNodeRectFs = newBufferRectFs;
+    }
+
+    String[] keys = oldBuffer.keySet().toArray(new String[oldBuffer.size()]);
+    for (int i = 0; i < oldBuffer.size(); i++) {
+      bundle = oldBuffer.remove(keys[i]);
+      bundle = null;
+      rectF = oldBufferRectFs.remove(keys[i]);
+      rectF = null;
+    }
+    oldBuffer = null;
+    oldBufferRectFs = null;
+    keys = null;
+    elementsBundle = null;
+  }
+
+  /*
+  public void updateViewPosition(final String mapId) {
+    //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
+
+    if (!pluginMaps.containsKey(mapId)) {
+      return;
+    }
+
+    final PluginMap pluginMap = pluginMaps.get(mapId);
+        if (pluginMap.mapDivId == null) {
+          return;
+        }
+        final ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
+        //int scrollX = browserView.getScrollX();
+    final int scrollY = browserView.getScrollY();
+    final int webviewWidth = browserView.getWidth();
+    final int webviewHeight = browserView.getHeight();
+    final RectF drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+
+    final int width = (int)drawRect.width();
+    final int height = (int)drawRect.height();
+    final int x = (int) drawRect.left;
+    final int y = (int) drawRect.top + scrollY;
+
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (lParams instanceof AbsoluteLayout.LayoutParams) {
+          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+          if (params.x == x && params.y == y &&
+              params.width == width && params.height == height) {
+            return;
+          }
+          params.width = width;
+          params.height = height;
+          params.x = x;
+          params.y = y;
+          Log.d("MyPluginLayout", "-->absolute " + params.x + ", " + params.y + " - " + params.width + ", " + params.height);
+          pluginMap.mapView.setLayoutParams(params);
+        } else if (lParams instanceof LinearLayout.LayoutParams) {
+          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+
+          if (params.leftMargin == x && params.topMargin == y &&
+            params.width == width && params.height == height) {
+            return;
+          }
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
+          Log.d("MyPluginLayout", "-->LinearLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
+          pluginMap.mapView.setLayoutParams(params);
+
+        } else if (lParams instanceof FrameLayout.LayoutParams) {
+          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+          if (params.leftMargin == x && params.topMargin == y &&
+            params.width == width && params.height == height) {
+            return;
+          }
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
+          params.gravity = Gravity.TOP;
+          Log.d("MyPluginLayout", "-->FrameLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
+          pluginMap.mapView.setLayoutParams(params);
+        }
+        //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
+/ *
+        if ((drawRect.top + drawRect.height() < 0) ||
+          (drawRect.top >  webviewHeight) ||
+          (drawRect.left + drawRect.width() < 0) ||
+          (drawRect.left > webviewWidth))  {
+
+          pluginMap.mapView.setVisibility(View.INVISIBLE);
+        } else {
+          pluginMap.mapView.setVisibility(View.VISIBLE);
+        }
+        frontLayer.invalidate();
+        * /
+      }
+    });
+  }
+*/
+
+  public void setDebug(final boolean debug) {
+    this.isDebug = debug;
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (debug) {
+          inValidate();
+        }
+      }
+    });
+  }
+
+  public PluginMap removePluginMap(final String mapId) {
+    if (!pluginMaps.containsKey(mapId)) {
+      return null;
+    }
+    final PluginMap pluginMap = pluginMaps.remove(mapId);
+
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          scrollFrameLayout.removeView(pluginMap.mapView);
+          pluginMap.mapView.removeView(touchableWrappers.remove(mapId));
+
+          //Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
+
+
+          mActivity.getWindow().getDecorView().requestFocus();
+        } catch (Exception e) {
+          // ignore
+          //e.printStackTrace();
+        }
+      }
+    });
+    return pluginMap;
+  }
+
+  public void addPluginMap(final PluginMap pluginMap) {
+    if (pluginMap.mapDivId == null) {
+      return;
+    }
+
+    if (!HTMLNodes.containsKey(pluginMap.mapDivId)) {
+      Bundle dummyInfo = new Bundle();
+      dummyInfo.putDouble("offsetX", 0);
+      dummyInfo.putDouble("offsetY", 3000);
+      dummyInfo.putBoolean("isDummy", true);
+      HTMLNodes.put(pluginMap.mapDivId, dummyInfo);
+      HTMLNodeRectFs.put(pluginMap.mapDivId, new RectF(0, 3000, 100, 100));
+    }
+    pluginMaps.put(pluginMap.mapId, pluginMap);
+
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        if (pluginMap.mapView.getParent() == null) {
+          TouchableWrapper wrapper = new TouchableWrapper(context);
+          touchableWrappers.put(pluginMap.mapId, wrapper);
+          pluginMap.mapView.addView(wrapper);
+          scrollFrameLayout.addView(pluginMap.mapView);
+        }
+
+        mActivity.getWindow().getDecorView().requestFocus();
+
+        //updateViewPosition(pluginMap.mapId);
+
+      }
+    });
+  }
+
   public void scrollTo(int x, int y) {
     this.scrollView.scrollTo(x, y);
   }
 
-
-  public void setBackgroundColor(int color) {
-    this.backgroundView.setBackgroundColor(color);
-  }
-  
   public void inValidate() {
     this.frontLayer.invalidate();
   }
-  
+
+  @Override
+  public void onScrollChanged() {
+//Log.d("Layout", "---> onScrollChanged");
+    scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
+  }
+
 
   private class FrontLayerLayout extends FrameLayout {
-    
+
     public FrontLayerLayout(Context context) {
       super(context);
       this.setWillNotDraw(false);
     }
-    
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (isClickable == false || myView == null || myView.getVisibility() != View.VISIBLE) {
-        view.requestFocus(View.FOCUS_DOWN);
+      if (isSuspended || pluginMaps == null || pluginMaps.size() == 0) {
+        webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
         return false;
       }
-      int x = (int)event.getX();
-      int y = (int)event.getY();
-      int scrollY = view.getScrollY();
-      boolean contains = drawRect.contains(x, y);
+      MyPluginLayout.this.stopFlag = true;
+
       int action = event.getAction();
-      isScrolling = (contains == false && action == MotionEvent.ACTION_DOWN) ? true : isScrolling;
-      isScrolling = (action == MotionEvent.ACTION_UP) ? false : isScrolling;
-      contains = isScrolling == true ? false : contains;
-      
-      if (contains) {
-        // Is the touch point on any HTML elements?
-        Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
-        Iterator<Entry<String, RectF>> iterator = elements.iterator();
-        Entry <String, RectF> entry;
-        RectF rect;
-        while(iterator.hasNext() && contains == true) {
+      //Log.d("FrontLayerLayout", "----> action = " + MotionEvent.actionToString(action) + ", isScrolling = " + isScrolling);
+
+      // The scroll action that started in the browser region is end.
+      isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
+      if (isScrolling) {
+        MyPluginLayout.this.stopFlag = false;
+        return false;
+      }
+
+      PluginMap pluginMap;
+      Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
+      Entry<String, PluginMap> entry;
+      String mapId;
+
+      PointF clickPoint = new PointF(event.getX(), event.getY());
+
+      int scrollY = browserView.getScrollY();
+      RectF drawRect;
+      boolean isMapAction = false;
+
+
+      synchronized (HTMLNodes) {
+        while (iterator.hasNext()) {
           entry = iterator.next();
-          rect = entry.getValue();
-          rect.top -= scrollY;
-          rect.bottom -= scrollY;
-          if (entry.getValue().contains(x, y)) {
-            contains = false;
+          mapId = entry.getKey();
+          pluginMap = entry.getValue();
+
+          //-----------------------
+          // Is the map clickable?
+          //-----------------------
+          if (!pluginMap.isVisible || !pluginMap.isClickable) {
+            continue;
           }
-          rect.top += scrollY;
-          rect.bottom += scrollY;
+
+          if (pluginMap.mapDivId == null) {
+            continue;
+          }
+
+          //------------------------------------------------
+          // Is the clicked point is in the map rectangle?
+          //------------------------------------------------
+          drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+          if (drawRect == null || !drawRect.contains(clickPoint.x, clickPoint.y)) {
+            continue;
+          }
+          isMapAction = true;
+
+          //-----------------------------------------------------------
+          // Is the clicked point is on the html elements in the map?
+          //-----------------------------------------------------------
+          String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
+          Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
+          RectF htmlElementRect;
+          int mapDivDepth = domInfo.getInt("depth");
+
+          for (String domId : domIDs) {
+            if (pluginMap.mapDivId.equals(domId)) {
+              continue;
+            }
+            if (!HTMLNodes.containsKey(domId)) {
+              continue;
+            }
+            domInfo = HTMLNodes.get(domId);
+            if (domInfo == null) {
+              continue;
+            }
+            if (domInfo.getInt("depth") <= mapDivDepth) {
+              continue;
+            }
+
+            htmlElementRect = HTMLNodeRectFs.get(domId);
+            if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {
+              continue;
+            }
+
+            if (clickPoint.x >= htmlElementRect.left &&
+                clickPoint.x <= (htmlElementRect.right) &&
+                clickPoint.y >= htmlElementRect.top &&
+                clickPoint.y <= htmlElementRect.bottom) {
+              isMapAction = false;
+              break;
+            }
+
+          }
+          if (isMapAction) {
+            break;
+          }
         }
       }
-      if (!contains) {
-        view.requestFocus(View.FOCUS_DOWN);
+      isScrolling = (!isMapAction && action == MotionEvent.ACTION_DOWN) || isScrolling;
+      isMapAction = !isScrolling && isMapAction;
+
+      if (!isMapAction) {
+        browserView.requestFocus(View.FOCUS_DOWN);
+        webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
       }
-      return contains;
+
+      MyPluginLayout.this.stopFlag = false;
+      return isMapAction;
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
-      if (drawRect == null || isDebug == false) {
+      if (isSuspended || HTMLNodes.isEmpty() || !isDebug) {
         return;
       }
-      int width = canvas.getWidth();
-      int height = canvas.getHeight();
-      int scrollY = view.getScrollY();
-      
-      Paint paint = new Paint();
-      paint.setColor(Color.argb(100, 0, 255, 0));
-      if (isClickable == false) {
-        canvas.drawRect(0f, 0f, width, height, paint);
-        return;
+
+      PluginMap pluginMap;
+      Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
+      Entry<String, PluginMap> entry;
+      RectF mapRect;
+      synchronized (HTMLNodeRectFs) {
+        while (iterator.hasNext()) {
+          entry = iterator.next();
+          pluginMap = entry.getValue();
+          if (pluginMap.mapDivId == null) {
+            continue;
+          }
+          mapRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+
+          debugPaint.setColor(Color.argb(100, 0, 255, 0));
+          canvas.drawRect(mapRect, debugPaint);
+        }
       }
-      canvas.drawRect(0f, 0f, width, drawRect.top, paint);
-      canvas.drawRect(0, drawRect.top, drawRect.left, drawRect.bottom, paint);
-      canvas.drawRect(drawRect.right, drawRect.top, width, drawRect.bottom, paint);
-      canvas.drawRect(0, drawRect.bottom, width, height, paint);
-      
-      
-      paint.setColor(Color.argb(100, 255, 0, 0));
-      
-      Set<Entry<String, RectF>> elements = MyPluginLayout.this.HTMLNodes.entrySet();
-      Iterator<Entry<String, RectF>> iterator = elements.iterator();
-      Entry <String, RectF> entry;
-      RectF rect;
-      while(iterator.hasNext()) {
-        entry = iterator.next();
-        rect = entry.getValue();
-        rect.top -= scrollY;
-        rect.bottom -= scrollY;
-        canvas.drawRect(rect, paint);
-        rect.top += scrollY;
-        rect.bottom += scrollY;
-      }
+
+
     }
   }
-  
+
   private class TouchableWrapper extends FrameLayout {
-    
+
     public TouchableWrapper(Context context) {
       super(context);
     }
@@ -357,5 +640,5 @@ public class MyPluginLayout extends FrameLayout  {
       }
       return super.dispatchTouchEvent(event);
     }
-  } 
+  }
 }

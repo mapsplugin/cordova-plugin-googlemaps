@@ -1,20 +1,7 @@
 package plugin.google.maps;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaResourceApi;
-import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -36,7 +23,26 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 public class PluginUtil {
+  // Get resource id
+  // http://stackoverflow.com/a/37840674
+  public static int getAppResource(Activity activity, String name, String type) {
+    return activity.getResources().getIdentifier(name, type, activity.getPackageName());
+  }
 
   public static abstract class MyCallbackContext extends CallbackContext {
 
@@ -51,6 +57,45 @@ public class PluginUtil {
     abstract public void onResult(PluginResult pluginResult);
   }
 
+  public static boolean isNumeric(String str)
+  {
+    for (char c : str.toCharArray()) {
+      if (!Character.isDigit(c)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static LatLngBounds getBoundsFromCircle(LatLng center, double radius) {
+    double d2r = Math.PI / 180;   // degrees to radians
+    double r2d = 180 / Math.PI;   // radians to degrees
+    double earthsradius = 3963.189; // 3963 is the radius of the earth in miles
+    radius *= 0.000621371192; // convert to mile
+
+    // find the raidus in lat/lon
+    double rlat = (radius / earthsradius) * r2d;
+    double rlng = rlat / Math.cos(center.latitude * d2r);
+
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    double ex, ey;
+    for (int i = 0; i < 360; i+=90) {
+      ey = center.longitude + (rlng * Math.cos(i * d2r)); // center a + radius x * cos(theta)
+      ex = center.latitude + (rlat * Math.sin(i * d2r)); // center b + radius y * sin(theta)
+      builder.include(new LatLng(ex, ey));
+    }
+    return builder.build();
+  }
+
+  public static LatLngBounds getBoundsFromPath(List<LatLng> path) {
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+    for (LatLng aPath : path) {
+      builder.include(aPath);
+    }
+    return builder.build();
+  }
+
   public static String getAbsolutePathFromCDVFilePath(CordovaResourceApi resourceApi, String cdvFilePath) {
     if (cdvFilePath.indexOf("cdvfile://") != 0) {
       return null;
@@ -59,7 +104,16 @@ public class PluginUtil {
     //CordovaResourceApi resourceApi = webView.getResourceApi();
     Uri fileURL = resourceApi.remapUri(Uri.parse(cdvFilePath));
     File file = resourceApi.mapUriToFile(fileURL);
-    return file.getAbsolutePath();
+    if (file == null) {
+      return null;
+    }
+
+    try {
+      return file.getCanonicalPath();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -108,8 +162,8 @@ public class PluginUtil {
     return Color.argb(arrayRGBA.getInt(3), arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2));
   }
 
-  public static List<LatLng> JSONArray2LatLngList(JSONArray points) throws JSONException  {
-    List<LatLng> path = new ArrayList<LatLng>();
+  public static ArrayList<LatLng> JSONArray2LatLngList(JSONArray points) throws JSONException  {
+    ArrayList<LatLng> path = new ArrayList<LatLng>();
     JSONObject pointJSON;
     int i = 0;
     for (i = 0; i < points.length(); i++) {
@@ -125,7 +179,7 @@ public class PluginUtil {
     int i = 0;
     for (i = 0; i < points.length(); i++) {
       pointJSON = points.getJSONObject(i);
-      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng"))); 
+      path.add(new LatLng(pointJSON.getDouble("lat"), pointJSON.getDouble("lng")));
     }
     return path;
   }
@@ -151,12 +205,12 @@ public class PluginUtil {
         value = json.get(key);
         if (Boolean.class.isInstance(value)) {
           mBundle.putBoolean(key, (Boolean)value);
-        } else if (Double.class.isInstance(value)) {
-          mBundle.putDouble(key, (Double)value);
         } else if (Integer.class.isInstance(value)) {
           mBundle.putInt(key, (Integer)value);
         } else if (Long.class.isInstance(value)) {
           mBundle.putLong(key, (Long)value);
+        } else if (Double.class.isInstance(value)) {
+          mBundle.putDouble(key, (Double)value);
         } else if (JSONObject.class.isInstance(value)) {
           mBundle.putBundle(key, Json2Bundle((JSONObject)value));
         } else {
@@ -189,7 +243,8 @@ public class PluginUtil {
     Canvas canvas = new Canvas(scaledBitmap);
     canvas.setMatrix(scaleMatrix);
     canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-    
+    bitmap.recycle();
+
     return scaledBitmap;
   }
 

@@ -1,13 +1,15 @@
 //
 //  MyPlgunProtocol.h
-//  SimpleMap
+//  cordova-googlemaps-plugin v2
 //
-//  Created by masashi on 11/8/13.
+//  Created by Masashi Katsumata.
 //
 //
 
 #import <Foundation/Foundation.h>
+#import <Cordova/CDV.h>
 
 @protocol MyPlgunProtocol <NSObject>
-- (void)setGoogleMapsViewController: (GoogleMapsViewController*)viewCtrl;
+//- (void)onHookedPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId;
+- (void)pluginUnload;
 @end
