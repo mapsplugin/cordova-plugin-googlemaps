@@ -240,7 +240,7 @@ map.addPolygon({
 }, function(polygon) {
 
 });</pre>
-<img src="./images/polygon.png" align="left"></td>
+<img src="./images/groundoverlay.png" align="left"></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md">TileOverlay</a></td>
@@ -254,7 +254,7 @@ map.addTileOverlay({
 }, function(tileOverlay) {
 
 });</pre>
-<img src="./images/polygon.png" align="left"></td>
+<img src="./images/tileoverlay.png" align="left"></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md">Geocoder</a></td>
