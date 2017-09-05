@@ -146,13 +146,13 @@ You can write your code `similar like` the Google Maps JavaScript API v3.
 
 **Features compare table**
 
-                | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
-----------------|-----------------------------------|---------------------------------------|
-Rendering system| JavaScript + HTML                 | JavaScript + Native APIs              |
-Offline map     | Not possible                      | Possible (only you displayed area)    |
-3D View         | Not possible                      | Possible                              |
-Platform        | All browsers                      | Android and iOS app only              |
-Tile image      | Bitmap                            | Vector                                |
+|                | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
+|----------------|-----------------------------------|---------------------------------------|
+|Rendering system| JavaScript + HTML                 | JavaScript + Native APIs              |
+|Offline map     | Not possible                      | Possible (only you displayed area)    |
+|3D View         | Not possible                      | Possible                              |
+|Platform        | All browsers                      | Android and iOS app only              |
+|Tile image      | Bitmap                            | Vector                                |
 
 **Class compare table**
 
