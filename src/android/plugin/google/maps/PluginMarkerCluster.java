@@ -149,7 +149,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String clusterId = args.getString(0);
-    Log.d(TAG, "-->remove = " + clusterId);
+    //Log.d(TAG, "-->remove = " + clusterId);
     synchronized (debugFlags) {
       debugFlags.remove(clusterId);
       waitCntManager.remove(clusterId);
@@ -157,7 +157,7 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (pluginMarkers) {
       for(String key: pluginMarkers.keySet()) {
         if (key.startsWith(clusterId)) {
-          Log.d(TAG, "-->delete = " + key);
+          //Log.d(TAG, "-->delete = " + key);
           pluginMarkers.put(key, STATUS.CREATED);
           deleteMarkers.add(key);
         }
@@ -246,7 +246,7 @@ public class PluginMarkerCluster extends PluginMarker {
     final boolean isDebug = debugFlags.get(clusterId);
     final JSONObject params = args.getJSONObject(1);
 
-    String clusterId_markerId;
+    String markerId, clusterId_markerId;
     JSONArray new_or_update = null;
     if (params.has("new_or_update")) {
       new_or_update = params.getJSONArray("new_or_update");
@@ -265,7 +265,8 @@ public class PluginMarkerCluster extends PluginMarker {
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = new_or_update.getJSONObject(i);
       positionJSON = clusterData.getJSONObject("position");
-      clusterId_markerId = clusterData.getString("id");
+      markerId = clusterData.getString("id");
+      clusterId_markerId =  clusterId + "-" + markerId;
 
       // Save the marker properties
       pluginMap.objects.put("marker_property_" + clusterId_markerId, clusterData);
@@ -300,7 +301,7 @@ public class PluginMarkerCluster extends PluginMarker {
             if (icon.has("label")) {
               JSONObject label = icon.getJSONObject("label");
               if (isDebug) {
-                label.put("text", clusterId_markerId.replace(clusterId, ""));
+                label.put("text", markerId);
               } else {
                 label.put("text", clusterData.getInt("count") + "");
               }
@@ -311,7 +312,7 @@ public class PluginMarkerCluster extends PluginMarker {
             } else {
               Bundle label = new Bundle();
               if (isDebug) {
-                label.putString("text", clusterId_markerId.replace(clusterId, ""));
+                label.putString("text", markerId);
               } else {
                 label.putInt("fontSize", 15);
                 label.putBoolean("bold", true);

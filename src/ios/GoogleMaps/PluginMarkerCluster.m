@@ -167,7 +167,7 @@ const int GEOCELL_GRID_SIZE = 4;
     BOOL isDebug = [[self.debugFlags objectForKey:clusterId] boolValue];
 
     __block NSDictionary *params = [command.arguments objectAtIndex:1];
-    NSString *clusterId_markerId;
+    NSString *clusterId_markerId, *markerId;
 
     NSMutableArray *new_or_update = nil;
     if ([params objectForKey:@"new_or_update"]) {
@@ -186,7 +186,8 @@ const int GEOCELL_GRID_SIZE = 4;
     NSMutableDictionary *properties;
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = [new_or_update objectAtIndex:i];
-      clusterId_markerId = [clusterData objectForKey:@"id"];
+      markerId = [clusterData objectForKey:@"id"];
+      clusterId_markerId = [NSString stringWithFormat:@"%@-%@", clusterId, markerId];
 
       // Save the marker properties
       [self.mapCtrl.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];

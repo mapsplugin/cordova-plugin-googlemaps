@@ -992,7 +992,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markerOptions = common.markerOptionsFilter(markerOptions);
 
       var markerId = markerOptions.id || "marker_" + idx;
-      markerId = result.id + "-" + markerId;
+      //markerId = result.id + "-" + markerId;
       markerOptions.id = markerId;
       markerOptions._cluster = {
         isRemoved: false,

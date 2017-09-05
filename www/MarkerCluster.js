@@ -148,7 +148,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     markerOptions = common.markerOptionsFilter(markerOptions);
     var geocell = geomodel.getGeocell(markerOptions.position.lat, markerOptions.position.lng, self.MAX_RESOLUTION + 1);
 
-    var markerId = markerClusterId + "-" + (markerOptions.id || "marker_" + idxCount);
+    var markerId = (markerOptions.id || "marker_" + idxCount);
     markerOptions.id = markerId;
     markerOptions._cluster = {
       isRemoved: false,
@@ -322,6 +322,10 @@ MarkerCluster.prototype.remove = function() {
   }
   exec(null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true});
 
+  var keys = Object.keys(self._markerMap);
+  keys.forEach(function(markerId) {
+    delete self._markerMap[markerId]._cluster;
+  });
   if (self.boundsDraw && self.get("polygon")) {
     self.get("polygon").remove();
   }
@@ -374,9 +378,9 @@ MarkerCluster.prototype.getMarkerById = function(markerId) {
   if (self._isRemove) {
     return null;
   }
-  if (markerId.indexOf(self.id + "-") === -1) {
-    markerId = self.id + "-" + markerId;
-  }
+  //if (markerId.indexOf(self.id + "-") === -1) {
+  //  markerId = self.id + "-" + markerId;
+  //}
   var markerOpts = self._markerMap[markerId];
   if (!markerOpts) {
     return null;
