@@ -87,7 +87,10 @@
     </js-module>
 
 
-    <description>Google Maps native SDK for Android and iOS</description>
+    <description>Google Maps native SDK for Android and iOS.
+This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
+The native map view is faster, use less network usage, display 3D views, and even work on offline network.
+</description>
     <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps</repo>
     <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
     <author>Masashi Katsumata</author>
