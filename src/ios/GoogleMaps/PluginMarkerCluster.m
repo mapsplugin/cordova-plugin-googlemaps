@@ -167,7 +167,7 @@ const int GEOCELL_GRID_SIZE = 4;
     BOOL isDebug = [[self.debugFlags objectForKey:clusterId] boolValue];
 
     __block NSDictionary *params = [command.arguments objectAtIndex:1];
-    NSString *clusterId_markerId;
+    NSString *clusterId_markerId, *markerId;
 
     NSMutableArray *new_or_update = nil;
     if ([params objectForKey:@"new_or_update"]) {
@@ -186,7 +186,8 @@ const int GEOCELL_GRID_SIZE = 4;
     NSMutableDictionary *properties;
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = [new_or_update objectAtIndex:i];
-      clusterId_markerId = [clusterData objectForKey:@"id"];
+      markerId = [clusterData objectForKey:@"id"];
+      clusterId_markerId = [NSString stringWithFormat:@"%@-%@", clusterId, markerId];
 
       // Save the marker properties
       [self.mapCtrl.objects setObject:clusterData forKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
@@ -203,7 +204,7 @@ const int GEOCELL_GRID_SIZE = 4;
       if ([clusterData objectForKey:@"title"]) {
         [properties setObject:[clusterData objectForKey:@"title"] forKey:@"title"];
       }
-      if ([clusterData objectForKey:@"visible"]) {
+      if (clusterData[@"visible"]) {
         [properties setObject:[clusterData objectForKey:@"visible"] forKey:@"visible"];
       } else {
         [properties setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
@@ -264,7 +265,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
 
     if ([updateClusterIDs count] == 0) {
-      [self deleteProcess:params];
+      [self deleteProcess:params clusterId:clusterId];
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       return;
@@ -274,7 +275,7 @@ const int GEOCELL_GRID_SIZE = 4;
     // mapping markers on the map
     //---------------------------
     [[NSOperationQueue mainQueue] addOperationWithBlock: ^{
-      self.mapCtrl.map.selectedMarker = nil;
+      //self.mapCtrl.map.selectedMarker = nil;
       NSString *clusterId_markerId;
       NSMutableDictionary *markerProperties;
       GMSMarker *marker;
@@ -412,7 +413,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
       } // for (int i = 0; i < [updateClusterIDs count]; i++) {..}
 
-      [self deleteProcess:params];
+      [self deleteProcess:params clusterId:clusterId];
 
     }]; // [[NSOperationQueue mainQueue] addOperationWithBlock: ^{..}
 
@@ -424,7 +425,7 @@ const int GEOCELL_GRID_SIZE = 4;
   }]; // dispatch_async
 }
 
-- (void) deleteProcess:(NSDictionary *) params{
+- (void) deleteProcess:(NSDictionary *) params  clusterId:(NSString *)clusterId{
 
   NSMutableArray *deleteClusters = nil;
   if ([params objectForKey:@"delete"]) {
@@ -439,7 +440,8 @@ const int GEOCELL_GRID_SIZE = 4;
     NSString *clusterId_markerId;
     @synchronized (self.deleteMarkers) {
       for (int i = 0; i < deleteCnt; i++) {
-        clusterId_markerId = [deleteClusters objectAtIndex:i];
+        clusterId_markerId = [NSString stringWithFormat:@"%@-%@",
+                              clusterId, [deleteClusters objectAtIndex:i]];
         [self.deleteMarkers addObject:clusterId_markerId];
       }
     }

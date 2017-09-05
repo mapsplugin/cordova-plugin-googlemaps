@@ -148,7 +148,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     markerOptions = common.markerOptionsFilter(markerOptions);
     var geocell = geomodel.getGeocell(markerOptions.position.lat, markerOptions.position.lng, self.MAX_RESOLUTION + 1);
 
-    var markerId = markerClusterId + "-" + (markerOptions.id || "marker_" + idxCount);
+    var markerId = (markerOptions.id || "marker_" + idxCount);
     markerOptions.id = markerId;
     markerOptions._cluster = {
       isRemoved: false,
@@ -273,6 +273,7 @@ MarkerCluster.prototype.remove = function() {
     return;
   }
 
+  var keys;
   var resolution = self.get("resolution"),
     activeMarkerId = self.map.get("active_marker_id"),
     deleteClusters = [];
@@ -296,7 +297,7 @@ MarkerCluster.prototype.remove = function() {
       }
     }
   } else if (self._clusters[resolution]) {
-    var keys = Object.keys(self._clusters[resolution]);
+    keys = Object.keys(self._clusters[resolution]);
     keys.forEach(function(geocell) {
       var cluster = self._clusters[resolution][geocell];
       var noClusterMode = cluster.getMode() === cluster.NO_CLUSTER_MODE;
@@ -315,13 +316,17 @@ MarkerCluster.prototype.remove = function() {
         });
       }
       if (!noClusterMode) {
-        deleteClusters.push(self.id + "-" + geocell);
+        deleteClusters.push(geocell);
       }
       cluster.remove();
     });
   }
   exec(null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true});
 
+  keys = Object.keys(self._markerMap);
+  keys.forEach(function(markerId) {
+    delete self._markerMap[markerId]._cluster;
+  });
   if (self.boundsDraw && self.get("polygon")) {
     self.get("polygon").remove();
   }
@@ -333,9 +338,9 @@ MarkerCluster.prototype.removeMarkerById = function(markerId) {
     return null;
   }
   var self = this;
-  if (markerId.indexOf(self.id + "-") === -1) {
-    markerId = self.id + "-" + markerId;
-  }
+  //if (markerId.indexOf(self.id + "-") === -1) {
+  //  markerId = self.id + "-" + markerId;
+  //}
   var markerOpts = self._markerMap[markerId];
   if (!markerOpts) {
     return;
@@ -374,9 +379,9 @@ MarkerCluster.prototype.getMarkerById = function(markerId) {
   if (self._isRemove) {
     return null;
   }
-  if (markerId.indexOf(self.id + "-") === -1) {
-    markerId = self.id + "-" + markerId;
-  }
+  //if (markerId.indexOf(self.id + "-") === -1) {
+  //  markerId = self.id + "-" + markerId;
+  //}
   var markerOpts = self._markerMap[markerId];
   if (!markerOpts) {
     return null;
@@ -401,8 +406,6 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
     return null;
   }
 
-  var tmp = clusterId.split(";");
-  clusterId = tmp[0];
   var cluster = self._clusters[resolution][clusterId];
   return cluster;
 };
@@ -457,21 +460,20 @@ MarkerCluster.prototype._redraw = function(params) {
     currentZoomLevel = self.map.getCameraZoom(),
     prevResolution = self.get("resolution");
 
-
   currentZoomLevel = currentZoomLevel < 0 ? 0 : currentZoomLevel;
   self.set("zoom", currentZoomLevel);
 
   var resolution = 1;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 3 ? 2 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 5 ? 3 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 7 ? 4 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 9 ? 5 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 11 ? 6 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 13 ? 7 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 15 ? 8 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 17 ? 9 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 19 ? 10 : resolution;
-  resolution = currentZoomLevel < self.maxZoomLevel && currentZoomLevel > 21 ? 11 : resolution;
+  resolution = self.maxZoomLevel > 3 && currentZoomLevel > 3 ? 2 : resolution;
+  resolution = self.maxZoomLevel > 5 && currentZoomLevel > 5 ? 3 : resolution;
+  resolution = self.maxZoomLevel > 7 && currentZoomLevel > 7 ? 4 : resolution;
+  resolution = self.maxZoomLevel > 9 && currentZoomLevel > 9 ? 5 : resolution;
+  resolution = self.maxZoomLevel > 11 && currentZoomLevel > 11 ? 6 : resolution;
+  resolution = self.maxZoomLevel > 13 && currentZoomLevel > 13 ? 7 : resolution;
+  resolution = self.maxZoomLevel > 15 && currentZoomLevel > 15 ? 8 : resolution;
+  resolution = self.maxZoomLevel > 17 && currentZoomLevel > 17 ? 9 : resolution;
+  resolution = self.maxZoomLevel > 19 && currentZoomLevel > 19 ? 10 : resolution;
+  resolution = self.maxZoomLevel > 21 && currentZoomLevel > 21 ? 11 : resolution;
 
   //------------------------------------------------------------------------
   // If the current viewport contains the previous viewport,
@@ -486,12 +488,6 @@ MarkerCluster.prototype._redraw = function(params) {
   var distanceA = spherical.computeDistanceBetween(params.visibleRegion.farRight, params.visibleRegion.farLeft);
   var distanceB = spherical.computeDistanceBetween(params.visibleRegion.farRight, params.visibleRegion.nearRight);
   params.clusterDistance = Math.min(distanceA, distanceB) / 4;
-/*
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.farRight, params.clusterDistance));
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.farLeft, -params.clusterDistance));
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.nearRight, params.clusterDistance));
-  params.visibleRegion.extend(spherical.computeOffsetOrigin(params.visibleRegion.nearLeft, -params.clusterDistance));
-*/
   var expandedRegion = params.visibleRegion;
 
   var swCell = geomodel.getGeocell(expandedRegion.southwest.lat, expandedRegion.southwest.lng, cellLen);
@@ -527,12 +523,34 @@ MarkerCluster.prototype._redraw = function(params) {
     self._clusters[resolution] = self._clusters[resolution] || [];
   }
   var deleteClusters = {};
-  var keys;
+  var keys, i, j;
   var ignoreGeocells = [];
   var allowGeocells = [swCell, neCell, nwCell, seCell];
+
+  var pos, prevCell = "", cell;
+  var coners = [
+    expandedRegion.northeast,
+    {lat: expandedRegion.northeast.lat, lng: expandedRegion.southwest.lng},
+    expandedRegion.southwest,
+    {lat: expandedRegion.southwest.lat, lng: expandedRegion.northeast.lng},
+    expandedRegion.northeast
+  ];
+  for (j = 0; j < 4; j++) {
+    for (i = 0.25; i < 1; i+= 0.25) {
+      pos = plugin.google.maps.geometry.spherical.interpolate(coners[j], coners[j + 1], i);
+
+      cell = geomodel.getGeocell(pos.lat, pos.lng, cellLen);
+      if (allowGeocells.indexOf(cell) === -1) {
+        allowGeocells.push(cell);
+      }
+    }
+  }
+
+  //console.log("---->548");
   var activeMarkerId = self.map.get("active_marker_id");
   if (prevResolution === self.OUT_OF_RESOLUTION) {
     if (resolution === self.OUT_OF_RESOLUTION) {
+      //console.log("---->552");
       //--------------------------------------
       // Just camera move, no zoom changed
       //--------------------------------------
@@ -559,8 +577,8 @@ MarkerCluster.prototype._redraw = function(params) {
         if (expandedRegion.contains(markerOpts.position)) {
           allowGeocells.push(geocell);
           targetMarkers.push(markerOpts);
-        //} else {
-          //ignoreGeocells.push(geocell);
+        } else {
+          ignoreGeocells.push(geocell);
         }
       });
     } else {
@@ -605,8 +623,8 @@ MarkerCluster.prototype._redraw = function(params) {
         if (expandedRegion.contains(markerOpts.position)) {
           allowGeocells.push(geocell);
           targetMarkers.push(markerOpts);
-        //} else {
-          //ignoreGeocells.push(geocell);
+        } else {
+          ignoreGeocells.push(geocell);
         }
       });
     }
@@ -649,7 +667,7 @@ MarkerCluster.prototype._redraw = function(params) {
               }
             });
           } else {
-            deleteClusters[self.id + "-" + geocell] = 1;
+            deleteClusters[geocell] = 1;
             if (self.debug) {
               console.log("---> (js:549)delete:" + geocell);
             }
@@ -679,7 +697,7 @@ MarkerCluster.prototype._redraw = function(params) {
         targetMarkers.push(markerOpts);
         allowGeocells.push(geocell);
       } else {
-        //ignoreGeocells.push(geocell);
+        ignoreGeocells.push(geocell);
         self._markerMap[markerOpts.id]._cluster.isAdded = false;
       }
     });
@@ -725,7 +743,7 @@ MarkerCluster.prototype._redraw = function(params) {
           if (self.debug) {
             console.log("---> (js:597)delete:" + geocell);
           }
-          deleteClusters[self.id + "-" + geocell] = 1;
+          deleteClusters[geocell] = 1;
         }
         cluster.remove();
       });
@@ -761,9 +779,9 @@ MarkerCluster.prototype._redraw = function(params) {
           self._markerMap[markerOpts.id] = markerOpts;
         });
         if (!noClusterMode) {
-          deleteClusters[self.id + "-" + geocell] = 1;
+          deleteClusters[geocell] = 1;
           if (self.debug) {
-            console.log("---> (js:632)delete:" + self.id + "-" + geocell);
+            console.log("---> (js:632)delete:" + geocell);
           }
         }
         cluster.remove();
@@ -797,12 +815,13 @@ MarkerCluster.prototype._redraw = function(params) {
         targetMarkers.push(markerOpts);
         allowGeocells.push(geocell);
       } else {
-        //ignoreGeocells.push(geocell);
+        ignoreGeocells.push(geocell);
         self._markerMap[markerOpts.id]._cluster.isAdded = false;
       }
     });
     delete self._clusters[prevResolution];
   } else {
+    //console.log("-----> initialize");
     keys = Object.keys(self._markerMap);
     keys.forEach(function(markerId) {
       if (self._stopRequest ||
@@ -811,12 +830,20 @@ MarkerCluster.prototype._redraw = function(params) {
       }
       var markerOpts = self._markerMap[markerId];
       var geocell = markerOpts._cluster.geocell.substr(0, cellLen);
-      if (markerOpts._cluster.isRemoved) {
+      if (markerOpts._cluster.isRemoved ||
+        ignoreGeocells.indexOf(geocell) > -1) {
         return;
       }
 
+      if (allowGeocells.indexOf(geocell) > -1) {
+        targetMarkers.push(markerOpts);
+        return;
+      }
       if (expandedRegion.contains(markerOpts.position)) {
         targetMarkers.push(markerOpts);
+        allowGeocells.push(geocell);
+      } else {
+        ignoreGeocells.push(geocell);
       }
     });
   }
@@ -895,7 +922,7 @@ MarkerCluster.prototype._redraw = function(params) {
       while (i < sortedClusters.length) {
         cluster = sortedClusters[i];
         hit = false;
-        for (var j = i + 1; j < sortedClusters.length; j++) {
+        for (j = i + 1; j < sortedClusters.length; j++) {
           anotherCluster = sortedClusters[j];
           distance = spherical.computeDistanceBetween(cluster._markerCenter, anotherCluster._markerCenter);
           if (distance < params.clusterDistance) {
@@ -1058,7 +1085,7 @@ MarkerCluster.prototype.getClusterIcon = function(cluster) {
 MarkerCluster.prototype._createMarker = function(markerOpts) {
   var markerId = markerOpts.id;
   var self = this;
-  var marker = new Marker(self.getMap(), markerId, markerOpts, "MarkerCluster", exec);
+  var marker = new Marker(self.getMap(), self.id + "-" + markerId, markerOpts, "MarkerCluster", exec);
   function updateProperty(prevValue, newValue, key) {
     self._markerMap[markerId][key] = newValue;
   }
@@ -1086,7 +1113,7 @@ MarkerCluster.prototype.getClusterByGeocellAndResolution = function(geocell, res
 
   var cluster = self._clusters[resolution][geocell];
   if (!cluster) {
-    cluster = new Cluster(self.id + "-" +geocell, geocell);
+    cluster = new Cluster(geocell, geocell);
     self._clusters[resolution][geocell] = cluster;
   }
   return cluster;

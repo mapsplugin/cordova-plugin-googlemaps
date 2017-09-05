@@ -75,7 +75,7 @@
       GMSPolyline *polyline = [GMSPolyline polylineWithPath:mutablePath];
 
       BOOL isVisible = NO;
-      if ([[json valueForKey:@"visible"] boolValue]) {
+      if (json[@"visible"]) {
         polyline.map = self.mapCtrl.map;
         isVisible = YES;
       }

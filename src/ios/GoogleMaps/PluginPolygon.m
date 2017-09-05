@@ -95,7 +95,7 @@
       }
 
       BOOL isVisible = NO;
-      if ([[json valueForKey:@"visible"] boolValue]) {
+      if (json[@"visible"]) {
         polygon.map = self.mapCtrl.map;
         isVisible = YES;
       }

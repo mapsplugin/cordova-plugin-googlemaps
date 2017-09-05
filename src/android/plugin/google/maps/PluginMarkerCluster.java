@@ -102,6 +102,7 @@ public class PluginMarkerCluster extends PluginMarker {
         String markerId;
         Marker marker;
         STATUS status;
+        String cacheKey;
         String[] targetIDs = deleteMarkers.toArray(new String[deleteMarkers.size()]);
 
         for (int i = targetIDs.length - 1; i > -1; i--) {
@@ -110,12 +111,25 @@ public class PluginMarkerCluster extends PluginMarker {
           marker = self.getMarker(markerId);
           synchronized (pluginMarkers) {
             status =  pluginMarkers.get(markerId);
+
             if (!STATUS.WORKING.equals(status)) {
               synchronized (pluginMap.objects) {
                 _removeMarker(marker);
                 marker = null;
+
+                cacheKey = (String) pluginMap.objects.remove("marker_icon_" + markerId);
+                if (cacheKey != null && iconCacheKeys.containsKey(cacheKey)) {
+                  int count = iconCacheKeys.get(cacheKey);
+                  if (count < 1) {
+                    iconCacheKeys.remove(cacheKey);
+                    AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+                  } else {
+                    iconCacheKeys.put(cacheKey, count - 1);
+                  }
+                }
+
+
                 pluginMap.objects.remove(markerId);
-                pluginMap.objects.remove("marker_icon_" + markerId);
                 pluginMap.objects.remove("marker_property_" + markerId);
                 pluginMap.objects.remove("marker_imageSize_" + markerId);
               }
@@ -135,6 +149,7 @@ public class PluginMarkerCluster extends PluginMarker {
 
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String clusterId = args.getString(0);
+    //Log.d(TAG, "-->remove = " + clusterId);
     synchronized (debugFlags) {
       debugFlags.remove(clusterId);
       waitCntManager.remove(clusterId);
@@ -142,12 +157,14 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (pluginMarkers) {
       for(String key: pluginMarkers.keySet()) {
         if (key.startsWith(clusterId)) {
-          pluginMarkers.put(key, STATUS.DELETED);
+          //Log.d(TAG, "-->delete = " + key);
+          pluginMarkers.put(key, STATUS.CREATED);
           deleteMarkers.add(key);
         }
       }
     }
 
+    /*
     String cacheKey;
     Set<String> keySet = pluginMap.objects.keySet();
     Marker marker;
@@ -169,14 +186,15 @@ public class PluginMarkerCluster extends PluginMarker {
         } else if (objectId.startsWith("marker_property_") ||
             objectId.startsWith("marker_imageSize_")) {
           pluginMap.objects.remove(objectId);
-        } else if (objectId.startsWith("marker_")) {
-          marker = (Marker) pluginMap.objects.remove(objectId);
-          marker.remove();
+        //} else if (objectId.startsWith("marker_")) {
+        //  marker = (Marker) pluginMap.objects.remove(objectId);
+        //  marker.remove();
         } else {
           pluginMap.objects.remove(objectId);
         }
       }
     }
+    */
     synchronized (deleteThreadLock) {
       deleteThreadLock.notify();
     }
@@ -228,7 +246,7 @@ public class PluginMarkerCluster extends PluginMarker {
     final boolean isDebug = debugFlags.get(clusterId);
     final JSONObject params = args.getJSONObject(1);
 
-    String clusterId_markerId;
+    String markerId, clusterId_markerId;
     JSONArray new_or_update = null;
     if (params.has("new_or_update")) {
       new_or_update = params.getJSONArray("new_or_update");
@@ -247,7 +265,8 @@ public class PluginMarkerCluster extends PluginMarker {
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = new_or_update.getJSONObject(i);
       positionJSON = clusterData.getJSONObject("position");
-      clusterId_markerId = clusterData.getString("id");
+      markerId = clusterData.getString("id");
+      clusterId_markerId =  clusterId + "-" + markerId;
 
       // Save the marker properties
       pluginMap.objects.put("marker_property_" + clusterId_markerId, clusterData);
@@ -282,7 +301,7 @@ public class PluginMarkerCluster extends PluginMarker {
             if (icon.has("label")) {
               JSONObject label = icon.getJSONObject("label");
               if (isDebug) {
-                label.put("text", clusterId_markerId.replace(clusterId, ""));
+                label.put("text", markerId);
               } else {
                 label.put("text", clusterData.getInt("count") + "");
               }
@@ -293,7 +312,7 @@ public class PluginMarkerCluster extends PluginMarker {
             } else {
               Bundle label = new Bundle();
               if (isDebug) {
-                label.putString("text", clusterId_markerId.replace(clusterId, ""));
+                label.putString("text", markerId);
               } else {
                 label.putInt("fontSize", 15);
                 label.putBoolean("bold", true);
@@ -324,7 +343,7 @@ public class PluginMarkerCluster extends PluginMarker {
     //Log.d(TAG, "---> deleteCnt : " + deleteCnt + ", newCnt : " + newCnt + ", updateCnt : " + updateCnt + ", reuseCnt : " + reuseCnt);
 
     if (updateClusterIDs.size() == 0) {
-      deleteProcess(params);
+      deleteProcess(clusterId, params);
       callbackContext.success();
       return;
     }
@@ -429,7 +448,7 @@ public class PluginMarkerCluster extends PluginMarker {
             marker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")))
                 .visible(false));
-            marker.setTag(markerProperties.getString("id"));
+            marker.setTag(clusterId_markerId);
 
             // Store the marker instance with markerId
             synchronized (pluginMap.objects) {
@@ -507,7 +526,7 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (semaphore) {
       try {
         semaphore.wait();
-        deleteProcess(params);
+        deleteProcess(clusterId, params);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -515,7 +534,7 @@ public class PluginMarkerCluster extends PluginMarker {
     callbackContext.success();
 
   }
-  private void deleteProcess(final JSONObject params) {
+  private void deleteProcess(final String clusterId, final JSONObject params) {
     if (!params.has("delete")) {
       return;
     }
@@ -532,7 +551,7 @@ public class PluginMarkerCluster extends PluginMarker {
             int deleteCnt = deleteClusters.length();
             String clusterId_markerId;
             for (int i = 0; i < deleteCnt; i++) {
-              clusterId_markerId = deleteClusters.getString(i);
+              clusterId_markerId = clusterId + "-" + deleteClusters.getString(i);
               deleteMarkers.add(clusterId_markerId);
             }
 

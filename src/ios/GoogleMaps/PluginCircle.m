@@ -77,7 +77,7 @@
         }
 
         BOOL isVisible = NO;
-        if ([[json valueForKey:@"visible"] boolValue]) {
+        if (json[@"visible"]) {
             circle.map = self.mapCtrl.map;
             isVisible = YES;
         }

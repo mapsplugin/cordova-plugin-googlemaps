@@ -253,9 +253,14 @@ function shouldWatchByNative(node) {
   var displayCSS = getStyle(node, 'display');
   var opacityCSS = getStyle(node, 'opacity');
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-  //var clickableSize = (node.offsetHeight > 0 && node.offsetWidth > 0 || node.clientHeight > 0 && node.clientWidth > 0);
+  var clickableSize = (
+    node.offsetHeight > 0 && node.offsetWidth > 0 ||
+    node.clientHeight > 0 && node.clientWidth > 0 ||
+    node.clientHeight === 0 && node.clientWidth === 0 &&
+        node.className.indexOf("_gmaps_cdv_") > -1);
   return displayCSS !== "none" &&
-    opacityCSS > 0 && visibilityCSS !== "hidden";
+    opacityCSS > 0 && visibilityCSS !== "hidden" &&
+    clickableSize;
 }
 
 
@@ -309,14 +314,15 @@ function getDomDepth(dom, idx) {
     }
     var orgDom = dom;
     var zIndex = getZIndex(dom);
-    /*
+/*
     var depth = 0;
     while (dom.parentNode !== null && dom.parentNode != document) {
         dom = dom.parentNode;
         depth++;
     }
-    */
-    var result = (zIndex + 1) * 1000 + idx;
+*/
+    //var result = ((zIndex + 1) << (depth + 1)) + idx;
+    var result =  Math.floor(((zIndex + 1) / (idx + 1) + idx) * 1000);
     orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }

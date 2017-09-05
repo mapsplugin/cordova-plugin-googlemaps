@@ -53,29 +53,14 @@ var Marker = function(map, id, markerOptions, className, _exec) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-
-    if (markerOptions.infoWindow) {
-      console.log("[deprecated] the infoWindow option is deprecated. Please use event listener.");
-    }
-
     self.on(event.INFO_OPEN, function() {
-        if (map.get("active_marker_id") === id) {
-          return;
-        }
-        map.set('active_marker_id', id);
-
-        if (markerOptions.infoWindow) {
-            markerOptions.infoWindow.open(self);
-        }
-    });
-    self.on(event.INFO_CLOSE, function() {
-
-        if (markerOptions.infoWindow) {
-            markerOptions.infoWindow.close(self);
-        }
+      self.showInfoWindow.apply(self);
     });
     self.on(event.MARKER_CLICK, function() {
-        self.trigger(event.INFO_OPEN);
+      self.showInfoWindow.apply(self);
+    });
+    self.on(event.INFO_CLOSE, function() {
+      self.hideInfoWindow.apply(self)
     });
 
 
@@ -250,6 +235,9 @@ Marker.prototype.setTitle = function(title) {
 Marker.prototype.setVisible = function(visible) {
     visible = common.parseBoolean(visible);
     this.set('visible', visible);
+    if (!visible && this.map.get("active_marker_id") === this.id) {
+        this.map.set("active_marker_id", undefined);
+    }
     return this;
 };
 Marker.prototype.getTitle = function() {
@@ -274,21 +262,24 @@ Marker.prototype.getRotation = function() {
     return this.get('rotation');
 };
 Marker.prototype.showInfoWindow = function() {
-    exec(null, this.errorHandler, this.getPluginName(), 'showInfoWindow', [this.getId()]);
+    if (!this.get("title") && !this.get("snippet") ||
+        this.get("isInfoWindowVisible")) {
+        return;
+    }
+    this.set("isInfoWindowVisible", true);
+    this.map.set("active_marker_id", this.id);
+    exec(null, this.errorHandler, this.getPluginName(), 'showInfoWindow', [this.getId()], {sync: true});
     return this;
 };
 Marker.prototype.hideInfoWindow = function() {
-    var map = this.getMap();
-    if (map) {
-      map.set('active_marker_id', undefined);
+    if (this.get("isInfoWindowVisible")) {
+        this.set("isInfoWindowVisible", false);
+        exec(null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()], {sync: true});
     }
-    exec(null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()]);
     return this;
 };
 Marker.prototype.isInfoWindowShown = function() {
-    var map = this.getMap();
-    return map && (map.get('active_marker_id') === this.id ||
-      this.get("infoWindow"));
+    return this.get("isInfoWindowVisible") === true;
 };
 Marker.prototype.isVisible = function() {
     return this.get("visible") === true;
