@@ -153,9 +153,7 @@ map.addMarker({
   position: {lat: ..., lng: ...},
   title: "Hello Cordova Google Maps for iOS and Android",
   snippet: "This plugin is awesome!"
-}, function(marker) {
-
-})</pre></td>
+}, function(marker) { ... })</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/MarkerCluster/README.md">MarkerCluster</a></td>
@@ -171,9 +169,7 @@ map.addMarkerCluster({
       {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
       {min: 2000, url: "./img/red.png",anchor: {x: 32,y: 32}}
   ]
-}, function(markerCluster) {
-
-});</pre></td>
+}, function(markerCluster) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/HtmlInfoWindow/README.md">HtmlInfoWindow</a></td>
@@ -198,9 +194,7 @@ map.addCircle({
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
-}, function(circle) {
-
-});</pre></td>
+}, function(circle) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polyline/README.md">Polyline</a></td>
@@ -211,9 +205,7 @@ map.addPolyline({
   'color' : '#AA00FF',
   'width': 10,
   'geodesic': true
-}, function(polyline) {
-
-});</pre></td>
+}, function(polyline) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polygon/README.md">Polygon</a></td>
@@ -224,9 +216,7 @@ map.addPolygon({
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
-}, function(polygon) {
-
-});</pre></td>
+}, function(polygon) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/GroundOverlay/README.md">GroundOverlay</a></td>
@@ -237,9 +227,7 @@ map.addPolygon({
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
-}, function(polygon) {
-
-});</pre></td>
+}, function(polygon) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md">TileOverlay</a></td>
@@ -251,23 +239,18 @@ map.addTileOverlay({
   getTile: function(x, y, zoom) {
     return "../images/map-for-free/" + zoom + "_" + x + "-" + y + ".gif"
   }
-}, function(tileOverlay) {
-
-});</pre></td>
+}, function(tileOverlay) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md">Geocoder</a></td>
   <td><img src="./images/geocoder.png" align="left"></td>
   <td><pre>
 plugin.google.maps.Geocoder.geocode({
-
   // US Capital cities
   "address": [
     "Montgomery, AL, USA", ... "Cheyenne, Wyoming, USA"
   ]
-}, function(mvcArray) {
-
-});</pre></td>
+}, function(mvcArray) { ... });</pre></td>
 </tr>
 </table>
 
