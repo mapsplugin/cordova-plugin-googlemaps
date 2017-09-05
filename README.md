@@ -132,6 +132,147 @@ function onButtonClick() {
 
 [All documentations are here!!](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
 
+**Quick examples**
+<table>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Map/README.md">Map</a></td>
+  <td><pre>
+var options = {
+  camera: {
+    position: {lat: ..., lng: ...},
+    zoom: 19
+  }
+};
+var map = plugin.google.maps.Map.getMap(mapDiv, options)</pre>
+<img src="./images/map.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Marker/README.md">Marker</a></td>
+  <td><pre>
+map.addMarker({
+  position: {lat: ..., lng: ...},
+  title: "Hello Cordova Google Maps for iOS and Android",
+  snippet: "This plugin is awesome!"
+}, function(marker) {
+
+})</pre>
+<img src="./images/marker.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/MarkerCluster/README.md">MarkerCluster</a></td>
+  <td><pre>
+map.addMarkerCluster({
+  //maxZoomLevel: 5,
+  boundsDraw: true,
+  markers: dummyData(),
+  icons: [
+      {min: 2, max: 100, url: "./img/blue.png", anchor: {x: 16, y: 16}},
+      {min: 100, max: 1000, url: "./img/yellow.png", anchor: {x: 16, y: 16}},
+      {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
+      {min: 2000, url: "./img/red.png",anchor: {x: 32,y: 32}}
+  ]
+}, function(markerCluster) {
+
+});</pre>
+<img src="./images/markercluster.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/HtmlInfoWindow/README.md">HtmlInfoWindow</a></td>
+  <td><pre>
+var html = [
+  'This is &lt;b&gt;Html&lt;/b&gt; InfoWindow',
+  '&lt;br&gt;',
+  '&lt;button onclick="javascript:alert(\'clicked!\');"&gt;click here&lt;/button&gt;',
+].join("");
+htmlInfoWindow.setContent(html);
+htmlInfoWindow.open(marker);
+</pre>
+<img src="./images/htmlInfoWindow.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Circle/README.md">Circle</a></td>
+  <td><pre>
+map.addCircle({
+  'center': {lat: ..., lng: ...},
+  'radius': 300,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(circle) {
+
+});</pre>
+<img src="./images/circle.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polyline/README.md">Polyline</a></td>
+  <td><pre>
+map.addPolyline({
+  points: AIR_PORTS,
+  'color' : '#AA00FF',
+  'width': 10,
+  'geodesic': true
+}, function(polyline) {
+
+});</pre>
+<img src="./images/polyline.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polygon/README.md">Polygon</a></td>
+  <td><pre>
+map.addPolygon({
+  'points': GORYOKAKU_POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(polygon) {
+
+});</pre>
+<img src="./images/polygon.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/GroundOverlay/README.md">GroundOverlay</a></td>
+  <td><pre>
+map.addPolygon({
+  'points': GORYOKAKU_POINTS,
+  'strokeColor' : '#AA00FF',
+  'strokeWidth': 5,
+  'fillColor' : '#880000'
+}, function(polygon) {
+
+});</pre>
+<img src="./images/polygon.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md">TileOverlay</a></td>
+  <td><pre>
+map.addTileOverlay({
+  debug: true,
+  opacity: 0.75,
+  getTile: function(x, y, zoom) {
+    return "../images/map-for-free/" + zoom + "_" + x + "-" + y + ".gif"
+  }
+}, function(tileOverlay) {
+
+});</pre>
+<img src="./images/polygon.png" align="left"></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md">Geocoder</a></td>
+  <td><pre>
+plugin.google.maps.Geocoder.geocode({
+
+  // US Capital cities
+  "address": [
+    "Montgomery, AL, USA", ... "Cheyenne, Wyoming, USA"
+  ]
+}, function(mvcArray) {
+
+});</pre>
+<img src="./images/geocoder.png" align="left"></td>
+</tr>
+</table>
+
+
 -----
 
 ### How different between Google Maps JavaScript API v3?
@@ -202,7 +343,7 @@ This plugin detects your tap is for the header div or the map view, then pass th
 
 It means **you can use the native Google Maps views similar like HTML element**.
 
-<img src="https://user-images.githubusercontent.com/167831/28293819-fa689ee0-6b0a-11e7-9eab-6b981a7084e6.png" width="500">
+![](images/touch.png)
 
 ---
 
