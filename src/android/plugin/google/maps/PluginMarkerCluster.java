@@ -343,7 +343,7 @@ public class PluginMarkerCluster extends PluginMarker {
     //Log.d(TAG, "---> deleteCnt : " + deleteCnt + ", newCnt : " + newCnt + ", updateCnt : " + updateCnt + ", reuseCnt : " + reuseCnt);
 
     if (updateClusterIDs.size() == 0) {
-      deleteProcess(params);
+      deleteProcess(clusterId, params);
       callbackContext.success();
       return;
     }
@@ -448,7 +448,7 @@ public class PluginMarkerCluster extends PluginMarker {
             marker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")))
                 .visible(false));
-            marker.setTag(markerProperties.getString("id"));
+            marker.setTag(clusterId_markerId);
 
             // Store the marker instance with markerId
             synchronized (pluginMap.objects) {
@@ -526,7 +526,7 @@ public class PluginMarkerCluster extends PluginMarker {
     synchronized (semaphore) {
       try {
         semaphore.wait();
-        deleteProcess(params);
+        deleteProcess(clusterId, params);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -534,7 +534,7 @@ public class PluginMarkerCluster extends PluginMarker {
     callbackContext.success();
 
   }
-  private void deleteProcess(final JSONObject params) {
+  private void deleteProcess(final String clusterId, final JSONObject params) {
     if (!params.has("delete")) {
       return;
     }
@@ -551,7 +551,7 @@ public class PluginMarkerCluster extends PluginMarker {
             int deleteCnt = deleteClusters.length();
             String clusterId_markerId;
             for (int i = 0; i < deleteCnt; i++) {
-              clusterId_markerId = deleteClusters.getString(i);
+              clusterId_markerId = clusterId + "-" + deleteClusters.getString(i);
               deleteMarkers.add(clusterId_markerId);
             }
 

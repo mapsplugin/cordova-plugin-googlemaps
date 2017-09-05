@@ -229,13 +229,13 @@ Map.prototype.setCameraTarget = function(latLng) {
 
 Map.prototype.setCameraZoom = function(zoom) {
     this.set('camera_zoom', zoom);
-    exec(null, this.errorHandler, this.id, 'setCameraZoom', [zoom]);
+    exec(null, this.errorHandler, this.id, 'setCameraZoom', [zoom], {sync: true});
     return this;
 };
 Map.prototype.panBy = function(x, y) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
-    exec(null, this.errorHandler, this.id, 'panBy', [x, y]);
+    exec(null, this.errorHandler, this.id, 'panBy', [x, y], {sync: true});
     return this;
 };
 
@@ -304,7 +304,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setCameraTilt = function(tilt) {
     this.set('camera_tilt', tilt);
-    exec(null, this.errorHandler, this.id, 'setCameraTilt', [tilt]);
+    exec(null, this.errorHandler, this.id, 'setCameraTilt', [tilt], {sync: true});
     return this;
 };
 
@@ -314,7 +314,7 @@ Map.prototype.setCameraTilt = function(tilt) {
  */
 Map.prototype.setCameraBearing = function(bearing) {
     this.set('camera_bearing', bearing);
-    exec(null, this.errorHandler, this.id, 'setCameraBearing', [bearing]);
+    exec(null, this.errorHandler, this.id, 'setCameraBearing', [bearing], {sync: true});
     return this;
 };
 
@@ -328,7 +328,7 @@ Map.prototype.moveCameraZoomIn = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition]);
+    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {sync: true});
 
 };
 Map.prototype.moveCameraZoomOut = function(callback) {
@@ -341,7 +341,7 @@ Map.prototype.moveCameraZoomOut = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition]);
+    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {sync: true});
 
 };
 Map.prototype.animateCameraZoomIn = function(callback) {
@@ -355,7 +355,7 @@ Map.prototype.animateCameraZoomIn = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {sync: true});
 
 };
 Map.prototype.animateCameraZoomOut = function(callback) {
@@ -369,7 +369,7 @@ Map.prototype.animateCameraZoomOut = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {sync: true});
 
 };
 /**
@@ -396,7 +396,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition]);
+    }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {sync: true});
 
 };
 /**
@@ -422,7 +422,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition]);
+    }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {sync: true});
 
 };
 

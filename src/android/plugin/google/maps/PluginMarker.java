@@ -995,108 +995,114 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           callback.onPostExecute(marker);
           return;
         }
+        if (marker == null) {
+          callback.onError("marker is removed");
+          return;
+        }
         if (result.image.isRecycled()) {
           //Maybe the task was canceled by map.clean()?
           callback.onError("Can not get image for marker. Maybe the task was canceled by map.clean()?");
           return;
         }
 
-        String markerTag = marker.getTag() + "";
-        String markerIconTag = "marker_icon_" + markerTag;
-        String markerImgSizeTag = "marker_imageSize_" + markerTag;
+        synchronized (marker) {
+          String markerTag = marker.getTag() + "";
+          String markerIconTag = "marker_icon_" + markerTag;
+          String markerImgSizeTag = "marker_imageSize_" + markerTag;
 
-        String currentCacheKey = (String) pluginMap.objects.get(markerIconTag);
-        if (result.cacheKey != null && result.cacheKey.equals(currentCacheKey)) {
-          synchronized (iconCacheKeys) {
-            if (iconCacheKeys.containsKey(currentCacheKey)) {
-              int count = iconCacheKeys.get(currentCacheKey);
-              count--;
-              if (count < 1) {
-                AsyncLoadImage.removeBitmapFromMemCahce(currentCacheKey);
-                iconCacheKeys.remove(currentCacheKey);
-              } else {
-                iconCacheKeys.put(currentCacheKey, count);
+          String currentCacheKey = (String) pluginMap.objects.get(markerIconTag);
+          if (result.cacheKey != null && result.cacheKey.equals(currentCacheKey)) {
+            synchronized (iconCacheKeys) {
+              if (iconCacheKeys.containsKey(currentCacheKey)) {
+                int count = iconCacheKeys.get(currentCacheKey);
+                count--;
+                if (count < 1) {
+                  AsyncLoadImage.removeBitmapFromMemCahce(currentCacheKey);
+                  iconCacheKeys.remove(currentCacheKey);
+                } else {
+                  iconCacheKeys.put(currentCacheKey, count);
+                }
               }
             }
           }
-        }
 
-        if (icons.containsKey(markerIconTag)) {
-          Bitmap icon = icons.remove(markerIconTag);
-          if (icon != null && !icon.isRecycled()) {
-            icon.recycle();
+          if (icons.containsKey(markerIconTag)) {
+            Bitmap icon = icons.remove(markerIconTag);
+            if (icon != null && !icon.isRecycled()) {
+              icon.recycle();
+            }
+            icon = null;
           }
-          icon = null;
-        }
-        icons.put(markerTag, result.image);
+          icons.put(markerTag, result.image);
 
-        //-------------------------------------------------------
-        // Counts up the markers that use the same icon image.
-        //-------------------------------------------------------
-        if (result.cacheHit) {
-          if (marker == null || marker.getTag() == null) {
+          //-------------------------------------------------------
+          // Counts up the markers that use the same icon image.
+          //-------------------------------------------------------
+          if (result.cacheHit) {
+            if (marker == null || marker.getTag() == null) {
+              callback.onPostExecute(marker);
+              return;
+            }
+            String hitCountKey = markerIconTag;
+            pluginMap.objects.put(hitCountKey, result.cacheKey);
+            if (!iconCacheKeys.containsKey(result.cacheKey)) {
+              iconCacheKeys.put(result.cacheKey, 1);
+            } else {
+              int count = iconCacheKeys.get(result.cacheKey);
+              iconCacheKeys.put(result.cacheKey, count + 1);
+            }
+            //Log.d(TAG, "----> " + result.cacheKey + " = " + iconCacheKeys.get(result.cacheKey));
+          }
+
+          //------------------------
+          // Draw label on icon
+          //------------------------
+          if (iconProperty.containsKey("label")) {
+            result.image = drawLabel(result.image, iconProperty.getBundle("label"));
+          }
+          BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
+          if (bitmapDescriptor == null || marker == null || marker.getTag() == null) {
             callback.onPostExecute(marker);
             return;
           }
-          String hitCountKey = markerIconTag;
-          pluginMap.objects.put(hitCountKey, result.cacheKey);
-          if (!iconCacheKeys.containsKey(result.cacheKey)) {
-            iconCacheKeys.put(result.cacheKey, 1);
-          } else {
-            int count = iconCacheKeys.get(result.cacheKey);
-            iconCacheKeys.put(result.cacheKey, count + 1);
-          }
-          //Log.d(TAG, "----> " + result.cacheKey + " = " + iconCacheKeys.get(result.cacheKey));
-        }
 
-        //------------------------
-        // Draw label on icon
-        //------------------------
-        if (iconProperty.containsKey("label")) {
-          result.image = drawLabel(result.image, iconProperty.getBundle("label"));
-        }
-        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
-        if (bitmapDescriptor == null || marker == null || marker.getTag() == null) {
+          //------------------------
+          // Sets image as icon
+          //------------------------
+          marker.setIcon(bitmapDescriptor);
+          bitmapDescriptor = null;
+
+          //---------------------------------------------
+          // Save the information for the anchor property
+          //---------------------------------------------
+          Bundle imageSize = new Bundle();
+          imageSize.putInt("width", result.image.getWidth());
+          imageSize.putInt("height", result.image.getHeight());
+          self.pluginMap.objects.remove(markerImgSizeTag);
+          self.pluginMap.objects.put(markerImgSizeTag, imageSize);
+
+          result.image.recycle();
+          result.image = null;
+
+          // The `anchor` of the `icon` property
+          if (iconProperty.containsKey("anchor")) {
+            double[] anchor = iconProperty.getDoubleArray("anchor");
+            if (anchor != null && anchor.length == 2) {
+              _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            }
+          }
+
+
+          // The `anchor` property for the infoWindow
+          if (iconProperty.containsKey("infoWindowAnchor")) {
+            double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
+            if (anchor != null && anchor.length == 2) {
+              _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
+            }
+          }
+
           callback.onPostExecute(marker);
-          return;
         }
-
-        //------------------------
-        // Sets image as icon
-        //------------------------
-        marker.setIcon(bitmapDescriptor);
-        bitmapDescriptor = null;
-
-        //---------------------------------------------
-        // Save the information for the anchor property
-        //---------------------------------------------
-        Bundle imageSize = new Bundle();
-        imageSize.putInt("width", result.image.getWidth());
-        imageSize.putInt("height", result.image.getHeight());
-        self.pluginMap.objects.remove(markerImgSizeTag);
-        self.pluginMap.objects.put(markerImgSizeTag, imageSize);
-
-        result.image.recycle();
-        result.image = null;
-
-        // The `anchor` of the `icon` property
-        if (iconProperty.containsKey("anchor")) {
-          double[] anchor = iconProperty.getDoubleArray("anchor");
-          if (anchor != null && anchor.length == 2) {
-            _setIconAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-          }
-        }
-
-
-        // The `anchor` property for the infoWindow
-        if (iconProperty.containsKey("infoWindowAnchor")) {
-          double[] anchor = iconProperty.getDoubleArray("infoWindowAnchor");
-          if (anchor != null && anchor.length == 2) {
-            _setInfoWindowAnchor(marker, anchor[0], anchor[1], imageSize.getInt("width"), imageSize.getInt("height"));
-          }
-        }
-
-        callback.onPostExecute(marker);
       }
     };
 

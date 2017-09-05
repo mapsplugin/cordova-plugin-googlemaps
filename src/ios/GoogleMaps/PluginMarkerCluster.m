@@ -265,7 +265,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
 
     if ([updateClusterIDs count] == 0) {
-      [self deleteProcess:params];
+      [self deleteProcess:params clusterId:clusterId];
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       return;
@@ -413,7 +413,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
       } // for (int i = 0; i < [updateClusterIDs count]; i++) {..}
 
-      [self deleteProcess:params];
+      [self deleteProcess:params clusterId:clusterId];
 
     }]; // [[NSOperationQueue mainQueue] addOperationWithBlock: ^{..}
 
@@ -425,7 +425,7 @@ const int GEOCELL_GRID_SIZE = 4;
   }]; // dispatch_async
 }
 
-- (void) deleteProcess:(NSDictionary *) params{
+- (void) deleteProcess:(NSDictionary *) params  clusterId:(NSString *)clusterId{
 
   NSMutableArray *deleteClusters = nil;
   if ([params objectForKey:@"delete"]) {
@@ -440,7 +440,8 @@ const int GEOCELL_GRID_SIZE = 4;
     NSString *clusterId_markerId;
     @synchronized (self.deleteMarkers) {
       for (int i = 0; i < deleteCnt; i++) {
-        clusterId_markerId = [deleteClusters objectAtIndex:i];
+        clusterId_markerId = [NSString stringWithFormat:@"%@-%@",
+                              clusterId, [deleteClusters objectAtIndex:i]];
         [self.deleteMarkers addObject:clusterId_markerId];
       }
     }
