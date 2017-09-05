@@ -856,7 +856,9 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
         if (!utils.isArray(hole)) {
             return [];
         }
-        return hole.map(common.convertToPositionArray);
+        return hole.map(function(position) {
+          return {"lat": position.lat, "lng": position.lng};
+        });
     });
     polygonOptions.strokeColor = common.HTMLColor2RGBA(polygonOptions.strokeColor || "#FF000080", 0.75);
     if (polygonOptions.fillColor) {
