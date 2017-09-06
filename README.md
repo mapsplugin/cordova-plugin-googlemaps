@@ -134,8 +134,7 @@ function onButtonClick() {
 **Quick examples**
 <table>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Map/README.md">Map</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/raw/master/images/map.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Map/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/raw/master/images/map.png?raw=true"><br>Map</a></td>
   <td><pre>
 var options = {
   camera: {
@@ -146,8 +145,7 @@ var options = {
 var map = plugin.google.maps.Map.getMap(mapDiv, options)</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Marker/README.md">Marker</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/marker.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Marker/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/marker.png?raw=true"><br>Marker</a></td>
   <td><pre>
 map.addMarker({
   position: {lat: ..., lng: ...},
@@ -156,8 +154,7 @@ map.addMarker({
 }, function(marker) { ... })</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/MarkerCluster/README.md">MarkerCluster</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/markercluster.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/MarkerCluster/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/markercluster.png?raw=true"><br>MarkerCluster</a></td>
   <td><pre>
 map.addMarkerCluster({
   //maxZoomLevel: 5,
@@ -172,8 +169,7 @@ map.addMarkerCluster({
 }, function(markerCluster) { ... });</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/HtmlInfoWindow/README.md">HtmlInfoWindow</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/htmlInfoWindow.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/HtmlInfoWindow/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/htmlInfoWindow.png?raw=true"><br>HtmlInfoWindow</a></td>
   <td><pre>
 var html = [
   'This is &lt;b&gt;Html&lt;/b&gt; InfoWindow',
@@ -185,8 +181,7 @@ htmlInfoWindow.open(marker);
 </pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Circle/README.md">Circle</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/circle.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Circle/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/circle.png?raw=true"><br>Circle</a></td>
   <td><pre>
 map.addCircle({
   'center': {lat: ..., lng: ...},
@@ -197,8 +192,7 @@ map.addCircle({
 }, function(circle) { ... });</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polyline/README.md">Polyline</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/polyline.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polyline/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/polyline.png?raw=true"><br>Polyline</a></td>
   <td><pre>
 map.addPolyline({
   points: AIR_PORTS,
@@ -208,8 +202,7 @@ map.addPolyline({
 }, function(polyline) { ... });</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polygon/README.md">Polygon</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/polygon.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polygon/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/polygon.png?raw=true"><br>Polygon</a></td>
   <td><pre>
 map.addPolygon({
   'points': GORYOKAKU_POINTS,
@@ -219,8 +212,7 @@ map.addPolygon({
 }, function(polygon) { ... });</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/GroundOverlay/README.md">GroundOverlay</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/groundoverlay.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/GroundOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/groundoverlay.png?raw=true"><br>GroundOverlay</a></td>
   <td><pre>
 map.addPolygon({
   'points': GORYOKAKU_POINTS,
@@ -230,8 +222,7 @@ map.addPolygon({
 }, function(polygon) { ... });</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md">TileOverlay</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/tileoverlay.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/tileoverlay.png?raw=true"><br>TileOverlay</a></td>
   <td><pre>
 map.addTileOverlay({
   debug: true,
@@ -242,8 +233,7 @@ map.addTileOverlay({
 }, function(tileOverlay) { ... });</pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md">Geocoder</a></td>
-  <td><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true" align="left"></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true"><br>Geocoder</a></td>
   <td><pre>
 plugin.google.maps.Geocoder.geocode({
   // US Capital cities
