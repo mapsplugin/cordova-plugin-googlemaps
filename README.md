@@ -171,11 +171,9 @@ map.addMarkerCluster({
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/HtmlInfoWindow/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/htmlInfoWindow.png?raw=true"><br>HtmlInfoWindow</a></td>
   <td><pre>
-var html = [
-  'This is &lt;b&gt;Html&lt;/b&gt; InfoWindow',
-  '&lt;br&gt;',
-  '&lt;button onclick="javascript:alert(\'clicked!\');"&gt;click here&lt;/button&gt;',
-].join("");
+var html = "&lt;img src='./House-icon.png' width='64' height='64' &gt;" +
+           "&lt;br&gt;" +
+           "This is an example";
 htmlInfoWindow.setContent(html);
 htmlInfoWindow.open(marker);
 </pre></td>
