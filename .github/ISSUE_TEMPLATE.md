@@ -12,18 +12,22 @@ https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles
 [ ] feature request
 
 **The plugin version:**  (check one with "x")
-[ ] **1.4.x**
-[ ] **2.0.0-beta3** 
+[ ] **1.4.x (deprecated, no more supported)**
+[ ] **2.0.0-beta3 (github)** 
+[ ] **2.0 (npm)** 
 
 **If you choose 'problem or bug report', please select OS:**  (check one with "x")
 [ ] **Android**
-[ ] **iOS**
+[ ] **iOS 10***
+[ ] **iOS 11**
 
 **cordova information:**  (run `$> cordova plugin list`) 
 
 ```
 insert the output from the command here
 ```
+
+**If you use `@ionic-native/google-maps`, please show me the package.json**
 
 **Current behavior:**
 <!-- Describe how the bug manifests. -->
