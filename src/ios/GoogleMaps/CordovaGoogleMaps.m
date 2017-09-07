@@ -43,31 +43,31 @@
 
       [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 
-      //-------------------------------
-      // Plugin initialization
-      //-------------------------------
       [GMSServices provideAPIKey:APIKey];
-      self.pluginMaps = [[NSMutableDictionary alloc] init];
-      self.locationCommandQueue = [[NSMutableArray alloc] init];
-
-      self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
-      self.pluginLayer.backgroundColor = [UIColor whiteColor];
-      self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-
-      NSArray *subViews = self.viewController.view.subviews;
-      UIView *view;
-      for (int i = 0; i < [subViews count]; i++) {
-          view = [subViews objectAtIndex:i];
-          //NSLog(@"remove i=%d class=%@", i, view.class);
-          [view removeFromSuperview];
-          [self.pluginLayer addSubview: view];
-      }
-      [self.viewController.view addSubview:self.pluginLayer];
-
     }];
-}
 
+    //-------------------------------
+    // Plugin initialization
+    //-------------------------------
+    self.pluginMaps = [[NSMutableDictionary alloc] init];
+    self.locationCommandQueue = [[NSMutableArray alloc] init];
+
+    self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
+    self.pluginLayer.backgroundColor = [UIColor whiteColor];
+    self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+
+    NSArray *subViews = self.viewController.view.subviews;
+    //NSLog(@"--->subViews count=%lu", subViews.count);
+    UIView *view;
+    for (int i = 0; i < [subViews count]; i++) {
+      view = [subViews objectAtIndex:i];
+      //NSLog(@"--->remove i=%d class=%@", i, view.class);
+      [view removeFromSuperview];
+      [self.pluginLayer addSubview: view];
+    }
+    [self.viewController.view addSubview:self.pluginLayer];
+}
 - (void) didRotate:(id)sender
 {
 
