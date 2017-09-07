@@ -1,9 +1,9 @@
-<!--- Before asking, please search the past issues. You might get any hits.
-
+<!---
+Before asking, please search the past issues. You might get any hits.
 And also please read this page
 https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles/before_post_your_issue/README.md
 
-(Optional) If you are Japanese, you can make an issue written in Japanese. Otherwise, in English please.
+(Optional) English or Japanese questions are acceptable. Other languages are not acceptable. (日本語か英語で質問をお願いします）
 --->
 
 **I'm submitting a ...**  (check one with "x")
@@ -18,7 +18,7 @@ https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles
 
 **If you choose 'problem or bug report', please select OS:**  (check one with "x")
 [ ] **Android**
-[ ] **iOS 10***
+[ ] **iOS 10**
 [ ] **iOS 11**
 
 **cordova information:**  (run `$> cordova plugin list`) 
@@ -36,18 +36,14 @@ insert the output from the command here
 <!-- Describe what the behavior would be without the bug. -->
 
 **Steps to reproduce:**
-<!-- Reproduce steps are really important.
-
-If you are able to share your project files on Github or BitBucket, I'm really appreciate for your help.
-For your information, you can create a FREE git repository at BitBucket.
-
-If you are NOT able to share your real project files (such as company), please create an example project that reproduce your issue 100%, then share it please.
-
-Please DO NOT share your project file as Zip file, or send it to me directly.
+<!--
+Please share your project files on Github or others(Bitbucket, Gitlabs...etc).
+If you don't want to share your project files, please create a demo project, then share it.
 --->
 
 **Screen capture or video record:**
-<!-- In order to describing your problem, please take a screen capture or a screen record.
+<!--
+Please take a screen capture or a screen record.
 You can upload your files with drag & drop up to 10M bytes.
 How to do that? Please read here.
 https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles/before_post_your_issue/README.md#4-taking-screen-capture-or-screen-record
@@ -59,9 +55,10 @@ https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/articles
 insert any relevant code, data, or error log here
 ```
 
-
 ----
 
-If your problem is solved, please consider small amount donation to this project.
-Appreciate for your kindness.
+Masashi(the author of this plugin) works for this plugin tons of times.
+If you donate some small amount (such a $5 or $10 is fine), you will get my help faster than others.
+In order to provide this plugin as free in the future, I appreciate for your kindness.
+
 https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/README.md#buy-me-a-beer
