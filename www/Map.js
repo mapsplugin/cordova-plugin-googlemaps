@@ -1091,7 +1091,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
         if (eventName === event.MARKER_CLICK) {
           markerCluster.trigger(eventName, position, marker);
         } else {
-          marker.trigger(eventName, position);
+          marker.trigger(eventName, position, marker);
         }
       } else {
         // cluster marker
@@ -1113,6 +1113,7 @@ Map.prototype._onOverlayEvent = function(eventName, overlayId) {
         for (var i = 2; i < arguments.length; i++) {
             args.push(arguments[i]);
         }
+        args.push(overlay); // for ionic
         overlay.trigger.apply(overlay, args);
     }
 };
