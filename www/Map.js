@@ -259,7 +259,7 @@ Map.prototype.clear = function(callback) {
             id = ids[i];
             instance = obj[id];
             if (instance) {
-              if (instance.type === "MarkerCluster") {
+              if (typeof instance.remove === "function") {
                 instance.remove();
               }
               instance.off();

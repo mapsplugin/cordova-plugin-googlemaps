@@ -18,6 +18,8 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.LOG;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +34,7 @@ import java.util.Set;
 public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  {
 
   private HashMap<Integer, AsyncTask> imageLoadingTasks = new HashMap<Integer, AsyncTask>();
+  private final Object semaphore = new Object();
 
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -127,6 +130,51 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   }
 
 
+  @Override
+  protected void clear() {
+    synchronized (semaphore) {
+
+      //--------------------------------------
+      // clean up properties as much as possible
+      //--------------------------------------
+      cordova.getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          Set<String> keySet = pluginMap.objects.keySet();
+          String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+
+          for (String objectId : objectIdArray) {
+            if (pluginMap.objects.containsKey(objectId)) {
+              if (objectId.startsWith("groundoverlay_") &&
+                  !objectId.startsWith("groundoverlay_property_") &&
+                  !objectId.startsWith("groundoverlay_initOpts_") &&
+                  !objectId.startsWith("groundoverlay_bounds_")) {
+                GroundOverlay groundOverlay = (GroundOverlay) pluginMap.objects.remove(objectId);
+                groundOverlay.setTag(null);
+                groundOverlay.remove();
+                groundOverlay = null;
+              } else {
+                Object object = pluginMap.objects.remove(objectId);
+                object = null;
+              }
+            }
+          }
+
+          synchronized (semaphore) {
+            semaphore.notify();
+          }
+
+        }
+      });
+
+      try {
+        semaphore.wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   /**
    * Remove this tile layer
    * @param args
@@ -164,7 +212,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void setImage(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
+    final GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
     String url = args.getString(1);
 
     String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
@@ -172,7 +220,14 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     opts.put("url", url);
     pluginMap.objects.put(propertyId, opts);
 
-    _createGroundOverlay(opts, callbackContext);
+    _createGroundOverlay(opts, new CallbackContext("dummyId" + callbackContext.hashCode(), webView) {
+
+      @Override
+      public void sendPluginResult(PluginResult pluginResult) {
+        groundOverlay.remove();
+        callbackContext.sendPluginResult(pluginResult);
+      }
+    });
   }
 
 
@@ -335,6 +390,8 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         groundOverlay = self.map.addGroundOverlay(options);
 
         callback.onPostExecute(groundOverlay);
+        result.image.recycle();
+        result.image = null;
 
       }
     };
@@ -548,6 +605,8 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         imageLoadingTasks = null;
       }
     });
+
+    this.clear();
 
   }
 
