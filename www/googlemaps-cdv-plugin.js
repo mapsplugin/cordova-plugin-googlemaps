@@ -150,7 +150,7 @@ if (!cordova) {
           visibleMapList.push(mapId);
         }
       }
-      if (idlingCnt > -1 && visibleMapList.length === 0) {
+      if (idlingCnt > -1 && visibleMapList.length === 0 && Object.keys(MAPS).length === 0) {
         idlingCnt++;
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -174,7 +174,8 @@ if (!cordova) {
       var shouldUpdate = false;
       var doNotTrace = false;
 
-      var traceDomTree = function(element, domIdx, parentRect) {
+      var traceDomTree = function(element, domIdx, parentRect, parentZIndex) {
+        var zIndex = parentZIndex;
         doNotTrace = false;
 
         if (common.shouldWatchByNative(element)) {
@@ -188,13 +189,13 @@ if (!cordova) {
 
           // get dom depth
           var depth;
-          var zIndex = common.getZIndex(element);
+          zIndex = common.getZIndex(element);
           if (elemId in cacheDepth &&
               elemId in prevDomPositions &&
               prevDomPositions[elemId].zIndex === zIndex) {
               depth = cacheDepth[elemId];
           } else {
-              depth = common.getDomDepth(element, domIdx);
+              depth = common.getDomDepth(element, domIdx, parentZIndex);
               cacheDepth[elemId] = depth;
           }
 
@@ -265,10 +266,10 @@ if (!cordova) {
           }
         } else {
           if (element.nodeType === Node.ELEMENT_NODE) {
-            if (element.hasAttribute("__pluginDomId")) {
-                shouldUpdate = true;
-                element.removeAttribute("__pluginDomId");
-            }
+            //if (element.hasAttribute("__pluginDomId")) {
+            //    shouldUpdate = true;
+            //    element.removeAttribute("__pluginDomId");
+            //}
             if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1) {
               doNotTrace = true;
             }
@@ -286,7 +287,7 @@ if (!cordova) {
                 common.getStyle(child, "display") === "none") {
                 continue;
               }
-              traceDomTree(child, domIdx + i + 1, parentRect);
+              traceDomTree(child, domIdx + i + 1, parentRect, zIndex);
             }
           }
         }
@@ -295,7 +296,7 @@ if (!cordova) {
       bodyRect.right = bodyRect.left + bodyRect.width;
       bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
 
-      traceDomTree(document.body, 0, bodyRect);
+      traceDomTree(document.body, 0, bodyRect, 0);
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
@@ -478,6 +479,7 @@ if (!cordova) {
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
     function onBackButton() {
+      console.log("---->backbutton");
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
         anotherBackbuttonHandler();
