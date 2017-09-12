@@ -1080,6 +1080,12 @@ Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
     var marker = self.MARKERS[markerId] || null;
     if (marker) {
         marker.set('position', position);
+        if (eventName === event.INFO_OPEN) {
+          marker.set("isInfoWindowShown", true);
+        }
+        if (eventName === event.INFO_CLOS) {
+          marker.set("isInfoWindowShown", false);
+        }
         marker.trigger(eventName, position, marker);
     }
 };
@@ -1094,8 +1100,14 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
         if (eventName === event.MARKER_CLICK) {
           markerCluster.trigger(eventName, position, marker);
         } else {
-          marker.trigger(eventName, position, marker);
+          if (eventName === event.INFO_OPEN) {
+            marker.set("isInfoWindowShown", true);
+          }
+          if (eventName === event.INFO_CLOS) {
+            marker.set("isInfoWindowShown", false);
+          }
         }
+        marker.trigger(eventName, position, marker);
       } else {
         // cluster marker
         var cluster = markerCluster.getClusterByClusterId(clusterId);
