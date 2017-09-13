@@ -1542,6 +1542,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.animateCamera(cameraUpdate);
+        callbackContext.success();
       }
     });
   }
