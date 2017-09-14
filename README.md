@@ -66,6 +66,9 @@ Example using config.xml
 </plugin>
 ```
 
+## version 2.0.7 -> 2.0.8
+
+- Fix: internal eventName typo (sorry!)
 
 ## Quick demo
 

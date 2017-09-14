@@ -1083,7 +1083,7 @@ Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
         if (eventName === event.INFO_OPEN) {
           marker.set("isInfoWindowShown", true);
         }
-        if (eventName === event.INFO_CLOS) {
+        if (eventName === event.INFO_CLOSE) {
           marker.set("isInfoWindowShown", false);
         }
         marker.trigger(eventName, position, marker);
@@ -1103,7 +1103,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
           if (eventName === event.INFO_OPEN) {
             marker.set("isInfoWindowShown", true);
           }
-          if (eventName === event.INFO_CLOS) {
+          if (eventName === event.INFO_CLOSE) {
             marker.set("isInfoWindowShown", false);
           }
         }
