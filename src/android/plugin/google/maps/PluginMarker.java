@@ -985,11 +985,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.width = width;
     options.height = height;
     options.noCaching = noCaching;
+    final int taskId = options.hashCode();
 
     AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
-        iconLoadingTasks.remove(this.hashCode());
+        iconLoadingTasks.remove(taskId);
 
         if (result == null || result.image == null) {
           callback.onPostExecute(marker);
@@ -1108,7 +1109,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
     AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, onComplete);
     task.execute();
-    iconLoadingTasks.put(task.hashCode(), task);
+    iconLoadingTasks.put(taskId, task);
   }
 
 

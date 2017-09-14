@@ -99,7 +99,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
-  public final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
+  public static final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -1531,7 +1531,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    * @param callbackContext
    * @throws JSONException
    */
-  public void panBy(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void panBy(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     int x = args.getInt(0);
     int y = args.getInt(1);
     float xPixel = -x * density;
