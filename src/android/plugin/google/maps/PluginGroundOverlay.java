@@ -112,6 +112,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
         pluginMap.objects.put("groundoverlay_initOpts_" + id, opts);
 
+
         JSONObject result = new JSONObject();
         try {
           result.put("hashCode", groundOverlay.hashCode());
@@ -141,7 +142,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          Set<String> keySet = pluginMap.objects.keySet();
+          Set<String> keySet = pluginMap.objects.keys;
           String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
           synchronized (pluginMap.objects) {

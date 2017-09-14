@@ -217,7 +217,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
   }
   protected void clear() {
-    String[] keys = pluginMap.objects.keySet().toArray(new String[pluginMap.objects.size()]);
+    String[] keys = pluginMap.objects.keys.toArray(new String[pluginMap.objects.size()]);
     Object object;
     for (String key : keys) {
       object = pluginMap.objects.remove(key);

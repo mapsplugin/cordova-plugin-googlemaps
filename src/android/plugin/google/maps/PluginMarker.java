@@ -65,7 +65,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Set<String> keySet = pluginMap.objects.keySet();
+        Set<String> keySet = pluginMap.objects.keys;
         String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
         for (String objectId : objectIdArray) {
@@ -143,7 +143,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          Set<String> keySet = pluginMap.objects.keySet();
+          Set<String> keySet = pluginMap.objects.keys;
           String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
           for (String objectId : objectIdArray) {

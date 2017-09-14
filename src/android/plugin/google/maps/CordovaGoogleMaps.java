@@ -712,6 +712,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         pluginMap.remove(null, null);
         pluginMap.onDestroy();
         pluginMap.objects.clear();
+        pluginMap.objects.destroy();
         mPluginLayout.HTMLNodes.remove(mapId);
         pluginMap = null;
       }
