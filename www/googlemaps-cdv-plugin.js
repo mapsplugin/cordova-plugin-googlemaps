@@ -131,11 +131,15 @@ if (!cordova) {
       if (isChecking) {
         return;
       }
-      if (idlingCnt > -1 && mapIDs.length === 0) {
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'clearHtmlElements', []);
+      if (mapIDs.length === 0) {
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+        isSuspended = true;
         return;
       }
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
+      if (isSuspended) {
+        isSuspended = false;
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+      }
       isChecking = true;
 
       //-------------------------------------------
@@ -424,6 +428,7 @@ if (!cordova) {
       longIdlingCnt = -1;
       cacheDepth = {};
       cacheZIndex = {};
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
       putHtmlElements();
     }
 
@@ -479,7 +484,6 @@ if (!cordova) {
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
     function onBackButton() {
-      console.log("---->backbutton");
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
         anotherBackbuttonHandler();
@@ -568,6 +572,8 @@ if (!cordova) {
             });
             MAP_CNT++;
             MAPS[mapId] = map;
+            cordova.fireDocumentEvent('plugin_touch', {});
+
             var args = [mapId];
             for (var i = 0; i < arguments.length; i++) {
                 args.push(arguments[i]);
