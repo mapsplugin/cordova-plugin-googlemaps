@@ -207,6 +207,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
 
     CGFloat zoomScale = self.webView.scrollView.zoomScale;
+    [self.pluginScrollView setFrame:self.webView.frame];
 
     CGPoint offset = self.webView.scrollView.contentOffset;
     offset.x *= zoomScale;
