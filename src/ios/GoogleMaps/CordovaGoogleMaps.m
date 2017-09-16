@@ -135,8 +135,10 @@
         return;
     }
 
+
     pluginMap.isRemoved = YES;
-    [pluginMap clear:nil];
+    //[pluginMap clear:nil];
+    [pluginMap pluginUnload];
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
@@ -152,6 +154,8 @@
     pluginMap.mapCtrl = nil;
     [self.pluginMaps removeObjectForKey:mapId];
     pluginMap = nil;
+
+    [cdvViewController.pluginObjects removeObjectForKey:mapId];
 }
 /**
  * Remove the map

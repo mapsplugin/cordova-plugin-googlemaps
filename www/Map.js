@@ -532,7 +532,33 @@ Map.prototype.remove = function(callback) {
     self.set('div', undefined);
     self.trigger("remove");
 
-    self.clear();
+
+    // Close the active infoWindow
+    var active_marker_id = self.get("active_marker_id");
+    if (active_marker_id && active_marker_id in self.MARKERS) {
+      self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
+    }
+
+    var clearObj = function(obj) {
+        var ids = Object.keys(obj);
+        var id, instance;
+        for (var i = 0; i < ids.length; i++) {
+            id = ids[i];
+            instance = obj[id];
+            if (instance) {
+              if (typeof instance.remove === "function") {
+                instance.remove();
+              }
+              instance.off();
+              delete obj[id];
+            }
+        }
+        obj = {};
+    };
+
+    clearObj(self.OVERLAYS);
+    clearObj(self.MARKERS);
+    clearObj(self.KML_LAYERS);
 
     exec(function() {
         if (typeof callback === "function") {
