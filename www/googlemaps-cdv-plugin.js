@@ -284,6 +284,7 @@ if (!cordova) {
         if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
           if (element.children.length > 0) {
             var child;
+            var pZ = zIndex / floorLevel;
             for (var i = 0; i < element.children.length; i++) {
               child = element.children[i];
               if (child.nodeType !== Node.ELEMENT_NODE ||
@@ -291,7 +292,7 @@ if (!cordova) {
                 common.getStyle(child, "display") === "none") {
                 continue;
               }
-              traceDomTree(child, domIdx + i + 1, parentRect, zIndex, depth, floorLevel + 1);
+              traceDomTree(child, domIdx + i + 1, parentRect, pZ, depth, floorLevel + 1);
             }
           }
         }
