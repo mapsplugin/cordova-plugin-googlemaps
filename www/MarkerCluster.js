@@ -321,7 +321,11 @@ MarkerCluster.prototype.remove = function() {
       cluster.remove();
     });
   }
-  exec(null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true});
+  exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true});
+  Object.defineProperty(self, "_isRemoved", {
+      value: true,
+      writable: false
+  });
 
   keys = Object.keys(self._markerMap);
   keys.forEach(function(markerId) {
@@ -369,7 +373,7 @@ MarkerCluster.prototype.removeMarkerById = function(markerId) {
   markerOpts._cluster.marker = undefined;
   delete self._markerMap[markerId];
   if (isAdded) {
-    exec(null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
+    exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
       "delete": [markerId]
     }], {sync: true});
   }
@@ -1039,7 +1043,7 @@ MarkerCluster.prototype._redraw = function(params) {
     return;
   }
 
-  exec(function() {
+  exec(self, function() {
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,

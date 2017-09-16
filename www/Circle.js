@@ -40,28 +40,28 @@ var Circle = function(map, circleId, circleOptions, _exec) {
     // Sets event listeners
     //-----------------------------------------------
     self.on("center_changed", function(oldValue, center) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
     });
     self.on("fillColor_changed", function(oldValue, color) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
     self.on("strokeColor_changed", function(oldValue, color) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
     self.on("strokeWidth_changed", function(oldValue, width) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
     });
     self.on("clickable_changed", function(oldValue, clickable) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
     });
     self.on("radius_changed", function(oldValue, radius) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
     });
     self.on("zIndex_changed", function(oldValue, zIndex) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
     self.on("visible_changed", function(oldValue, visible) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
 
 };
@@ -140,7 +140,11 @@ Circle.prototype.setRadius = function(radius) {
 
 Circle.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
     this.destroy();
 };
 

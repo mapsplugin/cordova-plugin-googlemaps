@@ -67,6 +67,10 @@ KmlOverlay.prototype.remove = function() {
     setTimeout(function() {
         self.trigger(self.id + "_remove");
     }, 1000);
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
 };
 
 module.exports = KmlOverlay;

@@ -658,6 +658,10 @@ var _isResizeMapExecuting = false;
 var _stopRequested = false;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
+  if (this._isRemoved) {
+    // Ignore if the instance is already removed.
+    return true;
+  }
   execOptions = execOptions || {};
   var self = this;
   commandQueue.push({

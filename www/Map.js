@@ -53,7 +53,7 @@ var Map = function(id, _exec) {
         if (prevId in self.MARKERS) {
             self.MARKERS[prevId].trigger.call(self.MARKERS[prevId], event.INFO_CLOSE);
         }
-        exec(null, null, self.id, 'setActiveMarkerId', [newId]);
+        exec.call(self, null, null, self.id, 'setActiveMarkerId', [newId]);
     });
 };
 
@@ -67,7 +67,7 @@ Map.prototype.getId = function() {
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
-    exec(null, null, this.id, 'resizeMap', []);
+    exec.call(this, null, null, this.id, 'resizeMap', []);
 };
 
 Map.prototype.getMap = function(mapId, div, options) {
@@ -160,7 +160,7 @@ Map.prototype.getMap = function(mapId, div, options) {
 
     cordova.fireDocumentEvent('plugin_touch', {});
 
-    exec(function() {
+    exec.call(this, function() {
       cordova.fireDocumentEvent('plugin_touch', {});
 
       //------------------------------------------------------------------------
@@ -217,25 +217,25 @@ Map.prototype.setOptions = function(options) {
     if (utils.isArray(options.styles)) {
       options.styles = JSON.stringify(options.styles);
     }
-    exec(null, this.errorHandler, this.id, 'setOptions', [options]);
+    exec.call(this, null, this.errorHandler, this.id, 'setOptions', [options]);
     return this;
 };
 
 Map.prototype.setCameraTarget = function(latLng) {
     this.set('camera_target', latLng);
-    exec(null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
+    exec.call(this, null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
     return this;
 };
 
 Map.prototype.setCameraZoom = function(zoom) {
     this.set('camera_zoom', zoom);
-    exec(null, this.errorHandler, this.id, 'setCameraZoom', [zoom], {sync: true});
+    exec.call(this, null, this.errorHandler, this.id, 'setCameraZoom', [zoom], {sync: true});
     return this;
 };
 Map.prototype.panBy = function(x, y) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
-    exec(null, this.errorHandler, this.id, 'panBy', [x, y], {sync: true});
+    exec.call(this, null, this.errorHandler, this.id, 'panBy', [x, y], {sync: true});
     return this;
 };
 
@@ -273,7 +273,7 @@ Map.prototype.clear = function(callback) {
     clearObj(self.MARKERS);
     clearObj(self.KML_LAYERS);
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -294,7 +294,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
         return this.errorHandler("Invalid MapTypeId was specified.");
     }
     this.set('mapTypeId', mapTypeId);
-    exec(null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
+    exec.call(this, null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
     return this;
 };
 
@@ -304,7 +304,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setCameraTilt = function(tilt) {
     this.set('camera_tilt', tilt);
-    exec(null, this.errorHandler, this.id, 'setCameraTilt', [tilt], {sync: true});
+    exec.call(this, null, this.errorHandler, this.id, 'setCameraTilt', [tilt], {sync: true});
     return this;
 };
 
@@ -314,7 +314,7 @@ Map.prototype.setCameraTilt = function(tilt) {
  */
 Map.prototype.setCameraBearing = function(bearing) {
     this.set('camera_bearing', bearing);
-    exec(null, this.errorHandler, this.id, 'setCameraBearing', [bearing], {sync: true});
+    exec.call(this, null, this.errorHandler, this.id, 'setCameraBearing', [bearing], {sync: true});
     return this;
 };
 
@@ -324,7 +324,7 @@ Map.prototype.moveCameraZoomIn = function(callback) {
     cameraPosition.zoom++;
     cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -337,7 +337,7 @@ Map.prototype.moveCameraZoomOut = function(callback) {
     cameraPosition.zoom--;
     cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -351,7 +351,7 @@ Map.prototype.animateCameraZoomIn = function(callback) {
     cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
     cameraPosition.duration = 500;
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -365,7 +365,7 @@ Map.prototype.animateCameraZoomOut = function(callback) {
     cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
     cameraPosition.duration = 500;
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -392,7 +392,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
     }
     cameraPosition.target = target;
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -418,7 +418,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
       target = common.convertToPositionArray(target);
     }
     cameraPosition.target = target;
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -428,23 +428,23 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    exec(null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled], {sync: true});
+    exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled], {sync: true});
     return this;
 };
 Map.prototype.setIndoorEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    exec(null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
+    exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
     return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    exec(null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
+    exec.call(this, null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
     return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
     var self = this;
     enabled = common.parseBoolean(enabled);
-    exec(null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
+    exec.call(this, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
     return this;
 };
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
@@ -469,10 +469,10 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
-    exec(successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params], {sync: true});
+    exec.call(this, successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params], {sync: true});
 };
 Map.prototype.getFocusedBuilding = function(callback) {
-    exec(callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
+    exec.call(this, callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
 };
 Map.prototype.getVisible = function() {
     return this.get("visible");
@@ -481,12 +481,12 @@ Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
     self.set("visible", isVisible);
-    exec(null, self.errorHandler, this.id, 'setVisible', [isVisible]);
+    exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
     return this;
 };
 Map.prototype.setClickable = function(isClickable) {
     isClickable = common.parseBoolean(isClickable);
-    exec(null, self.errorHandler, this.id, 'setClickable', [isClickable]);
+    exec.call(this, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
     return this;
 };
 
@@ -496,7 +496,7 @@ Map.prototype.setClickable = function(isClickable) {
  */
 Map.prototype.setAllGesturesEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
-    exec(null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
+    exec.call(this, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
     return this;
 };
 
@@ -560,11 +560,16 @@ Map.prototype.remove = function(callback) {
     clearObj(self.MARKERS);
     clearObj(self.KML_LAYERS);
 
-    exec(function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
     }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {sync: true});
+
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
 };
 
 
@@ -579,7 +584,7 @@ Map.prototype.toDataURL = function(params, callback) {
 
     params.uncompress = params.uncompress === true;
     var self = this;
-    exec(function(image) {
+    exec.call(this, function(image) {
         if (typeof callback === "function") {
             callback.call(self, image);
         }
@@ -640,7 +645,7 @@ Map.prototype.setDiv = function(div) {
             div = div.parentNode;
         }
     }
-    exec(function() {
+    exec.call(this, function() {
       cordova.fireDocumentEvent('plugin_touch', {});
       self.refreshLayout();
     }, self.errorHandler, self.id, 'setDiv', args, {sync: true});
@@ -679,7 +684,7 @@ Map.prototype.getVisibleRegion = function(callback) {
 Map.prototype.fromLatLngToPoint = function(latLng, callback) {
     var self = this;
     if ("lat" in latLng && "lng" in latLng) {
-        exec(function(result) {
+        exec.call(this, function(result) {
             if (typeof callback === "function") {
                 callback.call(self, result);
             }
@@ -697,7 +702,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
 Map.prototype.fromPointToLatLng = function(pixel, callback) {
     var self = this;
     if (pixel.length == 2 && utils.isArray(pixel)) {
-        exec(function(result) {
+        exec.call(this, function(result) {
             if (typeof callback === "function") {
                 var latLng = new LatLng(result[0] || 0, result[1] || 0);
                 callback.call(self, latLng);
@@ -746,7 +751,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
             padding.left = padding.top;
             break;
     }
-    exec(function(result) {
+    exec.call(this, function(result) {
         if (typeof callback === "function") {
             var latLng = new LatLng(result[0] || 0, result[1] || 0);
             callback.call(self, result);
@@ -771,7 +776,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     self.OVERLAYS[kmlId] = kmlOverlay;
     self.KML_LAYERS[kmlId] = kmlOverlay;
 
-    exec(function() {
+    exec.call(this, function() {
         kmlOverlay.one(kmlId + "_remove", function() {
             kmlOverlay.off();
             delete self.KML_LAYERS[kmlId];
@@ -797,7 +802,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
 
-    exec(function(result) {
+    exec.call(this, function(result) {
         var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions, exec);
         self.OVERLAYS[result.id] = groundOverlay;
         groundOverlay.one(result.id + "_remove", function() {
@@ -852,10 +857,10 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         if (!url || url === "(null)" || url === "undefined" || url === "null") {
           url = "(null)";
         }
-        exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
+        exec.call(this, null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
     });
 
-    exec(function(result) {
+    exec.call(this, function(result) {
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions, exec);
         self.OVERLAYS[result.id] = tileOverlay;
         tileOverlay.one(result.id + "_remove", function() {
@@ -901,7 +906,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     polygonOptions.zIndex = polygonOptions.zIndex || 0;
     polygonOptions.geodesic = polygonOptions.geodesic === true;
 
-    exec(function(result) {
+    exec.call(this, function(result) {
         polygonOptions.points = _orgs;
         var polygon = new Polygon(self, result.id, polygonOptions, exec);
         self.OVERLAYS[result.id] = polygon;
@@ -930,7 +935,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polylineOptions.clickable = polylineOptions.clickable === true;
     polylineOptions.zIndex = polylineOptions.zIndex || 0;
     polylineOptions.geodesic = polylineOptions.geodesic === true;
-    exec(function(result) {
+    exec.call(this, function(result) {
         polylineOptions.points = _orgs;
         var polyline = new Polyline(self, result.id, polylineOptions, exec);
         self.OVERLAYS[result.id] = polyline;
@@ -960,7 +965,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.zIndex = circleOptions.zIndex || 0;
     circleOptions.radius = circleOptions.radius || 1;
 
-    exec(function(result) {
+    exec.call(this, function(result) {
         var circle = new Circle(self, result.id, circleOptions, exec);
         self.OVERLAYS[result.id] = circle;
 
@@ -982,7 +987,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
 Map.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
     markerOptions = common.markerOptionsFilter(markerOptions);
-    exec(function(result) {
+    exec.call(this, function(result) {
         var marker = new Marker(self, result.id, markerOptions, "Marker", exec);
 
         self.MARKERS[result.id] = marker;
@@ -1015,7 +1020,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     return marker.position;
   });
 
-  exec(function(result) {
+  exec.call(this, function(result) {
 
     var markerMap = {};
     result.geocellList.forEach(function(geocell, idx) {

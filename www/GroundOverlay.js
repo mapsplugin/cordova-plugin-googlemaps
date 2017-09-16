@@ -41,25 +41,25 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions, _exec) 
   // Sets event listeners
   //-----------------------------------------------
   self.on("visible_changed", function(oldValue, visible) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
   self.on("image_changed", function(oldValue, url) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setImage', [self.getId(), url]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'setImage', [self.getId(), url]);
   });
   self.on("bounds_changed", function(oldValue, bounds) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setBounds', [self.getId(), bounds]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'setBounds', [self.getId(), bounds]);
   });
   self.on("opacity_changed", function(oldValue, opacity) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
   });
   self.on("clickable_changed", function(oldValue, clickable) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
   });
   self.on("bearing_changed", function(oldValue, bearing) {
-      exec(null, self.errorHandler, self.getPluginName(), 'setBearing', [self.getId(), bearing]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'setBearing', [self.getId(), bearing]);
   });
   self.on("zIndex_changed", function(oldValue, zIndex) {
-     exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+     exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
 
 };
@@ -143,7 +143,11 @@ GroundOverlay.prototype.getClickable = function() {
 
 GroundOverlay.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
     this.destroy();
 };
 

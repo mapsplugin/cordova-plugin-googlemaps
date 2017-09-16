@@ -38,16 +38,16 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions, _exec) {
     // Sets event listeners
     //-----------------------------------------------
     self.on("fadeIn_changed", function(oldValue, fadeIn) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
+        exec(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
     });
     self.on("opacity_changed", function(oldValue, opacity) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
     });
     self.on("zIndex_changed", function(oldValue, zIndex) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
     self.on("visible_changed", function(oldValue, visible) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
 };
 
@@ -104,7 +104,11 @@ TileOverlay.prototype.getVisible = function() {
 
 TileOverlay.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
     this.destroy();
 };
 

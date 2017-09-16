@@ -32,14 +32,14 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
     var pointsProperty = common.createMvcArray(polygonOptions.points);
     pointsProperty.on('set_at', function(index) {
         var value = common.getLatLng(pointsProperty.getAt(index));
-        exec(null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, value]);
+        exec(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, value]);
     });
     pointsProperty.on('insert_at', function(index) {
         var value = common.getLatLng(pointsProperty.getAt(index));
-        exec(null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, value]);
+        exec(self, null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, value]);
     });
     pointsProperty.on('remove_at', function(index) {
-        exec(null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
+        exec(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
     });
 
     Object.defineProperty(self, "points", {
@@ -66,17 +66,17 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
       }
       array.on('insert_at', function(idx) {
         var value = common.getLatLng(array.getAt(idx));
-        exec(null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, value]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, value]);
       });
       array.on('set_at', function(idx) {
         var value = common.getLatLng(array.getAt(idx));
-        exec(null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, value]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, value]);
       });
       array.on('remove_at', function(idx) {
-        exec(null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
       });
 
-      exec(null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
+      exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
     });
 
     Object.defineProperty(self, "holes", {
@@ -97,25 +97,25 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
     // Sets event listeners
     //-----------------------------------------------
     self.on("clickable_changed", function(oldValue, clickable) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
     });
     self.on("geodesic_changed", function(oldValue, geodesic) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
     });
     self.on("zIndex_changed", function(oldValue, zIndex) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
     self.on("visible_changed", function(oldValue, visible) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
     self.on("strokeWidth_changed", function(oldValue, width) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
     });
     self.on("strokeColor_changed", function(oldValue, color) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
     self.on("fillColor_changed", function(oldValue, color) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
 
 };
@@ -124,7 +124,11 @@ utils.extend(Polygon, BaseClass);
 
 Polygon.prototype.remove = function() {
     this.trigger(this.id + "_remove");
-    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
     this.destroy();
 };
 Polygon.prototype.getPluginName = function() {
@@ -152,7 +156,7 @@ Polygon.prototype.setPoints = function(points) {
     for (i = 0; i < points.length; i++) {
         mvcArray.push(common.getLatLng(points[i]), true);
     }
-    exec(null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
+    exec.call(this, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
     return self;
 };
 Polygon.prototype.getPoints = function() {
@@ -179,7 +183,7 @@ Polygon.prototype.setHoles = function(holes) {
             mvcArray.push(newHole, true);
         }
     });
-    exec(null, self.errorHandler, self.getPluginName(), 'setHoles', [self.id, mvcArray.getArray()]);
+    exec.call(this, null, self.errorHandler, self.getPluginName(), 'setHoles', [self.id, mvcArray.getArray()]);
     return this;
 };
 Polygon.prototype.getHoles = function() {
