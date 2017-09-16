@@ -550,7 +550,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
           Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
           RectF htmlElementRect;
-          int mapDivDepth = domInfo.getInt("depth");
+          double mapDivDepth = domInfo.getDouble("depth");
 
           for (String domId : domIDs) {
             if (pluginMap.mapDivId.equals(domId)) {
@@ -563,7 +563,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             if (domInfo == null) {
               continue;
             }
-            if (domInfo.getInt("depth") <= mapDivDepth) {
+            if (domInfo.getDouble("depth") <= mapDivDepth) {
               continue;
             }
 

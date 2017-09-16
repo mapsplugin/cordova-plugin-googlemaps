@@ -178,9 +178,10 @@ if (!cordova) {
       var shouldUpdate = false;
       var doNotTrace = false;
 
-      var traceDomTree = function(element, domIdx, parentRect, parentZIndex) {
+      var traceDomTree = function(element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel) {
         var zIndex = parentZIndex;
         doNotTrace = false;
+        var depth = 1;
 
         if (common.shouldWatchByNative(element)) {
 
@@ -192,14 +193,13 @@ if (!cordova) {
           }
 
           // get dom depth
-          var depth;
           zIndex = common.getZIndex(element);
           if (elemId in cacheDepth &&
               elemId in prevDomPositions &&
               prevDomPositions[elemId].zIndex === zIndex) {
               depth = cacheDepth[elemId];
           } else {
-              depth = common.getDomDepth(element, domIdx, parentZIndex);
+              depth = common.getDomDepth(element, domIdx, parentZIndex, parentDepth, floorLevel);
               cacheDepth[elemId] = depth;
           }
 
@@ -291,7 +291,7 @@ if (!cordova) {
                 common.getStyle(child, "display") === "none") {
                 continue;
               }
-              traceDomTree(child, domIdx + i + 1, parentRect, zIndex);
+              traceDomTree(child, domIdx + i + 1, parentRect, zIndex, depth, floorLevel + 1);
             }
           }
         }
@@ -300,7 +300,7 @@ if (!cordova) {
       bodyRect.right = bodyRect.left + bodyRect.width;
       bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
 
-      traceDomTree(document.body, 0, bodyRect, 0);
+      traceDomTree(document.body, 0, bodyRect, 0, 0, 1);
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
@@ -712,8 +712,8 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
     }, pluginName, methodName, args]
   });
 
-  //console.log("commandQueue.length: " + commandQueue.length);
-  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || commandQueue.length > 1) {
+  //console.log("commandQueue.length: " + commandQueue.length, commandQueue);
+  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT ) {
     return;
   }
   _exec();
@@ -732,6 +732,7 @@ function _exec() {
     }
     var commandParams = commandQueue.shift();
     methodName = commandParams.args[3];
+    //console.log("target: " + methodName);
     if (methodName === "resizeMap") {
       if (_isResizeMapExecuting) {
         _executingCnt--;
