@@ -12,7 +12,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.RectF;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -298,6 +300,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.resumeResizeTimer(args, callbackContext);
           } else if ("pauseResizeTimer".equals(action)) {
             CordovaGoogleMaps.this.pauseResizeTimer(args, callbackContext);
+          } else if ("updateMapPositionOnly".equals(action)) {
+            CordovaGoogleMaps.this.updateMapPositionOnly(args, callbackContext);
           }
 
         } catch (JSONException e) {
@@ -316,9 +320,46 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.timerLock.notify();
       }
     }
+    callbackContext.success();
+  }
+  public void updateMapPositionOnly(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final JSONObject elements = args.getJSONObject(0);
+
+    Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
+    float zoomScale = Resources.getSystem().getDisplayMetrics().density;
+
+    Iterator<String> domIDs = elementsBundle.keySet().iterator();
+    String domId;
+    Bundle domInfo, size;
+    while (domIDs.hasNext()) {
+      domId = domIDs.next();
+      domInfo = elementsBundle.getBundle(domId);
+
+      size = domInfo.getBundle("size");
+      RectF rectF = new RectF();
+      rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
+      rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
+      rectF.right = rectF.left  + (float)(Double.parseDouble(size.get("width") + "") * zoomScale);
+      rectF.bottom = rectF.top  + (float)(Double.parseDouble(size.get("height") + "") * zoomScale);
+
+      mPluginLayout.HTMLNodeRectFs.put(domId, rectF);
+
+      domInfo.remove("size");
+      mPluginLayout.HTMLNodes.put(domId, domInfo);
+    }
+
+    mPluginLayout.pauseResize = true;
+    if (mPluginLayout.isWaiting) {
+      mPluginLayout.pauseResize = false;
+      synchronized (mPluginLayout.timerLock) {
+        mPluginLayout.timerLock.notify();
+      }
+    }
+    callbackContext.success();
   }
   public void pauseResizeTimer(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     mPluginLayout.pauseResize = true;
+    callbackContext.success();
   }
   public void backHistory(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     cordova.getActivity().runOnUiThread(new Runnable() {

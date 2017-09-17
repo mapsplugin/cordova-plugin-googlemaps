@@ -126,6 +126,44 @@ if (!cordova) {
       "svg", "p", "pre", "script", "style"
     ];
 
+    var followPositionTimer = null;
+    var followPositionTimerCnt = 0;
+    function followMapDivPositionOnly() {
+      var mapRects = {};
+      var mapIDs = Object.keys(MAPS);
+      mapIDs.forEach(function(mapId) {
+        var map = MAPS[mapId];
+        if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
+          var mapDiv = map.getDiv();
+          var divId = mapDiv.getAttribute("__pluginDomId");
+          mapRects[divId] = {
+            size: common.getDivRect(mapDiv),
+            depth: cacheDepth[divId]
+          };
+        }
+      });
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+    }
+
+    function onTouchEnd(event) {
+      followPositionTimerCnt = 0;
+      followPositionTimer = setInterval(function() {
+        if (followPositionTimerCnt++ > 25) {
+          clearInterval(followPositionTimer);
+          followPositionTimer = null;
+          return;
+        }
+        followMapDivPositionOnly();
+      }, 50);
+    }
+
+    function onTouchStart() {
+      if (followPositionTimer) {
+        clearInterval(followPositionTimer);
+        followPositionTimer = null;
+      }
+    }
+
     function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
       if (isChecking) {
@@ -188,8 +226,15 @@ if (!cordova) {
           // Generates a __pluginDomId
           var elemId = element.getAttribute("__pluginDomId");
           if (!elemId) {
-              elemId = "pgm" + Math.floor(Math.random() * Date.now());
-              element.setAttribute("__pluginDomId", elemId);
+            elemId = "pgm" + Math.floor(Math.random() * Date.now());
+            element.setAttribute("__pluginDomId", elemId);
+            if (common.getStyle(element, "-webkit-overflow-scrolling") === "touch") {
+              element.addEventListener("touchstart", onTouchStart);
+              element.addEventListener("touchmove", followMapDivPositionOnly);
+              element.addEventListener("touchend", onTouchEnd);
+              element.addEventListener("touchcancel", onTouchEnd);
+              element.addEventListener("touchleave", onTouchEnd);
+            }
           }
 
           // get dom depth
