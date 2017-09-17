@@ -160,7 +160,9 @@ Map.prototype.getMap = function(mapId, div, options) {
 
     cordova.fireDocumentEvent('plugin_touch', {});
 
-    exec.call(this, function() {
+    exec.call({
+      _isReady: true
+    }, function() {
       cordova.fireDocumentEvent('plugin_touch', {});
 
       //------------------------------------------------------------------------
@@ -185,8 +187,11 @@ Map.prototype.getMap = function(mapId, div, options) {
       // In order to work map.getVisibleRegion() correctly, wait a little.
       //------------------------------------------------------------------------
       setTimeout(function() {
-        self.refreshLayout();
-        self._isReady = true;
+        self.refreshLayout('getMap');
+        Object.defineProperty(self, "_isReady", {
+            value: true,
+            writable: false
+        });
         self.trigger(event.MAP_READY, self);
       }, 250);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {sync: true});
@@ -783,6 +788,10 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
             delete self.OVERLAYS[kmlId];
             kmlOverlay = undefined;
         });
+        kmlOverlay.defineProperty(kmlOverlay, "_isReady", {
+            value: true,
+            writable: false
+        });
         if (typeof callback === "function") {
             callback.call(self, kmlOverlay);
         }
@@ -809,6 +818,10 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
             groundOverlay.off();
             delete self.OVERLAYS[result.id];
             groundOverlay = undefined;
+        });
+        groundOverlay.defineProperty(groundOverlay, "_isReady", {
+            value: true,
+            writable: false
         });
         if (typeof callback === "function") {
             callback.call(self, groundOverlay);
@@ -868,6 +881,10 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             delete self.OVERLAYS[result.id];
             tileOverlay = undefined;
         });
+        tileOverlay.defineProperty(tileOverlay, "_isReady", {
+            value: true,
+            writable: false
+        });
         if (typeof callback === "function") {
             callback.call(self, tileOverlay);
         }
@@ -915,6 +932,10 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
             delete self.OVERLAYS[result.id];
             polygon = undefined;
         });
+        polygon.defineProperty(polygon, "_isReady", {
+            value: true,
+            writable: false
+        });
         if (typeof callback === "function") {
             callback.call(self, polygon);
         }
@@ -943,6 +964,10 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
             polyline.off();
             delete self.OVERLAYS[result.id];
             polyline = undefined;
+        });
+        polyline.defineProperty(polyline, "_isReady", {
+            value: true,
+            writable: false
         });
         if (typeof callback === "function") {
             callback.call(self, polyline);
@@ -974,6 +999,11 @@ Map.prototype.addCircle = function(circleOptions, callback) {
             delete self.OVERLAYS[result.id];
             circle = undefined;
         });
+
+        circle.defineProperty(circle, "_isReady", {
+            value: true,
+            writable: false
+        });
         if (typeof callback === "function") {
             callback.call(self, circle);
         }
@@ -998,6 +1028,11 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             delete self.MARKERS[result.id];
             delete self.OVERLAYS[result.id];
             marker = undefined;
+        });
+
+        marker.defineProperty(marker, "_isReady", {
+            value: true,
+            writable: false
         });
         if (typeof callback === "function") {
             callback.call(self, marker);
@@ -1077,6 +1112,10 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
     self.OVERLAYS[result.id] = markerCluster;
 
+    markerCluster.defineProperty(markerCluster, "_isReady", {
+        value: true,
+        writable: false
+    });
     if (typeof callback === "function") {
         callback.call(self, markerCluster);
     }
