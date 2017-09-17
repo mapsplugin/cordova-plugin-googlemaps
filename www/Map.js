@@ -788,7 +788,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
             delete self.OVERLAYS[kmlId];
             kmlOverlay = undefined;
         });
-        kmlOverlay.defineProperty(kmlOverlay, "_isReady", {
+        Object.defineProperty(kmlOverlay, "_isReady", {
             value: true,
             writable: false
         });
@@ -819,7 +819,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
             delete self.OVERLAYS[result.id];
             groundOverlay = undefined;
         });
-        groundOverlay.defineProperty(groundOverlay, "_isReady", {
+        Object.defineProperty(groundOverlay, "_isReady", {
             value: true,
             writable: false
         });
@@ -881,7 +881,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             delete self.OVERLAYS[result.id];
             tileOverlay = undefined;
         });
-        tileOverlay.defineProperty(tileOverlay, "_isReady", {
+        Object.defineProperty(tileOverlay, "_isReady", {
             value: true,
             writable: false
         });
@@ -932,7 +932,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
             delete self.OVERLAYS[result.id];
             polygon = undefined;
         });
-        polygon.defineProperty(polygon, "_isReady", {
+        Object.defineProperty(polygon, "_isReady", {
             value: true,
             writable: false
         });
@@ -965,7 +965,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
             delete self.OVERLAYS[result.id];
             polyline = undefined;
         });
-        polyline.defineProperty(polyline, "_isReady", {
+        Object.defineProperty(polyline, "_isReady", {
             value: true,
             writable: false
         });
@@ -1000,7 +1000,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
             circle = undefined;
         });
 
-        circle.defineProperty(circle, "_isReady", {
+        Object.defineProperty(circle, "_isReady", {
             value: true,
             writable: false
         });
@@ -1030,7 +1030,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             marker = undefined;
         });
 
-        marker.defineProperty(marker, "_isReady", {
+        Object.defineProperty(marker, "_isReady", {
             value: true,
             writable: false
         });
@@ -1112,7 +1112,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
     self.OVERLAYS[result.id] = markerCluster;
 
-    markerCluster.defineProperty(markerCluster, "_isReady", {
+    Object.defineProperty(markerCluster, "_isReady", {
         value: true,
         writable: false
     });
