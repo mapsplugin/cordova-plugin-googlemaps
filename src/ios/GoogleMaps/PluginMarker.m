@@ -68,7 +68,7 @@
     NSDictionary *json = [command.arguments objectAtIndex:1];
 
     __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
-    NSString *markerId = [NSString stringWithFormat:@"marker_%lu", command.hash];
+    NSString *markerId = [NSString stringWithFormat:@"marker_%lu%d", command.hash, arc4random() % 100000];
     [createResult setObject:markerId forKey:@"id"];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -316,7 +316,9 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       NSString *markerId = [command.arguments objectAtIndex:0];
       GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+      [self.mapCtrl.objects removeObjectForKey:markerId];
       [self _removeMarker:marker];
+      marker = nil;
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -338,26 +340,27 @@
     marker.map = nil;
     marker = nil;
 
-    if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
+      if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
 
-      NSString *cacheKey = [self.mapCtrl.objects objectForKey:iconCacheKey];
+        NSString *cacheKey = [self.mapCtrl.objects objectForKey:iconCacheKey];
 
+        if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey]) {
+          int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey] intValue];
+          count--;
+          if (count < 1) {
+            [[UIImageCache sharedInstance] removeCachedImageForKey:cacheKey];
+            [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:cacheKey];
+          } else {
+            [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:cacheKey];
+          }
+        }
 
-      if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey]) {
-        int count = [[[UIImageCache sharedInstance].iconCacheKeys objectForKey:cacheKey] intValue];
-        count--;
-        if (count < 1) {
-          [[UIImageCache sharedInstance] removeCachedImageForKey:cacheKey];
-          [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:cacheKey];
-        } else {
-          [[UIImageCache sharedInstance].iconCacheKeys setObject:[NSNumber numberWithInt:count] forKey:cacheKey];
+        if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
+          [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
         }
       }
-
-      if ([self.mapCtrl.objects objectForKey:iconCacheKey]) {
-        [self.mapCtrl.objects removeObjectForKey:iconCacheKey];
-      }
-    }
+    }];
   }
 }
 

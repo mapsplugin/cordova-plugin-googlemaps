@@ -96,7 +96,7 @@
       // disable default clickable feature.
       polyline.tappable = NO;
 
-      NSString *id = [NSString stringWithFormat:@"polyline_%lu", (unsigned long)polyline.hash];
+      NSString *id = [NSString stringWithFormat:@"polyline_%lu%d", command.hash, arc4random() % 100000];
       [self.mapCtrl.objects setObject:polyline forKey: id];
       polyline.title = id;
 
