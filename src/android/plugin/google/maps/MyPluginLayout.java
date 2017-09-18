@@ -47,7 +47,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private boolean isScrolling = false;
   public boolean isDebug = false;
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
-  private HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
+  public HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
   public boolean stopFlag = false;
