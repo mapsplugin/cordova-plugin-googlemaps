@@ -82,6 +82,7 @@ var HTMLInfoWindow = function() {
           if (!content) {
             contentBox.innerText = "";
           } else if (content.nodeType === 1) {
+            contentBox.innerHTML = "";
             contentBox.appendChild(content);
           } else {
             contentBox.innerText = content;
