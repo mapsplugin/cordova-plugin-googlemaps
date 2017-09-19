@@ -865,18 +865,20 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         _id : Math.floor(Math.random() * Date.now())
     };
 
-    document.addEventListener(self.id + "-" + options._id + "-tileoverlay", function(params) {
+    var onNativeCallback = function(params) {
         var url = tilelayerOptions.getTile(params.x, params.y, params.zoom);
         if (!url || url === "(null)" || url === "undefined" || url === "null") {
           url = "(null)";
         }
-        exec.call(this, null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
-    });
+        cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
+    };
+    document.addEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
 
     exec.call(this, function(result) {
         var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions, exec);
         self.OVERLAYS[result.id] = tileOverlay;
         tileOverlay.one(result.id + "_remove", function() {
+            document.removeEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
             tileOverlay.off();
             delete self.OVERLAYS[result.id];
             tileOverlay = undefined;
