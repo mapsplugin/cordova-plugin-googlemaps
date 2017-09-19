@@ -15,11 +15,13 @@ var HTMLInfoWindow = function() {
     frame.style.overflow="visible";
     frame.style.position="absolute";
     frame.style.display = "inline-block";
+    frame.classList.add('gm-html-info-frame');
     self.set("frame", frame);
 
     var contentBox = document.createElement("div");
     contentBox.style.display = "inline-block";
     contentBox.style.padding = "5px";
+    contentBox.classList.add('gm-html-info-content-box');
 
     var contentFrame = document.createElement("div");
     contentFrame.style.display = "block";
@@ -29,12 +31,14 @@ var HTMLInfoWindow = function() {
     contentFrame.style.left = "0px";
     contentFrame.style.right = "0px";
     contentFrame.style.zIndex = "1";  // In order to set higher depth than the map div certainly
+    contentFrame.classList.add('gm-html-info-content-frame');
     frame.appendChild(contentFrame);
     contentFrame.appendChild(contentBox);
 
     var tailFrame = document.createElement("div");
     tailFrame.style.position = "relative";
     tailFrame.style.marginTop = "-1px";
+    tailFrame.classList.add('gm-html-info-tail-frame');
     frame.appendChild(tailFrame);
 
     var tailLeft = document.createElement("div");
@@ -82,6 +86,7 @@ var HTMLInfoWindow = function() {
           if (!content) {
             contentBox.innerText = "";
           } else if (content.nodeType === 1) {
+            contentBox.innerHTML = "";
             contentBox.appendChild(content);
           } else {
             contentBox.innerText = content;
