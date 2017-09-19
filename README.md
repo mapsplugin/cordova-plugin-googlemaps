@@ -320,6 +320,15 @@ It means **you can use the native Google Maps views similar like HTML element**.
 
 ---
 
+## For the `@ionic-native/google-maps` users
+
+I stopped any support for the `@ionic-native/google-maps` currently, because it is not my plugin.
+In order to support for the `@ionic-native/google-maps`, please donate the amount.
+More details, check out here.
+https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/1749
+
+---
+
 ## Buy me a beer
 
 I have been spend **tons of time for this plugin project, but even though the plugin is still FREE!!**.
