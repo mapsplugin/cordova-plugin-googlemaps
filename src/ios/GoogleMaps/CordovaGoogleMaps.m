@@ -135,8 +135,10 @@
         return;
     }
 
+
     pluginMap.isRemoved = YES;
-    [pluginMap clear:nil];
+    //[pluginMap clear:nil];
+    [pluginMap pluginUnload];
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
@@ -152,6 +154,8 @@
     pluginMap.mapCtrl = nil;
     [self.pluginMaps removeObjectForKey:mapId];
     pluginMap = nil;
+
+    [cdvViewController.pluginObjects removeObjectForKey:mapId];
 }
 /**
  * Remove the map
@@ -481,7 +485,35 @@
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+- (void)updateMapPositionOnly:(CDVInvokedUrlCommand *)command {
+  if (self.pluginLayer != nil) {
 
+    NSDictionary *elementsDic = [command.arguments objectAtIndex:0];
+    NSString *domId;
+    CGRect rect = CGRectMake(0, 0, 0, 0);
+    NSMutableDictionary *domInfo, *size;
+    @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
+      for (domId in elementsDic) {
+        domInfo = [elementsDic objectForKey:domId];
+        size = [domInfo objectForKey:@"size"];
+        rect.origin.x = [[size objectForKey:@"left"] doubleValue];
+        rect.origin.y = [[size objectForKey:@"top"] doubleValue];
+        rect.size.width = [[size objectForKey:@"width"] doubleValue];
+        rect.size.height = [[size objectForKey:@"height"] doubleValue];
+        [domInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
+        [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:domInfo forKey:domId];
+
+      }
+    }
+
+    self.pluginLayer.pauseResize = false;
+    self.pluginLayer.isSuspended = false;
+    self.pluginLayer.isSuspended = false;
+    [self.pluginLayer resizeTask:nil];
+  }
+  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 - (void)resumeResizeTimer:(CDVInvokedUrlCommand *)command {
     if (self.pluginLayer != nil) {

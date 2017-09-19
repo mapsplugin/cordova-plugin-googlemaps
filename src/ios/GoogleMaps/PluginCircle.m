@@ -92,7 +92,7 @@
         circle.tappable = NO;
 
         // Store the circle instance into self.objects
-        NSString *circleId = [NSString stringWithFormat:@"circle_%lu", (unsigned long)circle.hash];
+        NSString *circleId = [NSString stringWithFormat:@"circle_%lu%d", command.hash, arc4random() % 100000];
         circle.title = circleId;
         [self.mapCtrl.objects setObject:circle forKey: circleId];
 

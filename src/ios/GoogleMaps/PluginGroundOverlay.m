@@ -80,7 +80,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         GMSGroundOverlay *groundOverlay = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
-        NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%lu", (unsigned long)groundOverlay.hash];
+        NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%lu%d", command.hash, arc4random() % 100000];
         [self.mapCtrl.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;
 

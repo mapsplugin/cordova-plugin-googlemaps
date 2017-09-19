@@ -47,7 +47,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private boolean isScrolling = false;
   public boolean isDebug = false;
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
-  private HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
+  public HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
   public boolean stopFlag = false;
@@ -550,7 +550,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
           Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
           RectF htmlElementRect;
-          int mapDivDepth = domInfo.getInt("depth");
+          double mapDivDepth = domInfo.getDouble("depth");
 
           for (String domId : domIDs) {
             if (pluginMap.mapDivId.equals(domId)) {
@@ -563,7 +563,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             if (domInfo == null) {
               continue;
             }
-            if (domInfo.getInt("depth") <= mapDivDepth) {
+            if (domInfo.getDouble("depth") <= mapDivDepth) {
               continue;
             }
 

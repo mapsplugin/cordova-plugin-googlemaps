@@ -120,7 +120,7 @@
       polygon.tappable = NO;
 
       // Register polygon to the overlayManager.
-      NSString *id = [NSString stringWithFormat:@"polygon_%lu", (unsigned long)polygon.hash];
+      NSString *id = [NSString stringWithFormat:@"polygon_%lu%d", command.hash, arc4random() % 100000];
       [self.mapCtrl.objects setObject:polygon forKey: id];
       polygon.title = id;
 

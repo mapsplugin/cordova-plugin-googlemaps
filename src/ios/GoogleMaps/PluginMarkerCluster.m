@@ -145,7 +145,7 @@ const int GEOCELL_GRID_SIZE = 4;
     [geocellList addObject:[self getGeocell:lat lng:lng resolution:12]];
   }
 
-  NSString *clusterId = [NSString stringWithFormat:@"markercluster_%lu", command.hash];
+  NSString *clusterId = [NSString stringWithFormat:@"markercluster_%lu%d", command.hash, arc4random() % 100000];
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:geocellList forKey:@"geocellList"];
   [result setObject:clusterId forKey:@"id"];

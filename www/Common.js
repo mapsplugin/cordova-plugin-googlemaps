@@ -308,12 +308,12 @@ function getZIndex(dom) {
     return z;
 }
 
-function getDomDepth(dom, idx, parentZIndex) {
+function getDomDepth(dom, idx, parentZIndex, parentDepth, floorLevel) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
     var orgDom = dom;
-    var zIndex = getZIndex(dom);
+    var zIndex = parentZIndex + getZIndex(dom);
 /*
     var depth = 0;
     while (dom.parentNode !== null && dom.parentNode != document) {
@@ -322,7 +322,7 @@ function getDomDepth(dom, idx, parentZIndex) {
     }
 */
     //var result = ((zIndex + 1) << (depth + 1)) + idx;
-    var result =  (parentZIndex + zIndex) * 10000 + idx;
+    var result = (parentDepth + ((zIndex + 1) / (floorLevel + 1)) + idx) - 0.01 ;
     orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }

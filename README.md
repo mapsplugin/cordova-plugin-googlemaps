@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.0)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.0.9)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -66,9 +66,9 @@ Example using config.xml
 </plugin>
 ```
 
-## version 2.0.7 -> 2.0.8
+## Release Notes
 
-- Fix: internal eventName typo (sorry!)
+- [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/ReleaseNotes/v2.0-stable/README.md)
 
 ## Quick demo
 
