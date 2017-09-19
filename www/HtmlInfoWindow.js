@@ -177,18 +177,23 @@ var HTMLInfoWindow = function() {
     self.on("infoWindowAnchor_changed", calculate);
     self.on("icon_changed", calculate);
 
+    self.set("isInfoWindowVisible", false);
+
 };
 
 utils.extend(HTMLInfoWindow, BaseClass);
 
 HTMLInfoWindow.prototype.isInfoWindowShown = function() {
-    return this.get("marker") ? true : false;
+    return this.get("isInfoWindowVisible") === true;
 };
 
 HTMLInfoWindow.prototype.close = function() {
     var self = this;
 
     var marker = self.get("marker");
+    if (marker) {
+      marker.off("isInfoWindowVisible_changed");
+    }
     if (!self.isInfoWindowShown() || !marker) {
       return;
     }
@@ -243,9 +248,11 @@ HTMLInfoWindow.prototype.open = function(marker) {
 
         map.bindTo("infoPosition", self);
         marker.bindTo("infoWindowAnchor", self);
+        marker.bindTo("isInfoWindowVisible", self);
         marker.bindTo("icon", self);
         marker.one(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
+        self.set("isInfoWindowVisible", true);
         map.set("active_marker_id", marker.getId());
         self.trigger.call(self, "infoWindowAnchor_changed");
     });

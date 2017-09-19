@@ -1151,10 +1151,10 @@ Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
     if (marker) {
         marker.set('position', position);
         if (eventName === event.INFO_OPEN) {
-          marker.set("isInfoWindowShown", true);
+          marker.set("isInfoWindowVisible", true);
         }
         if (eventName === event.INFO_CLOSE) {
-          marker.set("isInfoWindowShown", false);
+          marker.set("isInfoWindowVisible", false);
         }
         marker.trigger(eventName, position, marker);
     }
@@ -1171,10 +1171,10 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
           markerCluster.trigger(eventName, position, marker);
         } else {
           if (eventName === event.INFO_OPEN) {
-            marker.set("isInfoWindowShown", true);
+            marker.set("isInfoWindowVisible", true);
           }
           if (eventName === event.INFO_CLOSE) {
-            marker.set("isInfoWindowShown", false);
+            marker.set("isInfoWindowVisible", false);
           }
         }
         marker.trigger(eventName, position, marker);
