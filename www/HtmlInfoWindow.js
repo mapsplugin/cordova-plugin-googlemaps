@@ -197,6 +197,8 @@ HTMLInfoWindow.prototype.close = function() {
     if (!self.isInfoWindowShown() || !marker) {
       return;
     }
+    self.set("isInfoWindowVisible", false);
+    marker.set("isInfoWindowVisible", false);
     marker.set("infoWindow", undefined);
     this.set('marker', undefined);
 
@@ -242,17 +244,20 @@ HTMLInfoWindow.prototype.open = function(marker) {
       markerId = marker.getId();
 
     marker.set("infoWindow", self);
+    marker.set("isInfoWindowVisible", true);
+    self.set("isInfoWindowVisible", true);
+    marker.one("isInfoWindowVisible_changed", function() {
+      self.close.call(self);
+    });
 
     map.fromLatLngToPoint(marker.getPosition(), function(point) {
         map.set("infoPosition", {x: point[0], y: point[1]});
 
         map.bindTo("infoPosition", self);
         marker.bindTo("infoWindowAnchor", self);
-        self.bindTo("isInfoWindowVisible", marker);
         marker.bindTo("icon", self);
         marker.one(event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
-        marker.set("isInfoWindowVisible", true);
         map.set("active_marker_id", marker.getId());
         self.trigger.call(self, "infoWindowAnchor_changed");
     });

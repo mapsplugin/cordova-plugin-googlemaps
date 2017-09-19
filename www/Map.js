@@ -50,7 +50,7 @@ var Map = function(id, _exec) {
 
     self.on("active_marker_id_changed", function(prevId, newId) {
         if (prevId in self.MARKERS) {
-            self.MARKERS[prevId].trigger.call(self.MARKERS[prevId], event.INFO_CLOSE);
+            self.MARKERS[prevId].hideInfoWindow.call(self.MARKERS[prevId]);
         }
         exec.call(self, null, null, self.id, 'setActiveMarkerId', [newId]);
     });
