@@ -15,6 +15,10 @@ var Marker = function(map, id, markerOptions, className, _exec) {
 
     var self = this;
 
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     Object.defineProperty(self, "map", {
         value: map,
         writable: false
