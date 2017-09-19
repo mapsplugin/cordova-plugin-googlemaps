@@ -267,13 +267,13 @@ Marker.prototype.showInfoWindow = function() {
     }
     this.set("isInfoWindowVisible", true);
     this.map.set("active_marker_id", this.id);
-    exec(this, null, this.errorHandler, this.getPluginName(), 'showInfoWindow', [this.getId()], {sync: true});
+    exec.call(this, null, this.errorHandler, this.getPluginName(), 'showInfoWindow', [this.getId()], {sync: true});
     return this;
 };
 Marker.prototype.hideInfoWindow = function() {
     if (this.get("isInfoWindowVisible")) {
         this.set("isInfoWindowVisible", false);
-        exec(this, null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()], {sync: true});
+        exec.call(this, null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()], {sync: true});
     }
     return this;
 };

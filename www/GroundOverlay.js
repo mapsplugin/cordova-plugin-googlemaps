@@ -18,6 +18,10 @@ var GroundOverlay = function(map, groundOverlayId, groundOverlayOptions, _exec) 
   groundOverlayOptions.bounds = groundOverlayOptions.bounds || [];
   groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0, 0];
   groundOverlayOptions.bearing = groundOverlayOptions.bearing || 0;
+  Object.defineProperty(self, "_isReady", {
+      value: true,
+      writable: false
+  });
   Object.defineProperty(self, "id", {
      value: groundOverlayId,
      writable: false

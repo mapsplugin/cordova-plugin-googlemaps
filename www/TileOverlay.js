@@ -24,6 +24,10 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions, _exec) {
         value: map,
         writable: false
     });
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     //-----------------------------------------------
     // Sets the initialize option to each property
     //-----------------------------------------------
@@ -38,7 +42,7 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions, _exec) {
     // Sets event listeners
     //-----------------------------------------------
     self.on("fadeIn_changed", function(oldValue, fadeIn) {
-        exec(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
     });
     self.on("opacity_changed", function(oldValue, opacity) {
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);

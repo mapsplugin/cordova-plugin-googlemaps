@@ -13,6 +13,10 @@ var Circle = function(map, circleId, circleOptions, _exec) {
     BaseClass.apply(this);
 
     var self = this;
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     Object.defineProperty(self, "map", {
         value: map,
         writable: false

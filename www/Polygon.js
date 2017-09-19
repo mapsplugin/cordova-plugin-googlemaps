@@ -13,6 +13,10 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
     BaseClass.apply(this);
 
     var self = this;
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     Object.defineProperty(self, "map", {
         value: map,
         writable: false
@@ -32,14 +36,14 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
     var pointsProperty = common.createMvcArray(polygonOptions.points);
     pointsProperty.on('set_at', function(index) {
         var value = common.getLatLng(pointsProperty.getAt(index));
-        exec(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, value]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, value]);
     });
     pointsProperty.on('insert_at', function(index) {
         var value = common.getLatLng(pointsProperty.getAt(index));
-        exec(self, null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, value]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, value]);
     });
     pointsProperty.on('remove_at', function(index) {
-        exec(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
     });
 
     Object.defineProperty(self, "points", {
