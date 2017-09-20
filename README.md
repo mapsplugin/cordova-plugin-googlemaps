@@ -83,7 +83,7 @@ Example using config.xml
 
 ## Release Notes
 
-- [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/ReleaseNotes/v2.0-stable/README.md)
+- [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-stable/README.md)
 
 - v2.0.10 is the hotfix for the v2.0.9. Sorry about that.
 
