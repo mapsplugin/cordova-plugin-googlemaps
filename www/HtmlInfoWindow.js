@@ -15,11 +15,13 @@ var HTMLInfoWindow = function() {
     frame.style.overflow="visible";
     frame.style.position="absolute";
     frame.style.display = "inline-block";
+    frame.classList.add('pgm-html-info-frame');
     self.set("frame", frame);
 
     var contentBox = document.createElement("div");
     contentBox.style.display = "inline-block";
     contentBox.style.padding = "5px";
+    contentBox.classList.add('pgm-html-info-content-box');
 
     var contentFrame = document.createElement("div");
     contentFrame.style.display = "block";
@@ -29,37 +31,80 @@ var HTMLInfoWindow = function() {
     contentFrame.style.left = "0px";
     contentFrame.style.right = "0px";
     contentFrame.style.zIndex = "1";  // In order to set higher depth than the map div certainly
+    contentFrame.classList.add('pgm-html-info-content-frame');
     frame.appendChild(contentFrame);
     contentFrame.appendChild(contentBox);
 
     var tailFrame = document.createElement("div");
     tailFrame.style.position = "relative";
-    tailFrame.style.marginTop = "-1px";
+    tailFrame.style.top = "-1px";
+    tailFrame.style.zIndex = 100;
+    tailFrame.classList.add('pgm-html-info-tail-frame');
     frame.appendChild(tailFrame);
 
     var tailLeft = document.createElement("div");
     tailLeft.style.position = "absolute";
-    tailLeft.style.left = "50%";
-    tailLeft.style.height = "0px";
-    tailLeft.style.width = "0px";
     tailLeft.style.marginLeft = "-15px";
-    tailLeft.style.borderWidth = "15px 15px 0px";
-    tailLeft.style.borderColor = "rgb(204, 204, 204) transparent transparent";
-    tailLeft.style.borderStyle = "solid";
+    tailLeft.style.left = "50%";
+    tailLeft.style.top = "0px";
+    tailLeft.style.height = "15px";
+    tailLeft.style.width = "16px";
+    tailLeft.style.overflow = "hidden";
+    tailLeft.style.borderWidth = "0px";
+    tailLeft.classList.add('pgm-html-info-tail-left');
     tailFrame.appendChild(tailLeft);
+
+    var tailLeftCover = document.createElement("div");
+    tailLeftCover.style.position = "absolute";
+    tailLeftCover.style.backgroundColor = "white";
+    tailLeftCover.style.transform = "skewX(45deg)";
+    tailLeftCover.style.transformOrigin = "0px 0px 0px";
+    tailLeftCover.style.left = "0px";
+    tailLeftCover.style.height = "15px";
+    tailLeftCover.style.width = "15px";
+    tailLeftCover.style.top = "0px";
+    tailLeftCover.style.zIndex = 1;
+    tailLeftCover.style.borderLeft = "1px solid rgb(204, 204, 204)";
+    tailLeft.classList.add('pgm-html-info-tail-left-cover');
+    tailLeft.appendChild(tailLeftCover);
 
     var tailRight = document.createElement("div");
     tailRight.style.position = "absolute";
     tailRight.style.left = "50%";
-    tailRight.style.height = "0px";
-    tailRight.style.width = "0px";
-    tailRight.style.marginLeft = "-14px";
-    tailRight.style.borderTopWidth = "14px";
-    tailRight.style.borderLeftWidth = "14px";
-    tailRight.style.borderRightWidth = "14px";
-    tailRight.style.borderColor = "rgb(255, 255, 255) transparent transparent";
-    tailRight.style.borderStyle = "solid";
+    tailRight.style.top = "0px";
+    tailRight.style.height = "15px";
+    tailRight.style.width = "16px";
+    tailRight.style.overflow = "hidden";
+    tailRight.style.borderWidth = "0px";
+    tailRight.classList.add('pgm-html-info-tail-right');
     tailFrame.appendChild(tailRight);
+
+    var tailRightCover = document.createElement("div");
+    tailRightCover.style.position = "absolute";
+    tailRightCover.style.backgroundColor = "white";
+    tailRightCover.style.transform = "skewX(-45deg)";
+    tailRightCover.style.transformOrigin = "0px 0px 0px";
+    tailRightCover.style.left = "0px";
+    tailRightCover.style.height = "15px";
+    tailRightCover.style.width = "15px";
+    tailRightCover.style.top = "0px";
+    tailRightCover.style.zIndex = 2;
+    tailRightCover.style.borderRight = "1px solid rgb(204, 204, 204)";
+    tailRightCover.classList.add('pgm-html-info-tail-right-cover');
+    tailRight.appendChild(tailRightCover);
+
+    var eraseBorder = document.createElement("div");
+    eraseBorder.style.position = "absolute";
+    eraseBorder.style.zIndex = 3;
+    eraseBorder.style.backgroundColor = "white";
+    eraseBorder.style.width = "27px";
+    eraseBorder.style.height = "2px";
+    eraseBorder.style.top = "-1px";
+    eraseBorder.style.left = "50%";
+    eraseBorder.style.marginLeft = "-13px";
+    eraseBorder.classList.add('pgm-html-info-tail-erase-border');
+    tailFrame.appendChild(eraseBorder);
+
 
     var calculate = function() {
 
@@ -111,8 +156,9 @@ var HTMLInfoWindow = function() {
 
       var iconSize = {
         width: 28,
-        height: 60
+        height: 63
       };
+
       var icon = marker.get("icon");
       if (typeof icon === "object") {
           if (typeof icon.size === "object") {
@@ -143,7 +189,8 @@ var HTMLInfoWindow = function() {
       //console.log("iconSize = " + iconSize.width + ", " + iconSize.height);
       //console.log("infoOffset = " + infoOffset.x + ", " + infoOffset.y);
 
-      var offsetX = contentsWidth / 2  - infoOffset.x;
+      var frameBorder = parseInt(common.getStyle(contentFrame, "border-left-width").replace(/[^\d]/g, ""), 10);
+      var offsetX = contentsWidth / 2  - infoOffset.x + frameBorder;
       var offsetY = contentsHeight  - infoOffset.y + iconSize.height;
 
       self.set("offsetX", offsetX);
@@ -266,8 +313,9 @@ HTMLInfoWindow.prototype.open = function(marker) {
 
 HTMLInfoWindow.prototype.setBackgroundColor = function(backgroundColor) {
   this.get("frame").children[0].style.backgroundColor = backgroundColor;
-  this.get("frame").children[1].children[0].style.borderColor = backgroundColor + " rgba(0,0,0,0) rgba(0,0,0,0)";
-  this.get("frame").children[1].children[1].style.borderColor = backgroundColor + " rgba(0,0,0,0) rgba(0,0,0,0)";
+  this.get("frame").children[1].children[0].children[0].style.backgroundColor = backgroundColor;
+  this.get("frame").children[1].children[1].children[0].style.backgroundColor = backgroundColor;
+  this.get("frame").children[1].children[2].style.backgroundColor = backgroundColor;
 };
 
 module.exports = HTMLInfoWindow;
