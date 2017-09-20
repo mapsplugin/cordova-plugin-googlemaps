@@ -183,7 +183,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
 
 
 
-
+/*
 
     if (kmlData == null) {
       mCallback.error("KML Parse error");
@@ -213,7 +213,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
       e.printStackTrace();
     }
 
-
+*/
     return kmlData;
   }
 
@@ -477,8 +477,7 @@ public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   }
 
   protected void onPostExecute(Bundle parseResult) {
-
-    this.mCallback.success();
+    this.mCallback.success(PluginUtil.Bundle2Json(parseResult));
   }
 
 

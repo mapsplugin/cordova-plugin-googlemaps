@@ -775,21 +775,23 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
     kmlOverlayOptions.kmlId = kmlId;
 
-    var kmlOverlay = new KmlOverlay(self, kmlId, kmlOverlayOptions, exec);
-    self.OVERLAYS[kmlId] = kmlOverlay;
-    self.KML_LAYERS[kmlId] = kmlOverlay;
+    exec.call(this, function(kmlData) {
+        var kmlOverlay = new KmlOverlay(self, kmlId, kmlData, exec);
+        self.OVERLAYS[kmlId] = kmlOverlay;
+        self.KML_LAYERS[kmlId] = kmlOverlay;
 
-    exec.call(this, function() {
+/*
         kmlOverlay.one(kmlId + "_remove", function() {
             kmlOverlay.off();
             delete self.KML_LAYERS[kmlId];
             delete self.OVERLAYS[kmlId];
             kmlOverlay = undefined;
         });
+*/
         if (typeof callback === "function") {
             callback.call(self, kmlOverlay);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions]);
+    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions], {sync: true});
 
 };
 

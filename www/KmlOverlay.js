@@ -7,8 +7,9 @@ var argscheck = require('cordova/argscheck'),
  * KmlOverlay Class
  *****************************************************************************/
 var exec;
-var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions, _exec) {
+var KmlOverlay = function(map, kmlOverlayId, kmlData, _exec) {
     BaseClass.apply(this);
+    console.log(kmlData);
 
     var self = this;
     self._overlays = [];
@@ -30,13 +31,14 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions, _exec) {
         value: map,
         writable: false
     });
+/*
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {
         if (ignores.indexOf(key) === -1) {
             self.set(key, kmlOverlayOptions[key]);
         }
     }
-
+*/
 
     document.addEventListener(map.getId()  + "_" + kmlOverlayId, function(event) {
 console.log(event.placeMarkId);
