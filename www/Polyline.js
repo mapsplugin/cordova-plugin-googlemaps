@@ -13,6 +13,10 @@ var Polyline = function(map, polylineId, polylineOptions, _exec) {
     BaseClass.apply(this);
 
     var self = this;
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     Object.defineProperty(self, "map", {
         value: map,
         writable: false
@@ -29,7 +33,7 @@ var Polyline = function(map, polylineId, polylineOptions, _exec) {
     var pointsProperty = common.createMvcArray(polylineOptions.points);
     pointsProperty.on('set_at', function(index) {
         var value = common.getLatLng(pointsProperty.getAt(index));
-        exec(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, value]);
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, value]);
     });
     pointsProperty.on('insert_at', function(index) {
         var value = common.getLatLng(pointsProperty.getAt(index));

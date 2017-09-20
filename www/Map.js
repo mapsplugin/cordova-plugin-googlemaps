@@ -43,7 +43,6 @@ var Map = function(id, _exec) {
         value: id,
         writable: false
     });
-    this._isReady = false;
 
     self.on(event.MAP_CLICK, function() {
         self.set("active_marker_id", undefined);
@@ -51,7 +50,7 @@ var Map = function(id, _exec) {
 
     self.on("active_marker_id_changed", function(prevId, newId) {
         if (prevId in self.MARKERS) {
-            self.MARKERS[prevId].trigger.call(self.MARKERS[prevId], event.INFO_CLOSE);
+            self.MARKERS[prevId].hideInfoWindow.call(self.MARKERS[prevId]);
         }
         exec.call(self, null, null, self.id, 'setActiveMarkerId', [newId]);
     });
@@ -187,11 +186,11 @@ Map.prototype.getMap = function(mapId, div, options) {
       // In order to work map.getVisibleRegion() correctly, wait a little.
       //------------------------------------------------------------------------
       setTimeout(function() {
-        self.refreshLayout('getMap');
         Object.defineProperty(self, "_isReady", {
             value: true,
             writable: false
         });
+        self.refreshLayout();
         self.trigger(event.MAP_READY, self);
       }, 250);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {sync: true});
@@ -518,7 +517,6 @@ Map.prototype.getCameraPosition = function() {
  */
 Map.prototype.remove = function(callback) {
     var self = this;
-    self._isReady = false;
     var div = this.get('div');
     if (div) {
         while (div) {
@@ -788,10 +786,6 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
             delete self.OVERLAYS[kmlId];
             kmlOverlay = undefined;
         });
-        Object.defineProperty(kmlOverlay, "_isReady", {
-            value: true,
-            writable: false
-        });
         if (typeof callback === "function") {
             callback.call(self, kmlOverlay);
         }
@@ -818,10 +812,6 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
             groundOverlay.off();
             delete self.OVERLAYS[result.id];
             groundOverlay = undefined;
-        });
-        Object.defineProperty(groundOverlay, "_isReady", {
-            value: true,
-            writable: false
         });
         if (typeof callback === "function") {
             callback.call(self, groundOverlay);
@@ -883,10 +873,6 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             delete self.OVERLAYS[result.id];
             tileOverlay = undefined;
         });
-        Object.defineProperty(tileOverlay, "_isReady", {
-            value: true,
-            writable: false
-        });
         if (typeof callback === "function") {
             callback.call(self, tileOverlay);
         }
@@ -934,10 +920,6 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
             delete self.OVERLAYS[result.id];
             polygon = undefined;
         });
-        Object.defineProperty(polygon, "_isReady", {
-            value: true,
-            writable: false
-        });
         if (typeof callback === "function") {
             callback.call(self, polygon);
         }
@@ -966,10 +948,6 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
             polyline.off();
             delete self.OVERLAYS[result.id];
             polyline = undefined;
-        });
-        Object.defineProperty(polyline, "_isReady", {
-            value: true,
-            writable: false
         });
         if (typeof callback === "function") {
             callback.call(self, polyline);
@@ -1001,11 +979,6 @@ Map.prototype.addCircle = function(circleOptions, callback) {
             delete self.OVERLAYS[result.id];
             circle = undefined;
         });
-
-        Object.defineProperty(circle, "_isReady", {
-            value: true,
-            writable: false
-        });
         if (typeof callback === "function") {
             callback.call(self, circle);
         }
@@ -1032,10 +1005,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
             marker = undefined;
         });
 
-        Object.defineProperty(marker, "_isReady", {
-            value: true,
-            writable: false
-        });
         if (typeof callback === "function") {
             callback.call(self, marker);
         }
@@ -1114,10 +1083,6 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
     self.OVERLAYS[result.id] = markerCluster;
 
-    Object.defineProperty(markerCluster, "_isReady", {
-        value: true,
-        writable: false
-    });
     if (typeof callback === "function") {
         callback.call(self, markerCluster);
     }

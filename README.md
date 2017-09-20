@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.0.9)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.0.10)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -35,6 +35,21 @@ $> cordova plugin add cordova-plugin-googlemaps \
     --no-fetch
 ```
 
+#### If you can't reinstall the plugin, try like this:
+
+```
+$> npm cache clean
+
+$> cordova platform rm android ios
+
+// Add the SDK plugin at first with --nofetch option
+$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk --nofetch
+
+$> cordova plugin add cordova-plugin-googlemaps --nofetch
+
+$> cordova platform add android ios
+```
+
 ### Configuration
 
 You can also configure the following variables to customize the iOS location plist entries
@@ -69,6 +84,8 @@ Example using config.xml
 ## Release Notes
 
 - [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/ReleaseNotes/v2.0-stable/README.md)
+
+- v2.0.10 is the hotfix for the v2.0.9. Sorry about that.
 
 ## Quick demo
 

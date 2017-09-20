@@ -14,6 +14,10 @@ var KmlOverlay = function(map, kmlOverlayId, kmlOverlayOptions, _exec) {
     self._overlays = [];
     //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
     //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     Object.defineProperty(self, "id", {
         value: kmlOverlayId,
         writable: false

@@ -20,7 +20,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
     requests.on('insert_at', function(idx) {
         var request = requests.getAt(idx);
         request.idx = idx;
-        exec(function(result) {
+        exec.call({_isReady: true}, function(result) {
             if (!mvcResults) {
                 callback(result.results);
             } else {

@@ -22,6 +22,10 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
   var idxCount = Object.keys(markerClusterOptions.markerMap).length + 1;
 
   var self = this;
+  Object.defineProperty(self, "_isReady", {
+      value: true,
+      writable: false
+  });
   Object.defineProperty(self, "maxZoomLevel", {
     value: markerClusterOptions.maxZoomLevel,
     writable: false
@@ -1043,7 +1047,7 @@ MarkerCluster.prototype._redraw = function(params) {
     return;
   }
 
-  exec(self, function() {
+  exec.call(self, function() {
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,

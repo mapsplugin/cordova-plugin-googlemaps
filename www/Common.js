@@ -323,7 +323,7 @@ function getDomDepth(dom, idx, parentZIndex, parentDepth, floorLevel) {
 */
     //var result = ((zIndex + 1) << (depth + 1)) + idx;
     var result = (parentDepth + ((zIndex + 1) / (floorLevel + 1)) + idx) - 0.01 ;
-    orgDom.setAttribute("_depth", result); // for debugging
+    //orgDom.setAttribute("_depth", result); // for debugging
     return result;
 }
 
