@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -71,16 +72,14 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
    */
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    workingCnt = 0;
     final JSONObject opts = args.getJSONObject(1);
     self = this;
-
     if (!opts.has("url")) {
       callbackContext.error("No kml file is specified");
       return;
     }
+
     final Bundle params = PluginUtil.Json2Bundle(opts);
-    final String kmlId = opts.getString("kmlId");
 
     String urlStr = null;
 
@@ -112,67 +111,49 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       urlStr = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), urlStr);
     }
 
-    //AsyncKmlParser kmlParser = new AsyncKmlParser(cordova.getActivity(), pluginMap, kmlId, params, callbackContext);
-    //kmlParser.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, urlStr);
-
+    Bundle result = loadKml(urlStr);
+    callbackContext.success(PluginUtil.Bundle2Json(result));
   }
 
-  private Bundle readKmlFile(String urlStr) {
+  public Bundle loadKml(String urlStr) {
+
 
     InputStream inputStream = getKmlContents(urlStr);
     if (inputStream == null) {
       return null;
     }
     try {
-      Bundle kmlData;
       XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
       parser.setInput(inputStream, null);
-
-      kmlData = parseXML(parser);
-      Bundle result = parseKmlData(kmlData);
+      Bundle kmlData = parseXML(parser);
 
       inputStream.close();
+      inputStream = null;
+      parser = null;
+      return kmlData;
     } catch (Exception e) {
       e.printStackTrace();
+      return null;
     }
-
   }
-  private Bundle parseKmlData(Bundle kmlData) {
-    ArrayList<Bundle> placeMarks = kmlData.getParcelableArrayList("placeMarks");
-    Bundle[] tags = placeMarks.toArray(new Bundle[placeMarks.size()]);
 
-    final Bundle styles = kmlData.getBundle("styles");
-    final Object semaphore = new Object();
-
-    int i = 0;
+  private String getUrlFromNetwokLinkTag(Bundle node) {
     String tagName;
-    workingCnt += placeMarks.size();
-    for (final Bundle node : tags) {
-      tagName = node.getString("tagName");
-      if ("networklink".equals(tagName)) {
-        addTaskOfNetworkLink(node);
-      }
-      Log.d(TAG, "-->tagName = " + node.getString("tagName"));
-    }
-    Log.d(TAG, kmlData + " ");
-
-  }
-  private void addTaskOfNetworkLink(Bundle node) {
-
-    ArrayList<Bundle> bundleList = node.getParcelableArrayList("children");
-    Iterator<Bundle> bundleIterator = bundleList.iterator();
-    String tagName;
+    ArrayList<Bundle> bundleList;
+    Iterator<Bundle> bundleIterator;
+    bundleList = node.getParcelableArrayList("children");
+    bundleIterator = bundleList.iterator();
     while(bundleIterator.hasNext()) {
       final Bundle childNode = bundleIterator.next();
       tagName = childNode.getString("tagName");
       if ("link".equals(tagName)) {
-        workingCnt++;
-        readKmlFile(childNode.getString("href"));
-
-        return;
+        return childNode.getString("href");
       }
     }
+
+    return null;
   }
+
 
   private InputStream getKmlContents(String urlStr) {
 

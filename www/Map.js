@@ -775,23 +775,36 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
     kmlOverlayOptions.kmlId = kmlId;
 
-    exec.call(this, function(kmlData) {
-        var kmlOverlay = new KmlOverlay(self, kmlId, kmlData, exec);
-        self.OVERLAYS[kmlId] = kmlOverlay;
-        self.KML_LAYERS[kmlId] = kmlOverlay;
+    function loadKml(url, loadKmlCb) {
 
-/*
-        kmlOverlay.one(kmlId + "_remove", function() {
-            kmlOverlay.off();
-            delete self.KML_LAYERS[kmlId];
-            delete self.OVERLAYS[kmlId];
-            kmlOverlay = undefined;
+      exec.call(self, function(kmlData) {
+
+        var mvcArray = new BaseArrayClass(kmlData.placeMarks);
+        mvcArray.map(function(placeMark, cb) {
+          var tagName = placeMark.tagName;
+          if (tagName === "networklink") {
+            loadKml(placeMark.name, placeMark.children[0].href, cb);
+          } else {
+            cb(placeMark);
+          }
+        }, function(placeMarks) {
+          kmlData.placeMarks = placeMarks;
+          loadKmlCb(kmlData)
         });
-*/
-        if (typeof callback === "function") {
-            callback.call(self, kmlOverlay);
-        }
-    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions], {sync: true});
+
+
+      }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', {
+        url: url
+      }]);
+
+    }
+
+    loadKml(kmlOverlayOptions.url, function(result) {
+      console.log('final', result);
+      if (typeof callback === "function") {
+        callback(result);
+      }
+    });
 
 };
 
