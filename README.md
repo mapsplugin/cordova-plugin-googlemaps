@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.0.10)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.0.11)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -85,7 +85,7 @@ Example using config.xml
 
 - [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-stable/README.md)
 
-- v2.0.10 is the hotfix for the v2.0.9. Sorry about that.
+- v2.0.11 is just update the README.md **(no code updated)**
 
 ## Quick demo
 
@@ -310,7 +310,7 @@ You can write your code `similar like` the Google Maps JavaScript API v3.
 | google.maps.DirectionsService     | (not available)                       |
 | google.maps.DistanceMatrixService | (not available)                       |
 | google.maps.FusionTablesLayer     | (not available)                       |
-| google.maps.TransitLayer          | map.setTrafficEnabled()               |
+| google.maps.TransitLayer          | (not available)                       |
 | google.maps.places.*              | (not available)                       |
 | google.maps.visualization.*       | (not available)                       |
 
@@ -337,12 +337,13 @@ It means **you can use the native Google Maps views similar like HTML element**.
 
 ---
 
-## For the `@ionic-native/google-maps` users
+## Official Communities
 
-I stopped any support for the `@ionic-native/google-maps` currently, because it is not my plugin.
-In order to support for the `@ionic-native/google-maps`, please donate the amount.
-More details, check out here.
-https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/1749
+- Google+ : @wf9a5m75
+  https://plus.google.com/communities/117427728522929652853
+
+- Gitter : @Hirbod
+  https://gitter.im/nightstomp/cordova-plugin-googlemaps
 
 ---
 
