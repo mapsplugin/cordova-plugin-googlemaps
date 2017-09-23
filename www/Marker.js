@@ -275,6 +275,9 @@ Marker.prototype.showInfoWindow = function() {
     return this;
 };
 Marker.prototype.hideInfoWindow = function() {
+    if (this.map.get("active_marker_id") === this.id) {
+      this.map.set("active_marker_id", null);
+    }
     if (this.get("isInfoWindowVisible")) {
         this.set("isInfoWindowVisible", false);
         exec.call(this, null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()], {sync: true});
