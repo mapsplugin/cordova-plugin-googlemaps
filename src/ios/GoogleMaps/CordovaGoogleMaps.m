@@ -17,7 +17,11 @@
     self.webView.opaque = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
 #endif
-    self.executeQueue =  [NSOperationQueue new];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      self.executeQueue =  [NSOperationQueue new];
+      self.executeQueue.maxConcurrentOperationCount = 10;
+    });
+
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       //-------------------------------
       // Check the Google Maps API key
@@ -486,33 +490,37 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 - (void)updateMapPositionOnly:(CDVInvokedUrlCommand *)command {
-  if (self.pluginLayer != nil) {
+  [self.executeQueue addOperationWithBlock:^{
+      if (self.pluginLayer != nil) {
 
-    NSDictionary *elementsDic = [command.arguments objectAtIndex:0];
-    NSString *domId;
-    CGRect rect = CGRectMake(0, 0, 0, 0);
-    NSMutableDictionary *domInfo, *size;
-    @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
-      for (domId in elementsDic) {
-        domInfo = [elementsDic objectForKey:domId];
-        size = [domInfo objectForKey:@"size"];
-        rect.origin.x = [[size objectForKey:@"left"] doubleValue];
-        rect.origin.y = [[size objectForKey:@"top"] doubleValue];
-        rect.size.width = [[size objectForKey:@"width"] doubleValue];
-        rect.size.height = [[size objectForKey:@"height"] doubleValue];
-        [domInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
-        [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:domInfo forKey:domId];
+        NSDictionary *elementsDic = [command.arguments objectAtIndex:0];
+        NSString *domId;
+        CGRect rect = CGRectMake(0, 0, 0, 0);
+        NSMutableDictionary *domInfo, *size;
+        @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
+          for (domId in elementsDic) {
+            domInfo = [elementsDic objectForKey:domId];
+            size = [domInfo objectForKey:@"size"];
+            rect.origin.x = [[size objectForKey:@"left"] doubleValue];
+            rect.origin.y = [[size objectForKey:@"top"] doubleValue];
+            rect.size.width = [[size objectForKey:@"width"] doubleValue];
+            rect.size.height = [[size objectForKey:@"height"] doubleValue];
+            [domInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
+            [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:domInfo forKey:domId];
 
+          }
+        }
+
+        self.pluginLayer.pauseResize = false;
+        self.pluginLayer.isSuspended = false;
+        self.pluginLayer.isSuspended = false;
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [self.pluginLayer resizeTask:nil];
+        }];
       }
-    }
-
-    self.pluginLayer.pauseResize = false;
-    self.pluginLayer.isSuspended = false;
-    self.pluginLayer.isSuspended = false;
-    [self.pluginLayer resizeTask:nil];
-  }
-  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 
 - (void)resumeResizeTimer:(CDVInvokedUrlCommand *)command {

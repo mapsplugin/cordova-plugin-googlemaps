@@ -783,13 +783,13 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
         mvcArray.map(function(placeMark, cb) {
           var tagName = placeMark.tagName;
           if (tagName === "networklink") {
-            loadKml(placeMark.name, placeMark.children[0].href, cb);
+            loadKml(placeMark.children[0].href, cb);
           } else {
             cb(placeMark);
           }
         }, function(placeMarks) {
           kmlData.placeMarks = placeMarks;
-          loadKmlCb(kmlData)
+          loadKmlCb(kmlData);
         });
 
 
