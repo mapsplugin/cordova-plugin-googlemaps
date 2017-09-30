@@ -34,7 +34,7 @@ LatLng.prototype = {
    * @return {String} latitude,lontitude
    */
   toString: function() {
-    return '{"lat": ' + this.lat + ', "lng": ' + this.lng + '}';
+    return '{ ' + this.lat + ', ' + this.lng + '}';
   },
 
   /**
@@ -44,7 +44,7 @@ LatLng.prototype = {
    */
   toUrlValue: function(precision) {
     precision = precision || 6;
-    return '{"lat": ' + this.lat.toFixed(precision) + ', "lng": ' + this.lng.toFixed(precision) + '}';
+    return '{ ' + this.lat.toFixed(precision) + ', ' + this.lng.toFixed(precision) + '}';
   }
 };
 
