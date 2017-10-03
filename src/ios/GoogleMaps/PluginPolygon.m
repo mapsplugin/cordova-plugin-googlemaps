@@ -120,7 +120,8 @@
       polygon.tappable = NO;
 
       // Register polygon to the overlayManager.
-      NSString *id = [NSString stringWithFormat:@"polygon_%lu%d", command.hash, arc4random() % 100000];
+      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+      NSString *id = [NSString stringWithFormat:@"polygon_%@", idBase];
       [self.mapCtrl.objects setObject:polygon forKey: id];
       polygon.title = id;
 
@@ -130,7 +131,7 @@
           //---------------------------
           // Keep the properties
           //---------------------------
-          NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+          NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%@", idBase];
 
           // points
           NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
