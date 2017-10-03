@@ -80,7 +80,8 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         GMSGroundOverlay *groundOverlay = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
-        NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%lu%d", command.hash, arc4random() % 100000];
+        NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+        NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%@", idBase];
         [self.mapCtrl.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;
 
@@ -132,7 +133,7 @@
                   //---------------------------
                   // Keep the properties
                   //---------------------------
-                  NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
+                  NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%@", idBase];
 
                   // points
                   NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
