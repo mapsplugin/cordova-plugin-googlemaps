@@ -92,7 +92,8 @@
         circle.tappable = NO;
 
         // Store the circle instance into self.objects
-        NSString *circleId = [NSString stringWithFormat:@"circle_%lu%d", command.hash, arc4random() % 100000];
+        NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+        NSString *circleId = [NSString stringWithFormat:@"circle_%@", idBase];
         circle.title = circleId;
         [self.mapCtrl.objects setObject:circle forKey: circleId];
 
@@ -101,7 +102,7 @@
             //---------------------------
             // Keep the properties
             //---------------------------
-            NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
+            NSString *propertyId = [NSString stringWithFormat:@"circle_property_%@", idBase];
 
             // points
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
