@@ -55,9 +55,6 @@
     <js-module name="Geocoder" src="www/Geocoder.js">
       <runs />
     </js-module>
-    <js-module name="ExternalService" src="www/ExternalService.js">
-      <runs />
-    </js-module>
     <js-module name="Map" src="www/Map.js">
       <runs />
     </js-module>
@@ -146,9 +143,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <feature name="KmlOverlay">
                 <param name="android-package" value="plugin.google.maps.PluginKmlOverlay" />
             </feature>
-            <feature name="External">
-                <param name="android-package" value="plugin.google.maps.External" />
-            </feature>
             <feature name="Geocoder">
                 <param name="android-package" value="plugin.google.maps.PluginGeocoder" />
             </feature>
@@ -174,7 +168,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/External.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
@@ -238,9 +231,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <feature name="Environment">
                 <param name="ios-package" value="Environment" />
             </feature>
-            <feature name="External">
-                <param name="ios-package" value="External" />
-            </feature>
             <feature name="Geocoder">
                 <param name="ios-package" value="PluginGeocoder" />
             </feature>
@@ -275,8 +265,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <header-file src="src/ios/GoogleMaps/PluginCircle.h" />
         <source-file src="src/ios/GoogleMaps/PluginCircle.m" />
-        <header-file src="src/ios/GoogleMaps/External.h" />
-        <source-file src="src/ios/GoogleMaps/External.m" />
         <header-file src="src/ios/GoogleMaps/PluginGeocoder.h" />
         <source-file src="src/ios/GoogleMaps/PluginGeocoder.m" />
         <header-file src="src/ios/GoogleMaps/Environment.h" />

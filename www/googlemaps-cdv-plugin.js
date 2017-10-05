@@ -33,7 +33,6 @@ if (!cordova) {
   var encoding = require('./encoding');
   var spherical = require('./spherical');
   var Geocoder = require('./Geocoder');
-  var ExternalService = require('./ExternalService');
   var Environment = require('./Environment');
   var MapTypeId = require('./MapTypeId');
 
@@ -643,7 +642,6 @@ if (!cordova) {
     LatLngBounds: LatLngBounds,
     Marker: Marker,
     MapTypeId: MapTypeId,
-    external: ExternalService,
     environment: Environment,
     Geocoder: Geocoder,
     geometry: {
