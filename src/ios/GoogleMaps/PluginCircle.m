@@ -266,7 +266,7 @@
         Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
         // Update the property
-        NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
+        NSString *propertyId = [key stringByReplacingOccurrencesOfString:@"circle_" withString:@"circle_property_"];
         NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                            [self.mapCtrl.objects objectForKey:propertyId]];
         [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
@@ -300,7 +300,7 @@
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property
-      NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
+      NSString *propertyId = [key stringByReplacingOccurrencesOfString:@"circle_" withString:@"circle_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isClickable] forKey:@"isClickable"];
@@ -321,7 +321,7 @@
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.mapCtrl.objects objectForKey:circleId];
 
-        NSString *propertyId = [NSString stringWithFormat:@"circle_property_%lu", (unsigned long)circle.hash];
+        NSString *propertyId = [circleId stringByReplacingOccurrencesOfString:@"circle_" withString:@"circle_property_"];
         [self.mapCtrl.objects removeObjectForKey:propertyId];
 
         circle.map = nil;
