@@ -158,7 +158,7 @@ function onButtonClick() {
   <td><pre>
 var options = {
   camera: {
-    position: {lat: ..., lng: ...},
+    target: {lat: ..., lng: ...},
     zoom: 19
   }
 };

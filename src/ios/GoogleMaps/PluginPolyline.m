@@ -96,7 +96,8 @@
       // disable default clickable feature.
       polyline.tappable = NO;
 
-      NSString *id = [NSString stringWithFormat:@"polyline_%lu%d", command.hash, arc4random() % 100000];
+      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+      NSString *id = [NSString stringWithFormat:@"polyline_%@", idBase];
       [self.mapCtrl.objects setObject:polyline forKey: id];
       polyline.title = id;
 
@@ -112,7 +113,7 @@
           //---------------------------
           // Keep the properties
           //---------------------------
-          NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+          NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%@", idBase];
 
           // points
           NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
