@@ -342,10 +342,10 @@ MarkerCluster.prototype.remove = function() {
 
 };
 MarkerCluster.prototype.removeMarkerById = function(markerId) {
+  var self = this;
   if (self._isRemove) {
     return null;
   }
-  var self = this;
   //if (markerId.indexOf(self.id + "-") === -1) {
   //  markerId = self.id + "-" + markerId;
   //}
@@ -374,8 +374,9 @@ MarkerCluster.prototype.removeMarkerById = function(markerId) {
     marker.remove();
     marker.destroy();
   }
+  markerOpts._cluster.isRemoved = true;
   markerOpts._cluster.marker = undefined;
-  delete self._markerMap[markerId];
+  //delete self._markerMap[markerId];
   if (isAdded) {
     exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
       "delete": [markerId]
@@ -1109,7 +1110,7 @@ MarkerCluster.prototype._createMarker = function(markerOpts) {
   marker.on("rotation_changed", updateProperty);
   marker.on("flat_changed", updateProperty);
   marker.on("icon_changed", updateProperty);
-  marker.one(markerId + "_remove", function() {
+  marker.one(marker.getId() + "_remove", function() {
     self.removeMarkerById(markerId);
   });
   return marker;
