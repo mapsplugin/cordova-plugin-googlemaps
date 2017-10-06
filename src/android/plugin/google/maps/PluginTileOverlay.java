@@ -162,7 +162,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    * @throws JSONException
    */
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final String id = args.getString(0);
+    String id = args.getString(0);
     TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.get(id);
     if (tileOverlay == null) {
       callbackContext.success();
@@ -171,14 +171,15 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.get(id);
-        tileOverlay.clearTileCache();
-        tileOverlay.remove();
-        tileOverlay = null;
 
         try {
           String id = args.getString(0);
-          pluginMap.objects.remove(id);
+          TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.remove(id);
+          if (tileOverlay != null) {
+            tileOverlay.clearTileCache();
+            tileOverlay.remove();
+            tileOverlay = null;
+          }
           id = id.replace("tileoverlay_", "tileprovider_");
 
           if (pluginMap.objects.containsKey(id)) {
