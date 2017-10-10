@@ -129,7 +129,7 @@ utils.extend(Polygon, BaseClass);
 Polygon.prototype.remove = function() {
     this.trigger(this.id + "_remove");
     exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
-    Object.defineProperty(self, "_isRemoved", {
+    Object.defineProperty(this, "_isRemoved", {
         value: true,
         writable: false
     });

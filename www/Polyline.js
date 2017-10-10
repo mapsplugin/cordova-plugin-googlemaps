@@ -172,7 +172,7 @@ Polyline.prototype.remove = function() {
     if (points) {
       points.clear();
     }
-    Object.defineProperty(self, "_isRemoved", {
+    Object.defineProperty(this, "_isRemoved", {
         value: true,
         writable: false
     });
