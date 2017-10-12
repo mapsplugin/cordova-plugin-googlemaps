@@ -114,13 +114,13 @@ Marker.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.getPluginName(), 'remove', [this.getId()]);
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
 
     Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
     });
-    this.destroy();
+    self.destroy();
 };
 
 Marker.prototype.getOptions = function() {
