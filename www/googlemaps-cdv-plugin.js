@@ -538,10 +538,13 @@ if (!cordova) {
     // Hook the backbutton of Android action
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
-    function onBackButton() {
+    function onBackButton(e) {
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
-        anotherBackbuttonHandler();
+        var returnValue = anotherBackbuttonHandler(e);
+        if (returnValue !== false) {
+          cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
+        }
       } else {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
       }
