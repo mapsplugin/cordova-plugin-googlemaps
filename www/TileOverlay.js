@@ -107,6 +107,7 @@ TileOverlay.prototype.getVisible = function() {
 };
 
 TileOverlay.prototype.remove = function() {
+    var self = this;
     this.trigger(this.id + "_remove");
     exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
     Object.defineProperty(self, "_isRemoved", {

@@ -166,6 +166,7 @@ Polyline.prototype.getMap = function() {
 };
 
 Polyline.prototype.remove = function() {
+    var self = this;
     exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
     this.trigger(this.id + "_remove");
     var points = this.get("points");
