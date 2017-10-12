@@ -542,7 +542,7 @@ if (!cordova) {
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
         var returnValue = anotherBackbuttonHandler(e);
-        if (returnValue !== false) {
+        if (returnValue !== false && e.defaultPrevented !== true) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
         }
       } else {
