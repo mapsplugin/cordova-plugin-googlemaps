@@ -146,9 +146,10 @@ GroundOverlay.prototype.getClickable = function() {
 };
 
 GroundOverlay.prototype.remove = function() {
+    var self = this;
     this.trigger(this.id + "_remove");
     exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
-    Object.defineProperty(this, "_isRemoved", {
+    Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
     });
