@@ -105,6 +105,14 @@ var HTMLInfoWindow = function() {
     eraseBorder.classList.add('pgm-html-info-tail-erase-border');
     tailFrame.appendChild(eraseBorder);
 
+    var redBox = document.createElement("div");
+    redBox.style.position = "absolute";
+    redBox.style.zIndex = 6;
+    redBox.style.border = "1px solid red";
+    redBox.style.width = "21px";
+    redBox.style.height = "34px";
+
+
 
     var calculate = function() {
 
@@ -137,6 +145,7 @@ var HTMLInfoWindow = function() {
       // Insert the contents to this HTMLInfoWindow
       if (!frame.parentNode) {
           div.appendChild(frame);
+          div.appendChild(redBox);
       }
 
       // Adjust the HTMLInfoWindow size
@@ -150,16 +159,24 @@ var HTMLInfoWindow = function() {
       frame.style.height = (contentsHeight+ 15) + "px";
 
       var infoOffset = {
-        y : 0.25,
-        x : 0.5
+        x : 30,
+        y : 30
+      };
+      var iconSize = {
+        width: 60,
+        height: 108
       };
 
-      var iconSize = {
-        width: 28,
-        height: 63
+      // If there is no specification with `anchor` property,
+      // the values {x: 0.5, y: 1} are specified by native APIs.
+      // For the case, anchor values are {x: 0} in JS.
+      var anchor = {
+        x: 0,
+        y: contentsHeight + 15
       };
 
       var icon = marker.get("icon");
+
       if (typeof icon === "object") {
           if (typeof icon.size === "object") {
               iconSize.width = icon.size.width;
@@ -172,26 +189,44 @@ var HTMLInfoWindow = function() {
               iconSize.height = img.height;
           }
 
+          if (Array.isArray(icon.anchor)) {
+            anchor.x = icon.anchor[0];
+            anchor.y = icon.anchor[1];
+          }
       }
+
       var infoWindowAnchor = marker.get("infoWindowAnchor");
       if (utils.isArray(infoWindowAnchor)) {
-        infoOffset.x = infoWindowAnchor[0] / icon.size.width;
-        infoOffset.x = infoOffset.x > 1 ? 1 : infoOffset.x;
-        infoOffset.x = infoOffset.x < 0 ? 0 : infoOffset.x;
-        infoOffset.y = infoWindowAnchor[1] / icon.size.height;
-        infoOffset.y = infoOffset.y > 1 ? 1 : infoOffset.y;
-        infoOffset.y = infoOffset.y < 0 ? 0 : infoOffset.y;
+        infoOffset.x = infoWindowAnchor[0];
+        infoOffset.y = infoWindowAnchor[1];
       }
+      infoOffset.x = infoOffset.x / iconSize.width;
+      infoOffset.x = infoOffset.x > 1 ? 1 : infoOffset.x;
+      infoOffset.x = infoOffset.x < 0 ? 0 : infoOffset.x;
+      infoOffset.y = infoOffset.y / iconSize.height;
+      infoOffset.y = infoOffset.y > 1 ? 1 : infoOffset.y;
+      infoOffset.y = infoOffset.y < 0 ? 0 : infoOffset.y;
       infoOffset.y *= iconSize.height;
-      infoOffset.x = (infoOffset.x - 0.5) * iconSize.width;
+      infoOffset.x *= iconSize.width;
+
+      anchor.x = anchor.x / iconSize.width;
+      anchor.x = anchor.x > 1 ? 1 : anchor.x;
+      anchor.x = anchor.x < 0 ? 0 : anchor.x;
+      anchor.y = anchor.y / iconSize.height;
+      anchor.y = anchor.y > 1 ? 1 : anchor.y;
+      anchor.y = anchor.y < 0 ? 0 : anchor.y;
+      anchor.y *= iconSize.height;
+      anchor.x *= iconSize.width;
+
+
 
       //console.log("contentsSize = " + contentsWidth + ", " + contentsHeight);
       //console.log("iconSize = " + iconSize.width + ", " + iconSize.height);
       //console.log("infoOffset = " + infoOffset.x + ", " + infoOffset.y);
 
       var frameBorder = parseInt(common.getStyle(contentFrame, "border-left-width").replace(/[^\d]/g, ""), 10);
-      var offsetX = contentsWidth / 2  - infoOffset.x + frameBorder;
-      var offsetY = contentsHeight  - infoOffset.y + iconSize.height;
+      var offsetX = (contentsWidth + frameBorder + anchor.x ) * 0.5 + (iconSize.width / 2  - infoOffset.x);
+      var offsetY = contentsHeight + anchor.y - (frameBorder * 2) - infoOffset.y + 15;
 
       self.set("offsetX", offsetX);
       self.set("offsetY", offsetY);
