@@ -222,6 +222,7 @@
                   currentURL = [currentURL stringByDeletingLastPathComponent];
                   currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
                   currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+                  currentURL = [currentURL stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
                   urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
                 } else {
                   urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
