@@ -563,7 +563,7 @@ Map.prototype.remove = function(callback) {
     clearObj(self.MARKERS);
     clearObj(self.KML_LAYERS);
 
-    exec.call(self, function() {
+    exec.call(this, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
@@ -775,37 +775,70 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
     kmlOverlayOptions.kmlId = kmlId;
 
-    function loadKml(url, loadKmlCb) {
-
+    function loadKmlFile(options) {
       exec.call(self, function(kmlData) {
+console.log(kmlData);
 
-        var mvcArray = new BaseArrayClass(kmlData.placeMarks);
-        mvcArray.map(function(placeMark, cb) {
-          var tagName = placeMark.tagName;
-          if (tagName === "networklink") {
-            loadKml(placeMark.children[0].href, cb);
-          } else {
-            cb(placeMark);
-          }
-        }, function(placeMarks) {
-          kmlData.placeMarks = placeMarks;
-          loadKmlCb(kmlData);
-        });
+        if ("placeMarks" in kmlData) {
+          var placeMarks = new BaseArrayClass(kmlData.placeMarks);
+          placeMarks.map(function(placeMark, cb1) {
+            console.log(placeMark);
+            if ("children" in placeMark) {
+              var children = new BaseArrayClass(placeMark.children);
+              children.map(function(child, cb2) {
+                console.log(child.tagName);
+                switch(child.tagName) {
+                  case "linestring":
+                    child.points = child.coordinates;
+                    delete child.coordinates;
+                    self.addPolyline(child, cb2);
+                    break;
+                  case "point":
+                    self.addMarker(placeMark, cb2);
+                    break;
+                }
+              }, function(overlays) {
+                placeMark.children = overlays;
+                cb1(placeMark);
+              });
+            } else {
+              cb1(null);
+            }
+          }, function(placeMarkOverlays) {
+            //kmlData.placeMarks = placeMarkOverlays;
+    console.log(placeMarkOverlays);
+            var kmlOverlay = new KmlOverlay(self, kmlData);
+      console.log(kmlOverlay);
+            if (typeof callback === "function") {
+              callback.call(self, kmlId, kmlOverlay, exec);
+            }
+          });
+        }
 
 
-      }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', {
-        url: url
-      }]);
-
+      }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions], {sync: true});
     }
+    loadKmlFile(kmlOverlayOptions);
+/*
+    exec.call(this, function(kmlData) {
 
-    loadKml(kmlOverlayOptions.url, function(result) {
-      console.log('final', result);
-      if (typeof callback === "function") {
-        callback(result);
-      }
-    });
 
+        var kmlOverlay = new KmlOverlay(self, kmlId, kmlData, exec);
+        self.OVERLAYS[kmlId] = kmlOverlay;
+        self.KML_LAYERS[kmlId] = kmlOverlay;
+
+        kmlOverlay.one(kmlId + "_remove", function() {
+            kmlOverlay.off();
+            delete self.KML_LAYERS[kmlId];
+            delete self.OVERLAYS[kmlId];
+            kmlOverlay = undefined;
+        });
+        if (typeof callback === "function") {
+            callback.call(self, kmlOverlay);
+        }
+    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions], {sync: true});
+
+*/
 };
 
 //-------------
