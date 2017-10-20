@@ -6,6 +6,7 @@ Masashi and Hirbod work for this plugin tons of times.
 In order to provide this plugin as free in the future, please donate some small amount (such a $5 or $10 is fine).
 
 [This is $5 donation link at paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
+When you donate some amount to the project, please include your issue number in your name.
 
 =========================================================
 Before ask your question, problems or feature request
@@ -18,13 +19,13 @@ If you can't solve your problem, please post your problems with enough informati
 
 If you share your project files on Github(or others), your issue would be fixed soon.
 If you can't share your project files (i.e. company project), please create a demo project, then share it.
+No sharing any code, we probably can not help you anything.
+
 
 ## For the person who want to request new feature
 
-This plugin is open source. You can use this plugin as free.
-However, in order to add one new feature, we need to work tons of times.
-Please consider any donation.
-We typically start working if the donation reach to $1,000 USD. (You can fundraise at here)
+This plugin is open source. You can use this plugin as free. However, in order to add one new feature, we need to work tons of times.
+Please consider any donation. We typically start working if the donation reach to $1,000 USD. (You can fundraise at here)
 
 =========================================================
 Language support
