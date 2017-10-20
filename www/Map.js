@@ -774,6 +774,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 
     var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
     kmlOverlayOptions.kmlId = kmlId;
+    var viewport = [];
 
     function loadKmlFile(options) {
       exec.call(self, function(kmlData) {
@@ -782,35 +783,49 @@ console.log(kmlData);
         if ("placeMarks" in kmlData) {
           var placeMarks = new BaseArrayClass(kmlData.placeMarks);
           placeMarks.map(function(placeMark, cb1) {
-            console.log(placeMark);
+            console.log(placeMark, placeMark.children.length);
             if ("children" in placeMark) {
-              var children = new BaseArrayClass(placeMark.children);
-              children.map(function(child, cb2) {
-                console.log(child.tagName);
-                switch(child.tagName) {
-                  case "linestring":
-                    child.points = child.coordinates;
-                    delete child.coordinates;
-                    self.addPolyline(child, cb2);
-                    break;
-                  case "point":
-                    self.addMarker(placeMark, cb2);
-                    break;
-                }
-              }, function(overlays) {
-                placeMark.children = overlays;
-                cb1(placeMark);
-              });
+              if (placeMark.children.length === 1) {
+                placeMark.position = placeMark.children[0].coordinates[0];
+                viewport.push(placeMark.position);
+                placeMark.title = placeMark.name;
+                console.log("--->790", placeMark);
+                self.addMarker(placeMark, function(marker) {
+                  placeMark.childOverlays = [marker];
+                  console.log(marker);
+                  cb1(placeMark);
+                });
+              } else if (placeMark.children.length > 1) {
+                var children = new BaseArrayClass(placeMark.children);
+                children.map(function(child, cb2) {
+                  console.log(child.tagName);
+                  switch(child.tagName) {
+                    case "linestring":
+                      child.points = child.coordinates;
+                      delete child.coordinates;
+                      viewport = Array.prototype.concat(viewport, child.points);
+                      self.addPolyline(child, cb2);
+                      break;
+                  }
+                }, function(overlays) {
+                  placeMark.childOverlays = overlays;
+                  cb1(placeMark);
+                });
+              }
             } else {
               cb1(null);
             }
           }, function(placeMarkOverlays) {
             //kmlData.placeMarks = placeMarkOverlays;
     console.log(placeMarkOverlays);
-            var kmlOverlay = new KmlOverlay(self, kmlData);
-      console.log(kmlOverlay);
+            //var kmlOverlay = new KmlOverlay(self, kmlData);
+      //console.log(kmlOverlay);
             if (typeof callback === "function") {
-              callback.call(self, kmlId, kmlOverlay, exec);
+              self.moveCamera({
+                target: viewport
+              }, function() {
+                //callback.call(self, kmlId, kmlOverlay, exec);
+              });
             }
           });
         }
