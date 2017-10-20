@@ -2,7 +2,7 @@
 var cordova_exec = require('cordova/exec');
 var isSuspended = false;
 if (!cordova) {
-  document.addEventListener("deviceready", function() {
+  document.addEventListener("deviceready", function () {
     isSuspended = true;
     cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
   }, {
@@ -12,11 +12,11 @@ if (!cordova) {
   var MAP_CNT = 0;
 
   var argscheck = require('cordova/argscheck'),
-      utils = require('cordova/utils'),
-      event = require('./event'),
-      common = require('./Common'),
-      BaseClass = require('./BaseClass'),
-      BaseArrayClass = require('./BaseArrayClass');
+    utils = require('cordova/utils'),
+    event = require('./event'),
+    common = require('./Common'),
+    BaseClass = require('./BaseClass'),
+    BaseArrayClass = require('./BaseArrayClass');
 
   var Map = require('./Map');
   var LatLng = require('./LatLng');
@@ -46,18 +46,18 @@ if (!cordova) {
    * disable the changing of viewport zoom level by double clicking.
    * This code has to run before the device ready event.
    *****************************************************************************/
-  (function() {
+  (function () {
     var viewportTag = null;
     var metaTags = document.getElementsByTagName('meta');
     for (var i = 0; i < metaTags.length; i++) {
-        if (metaTags[i].getAttribute('name') === "viewport") {
-            viewportTag = metaTags[i];
-            break;
-        }
+      if (metaTags[i].getAttribute('name') === "viewport") {
+        viewportTag = metaTags[i];
+        break;
+      }
     }
     if (!viewportTag) {
-        viewportTag = document.createElement("meta");
-        viewportTag.setAttribute('name', 'viewport');
+      viewportTag = document.createElement("meta");
+      viewportTag.setAttribute('name', 'viewport');
     }
 
     var viewportTagContent = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no';
@@ -99,19 +99,19 @@ if (!cordova) {
   /*****************************************************************************
    * Add event lister to all html nodes under the <body> tag.
    *****************************************************************************/
-  (function() {
+  (function () {
     if (!document.body || !document.body.firstChild) {
       setTimeout(arguments.callee, 25);
       return;
     }
 
     //setTimeout(function() {
-      // Webkit redraw mandatory
-      // http://stackoverflow.com/a/3485654/697856
-      document.body.style.backgroundColor = "rgba(0,0,0,0)";
-      //document.body.style.display='none';
-      document.body.offsetHeight;
-      //document.body.style.display='';
+    // Webkit redraw mandatory
+    // http://stackoverflow.com/a/3485654/697856
+    document.body.style.backgroundColor = "rgba(0,0,0,0)";
+    //document.body.style.display='none';
+    document.body.offsetHeight;
+    //document.body.style.display='';
     //}, 0);
 
     var prevDomPositions = {};
@@ -128,10 +128,11 @@ if (!cordova) {
 
     var followPositionTimer = null;
     var followPositionTimerCnt = 0;
+
     function followMapDivPositionOnly() {
       var mapRects = {};
       var mapIDs = Object.keys(MAPS);
-      mapIDs.forEach(function(mapId) {
+      mapIDs.forEach(function (mapId) {
         var map = MAPS[mapId];
         if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
           var mapDiv = map.getDiv();
@@ -147,7 +148,7 @@ if (!cordova) {
 
     function onTouchEnd(event) {
       followPositionTimerCnt = 0;
-      followPositionTimer = setInterval(function() {
+      followPositionTimer = setInterval(function () {
         if (followPositionTimerCnt++ > 25) {
           clearInterval(followPositionTimer);
           followPositionTimer = null;
@@ -192,7 +193,7 @@ if (!cordova) {
           visibleMapList.push(mapId);
         }
       }
-      if (idlingCnt > -1 && visibleMapList.length === 0 && Object.keys(MAPS).length === 0) {
+      if (idlingCnt > -1 && visibleMapList.length === 0) {
         idlingCnt++;
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -216,7 +217,7 @@ if (!cordova) {
       var shouldUpdate = false;
       var doNotTrace = false;
 
-      var traceDomTree = function(element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel) {
+      var traceDomTree = function (element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel) {
         var zIndex = parentZIndex;
         doNotTrace = false;
         var depth = 1;
@@ -240,12 +241,12 @@ if (!cordova) {
           // get dom depth
           zIndex = common.getZIndex(element);
           if (elemId in cacheDepth &&
-              elemId in prevDomPositions &&
-              prevDomPositions[elemId].zIndex === zIndex) {
-              depth = cacheDepth[elemId];
+            elemId in prevDomPositions &&
+            prevDomPositions[elemId].zIndex === zIndex) {
+            depth = cacheDepth[elemId];
           } else {
-              depth = common.getDomDepth(element, domIdx, parentZIndex, parentDepth, floorLevel);
-              cacheDepth[elemId] = depth;
+            depth = common.getDomDepth(element, domIdx, parentZIndex, parentDepth, floorLevel);
+            cacheDepth[elemId] = depth;
           }
 
           // Calculate dom clickable region
@@ -303,11 +304,11 @@ if (!cordova) {
           if (!shouldUpdate) {
             if (elemId in prevDomPositions) {
               if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
-                  domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
-                  domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
-                  domPositions[elemId].size.height !== prevDomPositions[elemId].size.height ||
-                  domPositions[elemId].depth !== prevDomPositions[elemId].depth) {
-                  shouldUpdate = true;
+                domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
+                domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
+                domPositions[elemId].size.height !== prevDomPositions[elemId].size.height ||
+                domPositions[elemId].depth !== prevDomPositions[elemId].depth) {
+                shouldUpdate = true;
               }
             } else {
               shouldUpdate = true;
@@ -358,8 +359,8 @@ if (!cordova) {
       if (!shouldUpdate && idlingCnt > -1) {
         idlingCnt++;
         if (idlingCnt === 2) {
-          mapIDs.forEach(function(mapId) {
-              MAPS[mapId].refreshLayout();
+          mapIDs.forEach(function (mapId) {
+            MAPS[mapId].refreshLayout();
           });
         }
         if (idlingCnt > 2) {
@@ -368,12 +369,12 @@ if (!cordova) {
         // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
         // (50ms * 5times + 200ms * 5times).
         // This save really the battery life significantly.
-        if (idlingCnt < 10) {
-          if (idlingCnt === 8) {
-            cordova.fireDocumentEvent("ecocheck", {});
-          }
-          setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
-        }
+        // if (idlingCnt < 10) {
+        //   if (idlingCnt === 8) {
+        //     cordova.fireDocumentEvent("ecocheck", {});
+        //   }
+        //   setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
+        // }
         isChecking = false;
         return;
       }
@@ -383,7 +384,7 @@ if (!cordova) {
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
       var minMapDepth = 9999999;
-      mapIDs.forEach(function(mapId) {
+      mapIDs.forEach(function (mapId) {
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
@@ -417,10 +418,11 @@ if (!cordova) {
       //-----------------------------------------------------------------
       // Ignore the elements that their z-index is smaller than map div
       //-----------------------------------------------------------------
-      var quickfilter = function(list, head, tail) {
-        var i = head, j = tail;
+      var quickfilter = function (list, head, tail) {
+        var i = head,
+          j = tail;
         var leftRight = true;
-        while(i < j) {
+        while (i < j) {
           if (leftRight) {
             if (domPositions[list[j]].depth < minMapDepth) {
               list[i] = list[j];
@@ -444,19 +446,19 @@ if (!cordova) {
       var list = Object.keys(domPositions);
       quickfilter(list, 0, list.length - 1);
       var finalDomPositions = {};
-      list.forEach(function(domId) {
+      list.forEach(function (domId) {
         finalDomPositions[domId] = domPositions[domId];
       });
 
       //-----------------------------------------------------------------
       // Pass information to native
       //-----------------------------------------------------------------
-      cordova_exec(function() {
+      cordova_exec(function () {
         prevDomPositions = domPositions;
-        mapIDs.forEach(function(mapId) {
-            if (mapId in MAPS) {
-                MAPS[mapId].refreshLayout();
-            }
+        mapIDs.forEach(function (mapId) {
+          if (mapId in MAPS) {
+            MAPS[mapId].refreshLayout();
+          }
         });
         setTimeout(putHtmlElements, 50);
         isChecking = false;
@@ -479,14 +481,14 @@ if (!cordova) {
     }
 
     var intervalTimer = null;
-    document.addEventListener("ecocheck", function() {
+    document.addEventListener("ecocheck", function () {
       if (intervalTimer || idlingCnt < 8) {
         return;
       }
 
       // In order to detect the DOM nodes that are inserted very later,
       // monitoring HTML elements every 1 sec.
-      intervalTimer = setInterval(function() {
+      intervalTimer = setInterval(function () {
         if (idlingCnt > 8) {
           idlingCnt = 9;
           // If no update in 10 sec,
@@ -515,13 +517,13 @@ if (!cordova) {
     function stopExecution() {
       // Request stop all tasks.
       _stopRequested = true;
-/*
-      if (_isWaitMethod && _executingCnt > 0) {
-        // Wait until all tasks currently running are stopped.
-        setTimeout(arguments.callee, 100);
-        return;
-      }
-*/
+      /*
+            if (_isWaitMethod && _executingCnt > 0) {
+              // Wait until all tasks currently running are stopped.
+              setTimeout(arguments.callee, 100);
+              return;
+            }
+      */
     }
     window.addEventListener("unload", stopExecution);
 
@@ -529,6 +531,7 @@ if (!cordova) {
     // Hook the backbutton of Android action
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
+
     function onBackButton() {
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
@@ -541,7 +544,7 @@ if (!cordova) {
 
     var _org_addEventListener = document.addEventListener;
     var _org_removeEventListener = document.removeEventListener;
-    document.addEventListener = function(eventName, callback) {
+    document.addEventListener = function (eventName, callback) {
       var args = Array.prototype.slice.call(arguments, 0);
       if (eventName.toLowerCase() !== "backbutton") {
         _org_addEventListener.apply(this, args);
@@ -551,7 +554,7 @@ if (!cordova) {
         anotherBackbuttonHandler = callback;
       }
     };
-    document.removeEventListener = function(eventName, callback) {
+    document.removeEventListener = function (eventName, callback) {
       var args = Array.prototype.slice.call(arguments, 0);
       if (eventName.toLowerCase() !== "backbutton") {
         _org_removeEventListener.apply(this, args);
@@ -570,63 +573,63 @@ if (!cordova) {
   module.exports = {
     event: event,
     Animation: {
-        BOUNCE: 'BOUNCE',
-        DROP: 'DROP'
+      BOUNCE: 'BOUNCE',
+      DROP: 'DROP'
     },
 
     BaseClass: BaseClass,
     BaseArrayClass: BaseArrayClass,
     Map: {
-        getMap: function(div, mapOptions) {
-            var mapId;
-            if (common.isDom(div)) {
-              mapId = div.getAttribute("__pluginMapId");
-              if (!mapOptions || mapOptions.visible !== false) {
-                // Add gray color until the map is displayed.
-                div.style.backgroundColor = "rgba(255, 30, 30, 0.5);";
-              }
-            }
-            if (mapId in MAPS) {
-              //--------------------------------------------------
-              // Backward compatibility for v1
-              //
-              // If the div is already recognized as map div,
-              // return the map instance
-              //--------------------------------------------------
-              return MAPS[mapId];
-            } else {
-              mapId = "map_" + MAP_CNT + "_" + saltHash;
-            }
-            if (common.isDom(div)) {
-              div.setAttribute("__pluginMapId", mapId);
-            }
-
-            var map = new Map(mapId, execCmd);
-
-            // Catch all events for this map instance, then pass to the instance.
-            document.addEventListener(mapId, nativeCallback.bind(map));
-            /*
-                    map.showDialog = function() {
-                      showDialog(mapId).bind(map);
-                    };
-            */
-            map.one('remove', function() {
-                document.removeEventListener(mapId, nativeCallback);
-                MAPS[mapId].destroy();
-                delete MAPS[mapId];
-                map = undefined;
-            });
-            MAP_CNT++;
-            MAPS[mapId] = map;
-            cordova.fireDocumentEvent('plugin_touch', {});
-
-            var args = [mapId];
-            for (var i = 0; i < arguments.length; i++) {
-                args.push(arguments[i]);
-            }
-            map.getMap.apply(map, args);
-            return map;
+      getMap: function (div, mapOptions) {
+        var mapId;
+        if (common.isDom(div)) {
+          mapId = div.getAttribute("__pluginMapId");
+          if (!mapOptions || mapOptions.visible !== false) {
+            // Add gray color until the map is displayed.
+            div.style.backgroundColor = "rgba(255, 30, 30, 0.5);";
+          }
         }
+        if (mapId in MAPS) {
+          //--------------------------------------------------
+          // Backward compatibility for v1
+          //
+          // If the div is already recognized as map div,
+          // return the map instance
+          //--------------------------------------------------
+          return MAPS[mapId];
+        } else {
+          mapId = "map_" + MAP_CNT + "_" + saltHash;
+        }
+        if (common.isDom(div)) {
+          div.setAttribute("__pluginMapId", mapId);
+        }
+
+        var map = new Map(mapId, execCmd);
+
+        // Catch all events for this map instance, then pass to the instance.
+        document.addEventListener(mapId, nativeCallback.bind(map));
+        /*
+                map.showDialog = function() {
+                  showDialog(mapId).bind(map);
+                };
+        */
+        map.one('remove', function () {
+          document.removeEventListener(mapId, nativeCallback);
+          MAPS[mapId].destroy();
+          delete MAPS[mapId];
+          map = undefined;
+        });
+        MAP_CNT++;
+        MAPS[mapId] = map;
+        cordova.fireDocumentEvent('plugin_touch', {});
+
+        var args = [mapId];
+        for (var i = 0; i < arguments.length; i++) {
+          args.push(arguments[i]);
+        }
+        map.getMap.apply(map, args);
+        return map;
+      }
     },
     HtmlInfoWindow: HtmlInfoWindow,
     LatLng: LatLng,
@@ -637,37 +640,46 @@ if (!cordova) {
     environment: Environment,
     Geocoder: Geocoder,
     geometry: {
-        encoding: encoding,
-        spherical: spherical
+      encoding: encoding,
+      spherical: spherical
     }
   };
 
-  cordova.addConstructor(function() {
-      if (!window.Cordova) {
-          window.Cordova = cordova;
+  cordova.addConstructor(function () {
+    if (!window.Cordova) {
+      window.Cordova = cordova;
+    }
+    window.plugin = window.plugin || {};
+    window.plugin.google = window.plugin.google || {};
+    window.plugin.google.maps = window.plugin.google.maps || module.exports;
+    document.addEventListener("deviceready", function () {
+      // workaround for issue on android-19: Cannot read property 'maps' of undefined
+      if (!window.plugin) {
+        console.warn('re-init window.plugin');
+        window.plugin = window.plugin || {};
       }
-      window.plugin = window.plugin || {};
-      window.plugin.google = window.plugin.google || {};
-      window.plugin.google.maps = window.plugin.google.maps || module.exports;
-      document.addEventListener("deviceready", function() {
-          // workaround for issue on android-19: Cannot read property 'maps' of undefined
-          if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
-          if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
-          if (!window.plugin.google.maps) { console.warn('re-init window.plugin.google.maps'); window.plugin.google.maps = window.plugin.google.maps || module.exports; }
+      if (!window.plugin.google) {
+        console.warn('re-init window.plugin.google');
+        window.plugin.google = window.plugin.google || {};
+      }
+      if (!window.plugin.google.maps) {
+        console.warn('re-init window.plugin.google.maps');
+        window.plugin.google.maps = window.plugin.google.maps || module.exports;
+      }
 
-          // Check the Google Maps Android API v2 if the device platform is Android.
-          if (/Android/i.test(window.navigator.userAgent)) {
-              //------------------------------------------------------------------------
-              // If Google Maps Android API v2 is not available,
-              // display the warning alert.
-              //------------------------------------------------------------------------
-              cordova.exec(null, function(message) {
-                  alert(message);
-              }, 'Environment', 'isAvailable', ['']);
-          }
-      }, {
-        once: true
-      });
+      // Check the Google Maps Android API v2 if the device platform is Android.
+      if (/Android/i.test(window.navigator.userAgent)) {
+        //------------------------------------------------------------------------
+        // If Google Maps Android API v2 is not available,
+        // display the warning alert.
+        //------------------------------------------------------------------------
+        cordova.exec(null, function (message) {
+          alert(message);
+        }, 'Environment', 'isAvailable', ['']);
+      }
+    }, {
+      once: true
+    });
   });
 }
 
@@ -676,17 +688,17 @@ if (!cordova) {
  *****************************************************************************/
 
 function onMapResize(event) {
-    //console.log("---> onMapResize");
-    var mapIDs = Object.keys(MAPS);
-    mapIDs.forEach(function(mapId) {
-        MAPS[mapId].refreshLayout();
-    });
+  //console.log("---> onMapResize");
+  var mapIDs = Object.keys(MAPS);
+  mapIDs.forEach(function (mapId) {
+    MAPS[mapId].refreshLayout();
+  });
 }
 
 function nativeCallback(params) {
-    var args = params.args || [];
-    args.unshift(params.evtName);
-    this[params.callback].apply(this, args);
+  var args = params.args || [];
+  args.unshift(params.evtName);
+  this[params.callback].apply(this, args);
 }
 
 /*****************************************************************************
@@ -711,7 +723,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
   var self = this;
   commandQueue.push({
     "execOptions": execOptions,
-    "args": [function() {
+    "args": [function () {
       //console.log("success: " + methodName);
       if (methodName === "resizeMap") {
         _isResizeMapExecuting = false;
@@ -721,8 +733,8 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        setTimeout(function() {
-          success.apply(self,results);
+        setTimeout(function () {
+          success.apply(self, results);
         }, 0);
       }
 
@@ -735,11 +747,11 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         _lastGetMapExecuted = Date.now();
         _isWaitMethod = null;
       }
-      setTimeout(function() {
+      setTimeout(function () {
         _executingCnt--;
         _exec();
       }, delay);
-    }, function() {
+    }, function () {
       //console.log("error: " + methodName);
       if (methodName === "resizeMap") {
         _isResizeMapExecuting = false;
@@ -749,8 +761,8 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        setTimeout(function() {
-          error.apply(self,results);
+        setTimeout(function () {
+          error.apply(self, results);
         }, 0);
       }
 
@@ -763,11 +775,12 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
   });
 
   //console.log("commandQueue.length: " + commandQueue.length, commandQueue);
-  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT ) {
+  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT) {
     return;
   }
   _exec();
 }
+
 function _exec() {
   //console.log("commandQueue.length: " + commandQueue.length);
   if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || _isWaitMethod || commandQueue.length === 0) {
