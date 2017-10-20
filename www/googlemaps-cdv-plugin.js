@@ -541,10 +541,9 @@ if (!cordova) {
     function onBackButton(e) {
       cordova.fireDocumentEvent('plugin_touch', {});
       if (anotherBackbuttonHandler) {
-        var returnValue = anotherBackbuttonHandler(e);
-        if (returnValue !== false && e.defaultPrevented !== true) {
-          cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
-        }
+        // anotherBackbuttonHandler must handle the page moving transaction.
+        // The plugin does not take care anymore if another callback is registered.
+        anotherBackbuttonHandler(e);
       } else {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
       }
