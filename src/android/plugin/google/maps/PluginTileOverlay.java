@@ -163,7 +163,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
    */
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    final TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.get(id);
+    TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.get(id);
     if (tileOverlay == null) {
       callbackContext.success();
       return;
@@ -172,18 +172,22 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
       @Override
       public void run() {
 
-        tileOverlay.remove();
-        tileOverlay.clearTileCache();
-
         try {
           String id = args.getString(0);
-          pluginMap.objects.remove(id);
+          TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.remove(id);
+          if (tileOverlay != null) {
+            tileOverlay.clearTileCache();
+            tileOverlay.remove();
+            tileOverlay = null;
+          }
           id = id.replace("tileoverlay_", "tileprovider_");
+
           if (pluginMap.objects.containsKey(id)) {
             ((PluginTileProvider)(pluginMap.objects.get(id))).remove();
           }
           //pluginMap.objects.put(id, null);
-          pluginMap.objects.remove(id);
+          PluginTileProvider provider = (PluginTileProvider) pluginMap.objects.remove(id);
+          provider = null;
           callbackContext.success();
         } catch (JSONException e) {
           e.printStackTrace();

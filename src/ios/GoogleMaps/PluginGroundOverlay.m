@@ -80,7 +80,8 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         GMSGroundOverlay *groundOverlay = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
-        NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%lu%d", command.hash, arc4random() % 100000];
+        NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+        NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%@", idBase];
         [self.mapCtrl.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;
 
@@ -132,7 +133,7 @@
                   //---------------------------
                   // Keep the properties
                   //---------------------------
-                  NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
+                  NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%@", idBase];
 
                   // points
                   NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -279,7 +280,7 @@
 
         //[self.imgCache removeObjectForKey:groundOverlayId];
 
-        NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
+        NSString *propertyId = [groundOverlayId stringByReplacingOccurrencesOfString:@"groundoverlay_" withString:@"groundoverlay_property"];
         [self.mapCtrl.objects removeObjectForKey:propertyId];
         [self.mapCtrl.objects removeObjectForKey:groundOverlayId];
 
@@ -307,7 +308,7 @@
         Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
         // Update the property
-        NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
+        NSString *propertyId = [key stringByReplacingOccurrencesOfString:@"groundoverlay_" withString:@"groundoverlay_property_"];
         NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                            [self.mapCtrl.objects objectForKey:propertyId]];
         [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
@@ -446,7 +447,7 @@
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property
-      NSString *propertyId = [NSString stringWithFormat:@"groundoverlay_property_%lu", (unsigned long)groundOverlay.hash];
+      NSString *propertyId = [key stringByReplacingOccurrencesOfString:@"groundoverlay_" withString:@"groundoverlay_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isClickable] forKey:@"isClickable"];

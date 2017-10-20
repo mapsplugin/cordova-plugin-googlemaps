@@ -15,15 +15,11 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
 
-import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.PluginEntry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,13 +27,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 
 public class PluginTileProvider implements TileProvider  {
+  private final String TAG = "TileProvider";
   private int tileSize = 512;
   private Paint tilePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
   private Paint debugPaint = null;
@@ -55,6 +51,7 @@ public class PluginTileProvider implements TileProvider  {
   private final Object semaphore = new Object();
   private Bitmap emptyBitmap = null;
   private final HashSet<String> cacheKeys = new HashSet<String>();
+  private boolean isRemoved = false;
 
   @SuppressLint({"NewApi", "JavascriptInterface"})
   public PluginTileProvider(String mapId, String pluginId, CordovaWebView webView, AssetManager assetManager, String webPageUrl, String userAgent, int tileSize, boolean isDebug) {
@@ -110,6 +107,7 @@ public class PluginTileProvider implements TileProvider  {
   }
 
   public void remove() {
+    isRemoved = true;
     synchronized (cacheKeys) {
       Iterator<String> iterator = cacheKeys.iterator();
       String cacheKey;
@@ -124,6 +122,7 @@ public class PluginTileProvider implements TileProvider  {
       }
     }
     tileCache.evictAll();
+
   }
   public void setOnCacheClear(OnCacheClear listener) {
     this.listener = listener;
@@ -131,6 +130,9 @@ public class PluginTileProvider implements TileProvider  {
 
   @Override
   public Tile getTile(int x, int y, int zoom) {
+    if (isRemoved) {
+      return null;
+    }
 
     String urlStr = null;
     String originalUrlStr = null;
@@ -146,7 +148,7 @@ public class PluginTileProvider implements TileProvider  {
         }
       });
       try {
-        semaphore.wait(10 * 1000); // Maximum wait 10sec
+        semaphore.wait(1000); // Maximum wait 1sec
       } catch (InterruptedException e) {
         e.printStackTrace();
         return null;
@@ -204,6 +206,8 @@ public class PluginTileProvider implements TileProvider  {
           redirect = false;
           http = (HttpURLConnection)url.openConnection();
           http.setRequestMethod("GET");
+          http.setReadTimeout(3000);
+          http.setConnectTimeout(3000);
           if (cookies != null) {
             http.setRequestProperty("Cookie", cookies);
           }

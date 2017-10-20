@@ -153,7 +153,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
       // Add the mapView under the scroll view.
       [self.pluginScrollView attachView:mapCtrl.view];
 
-      //[self updateViewPosition:mapCtrl];
+      [self updateViewPosition:mapCtrl];
   });
 }
 

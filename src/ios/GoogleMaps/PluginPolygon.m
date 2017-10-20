@@ -120,7 +120,8 @@
       polygon.tappable = NO;
 
       // Register polygon to the overlayManager.
-      NSString *id = [NSString stringWithFormat:@"polygon_%lu%d", command.hash, arc4random() % 100000];
+      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+      NSString *id = [NSString stringWithFormat:@"polygon_%@", idBase];
       [self.mapCtrl.objects setObject:polygon forKey: id];
       polygon.title = id;
 
@@ -130,7 +131,7 @@
           //---------------------------
           // Keep the properties
           //---------------------------
-          NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+          NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%@", idBase];
 
           // points
           NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -177,7 +178,7 @@
 
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       NSMutableArray *holePaths = (NSMutableArray *)[properties objectForKey:@"holePaths"];
@@ -225,7 +226,7 @@
 
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       NSMutableArray *holePaths = (NSMutableArray *)[properties objectForKey:@"holePaths"];
@@ -256,7 +257,7 @@
 
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       NSMutableArray *holePaths = (NSMutableArray *)[properties objectForKey:@"holePaths"];
@@ -296,7 +297,7 @@
 
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -349,7 +350,7 @@
 
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       NSMutableArray *holePaths = (NSMutableArray *)[properties objectForKey:@"holePaths"];
@@ -387,7 +388,7 @@
       GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -422,7 +423,7 @@
       GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -460,7 +461,7 @@
       GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -495,7 +496,7 @@
       GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -605,7 +606,7 @@
       int zIndex = [[command.arguments objectAtIndex:1] intValue];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -638,7 +639,7 @@
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -666,7 +667,7 @@
       Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polygon_property_%lu", (unsigned long)polygon.hash];
+      NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -718,22 +719,19 @@
 -(void)remove:(CDVInvokedUrlCommand *)command
 {
 
-  [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-      NSString *polygonKey = [command.arguments objectAtIndex:0];
-      GMSPolygon *polygon = [self.mapCtrl.objects objectForKey:polygonKey];
+    // Apply to the polygon on UI thread.
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        NSString *polygonKey = [command.arguments objectAtIndex:0];
+        GMSPolygon *polygon = [self.mapCtrl.objects objectForKey:polygonKey];
+        [self.mapCtrl.objects removeObjectForKey:[polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"]];
+        [self.mapCtrl.objects removeObjectForKey:polygonKey];
+        polygon.map = nil;
+        polygon = nil;
 
-      // Apply to the polygon on UI thread.
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          polygon.map = nil;
-          [self.mapCtrl.objects removeObjectForKey:polygonKey];
-          [self.mapCtrl.objects removeObjectForKey:[polygonKey stringByReplacingOccurrencesOfString:@"_" withString:@"_holePaths_"]];
-          [self.mapCtrl.objects removeObjectForKey:[polygonKey stringByReplacingOccurrencesOfString:@"_" withString:@"_property_"]];
-
-          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
-  }];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 
 }
 

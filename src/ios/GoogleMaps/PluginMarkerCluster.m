@@ -29,6 +29,7 @@ const int GEOCELL_GRID_SIZE = 4;
   self.semaphore = dispatch_semaphore_create(0);
   self.deleteThreadLock = dispatch_semaphore_create(0);
   self.stopFlag = NO;
+  int waitTimeOut = 1000 * 1000 * 1000; // 1sec
 
   //---------------------
   // Delete thread
@@ -37,7 +38,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
     while(!self.stopFlag) {
       @synchronized (self.deleteThreadLock) {
-        dispatch_semaphore_wait(self.deleteThreadLock, DISPATCH_TIME_FOREVER);
+        dispatch_semaphore_wait(self.deleteThreadLock, dispatch_time(DISPATCH_TIME_NOW, waitTimeOut));
       }
       if ([self.deleteMarkers count] == 0) {
         continue;
@@ -266,8 +267,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
     if ([updateClusterIDs count] == 0) {
       [self deleteProcess:params clusterId:clusterId];
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [self endRedraw:command];
       return;
     }
 
@@ -320,7 +320,7 @@ const int GEOCELL_GRID_SIZE = 4;
                   }
                 }
               }
-              [self decreaseWaitWithClusterId:clusterId];
+              [self decreaseWaitWithClusterId:clusterId command:command];
 
             }];
           } else {
@@ -338,7 +338,7 @@ const int GEOCELL_GRID_SIZE = 4;
             @synchronized (self.pluginMarkers) {
               [self.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
             }
-            [self decreaseWaitWithClusterId:clusterId];
+            [self decreaseWaitWithClusterId:clusterId command:command];
           }
           continue;
         }
@@ -401,14 +401,14 @@ const int GEOCELL_GRID_SIZE = 4;
                 [self_.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
               }
             }
-            [self_ decreaseWaitWithClusterId:clusterId];
+            [self_ decreaseWaitWithClusterId:clusterId command:command];
           }];
         } else {
           marker.map = self.mapCtrl.map;
           @synchronized (self.pluginMarkers) {
             [self.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
           }
-          [self decreaseWaitWithClusterId:clusterId];
+          [self decreaseWaitWithClusterId:clusterId command:command];
         }
 
       } // for (int i = 0; i < [updateClusterIDs count]; i++) {..}
@@ -418,11 +418,13 @@ const int GEOCELL_GRID_SIZE = 4;
     }]; // [[NSOperationQueue mainQueue] addOperationWithBlock: ^{..}
 
 
-    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+  }]; // dispatch_async
+}
+
+- (void) endRedraw:(CDVInvokedUrlCommand*)command {
+
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
-  }]; // dispatch_async
 }
 
 - (void) deleteProcess:(NSDictionary *) params  clusterId:(NSString *)clusterId{
@@ -497,15 +499,14 @@ const int GEOCELL_GRID_SIZE = 4;
   }];
 }
 
-- (void) decreaseWaitWithClusterId:(NSString *) clusterId{
+- (void) decreaseWaitWithClusterId:(NSString *) clusterId command:(CDVInvokedUrlCommand*)command{
 
   @synchronized (_waitCntManager) {
     int waitCnt = [[_waitCntManager objectForKey:clusterId] intValue];
     waitCnt = waitCnt - 1;
     [self.waitCntManager setObject:[NSNumber numberWithInt:waitCnt] forKey:clusterId];
-
     if (waitCnt == 0) {
-      dispatch_semaphore_signal(self.semaphore);
+      [self endRedraw: command];
     }
   }
 }

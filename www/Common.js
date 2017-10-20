@@ -598,12 +598,13 @@ function markerOptionsFilter(markerOptions) {
       "y" in markerOptions.icon.anchor) {
       markerOptions.icon.anchor = [markerOptions.icon.anchor.x, markerOptions.icon.anchor.y];
     }
-    if ("infoWindowAnchor" in markerOptions.icon &&
-      !Array.isArray(markerOptions.icon.infoWindowAnchor) &&
-      "x" in markerOptions.icon.infoWindowAnchor &&
-      "y" in markerOptions.icon.infoWindowAnchor) {
-      markerOptions.icon.infoWindowAnchor = [markerOptions.icon.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
-    }
+  }
+
+  if ("infoWindowAnchor" in markerOptions &&
+    !Array.isArray(markerOptions.infoWindowAnchor) &&
+    "x" in markerOptions.infoWindowAnchor &&
+    "y" in markerOptions.infoWindowAnchor) {
+    markerOptions.infoWindowAnchor = [markerOptions.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
   }
 
   if ("styles" in markerOptions) {

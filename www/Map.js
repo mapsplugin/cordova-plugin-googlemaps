@@ -563,7 +563,7 @@ Map.prototype.remove = function(callback) {
     clearObj(self.MARKERS);
     clearObj(self.KML_LAYERS);
 
-    exec.call(this, function() {
+    exec.call(self, function() {
         if (typeof callback === "function") {
             callback.call(self);
         }

@@ -96,7 +96,8 @@
       // disable default clickable feature.
       polyline.tappable = NO;
 
-      NSString *id = [NSString stringWithFormat:@"polyline_%lu%d", command.hash, arc4random() % 100000];
+      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
+      NSString *id = [NSString stringWithFormat:@"polyline_%@", idBase];
       [self.mapCtrl.objects setObject:polyline forKey: id];
       polyline.title = id;
 
@@ -112,7 +113,7 @@
           //---------------------------
           // Keep the properties
           //---------------------------
-          NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+          NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%@", idBase];
 
           // points
           NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -147,7 +148,7 @@
       GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -160,8 +161,12 @@
       [properties setObject:[[GMSCoordinateBounds alloc] initWithPath:mutablePath] forKey:@"bounds"];
       [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+          [polyline setPath:mutablePath];
+
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      }];
 
   }];
 
@@ -176,7 +181,7 @@
       GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -216,7 +221,7 @@
       GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -251,7 +256,7 @@
       GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
 
       // Get properties
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
 
@@ -332,7 +337,7 @@
       int zIndex = [[command.arguments objectAtIndex:1] intValue];
 
       // Update the property
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithInt:zIndex] forKey:@"zIndex"];
@@ -358,11 +363,11 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
       NSString *polylineKey = [command.arguments objectAtIndex:0];
-      GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
+      //GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isClickable] forKey:@"isClickable"];
@@ -384,7 +389,7 @@
       GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
       Boolean isVisible = [[command.arguments objectAtIndex:1] boolValue];
 
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"isVisible"];
@@ -417,7 +422,7 @@
       Boolean isGeodisic = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isGeodisic] forKey:@"isGeodisic"];
@@ -447,7 +452,7 @@
       GMSPolyline *polyline = (GMSPolyline *)[self.mapCtrl.objects objectForKey:polylineKey];
       [self.mapCtrl.objects removeObjectForKey:polylineKey];
 
-      NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%lu", (unsigned long)polyline.hash];
+      NSString *propertyId = [polylineKey stringByReplacingOccurrencesOfString:@"polyline_" withString:@"polyline_property_"];
       [self.mapCtrl.objects removeObjectForKey:propertyId];
       polyline.map = nil;
       polyline = nil;

@@ -143,13 +143,14 @@ Circle.prototype.setRadius = function(radius) {
 };
 
 Circle.prototype.remove = function() {
-    this.trigger(this.id + "_remove");
-    exec.call(this, null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
+    var self = this;
+    self.trigger(self.id + "_remove");
+    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
     Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
     });
-    this.destroy();
+    self.destroy();
 };
 
 Circle.prototype.getBounds = function() {
