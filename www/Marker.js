@@ -107,6 +107,13 @@ utils.extend(Marker, BaseClass);
 
 Marker.prototype.remove = function(callback) {
     var self = this;
+    if (self._isRemoved) {
+      return;
+    }
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
     self.trigger(event.INFO_CLOSE);     // close open infowindow, otherwise it will stay
     self.trigger(self.id + "_remove");
     exec.call(self, function() {
@@ -116,10 +123,6 @@ Marker.prototype.remove = function(callback) {
         }
     }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
 
-    Object.defineProperty(self, "_isRemoved", {
-        value: true,
-        writable: false
-    });
     self.destroy();
 };
 

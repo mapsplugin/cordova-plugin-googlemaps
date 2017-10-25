@@ -249,6 +249,9 @@ Map.prototype.panBy = function(x, y) {
  */
 Map.prototype.clear = function(callback) {
     var self = this;
+    if (self._isRemoved) {
+      return;
+    }
 
     // Close the active infoWindow
     var active_marker_id = self.get("active_marker_id");
@@ -517,6 +520,13 @@ Map.prototype.getCameraPosition = function() {
  */
 Map.prototype.remove = function(callback) {
     var self = this;
+    if (self._isRemoved) {
+      return;
+    }
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
     var div = this.get('div');
     if (div) {
         while (div) {
@@ -568,11 +578,6 @@ Map.prototype.remove = function(callback) {
             callback.call(self);
         }
     }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {sync: true});
-
-    Object.defineProperty(self, "_isRemoved", {
-        value: true,
-        writable: false
-    });
 };
 
 
