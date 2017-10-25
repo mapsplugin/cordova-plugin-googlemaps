@@ -2191,7 +2191,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.onOverlayEvent("circle_click", overlayId, point);
   }
   public void onGroundOverlayClick(GroundOverlay groundOverlay, LatLng point) {
-    String overlayId = "groundoverlay_" + groundOverlay.getId();
+    String overlayId = groundOverlay.getTag() + "";
     this.onOverlayEvent("groundoverlay_click", overlayId, point);
   }
 
