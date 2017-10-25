@@ -215,7 +215,8 @@ public class PluginGeocoder extends CordovaPlugin {
       extra.put("url", addr.getUrl());
 
       JSONArray lines = new JSONArray();
-      for (int i = 0; i < addr.getMaxAddressLineIndex(); i++) {
+      // Handled cases where we have only one line address.       
+      for (int i = 0; i <= addr.getMaxAddressLineIndex(); i++) {
          lines.put(addr.getAddressLine(i));
       }
       extra.put("lines", lines);
