@@ -19,7 +19,7 @@ If you can't solve your problem, please post your problems with enough informati
 
 If you share your project files on Github(or others), your issue would be fixed soon.
 If you can't share your project files (i.e. company project), please create a demo project, then share it.
-No sharing any code, we probably can not help you anything.
+No sharing any code, we probably can not help you with anything.
 
 
 ## For the person who want to request new feature
