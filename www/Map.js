@@ -485,7 +485,10 @@ Map.prototype.setVisible = function(isVisible) {
     var self = this;
     isVisible = common.parseBoolean(isVisible);
     self.set("visible", isVisible);
-    exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
+    exec.call(this, function () {
+        cordova.fireDocumentEvent('plugin_touch', {});
+        self.refreshLayout();
+    }, self.errorHandler, this.id, 'setVisible', [isVisible]);
     return this;
 };
 Map.prototype.setClickable = function(isClickable) {
