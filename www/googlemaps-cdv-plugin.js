@@ -32,6 +32,7 @@ if (!cordova) {
   var KmlOverlay = require('./KmlOverlay');
   var encoding = require('./encoding');
   var spherical = require('./spherical');
+  var poly = require('./poly');
   var Geocoder = require('./Geocoder');
   var Environment = require('./Environment');
   var MapTypeId = require('./MapTypeId');
@@ -648,7 +649,8 @@ if (!cordova) {
     Geocoder: Geocoder,
     geometry: {
         encoding: encoding,
-        spherical: spherical
+        spherical: spherical,
+        poly: poly
     }
   };
 

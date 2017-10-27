@@ -51,10 +51,12 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void create(JSONArray args, CallbackContext callbackContext) throws JSONException {
     JSONObject opts = args.getJSONObject(1);
-    _createGroundOverlay(opts, callbackContext);
+
+    final String idBase = "" + callbackContext.hashCode();
+    _createGroundOverlay(idBase, opts, callbackContext);
   }
 
-  public void _createGroundOverlay(final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
+  public void _createGroundOverlay(final String idBase, final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
     final GroundOverlayOptions options = new GroundOverlayOptions();
     final JSONObject properties = new JSONObject();
 
@@ -93,7 +95,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     // Load image
     final String imageUrl = opts.getString("url");
 
-    setImage_(options, imageUrl, new PluginAsyncInterface() {
+    setImage_(imageUrl, new PluginAsyncInterface() {
 
       @Override
       public void onPostExecute(Object object) {
@@ -101,26 +103,32 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
           callbackContext.error("Cannot create a ground overlay");
           return;
         }
-        GroundOverlay groundOverlay = (GroundOverlay)object;
-        String id = groundOverlay.getId();
 
-        pluginMap.objects.put("groundoverlay_" + id, groundOverlay);
+        AsyncLoadImage.AsyncLoadImageResult result = (AsyncLoadImage.AsyncLoadImageResult)object;
+        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
+        options.image(bitmapDescriptor);
+        GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
+        overlayImage.put(groundOverlay.getId(), result.image);
 
-        pluginMap.objects.put("groundoverlay_bounds_" + id, groundOverlay.getBounds());
+        groundOverlay.setTag("groundoverlay_" + idBase);
 
-        pluginMap.objects.put("groundoverlay_property_" + id, properties);
+        pluginMap.objects.put("groundoverlay_" + idBase, groundOverlay);
 
-        pluginMap.objects.put("groundoverlay_initOpts_" + id, opts);
+        pluginMap.objects.put("groundoverlay_bounds_" + idBase, groundOverlay.getBounds());
+
+        pluginMap.objects.put("groundoverlay_property_" + idBase, properties);
+
+        pluginMap.objects.put("groundoverlay_initOpts_" + idBase, opts);
 
 
-        JSONObject result = new JSONObject();
+        JSONObject resultJSON = new JSONObject();
         try {
-          result.put("hashCode", groundOverlay.hashCode());
-          result.put("id", "groundoverlay_" + id);
+          resultJSON.put("hashCode", groundOverlay.hashCode());
+          resultJSON.put("id", "groundoverlay_" + idBase);
         } catch (Exception e) {
           e.printStackTrace();
         }
-        callbackContext.success(result);
+        callbackContext.success(resultJSON);
       }
 
       @Override
@@ -229,21 +237,42 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    * @throws JSONException
    */
   public void setImage(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
-    String url = args.getString(1);
+    final String id = args.getString(0);
+    final String url = args.getString(1);
+    final String idBase = id.replace("groundoverlay_", "");
 
-    String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
-    JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
+    String propertyId = "groundoverlay_initOpts_" + idBase;
+    final JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
     opts.put("url", url);
     pluginMap.objects.put(propertyId, opts);
 
-    _createGroundOverlay(opts, new CallbackContext("dummyId" + callbackContext.hashCode(), webView) {
+    setImage_(url, new PluginAsyncInterface() {
+      @Override
+      public void onPostExecute(Object object) {
+        if (object == null) {
+          callbackContext.error("[error]groundoverlay.setImage(" + url + ")");
+          return;
+        }
+        AsyncLoadImage.AsyncLoadImageResult result = (AsyncLoadImage.AsyncLoadImageResult) object;
+        GroundOverlay groundOverlay = getGroundOverlay(id);
+        if (groundOverlay != null) {
+          Bitmap currentBmp = overlayImage.remove(groundOverlay.getId());
+          if (currentBmp != null) {
+            currentBmp.recycle();
+          }
+        }
+        if (result.image != null) {
+          overlayImage.put(groundOverlay.getId(), result.image);
+          groundOverlay.setImage(BitmapDescriptorFactory.fromBitmap(result.image));
+          callbackContext.success();
+        } else {
+          callbackContext.error("[error]groundoverlay.setImage(" + url + ")");
+        }
+      }
 
       @Override
-      public void sendPluginResult(PluginResult pluginResult) {
-        groundOverlay.remove();
-        callbackContext.sendPluginResult(pluginResult);
+      public void onError(String errorMsg) {
+
       }
     });
   }
@@ -381,7 +410,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   }
 
 
-  private void setImage_(final GroundOverlayOptions options, final String imgUrl, final PluginAsyncInterface callback) {
+  private void setImage_(final String imgUrl, final PluginAsyncInterface callback) {
     if (imgUrl == null) {
       callback.onPostExecute(null);
       return;
@@ -404,16 +433,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
           return;
         }
 
-        GroundOverlay groundOverlay = null;
-        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
-        options.image(bitmapDescriptor);
-        groundOverlay = self.map.addGroundOverlay(options);
-        overlayImage.put(groundOverlay.getId(), result.image);
-
-        callback.onPostExecute(groundOverlay);
-        result.image.recycle();
-        result.image = null;
-
+        callback.onPostExecute(result);
 
         imageLoadingTasks.remove(taskId).cancel(true);
       }

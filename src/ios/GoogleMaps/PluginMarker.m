@@ -1025,6 +1025,7 @@
         currentURL = [currentURL stringByDeletingLastPathComponent];
         currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
         currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+        currentURL = [currentURL stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
         iconPath = [NSString stringWithFormat:@"file://%@/%@", currentURL, iconPath];
       } else {
         iconPath = [NSString stringWithFormat:@"file://%@", iconPath];

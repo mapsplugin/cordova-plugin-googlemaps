@@ -105,14 +105,6 @@ var HTMLInfoWindow = function() {
     eraseBorder.classList.add('pgm-html-info-tail-erase-border');
     tailFrame.appendChild(eraseBorder);
 
-    var redBox = document.createElement("div");
-    redBox.style.position = "absolute";
-    redBox.style.zIndex = 6;
-    redBox.style.border = "1px solid red";
-    redBox.style.width = "21px";
-    redBox.style.height = "34px";
-
-
 
     var calculate = function() {
 
@@ -145,7 +137,6 @@ var HTMLInfoWindow = function() {
       // Insert the contents to this HTMLInfoWindow
       if (!frame.parentNode) {
           div.appendChild(frame);
-          div.appendChild(redBox);
       }
 
       // Adjust the HTMLInfoWindow size

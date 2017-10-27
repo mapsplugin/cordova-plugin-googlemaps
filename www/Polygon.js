@@ -128,12 +128,15 @@ utils.extend(Polygon, BaseClass);
 
 Polygon.prototype.remove = function() {
     var self = self;
-    self.trigger(this.id + "_remove");
-    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
+    if (self._isRemoved) {
+      return;
+    }
     Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
     });
+    self.trigger(this.id + "_remove");
+    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
     self.destroy();
 };
 Polygon.prototype.getPluginName = function() {

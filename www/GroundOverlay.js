@@ -146,12 +146,16 @@ GroundOverlay.prototype.getClickable = function() {
 };
 
 GroundOverlay.prototype.remove = function() {
-    self.trigger(self.id + "_remove");
-    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
+    var self = this;
+    if (self._isRemoved) {
+      return;
+    }
     Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
     });
+    self.trigger(self.id + "_remove");
+    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
     self.destroy();
 };
 
