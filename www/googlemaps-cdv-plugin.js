@@ -245,7 +245,7 @@ if (!cordova) {
               prevDomPositions[elemId].zIndex === zIndex) {
               depth = cacheDepth[elemId];
           } else {
-              depth = common.getDomDepth(element, domIdx, parentZIndex, parentDepth, floorLevel);
+              depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
               cacheDepth[elemId] = depth;
           }
 
