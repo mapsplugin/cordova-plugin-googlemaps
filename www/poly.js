@@ -9,10 +9,12 @@ function containsLocation(latLng, path) {
   if (path instanceof BaseArrayClass) {
     path = path.getArray();
   }
-  var first = path[0],
-    last = path[path.length - 1];
+  var points = JSON.parse(JSON.stringify(path));
+
+  var first = points[0],
+    last = points[points.length - 1];
   if (first.lat !== last.lat || first.lng !== last.lng) {
-    path.push({
+    points.push({
       lat: first.lat,
       lng: first.lng
     });
@@ -23,7 +25,7 @@ function containsLocation(latLng, path) {
   };
 
   var wn = 0,
-    bounds = new LatLngBounds(path),
+    bounds = new LatLngBounds(points),
     sw = bounds.southwest,
     ne = bounds.northeast,
     offsetLng360 = sw.lng <= 0 && ne.lng >= 0 && sw.lng < ne.lng ? 360 : 0;
@@ -31,16 +33,16 @@ function containsLocation(latLng, path) {
   sw.lng += offsetLng360;
   point.lng += offsetLng360;
 
-  path = path.map(function(vertex) {
+  points = points.map(function(vertex) {
     vertex.lng += +offsetLng360;
     return vertex;
   });
 
   var vt, a, b;
 
-  for (var i = 0; i < path.length - 1; i++) {
-    a = path[i];
-    b = path[i + 1];
+  for (var i = 0; i < points.length - 1; i++) {
+    a = points[i];
+    b = points[i + 1];
 
     if ((a.lat <= point.lat) && (b.lat > point.lat)) {
       vt = (point.lat - a.lat) / (b.lat - a.lat);
@@ -71,22 +73,23 @@ function isLocationOnEdge(latLng, path) {
   if (path instanceof BaseArrayClass) {
     path = path.getArray();
   }
+  var points = JSON.parse(JSON.stringify(path));
 
-  var bounds = new LatLngBounds(path),
+  var bounds = new LatLngBounds(points),
     sw = bounds.southwest,
     ne = bounds.northeast,
     offsetLng360 = sw.lng <= 0 && ne.lng >= 0 && sw.lng < ne.lng ? 360 : 0;
 
   point.lng += offsetLng360;
 
-  path = path.map(function(vertex) {
-    vertex.lng += +offsetLng360;
+  points = points.map(function(vertex) {
+    vertex.lng += offsetLng360;
     return vertex;
   });
 
-  p0 = path[0];
-  for (var i = 1; i < path.length; i++) {
-    p1 = path[i];
+  p0 = points[0];
+  for (var i = 1; i < points.length; i++) {
+    p1 = points[i];
     Sx = (point.lng - p0.lng) / (p1.lng - p0.lng);
     Sy = (point.lat - p0.lat) / (p1.lat - p0.lat);
     if (Math.abs(Sx - Sy) < 0.05 && Sx < 1 && Sx > 0) {
