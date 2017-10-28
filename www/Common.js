@@ -307,23 +307,12 @@ function getZIndex(dom) {
 
     return z;
 }
-
-function getDomDepth(dom, idx, parentZIndex, parentDepth, floorLevel) {
+function getDomDepth(dom, idx, parentDepth, floorLevel) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
-    var orgDom = dom;
-    var zIndex = parentZIndex + getZIndex(dom);
-/*
-    var depth = 0;
-    while (dom.parentNode !== null && dom.parentNode != document) {
-        dom = dom.parentNode;
-        depth++;
-    }
-*/
-    //var result = ((zIndex + 1) << (depth + 1)) + idx;
-    var result = (parentDepth + ((zIndex + 1) / (floorLevel + 1)) + idx) - 0.01 ;
-    //orgDom.setAttribute("_depth", result); // for debugging
+    var result = parentDepth +  (getZIndex(dom) + 1 + idx) / (1 << floorLevel);
+    //dom.setAttribute("_depth", result); // for debugging
     return result;
 }
 
