@@ -284,10 +284,11 @@ HTMLInfoWindow.prototype.close = function() {
     marker.off(event.INFO_CLOSE, self.close);  //This event listener is assigned in the open method. So detach it.
     map.set("active_marker_id", null);
 
-    var div = map.getDiv();
+    //var div = map.getDiv();
     var frame = self.get("frame");
-    div.removeChild(frame);
-
+    if (frame) {
+      frame.parentNode.removeChild(frame);
+    }
     // Remove the contents from this HTMLInfoWindow
     var contentFrame = frame.firstChild;
     var contentBox = contentFrame.firstChild;
