@@ -959,7 +959,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
         if (typeof callback === "function") {
             callback.call(self, polyline);
         }
-    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions], {sync: true});
+    }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions]);
 };
 
 //-------------
