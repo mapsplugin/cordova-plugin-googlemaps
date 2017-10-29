@@ -1,6 +1,5 @@
 package plugin.google.maps;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -21,14 +20,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 
 public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
-
-  private int workingCnt = 0;
 
   private enum KML_TAG {
     style,
@@ -47,6 +41,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     link,
     groundoverlay,
     latlonbox,
+    folder,
+    document,
 
     key,
     styleurl,
@@ -61,13 +57,14 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     south,
     east,
     west,
+    visibility,
+    open,
+    address,
+    data,
+    displayName,
+    value,
 
     coordinates
-  };
-
-  @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    super.initialize(cordova, webView);
   }
 
   /**
@@ -85,8 +82,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       callbackContext.error("No kml file is specified");
       return;
     }
-
-    //final Bundle params = PluginUtil.Json2Bundle(opts);
 
     String urlStr = null;
 
@@ -122,8 +117,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     callbackContext.success(PluginUtil.Bundle2Json(result));
   }
 
-  public Bundle loadKml(String urlStr) {
-
+  private Bundle loadKml(String urlStr) {
 
     InputStream inputStream = getKmlContents(urlStr);
     if (inputStream == null) {
@@ -144,27 +138,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     }
   }
 
-  private String getUrlFromNetwokLinkTag(Bundle node) {
-    String tagName;
-    ArrayList<Bundle> bundleList;
-    Iterator<Bundle> bundleIterator;
-    bundleList = node.getParcelableArrayList("children");
-    bundleIterator = bundleList.iterator();
-    while(bundleIterator.hasNext()) {
-      final Bundle childNode = bundleIterator.next();
-      tagName = childNode.getString("tagName");
-      if ("link".equals(tagName)) {
-        return childNode.getString("href");
-      }
-    }
-
-    return null;
-  }
-
 
   private InputStream getKmlContents(String urlStr) {
 
-    InputStream inputStream = null;
+    InputStream inputStream;
     try {
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
         Log.d("PluginKmlOverlay", "---> url = " + urlStr);
@@ -255,11 +232,11 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
   }
 
+
+
   private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
   {
-    ArrayList<Bundle> placeMarks = new ArrayList<Bundle>();
     int eventType = parser.getEventType();
-    Bundle currentNode = null;
     Bundle result = new Bundle();
     ArrayList<Bundle> nodeStack = new ArrayList<Bundle>();
     Bundle styles = new Bundle();
@@ -270,6 +247,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     String tagName;
     String tmp;
     int nodeIndex;
+
+    Bundle currentNode = new Bundle();
+    result.putBundle("root", currentNode);
+
     while (eventType != XmlPullParser.END_DOCUMENT){
       kmlTag = null;
       switch (eventType){
@@ -318,6 +299,9 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case networklink:
             case placemark:
             case groundoverlay:
+              //push
+              nodeStack.add(currentNode);
+
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
               pairList = null;
@@ -332,6 +316,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case innerboundaryis:
             case polygon:
             case icon:
+            case folder:
+            case document:
             case latlonbox:
               if (currentNode != null) {
                 //push
@@ -341,6 +327,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                 currentNode.putString("tagName", tagName);
               }
               break;
+            case visibility:
             case north:
             case east:
             case west:
@@ -428,12 +415,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                   pairList = null;
                 }
                 break;
-              case networklink:
-              case placemark:
-              case groundoverlay:
-                placeMarks.add(currentNode);
-                currentNode = null;
-                break;
               case pair:
               case linestyle:
               case polystyle:
@@ -447,6 +428,11 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                   currentNode = parentNode;
                 }
                 break;
+              case networklink:
+              case placemark:
+              case groundoverlay:
+              case document:
+              case folder:
               case latlonbox:
               case icon:
               case point:
@@ -482,7 +468,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       }
       eventType = parser.next();
     }
-    result.putParcelableArrayList("placeMarks", placeMarks);
+    //result.putParcelableArrayList("placeMarks", placeMarks);
+
     result.putBundle("styles", styles);
     return result;
   }

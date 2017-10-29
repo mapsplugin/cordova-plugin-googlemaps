@@ -106,7 +106,7 @@ TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
 };
 
-TileOverlay.prototype.remove = function() {
+TileOverlay.prototype.remove = function(callback) {
     var self = this;
     if (self._isRemoved) {
       return;
@@ -116,8 +116,12 @@ TileOverlay.prototype.remove = function() {
         writable: false
     });
     self.trigger(self.id + "_remove");
-    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
-    self.destroy();
+    exec.call(self, function() {
+        self.destroy();
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
 };
 
 module.exports = TileOverlay;

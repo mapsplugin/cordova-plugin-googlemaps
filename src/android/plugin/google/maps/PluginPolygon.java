@@ -1,5 +1,7 @@
 package plugin.google.maps;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
@@ -188,8 +190,8 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     @SuppressWarnings("unused")
     public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
-        int width = (int)(args.getDouble(1) * density);
-        this.setInt("setStrokeWidth", id, width, callbackContext);
+        float width = (float)(args.getDouble(1) * density);
+        this.setFloat("setStrokeWidth", id, width, callbackContext);
     }
 
     /**

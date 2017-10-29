@@ -773,18 +773,24 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
 // KML Layer
 //-------------
 Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
-    var self = this;
-    kmlOverlayOptions = kmlOverlayOptions || {};
-    kmlOverlayOptions.url = kmlOverlayOptions.url || null;
+  var self = this;
+  kmlOverlayOptions = kmlOverlayOptions || {};
+  kmlOverlayOptions.url = kmlOverlayOptions.url || null;
 
-    loadKmlFile(self, kmlOverlayOptions, callback);
+  loadKmlFile(self, kmlOverlayOptions, function(viewport, placeMarkOverlays) {
+    var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
+    var kmlOverlay = new KmlOverlay(self, kmlId, viewport, placeMarkOverlays);
+    self.OVERLAYS[kmlId] = kmlOverlay;
+    callback(kmlOverlay);
+  });
 };
 
 function loadKmlFile(self, options, callback) {
   var viewport = new LatLngBounds();
   exec.call(self, function(kmlData) {
-    console.log(kmlData);
-    var placeMarks = new BaseArrayClass(kmlData.placeMarks);
+    // console.log(kmlData); // for debug
+//return;
+    var placeMarks = new BaseArrayClass(kmlData.root.children);
     placeMarks.map(function(placeMark, cb) {
       kmlTagProcess(self, {
         kmlUrl: options.url,
@@ -793,7 +799,6 @@ function loadKmlFile(self, options, callback) {
         kmlStyles: kmlData.styles
       }, cb);
     }, function(placeMarkOverlays) {
-      console.log('final', options.url, placeMarkOverlays);
       callback.call(self, viewport, placeMarkOverlays);
     });
 
@@ -802,9 +807,11 @@ function loadKmlFile(self, options, callback) {
 }
 
 function kmlTagProcess(self, params, callback) {
-  console.log(params);
   switch (params.child.tagName) {
+    case "folder":
     case "placemark":
+    case "document":
+    case "multigeometry":
       placeMarkLoader(self, {
         kmlUrl: params.kmlUrl,
         placeMark: params.child,
@@ -858,7 +865,7 @@ function kmlTagProcess(self, params, callback) {
       }, callback);
       break;
     default:
-console.log(params.child.tagName, params.child);
+      console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
       callback(child);
   }
 }
@@ -874,7 +881,7 @@ function placeMarkLoader(self, params, callback) {
       viewport: params.viewport
     }, cb);
   }, function(overlays) {
-    params.placeMark.overlay = overlays;
+    params.placeMark.children = overlays;
     callback(params.placeMark);
   });
 }
@@ -899,7 +906,6 @@ function networklinkPlacemark(self, params, callback) {
     link.href = a.protocol + "//" + a.host + ":" + a.port + a.pathname.replace(/\/[^\/]+$/, "") + "/" + link.href;
     a = null;
   }
-  console.log('linkPlacemark', link.href);
   loadKmlFile(self, {
     url: link.href
   }, function(viewport, placeMarkOverlays) {
@@ -1496,76 +1502,6 @@ Map.prototype._onOverlayEvent = function(eventName, overlayId) {
         overlay.trigger.apply(overlay, args);
     }
 };
-
-/*
-Map.prototype._onKmlEvent = function(eventName, objectType, kmlLayerId, result, options) {
-    var self = this;
-    var kmlLayer = self.KML_LAYERS[kmlLayerId] || null;
-    if (!kmlLayer) {
-        return;
-    }
-    var args = [eventName];
-    if (eventName === "add") {
-        var overlay = null;
-
-        switch ((objectType + "").toLowerCase()) {
-            case "marker":
-                overlay = new Marker(self, result.id, options);
-                self.MARKERS[result.id] = overlay;
-                args.push({
-                    "type": "Marker",
-                    "object": overlay
-                });
-                overlay.on(event.MARKER_CLICK, function() {
-                    kmlLayer.trigger(event.OVERLAY_CLICK, overlay, overlay.getPosition());
-                });
-                break;
-
-            case "polygon":
-                overlay = new Polygon(self, result.id, options);
-                args.push({
-                    "type": "Polygon",
-                    "object": overlay
-                });
-
-                overlay.on(event.OVERLAY_CLICK, function(latLng) {
-                    kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
-                });
-                break;
-
-            case "polyline":
-                overlay = new Polyline(self, result.id, options);
-                args.push({
-                    "type": "Polyline",
-                    "object": overlay
-                });
-                overlay.on(event.OVERLAY_CLICK, function(latLng) {
-                    kmlLayer.trigger(event.OVERLAY_CLICK, overlay, latLng);
-                });
-                break;
-        }
-        if (overlay) {
-            self.OVERLAYS[result.id] = overlay;
-            overlay.hashCode = result.hashCode;
-            kmlLayer._overlays.push(overlay);
-            kmlLayer.on("_REMOVE", function() {
-                var idx = kmlLayer._overlays.indexOf(overlay);
-                if (idx > -1) {
-                    kmlLayer._overlays.splice(idx, 1);
-                }
-                overlay.remove();
-                overlay.off();
-            });
-        }
-    } else {
-        for (var i = 2; i < arguments.length; i++) {
-            args.push(arguments[i]);
-        }
-    }
-    //kmlLayer.trigger.apply(kmlLayer, args);
-};
-*/
-
 
 Map.prototype.getCameraTarget = function() {
     return this.get("camera_target");

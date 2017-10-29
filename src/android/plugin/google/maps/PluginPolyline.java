@@ -216,8 +216,8 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    */
   public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    int width = (int)(args.getDouble(1) * density);
-    this.setInt("setWidth", id, width, callbackContext);
+    float width = (float)(args.getDouble(1) * density);
+    this.setFloat("setWidth", id, width, callbackContext);
   }
 
   /**

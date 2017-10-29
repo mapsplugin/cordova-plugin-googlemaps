@@ -145,7 +145,7 @@ GroundOverlay.prototype.getClickable = function() {
     return this.get('clickable');
 };
 
-GroundOverlay.prototype.remove = function() {
+GroundOverlay.prototype.remove = function(callback) {
     var self = this;
     if (self._isRemoved) {
       return;
@@ -155,8 +155,12 @@ GroundOverlay.prototype.remove = function() {
         writable: false
     });
     self.trigger(self.id + "_remove");
-    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
-    self.destroy();
+    exec.call(self, function() {
+        self.destroy();
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
 };
 
 
