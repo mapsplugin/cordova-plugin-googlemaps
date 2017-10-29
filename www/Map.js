@@ -777,89 +777,348 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     kmlOverlayOptions = kmlOverlayOptions || {};
     kmlOverlayOptions.url = kmlOverlayOptions.url || null;
 
-    var kmlId = "kml" + (Math.random() * 9999999).toFixed(0);
-    kmlOverlayOptions.kmlId = kmlId;
-    var viewport = [];
-
-    function loadKmlFile(options) {
-      exec.call(self, function(kmlData) {
-console.log(kmlData);
-
-        if ("placeMarks" in kmlData) {
-          var placeMarks = new BaseArrayClass(kmlData.placeMarks);
-          placeMarks.map(function(placeMark, cb1) {
-            console.log(placeMark, placeMark.children.length);
-            if ("children" in placeMark) {
-              if (placeMark.children.length === 1) {
-                placeMark.position = placeMark.children[0].coordinates[0];
-                viewport.push(placeMark.position);
-                placeMark.title = placeMark.name;
-                console.log("--->790", placeMark);
-                self.addMarker(placeMark, function(marker) {
-                  placeMark.childOverlays = [marker];
-                  console.log(marker);
-                  cb1(placeMark);
-                });
-              } else if (placeMark.children.length > 1) {
-                var children = new BaseArrayClass(placeMark.children);
-                children.map(function(child, cb2) {
-                  console.log(child.tagName);
-                  switch(child.tagName) {
-                    case "linestring":
-                      child.points = child.coordinates;
-                      delete child.coordinates;
-                      viewport = Array.prototype.concat(viewport, child.points);
-                      self.addPolyline(child, cb2);
-                      break;
-                  }
-                }, function(overlays) {
-                  placeMark.childOverlays = overlays;
-                  cb1(placeMark);
-                });
-              }
-            } else {
-              cb1(null);
-            }
-          }, function(placeMarkOverlays) {
-            //kmlData.placeMarks = placeMarkOverlays;
-    console.log(placeMarkOverlays);
-            //var kmlOverlay = new KmlOverlay(self, kmlData);
-      //console.log(kmlOverlay);
-            if (typeof callback === "function") {
-              self.moveCamera({
-                target: viewport
-              }, function() {
-                //callback.call(self, kmlId, kmlOverlay, exec);
-              });
-            }
-          });
-        }
-
-
-      }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions], {sync: true});
-    }
-    loadKmlFile(kmlOverlayOptions);
-/*
-    exec.call(this, function(kmlData) {
-
-
-        var kmlOverlay = new KmlOverlay(self, kmlId, kmlData, exec);
-        self.OVERLAYS[kmlId] = kmlOverlay;
-        self.KML_LAYERS[kmlId] = kmlOverlay;
-
-        kmlOverlay.one(kmlId + "_remove", function() {
-            kmlOverlay.off();
-            delete self.KML_LAYERS[kmlId];
-            delete self.OVERLAYS[kmlId];
-            kmlOverlay = undefined;
-        });
-        if (typeof callback === "function") {
-            callback.call(self, kmlOverlay);
-        }
-    }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', kmlOverlayOptions], {sync: true});
-
-*/
+    loadKmlFile(self, kmlOverlayOptions, callback);
 };
+
+function loadKmlFile(self, options, callback) {
+  var viewport = new LatLngBounds();
+  exec.call(self, function(kmlData) {
+    console.log(kmlData);
+    var placeMarks = new BaseArrayClass(kmlData.placeMarks);
+    placeMarks.map(function(placeMark, cb) {
+      kmlTagProcess(self, {
+        kmlUrl: options.url,
+        child: placeMark,
+        viewport: viewport,
+        kmlStyles: kmlData.styles
+      }, cb);
+    }, function(placeMarkOverlays) {
+      console.log('final', options.url, placeMarkOverlays);
+      callback.call(self, viewport, placeMarkOverlays);
+    });
+
+
+  }, self.errorHandler, self.id, 'loadPlugin', ['KmlOverlay', options], {sync: true});
+}
+
+function kmlTagProcess(self, params, callback) {
+  console.log(params);
+  switch (params.child.tagName) {
+    case "placemark":
+      placeMarkLoader(self, {
+        kmlUrl: params.kmlUrl,
+        placeMark: params.child,
+        viewport: params.viewport,
+        kmlStyles: params.kmlStyles
+      }, callback);
+      break;
+    case "point":
+      markerPlacemark(self, {
+        kmlUrl: params.kmlUrl,
+        child: params.child,
+        placeMark: params.placeMark,
+        kmlStyles: params.kmlStyles,
+        viewport: params.viewport
+      }, callback);
+      break;
+    case "polygon":
+      polygonPlacemark(self, {
+        kmlUrl: params.kmlUrl,
+        child: params.child,
+        placeMark: params.placeMark,
+        kmlStyles: params.kmlStyles,
+        viewport: params.viewport
+      }, callback);
+      break;
+    case "linestring":
+      polylinePlacemark(self, {
+        kmlUrl: params.kmlUrl,
+        child: params.child,
+        placeMark: params.placeMark,
+        kmlStyles: params.kmlStyles,
+        viewport: params.viewport
+      }, callback);
+      break;
+    case "groundoverlay":
+      groundoverlayPlacemark(self, {
+        kmlUrl: params.kmlUrl,
+        child: params.child,
+        placeMark: params.placeMark,
+        kmlStyles: params.kmlStyles,
+        viewport: params.viewport
+      }, callback);
+      break;
+    case "networklink":
+      networklinkPlacemark(self, {
+        kmlUrl: params.kmlUrl,
+        child: params.child,
+        placeMark: params.placeMark,
+        kmlStyles: params.kmlStyles,
+        viewport: params.viewport
+      }, callback);
+      break;
+    default:
+console.log(params.child.tagName, params.child);
+      callback(child);
+  }
+}
+
+function placeMarkLoader(self, params, callback) {
+  var children = new BaseArrayClass(params.placeMark.children);
+  children.map(function(child, cb) {
+    kmlTagProcess(self, {
+      child: child,
+      kmlUrl: params.kmlUrl,
+      placeMark: params.placeMark,
+      kmlStyles: params.kmlStyles,
+      viewport: params.viewport
+    }, cb);
+  }, function(overlays) {
+    params.placeMark.overlay = overlays;
+    callback(params.placeMark);
+  });
+}
+
+function networklinkPlacemark(self, params, callback) {
+  var link = null;
+  if (params.child.children) {
+    for (var i = 0; i < params.child.children.length; i++) {
+      if (params.child.children[i].tagName === "link") {
+        link = params.child.children[i];
+        break;
+      }
+    }
+  }
+  if (!link) {
+    return callback(child);
+  }
+
+  if (link.href.indexOf("://") === -1 && link.href.substr(0, 1) !== "/") {
+    var a = document.createElement("a");
+    a.href = params.kmlUrl;
+    link.href = a.protocol + "//" + a.host + ":" + a.port + a.pathname.replace(/\/[^\/]+$/, "") + "/" + link.href;
+    a = null;
+  }
+  console.log('linkPlacemark', link.href);
+  loadKmlFile(self, {
+    url: link.href
+  }, function(viewport, placeMarkOverlays) {
+    params.viewport.extend(viewport.southwest);
+    params.viewport.extend(viewport.northeast);
+    callback(placeMarkOverlays);
+  });
+}
+function markerPlacemark(self, params, callback) {
+  //--------------
+  // add a marker
+  //--------------
+  params.child.position = params.child.coordinates[0];
+  delete params.child.coordinates;
+  params.viewport.extend(params.child.position);
+
+  params.child.title = params.placeMark.name;
+  params.child.snippet = params.placeMark.description;
+
+  getStyleById(self, params, function(styles) {
+    styles.children.forEach(function(style) {
+      switch (style.tagName) {
+        case "icon":
+          params.child.icon = style.href;
+          break;
+      }
+    });
+
+    self.addMarker(params.child, callback);
+  });
+}
+function groundoverlayPlacemark(self, params, callback) {
+  //--------------
+  // add a polyline
+  //--------------
+  params.child.url = null;
+  params.child.bounds = [];
+
+  params.child.children.forEach(function(child) {
+    switch (child.tagName) {
+      case "icon":
+        params.child.url = child.href;
+        console.log(params.child.url, params);
+        if (params.child.url && params.child.url.indexOf("://") === -1) {
+          var requestUrl = params.kmlUrl.replace(/\?.*$/, "");
+          requestUrl = requestUrl.replace(/\#.*$/, "");
+          requestUrl = requestUrl.replace(/[^\/]*$/, "");
+          params.child.url = requestUrl + params.child.url;
+        }
+        break;
+      case "latlonbox":
+        if ("rotation" in child) {
+          params.child.bearing = parseFloat(child.rotation);
+        }
+        var ne = {lat: parseFloat(child.north), lng: parseFloat(child.east)};
+        var sw = {lat: parseFloat(child.south), lng: parseFloat(child.west)};
+        params.child.bounds.push(ne);
+        params.child.bounds.push(sw);
+        params.viewport.extend(ne);
+        params.viewport.extend(sw);
+        break;
+      default:
+    }
+  });
+  //delete params.child.children;
+
+  self.addGroundOverlay(params.child, callback);
+}
+function polylinePlacemark(self, params, callback) {
+  //--------------
+  // add a polyline
+  //--------------
+
+  params.child.coordinates.forEach(function(latLng) {
+    params.viewport.extend(latLng);
+  });
+  params.child.points = params.child.coordinates;
+  delete params.child.children;
+
+  getStyleById(self, params, function(styles) {
+    styles.children.forEach(function(style) {
+      switch (style.tagName) {
+        case "linestyle":
+          params.child.color = kmlColorToRGBA(style.color);
+          params.child.width = parseInt(style.width);
+          break;
+      }
+    });
+    self.addPolyline(params.child, callback);
+  });
+
+}
+function polygonPlacemark(self, params, callback) {
+  //--------------
+  // add a polygon
+  //--------------
+  params.child.holes = [];
+  params.child.children.forEach(function(grandChild) {
+    if (grandChild.tagName === "outerboundaryis") {
+      grandChild.coordinates.forEach(function(latLng) {
+        params.viewport.extend(latLng);
+      });
+      params.child.points = grandChild.coordinates;
+    }
+    if (grandChild.tagName === "innerboundaryis") {
+      params.child.holes.push(grandChild.coordinates);
+    }
+  });
+  delete params.child.children;
+
+  getStyleById(self, params, function(styles) {
+    styles.children.forEach(function(style) {
+      switch (style.tagName) {
+        case "linestyle":
+          params.child.strokeColor = kmlColorToRGBA(style.color);
+          params.child.strokeWidth = parseInt(style.width);
+          break;
+        case "polystyle":
+          params.child.fillColor = kmlColorToRGBA(style.color);
+          break;
+        default:
+      }
+    });
+    self.addPolygon(params.child, callback);
+  });
+
+}
+
+function getStyleById(self, params, callback) {
+
+  if (!params.placeMark.styleurl) {
+    return callback({children: []});
+  }
+  if (params.placeMark.styleurl.indexOf("http://") === 0 ||
+    params.placeMark.styleurl.indexOf("https://") === 0 ||
+    params.placeMark.styleurl.indexOf(".kml") !== -1) {
+
+    if (params.placeMark.styleurl.indexOf("://") === -1) {
+      params.placeMark.styleurl = params.kmlUrl.replace(/\/[^\/]+$/, "/") + params.placeMark.styleurl;
+    }
+    //---------------------------
+    // Load additional kml file
+    //---------------------------
+    var requestUrl = params.placeMark.styleurl.replace(/\#.*$/, ""),
+      styleId = params.placeMark.styleurl.replace(/^.*?\#/, "#");
+
+    if (requestUrl in params.kmlStyles) {
+      var styles = params.kmlStyles[requestUrl] || {};
+      styles = styles[styleId];
+      for (var i = 0; i < styles.children.length; i++) {
+        style = styles.children[i];
+        if (style.tagName === "pair" && style.key === "normal") {
+          return getStyleById(self, {
+            kmlStyles: params.kmlStyles,
+            placeMark: {
+              styleurl: style.styleurl
+            },
+            kmlUrl: params.kmlUrl
+          }, callback);
+        }
+      }
+      return callback(styles);
+    }
+
+    exec.call(self, function(kmlData) {
+      params.kmlStyles[requestUrl] = kmlData.styles;
+
+      var styles = kmlData.styles[styleId];
+      for (var i = 0; i < styles.children.length; i++) {
+        style = styles.children[i];
+        if (style.tagName === "pair" && style.key === "normal") {
+          return getStyleById(self, {
+            kmlStyles: params.kmlStyles,
+            placeMark: {
+              styleurl: style.styleurl
+            },
+            kmlUrl: params.kmlUrl
+          }, callback);
+        }
+      }
+      callback(styles);
+    }, function() {
+      callback({children: []});
+    }, self.id, 'loadPlugin', ['KmlOverlay', {
+      url: params.placeMark.styleurl
+    }]);
+    return;
+  }
+
+  if (params.placeMark.styleurl in params.kmlStyles === false) {
+    return {children: []};
+  }
+  var styles = params.kmlStyles[params.placeMark.styleurl];
+  var style;
+
+  for (var i = 0; i < styles.children.length; i++) {
+    style = styles.children[i];
+    if (style.tagName === "pair" && style.key === "normal") {
+      return getStyleById(self, {
+        kmlStyles: params.kmlStyles,
+        placeMark: {
+          styleurl: style.styleurl
+        },
+        kmlUrl: params.kmlUrl
+      }, callback);
+    }
+  }
+  callback(styles);
+}
+
+function kmlColorToRGBA(colorStr) {
+  var rgba = [];
+  colorStr = colorStr.replace("#", "");
+  for (var i = 2; i < 8; i += 2) {
+    rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
+  }
+  rgba.push(parseInt(colorStr.substring(0, 2), 16));
+  return rgba;
+}
 
 //-------------
 // Ground overlay

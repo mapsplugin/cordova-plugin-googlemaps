@@ -37,6 +37,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     polystyle,
     linestring,
     outerboundaryis,
+    innerboundaryis,
     placemark,
     point,
     polygon,
@@ -44,6 +45,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     multigeometry,
     networklink,
     link,
+    groundoverlay,
+    latlonbox,
 
     key,
     styleurl,
@@ -54,6 +57,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     description,
     icon,
     href,
+    north,
+    south,
+    east,
+    west,
 
     coordinates
   };
@@ -79,7 +86,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       return;
     }
 
-    final Bundle params = PluginUtil.Json2Bundle(opts);
+    //final Bundle params = PluginUtil.Json2Bundle(opts);
 
     String urlStr = null;
 
@@ -160,7 +167,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     InputStream inputStream = null;
     try {
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-        Log.d("AsyncKmlParser", "---> url = " + urlStr);
+        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         URL url = new URL(urlStr);
         boolean redirect = true;
         HttpURLConnection http = null;
@@ -215,7 +222,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        Log.d("AsyncKmlParser", "---> url = " + urlStr);
+        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         inputStream = new FileInputStream(urlStr);
       } else {
         if (urlStr.indexOf("file:///android_asset/") == 0) {
@@ -235,7 +242,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        Log.d("AsyncKmlParser", "---> url = " + urlStr);
+        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         inputStream = cordova.getActivity().getResources().getAssets().open(urlStr);
       }
 
@@ -310,6 +317,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               break;
             case networklink:
             case placemark:
+            case groundoverlay:
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
               pairList = null;
@@ -321,8 +329,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case point:
             case linestring:
             case outerboundaryis:
+            case innerboundaryis:
             case polygon:
             case icon:
+            case latlonbox:
               if (currentNode != null) {
                 //push
                 nodeStack.add(currentNode);
@@ -331,6 +341,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                 currentNode.putString("tagName", tagName);
               }
               break;
+            case north:
+            case east:
+            case west:
+            case south:
             case href:
             case key:
             case styleurl:
@@ -416,6 +430,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                 break;
               case networklink:
               case placemark:
+              case groundoverlay:
                 placeMarks.add(currentNode);
                 currentNode = null;
                 break;
@@ -432,9 +447,11 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                   currentNode = parentNode;
                 }
                 break;
+              case latlonbox:
               case icon:
               case point:
               case outerboundaryis:
+              case innerboundaryis:
               case link:
               case linestring:
               case coordinates:
