@@ -369,7 +369,7 @@ HTMLInfoWindow.prototype.close = function() {
     //var div = map.getDiv();
     var anchorDiv = self.get("anchor");
     if (anchorDiv && anchorDiv.parentNode) {
-      anchorDiv.parentNode.removeChild(anchor);
+      anchorDiv.parentNode.removeChild(anchorDiv);
 
       // Remove the contents from this HTMLInfoWindow
       var contentFrame = anchorDiv.firstChild.firstChild;
