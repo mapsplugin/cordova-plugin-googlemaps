@@ -142,7 +142,7 @@ Circle.prototype.setRadius = function(radius) {
     return this;
 };
 
-Circle.prototype.remove = function() {
+Circle.prototype.remove = function(callback) {
     var self = this;
     if (self._isRemoved) {
       return;
@@ -152,8 +152,12 @@ Circle.prototype.remove = function() {
         writable: false
     });
     self.trigger(self.id + "_remove");
-    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
-    self.destroy();
+    exec.call(self, function() {
+        self.destroy();
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
 };
 
 Circle.prototype.getBounds = function() {

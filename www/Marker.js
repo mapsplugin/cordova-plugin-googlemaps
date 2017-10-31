@@ -123,7 +123,6 @@ Marker.prototype.remove = function(callback) {
         }
     }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
 
-    self.destroy();
 };
 
 Marker.prototype.getOptions = function() {

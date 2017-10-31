@@ -174,12 +174,16 @@ Polyline.prototype.remove = function() {
         value: true,
         writable: false
     });
-    exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
+    exec.call(self, function() {
+        self.destroy();
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
     self.trigger(self.id + "_remove");
     var points = self.get("points");
     if (points) {
       points.clear();
     }
-    self.destroy();
 };
 module.exports = Polyline;
