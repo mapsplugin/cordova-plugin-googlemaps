@@ -127,7 +127,7 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
 utils.extend(Polygon, BaseClass);
 
 Polygon.prototype.remove = function() {
-    var self = self;
+    var self = this;
     if (self._isRemoved) {
       return;
     }

@@ -9,6 +9,7 @@ var utils = require('cordova/utils'),
 var HTMLInfoWindow = function() {
     var self = this;
     BaseClass.apply(self);
+    var zoomScale = parseFloat(window.devicePixelRatio);
 
 
     var frame = document.createElement("div");
@@ -17,6 +18,23 @@ var HTMLInfoWindow = function() {
     frame.style.display = "inline-block";
     frame.classList.add('pgm-html-info-frame');
     self.set("frame", frame);
+
+    var anchorDiv = document.createElement("div");
+    anchorDiv.setAttribute("class", "pgm-anchor");
+    anchorDiv.style.overflow="visible";
+    anchorDiv.style.position="absolute";
+    //anchorDiv.style.display = "inline-block";
+    anchorDiv.style.width = '1px';
+    anchorDiv.style.height = '1px';
+    //anchorDiv.style.border = "1px solid green";
+    anchorDiv.style.overflow = "visible";
+    anchorDiv.style.setProperty("will-change", "transform");
+    anchorDiv.style.setProperty("-webkit-will-change", "transform");
+    anchorDiv.style.setProperty("transition", "transform .075s ease");
+    anchorDiv.style.setProperty("-webkit-transition", "transform .075s ease");
+    anchorDiv.appendChild(frame);
+    self.set("anchor", anchorDiv);
+
 
     var contentBox = document.createElement("div");
     contentBox.style.display = "inline-block";
@@ -43,6 +61,7 @@ var HTMLInfoWindow = function() {
     frame.appendChild(tailFrame);
 
     var tailLeft = document.createElement("div");
+    /*
     tailLeft.style.position = "absolute";
     tailLeft.style.marginLeft = "-15px";
     tailLeft.style.left = "50%";
@@ -51,9 +70,20 @@ var HTMLInfoWindow = function() {
     tailLeft.style.width = "16px";
     tailLeft.style.overflow = "hidden";
     tailLeft.style.borderWidth = "0px";
+    */
     tailLeft.classList.add('pgm-html-info-tail-left');
+
+    tailLeft.style.position = "absolute";
+    tailLeft.style.left = "50%";
+    tailLeft.style.height = "0px";
+    tailLeft.style.width = "0px";
+    tailLeft.style.marginLeft = "-15px";
+    tailLeft.style.borderWidth = "15px 15px 0px";
+    tailLeft.style.borderColor = "rgb(204, 204, 204) transparent transparent";
+    tailLeft.style.borderStyle = "solid";
     tailFrame.appendChild(tailLeft);
 
+    /*
     var tailLeftCover = document.createElement("div");
     tailLeftCover.style.position = "absolute";
     tailLeftCover.style.backgroundColor = "white";
@@ -67,8 +97,11 @@ var HTMLInfoWindow = function() {
     tailLeftCover.style.borderLeft = "1px solid rgb(204, 204, 204)";
     tailLeft.classList.add('pgm-html-info-tail-left-cover');
     tailLeft.appendChild(tailLeftCover);
+    */
+
 
     var tailRight = document.createElement("div");
+    /*
     tailRight.style.position = "absolute";
     tailRight.style.left = "50%";
     tailRight.style.top = "0px";
@@ -76,9 +109,20 @@ var HTMLInfoWindow = function() {
     tailRight.style.width = "16px";
     tailRight.style.overflow = "hidden";
     tailRight.style.borderWidth = "0px";
+    */
+    tailRight.style.position = "absolute";
+    tailRight.style.left = "50%";
+    tailRight.style.height = "0px";
+    tailRight.style.width = "0px";
+    tailRight.style.marginLeft = "-14px";
+    tailRight.style.borderTopWidth = "14px";
+    tailRight.style.borderLeftWidth = "14px";
+    tailRight.style.borderRightWidth = "14px";
+    tailRight.style.borderColor = "rgb(255, 255, 255) transparent transparent";
+    tailRight.style.borderStyle = "solid";
     tailRight.classList.add('pgm-html-info-tail-right');
     tailFrame.appendChild(tailRight);
-
+/*
     var tailRightCover = document.createElement("div");
     tailRightCover.style.position = "absolute";
     tailRightCover.style.backgroundColor = "white";
@@ -92,7 +136,7 @@ var HTMLInfoWindow = function() {
     tailRightCover.style.borderRight = "1px solid rgb(204, 204, 204)";
     tailRightCover.classList.add('pgm-html-info-tail-right-cover');
     tailRight.appendChild(tailRightCover);
-
+*/
     var eraseBorder = document.createElement("div");
     eraseBorder.style.position = "absolute";
     eraseBorder.style.zIndex = 3;
@@ -119,6 +163,7 @@ var HTMLInfoWindow = function() {
       contentBox.style.minWidth = "100px";
       contentBox.style.minHeight = "50px";
 
+
       var content = self.get("content");
       if (typeof content === "string") {
           contentBox.style.whiteSpace="pre-wrap";
@@ -134,9 +179,16 @@ var HTMLInfoWindow = function() {
           }
       }
 
+      var cssOptions = self.get("cssOptions");
+      if (cssOptions && typeof cssOptions === "object") {
+        var keys = Object.keys(cssOptions);
+        keys.forEach(function(key) {
+          contentBox.style.setProperty(key, cssOptions[key]);
+        });
+      }
       // Insert the contents to this HTMLInfoWindow
-      if (!frame.parentNode) {
-          div.appendChild(frame);
+      if (!anchorDiv.parentNode) {
+          div.appendChild(anchorDiv);
       }
 
       // Adjust the HTMLInfoWindow size
@@ -148,23 +200,31 @@ var HTMLInfoWindow = function() {
       contentFrame.style.height = contentsHeight + "px";
       frame.style.width = contentsWidth  + "px";
       frame.style.height = (contentsHeight+ 15) + "px";
+      //console.log("contentWidth = " + contentBox.offsetWidth + ", contentsHeight = " + contentsHeight);
 
       var infoOffset = {
-        x : 30,
-        y : 30
+        x : 31,
+        y : 31
       };
       var iconSize = {
-        width: 60,
-        height: 108
+        width: 62,
+        height: 110
       };
 
       // If there is no specification with `anchor` property,
       // the values {x: 0.5, y: 1} are specified by native APIs.
       // For the case, anchor values are {x: 0} in JS.
       var anchor = {
-        x: 0,
-        y: contentsHeight + 15
+        x: 15,
+        y: 15
       };
+
+      anchor.x /= zoomScale;
+      anchor.y /= zoomScale;
+      infoOffset.x /= zoomScale;
+      infoOffset.y /= zoomScale;
+      iconSize.width /= zoomScale;
+      iconSize.height /= zoomScale;
 
       var icon = marker.get("icon");
 
@@ -216,13 +276,22 @@ var HTMLInfoWindow = function() {
       //console.log("infoOffset = " + infoOffset.x + ", " + infoOffset.y);
 
       var frameBorder = parseInt(common.getStyle(contentFrame, "border-left-width").replace(/[^\d]/g, ""), 10);
-      var offsetX = (contentsWidth + frameBorder + anchor.x ) * 0.5 + (iconSize.width / 2  - infoOffset.x);
-      var offsetY = contentsHeight + anchor.y - (frameBorder * 2) - infoOffset.y + 15;
+      //var offsetX = (contentsWidth + frameBorder + anchor.x ) * 0.5 + (iconSize.width / 2  - infoOffset.x);
+      //var offsetY = contentsHeight + anchor.y - (frameBorder * 2) - infoOffset.y + 15;
+      var offsetX = -(iconSize.width / 2);
+      var offsetY = -iconSize.height;
+      anchorDiv.style.width = iconSize.width + "px";
+      anchorDiv.style.height = iconSize.height + "px";
 
       self.set("offsetX", offsetX);
       self.set("offsetY", offsetY);
 
-      //console.log("offset = " + self.get("offsetX") + ", " + self.get("offsetY"));
+
+      frame.style.bottom = (iconSize.height - infoOffset.y)+ "px";
+      frame.style.left = ((-contentsWidth) / 2 + infoOffset.x)  + "px";
+
+
+      //console.log("frameLeft = " + frame.style.left );
       var infoPosition = map.get("infoPosition");
       self.trigger("infoPosition_changed", "", infoPosition);
     };
@@ -231,16 +300,29 @@ var HTMLInfoWindow = function() {
 
     self.on("infoPosition_changed", function(ignore, point) {
 
-        var x = point.x - self.get("offsetX");
-        var y = point.y - self.get("offsetY");
-        //console.log("offset = " + x + ", " + y);
 
-        frame.style.left = x + "px";
-        frame.style.top =  y + "px";
+        var x = point.x + self.get("offsetX");
+        var y = point.y + self.get("offsetY");
 
         if (!isInfoOpenFired) {
-            isInfoOpenFired = true;
-            self.trigger(event.INFO_OPEN);
+          // Set position first time
+          isInfoOpenFired = true;
+          //anchorDiv.style.left = x + "px";
+          //anchorDiv.style.top = y + "px";
+          anchorDiv.style.visibility = "hidden";
+          var done = function() {
+            anchorDiv.removeEventListener("transitionend", this);
+            anchorDiv.removeEventListener("webkitTransitionEnd", this);
+            anchorDiv.style.visibility = "visible";
+          };
+          anchorDiv.addEventListener("transitionend", done, {once: true});
+          anchorDiv.addEventListener("webkitTransitionEnd", done, {once: true});
+          anchorDiv.style.setProperty("-webkit-transform", "translate3d(" + x + "px, " + y + "px, 0)");
+          anchorDiv.style.setProperty("transform", "translate3d(" + x + "px, " + y + "px, 0)");
+          self.trigger(event.INFO_OPEN);
+        } else {
+          anchorDiv.style.setProperty("-webkit-transform", "translate3d(" + x + "px, " + y + "px, 0)");
+          anchorDiv.style.setProperty("transform", "translate3d(" + x + "px, " + y + "px, 0)");
         }
 
         cordova.fireDocumentEvent('plugin_touch', {});
@@ -284,20 +366,23 @@ HTMLInfoWindow.prototype.close = function() {
     marker.off(event.INFO_CLOSE, self.close);  //This event listener is assigned in the open method. So detach it.
     map.set("active_marker_id", null);
 
-    var div = map.getDiv();
-    var frame = self.get("frame");
-    div.removeChild(frame);
+    //var div = map.getDiv();
+    var anchorDiv = self.get("anchor");
+    if (anchorDiv && anchorDiv.parentNode) {
+      anchorDiv.parentNode.removeChild(anchor);
 
-    // Remove the contents from this HTMLInfoWindow
-    var contentFrame = frame.firstChild;
-    var contentBox = contentFrame.firstChild;
-    contentBox.innerHTML = "";
+      // Remove the contents from this HTMLInfoWindow
+      var contentFrame = anchorDiv.firstChild.firstChild;
+      var contentBox = contentFrame.firstChild;
+      contentBox.innerHTML = "";
+    }
 };
 
-HTMLInfoWindow.prototype.setContent = function(content) {
+HTMLInfoWindow.prototype.setContent = function(content, cssOptions) {
     var self = this;
     var prevContent = self.get("content");
     self.set("content", content);
+    self.set("cssOptions", cssOptions);
     var marker = self.get("marker");
     if (content !== prevContent && marker && marker.isInfoWindowShown()) {
       self.trigger("infoWindowAnchor_changed");
