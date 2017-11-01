@@ -272,7 +272,7 @@ marker.setIcon(contain ? "blue" : "red");
 </pre></td>
 </tr>
 <tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/utilities/geometry/encode/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/encode.png?raw=true"><br>encode utility</a></td>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/tree/master/v2.0.0/class/utilities/geometry/encoding/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/encode.png?raw=true"><br>encode utility</a></td>
   <td><pre>
 var GORYOKAKU_POINTS = [
   {lat: 41.79883, lng: 140.75675},
