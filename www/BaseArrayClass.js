@@ -25,8 +25,7 @@ function BaseArrayClass(array) {
             //       return someValue;
             //    });
             //------------------------
-            results = _array.map(fn.bind(self));
-            return;
+            return _array.map(fn.bind(self));
         }
         //------------------------
         // example:
