@@ -386,9 +386,6 @@ if (!cordova) {
       // ignore the map temporally.
       var minMapDepth = 9999999;
       mapIDs.forEach(function(mapId) {
-        if (MAPS[mapId]._isRemoved) {
-          return;
-        }
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
@@ -397,7 +394,7 @@ if (!cordova) {
               minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
             } else {
               // Is the map div removed?
-              if (window.document.querySelector && MAPS[mapId]._isReady) {
+              if (window.document.querySelector) {
                 var ele = document.querySelector("[__pluginMapId='" + mapId + "']");
                 if (!ele) {
                   // If no div element, remove the map.
@@ -601,7 +598,11 @@ if (!cordova) {
                 div.style.backgroundColor = "rgba(255, 30, 30, 0.5);";
               }
             }
-            if (mapId in MAPS) {
+            if (mapId && MAPS[mapId].getDiv() !== div) {
+              MAPS[mapId].remove();
+              mapId = undefined;
+            }
+            if (mapId && mapId in MAPS) {
               //--------------------------------------------------
               // Backward compatibility for v1
               //
