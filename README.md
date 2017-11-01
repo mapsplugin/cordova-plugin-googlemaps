@@ -259,6 +259,16 @@ map.addTileOverlay({
 }, function(tileOverlay) { ... });</pre></td>
 </tr>
 <tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true"><br>Geocoder</a></td>
+  <td><pre>
+plugin.google.maps.Geocoder.geocode({
+  // US Capital cities
+  "address": [
+    "Montgomery, AL, USA", ... "Cheyenne, Wyoming, USA"
+  ]
+}, function(mvcArray) { ... });</pre></td>
+</tr>
+<tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/utilities/geometry/poly/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/poly.png?raw=true"><br>poly utility</a></td>
   <td><pre>
 var GORYOKAKU_POINTS = [
@@ -290,16 +300,6 @@ var heading = plugin.google.maps.geometry.spherical.computeHeading(
                         markerA.getPosition(), markerB.getPosition());
 label.innerText = "heading : " + heading.toFixed(0) + "&deg;";
 </pre></td>
-</tr>
-<tr>
-  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true"><br>Geocoder</a></td>
-  <td><pre>
-plugin.google.maps.Geocoder.geocode({
-  // US Capital cities
-  "address": [
-    "Montgomery, AL, USA", ... "Cheyenne, Wyoming, USA"
-  ]
-}, function(mvcArray) { ... });</pre></td>
 </tr>
 </table>
 
