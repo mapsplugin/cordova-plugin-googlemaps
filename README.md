@@ -83,7 +83,7 @@ Example using config.xml
 
 ## Release Notes
 
-- [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-stable/README.md)
+- [v2.1.0 Release notes](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.1.0/README.md)
 
 - `plugin.google.maps.geometry.poly` namespace is added.
 
