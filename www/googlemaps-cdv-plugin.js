@@ -386,6 +386,9 @@ if (!cordova) {
       // ignore the map temporally.
       var minMapDepth = 9999999;
       mapIDs.forEach(function(mapId) {
+        if (MAPS[mapId]._isRemoved) {
+          return;
+        }
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
@@ -394,8 +397,8 @@ if (!cordova) {
               minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
             } else {
               // Is the map div removed?
-              if (window.document.querySelector) {
-                var ele = document.querySelector("[__pluginDomId='" + elemId + "']");
+              if (window.document.querySelector && MAPS[mapId]._isReady) {
+                var ele = document.querySelector("[__pluginMapId='" + mapId + "']");
                 if (!ele) {
                   // If no div element, remove the map.
                   MAPS[mapId].remove();
