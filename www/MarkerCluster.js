@@ -327,7 +327,7 @@ MarkerCluster.prototype.remove = function() {
       cluster.remove();
     });
   }
-  exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true});
+  exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true, remove: true});
 
   keys = Object.keys(self._markerMap);
   keys.forEach(function(markerId) {

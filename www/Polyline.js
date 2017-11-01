@@ -179,7 +179,7 @@ Polyline.prototype.remove = function() {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {remove: true});
     self.trigger(self.id + "_remove");
     var points = self.get("points");
     if (points) {

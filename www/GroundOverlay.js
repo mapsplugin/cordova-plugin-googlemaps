@@ -160,7 +160,7 @@ GroundOverlay.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()]);
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {remove: true});
 };
 
 

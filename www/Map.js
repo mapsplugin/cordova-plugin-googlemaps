@@ -577,7 +577,7 @@ Map.prototype.remove = function(callback) {
         if (typeof callback === "function") {
             callback.call(self);
         }
-    }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {sync: true});
+    }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {sync: true, remove: true});
 };
 
 
