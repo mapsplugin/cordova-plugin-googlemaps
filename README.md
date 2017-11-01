@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.0.11)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.1.0)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -85,7 +85,15 @@ Example using config.xml
 
 - [v2.0-stable](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.0-stable/README.md)
 
-- v2.0.11 is just update the README.md **(no code updated)**
+- `plugin.google.maps.geometry.poly` namespace is added.
+
+- `HtmlInfoWindow` follows the marker smoothly.
+
+- The code of `external service` removed. Please use the [Launch Navigator Cordova/Phonegap Plugin](https://github.com/dpa99c/phonegap-launch-navigator) instead.
+
+- The calculation of DOM element hierarchy was fixed.
+
+- [@ionic-native/google-maps@4.3.3](https://www.npmjs.com/package/@ionic-native/google-maps) was released.
 
 ## Quick demo
 
@@ -251,6 +259,39 @@ map.addTileOverlay({
 }, function(tileOverlay) { ... });</pre></td>
 </tr>
 <tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/utilities/geometry/poly/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/poly.png?raw=true"><br>poly utility</a></td>
+  <td><pre>
+var GORYOKAKU_POINTS = [
+  {lat: 41.79883, lng: 140.75675},
+  ...
+  {lat: 41.79883, lng: 140.75673}
+]
+var contain = plugin.google.maps.geometry.poly.containsLocation(
+                    position, GORYOKAKU_POINTS);
+marker.setIcon(contain ? "blue" : "red");
+</pre></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/utilities/geometry/encode/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/encode.png?raw=true"><br>encode utility</a></td>
+  <td><pre>
+var GORYOKAKU_POINTS = [
+  {lat: 41.79883, lng: 140.75675},
+  ...
+  {lat: 41.79883, lng: 140.75673}
+]
+var encodedPath = plugin.google.maps.geometry.
+                       encoding.encodePath(GORYOKAKU_POINTS);
+</pre></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/utilities/geometry/spherical/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/spherical.png?raw=true"><br>spherical utility</a></td>
+  <td><pre>
+var heading = plugin.google.maps.geometry.spherical.computeHeading(
+                        markerA.getPosition(), markerB.getPosition());
+label.innerText = "heading : " + heading.toFixed(0) + "&deg;";
+</pre></td>
+</tr>
+<tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true"><br>Geocoder</a></td>
   <td><pre>
 plugin.google.maps.Geocoder.geocode({
@@ -303,6 +344,7 @@ You can write your code `similar like` the Google Maps JavaScript API v3.
 | google.maps.Geocoder              | plugin.google.maps.geocoder           |
 | google.maps.geometry.spherical    | plugin.google.maps.geometry.spherical |
 | google.maps.geometry.encoding     | plugin.google.maps.geometry.encoding  |
+| google.maps.geometry.poly         | plugin.google.maps.geometry.poly      |
 | (not available)                   | MarkerCluster                         |
 | google.maps.KmlLayer              | KMLLayer (v1.4.5 is available)        |
 | google.maps.StreetView            | (not available)                       |
