@@ -40,7 +40,8 @@ English or Japanese please.
 [ ] feature request
 
 **The plugin version:**  (check one with "x")
-[ ] **2.1.0 (npm)**  (If you use old version, please try the latest version first)
+If you use old version, please try the latest version first
+[ ] **2.1.0 (npm)**
 [ ] **multiple_maps branch (github)** 
 
 **If you choose 'problem or bug report', please select OS:**  (check one with "x")
