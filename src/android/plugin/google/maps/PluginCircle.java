@@ -17,6 +17,8 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
    * @param args
    * @param callbackContext
    * @throws JSONException
+   *
+   * NOSTRO PLUGIN
    */
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final CircleOptions circleOptions = new CircleOptions();
