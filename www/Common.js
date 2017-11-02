@@ -225,7 +225,10 @@ function getDivRect(div) {
 var ignoreTags = [
   "pre", "textarea", "p", "form", "input", "caption", "canvas", "svg"
 ];
-var ignoreClasses = ["nav-decor"];
+
+// .pgm-ignore class allows you to indicate that the DOM element is not touchable.
+// This is useful when you have lots of items, such as list item.
+var ignoreClasses = ["nav-decor", "pgm-ignore"];
 
 function shouldWatchByNative(node) {
   if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
