@@ -806,7 +806,7 @@ function _exec() {
       }
       _isResizeMapExecuting = true;
     }
-    if (_stopRequested && (methodName !== "remove" || methodName !== "clear")) {
+    if (_stopRequested && (!commandParams.execOptions.remove || methodName !== "clear")) {
       _executingCnt--;
       continue;
     }
