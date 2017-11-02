@@ -267,8 +267,9 @@ Marker.prototype.getRotation = function() {
     return this.get('rotation');
 };
 Marker.prototype.showInfoWindow = function() {
-    if (!this.get("title") && !this.get("snippet") ||
-        this.get("isInfoWindowVisible")) {
+    //if (!this.get("title") && !this.get("snippet") ||
+    //    this.get("isInfoWindowVisible")) {
+    if (!this.get("title") && !this.get("snippet")) {
         return;
     }
     this.set("isInfoWindowVisible", true);
