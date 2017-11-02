@@ -221,11 +221,12 @@ if (!cordova) {
         var zIndex = parentZIndex;
         doNotTrace = false;
         var depth = 1;
+        var elemId;
 
         if (common.shouldWatchByNative(element)) {
 
           // Generates a __pluginDomId
-          var elemId = element.getAttribute("__pluginDomId");
+          elemId = element.getAttribute("__pluginDomId");
           if (!elemId) {
             elemId = "pgm" + Math.floor(Math.random() * Date.now());
             element.setAttribute("__pluginDomId", elemId);
@@ -250,70 +251,56 @@ if (!cordova) {
           }
 
           // Calculate dom clickable region
-          var pointerEventsCSS = common.getStyle(element, 'pointer-events');
-          var rect = {};
-          if (pointerEventsCSS === 'none') {
-            rect = {
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              overflowX_hidden: true,
-              overflowY_hidden: true,
-              elemId: elemId
-            };
-          } else {
-            rect = common.getDivRect(element);
+          var rect = common.getDivRect(element);
+          rect.right = rect.left + rect.width;
+          rect.bottom = rect.top + rect.height;
+          rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
+          rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
+          if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
+            if (rect.left < parentRect.left) {
+              if (rect.right > parentRect.right) {
+                rect.width = parentRect.width;
+                rect.left = parentRect.left;
+              } else {
+                rect.width = rect.width + rect.left - parentRect.left;
+                rect.left = parentRect.left;
+              }
+            } else if (rect.right > parentRect.right) {
+              if (rect.left > parentRect.left) {
+                rect.width = rect.width + parentRect.right - rect.right;
+              } else {
+                rect.width = parentRect.width;
+              }
+            }
             rect.right = rect.left + rect.width;
-            rect.bottom = rect.top + rect.height;
-            rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
-            rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
-            if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
-              if (rect.left < parentRect.left) {
-                if (rect.right > parentRect.right) {
-                  rect.width = parentRect.width;
-                  rect.left = parentRect.left;
-                } else {
-                  rect.width = rect.width + rect.left - parentRect.left;
-                  rect.left = parentRect.left;
-                }
-              } else if (rect.right > parentRect.right) {
-                if (rect.left > parentRect.left) {
-                  rect.width = rect.width + parentRect.right - rect.right;
-                } else {
-                  rect.width = parentRect.width;
-                }
-              }
-              rect.right = rect.left + rect.width;
-            }
-
-            if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
-              if (rect.top < parentRect.top) {
-                if (rect.bottom > parentRect.bottom) {
-                  rect.height = parentRect.height;
-                  rect.top = parentRect.top;
-                } else {
-                  rect.height = rect.height + rect.top - parentRect.top;
-                  rect.top = parentRect.top;
-                }
-              } else if (rect.bottom > parentRect.bottom) {
-                if (rect.top > parentRect.top) {
-                  rect.height = rect.height + parentRect.bottom - rect.bottom;
-                } else {
-                  rect.height = parentRect.height;
-                }
-              }
-              rect.bottom = rect.top + rect.height;
-            }
-            // Stores dom bounds and depth
-            domPositions[elemId] = {
-              size: rect,
-              depth: depth,
-              zIndex: zIndex
-            };
-            parentRect = rect;
-            parentRect.elemId = elemId;
           }
+
+          if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
+            if (rect.top < parentRect.top) {
+              if (rect.bottom > parentRect.bottom) {
+                rect.height = parentRect.height;
+                rect.top = parentRect.top;
+              } else {
+                rect.height = rect.height + rect.top - parentRect.top;
+                rect.top = parentRect.top;
+              }
+            } else if (rect.bottom > parentRect.bottom) {
+              if (rect.top > parentRect.top) {
+                rect.height = rect.height + parentRect.bottom - rect.bottom;
+              } else {
+                rect.height = parentRect.height;
+              }
+            }
+            rect.bottom = rect.top + rect.height;
+          }
+          // Stores dom bounds and depth
+          domPositions[elemId] = {
+            size: rect,
+            depth: depth,
+            zIndex: zIndex
+          };
+          parentRect = rect;
+          parentRect.elemId = elemId;
 
           if (!shouldUpdate) {
             if (elemId in prevDomPositions) {
@@ -336,6 +323,35 @@ if (!cordova) {
             //}
             if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1) {
               doNotTrace = true;
+            } else {
+              var pointerEventsCSS = common.getStyle(element, 'pointer-events');
+              if (pointerEventsCSS === "none") {
+
+                // Generates a __pluginDomId
+                elemId = element.getAttribute("__pluginDomId");
+                if (!elemId) {
+                  elemId = "pgm" + Math.floor(Math.random() * Date.now());
+                  element.setAttribute("__pluginDomId", elemId);
+                  if (common.getStyle(element, "-webkit-overflow-scrolling") === "touch") {
+                    element.addEventListener("touchstart", onTouchStart);
+                    element.addEventListener("touchmove", followMapDivPositionOnly);
+                    element.addEventListener("touchend", onTouchEnd);
+                    element.addEventListener("touchcancel", onTouchEnd);
+                    element.addEventListener("touchleave", onTouchEnd);
+                  }
+                }
+
+                // get dom depth
+                zIndex = common.getZIndex(element);
+                if (elemId in cacheDepth &&
+                    elemId in prevDomPositions &&
+                    prevDomPositions[elemId].zIndex === zIndex) {
+                    depth = cacheDepth[elemId];
+                } else {
+                    depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
+                    cacheDepth[elemId] = depth;
+                }
+              }
             }
           } else {
             doNotTrace = true;
@@ -369,7 +385,6 @@ if (!cordova) {
       if (elementCnt !== prevElementCnt) {
         shouldUpdate = true;
       }
-
       if (!shouldUpdate && idlingCnt > -1) {
         idlingCnt++;
         if (idlingCnt === 2) {

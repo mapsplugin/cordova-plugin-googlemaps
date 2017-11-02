@@ -255,6 +255,7 @@ function shouldWatchByNative(node) {
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
   var opacityCSS = getStyle(node, 'opacity');
+  var pointerEventsCSS = getStyle(node, 'pointer-events');
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
   var clickableSize = (
     node.offsetHeight > 0 && node.offsetWidth > 0 ||
@@ -263,7 +264,7 @@ function shouldWatchByNative(node) {
         node.className.indexOf("_gmaps_cdv_") > -1);
   return displayCSS !== "none" &&
     opacityCSS > 0 && visibilityCSS !== "hidden" &&
-    clickableSize;
+    clickableSize && pointerEventsCSS !== "none";
 }
 
 
