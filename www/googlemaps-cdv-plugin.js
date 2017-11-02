@@ -164,7 +164,30 @@ if (!cordova) {
         followPositionTimer = null;
       }
     }
+    //----------------------------------------------
+    // Observe styles and childList (if possible)
+    //----------------------------------------------
+    var isThereAnyChange = true;
+    var isMutationObserver = typeof MutationObserver === "function";
+    (function() {
+      if (isMutationObserver) {
+        var observer = new MutationObserver(function(mutations) {
+          isThereAnyChange = true;
+          cordova.fireDocumentEvent('plugin_touch', {});
+        });
+        observer.observe(document.body.parentElement, {
+          attributes : true,
+          childList: true,
+          subtree: true,
+          attributeFilter : ['style']
+        });
+      }
 
+    })();
+
+    //----------------------------------------------
+    // Send the DOM hierarchy to native side
+    //----------------------------------------------
     function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
       if (isChecking) {
@@ -173,6 +196,7 @@ if (!cordova) {
       if (mapIDs.length === 0) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         isSuspended = true;
+        isThereAnyChange = false;
         return;
       }
       if (isSuspended) {
@@ -198,6 +222,7 @@ if (!cordova) {
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
+          isThereAnyChange = false;
         }
         //if (idlingCnt < 5) {
         //  setTimeout(putHtmlElements, 50);
@@ -208,6 +233,12 @@ if (!cordova) {
       if (isSuspended) {
         isSuspended = false;
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+      }
+      if (isMutationObserver && !isThereAnyChange && idlingCnt > 1) {
+        idlingCnt++;
+        followMapDivPositionOnly();
+        isChecking = false;
+        return;
       }
 
       //-------------------------------------------
@@ -223,7 +254,7 @@ if (!cordova) {
         var depth = 1;
         var elemId;
 
-        if (common.shouldWatchByNative(element)) {
+        if (common.shouldWatchByNative(element) || element.hasAttribute("__pluginMapId")) {
 
           // Generates a __pluginDomId
           elemId = element.getAttribute("__pluginDomId");
@@ -332,13 +363,6 @@ if (!cordova) {
                 if (!elemId) {
                   elemId = "pgm" + Math.floor(Math.random() * Date.now());
                   element.setAttribute("__pluginDomId", elemId);
-                  if (common.getStyle(element, "-webkit-overflow-scrolling") === "touch") {
-                    element.addEventListener("touchstart", onTouchStart);
-                    element.addEventListener("touchmove", followMapDivPositionOnly);
-                    element.addEventListener("touchend", onTouchEnd);
-                    element.addEventListener("touchcancel", onTouchEnd);
-                    element.addEventListener("touchleave", onTouchEnd);
-                  }
                 }
 
                 // get dom depth
@@ -405,6 +429,7 @@ if (!cordova) {
           }
           setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
         }
+        isThereAnyChange = false;
         isChecking = false;
         return;
       }
@@ -495,6 +520,7 @@ if (!cordova) {
         });
         setTimeout(putHtmlElements, 50);
         isChecking = false;
+        isThereAnyChange = true;
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [finalDomPositions]);
       child = null;
       parentNode = null;
@@ -509,6 +535,7 @@ if (!cordova) {
       longIdlingCnt = -1;
       cacheDepth = {};
       cacheZIndex = {};
+      isThereAnyChange = true;
       pauseResizeTimer = false;
       cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
       putHtmlElements();
@@ -663,6 +690,7 @@ if (!cordova) {
             });
             MAP_CNT++;
             MAPS[mapId] = map;
+            isThereAnyChange = true;
             cordova.fireDocumentEvent('plugin_touch', {});
 
             var args = [mapId];
