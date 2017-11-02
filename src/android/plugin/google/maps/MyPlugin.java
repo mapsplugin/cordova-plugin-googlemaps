@@ -76,7 +76,6 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
         synchronized (methods) {
           if (methods.size() == 0) {
             TAG = MyPlugin.this.getServiceName();
-            Log.d("MyPlugin", "TAG = " + TAG);
             if (!TAG.contains("-")) {
               mapCtrl.mPluginLayout.pluginMaps.put(TAG, (PluginMap) MyPlugin.this);
             } else {
@@ -92,7 +91,6 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
             Method[] classMethods = self.getClass().getMethods();
             for (Method classMethod : classMethods) {
               methods.put(classMethod.getName(), classMethod);
-              Log.d("MyPlugin", "---> plugin = " + classMethod.getName() + ", " + classMethod);
             }
           }
 
