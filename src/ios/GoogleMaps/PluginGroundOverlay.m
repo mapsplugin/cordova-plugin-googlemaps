@@ -215,15 +215,38 @@
                   NSURL *url;
                   if ([clsName isEqualToString:@"UIWebView"]) {
                     url = ((UIWebView *)cdvViewController.webView).request.URL;
+                    NSString *currentURL = url.absoluteString;
+                    currentURL = [currentURL stringByDeletingLastPathComponent];
+                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+                    urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
                   } else {
-                    url = [webview URL];
+                    //------------------------------------------
+                    // WKWebView URL is use http:// always
+                    //------------------------------------------
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                      NSURL *url = [webview URL];
+                      NSString *currentURL = url.absoluteString;
+                      currentURL = [currentURL stringByDeletingLastPathComponent];
+                      url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, urlStr]];
+
+                      [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
+
+                        if (!succeeded) {
+                          completionHandler(NO);
+                          return;
+                        }
+
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                          groundOverlay.icon = image;
+                          completionHandler(YES);
+                        });
+
+                      }];
+                    });
+                    return;
                   }
-                  NSString *currentURL = url.absoluteString;
-                  currentURL = [currentURL stringByDeletingLastPathComponent];
-                  currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-                  currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-                  currentURL = [currentURL stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
-                  urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
                 } else {
                   urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
                 }
