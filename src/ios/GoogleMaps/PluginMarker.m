@@ -985,18 +985,18 @@
         // WKWebView URL is use http:// always
         //------------------------------------------
 
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           NSURL *url = [webview URL];
           NSString *currentURL = url.absoluteString;
-          currentURL = [currentURL stringByDeletingLastPathComponent];
+          if (![[url lastPathComponent] isEqualToString:@"/"]) {
+            currentURL = [currentURL stringByDeletingLastPathComponent];
+          }
           //url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
 
           //
           // Load the icon from over the internet
           //
-
-          dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
-          dispatch_async(queue, ^{
+          [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
             NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
 
@@ -1078,12 +1078,12 @@
 
             }];
 
-          });
+          }];
 
 
 
 
-        });
+        }];
 
         return;
       }

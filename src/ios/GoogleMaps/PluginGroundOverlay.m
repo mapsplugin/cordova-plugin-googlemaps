@@ -228,7 +228,9 @@
                     dispatch_sync(dispatch_get_main_queue(), ^{
                       NSURL *url = [webview URL];
                       NSString *currentURL = url.absoluteString;
-                      currentURL = [currentURL stringByDeletingLastPathComponent];
+                      if (![[url lastPathComponent] isEqualToString:@"/"]) {
+                        currentURL = [currentURL stringByDeletingLastPathComponent];
+                      }
                       url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, urlStr]];
 
                       [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
