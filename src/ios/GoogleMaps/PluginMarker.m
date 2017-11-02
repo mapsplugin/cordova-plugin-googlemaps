@@ -813,7 +813,8 @@
   }
 
   if (iconPath == nil) {
-    callbackBlock(NO, @"icon property is null");
+    callbackBlock(YES, marker);
+    //callbackBlock(NO, @"icon property is null");
     return;
   }
 
