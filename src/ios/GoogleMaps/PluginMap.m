@@ -433,7 +433,6 @@
  */
 -(void)animateCamera:(CDVInvokedUrlCommand *)command
 {
-  NSLog(@"--->animateCamera");
   [self updateCameraPosition:@"animateCamera" command:command];
 }
 
