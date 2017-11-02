@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.1.0)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.1.1)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -94,6 +94,8 @@ Example using config.xml
 - The calculation of DOM element hierarchy was fixed.
 
 - [@ionic-native/google-maps@4.3.3](https://www.npmjs.com/package/@ionic-native/google-maps) was released.
+
+- v2.1.1 has small bug fixes.
 
 ## Quick demo
 
