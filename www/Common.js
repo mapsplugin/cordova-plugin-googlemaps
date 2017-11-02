@@ -254,7 +254,6 @@ function shouldWatchByNative(node) {
 
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
-  var pointerEventsCSS = getStyle(node, 'pointer-events');
   var opacityCSS = getStyle(node, 'opacity');
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
   var clickableSize = (
@@ -264,7 +263,7 @@ function shouldWatchByNative(node) {
         node.className.indexOf("_gmaps_cdv_") > -1);
   return displayCSS !== "none" &&
     opacityCSS > 0 && visibilityCSS !== "hidden" &&
-    clickableSize && pointerEventsCSS !== "none";
+    clickableSize;
 }
 
 
@@ -317,7 +316,7 @@ function getDomDepth(dom, idx, parentDepth, floorLevel) {
     }
     // In order to handle this value as double anytime, add 0.01 (for Android)
     var result = parentDepth +  (getZIndex(dom) + 1 + idx) / (1 << floorLevel) + 0.01;
-    //dom.setAttribute("_depth", result); // for debugging
+    dom.setAttribute("_depth", result); // for debugging
     return result;
 }
 

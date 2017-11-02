@@ -250,56 +250,70 @@ if (!cordova) {
           }
 
           // Calculate dom clickable region
-          var rect = common.getDivRect(element);
-          rect.right = rect.left + rect.width;
-          rect.bottom = rect.top + rect.height;
-          rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
-          rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
-          if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
-            if (rect.left < parentRect.left) {
-              if (rect.right > parentRect.right) {
-                rect.width = parentRect.width;
-                rect.left = parentRect.left;
-              } else {
-                rect.width = rect.width + rect.left - parentRect.left;
-                rect.left = parentRect.left;
-              }
-            } else if (rect.right > parentRect.right) {
-              if (rect.left > parentRect.left) {
-                rect.width = rect.width + parentRect.right - rect.right;
-              } else {
-                rect.width = parentRect.width;
-              }
-            }
+          var pointerEventsCSS = common.getStyle(element, 'pointer-events');
+          var rect = {};
+          if (pointerEventsCSS === 'none') {
+            rect = {
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              overflowX_hidden: true,
+              overflowY_hidden: true,
+              elemId: elemId
+            };
+          } else {
+            rect = common.getDivRect(element);
             rect.right = rect.left + rect.width;
-          }
-
-          if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
-            if (rect.top < parentRect.top) {
-              if (rect.bottom > parentRect.bottom) {
-                rect.height = parentRect.height;
-                rect.top = parentRect.top;
-              } else {
-                rect.height = rect.height + rect.top - parentRect.top;
-                rect.top = parentRect.top;
-              }
-            } else if (rect.bottom > parentRect.bottom) {
-              if (rect.top > parentRect.top) {
-                rect.height = rect.height + parentRect.bottom - rect.bottom;
-              } else {
-                rect.height = parentRect.height;
-              }
-            }
             rect.bottom = rect.top + rect.height;
+            rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
+            rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
+            if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
+              if (rect.left < parentRect.left) {
+                if (rect.right > parentRect.right) {
+                  rect.width = parentRect.width;
+                  rect.left = parentRect.left;
+                } else {
+                  rect.width = rect.width + rect.left - parentRect.left;
+                  rect.left = parentRect.left;
+                }
+              } else if (rect.right > parentRect.right) {
+                if (rect.left > parentRect.left) {
+                  rect.width = rect.width + parentRect.right - rect.right;
+                } else {
+                  rect.width = parentRect.width;
+                }
+              }
+              rect.right = rect.left + rect.width;
+            }
+
+            if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
+              if (rect.top < parentRect.top) {
+                if (rect.bottom > parentRect.bottom) {
+                  rect.height = parentRect.height;
+                  rect.top = parentRect.top;
+                } else {
+                  rect.height = rect.height + rect.top - parentRect.top;
+                  rect.top = parentRect.top;
+                }
+              } else if (rect.bottom > parentRect.bottom) {
+                if (rect.top > parentRect.top) {
+                  rect.height = rect.height + parentRect.bottom - rect.bottom;
+                } else {
+                  rect.height = parentRect.height;
+                }
+              }
+              rect.bottom = rect.top + rect.height;
+            }
+            // Stores dom bounds and depth
+            domPositions[elemId] = {
+              size: rect,
+              depth: depth,
+              zIndex: zIndex
+            };
+            parentRect = rect;
+            parentRect.elemId = elemId;
           }
-          // Stores dom bounds and depth
-          domPositions[elemId] = {
-            size: rect,
-            depth: depth,
-            zIndex: zIndex
-          };
-          parentRect = rect;
-          parentRect.elemId = elemId;
 
           if (!shouldUpdate) {
             if (elemId in prevDomPositions) {
