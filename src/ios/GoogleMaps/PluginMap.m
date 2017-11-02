@@ -511,7 +511,7 @@
     GMSCoordinateBounds *cameraBounds = nil;
     CGFloat scale = self.mapCtrl.screenScale;
 
-    UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding * scale, cameraPadding * scale, cameraPadding * scale, cameraPadding * scale);
+    UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding / scale, cameraPadding / scale, cameraPadding / scale, cameraPadding / scale);
 
     if ([json objectForKey:@"target"]) {
       NSString *targetClsName = [[json objectForKey:@"target"] className];
