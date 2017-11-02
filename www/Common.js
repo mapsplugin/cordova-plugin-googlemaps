@@ -581,7 +581,7 @@ function markerOptionsFilter(markerOptions) {
   markerOptions.visible = defaultTrueOption(markerOptions.visible);
   markerOptions.flat = markerOptions.flat === true;
   markerOptions.rotation = markerOptions.rotation || 0;
-  markerOptions.opacity = parseFloat("" + markerOptions.opacity, 10) || 1;
+  markerOptions.opacity = markerOptions.opacity === 0 ? 0 : (parseFloat("" + markerOptions.opacity, 10) || 1);
   markerOptions.disableAutoPan = markerOptions.disableAutoPan === true;
   markerOptions.noCache = markerOptions.noCache === true; //experimental
   if (typeof markerOptions.icon === "object") {
