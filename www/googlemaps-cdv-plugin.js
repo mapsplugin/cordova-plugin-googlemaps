@@ -164,6 +164,8 @@ if (!cordova) {
         followPositionTimer = null;
       }
     }
+    var isThereAnyChange = true;
+/**********************temporally comment out**************
     //----------------------------------------------
     // Observe styles and childList (if possible)
     //----------------------------------------------
@@ -184,6 +186,7 @@ if (!cordova) {
       }
 
     })();
+*******************************************************/
 
     //----------------------------------------------
     // Send the DOM hierarchy to native side
@@ -234,12 +237,15 @@ if (!cordova) {
         isSuspended = false;
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
+
+/**********************temporally comment out**************
       if (isMutationObserver && !isThereAnyChange && idlingCnt > 1) {
         idlingCnt++;
         followMapDivPositionOnly();
         isChecking = false;
         return;
       }
+***********************************************************/
 
       //-------------------------------------------
       // Should the plugin update the map positions?
