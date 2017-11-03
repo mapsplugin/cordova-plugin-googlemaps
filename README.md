@@ -393,10 +393,15 @@ It means **you can use the native Google Maps views similar like HTML element**.
 
 ## Buy me a beer
 
-I have been spend **tons of time for this plugin project, but even though the plugin is still FREE!!**.
-
-I appreciate if you donate some amount to help this project from this button.
+We appreciate if you donate some amount to help this project from this button.
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 The donated amount is used for buying testing machine (such as iPhone, Android) or new software.
+
+
+## Buy me a beer (by bitcoin)
+
+Thank you for supporting us by bitcoin.
+
+3LyVAfANZwcitEEnFbsHup3mDJfuqp8QFb
