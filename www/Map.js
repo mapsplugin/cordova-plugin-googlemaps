@@ -620,6 +620,11 @@ Map.prototype.setDiv = function(div) {
         }
         self.set("div", null);
     } else {
+        var currentDiv = this.get('div');
+        if (common.isDom(currentDiv)) {
+          currentDiv.removeAttribute('__pluginMapId');
+          currentDiv.removeAttribute('__pluginDomId');
+        }
         div.setAttribute("__pluginMapId", self.id);
 
         // Webkit redraw mandatory

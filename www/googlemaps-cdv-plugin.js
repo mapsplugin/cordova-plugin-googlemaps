@@ -690,6 +690,14 @@ if (!cordova) {
             */
             map.one('remove', function() {
                 document.removeEventListener(mapId, nativeCallback);
+                var div = map.getDiv();
+                if (!div) {
+                  div = document.querySelector("[__pluginMapId='" + mapId + "']");
+                }
+                if (div) {
+                  div.removeAttribute('__pluginMapId');
+                  div.removeAttribute('__pluginDomId');
+                }
                 MAPS[mapId].destroy();
                 delete MAPS[mapId];
                 map = undefined;
