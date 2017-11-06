@@ -323,7 +323,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     webviewHeight *= zoomScale;
 
     NSDictionary *domInfo, *mapDivInfo;
-    int domDepth, mapDivDepth;
+    double domDepth, mapDivDepth;
     if (hasCordovaStatusBar) {
         UIApplication* app = [UIApplication sharedApplication];
         if (app.isStatusBarHidden) {
@@ -375,14 +375,14 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         // Is the clicked point is on the html elements in the map?
         mapDivInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
 
-        mapDivDepth = [[mapDivInfo objectForKey:@"depth"] intValue];
+        mapDivDepth = [[mapDivInfo objectForKey:@"depth"] doubleValue];
         for (NSString *domId in self.pluginScrollView.debugView.HTMLNodes) {
             if ([mapCtrl.mapDivId isEqualToString:domId]) {
                 continue;
             }
 
             domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-            domDepth = [[domInfo objectForKey:@"depth"] intValue];
+            domDepth = [[domInfo objectForKey:@"depth"] doubleValue];
             if (domDepth < mapDivDepth) {
                 continue;
             }
