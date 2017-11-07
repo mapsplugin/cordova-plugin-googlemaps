@@ -193,7 +193,7 @@ if (!cordova) {
           visibleMapList.push(mapId);
         }
       }
-      if (idlingCnt > -1 && visibleMapList.length === 0 && Object.keys(MAPS).length === 0) {
+      if (idlingCnt > -1 && visibleMapList.length === 0) {
         idlingCnt++;
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -370,12 +370,12 @@ if (!cordova) {
         // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
         // (50ms * 5times + 200ms * 5times).
         // This save really the battery life significantly.
-        if (idlingCnt < 10) {
-          if (idlingCnt === 8) {
-            cordova.fireDocumentEvent("ecocheck", {});
-          }
-          setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
-        }
+        // if (idlingCnt < 10) {
+        //   if (idlingCnt === 8) {
+        //     cordova.fireDocumentEvent("ecocheck", {});
+        //   }
+        //   setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
+        // }
         isChecking = false;
         return;
       }
