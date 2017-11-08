@@ -43,28 +43,36 @@ var Circle = function(map, circleId, circleOptions, _exec) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    self.on("center_changed", function(oldValue, center) {
+    self.on("center_changed", function() {
+        var center = self.get("center");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
     });
-    self.on("fillColor_changed", function(oldValue, color) {
+    self.on("fillColor_changed", function() {
+        var color = self.get("fillColor");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
-    self.on("strokeColor_changed", function(oldValue, color) {
+    self.on("strokeColor_changed", function() {
+        var color = self.get("strokeColor");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
-    self.on("strokeWidth_changed", function(oldValue, width) {
+    self.on("strokeWidth_changed", function() {
+        var width = self.get("strokeWidth");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
     });
-    self.on("clickable_changed", function(oldValue, clickable) {
+    self.on("clickable_changed", function() {
+        var clickable = self.get("clickable");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
     });
-    self.on("radius_changed", function(oldValue, radius) {
+    self.on("radius_changed", function() {
+        var radius = self.get("radius");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
     });
-    self.on("zIndex_changed", function(oldValue, zIndex) {
+    self.on("zIndex_changed", function() {
+        var zIndex = self.get("zIndex");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
-    self.on("visible_changed", function(oldValue, visible) {
+    self.on("visible_changed", function() {
+        var visible = self.get("visible");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
 
