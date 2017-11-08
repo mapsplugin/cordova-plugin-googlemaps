@@ -65,6 +65,9 @@ BaseClass.prototype = {
   },
 
   on: function(eventName, listener) {
+    if (!listener || typeof listener !== "function") {
+      throw Error('Listener for on()/addEventListener() method is not a function');
+    }
     var topic;
     this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
     topic = this[SUBSCRIPTIONS_FIELD][eventName];
@@ -92,6 +95,9 @@ BaseClass.prototype = {
   },
 
   one: function(eventName, listener) {
+    if (!listener || typeof listener !== "function") {
+      throw Error('Listener for one()/addEventListenerOnce() method is not a function');
+    }
 
     var self = this;
 
