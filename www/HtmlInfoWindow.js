@@ -28,10 +28,14 @@ var HTMLInfoWindow = function() {
     anchorDiv.style.height = '1px';
     //anchorDiv.style.border = "1px solid green";
     anchorDiv.style.overflow = "visible";
-    anchorDiv.style.setProperty("will-change", "transform");
-    anchorDiv.style.setProperty("-webkit-will-change", "transform");
-    anchorDiv.style.setProperty("transition", "transform .075s ease");
-    anchorDiv.style.setProperty("-webkit-transition", "transform .075s ease");
+
+    anchorDiv.style.transition = "transform 0s ease";
+    anchorDiv.style['will-change'] = "transform";
+
+    anchorDiv.style['-webkit-backface-visibility'] = 'hidden';
+    anchorDiv.style['-webkit-perspective'] = 1000;
+    anchorDiv.style['-webkit-transition'] = "-webkit-transform 0s ease";
+
     anchorDiv.appendChild(frame);
     self.set("anchor", anchorDiv);
 
@@ -292,40 +296,22 @@ var HTMLInfoWindow = function() {
 
 
       //console.log("frameLeft = " + frame.style.left );
-      var infoPosition = map.get("infoPosition");
-      self.trigger("infoPosition_changed", "", infoPosition);
+      var point = map.get("infoPosition");
+      anchorDiv.style.visibility = "hidden";
+      var x = point.x + self.get("offsetX");
+      var y = point.y + self.get("offsetY");
+      anchorDiv.style['-webkit-transform'] = "translate3d(" + x + "px, " + y + "px, 0px)";
+      anchorDiv.style.transform = "translate3d(" + x + "px, " + y + "px, 0px)";
+      anchorDiv.style.visibility = "visible";
+      self.trigger("infoPosition_changed", "", point);
+      self.trigger(event.INFO_OPEN);
     };
 
-    var isInfoOpenFired = false;
-
     self.on("infoPosition_changed", function(ignore, point) {
-
-
         var x = point.x + self.get("offsetX");
         var y = point.y + self.get("offsetY");
-
-        if (!isInfoOpenFired) {
-          // Set position first time
-          isInfoOpenFired = true;
-          //anchorDiv.style.left = x + "px";
-          //anchorDiv.style.top = y + "px";
-          anchorDiv.style.visibility = "hidden";
-          var done = function() {
-            anchorDiv.removeEventListener("transitionend", this);
-            anchorDiv.removeEventListener("webkitTransitionEnd", this);
-            anchorDiv.style.visibility = "visible";
-          };
-          anchorDiv.addEventListener("transitionend", done, {once: true});
-          anchorDiv.addEventListener("webkitTransitionEnd", done, {once: true});
-          anchorDiv.style.setProperty("-webkit-transform", "translate3d(" + x + "px, " + y + "px, 0)");
-          anchorDiv.style.setProperty("transform", "translate3d(" + x + "px, " + y + "px, 0)");
-          self.trigger(event.INFO_OPEN);
-        } else {
-          anchorDiv.style.setProperty("-webkit-transform", "translate3d(" + x + "px, " + y + "px, 0)");
-          anchorDiv.style.setProperty("transform", "translate3d(" + x + "px, " + y + "px, 0)");
-        }
-
-        cordova.fireDocumentEvent('plugin_touch', {});
+        anchorDiv.style['-webkit-transform'] = "translate3d(" + x + "px, " + y + "px, 0px)";
+        anchorDiv.style.transform = "translate3d(" + x + "px, " + y + "px, 0px)";
     });
     self.on(event.INFO_CLOSE, function() {
         isInfoOpenFired = false;
