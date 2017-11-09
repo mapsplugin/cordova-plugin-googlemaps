@@ -351,7 +351,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                           PluginMap.this.onCameraIdle();
                           map.setOnCameraIdleListener(PluginMap.this);
                           Handler handler = new Handler();
-                          handler.postDelayed(new AdjustInitCamera(params, callbackContext), 500);
+                          handler.postDelayed(new AdjustInitCamera(params, callbackContext), 750);
                         }
                       });
                     } else {
@@ -370,7 +370,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       map.setOnCameraIdleListener(PluginMap.this);
                       mapView.setVisibility(View.INVISIBLE);
                       Handler handler = new Handler();
-                      handler.postDelayed(new AdjustInitCamera(params, callbackContext), 500);
+                      handler.postDelayed(new AdjustInitCamera(params, callbackContext), 750);
                     }
                   });
                 } else {
@@ -414,7 +414,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       } catch (Exception e) {
         e.printStackTrace();
       }
-      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, (int) (CAMERA_PADDING * density)));
+      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, (int) (CAMERA_PADDING / density)));
 
       CameraPosition.Builder builder = CameraPosition.builder(map.getCameraPosition());
 
@@ -481,13 +481,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       e.printStackTrace();
     }
   }
-  public void fitBounds(final LatLngBounds cameraBounds, int padding) {
+  private void fitBounds(final LatLngBounds cameraBounds, int padding) {
     Builder builder = CameraPosition.builder();
     builder.tilt(map.getCameraPosition().tilt);
     builder.bearing(map.getCameraPosition().bearing);
 
     // Fit the camera to the cameraBounds with 20px padding.
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, padding * (int)density);
+    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, padding / (int)density);
     try {
         map.moveCamera(cameraUpdate);
         builder.zoom(map.getCameraPosition().zoom);
@@ -1095,7 +1095,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               e.printStackTrace();
           }
           if (results.cameraBounds != null) {
-            fitBounds(results.cameraBounds, (int)(results.cameraPadding * density));
+            fitBounds(results.cameraBounds, (int)(results.cameraPadding / density));
           }
         }
 
@@ -1369,7 +1369,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               if ("org.json.JSONArray".equals(targetClass.getName())) {
                 JSONArray points = cameraPos.getJSONArray("target");
                 result.cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
-                result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding * density));
+                result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding / density));
               } else {
                 latLng = cameraPos.getJSONObject("target");
                 builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
@@ -1437,7 +1437,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     }
                   }
 
-                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, (int)(finalCameraPosition.cameraPadding * density));
+                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, (int)(finalCameraPosition.cameraPadding / density));
                   try {
                     map.moveCamera(cameraUpdate);
                   } catch (Exception e) {
@@ -1842,30 +1842,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
           @Override
           public void onSnapshotReady(final Bitmap image) {
-
-            AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+            AsyncTask.execute(new Runnable() {
               @Override
-              protected String doInBackground(Void... voids) {
+              public void run() {
                 Bitmap image2 = image;
                 if (!finalUncompress) {
-                  float density = Resources.getSystem().getDisplayMetrics().density;
                   image2 = PluginUtil.resizeBitmap(image,
-                      (int) (image2.getWidth() / density),
-                      (int) (image2.getHeight() / density));
+                      (int) (image2.getWidth() * density),
+                      (int) (image2.getHeight() * density));
                 }
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 image2.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                 byte[] byteArray = outputStream.toByteArray();
-                return "data:image/png;base64," +
-                    Base64.encodeToString(byteArray, Base64.NO_WRAP);
-              }
 
-              @Override
-              public void onPostExecute(String imageEncoded) {
-                callbackContext.success(imageEncoded);
+                callbackContext.success("data:image/png;base64," +
+                    Base64.encodeToString(byteArray, Base64.NO_WRAP));
               }
-            };
-            task.execute();
+            });
           }
         });
       }
