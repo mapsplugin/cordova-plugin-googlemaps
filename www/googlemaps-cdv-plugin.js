@@ -115,13 +115,13 @@ if (!cordova) {
     //}, 0);
 
     var prevDomPositions = {};
-    var prevChildrenCnt = 0;
     var idlingCnt = -1;
     var longIdlingCnt = -1;
 
     var isChecking = false;
     var pauseResizeTimer = false;
     var cacheDepth = {};
+    var cacheClickableRect = {};
     document.head.appendChild(navDecorBlocker);
     var doNotTraceTags = [
       "svg", "p", "pre", "script", "style"
@@ -149,6 +149,7 @@ if (!cordova) {
     function onTouchEnd(event) {
       followPositionTimerCnt = 0;
       followPositionTimer = setInterval(function() {
+      console.log("-->onTouchEnd", followPositionTimer);
         if (followPositionTimerCnt++ > 25) {
           clearInterval(followPositionTimer);
           followPositionTimer = null;
@@ -159,13 +160,12 @@ if (!cordova) {
     }
 
     function onTouchStart() {
+    console.log("-->onTouchStart");
       if (followPositionTimer) {
         clearInterval(followPositionTimer);
         followPositionTimer = null;
       }
     }
-    var isThereAnyChange = true;
-/**********************temporally comment out**************
     //----------------------------------------------
     // Observe styles and childList (if possible)
     //----------------------------------------------
@@ -174,19 +174,59 @@ if (!cordova) {
     (function() {
       if (isMutationObserver) {
         var observer = new MutationObserver(function(mutations) {
-          isThereAnyChange = true;
-          cordova.fireDocumentEvent('plugin_touch', {});
+          mutations.forEach(function(mutation) {
+            if (mutation.type === "childList") {
+              if (mutation.removeNodes) {
+                mutation.removeNodes.forEach(function(node) {
+                  if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                  }
+                  var elemId = node.getAttribute("__pluginDomId");
+                  if (!elemId) {
+                    return;
+                  }
+                  delete prevDomPositions[elemId];
+                  delete cacheDepth[elemId];
+                  delete cacheClickableRect[elemId];
+                  isThereAnyChange = true;
+                  idlingCnt = -1;
+                  longIdlingCnt = -1;
+                });
+              }
+              if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                isThereAnyChange = true;
+                idlingCnt = -1;
+                longIdlingCnt = -1;
+              }
+
+            } else {
+              if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
+                return;
+              }
+              var elemId = mutation.target.getAttribute("__pluginDomId");
+              if (!elemId) {
+                return;
+              }
+              var oldValue = mutation.oldValue;
+              if (oldValue) {
+                delete prevDomPositions[elemId];
+                delete cacheDepth[elemId];
+                delete cacheClickableRect[elemId];
+              }
+            }
+
+          });
         });
         observer.observe(document.body.parentElement, {
           attributes : true,
           childList: true,
           subtree: true,
+          attributeOldValue: true,
           attributeFilter : ['style']
         });
       }
 
     })();
-*******************************************************/
 
     //----------------------------------------------
     // Send the DOM hierarchy to native side
@@ -238,14 +278,11 @@ if (!cordova) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
 
-/**********************temporally comment out**************
-      if (isMutationObserver && !isThereAnyChange && idlingCnt > 1) {
-        idlingCnt++;
-        followMapDivPositionOnly();
+      if (isMutationObserver && !isThereAnyChange) {
         isChecking = false;
+        onTouchEnd();
         return;
       }
-***********************************************************/
 
       //-------------------------------------------
       // Should the plugin update the map positions?
@@ -278,58 +315,21 @@ if (!cordova) {
 
           // get dom depth
           zIndex = common.getZIndex(element);
+          var rect;
           if (elemId in cacheDepth &&
               elemId in prevDomPositions &&
               prevDomPositions[elemId].zIndex === zIndex) {
               depth = cacheDepth[elemId];
+              rect = cacheClickableRect[elemId];
           } else {
               depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
               cacheDepth[elemId] = depth;
+              rect = common.getClickableRect(element, parentRect);
+              cacheClickableRect[elemId] = rect;
           }
 
           // Calculate dom clickable region
-          var rect = common.getDivRect(element);
-          rect.right = rect.left + rect.width;
-          rect.bottom = rect.top + rect.height;
-          rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
-          rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
-          if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
-            if (rect.left < parentRect.left) {
-              if (rect.right > parentRect.right) {
-                rect.width = parentRect.width;
-                rect.left = parentRect.left;
-              } else {
-                rect.width = rect.width + rect.left - parentRect.left;
-                rect.left = parentRect.left;
-              }
-            } else if (rect.right > parentRect.right) {
-              if (rect.left > parentRect.left) {
-                rect.width = rect.width + parentRect.right - rect.right;
-              } else {
-                rect.width = parentRect.width;
-              }
-            }
-            rect.right = rect.left + rect.width;
-          }
 
-          if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
-            if (rect.top < parentRect.top) {
-              if (rect.bottom > parentRect.bottom) {
-                rect.height = parentRect.height;
-                rect.top = parentRect.top;
-              } else {
-                rect.height = rect.height + rect.top - parentRect.top;
-                rect.top = parentRect.top;
-              }
-            } else if (rect.bottom > parentRect.bottom) {
-              if (rect.top > parentRect.top) {
-                rect.height = rect.height + parentRect.bottom - rect.bottom;
-              } else {
-                rect.height = parentRect.height;
-              }
-            }
-            rect.bottom = rect.top + rect.height;
-          }
           // Stores dom bounds and depth
           domPositions[elemId] = {
             size: rect,
@@ -380,6 +380,7 @@ if (!cordova) {
                 } else {
                     depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
                     cacheDepth[elemId] = depth;
+                    cacheClickableRect[elemId] = rect;
                 }
               }
             }
@@ -429,7 +430,7 @@ if (!cordova) {
         // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
         // (50ms * 5times + 200ms * 5times).
         // This save really the battery life significantly.
-        if (idlingCnt < 10) {
+        if (!isMutationObserver && idlingCnt < 10) {
           if (idlingCnt === 8) {
             cordova.fireDocumentEvent("ecocheck", {});
           }
@@ -537,11 +538,14 @@ if (!cordova) {
     // This is the special event that is fired by the google maps plugin
     // (Not generic plugin)
     function resetTimer() {
-      idlingCnt = -1;
-      longIdlingCnt = -1;
-      cacheDepth = {};
-      cacheZIndex = {};
-      isThereAnyChange = true;
+      if (!isMutationObserver) {
+        idlingCnt = -1;
+        longIdlingCnt = -1;
+        cacheDepth = {};
+        cacheZIndex = {};
+        cacheClickableRect = {};
+        isThereAnyChange = true;
+      }
       pauseResizeTimer = false;
       cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
       putHtmlElements();

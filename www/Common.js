@@ -618,11 +618,57 @@ function markerOptionsFilter(markerOptions) {
   return markerOptions;
 }
 
+function getClickableRect(element, parentRect) {
+  var rect = getDivRect(element);
+  rect.right = rect.left + rect.width;
+  rect.bottom = rect.top + rect.height;
+  rect.overflowX_hidden = getStyle(element, "overflow-x") === "hidden";
+  rect.overflowY_hidden = getStyle(element, "overflow-y") === "hidden";
+  if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
+    if (rect.left < parentRect.left) {
+      if (rect.right > parentRect.right) {
+        rect.width = parentRect.width;
+        rect.left = parentRect.left;
+      } else {
+        rect.width = rect.width + rect.left - parentRect.left;
+        rect.left = parentRect.left;
+      }
+    } else if (rect.right > parentRect.right) {
+      if (rect.left > parentRect.left) {
+        rect.width = rect.width + parentRect.right - rect.right;
+      } else {
+        rect.width = parentRect.width;
+      }
+    }
+    rect.right = rect.left + rect.width;
+  }
+
+  if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
+    if (rect.top < parentRect.top) {
+      if (rect.bottom > parentRect.bottom) {
+        rect.height = parentRect.height;
+        rect.top = parentRect.top;
+      } else {
+        rect.height = rect.height + rect.top - parentRect.top;
+        rect.top = parentRect.top;
+      }
+    } else if (rect.bottom > parentRect.bottom) {
+      if (rect.top > parentRect.top) {
+        rect.height = rect.height + parentRect.bottom - rect.bottom;
+      } else {
+        rect.height = parentRect.height;
+      }
+    }
+    rect.bottom = rect.top + rect.height;
+  }
+  return rect;
+}
 module.exports = {
     getZIndex: getZIndex,
     getDomDepth: getDomDepth,
     deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
+    getClickableRect: getClickableRect,
     getDomInfo: getDomInfo,
     isDom: isDom,
     parseBoolean: parseBoolean,
