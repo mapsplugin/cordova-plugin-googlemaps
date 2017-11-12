@@ -297,7 +297,23 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     if (self.isSuspended || self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
       // Assumes all touches for the browser
       [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
-      return [self.webView hitTest:point withEvent:event];
+
+	  // fix issue with not being able to interact with any other view that might have been added
+	  // e.g. PhoneGap-Plugin-ListPicker, etc
+	  for (UIView *subview in [self.webView.superview subviews])
+	  {
+		  // we only want to check against other views
+		  if (subview == self.pluginScrollView || subview == self.webView)
+		  	continue;
+
+		  UIView *hit = [subview hitTest:point withEvent:event];
+
+		  if (hit)
+		  	return hit;
+	  }
+
+	  // fallback to webView
+	  return [self.webView hitTest:point withEvent:event];
     }
 
     float offsetX = self.webView.scrollView.contentOffset.x;
