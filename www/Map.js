@@ -476,6 +476,10 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
             error_callback.call(self, result);
         }
     };
+    //exec undefined when called directly from plugin
+    if (!exec){
+      exec = this.exec;
+    }
     exec.call(this, successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params], {sync: true});
 };
 Map.prototype.getFocusedBuilding = function(callback) {
