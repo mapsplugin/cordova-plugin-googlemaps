@@ -589,7 +589,6 @@ if (!cordova) {
     BaseClass: BaseClass,
     BaseArrayClass: BaseArrayClass,
     Map: {
-        getMyLocation:  Map.prototype.getMyLocation.bind({_isReady: true, exec: execCmd}),
         getMap: function(div, mapOptions) {
             var mapId;
             if (common.isDom(div)) {
