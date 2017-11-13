@@ -239,16 +239,18 @@ function shouldWatchByNative(node) {
   }
 
   var tagName = node.tagName.toLowerCase();
-  if (ignoreTags.indexOf(tagName) == -1) {
+  if (ignoreTags.indexOf(tagName) > -1) {
+    return false;
+  }
 
-    var classNames = (node.className || "").split(" ");
-    var matches = classNames.filter(function(clsName) {
-      return ignoreClasses.indexOf(clsName) !== -1;
-    });
-    if (matches && matches.length > 0) {
-      return false;
-    }
-  } else {
+  var classNames = (node.className || "").split(" ");
+  if (classNames.indexOf("_gmaps_cdv_") > -1) {
+    return true;
+  }
+  var matches = classNames.filter(function(clsName) {
+    return ignoreClasses.indexOf(clsName) !== -1;
+  });
+  if (matches && matches.length > 0) {
     return false;
   }
 
@@ -259,9 +261,7 @@ function shouldWatchByNative(node) {
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
   var clickableSize = (
     node.offsetHeight > 0 && node.offsetWidth > 0 ||
-    node.clientHeight > 0 && node.clientWidth > 0 ||
-    node.clientHeight === 0 && node.clientWidth === 0 &&
-        node.className.indexOf("_gmaps_cdv_") > -1);
+    node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
     opacityCSS > 0 && visibilityCSS !== "hidden" &&
     clickableSize && pointerEventsCSS !== "none";
