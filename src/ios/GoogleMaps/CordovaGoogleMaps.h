@@ -14,16 +14,13 @@
 #import "MyPluginLayer.h"
 #import "MyPlgunProtocol.h"
 
-@interface CordovaGoogleMaps : CDVPlugin<CLLocationManagerDelegate>
+@interface CordovaGoogleMaps : CDVPlugin
 
 @property (nonatomic) MyPluginLayer *pluginLayer;
-@property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 @property (nonatomic) NSMutableDictionary *pluginMaps;
 @property (nonatomic) NSOperationQueue *executeQueue;
 
 - (void)getMap:(CDVInvokedUrlCommand*)command;
-- (void)getMyLocation:(CDVInvokedUrlCommand*)command;
 - (void)clearHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)removeMap:(CDVInvokedUrlCommand *)command;

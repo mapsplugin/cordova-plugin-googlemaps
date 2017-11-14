@@ -2,12 +2,9 @@ package plugin.google.maps;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -17,10 +14,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -58,24 +53,20 @@ import com.google.android.gms.maps.model.VisibleRegion;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
@@ -1580,8 +1571,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   public void onRequestPermissionResult(int requestCode, String[] permissions,
                                         int[] grantResults) throws JSONException {
-    synchronized (CordovaGoogleMaps.semaphore) {
-      CordovaGoogleMaps.semaphore.notify();
+    synchronized (PluginGeolocation.semaphore) {
+      PluginGeolocation.semaphore.notify();
     }
   }
 
@@ -1601,9 +1592,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       //_saveArgs = args;
       //_saveCallbackContext = callbackContext;
       cordova.requestPermissions(this, callbackContext.hashCode(), new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
-      synchronized (CordovaGoogleMaps.semaphore) {
+      synchronized (PluginGeolocation.semaphore) {
         try {
-          CordovaGoogleMaps.semaphore.wait();
+          PluginGeolocation.semaphore.wait();
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
