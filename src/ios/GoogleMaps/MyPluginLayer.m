@@ -294,6 +294,21 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
     }
 }
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    // Check other views of other plugins before this plugin
+    // e.g. PhoneGap-Plugin-ListPicker, etc
+    for (UIView *subview in [self.webView.superview subviews]) {
+      // we only want to check against other views
+      if (subview == self.pluginScrollView || subview == self.webView) {
+        continue;
+      }
+
+      UIView *hit = [subview hitTest:point withEvent:event];
+
+      if (hit) {
+        return hit;
+      }
+    }
+  
     if (self.isSuspended || self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
       // Assumes all touches for the browser
       [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
