@@ -8,8 +8,6 @@
 
 #import "MyPluginLayer.h"
 
-BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
-
 @implementation MyPluginLayer
 
 - (id)initWithWebView:(UIView *)webView {
@@ -50,8 +48,6 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
                                 selector:@selector(resizeTask:)
                                 userInfo:nil
                                 repeats:YES];
-
-    hasCordovaStatusBar = NSClassFromString(@"CDVStatusBar") != nil;
 
     return self;
 }
@@ -308,7 +304,7 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
         return hit;
       }
     }
-  
+
     if (self.isSuspended || self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
       // Assumes all touches for the browser
       [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
@@ -339,12 +335,6 @@ BOOL hasCordovaStatusBar = NO;  // YES if the app has cordova-plugin-statusbar
 
     NSDictionary *domInfo, *mapDivInfo;
     double domDepth, mapDivDepth;
-    if (hasCordovaStatusBar) {
-        UIApplication* app = [UIApplication sharedApplication];
-        if (app.isStatusBarHidden) {
-            point.y -= 20 * zoomScale;
-        }
-    }
 
     CGPoint clickPointAsHtml = CGPointMake(point.x * zoomScale, point.y * zoomScale);
 @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
