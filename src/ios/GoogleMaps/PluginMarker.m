@@ -1444,6 +1444,7 @@
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
                                                completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                                 [session finishTasksAndInvalidate];
                                                  if ( !error ) {
                                                    UIImage *image = [UIImage imageWithData:data];
                                                    [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
