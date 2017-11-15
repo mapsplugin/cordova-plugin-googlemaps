@@ -225,6 +225,10 @@ Map.prototype.setOptions = function(options) {
     return this;
 };
 
+Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
+    plugin.google.maps.Geolocation.getMyLocation(params, success_callback, error_callback);
+};
+
 Map.prototype.setCameraTarget = function(latLng) {
     this.set('camera_target', latLng);
     exec.call(this, null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
@@ -453,30 +457,6 @@ Map.prototype.setCompassEnabled = function(enabled) {
     enabled = common.parseBoolean(enabled);
     exec.call(this, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
     return this;
-};
-Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
-    var args = [params || {}, success_callback || null, error_callback];
-    if (typeof args[0] === "function") {
-        args.unshift({});
-    }
-    params = args[0];
-    success_callback = args[1];
-    error_callback = args[2];
-
-    params.enableHighAccuracy = params.enableHighAccuracy === true;
-    var self = this;
-    var successHandler = function(location) {
-        if (typeof success_callback === "function") {
-            location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
-            success_callback.call(self, location);
-        }
-    };
-    var errorHandler = function(result) {
-        if (typeof error_callback === "function") {
-            error_callback.call(self, result);
-        }
-    };
-    exec.call(this, successHandler, errorHandler, 'CordovaGoogleMaps', 'getMyLocation', [params], {sync: true});
 };
 Map.prototype.getFocusedBuilding = function(callback) {
     exec.call(this, callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
