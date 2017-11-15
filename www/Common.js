@@ -663,6 +663,38 @@ function getClickableRect(element, parentRect) {
   }
   return rect;
 }
+
+function quickfilter(domPositions, minMapDepth) {
+  var list = Object.keys(domPositions);
+  var finalDomPositions = {};
+  var i = 0, j = list.length - 1;
+  var leftRight = true;
+  while(i < j) {
+    if (leftRight) {
+      if (domPositions[list[j]].depth < minMapDepth) {
+        list[i] = list[j];
+        i++;
+        leftRight = false;
+      } else {
+        j--;
+      }
+    } else {
+      if (domPositions[list[i]].depth >= minMapDepth) {
+        list[j] = list[i];
+        j--;
+        leftRight = true;
+      } else {
+        i++;
+      }
+    }
+  }
+  list.splice(0, j);
+  list.forEach(function(domId) {
+    finalDomPositions[domId] = domPositions[domId];
+  });
+  return finalDomPositions;
+};
+
 module.exports = {
     getZIndex: getZIndex,
     getDomDepth: getDomDepth,
@@ -681,5 +713,6 @@ module.exports = {
     convertToPositionArray: convertToPositionArray,
     getLatLng: getLatLng,
     shouldWatchByNative: shouldWatchByNative,
-    markerOptionsFilter: markerOptionsFilter
+    markerOptionsFilter: markerOptionsFilter,
+    quickfilter: quickfilter
 };

@@ -77,6 +77,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     @Override
     public void run() {
       if (isSuspended || pauseResize) {
+        Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended + ", pauseResize = " + pauseResize);
         synchronized (timerLock) {
           isWaiting = true;
           try {
@@ -87,6 +88,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
         return;
       }
+      Log.d(TAG, "--->moving");
       isWaiting = false;
       //final PluginMap pluginMap = pluginMaps.get(mapId);
       //if (pluginMap.mapDivId == null) {
@@ -113,10 +115,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             mapId = mapIds[i];
             pluginMap = pluginMaps.get(mapId);
             if (pluginMap == null || pluginMap.mapDivId == null) {
+              Log.d("MyPluginLayout", "-->pluginMap = " + pluginMap  + ", pluginMap.mapDivId = " + pluginMap.mapDivId);
               continue;
             }
             drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
             if (drawRect == null) {
+              Log.d("MyPluginLayout", "-->drawRect = " + drawRect);
               continue;
             }
 
@@ -160,7 +164,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               params.height = height;
               params.leftMargin = x;
               params.topMargin = y;
-              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
+              Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
               pluginMap.mapView.setLayoutParams(params);
 
             }
@@ -576,6 +580,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 clickPoint.x <= (htmlElementRect.right) &&
                 clickPoint.y >= htmlElementRect.top &&
                 clickPoint.y <= htmlElementRect.bottom) {
+              Log.d(TAG, "---> hit = " + domId);
               isMapAction = false;
               break;
             }

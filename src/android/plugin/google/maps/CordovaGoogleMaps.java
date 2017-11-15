@@ -379,15 +379,22 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
       final JSONObject elements = args.getJSONObject(0);
       if (mPluginLayout == null) {
+        Log.d(TAG, "--->mPluginLayout = null");
           callbackContext.success();
           return;
       }
 
-      if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+    Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
+      //if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
           mPluginLayout.putHTMLElements(elements);
-      }
+      //}
 
-      callbackContext.success();
+
+    mPluginLayout.pauseResize = false;
+    synchronized (mPluginLayout.timerLock) {
+      mPluginLayout.timerLock.notify();
+    }
+    callbackContext.success();
   }
 
   @Override
