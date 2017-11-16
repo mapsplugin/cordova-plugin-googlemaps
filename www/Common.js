@@ -1,6 +1,9 @@
 var BaseArrayClass = require('./BaseArrayClass');
 var utils = require("cordova/utils");
 
+var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
+var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
+
 //---------------------------
 // Convert HTML color to RGB
 //---------------------------
@@ -697,7 +700,7 @@ function quickfilter(domPositions, minMapDepth) {
     finalDomPositions[domId] = domPositions[domId];
   });
   return finalDomPositions;
-};
+}
 
 module.exports = {
     getZIndex: getZIndex,
@@ -718,5 +721,6 @@ module.exports = {
     getLatLng: getLatLng,
     shouldWatchByNative: shouldWatchByNative,
     markerOptionsFilter: markerOptionsFilter,
-    quickfilter: quickfilter
+    quickfilter: quickfilter,
+    nextTick: nextTick
 };

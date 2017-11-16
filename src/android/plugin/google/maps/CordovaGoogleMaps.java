@@ -267,10 +267,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.removeMap(args, callbackContext);
           } else if ("backHistory".equals(action)) {
             CordovaGoogleMaps.this.backHistory(args, callbackContext);
-          } else if ("resumeResizeTimer".equals(action)) {
-            CordovaGoogleMaps.this.resumeResizeTimer(args, callbackContext);
-          } else if ("pauseResizeTimer".equals(action)) {
-            CordovaGoogleMaps.this.pauseResizeTimer(args, callbackContext);
           } else if ("updateMapPositionOnly".equals(action)) {
             CordovaGoogleMaps.this.updateMapPositionOnly(args, callbackContext);
           }
@@ -284,15 +280,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
-  public void resumeResizeTimer(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout.isWaiting) {
-      mPluginLayout.pauseResize = false;
-      synchronized (mPluginLayout.timerLock) {
-        mPluginLayout.timerLock.notify();
-      }
-    }
-    callbackContext.success();
-  }
   public void updateMapPositionOnly(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final JSONObject elements = args.getJSONObject(0);
 
@@ -319,17 +306,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       mPluginLayout.HTMLNodes.put(domId, domInfo);
     }
 
-    mPluginLayout.pauseResize = true;
-    if (mPluginLayout.isWaiting) {
-      mPluginLayout.pauseResize = false;
+    if (mPluginLayout.isSuspended) {
+      mPluginLayout.isSuspended = false;
       synchronized (mPluginLayout.timerLock) {
         mPluginLayout.timerLock.notify();
       }
     }
-    callbackContext.success();
-  }
-  public void pauseResizeTimer(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    mPluginLayout.pauseResize = true;
     callbackContext.success();
   }
   public void backHistory(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -352,6 +334,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       return;
     }
     mPluginLayout.isSuspended = true;
+    Log.e(TAG, "---->pause");
     callbackContext.success();
   }
   public void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -359,6 +342,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       callbackContext.success();
       return;
     }
+    Log.e(TAG, "---->resume");
     if (mPluginLayout.isSuspended) {
       mPluginLayout.isSuspended = false;
       synchronized (mPluginLayout.timerLock) {
@@ -379,18 +363,15 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
       final JSONObject elements = args.getJSONObject(0);
       if (mPluginLayout == null) {
-        Log.d(TAG, "--->mPluginLayout = null");
           callbackContext.success();
           return;
       }
 
-    Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
-      //if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+      //Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
+      if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
           mPluginLayout.putHTMLElements(elements);
-      //}
+      }
 
-
-    mPluginLayout.pauseResize = false;
     synchronized (mPluginLayout.timerLock) {
       mPluginLayout.timerLock.notify();
     }
@@ -608,7 +589,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         }
       }
     }, 500);
-
     /*
     // Checks the orientation of the screen
     if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {

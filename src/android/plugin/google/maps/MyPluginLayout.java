@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -53,7 +55,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean stopFlag = false;
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
-  public boolean pauseResize = false;
   private float zoomScale;
   public final Object timerLock = new Object();
   public boolean isWaiting = false;
@@ -62,7 +63,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
   @Override
   public void onGlobalLayout() {
-    Log.d("Layout", "---> onGlobalLayout");
     ViewTreeObserver observer = browserView.getViewTreeObserver();
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
       observer.removeOnGlobalLayoutListener(this);
@@ -76,8 +76,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
-      if (isSuspended || pauseResize) {
-        Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended + ", pauseResize = " + pauseResize);
+      Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
+      if (isSuspended) {
+        //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
         synchronized (timerLock) {
           isWaiting = true;
           try {
@@ -88,7 +89,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
         return;
       }
-      Log.d(TAG, "--->moving");
       isWaiting = false;
       //final PluginMap pluginMap = pluginMaps.get(mapId);
       //if (pluginMap.mapDivId == null) {
@@ -115,12 +115,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             mapId = mapIds[i];
             pluginMap = pluginMaps.get(mapId);
             if (pluginMap == null || pluginMap.mapDivId == null) {
-              Log.d("MyPluginLayout", "-->pluginMap = " + pluginMap  + ", pluginMap.mapDivId = " + pluginMap.mapDivId);
               continue;
             }
             drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
             if (drawRect == null) {
-              Log.d("MyPluginLayout", "-->drawRect = " + drawRect);
               continue;
             }
 
@@ -130,7 +128,21 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             int y = (int) drawRect.top + scrollY;
             ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
 
-            if (lParams instanceof AbsoluteLayout.LayoutParams) {
+            if (lParams instanceof FrameLayout.LayoutParams) {
+              FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+              if (params.leftMargin == x && params.topMargin == y &&
+                  params.width == width && params.height == height) {
+                return;
+              }
+              params.width = width;
+              params.height = height;
+              params.leftMargin = x;
+              params.topMargin = y;
+              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
+              pluginMap.mapView.setLayoutParams(params);
+
+            } else if (lParams instanceof AbsoluteLayout.LayoutParams) {
               AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
               if (params.x == x && params.y == y &&
                 params.width == width && params.height == height) {
@@ -153,20 +165,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               params.leftMargin = x;
               params.topMargin = y;
               pluginMap.mapView.setLayoutParams(params);
-            } else if (lParams instanceof FrameLayout.LayoutParams) {
-              FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-
-              if (params.leftMargin == x && params.topMargin == y &&
-                params.width == width && params.height == height) {
-                return;
-              }
-              params.width = width;
-              params.height = height;
-              params.leftMargin = x;
-              params.topMargin = y;
-              Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
-              pluginMap.mapView.setLayoutParams(params);
-
             }
 
           }
