@@ -601,6 +601,10 @@ function markerOptionsFilter(markerOptions) {
     markerOptions.infoWindowAnchor = [markerOptions.infoWindowAnchor.x, markerOptions.infoWindowAnchor.anchor.y];
   }
 
+  if ("style" in markerOptions && !("styles" in markerOptions)) {
+    markerOptions.styles = markerOptions.style;
+    delete markerOptions.style;
+  }
   if ("styles" in markerOptions) {
       markerOptions.styles = typeof markerOptions.styles === "object" ? markerOptions.styles : {};
 

@@ -656,7 +656,7 @@
   //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
   NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
   Boolean useHtmlInfoWnd = marker.title == nil && marker.snippet == nil;
 

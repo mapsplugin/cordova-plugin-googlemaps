@@ -286,6 +286,7 @@ NSDictionary *debugAttributes;
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
                              completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                               [session finishTasksAndInvalidate];
                                if ( !error ) {
                                  [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
                                  UIImage *image = [UIImage imageWithData:data];

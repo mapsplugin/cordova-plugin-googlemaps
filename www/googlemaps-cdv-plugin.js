@@ -813,6 +813,9 @@ var _lastGetMapExecuted = 0;
 var _isResizeMapExecuting = false;
 var _stopRequested = false;
 
+var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
+var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
+
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
   execOptions = execOptions || {};
   if (this._isRemoved && !execOptions.remove || !this._isReady) {
@@ -832,9 +835,9 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        setTimeout(function() {
+        setTimeout(nextTick(function() {
           success.apply(self,results);
-        }, 0);
+        }), 0);
       }
 
       var delay = 0;
@@ -848,7 +851,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       }
       setTimeout(function() {
         _executingCnt--;
-        _exec();
+        nextTick(_exec);
       }, delay);
     }, function() {
       //console.log("error: " + methodName);
@@ -860,16 +863,16 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        setTimeout(function() {
+        setTimeout(nextTick(function() {
           error.apply(self,results);
-        }, 0);
+        }), 0);
       }
 
       if (methodName === _isWaitMethod) {
         _isWaitMethod = null;
       }
       _executingCnt--;
-      _exec();
+      nextTick(_exec);
     }, pluginName, methodName, args]
   });
 
@@ -877,7 +880,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
   if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT ) {
     return;
   }
-  _exec();
+  nextTick(_exec);
 }
 function _exec() {
   //console.log("commandQueue.length: " + commandQueue.length);
