@@ -76,7 +76,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
-      Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
       if (isSuspended) {
         //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
         synchronized (timerLock) {
@@ -492,8 +491,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-      if (isSuspended || pluginMaps == null || pluginMaps.size() == 0) {
-        webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
+      if (pluginMaps == null || pluginMaps.size() == 0) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+          webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
+        }
         return false;
       }
       MyPluginLayout.this.stopFlag = true;
@@ -578,7 +579,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 clickPoint.x <= (htmlElementRect.right) &&
                 clickPoint.y >= htmlElementRect.top &&
                 clickPoint.y <= htmlElementRect.bottom) {
-              Log.d(TAG, "---> hit = " + domId);
+              //Log.d(TAG, "---> hit = " + domId);
               isMapAction = false;
               break;
             }
@@ -594,7 +595,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
-        webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+          webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
+        }
       }
 
       MyPluginLayout.this.stopFlag = false;

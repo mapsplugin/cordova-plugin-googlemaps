@@ -177,7 +177,7 @@
       // Assumes all touches for the browser
       return;
     }
-    if (self.stopFlag || self.pauseResize) {
+    if (self.stopFlag) {
         return;
     }
     self.stopFlag = YES;
@@ -271,13 +271,22 @@
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-      mapCtrl.isRenderedAtOnce = YES;
+      if (mapCtrl.isRenderedAtOnce) {
 
+        [UIView animateWithDuration:0.075f animations:^{
+          [mapCtrl.view setFrame:rect];
+          rect.origin.x = 0;
+          rect.origin.y = 0;
+          [mapCtrl.map setFrame:rect];
+        }];
+      } else {
         [mapCtrl.view setFrame:rect];
-
         rect.origin.x = 0;
         rect.origin.y = 0;
-      [mapCtrl.map setFrame:rect];
+        [mapCtrl.map setFrame:rect];
+        mapCtrl.isRenderedAtOnce = YES;
+      }
+
 
     });
 
@@ -305,9 +314,8 @@
       }
     }
 
-    if (self.isSuspended || self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
+    if (self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
       // Assumes all touches for the browser
-      [self execJS:@"javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}"];
       return [self.webView hitTest:point withEvent:event];
     }
 
@@ -430,7 +438,6 @@
 
     UIView *hitView =[self.webView hitTest:point withEvent:event];
     //NSLog(@"--> (hit test) hit = %@", hitView.class);
-    [self execJS:@"javascript:(cordova && cordova.fireDocumentEvent('plugin_touch', {}));"];
     return hitView;
 
 }

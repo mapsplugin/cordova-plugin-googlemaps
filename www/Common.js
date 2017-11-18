@@ -274,6 +274,13 @@ function shouldWatchByNative(node) {
 // Get z-index order
 // http://stackoverflow.com/a/24136505
 var internalCache = {};
+function _clearInternalCache() {
+  internalCache = undefined;
+  internalCache = {};
+}
+function _removeCacheById(elemId) {
+  delete internalCache[elemId];
+}
 function getZIndex(dom) {
     if (dom === document.body) {
       internalCache = undefined;
@@ -320,7 +327,12 @@ function getDomDepth(dom, idx, parentDepth, floorLevel) {
     }
     // In order to handle this value as double anytime, add 0.01 (for Android)
     var result = parentDepth +  (getZIndex(dom) + 1 + idx) / (1 << floorLevel) + 0.01;
-    dom.setAttribute("_depth", result); // for debugging
+/*
+    var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
+    if (currentDepth != result) {
+      dom.setAttribute("_depth", result); // for debugging
+    }
+*/
     return result;
 }
 
@@ -703,6 +715,8 @@ function quickfilter(domPositions, minMapDepth) {
 }
 
 module.exports = {
+    _clearInternalCache: _clearInternalCache,
+    _removeCacheById: _removeCacheById,
     getZIndex: getZIndex,
     getDomDepth: getDomDepth,
     deleteFromObject: deleteFromObject,

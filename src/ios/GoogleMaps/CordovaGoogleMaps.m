@@ -180,7 +180,6 @@
 - (void)getMap:(CDVInvokedUrlCommand *)command {
     if (self.pluginLayer != nil) {
       self.pluginLayer.isSuspended = false;
-      self.pluginLayer.pauseResize = false;
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -393,8 +392,6 @@
           }
         }
 
-        self.pluginLayer.pauseResize = false;
-        self.pluginLayer.isSuspended = false;
         self.pluginLayer.isSuspended = false;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.pluginLayer resizeTask:nil];
@@ -405,21 +402,6 @@
   }];
 }
 
-- (void)resumeResizeTimer:(CDVInvokedUrlCommand *)command {
-    if (self.pluginLayer != nil) {
-      self.pluginLayer.pauseResize = false;
-    }
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
-}
-- (void)pauseResizeTimer:(CDVInvokedUrlCommand *)command {
-    if (self.pluginLayer != nil) {
-      self.pluginLayer.pauseResize = true;
-    }
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
     [self.executeQueue addOperationWithBlock:^{
 
