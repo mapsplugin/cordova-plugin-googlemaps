@@ -18,6 +18,7 @@
 @property (nonatomic) BOOL isSuspended;
 @property (nonatomic) BOOL stopFlag;
 @property (nonatomic) NSOperationQueue *executeQueue;
+@property (nonatomic) dispatch_semaphore_t semaphore;
 
 - (id)initWithWebView:(UIView *)webView;
 - (void)resizeTask:(NSTimer *)timer;
@@ -25,4 +26,5 @@
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl;
 - (void)removeMapView:(GoogleMapsViewController *)mapCtrl;
+- (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
 @end

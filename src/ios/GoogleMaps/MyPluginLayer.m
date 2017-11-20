@@ -42,12 +42,17 @@
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
 
+    dispatch_queue_t q_background = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
 
-    self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                target:self
-                                selector:@selector(resizeTask:)
-                                userInfo:nil
-                                repeats:YES];
+    dispatch_async(q_background, ^{
+      self.semaphore = dispatch_semaphore_create(0);
+      self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                  target:self
+                                  selector:@selector(resizeTask:)
+                                  userInfo:nil
+                                  repeats:YES];
+    });
+
 
     return self;
 }
@@ -174,8 +179,10 @@
 
 - (void)resizeTask:(NSTimer *)timer {
     if (self.isSuspended) {
-      // Assumes all touches for the browser
-      return;
+      @synchronized (self.semaphore) {
+        dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+      }
+      //return;
     }
     if (self.stopFlag) {
         return;

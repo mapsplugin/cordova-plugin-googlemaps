@@ -358,6 +358,7 @@
 - (void)resume:(CDVInvokedUrlCommand *)command {
     if (self.pluginLayer != nil) {
       self.pluginLayer.isSuspended = false;
+      dispatch_semaphore_signal(self.pluginLayer.semaphore);
     }
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -393,6 +394,7 @@
         }
 
         self.pluginLayer.isSuspended = false;
+        dispatch_semaphore_signal(self.pluginLayer.semaphore);
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           [self.pluginLayer resizeTask:nil];
         }];
