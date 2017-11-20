@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -405,24 +407,29 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       } catch (Exception e) {
         e.printStackTrace();
       }
-      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, (int) (CAMERA_PADDING / density)));
+      map.moveCamera(CameraUpdateFactory.newLatLngBounds(initCameraBounds, (int) (CAMERA_PADDING * density)));
 
       CameraPosition.Builder builder = CameraPosition.builder(map.getCameraPosition());
 
       try {
         if (mParams.has("camera")) {
+          Boolean additionalParams = false;
           JSONObject camera = mParams.getJSONObject("camera");
           if (camera.has("bearing")) {
             builder.bearing((float) camera.getDouble("bearing"));
+            additionalParams = true;
           }
           if (camera.has("tilt")) {
             builder.tilt((float) camera.getDouble("tilt"));
+            additionalParams = true;
+          }
+          if (additionalParams) {
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
           }
         }
       } catch (Exception e) {
         e.printStackTrace();
       }
-      map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
       mapView.setVisibility(View.VISIBLE);
       mCallback.success();
 
@@ -476,6 +483,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     Builder builder = CameraPosition.builder();
     builder.tilt(map.getCameraPosition().tilt);
     builder.bearing(map.getCameraPosition().bearing);
+    Log.d(TAG, mapView.getWidth() + "x" + mapView.getHeight());
 
     // Fit the camera to the cameraBounds with 20px padding.
     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBounds, padding / (int)density);
@@ -525,7 +533,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
 
-  public void resizeMap(JSONArray args, CallbackContext callbackContext) throws JSONException {
+  public void resizeMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mapCtrl.mPluginLayout == null || mapDivId == null) {
       //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
       callbackContext.success();
@@ -557,10 +565,32 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       mapCtrl.mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
     }
 
-    //mapCtrl.mPluginLayout.updateViewPosition(mapId);
 
-    //mapCtrl.mPluginLayout.inValidate();
-    callbackContext.success();
+
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        RectF drawRect = mapCtrl.mPluginLayout.HTMLNodeRectFs.get(mapDivId);
+
+        final int scrollY = webView.getView().getScrollY();
+
+        int width = (int)drawRect.width();
+        int height = (int)drawRect.height();
+        int x = (int) drawRect.left;
+        int y = (int) drawRect.top + scrollY;
+        ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+        params.width = width;
+        params.height = height;
+        params.leftMargin = x;
+        params.topMargin = y;
+        mapView.setLayoutParams(params);
+
+        callbackContext.success();
+      }
+    });
   }
 
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {

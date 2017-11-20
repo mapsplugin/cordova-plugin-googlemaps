@@ -160,7 +160,6 @@ Map.prototype.getMap = function(mapId, div, options) {
     exec.call({
       _isReady: true
     }, function() {
-      self._onTouchEvents();
 
       //------------------------------------------------------------------------
       // Clear background colors of map div parents after the map is created
@@ -168,32 +167,33 @@ Map.prototype.getMap = function(mapId, div, options) {
       var div = self.get("div");
       if (common.isDom(div)) {
         while (div.parentNode) {
-            if (common.getStyle(div, "-webkit-overflow-scrolling") === "touch") {
-              // Disable scrolling, becase the `scroll` events are not fired.
-              div.style["-webkit-overflow-scrolling"] = "auto";
-              div.addEventListener('touchstart', self._onTouchEvents.bind(self));
-              div.addEventListener('touchmove', self._onTouchEvents.bind(self));
-              div.addEventListener('touchend', self._onTouchEvents.bind(self));
-              div.addEventListener('touchcancel', self._onTouchEvents.bind(self));
-              div.addEventListener('touchleave', self._onTouchEvents.bind(self));
-            }
-            div.style.backgroundColor = 'rgba(0,0,0,0)';
+          if (common.getStyle(div, "-webkit-overflow-scrolling") === "touch") {
+            // Disable scrolling, becase the `scroll` events are not fired.
+            div.style["-webkit-overflow-scrolling"] = "auto";
+            div.addEventListener('touchstart', self._onTouchEvents.bind(self));
+            div.addEventListener('touchmove', self._onTouchEvents.bind(self));
+            div.addEventListener('touchend', self._onTouchEvents.bind(self));
+            div.addEventListener('touchcancel', self._onTouchEvents.bind(self));
+            div.addEventListener('touchleave', self._onTouchEvents.bind(self));
+          }
+          div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
-            // prevent multiple readding the class
-            if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-                div.classList.add('_gmaps_cdv_');
-            } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-                div.className = div.className + ' _gmaps_cdv_';
-            }
+          // prevent multiple readding the class
+          if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+              div.classList.add('_gmaps_cdv_');
+          } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
+              div.className = div.className + ' _gmaps_cdv_';
+          }
 
-            div = div.parentNode;
+          div = div.parentNode;
         }
       }
+      //cordova.fireDocumentEvent("plugin_touch", {force: true});
+
       //------------------------------------------------------------------------
       // In order to work map.getVisibleRegion() correctly, wait a little.
       //------------------------------------------------------------------------
       setTimeout(function() {
-        self._onTouchEvents();
         Object.defineProperty(self, "_isReady", {
             value: true,
             writable: false
@@ -202,6 +202,8 @@ Map.prototype.getMap = function(mapId, div, options) {
         self.trigger(event.MAP_READY, self);
       }, 250);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {sync: true});
+
+
 };
 
 Map.prototype.setOptions = function(options) {

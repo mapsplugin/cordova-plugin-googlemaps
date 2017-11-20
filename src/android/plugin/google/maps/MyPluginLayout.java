@@ -130,6 +130,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             if (lParams instanceof FrameLayout.LayoutParams) {
               FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
 
+              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
               if (params.leftMargin == x && params.topMargin == y &&
                   params.width == width && params.height == height) {
                 return;
@@ -138,7 +139,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               params.height = height;
               params.leftMargin = x;
               params.topMargin = y;
-              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
               pluginMap.mapView.setLayoutParams(params);
 
             } else if (lParams instanceof AbsoluteLayout.LayoutParams) {
@@ -192,6 +192,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     //}
 
     zoomScale = Resources.getSystem().getDisplayMetrics().density;
+    Log.e(TAG, "--> zoomScale = " + zoomScale);
     frontLayer = new FrontLayerLayout(this.context);
 
     scrollView = new ScrollView(this.context);
@@ -439,6 +440,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     if (!HTMLNodes.containsKey(pluginMap.mapDivId)) {
+      Log.e(TAG, "----> 100x100");
       Bundle dummyInfo = new Bundle();
       dummyInfo.putDouble("offsetX", 0);
       dummyInfo.putDouble("offsetY", 3000);

@@ -36,6 +36,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   private HashMap<Integer, AsyncTask> imageLoadingTasks = new HashMap<Integer, AsyncTask>();
   private final Object semaphore = new Object();
   private HashMap<String, Bitmap> overlayImage = new HashMap<String, Bitmap>();
+  private boolean _clearDone = false;
 
   @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -142,6 +143,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
   @Override
   protected void clear() {
+    _clearDone = false;
     synchronized (semaphore) {
 
       //--------------------------------------
@@ -178,6 +180,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
           }
 
           synchronized (semaphore) {
+            _clearDone = true;
             semaphore.notify();
           }
 
@@ -185,9 +188,12 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       });
 
       try {
-        semaphore.wait();
+        if (!_clearDone) {
+          semaphore.wait(1000);
+        }
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        // ignore
+        //e.printStackTrace();
       }
     }
   }
