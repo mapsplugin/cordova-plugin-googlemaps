@@ -833,6 +833,7 @@
   CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
 
   int y;
   int i = 0;
@@ -862,6 +863,7 @@
       shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
       shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
       shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+      CGImageRelease(shadowImageRef);
 
     } else {
       x += shadowImageLeft.size.width;
@@ -881,6 +883,7 @@
   shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
   x += shadowImageLeft.size.width;
 
   y = 1;
