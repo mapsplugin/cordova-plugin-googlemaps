@@ -118,6 +118,7 @@ if (!cordova) {
     var prevDomPositions = {};
     var idlingCnt = -1;
     var longIdlingCnt = -1;
+    var MIN_MAP_DEPTH = 0;
 
     var isChecking = false;
     var cacheDepth = {};
@@ -163,6 +164,13 @@ if (!cordova) {
     document.body.addEventListener("followMapDivPositionOnly",followMapDivPositionOnly, true);
     document.body.addEventListener("transitionend",followMapDivPositionOnly, true);
     document.body.addEventListener("scroll", function(e) {
+      if (e.target.hasAttribute("__pluginDomId")) {
+        var elemId = e.target.getAttribute("__pluginDomId");
+        var depth = cacheDepth[elemId];
+        if (depth > MIN_MAP_DEPTH) {
+          return;
+        }
+      }
       if (scrollEndTimer) {
         clearTimeout(scrollEndTimer);
       }
@@ -431,6 +439,7 @@ if (!cordova) {
         });
         return;
       }
+      MIN_MAP_DEPTH = minMapDepth;
 
       //-----------------------------------------------------------------
       // Ignore the elements that their z-index is smaller than map div
