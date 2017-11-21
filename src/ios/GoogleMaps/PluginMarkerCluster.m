@@ -295,7 +295,7 @@ const int GEOCELL_GRID_SIZE = 4;
         }
 
         // Get the marker properties
-        markerProperties = [changeProperties objectForKey:clusterId_markerId];
+        markerProperties = [self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
 
         isNew = [self.mapCtrl.objects objectForKey:clusterId_markerId] == nil;
         //--------------------------
@@ -303,7 +303,8 @@ const int GEOCELL_GRID_SIZE = 4;
         //--------------------------
         if ([clusterId_markerId containsString:@"-marker_"]) {
           if (isNew) {
-            [super _create:clusterId_markerId markerOptions:markerProperties callbackBlock:^(BOOL successed, id resultObj) {
+              markerProperties = [self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
+              [super _create:clusterId_markerId markerOptions:markerProperties callbackBlock:^(BOOL successed, id resultObj) {
 
               @synchronized (self.pluginMarkers) {
                 if (successed) {
@@ -345,6 +346,7 @@ const int GEOCELL_GRID_SIZE = 4;
         //--------------------------
         // cluster icon
         //--------------------------
+        markerProperties = [changeProperties objectForKey:clusterId_markerId];
 
 
         if (isNew) {
