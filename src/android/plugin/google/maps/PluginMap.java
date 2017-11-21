@@ -2630,9 +2630,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             Point hitArea = new Point();
             hitArea.x = 1;
             hitArea.y = 1;
-            double threshold = calculateDistance(
-                projection.fromScreenLocation(origin),
-                projection.fromScreenLocation(hitArea));
+            //double threshold = calculateDistance(
+            //    projection.fromScreenLocation(origin),
+            //    projection.fromScreenLocation(hitArea));
 
             float zIndex = -1;
             float maxZIndex = -1;
@@ -2658,6 +2658,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 points = polyline.getPoints();
 
                 if (polyline.isGeodesic()) {
+                  hitArea.x = (int)(polyline.getWidth() * density);
+                  hitArea.y = hitArea.x;
+                  double threshold = calculateDistance(
+                    projection.fromScreenLocation(origin),
+                    projection.fromScreenLocation(hitArea));
                   if (isPointOnTheGeodesicLine(points, point, threshold)) {
                     hitOverlay = polyline;
                     maxZIndex = zIndex;
