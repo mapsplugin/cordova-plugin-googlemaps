@@ -131,7 +131,7 @@ if (!cordova) {
     var followPositionTimerCnt = 0;
     var prevMapRects = {};
     var scrollEndTimer = null;
-    function followMapDivPositionOnly() {
+    function followMapDivPositionOnly(opts) {
       var mapRects = {};
       var mapIDs = Object.keys(MAPS);
       var changed = false;
@@ -156,7 +156,7 @@ if (!cordova) {
         }
       });
       prevMapRects = mapRects;
-      if (changed) {
+      if (changed || opts.force) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
       }
     }
@@ -309,12 +309,15 @@ if (!cordova) {
     var shouldUpdate = false;
     var doNotTrace = false;
     var prevFinal = {};
+    var checkRequested = false;
 
     function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
       if (isChecking) {
+        checkRequested = true;
         return;
       }
+      checkRequested = false;
       if (!isThereAnyChange || mapIDs.length === 0) {
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -341,16 +344,17 @@ if (!cordova) {
       //-------------------------------------------
       // If there is no visible map, stop checking
       //-------------------------------------------
-      var visibleMapDivList, i, mapId, map;
-      visibleMapList = [];
+      var touchableMapList, i, mapId, map;
+      touchableMapList = [];
       for (i = 0; i < mapIDs.length; i++) {
         mapId = mapIDs[i];
         map = MAPS[mapId];
-        if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
-          visibleMapList.push(mapId);
+        if (map &&
+          map.getVisible() && map.getClickable() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
+          touchableMapList.push(mapId);
         }
       }
-      if (idlingCnt > -1 && visibleMapList.length === 0) {
+      if (idlingCnt > -1 && touchableMapList.length === 0) {
         idlingCnt++;
         if (!isSuspended) {
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -361,6 +365,13 @@ if (!cordova) {
         return;
       }
 
+      if (checkRequested) {
+        setTimeout(function() {
+          isChecking = false;
+          common.nextTick(putHtmlElements);
+        }, 50);
+        return;
+      }
       //-------------------------------------------
       // Should the plugin update the map positions?
       //-------------------------------------------
@@ -391,7 +402,9 @@ if (!cordova) {
           if (idlingCnt === 8) {
             cordova.fireDocumentEvent("ecocheck", {});
           }
-          common.nextTick(putHtmlElements, idlingCnt < 5 ? 50 : 200);
+          setTimeout(function() {
+            common.nextTick(putHtmlElements);
+          }, idlingCnt < 5 ? 50 : 200);
         }
         isThereAnyChange = false;
         isChecking = false;
@@ -432,11 +445,11 @@ if (!cordova) {
       if (stopFlag) {
         // There is no map size information (maybe timining?)
         // Try again.
-        isChecking = false;
         isThereAnyChange = true;
-        common.nextTick(function() {
-          setTimeout(putHtmlElements, 50);
-        });
+        setTimeout(function() {
+          isChecking = false;
+          common.nextTick(putHtmlElements);
+        }, 50);
         return;
       }
       MIN_MAP_DEPTH = minMapDepth;
@@ -445,7 +458,7 @@ if (!cordova) {
       // Ignore the elements that their z-index is smaller than map div
       //-----------------------------------------------------------------
       var finalDomPositions;
-      if (visibleMapList.length === 0) {
+      if (touchableMapList.length === 0) {
         finalDomPositions = domPositions;
       } else {
         finalDomPositions = common.quickfilter(domPositions, minMapDepth);
@@ -457,6 +470,11 @@ if (!cordova) {
           return currentKeys.indexOf(prevKey) === -1;
         });
         if (diff.length === 0) {
+          if (checkRequested || isThereAnyChange) {
+            isChecking = false;
+            common.nextTick(putHtmlElements);
+            return;
+          }
           if (!isSuspended) {
             cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           }
@@ -465,6 +483,13 @@ if (!cordova) {
           return;
         }
       }
+      if (checkRequested) {
+        setTimeout(function() {
+          isChecking = false;
+          common.nextTick(putHtmlElements);
+        }, 50);
+        return;
+      }
       //-----------------------------------------------------------------
       // Pass information to native
       //-----------------------------------------------------------------
@@ -472,17 +497,27 @@ if (!cordova) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-
+  console.log("--->putHtmlElements to native (start)", JSON.stringify(finalDomPositions, null, 2));
       cordova_exec(function() {
         prevDomPositions = domPositions;
-        isChecking = false;
         if (!isMutationObserver) {
           isThereAnyChange = true;
-          common.nextTick(function() {
-            setTimeout(putHtmlElements, 50);
-          });
+          setTimeout(function() {
+            isChecking = false;
+            common.nextTick(putHtmlElements);
+          }, 50);
         } else {
+    console.log("--->putHtmlElements to native (done)");
+          if (checkRequested) {
+            setTimeout(function() {
+              isChecking = false;
+              common.nextTick(putHtmlElements);
+            }, 50);
+            return;
+          }
+          isChecking = false;
           isThereAnyChange = false;
+          isSuspended = true;
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         }
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [finalDomPositions]);
@@ -612,7 +647,7 @@ if (!cordova) {
       common.nextTick(function() {
         putHtmlElements();
         if (opts.force) {
-          followMapDivPositionOnly();
+          followMapDivPositionOnly(opts);
         }
       });
     }
@@ -743,6 +778,7 @@ if (!cordova) {
                   size: div.getBoundingClientRect(),
                   depth: 0.01
                 };
+console.log(dummyInfo);
                 cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [dummyInfo]);
               }
 

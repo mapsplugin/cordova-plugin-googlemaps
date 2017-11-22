@@ -327,12 +327,12 @@ function getDomDepth(dom, idx, parentDepth, floorLevel) {
     }
     // In order to handle this value as double anytime, add 0.01 (for Android)
     var result = parentDepth +  (getZIndex(dom) + 1 + idx) / (1 << floorLevel) + 0.01;
-/*
+
     var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
     if (currentDepth != result) {
       dom.setAttribute("_depth", result); // for debugging
     }
-*/
+
     return result;
 }
 
@@ -639,47 +639,144 @@ function markerOptionsFilter(markerOptions) {
 
 function getClickableRect(element, parentRect) {
   var rect = getDivRect(element);
+  return rect;
+  var offsetTop = Math.abs(element.offsetTop),
+    offsetBottom = Math.abs(element.offsetBottom),
+    offsetLeft = Math.abs(element.offsetLeft),
+    offsetRight = Math.abs(element.offsetRight);
+
+  // if (element.hasAttribute("__pluginMapId")) {
+  //   console.log("before", JSON.stringify({
+  //     rect: rect,
+  //     parentRect: parentRect
+  //   }, null, 2));
+  // }
   rect.right = rect.left + rect.width;
   rect.bottom = rect.top + rect.height;
-  rect.overflowX_hidden = getStyle(element, "overflow-x") === "hidden";
-  rect.overflowY_hidden = getStyle(element, "overflow-y") === "hidden";
-  if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
+  var overflowX_hidden = getStyle(element.parentNode, "overflow-x") === "hidden";
+  var overflowY_hidden = getStyle(element.parentNode, "overflow-y") === "hidden";
+  if (overflowX_hidden && (offsetLeft > 0 || offsetRight > 0)) {
     if (rect.left < parentRect.left) {
       if (rect.right > parentRect.right) {
+        //--------------------
+        //
+        //     |-------|
+        //  |--|-------|--|
+        //  |  |       |  |
+        //  |  |       |  |
+        //  |--|-------|--|
+        //     |-------|
+        //
+        //--------------------
         rect.width = parentRect.width;
         rect.left = parentRect.left;
-      } else {
-        rect.width = rect.width + rect.left - parentRect.left;
+      } else if (rect.right >= parentRect.left && rect.right <= parentRect.right){
+        //--------------------
+        //
+        //     |-------|
+        //  |--|---|   |
+        //  |  |   |   |
+        //  |  |   |   |
+        //  |--|---|   |
+        //     |-------|
+        //
+        //--------------------
+        rect.width = rect.width - offsetLeft;
         rect.left = parentRect.left;
       }
-    } else if (rect.right > parentRect.right) {
+    } else if (rect.right > parentRect.right && rect.left >= parentRect.left && rect.left <= parentRect.right) {
       if (rect.left > parentRect.left) {
+        //--------------------
+        //
+        //  |-------|
+        //  |   |---|--|
+        //  |   |   |  |
+        //  |   |   |  |
+        //  |   |---|--|
+        //  |-------|
+        //
+        //--------------------
         rect.width = rect.width + parentRect.right - rect.right;
+/*
       } else {
+        //--------------------
+        //
+        //   |------|
+        //   |------|
+        //   |      |
+        //   |------|
+        //   |------|
+        //
+        //--------------------
         rect.width = parentRect.width;
+*/
       }
     }
     rect.right = rect.left + rect.width;
   }
 
-  if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
+  if (overflowY_hidden && (offsetTop > 0 || offsetBottom > 0)) {
     if (rect.top < parentRect.top) {
       if (rect.bottom > parentRect.bottom) {
+        //--------------------
+        //
+        //      |-----|
+        //   |-----------|
+        //   |  |     |  |
+        //   |  |     |  |
+        //   |-----------|
+        //      |-----|
+        //
+        //--------------------
         rect.height = parentRect.height;
         rect.top = parentRect.top;
-      } else {
-        rect.height = rect.height + rect.top - parentRect.top;
+      } else if (rect.bottom >= parentRect.top && rect.bottom <= parentRect.bottom) {
+        //--------------------
+        //
+        //      |-----|
+        //   |-----------|
+        //   |  |     |  |
+        //   |  |-----|  |
+        //   |-----------|
+        //
+        //--------------------
+        rect.height = rect.height - offsetTop;
         rect.top = parentRect.top;
       }
-    } else if (rect.bottom > parentRect.bottom) {
+    } else if (rect.bottom > parentRect.bottom && rect.top >= parentRect.top && rect.top <= parentRect.bottom) {
       if (rect.top > parentRect.top) {
-        rect.height = rect.height + parentRect.bottom - rect.bottom;
+        //--------------------
+        //
+        //   |-----------|
+        //   |  |-----|  |
+        //   |  |     |  |
+        //   |-----------|
+        //      |-----|
+        //
+        //--------------------
+        rect.height = rect.height - offsetBottom;
+/*
       } else {
+        //--------------------
+        //
+        //   |--|-----|--|
+        //   |  |     |  |
+        //   |  |     |  |
+        //   |  |     |  |
+        //   |--|-----|--|
+        //
+        //--------------------
         rect.height = parentRect.height;
+*/
       }
     }
     rect.bottom = rect.top + rect.height;
   }
+  // if (element.hasAttribute("__pluginMapId")) {
+  //   console.log("after", JSON.stringify({
+  //     rect: rect
+  //   }, null, 2));
+  // }
   return rect;
 }
 

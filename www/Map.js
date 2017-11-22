@@ -72,6 +72,10 @@ Map.prototype.refreshLayout = function(event) {
 Map.prototype.getMap = function(mapId, div, options) {
     var self = this,
         args = [mapId];
+    options = options || {};
+
+    self.set("clickable", options.clickable === false ? false : true);
+    self.set("visible", options.visible === false ? false : true);
 
     if (!common.isDom(div)) {
         self.set("visible", false);
@@ -104,7 +108,6 @@ Map.prototype.getMap = function(mapId, div, options) {
           // important for HtmlInfoWindow
           div.style.position = "relative";
         }
-        self.set("visible", true);
         options = options || {};
         if (options.camera) {
           if (options.camera.latLng) {
@@ -188,7 +191,7 @@ Map.prototype.getMap = function(mapId, div, options) {
           div = div.parentNode;
         }
       }
-      //cordova.fireDocumentEvent("plugin_touch", {force: true});
+      cordova.fireDocumentEvent("plugin_touch", {force: true});
 
       //------------------------------------------------------------------------
       // In order to work map.getVisibleRegion() correctly, wait a little.
@@ -481,10 +484,16 @@ Map.prototype.setVisible = function(isVisible) {
     exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
     return this;
 };
+
 Map.prototype.setClickable = function(isClickable) {
+    var self = this;
     isClickable = common.parseBoolean(isClickable);
+    self.set("clickable", isClickable);
     exec.call(this, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
     return this;
+};
+Map.prototype.getClickable = function() {
+    return this.get("clickable");
 };
 
 
