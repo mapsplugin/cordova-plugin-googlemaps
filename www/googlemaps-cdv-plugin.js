@@ -118,7 +118,8 @@ if (!cordova) {
     var prevDomPositions = {};
     var idlingCnt = -1;
     var longIdlingCnt = -1;
-    var MIN_MAP_DEPTH = 0;
+    var MIN_MAP_DEPTH = -1;
+    var MAX_MAP_DEPTH = -1;
 
     var isChecking = false;
     var cacheDepth = {};
@@ -132,6 +133,7 @@ if (!cordova) {
     var prevMapRects = {};
     var scrollEndTimer = null;
     function followMapDivPositionOnly(opts) {
+      opts = opts || {};
       var mapRects = {};
       var mapIDs = Object.keys(MAPS);
       var changed = false;
@@ -417,6 +419,7 @@ if (!cordova) {
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
       var minMapDepth = 9999999;
+      var maxMapDepth = -1;
       var stopFlag = false;
       mapIDs.forEach(function(mapId) {
         var div = MAPS[mapId].getDiv();
@@ -425,6 +428,7 @@ if (!cordova) {
           if (elemId) {
             if (elemId in domPositions) {
               minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
+              maxMapDepth = Math.max(maxMapDepth, domPositions[elemId].depth);
             } else {
               // Is the map div removed?
               if (window.document.querySelector) {
@@ -453,6 +457,7 @@ if (!cordova) {
         return;
       }
       MIN_MAP_DEPTH = minMapDepth;
+      MAX_MAP_DEPTH = maxMapDepth;
 
       //-----------------------------------------------------------------
       // Ignore the elements that their z-index is smaller than map div
@@ -497,7 +502,7 @@ if (!cordova) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-  console.log("--->putHtmlElements to native (start)", JSON.stringify(finalDomPositions, null, 2));
+  //console.log("--->putHtmlElements to native (start)", JSON.stringify(finalDomPositions, null, 2));
       cordova_exec(function() {
         prevDomPositions = domPositions;
         if (!isMutationObserver) {
@@ -507,7 +512,7 @@ if (!cordova) {
             common.nextTick(putHtmlElements);
           }, 50);
         } else {
-    console.log("--->putHtmlElements to native (done)");
+    //console.log("--->putHtmlElements to native (done)");
           if (checkRequested) {
             setTimeout(function() {
               isChecking = false;
@@ -550,11 +555,19 @@ if (!cordova) {
             prevDomPositions[elemId].zIndex === zIndex) {
             depth = cacheDepth[elemId];
         } else {
-            depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
+            if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
+              depth = parentDepth;
+            } else {
+              depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
+            }
             cacheDepth[elemId] = depth;
         }
         // Calculate dom clickable region
-        rect = common.getClickableRect(element, parentRect);
+        if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
+          rect = parentRect;
+        } else {
+          rect = common.getClickableRect(element, parentRect);
+        }
 
         // Stores dom bounds and depth
         domPositions[elemId] = {
@@ -778,7 +791,7 @@ if (!cordova) {
                   size: div.getBoundingClientRect(),
                   depth: 0.01
                 };
-console.log(dummyInfo);
+//console.log(dummyInfo);
                 cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [dummyInfo]);
               }
 

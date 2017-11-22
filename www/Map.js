@@ -478,6 +478,7 @@ Map.prototype.getVisible = function() {
     return this.get("visible");
 };
 Map.prototype.setVisible = function(isVisible) {
+    cordova.fireDocumentEvent('plugin_touch');
     var self = this;
     isVisible = common.parseBoolean(isVisible);
     self.set("visible", isVisible);
@@ -486,6 +487,7 @@ Map.prototype.setVisible = function(isVisible) {
 };
 
 Map.prototype.setClickable = function(isClickable) {
+    cordova.fireDocumentEvent('plugin_touch');
     var self = this;
     isClickable = common.parseBoolean(isClickable);
     self.set("clickable", isClickable);
