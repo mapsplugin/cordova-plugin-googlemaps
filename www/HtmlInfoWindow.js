@@ -16,7 +16,6 @@ var HTMLInfoWindow = function() {
         callbackTable[target.hashCode] = callbackTable[target.hashCode] || {};
         callbackTable[target.hashCode][eventName] = callbackTable[target.hashCode][eventName] || [];
         callbackTable[target.hashCode][eventName].push(callback);
-console.log(eventName, target.hashCode, callback);
         target.one.call(target, eventName, callback);
       },
       on: function(target, eventName, callback) {
@@ -31,18 +30,15 @@ console.log(eventName, target.hashCode, callback);
         var callback = function(oldValue, newValue) {
           dstObj.set(dstField, newValue, noNotify);
         };
-        callbackTable[dstObj.hashCode] = callbackTable[dstObj.hashCode] || {};
-        callbackTable[dstObj.hashCode][eventName] = callbackTable[dstObj.hashCode][eventName] || [];
-        callbackTable[dstObj.hashCode][eventName].push(callback);
+        callbackTable[srcObj.hashCode] = callbackTable[srcObj.hashCode] || {};
+        callbackTable[srcObj.hashCode][eventName] = callbackTable[srcObj.hashCode][eventName] || [];
+        callbackTable[srcObj.hashCode][eventName].push(callback);
         srcObj.on.call(srcObj, eventName, callback);
       },
       off: function(target, eventName) {
         if (!target || !eventName ||
           !(target.hashCode in callbackTable) ||
           !(eventName in callbackTable[target.hashCode])) {
-console.log(target, eventName);
-console.log(!callbackTable[target.hashCode]);
-console.log(JSON.stringify(callbackTable[target.hashCode]));
           return;
         }
         callbackTable[target.hashCode][eventName].forEach(function(listener) {
