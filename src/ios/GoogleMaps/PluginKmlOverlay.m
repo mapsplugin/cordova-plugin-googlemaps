@@ -184,7 +184,6 @@
   if ([@"style" isEqualToString:tagName] ||
       [@"stylemap" isEqualToString:tagName]) {
     NSString *attrName;
-    [result setObject:tagName forKey:@"tagName"];
     TBXMLAttribute *attribute = rootElement->firstAttribute;
     NSString *value;
     NSString *idName = @"__default__";
@@ -218,7 +217,9 @@
     }
 
     [styles setObject:result forKey:idName];
-    return nil;
+    [result setObject:@"styleurl" forKey:@"tagName"];
+    [result setObject:idName forKey:@"value"];
+    return result;
   }
 
   else if (

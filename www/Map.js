@@ -1040,6 +1040,9 @@ function polygonPlacemark(self, params, callback) {
           break;
         case "polystyle":
           params.child.fillColor = kmlColorToRGBA(style.color);
+          if ("outline" in style) {
+            params.child.strokeWidth = parseInt(style.outline);
+          }
           break;
         default:
       }
@@ -1253,7 +1256,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     } else {
         polygonOptions.fillColor = common.HTMLColor2RGBA("#FF000080", 0.75);
     }
-    polygonOptions.strokeWidth = polygonOptions.strokeWidth || 10;
+    polygonOptions.strokeWidth = "strokeWidth" in polygonOptions ? polygonOptions.strokeWidth : 10;
     polygonOptions.visible = common.defaultTrueOption(polygonOptions.visible);
     polygonOptions.clickable = polygonOptions.clickable === true;
     polygonOptions.zIndex = polygonOptions.zIndex || 0;
@@ -1283,7 +1286,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     var _orgs = polylineOptions.points;
     polylineOptions.points = common.convertToPositionArray(polylineOptions.points);
     polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || "#FF000080", 0.75);
-    polylineOptions.width = polylineOptions.width || 10;
+    polylineOptions.width = "width" in polylineOptions ? polylineOptions.width : 10;
     polylineOptions.visible = common.defaultTrueOption(polylineOptions.visible);
     polylineOptions.clickable = polylineOptions.clickable === true;
     polylineOptions.zIndex = polylineOptions.zIndex || 0;
@@ -1313,10 +1316,10 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circleOptions.center.lng = circleOptions.center.lng || 0.0;
     circleOptions.strokeColor = common.HTMLColor2RGBA(circleOptions.strokeColor || "#FF0000", 0.75);
     circleOptions.fillColor = common.HTMLColor2RGBA(circleOptions.fillColor || "#000000", 0.75);
-    circleOptions.strokeWidth = circleOptions.strokeWidth || 10;
+    circleOptions.strokeWidth = "strokeWidth" in circleOptions ? circleOptions.strokeWidth : 10;
     circleOptions.visible = common.defaultTrueOption(circleOptions.visible);
     circleOptions.zIndex = circleOptions.zIndex || 0;
-    circleOptions.radius = circleOptions.radius || 1;
+    circleOptions.radius = "radius" in circleOptions ? circleOptions.radius : 1;
 
     exec.call(this, function(result) {
         var circle = new Circle(self, result.id, circleOptions, exec);
