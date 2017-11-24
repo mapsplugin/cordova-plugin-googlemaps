@@ -47,6 +47,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     key,
     styleurl,
     color,
+    outline,
     width,
     fill,
     name,
@@ -338,6 +339,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case name:
             case width:
             case color:
+            case outline:
             case fill:
             case description:
               if (currentNode != null) {

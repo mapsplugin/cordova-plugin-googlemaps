@@ -19,156 +19,331 @@
 {
 }
 
--(void)createKmlOverlay:(CDVInvokedUrlCommand *)command
+-(void)create:(CDVInvokedUrlCommand *)command
 {
+
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
     NSDictionary *json = [command.arguments objectAtIndex:1];
 
     NSError *error;
-    TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
 
     NSString *urlStr = [json objectForKey:@"url"];
-    NSRange range = [urlStr rangeOfString:@"://"];
-    if (range.location == NSNotFound) {
-        range = [urlStr rangeOfString:@"www/"];
-        if (range.location == NSNotFound) {
-            range = [urlStr rangeOfString:@"/"];
-            if (range.location != 0) {
-                urlStr = [NSString stringWithFormat:@"./%@", urlStr];
-            }
-        }
-    }
+    NSRange range;
+    if (![urlStr hasPrefix:@"http"]) {
+    NSLog(@"--->url = %@", urlStr);
 
-    range = [urlStr rangeOfString:@"./"];
-    if (range.location != NSNotFound) {
-		SEL requestSelector = NSSelectorFromString(@"request");
-		SEL urlSelector = NSSelectorFromString(@"URL");
-		NSString *currentPath = @"";
-		if ([self.webView respondsToSelector:requestSelector]) {
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
-			[invocation setSelector:requestSelector];
-			[invocation setTarget:self.webView];
-			[invocation invoke];
-			NSURLRequest *request;
-			[invocation getReturnValue:&request];
-			currentPath = [request.URL absoluteString];
-		} else if ([self.webView respondsToSelector:urlSelector]) {
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
-			[invocation setSelector:urlSelector];
-			[invocation setTarget:self.webView];
-			[invocation invoke];
-			NSURL *URL;
-			[invocation getReturnValue:&URL];
-			currentPath = [URL absoluteString];
-		}
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
-        currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
-        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
-    }
+      if (![urlStr containsString:@"://"] &&
+          ![urlStr hasPrefix:@"/"] &&
+          ![urlStr hasPrefix:@"www"] &&
+          ![urlStr hasPrefix:@"./"] &&
+          ![urlStr hasPrefix:@"../"]) {
+        urlStr = [NSString stringWithFormat:@"./%@", urlStr];
+      }
+    NSLog(@"--->url = %@", urlStr);
 
-    range = [urlStr rangeOfString:@"cdvfile://"];
-    if (range.location != NSNotFound) {
-        urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
-        if (urlStr == nil) {
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
-        }
-    }
+      if ([urlStr hasPrefix:@"./"] || [urlStr hasPrefix:@"../"]) {
+        NSError *error = nil;
 
-    range = [urlStr rangeOfString:@"file://"];
-    if (range.location != NSNotFound) {
-        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if (![fileManager fileExistsAtPath:urlStr]) {
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+        // replace repeated "./" (i.e ./././test.png)
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
+        urlStr = [regex stringByReplacingMatchesInString:urlStr options:0 range:NSMakeRange(0, [urlStr length]) withTemplate:@"./"];
+
+
+        // Get the current URL, then calculate the relative path.
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+
+        id webview = cdvViewController.webView;
+        NSString *clsName = [webview className];
+        NSURL *url;
+        NSString *currentURL;
+        if ([clsName isEqualToString:@"UIWebView"]) {
+          //------------------------------------------
+          // UIWebView
+          //------------------------------------------
+          url = ((UIWebView *)cdvViewController.webView).request.URL;
+          currentURL = url.absoluteString;
+
+        } else {
+          //------------------------------------------
+          // WKWebView
+          //------------------------------------------
+          NSURL *url = [webview URL];
+          currentURL = url.absoluteString;
+          if (![[url lastPathComponent] isEqualToString:@"/"]) {
+            currentURL = [currentURL stringByReplacingOccurrencesOfString:[url lastPathComponent] withString:@""];
+          }
         }
+        // remove page unchor (i.e index.html#page=test, index.html?key=value)
+        regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
+        currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+        // remove file name (i.e /index.html)
+        regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
+        currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+        if (![currentURL hasSuffix:@"/"]) {
+          currentURL = [NSString stringWithFormat:@"%@/", currentURL];
+        }
+        urlStr = [NSString stringWithFormat:@"%@%@", currentURL, urlStr];
+
+        // remove file name (i.e /index.html)
+        regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
+        urlStr = [regex stringByReplacingMatchesInString:urlStr options:0 range:NSMakeRange(0, [urlStr length]) withTemplate:@"/"];
+
+        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+
+        if (self.mapCtrl.debuggable) {
+          NSLog(@"urlStr = %@", urlStr);
+        }
+      }
+
+      range = [urlStr rangeOfString:@"cdvfile://"];
+      if (range.location != NSNotFound) {
+          urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
+          if (urlStr == nil) {
+              NSMutableDictionary* details = [NSMutableDictionary dictionary];
+              [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStr] forKey:NSLocalizedDescriptionKey];
+              error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+          }
+      }
+
+      range = [urlStr rangeOfString:@"file://"];
+      if (range.location != NSNotFound) {
+          urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+          NSFileManager *fileManager = [NSFileManager defaultManager];
+          if (![fileManager fileExistsAtPath:urlStr]) {
+              NSMutableDictionary* details = [NSMutableDictionary dictionary];
+              [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStr] forKey:NSLocalizedDescriptionKey];
+              error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+          }
+      }
     }
     if (self.mapCtrl.debuggable) {
-        NSLog(@"urlStr = %@", urlStr);
+      NSLog(@"urlStr = %@", urlStr);
     }
 
+    [self.mapCtrl.executeQueue addOperationWithBlock:^{
+      NSError *error;
+      TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
+      if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
+          NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
+          bool valid = [NSURLConnection canHandleRequest:req];
+          if (valid) {
+              NSError *error;
+              NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
+              tbxml = [tbxml initWithXMLData:xmlData error:&error];
+          } else {
 
-    if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
-        NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
-        bool valid = [NSURLConnection canHandleRequest:req];
-        if (valid) {
-            NSError *error;
-            NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
-            tbxml = [tbxml initWithXMLData:xmlData error:&error];
-        } else {
+              NSMutableDictionary* details = [NSMutableDictionary dictionary];
+              [details setValue:[NSString stringWithFormat:@"Cannot load KML data from %@", urlStr] forKey:NSLocalizedDescriptionKey];
+              error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+          }
+      } else {
 
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"Cannot load KML data from %@", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
-        }
-    } else {
+          tbxml = [tbxml initWithXMLFile:urlStr error:&error];
 
-        tbxml = [tbxml initWithXMLFile:urlStr error:&error];
+      }
 
-    }
-
-    // If there is an error, return
-    CDVPluginResult* pluginResult;
-    if (error) {
+      // If there is an error, return
+      CDVPluginResult* pluginResult;
+      if (error) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
-    }
+      }
 
-    if ([json valueForKey:@"kmlId"]) {
-        self.kmlId = [json valueForKey:@"kmlId"];
-    } else {
-        self.kmlId = [NSString stringWithFormat:@"kml%d-", arc4random()];
-    }
+      NSMutableDictionary *styles = [NSMutableDictionary dictionary];
+      NSMutableDictionary *kmlData = [self parseXML:tbxml.rootXMLElement styles:styles];
 
-    //Show the spinner
-    self._loadingView = [[UIView alloc] init];
-    [self._loadingView setFrameWithInt:0 top:0 width:self.mapCtrl.view.frame.size.width height:self.mapCtrl.view.frame.size.height];
-    self._loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
-    self._loadingView.clipsToBounds = YES;
-    self._loadingView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+      NSMutableArray *kmlChildren = [kmlData objectForKey:@"children"];
+      NSMutableDictionary *document = [kmlChildren objectAtIndex:0];
 
-    //Create the dialog
-    CGRect dialogRect = self.mapCtrl.view.frame;
-    dialogRect.size.width = dialogRect.size.width * 0.8;
-    dialogRect.size.height = 80;
+      NSMutableDictionary *finalResult = [NSMutableDictionary dictionary];
+      [finalResult setObject:document forKey:@"root"];
+      [finalResult setObject:styles forKey:@"styles"];
+      NSLog(@"kmlData = %@", finalResult);
 
-    UIView *licenseDialog = [[UIView alloc] initWithFrame:dialogRect];
-    licenseDialog.center = CGPointMake(self._loadingView.frame.size.width / 2, self._loadingView.frame.size.height / 2);
-    [licenseDialog setBackgroundColor:[UIColor blackColor]];
-    [licenseDialog.layer setBorderColor:[UIColor colorWithRed:255 green:255 blue:255 alpha:0.5].CGColor];
-    [licenseDialog.layer setBorderWidth:1.0];
-    [licenseDialog.layer setCornerRadius:10];
-    licenseDialog.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleHeight;
-    [self._loadingView addSubview:licenseDialog];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:finalResult];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    self.spinner.center = CGPointMake(licenseDialog.frame.size.width / 2, licenseDialog.frame.size.height / 2 + 10);
-    [licenseDialog addSubview:self.spinner];
-    self.spinner.hidesWhenStopped = YES;
-    [self.spinner startAnimating];
+    }];
+  }];
 
-    UILabel *message = [[UILabel alloc] initWithFrame:licenseDialog.frame];
-    message.center = CGPointMake(licenseDialog.frame.size.width / 2, licenseDialog.frame.size.height / 2 - 20);
-    message.backgroundColor = [UIColor clearColor];
-    message.textColor = [UIColor whiteColor];
-    message.adjustsFontSizeToFitWidth = YES;
-    message.textAlignment = NSTextAlignmentCenter;
-    message.text = @"Please wait...";
-    [licenseDialog addSubview:message];
 
-    [self.mapCtrl.view addSubview:self._loadingView];
-
-    // Parse the kml file
-    [self parseKML:tbxml command:command];
 }
--(void)parseKML:(TBXML *)tbxml command:(CDVInvokedUrlCommand *)command
+
+-(NSMutableDictionary *)parseXML:(TBXMLElement *)rootElement styles:(NSMutableDictionary *)styles
+{
+
+  NSError *error = nil;
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+  NSString *tagName = [[TBXML elementName:rootElement] lowercaseString];
+
+    NSLog(@"---> tagName = %@", tagName);
+
+  if ([@"style" isEqualToString:tagName] ||
+      [@"stylemap" isEqualToString:tagName]) {
+    NSString *attrName;
+    [result setObject:tagName forKey:@"tagName"];
+    TBXMLAttribute *attribute = rootElement->firstAttribute;
+    NSString *value;
+    NSString *idName = @"__default__";
+    while (attribute) {
+      attrName = [[TBXML attributeName:attribute] lowercaseString];
+      value = [TBXML attributeValue:attribute];
+      if ([@"id" isEqualToString:attrName]) {
+        idName = [NSString stringWithFormat:@"#%@", value];
+      }
+      [result setObject:value forKey:attrName];
+      attribute = attribute->next;
+    }
+
+
+    NSMutableArray *children = [NSMutableArray array];
+    TBXMLElement *childNode = rootElement->firstChild;
+    while (childNode) {
+
+      NSMutableDictionary *node = [self parseXML:childNode styles:styles];
+      if (node) {
+        if ([node objectForKey:@"value"]) {
+          [result setObject:[node objectForKey:@"value"] forKey:[node objectForKey:@"tagName"]];
+        } else {
+          [children addObject:node];
+        }
+      }
+      childNode = childNode->nextSibling;
+    }
+    if ([children count] > 0) {
+      [result setObject:children forKey:@"children"];
+    }
+
+    [styles setObject:result forKey:idName];
+    return nil;
+  }
+
+  else if (
+    [@"linestring" isEqualToString:tagName] ||
+    [@"linestyle" isEqualToString:tagName] ||
+    [@"polystyle" isEqualToString:tagName] ||
+    [@"pair" isEqualToString:tagName] ||
+    [@"point" isEqualToString:tagName] ||
+    [@"outerboundaryis" isEqualToString:tagName] ||
+    [@"innerboundaryis" isEqualToString:tagName] ||
+    [@"polygon" isEqualToString:tagName] ||
+    [@"icon" isEqualToString:tagName] ||
+    [@"groundoverlay" isEqualToString:tagName] ||
+    [@"latlonbox" isEqualToString:tagName] ||
+    [@"link" isEqualToString:tagName] ||
+    [@"placemark" isEqualToString:tagName] ||
+    [@"multigeometry" isEqualToString:tagName] ||
+    [@"folder" isEqualToString:tagName] ||
+    [@"kml" isEqualToString:tagName] ||
+    [@"document" isEqualToString:tagName] ||
+    [@"networklink" isEqualToString:tagName]) {
+
+
+    [result setObject:tagName forKey:@"tagName"];
+    NSMutableArray *children = [NSMutableArray array];
+    TBXMLElement *childNode = rootElement->firstChild;
+    while (childNode) {
+
+      NSMutableDictionary *node = [self parseXML:childNode styles:styles];
+      if (node) {
+        if ([node objectForKey:@"value"]) {
+          [result setObject:[node objectForKey:@"value"] forKey:[node objectForKey:@"tagName"]];
+        } else {
+          [children addObject:node];
+        }
+      }
+      childNode = childNode->nextSibling;
+    }
+    if ([children count] > 0) {
+      [result setObject:children forKey:@"children"];
+    }
+  }
+  else if ([@"visibility" isEqualToString:tagName] ||
+    [@"north" isEqualToString:tagName] ||
+    [@"east" isEqualToString:tagName] ||
+    [@"west" isEqualToString:tagName] ||
+    [@"south" isEqualToString:tagName] ||
+    [@"href" isEqualToString:tagName] ||
+    [@"key" isEqualToString:tagName] ||
+    [@"styleurl" isEqualToString:tagName] ||
+    [@"name" isEqualToString:tagName] ||
+    [@"width" isEqualToString:tagName] ||
+    [@"color" isEqualToString:tagName] ||
+    [@"fill" isEqualToString:tagName] ||
+    [@"description" isEqualToString:tagName]) {
+
+    [result setObject:tagName forKey:@"tagName"];
+    [result setObject:[TBXML textForElement:rootElement] forKey:@"value"];
+  }
+
+  else if ([@"coordinates" isEqualToString:tagName]) {
+    NSString *txt = [TBXML textForElement:rootElement];
+
+    NSRegularExpression *regex = [NSRegularExpression
+                                  regularExpressionWithPattern:@"\\s+"
+                                  options:NSRegularExpressionUseUnixLineSeparators
+                                  error:&error];
+    txt = [regex stringByReplacingMatchesInString:txt options:0 range:NSMakeRange(0, [txt length]) withTemplate:@"\n"];
+
+    regex = [NSRegularExpression
+                                  regularExpressionWithPattern:@"\n+"
+                                  options:NSRegularExpressionUseUnixLineSeparators
+                                  error:&error];
+    txt = [regex stringByReplacingMatchesInString:txt options:0 range:NSMakeRange(0, [txt length]) withTemplate:@"\n"];
+    NSMutableArray *latLngList = [NSMutableArray array];
+    NSMutableArray *lines = [NSMutableArray arrayWithArray:[txt componentsSeparatedByString:@"\n"]];
+    for (int i = 0; i < [lines count]; i++) {
+      NSString *line = [lines objectAtIndex:i];
+      if (![line isEqualToString:@""]) {
+        NSArray *tmpArry = [line componentsSeparatedByString:@","];
+        NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+        [latLng setObject:[tmpArry objectAtIndex:1] forKey:@"lat"];
+        [latLng setObject:[tmpArry objectAtIndex:0] forKey:@"lng"];
+        [latLngList addObject:latLng];
+      }
+    }
+
+    [result setObject:tagName forKey:@"tagName"];
+    [result setObject:latLngList forKey:@"value"];
+  } else {
+
+    [result setObject:tagName forKey:@"tagName"];
+    [result setObject:[TBXML textForElement:rootElement] forKey:@"value"];
+  }
+
+  return result;
+
+/*
+  if (childNode) {
+      while(childNode) {
+          NSMutableDictionary *tmp = [self parseXML:childNode];
+          TBXMLAttribute *attribute = childNode->firstAttribute;
+          while (attribute) {
+              attrName = [NSString stringWithFormat:@"_%@", [[TBXML attributeName:attribute] lowercaseString]];
+              tmp[attrName] = [TBXML attributeValue:attribute];
+              attribute = attribute->next;
+          }
+
+          [children addObject: tmp];
+          childNode = childNode->nextSibling;
+      }
+  } else if ([TBXML textForElement:rootElement] != nil) {
+      result[tagName] = [TBXML textForElement:rootElement];
+  }
+  if ([children count] > 0) {
+      result[@"children"] = children;
+  }
+  */
+}
+
+-(void)parseKML_old:(TBXML *)tbxml command:(CDVInvokedUrlCommand *)command
 {
 
 
-    NSString *idPrefix = [NSString stringWithFormat:@"%@-", self.kmlId];
+    NSString *idPrefix = @"";
 
     dispatch_queue_t gueue = dispatch_queue_create("plugin.google.maps.Map.createKmlOverlay", NULL);
 
@@ -179,7 +354,7 @@
     dispatch_async(gueue, ^{
         //NSLog(@"%@", [[TBXML elementName:tbxml.rootXMLElement] lowercaseString]);
         //NSLog(@"-----------------> parseXML");
-        kmlData = [self parseXML:tbxml.rootXMLElement];
+        //kmlData = [self parseXML:tbxml.rootXMLElement];
         //NSLog(@"%@", kmlData);
 
     });
@@ -227,13 +402,6 @@
                                       viewportRef:&defaultViewport];
                 }
 
-                //Close the loading view
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    [self.spinner stopAnimating];
-                    [self._loadingView removeFromSuperview];
-                    [self._loadingView removeFromSuperview];
-                });
-
 
                 //Change the viewport
                 NSDictionary *json = [command.arguments objectAtIndex:1];
@@ -248,7 +416,7 @@
 
                 }
 
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:self.kmlId];
+                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@""];
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             });
 
@@ -260,13 +428,10 @@
             if (linkUrl != nil) {
                 NSMutableDictionary *options2 = [NSMutableDictionary dictionary];
                 [options2 setObject:linkUrl forKey:@"url"];
-                [options2 setObject:self.kmlId forKey:@"kmlId"];
+                [options2 setObject:@"" forKey:@"kmlId"];
                 [self _implementToMap:@"KmlOverlay" options:options2 needJSCallback:NO];
             }
 
-
-            [self.spinner stopAnimating];
-            [self._loadingView removeFromSuperview];
         }
 
     });
@@ -641,7 +806,7 @@
 
         //Add callback
         NSString* jsString = [NSString stringWithFormat:@"cordova.callbacks['%@']={'success': function(result) {plugin.google.maps.Map._onKmlEvent('add', '%@', '%@', result, %@);}, 'fail': null};",
-                              callbackId, className, self.kmlId, jsonString];
+                              callbackId, className, @"", jsonString];
         [self performSelectorOnMainThread:@selector(evalJsHelper:) withObject:jsString waitUntilDone:YES];
     }
 
@@ -699,36 +864,5 @@
 }
 
 
--(NSMutableDictionary *)parseXML:(TBXMLElement *)rootElement
-{
-
-    TBXMLElement *childNode = rootElement->firstChild;
-    NSString *tagName = [[TBXML elementName:rootElement] lowercaseString];
-    NSMutableDictionary *result = [NSMutableDictionary dictionary];
-    NSMutableArray *children = [NSMutableArray array];
-    result[@"_tag"] = tagName;
-    NSString *attrName;
-
-    if (childNode) {
-        while(childNode) {
-            NSMutableDictionary *tmp = [self parseXML:childNode];
-            TBXMLAttribute *attribute = childNode->firstAttribute;
-            while (attribute) {
-                attrName = [NSString stringWithFormat:@"_%@", [[TBXML attributeName:attribute] lowercaseString]];
-                tmp[attrName] = [TBXML attributeValue:attribute];
-                attribute = attribute->next;
-            }
-
-            [children addObject: tmp];
-            childNode = childNode->nextSibling;
-        }
-    } else if ([TBXML textForElement:rootElement] != nil) {
-        result[tagName] = [TBXML textForElement:rootElement];
-    }
-    if ([children count] > 0) {
-        result[@"children"] = children;
-    }
-    return result;
-}
 
 @end
