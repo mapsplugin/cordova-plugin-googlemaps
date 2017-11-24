@@ -563,11 +563,11 @@ if (!cordova) {
             cacheDepth[elemId] = depth;
         }
         // Calculate dom clickable region
-        if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
-          rect = parentRect;
-        } else {
+        //if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
+        //  rect = parentRect;
+        //} else {
           rect = common.getClickableRect(element, parentRect);
-        }
+        //}
 
         // Stores dom bounds and depth
         domPositions[elemId] = {
