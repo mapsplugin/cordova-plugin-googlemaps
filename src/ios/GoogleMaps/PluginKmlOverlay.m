@@ -179,7 +179,7 @@
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   NSString *tagName = [[TBXML elementName:rootElement] lowercaseString];
 
- //   NSLog(@"---> tagName = %@", tagName);
+    NSLog(@"---> tagName = %@", tagName);
 
   if ([@"style" isEqualToString:tagName] ||
       [@"stylemap" isEqualToString:tagName]) {
@@ -313,7 +313,11 @@
   else if ([@"outerboundaryis" isEqualToString:tagName] ||
            [@"innerboundaryis" isEqualToString:tagName]) {
 
-    TBXMLElement *coordinates = rootElement->firstChild->firstChild;
+    TBXMLElement *coordinates = rootElement->firstChild;
+    NSString *tagName2 = [[TBXML elementName:coordinates] lowercaseString];
+    if ([@"linearring" isEqualToString:tagName2]) {
+      coordinates = coordinates->firstChild;
+    }
     NSString *txt = [TBXML textForElement:coordinates];
 
     NSRegularExpression *regex = [NSRegularExpression
