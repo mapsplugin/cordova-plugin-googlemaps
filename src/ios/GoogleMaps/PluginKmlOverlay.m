@@ -179,7 +179,7 @@
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   NSString *tagName = [[TBXML elementName:rootElement] lowercaseString];
 
-    NSLog(@"---> tagName = %@", tagName);
+ //   NSLog(@"---> tagName = %@", tagName);
 
   if ([@"style" isEqualToString:tagName] ||
       [@"stylemap" isEqualToString:tagName]) {
@@ -228,8 +228,6 @@
     [@"polystyle" isEqualToString:tagName] ||
     [@"pair" isEqualToString:tagName] ||
     [@"point" isEqualToString:tagName] ||
-    [@"outerboundaryis" isEqualToString:tagName] ||
-    [@"innerboundaryis" isEqualToString:tagName] ||
     [@"polygon" isEqualToString:tagName] ||
     [@"icon" isEqualToString:tagName] ||
     [@"groundoverlay" isEqualToString:tagName] ||
@@ -280,7 +278,9 @@
     [result setObject:[TBXML textForElement:rootElement] forKey:@"value"];
   }
 
+
   else if ([@"coordinates" isEqualToString:tagName]) {
+
     NSString *txt = [TBXML textForElement:rootElement];
 
     NSRegularExpression *regex = [NSRegularExpression
@@ -306,9 +306,42 @@
         [latLngList addObject:latLng];
       }
     }
-
     [result setObject:tagName forKey:@"tagName"];
     [result setObject:latLngList forKey:@"value"];
+  }
+
+  else if ([@"outerboundaryis" isEqualToString:tagName] ||
+           [@"innerboundaryis" isEqualToString:tagName]) {
+
+    TBXMLElement *coordinates = rootElement->firstChild->firstChild;
+    NSString *txt = [TBXML textForElement:coordinates];
+
+    NSRegularExpression *regex = [NSRegularExpression
+                                  regularExpressionWithPattern:@"\\s+"
+                                  options:NSRegularExpressionUseUnixLineSeparators
+                                  error:&error];
+    txt = [regex stringByReplacingMatchesInString:txt options:0 range:NSMakeRange(0, [txt length]) withTemplate:@"\n"];
+
+    regex = [NSRegularExpression
+                                  regularExpressionWithPattern:@"\n+"
+                                  options:NSRegularExpressionUseUnixLineSeparators
+                                  error:&error];
+    txt = [regex stringByReplacingMatchesInString:txt options:0 range:NSMakeRange(0, [txt length]) withTemplate:@"\n"];
+    NSMutableArray *latLngList = [NSMutableArray array];
+    NSMutableArray *lines = [NSMutableArray arrayWithArray:[txt componentsSeparatedByString:@"\n"]];
+    for (int i = 0; i < [lines count]; i++) {
+      NSString *line = [lines objectAtIndex:i];
+      if (![line isEqualToString:@""]) {
+        NSArray *tmpArry = [line componentsSeparatedByString:@","];
+        NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+        [latLng setObject:[tmpArry objectAtIndex:1] forKey:@"lat"];
+        [latLng setObject:[tmpArry objectAtIndex:0] forKey:@"lng"];
+        [latLngList addObject:latLng];
+      }
+    }
+    [result setObject:tagName forKey:@"tagName"];
+    [result setObject:latLngList forKey:@"coordinates"];
+
   } else {
 
     [result setObject:tagName forKey:@"tagName"];
