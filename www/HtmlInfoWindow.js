@@ -30,9 +30,9 @@ var HTMLInfoWindow = function() {
         var callback = function(oldValue, newValue) {
           dstObj.set(dstField, newValue, noNotify);
         };
-        callbackTable[srcObj.hashCode] = callbackTable[srcObj.hashCode] || {};
-        callbackTable[srcObj.hashCode][eventName] = callbackTable[srcObj.hashCode][eventName] || [];
-        callbackTable[srcObj.hashCode][eventName].push(callback);
+        callbackTable[dstObj.hashCode] = callbackTable[dstObj.hashCode] || {};
+        callbackTable[dstObj.hashCode][eventName] = callbackTable[dstObj.hashCode][eventName] || [];
+        callbackTable[dstObj.hashCode][eventName].push(callback);
         srcObj.on.call(srcObj, eventName, callback);
       },
       off: function(target, eventName) {
@@ -199,7 +199,6 @@ var HTMLInfoWindow = function() {
     var calculate = function() {
 
       var marker = self.get("marker");
-console.log('--->marker.getMap(203)');
       var map = marker.getMap();
 
       var div = map.getDiv();
@@ -357,13 +356,7 @@ console.log('--->marker.getMap(203)');
       anchorDiv.style.transform = "translate3d(" + x + "px, " + y + "px, 0px)";
     });
 
-
-    self._hook.on(self, event.INFO_CLOSE, function() {
-      isInfoOpenFired = false;
-    });
-
     self._hook.on(self, "infoWindowAnchor_changed", calculate);
-    self._hook.on(self, "icon_changed", calculate);
 
     self.set("isInfoWindowVisible", false);
 
@@ -379,7 +372,6 @@ HTMLInfoWindow.prototype.close = function() {
     var self = this;
 
     var marker = self.get("marker");
-    self.trigger("_release");
     if (marker) {
       self._hook.off(marker, "isInfoWindowVisible_changed");
     }
@@ -391,13 +383,12 @@ HTMLInfoWindow.prototype.close = function() {
     marker.set("infoWindow", undefined);
     this.set('marker', undefined);
 
-console.log('--->marker.getMap(395)');
     var map = marker.getMap();
     self._hook.off(marker, "infoPosition_changed");
     self._hook.off(marker, "icon_changed");
-    self._hook.off(marker, "infoWindowAnchor_changed");
-    self.trigger(event.INFO_CLOSE);
+    //self._hook.off(self, "infoWindowAnchor_changed");
     self._hook.off(marker, event.INFO_CLOSE);  //This event listener is assigned in the open method. So detach it.
+    self.trigger(event.INFO_CLOSE);
     map.set("active_marker_id", null);
 
     //var div = map.getDiv();
@@ -432,16 +423,20 @@ HTMLInfoWindow.prototype.open = function(marker) {
       marker = marker._objectInstance;
     }
 
-console.log('--->marker.getMap(436)');
     var map = marker.getMap();
     var self = this,
       markerId = marker.getId();
 
     marker.set("infoWindow", self);
     marker.set("isInfoWindowVisible", true);
+    self._hook.on(marker, "icon_changed", function() {
+      self.trigger.call(self, "infoWindowAnchor_changed");
+    });
     self.set("isInfoWindowVisible", true);
-    self._hook.one(marker, "isInfoWindowVisible_changed", function() {
-      self.close.call(self);
+    self._hook.on(marker, "isInfoWindowVisible_changed", function(prevValue, newValue) {
+      if (newValue === false) {
+        self.close.call(self);
+      }
     });
 
     map.fromLatLngToPoint(marker.getPosition(), function(point) {
