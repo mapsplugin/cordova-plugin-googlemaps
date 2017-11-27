@@ -1,9 +1,9 @@
 <!--
-The plugin developers works hard in thier private time.
-Please support our activities. If you donate some amount ($5 is fine), your waiting time would be less.
-If you donate some amount, please include your issue number in your name.
+Thank you for supporting the plugin activity ($5 usd).
+https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
 
-[This is $5 donation link at paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
+If you desire the support by e-mail in private, please contact to wf9a5m75@gmail.com.
+Paid support: $100usd (up to 20 times, exclude bug fix)
 --->
 
 **I'm submitting a ...**  (check one with "x")
