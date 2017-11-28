@@ -296,6 +296,7 @@ Map.prototype.clear = function(callback) {
     clearObj(self.OVERLAYS);
     clearObj(self.MARKERS);
     clearObj(self.KML_LAYERS);
+    self.trigger("map_clear");
 
     exec.call(this, function() {
         if (typeof callback === "function") {
