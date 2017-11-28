@@ -2,7 +2,9 @@ var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
-    BaseArrayClass = require('./BaseArrayClass');
+    event = require('./event'),
+    BaseArrayClass = require('./BaseArrayClass'),
+    HtmlInfoWindow = require('./HtmlInfoWindow');
 
 /*****************************************************************************
  * KmlOverlay Class
@@ -40,6 +42,26 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
         value: overlays,
         writable: false
     });
+    var ballon = new HtmlInfoWindow();
+    var onMarkerClick = function(position, marker) {
+      ballon.setContent(marker.get("description"));
+      ballon.open(marker);
+    };
+
+
+    var seekOverlays = function(children) {
+      children.forEach(function(child) {
+        if (child.type === "Marker") {
+          child.on(event.MARKER_CLICK, onMarkerClick);
+        }
+        if ('children' in child &&
+          utils.isArray(child.children)) {
+          seekOverlays(child.children);
+        }
+      });
+    };
+
+    seekOverlays(overlays);
 /*
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {

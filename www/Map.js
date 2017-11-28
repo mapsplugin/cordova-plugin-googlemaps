@@ -937,8 +937,8 @@ function markerPlacemark(self, params, callback) {
   delete params.child.coordinates;
   params.viewport.extend(params.child.position);
 
-  params.child.title = params.placeMark.name;
-  params.child.snippet = params.placeMark.description;
+  //params.child.title = params.placeMark.name;
+  //params.child.snippet = params.placeMark.description;
 
   getStyleById(self, params, function(styles) {
     styles.children.forEach(function(style) {

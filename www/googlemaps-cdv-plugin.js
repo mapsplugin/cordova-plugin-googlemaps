@@ -670,7 +670,7 @@ if (!cordova) {
     });
     document.addEventListener("plugin_touch", resetTimer);
     window.addEventListener("orientationchange", function() {
-      var cnt = 10;
+      var cnt = 30;
       resetTimer({force: true});
       var timer = setInterval(function() {
         cnt--;
