@@ -2,8 +2,7 @@
 Thank you for supporting the plugin activity ($5 usd).
 https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
 
-If you desire the support by e-mail in private, please contact to wf9a5m75@gmail.com.
-Paid support: $100usd (up to 15 times questions, exclude bug fix)
+If you desire the support by e-mail in private, please contact to wf9a5m75@gmail.com (private support: $100 USD)
 --->
 
 **I'm submitting a ...**  (check one with "x")
