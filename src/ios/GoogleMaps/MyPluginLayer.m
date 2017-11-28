@@ -351,7 +351,7 @@
     NSDictionary *domInfo, *mapDivInfo;
     double domDepth, mapDivDepth;
 
-    CGPoint clickPointAsHtml = CGPointMake(point.x * zoomScale, point.y * zoomScale);
+    CGPoint clickPointAsHtml = CGPointMake((point.x - self.webView.frame.origin.x) * zoomScale, (point.y - self.webView.frame.origin.y) * zoomScale);
 @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
     while(mapId = [mapIDs nextObject]) {
         mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
