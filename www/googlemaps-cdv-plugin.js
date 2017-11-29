@@ -674,7 +674,7 @@ if (!cordova) {
       resetTimer({force: true});
       var timer = setInterval(function() {
         cnt--;
-        if (cnt > 0 && !isSuspended) {
+        if (cnt > 0) {
           followMapDivPositionOnly();
         } else {
           clearInterval(timer);

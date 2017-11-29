@@ -65,6 +65,11 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     displayName,
     value,
 
+    balloonstyle,
+    bgcolor,
+    textcolor,
+    text,
+
     coordinates
   }
 
@@ -244,6 +249,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
     Bundle parentNode;
     ArrayList<Bundle> pairList = null;
+    ArrayList<Bundle> pairList2 = null;
     KML_TAG kmlTag;
     String tagName;
     String tmp;
@@ -272,7 +278,15 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             continue;
           }
 
+          Log.d("AsyncKmlParser", "---> tagName = " + tagName );
           switch (kmlTag) {
+            case balloonstyle:
+              //push
+              nodeStack.add(currentNode);
+
+              currentNode = new Bundle();
+              currentNode.putString("tagName", tagName);
+              break;
             case stylemap:
             case style:
               //push
@@ -281,8 +295,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
               tmp = parser.getAttributeValue(null, "id");
-              if (tmp == null) {
-                tmp = "__default__";
+              if (tmp == null || "null".equals(tmp)) {
+                tmp = "__" + currentNode.hashCode() + "__";
               }
               currentNode.putString("id", tmp);
               pairList = new ArrayList<Bundle>();
@@ -341,6 +355,9 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case color:
             case outline:
             case fill:
+            case bgcolor:
+            case textcolor:
+            case text:
             case description:
               if (currentNode != null) {
                 currentNode.putString(tagName, parser.nextText());
@@ -395,15 +412,27 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             }
 
             switch (kmlTag) {
-              case stylemap:
-              case style:
-                currentNode.putParcelableArrayList("children", pairList);
-                styles.putBundle("#" + currentNode.getString("id"), currentNode);
+              case balloonstyle:
+                pairList.add(currentNode);
                 //pop
                 nodeIndex = nodeStack.size() - 1;
                 parentNode = nodeStack.get(nodeIndex);
                 nodeStack.remove(nodeIndex);
                 currentNode = parentNode;
+                break;
+              case stylemap:
+              case style:
+                String styleId = "#" + currentNode.getString("id");
+                currentNode.putParcelableArrayList("children", pairList);
+                styles.putBundle(styleId, currentNode);
+                //pop
+                nodeIndex = nodeStack.size() - 1;
+                parentNode = nodeStack.get(nodeIndex);
+                nodeStack.remove(nodeIndex);
+                currentNode = parentNode;
+                if ("placemark".equals(currentNode.getString("tagName"))) {
+                  currentNode.putString("styleurl", styleId);
+                }
                 break;
               case multigeometry:
                 if (currentNode != null) {

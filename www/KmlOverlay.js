@@ -42,9 +42,44 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
         value: overlays,
         writable: false
     });
+    function templateRenderer(html, marker) {
+      return html.replace(/\$\{([^\}]+)}/g, function(match, name) {
+        return marker.get(name);
+      });
+    }
+    function parseBalloonStyle(balloonStyle) {
+      var css = {};
+      var hasBgColor = false;
+      var keys = Object.keys(balloonStyle);
+      keys.forEach(function(key) {
+        switch(key.toLowerCase()) {
+          case "bgcolor":
+            hasBgColor = true;
+            ballon.setBackgroundColor(common.kmlColorToCSS(balloonStyle[key]));
+            break;
+          case "textcolor":
+            css.color = common.kmlColorToHexRGBA(balloonStyle[key]);
+            break;
+        }
+      });
+      if (!hasBgColor) {
+        ballon.setBackgroundColor("white");
+      }
+      return css;
+    }
+
     var ballon = new HtmlInfoWindow();
+
     var onMarkerClick = function(position, marker) {
-      ballon.setContent(marker.get("description"));
+      var html = [
+        "<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>",
+        "<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:pre'>${description}</div>"
+      ].join("");
+      var styles = null;
+      if (marker.get("balloonstyle")) {
+        styles = parseBalloonStyle(marker.get("balloonstyle"));
+      }
+      ballon.setContent(templateRenderer(html, marker), styles);
       ballon.open(marker);
     };
 

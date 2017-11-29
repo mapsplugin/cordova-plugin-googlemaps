@@ -127,6 +127,28 @@ function HTMLColor2RGBA(colorValue, defaultOpacity) {
     return [0, 0, 0, alpha];
 }
 
+//-------------------------------
+// KML color (AABBGGRR) to RGBA
+//-------------------------------
+function kmlColorToRGBA(colorStr) {
+  var rgba = [];
+  colorStr = colorStr.replace("#", "");
+  for (var i = 6; i >= 0; i -= 2) {
+    rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
+  }
+  return rgba;
+}
+//-------------------------------
+// KML color (AABBGGRR) to rgba(RR, GG, BB, AA)
+//-------------------------------
+function kmlColorToCSS(colorStr) {
+  var rgba = [];
+  colorStr = colorStr.replace("#", "");
+  for (var i = 6; i >= 0; i -= 2) {
+    rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
+  }
+  return "rgba(" + rgba.join(",") + ")";
+}
 /**
  * http://d.hatena.ne.jp/ja9/20100907/1283840213
  */
@@ -824,6 +846,8 @@ module.exports = {
     parseBoolean: parseBoolean,
     HLStoRGB: HLStoRGB,
     HTMLColor2RGBA: HTMLColor2RGBA,
+    kmlColorToRGBA: kmlColorToRGBA,
+    kmlColorToCSS: kmlColorToCSS,
     isHTMLColorString: isHTMLColorString,
     defaultTrueOption: defaultTrueOption,
     createMvcArray: createMvcArray,

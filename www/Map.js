@@ -804,7 +804,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 function loadKmlFile(self, options, callback) {
   var viewport = new LatLngBounds();
   exec.call(self, function(kmlData) {
-    // console.log(kmlData); // for debug
+  console.log(JSON.parse(JSON.stringify(kmlData))); // for debug
 //return;
     var placeMarks = new BaseArrayClass(kmlData.root.children);
     placeMarks.map(function(placeMark, cb) {
@@ -887,8 +887,24 @@ function kmlTagProcess(self, params, callback) {
 }
 
 function placeMarkLoader(self, params, callback) {
+  var keepParentInfo = params.placeMark.tagName === "placemark" ||
+        params.placeMark.tagName === "folder";
+  var keys = [];
+  if (keepParentInfo) {
+    keys = Object.keys(params.placeMark);
+    keys = keys.filter(function(key) {
+      return key !== "children";
+    });
+  }
   var children = new BaseArrayClass(params.placeMark.children);
   children.map(function(child, cb) {
+    if (keepParentInfo) {
+      keys.forEach(function(key) {
+        if (key in child === false) {
+          child[key] = params.placeMark[key];
+        }
+      });
+    }
     kmlTagProcess(self, {
       child: child,
       kmlUrl: params.kmlUrl,
@@ -938,12 +954,19 @@ function markerPlacemark(self, params, callback) {
   delete params.child.coordinates;
   params.viewport.extend(params.child.position);
 
+  if ("description" in params.child) {
+    delete params.child.title;
+    delete params.child.snippet;
+  }
   //params.child.title = params.placeMark.name;
   //params.child.snippet = params.placeMark.description;
 
   getStyleById(self, params, function(styles) {
     styles.children.forEach(function(style) {
       switch (style.tagName) {
+        case "balloonstyle":
+          params.child.balloonstyle = style;
+          break;
         case "icon":
           params.child.icon = style.href;
           break;
@@ -1005,7 +1028,7 @@ function polylinePlacemark(self, params, callback) {
     styles.children.forEach(function(style) {
       switch (style.tagName) {
         case "linestyle":
-          params.child.color = kmlColorToRGBA(style.color);
+          params.child.color = common.kmlColorToRGBA(style.color);
           params.child.width = parseInt(style.width);
           break;
       }
@@ -1036,11 +1059,11 @@ function polygonPlacemark(self, params, callback) {
     styles.children.forEach(function(style) {
       switch (style.tagName) {
         case "linestyle":
-          params.child.strokeColor = kmlColorToRGBA(style.color);
+          params.child.strokeColor = common.kmlColorToRGBA(style.color);
           params.child.strokeWidth = parseInt(style.width);
           break;
         case "polystyle":
-          params.child.fillColor = kmlColorToRGBA(style.color);
+          params.child.fillColor = common.kmlColorToRGBA(style.color);
           if ("outline" in style) {
             params.child.strokeWidth = parseInt(style.outline);
           }
@@ -1058,6 +1081,8 @@ function getStyleById(self, params, callback) {
   if (!params.placeMark.styleurl) {
     return callback({children: []});
   }
+  var styles = {};
+  var i;
   if (params.placeMark.styleurl.indexOf("http://") === 0 ||
     params.placeMark.styleurl.indexOf("https://") === 0 ||
     params.placeMark.styleurl.indexOf(".kml") !== -1) {
@@ -1072,9 +1097,9 @@ function getStyleById(self, params, callback) {
       styleId = params.placeMark.styleurl.replace(/^.*?\#/, "#");
 
     if (requestUrl in params.kmlStyles) {
-      var styles = params.kmlStyles[requestUrl] || {};
+      styles = params.kmlStyles[requestUrl] || {};
       styles = styles[styleId];
-      for (var i = 0; i < styles.children.length; i++) {
+      for (i = 0; i < styles.children.length; i++) {
         style = styles.children[i];
         if (style.tagName === "pair" && style.key === "normal") {
           return getStyleById(self, {
@@ -1117,10 +1142,10 @@ function getStyleById(self, params, callback) {
   if (params.placeMark.styleurl in params.kmlStyles === false) {
     return {children: []};
   }
-  var styles = params.kmlStyles[params.placeMark.styleurl];
+  styles = params.kmlStyles[params.placeMark.styleurl];
   var style;
 
-  for (var i = 0; i < styles.children.length; i++) {
+  for (i = 0; i < styles.children.length; i++) {
     style = styles.children[i];
     if (style.tagName === "pair" && style.key === "normal") {
       return getStyleById(self, {
@@ -1135,18 +1160,6 @@ function getStyleById(self, params, callback) {
   callback(styles);
 }
 
-//-------------------------------
-// KML color (AABBGGRR) to RGBA
-//-------------------------------
-function kmlColorToRGBA(colorStr) {
-  var rgba = [];
-  colorStr = colorStr.replace("#", "");
-  for (var i = 6; i >= 2; i -= 2) {
-    rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
-  }
-  rgba.push(parseInt(colorStr.substring(0, 2), 16));
-  return rgba;
-}
 
 //-------------
 // Ground overlay
