@@ -384,6 +384,7 @@ HTMLInfoWindow.prototype.close = function() {
     this.set('marker', undefined);
 
     var map = marker.getMap();
+    self._hook.off(marker.getMap(), "map_clear");
     self._hook.off(marker, "infoPosition_changed");
     self._hook.off(marker, "icon_changed");
     //self._hook.off(self, "infoWindowAnchor_changed");
@@ -445,6 +446,7 @@ HTMLInfoWindow.prototype.open = function(marker) {
         self._hook.bindTo(map, "infoPosition", self);
         self._hook.bindTo(marker, "infoWindowAnchor", self);
         self._hook.bindTo(marker, "icon", self);
+        self._hook.one(marker.getMap(), "map_clear", self.close.bind(self));
         self._hook.one(marker, event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());

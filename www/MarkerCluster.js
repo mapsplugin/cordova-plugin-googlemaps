@@ -281,12 +281,12 @@ MarkerCluster.prototype.remove = function() {
     activeMarkerId = self.map.get("active_marker_id"),
     deleteClusters = [];
 
-  self.trigger("remove");
   self.taskQueue = [];
   Object.defineProperty(self, "_isRemoved", {
       value: true,
       writable: false
   });
+  self.trigger("remove");
 
   if (resolution === self.OUT_OF_RESOLUTION) {
     while (self._clusters[resolution].length > 0) {
