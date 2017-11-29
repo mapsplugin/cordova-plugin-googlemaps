@@ -1135,10 +1135,13 @@ function getStyleById(self, params, callback) {
   callback(styles);
 }
 
+//-------------------------------
+// KML color (AABBGGRR) to RGBA
+//-------------------------------
 function kmlColorToRGBA(colorStr) {
   var rgba = [];
   colorStr = colorStr.replace("#", "");
-  for (var i = 2; i < 8; i += 2) {
+  for (var i = 6; i >= 2; i -= 2) {
     rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
   }
   rgba.push(parseInt(colorStr.substring(0, 2), 16));
