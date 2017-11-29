@@ -1028,8 +1028,17 @@ function polylinePlacemark(self, params, callback) {
     styles.children.forEach(function(style) {
       switch (style.tagName) {
         case "linestyle":
-          params.child.color = common.kmlColorToRGBA(style.color);
-          params.child.width = parseInt(style.width);
+          var keys = Object.keys(params.child);
+          keys.forEach(function(key) {
+            switch(key) {
+              case "color":
+                params.child.color = common.kmlColorToRGBA(style.color);
+                break;
+              case "width":
+                params.child.width = parseInt(style.width);
+                break;
+            }
+          });
           break;
       }
     });
@@ -1057,16 +1066,33 @@ function polygonPlacemark(self, params, callback) {
 
   getStyleById(self, params, function(styles) {
     styles.children.forEach(function(style) {
+      var keys;
       switch (style.tagName) {
         case "linestyle":
-          params.child.strokeColor = common.kmlColorToRGBA(style.color);
-          params.child.strokeWidth = parseInt(style.width);
+          keys = Object.keys(params.child);
+          keys.forEach(function(key) {
+            switch(key) {
+              case "color":
+                params.child.strokeColor = common.kmlColorToRGBA(style.color);
+                break;
+              case "width":
+                params.child.strokeWidth = parseInt(style.width);
+                break;
+            }
+          });
           break;
         case "polystyle":
-          params.child.fillColor = common.kmlColorToRGBA(style.color);
-          if ("outline" in style) {
-            params.child.strokeWidth = parseInt(style.outline);
-          }
+          keys = Object.keys(params.child);
+          keys.forEach(function(key) {
+            switch(key) {
+              case "color":
+                params.child.fillColor = common.kmlColorToRGBA(style.color);
+                break;
+              case "outline":
+                params.child.strokeWidth = parseInt(style.width);
+                break;
+            }
+          });
           break;
         default:
       }

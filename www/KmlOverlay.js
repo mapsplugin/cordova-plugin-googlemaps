@@ -43,7 +43,7 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
         writable: false
     });
     function templateRenderer(html, marker) {
-      return html.replace(/\$\{([^\}]+)}/g, function(match, name) {
+      return html.replace(/\$[\{\[](.+?)[\}\]]/g, function(match, name) {
         return marker.get(name);
       });
     }
@@ -58,7 +58,7 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
             ballon.setBackgroundColor(common.kmlColorToCSS(balloonStyle[key]));
             break;
           case "textcolor":
-            css.color = common.kmlColorToHexRGBA(balloonStyle[key]);
+            css.color = common.kmlColorToCSS(balloonStyle[key]);
             break;
         }
       });
