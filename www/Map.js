@@ -811,6 +811,9 @@ function loadKmlFile(self, options, callback) {
       kmlTagProcess(self, {
         kmlUrl: options.url,
         child: placeMark,
+        styles: {
+          children: []
+        },
         viewport: viewport,
         kmlStyles: kmlData.styles
       }, cb);
@@ -823,6 +826,55 @@ function loadKmlFile(self, options, callback) {
 }
 
 function kmlTagProcess(self, params, callback) {
+  if (params.child.styleIDs) {
+    //---------------------------
+    // Read styles if specified
+    //---------------------------
+    var styleIDs = new BaseArrayClass(params.child.styleIDs);
+    styleIDs.map(function(styleId, cb) {
+      getStyleById(self, styleId, {
+        kmlUrl: params.kmlUrl,
+        kmlStyles: params.kmlStyles
+      }, cb);
+    }, function(styleSets) {
+
+      //-----------------------------------
+      // Merge styles with parent styles,
+      //-----------------------------------
+      var merged = {};
+      styleSets.unshift(params.styles);
+      styleSets.forEach(function(styleSet) {
+        styleSet.children.forEach(function(element) {
+          merged[element.tagName] = merged[element.tagName] || {};
+          var names = Object.keys(element);
+          names.forEach(function(name) {
+            merged[element.tagName][name] = element[name];
+          });
+        });
+      });
+      var result = {
+        children: []
+      };
+      var tagNames = Object.keys(merged);
+      tagNames.forEach(function(tagName) {
+        result.children.push(merged[tagName]);
+      });
+      params.styles = result;
+      //------------------------
+      // then process the tag.
+      //------------------------
+      _parseKmlTag(self, params, callback);
+
+    });
+  } else {
+    //-------------------------------------------------
+    // No styleID is specified, just process the tag
+    //-------------------------------------------------
+    _parseKmlTag(self, params, callback);
+  }
+}
+
+function _parseKmlTag(self, params, callback) {
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -832,7 +884,8 @@ function kmlTagProcess(self, params, callback) {
         kmlUrl: params.kmlUrl,
         placeMark: params.child,
         viewport: params.viewport,
-        kmlStyles: params.kmlStyles
+        kmlStyles: params.kmlStyles,
+        styles: params.styles
       }, callback);
       break;
     case "point":
@@ -841,34 +894,41 @@ function kmlTagProcess(self, params, callback) {
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport
+        viewport: params.viewport,
+        styles: params.styles
       }, callback);
       break;
+/*
     case "polygon":
       polygonPlacemark(self, {
         kmlUrl: params.kmlUrl,
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport
+        viewport: params.viewport,
+        styles: params.styles
       }, callback);
       break;
+*/
     case "linestring":
       polylinePlacemark(self, {
         kmlUrl: params.kmlUrl,
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport
+        viewport: params.viewport,
+        styles: params.styles
       }, callback);
       break;
+/*
     case "groundoverlay":
       groundoverlayPlacemark(self, {
         kmlUrl: params.kmlUrl,
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport
+        viewport: params.viewport,
+        styles: params.styles
       }, callback);
       break;
     case "networklink":
@@ -877,9 +937,11 @@ function kmlTagProcess(self, params, callback) {
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport
+        viewport: params.viewport,
+        styles: params.styles
       }, callback);
       break;
+*/
     default:
       console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
       callback(child);
@@ -887,30 +949,35 @@ function kmlTagProcess(self, params, callback) {
 }
 
 function placeMarkLoader(self, params, callback) {
-  var keepParentInfo = params.placeMark.tagName === "placemark" ||
-        params.placeMark.tagName === "folder";
-  var keys = [];
-  if (keepParentInfo) {
-    keys = Object.keys(params.placeMark);
-    keys = keys.filter(function(key) {
-      return key !== "children";
-    });
-  }
+  var keys = Object.keys(params.placeMark);
+  keys = keys.filter(function(key) {
+    return key !== "children";
+  });
+
+  //--------------------------------------------------------
+  // Generate overlays or load another files...etc
+  //--------------------------------------------------------
   var children = new BaseArrayClass(params.placeMark.children);
   children.map(function(child, cb) {
-    if (keepParentInfo) {
-      keys.forEach(function(key) {
-        if (key in child === false) {
-          child[key] = params.placeMark[key];
-        }
-      });
-    }
+
+    //-------------------------
+    // Copy parent information
+    //-------------------------
+    keys.forEach(function(key) {
+      if (key in child === false) {
+        child[key] = params.placeMark[key];
+      }
+    });
+    //-------------------------
+    // read a child element
+    //-------------------------
     kmlTagProcess(self, {
       child: child,
       kmlUrl: params.kmlUrl,
       placeMark: params.placeMark,
       kmlStyles: params.kmlStyles,
-      viewport: params.viewport
+      viewport: params.viewport,
+      styles: params.styles
     }, cb);
   }, function(overlays) {
     params.placeMark.children = overlays;
@@ -950,31 +1017,29 @@ function markerPlacemark(self, params, callback) {
   //--------------
   // add a marker
   //--------------
-  params.child.position = params.child.coordinates[0];
-  delete params.child.coordinates;
-  params.viewport.extend(params.child.position);
-
-  if ("description" in params.child) {
-    delete params.child.title;
-    delete params.child.snippet;
-  }
-  //params.child.title = params.placeMark.name;
-  //params.child.snippet = params.placeMark.description;
-
-  getStyleById(self, params, function(styles) {
-    styles.children.forEach(function(style) {
-      switch (style.tagName) {
-        case "balloonstyle":
-          params.child.balloonstyle = style;
-          break;
-        case "icon":
-          params.child.icon = style.href;
-          break;
-      }
-    });
-
-    self.addMarker(params.child, callback);
+  var markerOptions = {};
+  params.styles.children.forEach(function(style) {
+    switch (style.tagName) {
+      case "icon":
+        markerOptions.icon = style.href;
+        break;
+      case "balloonstyle":
+        markerOptions.balloonstyle = style.balloonstyle;
+        break;
+    }
   });
+
+  var ignoreProperties = ["coordinates", "styleIDs"];
+  var properties = Object.keys(params.child);
+  properties = properties.forEach(function(pName) {
+    if (ignoreProperties.indexOf(pName) === -1) {
+      markerOptions[pName] = params.child[pName];
+    }
+  });
+
+  markerOptions.position = params.child.coordinates[0];
+  params.viewport.extend(markerOptions.position);
+  self.addMarker(markerOptions, callback);
 }
 function groundoverlayPlacemark(self, params, callback) {
   //--------------
@@ -1021,29 +1086,37 @@ function polylinePlacemark(self, params, callback) {
   params.child.coordinates.forEach(function(latLng) {
     params.viewport.extend(latLng);
   });
-  params.child.points = params.child.coordinates;
-  delete params.child.children;
+  var polylineOptions = {
+    points: params.child.coordinates
+  };
 
-  getStyleById(self, params, function(styles) {
-    styles.children.forEach(function(style) {
-      switch (style.tagName) {
-        case "linestyle":
-          var keys = Object.keys(params.child);
-          keys.forEach(function(key) {
-            switch(key) {
-              case "color":
-                params.child.color = common.kmlColorToRGBA(style.color);
-                break;
-              case "width":
-                params.child.width = parseInt(style.width);
-                break;
-            }
-          });
-          break;
-      }
-    });
-    self.addPolyline(params.child, callback);
+  params.styles.children.forEach(function(style) {
+    if (style.tagName === "linestyle") {
+      var keys = Object.keys(style);
+      keys.forEach(function(key) {
+        switch(key) {
+          case "color":
+            polylineOptions.color = style.color;
+            break;
+          case "width":
+            polylineOptions.width = style.width;
+            break;
+        }
+      });
+    }
   });
+
+  var ignoreProperties = ["coordinates", "styleIDs"];
+  var properties = Object.keys(params.child);
+  properties = properties.forEach(function(pName) {
+    if (ignoreProperties.indexOf(pName) === -1) {
+      polylineOptions[pName] = params.child[pName];
+    }
+  });
+
+  console.log('polylinePlacemark', polylineOptions);
+
+  self.addPolyline(polylineOptions, callback);
 
 }
 function polygonPlacemark(self, params, callback) {
@@ -1102,39 +1175,33 @@ function polygonPlacemark(self, params, callback) {
 
 }
 
-function getStyleById(self, params, callback) {
+function getStyleById(self, styleurl, params, callback) {
 
-  if (!params.placeMark.styleurl) {
+  if (!styleurl) {
     return callback({children: []});
   }
   var styles = {};
   var i;
-  if (params.placeMark.styleurl.indexOf("http://") === 0 ||
-    params.placeMark.styleurl.indexOf("https://") === 0 ||
-    params.placeMark.styleurl.indexOf(".kml") !== -1) {
+  if (styleurl.indexOf("http://") === 0 ||
+    styleurl.indexOf("https://") === 0 ||
+    styleurl.indexOf(".kml") !== -1) {
 
-    if (params.placeMark.styleurl.indexOf("://") === -1) {
-      params.placeMark.styleurl = params.kmlUrl.replace(/\/[^\/]+$/, "/") + params.placeMark.styleurl;
+    if (styleurl.indexOf("://") === -1) {
+      styleurl = params.kmlUrl.replace(/\/[^\/]+$/, "/") + styleurl;
     }
     //---------------------------
     // Load additional kml file
     //---------------------------
-    var requestUrl = params.placeMark.styleurl.replace(/\#.*$/, ""),
-      styleId = params.placeMark.styleurl.replace(/^.*?\#/, "#");
+    var requestUrl = styleurl.replace(/\#.*$/, "");
+    var styleId = styleurl.replace(/^.*?\#/, "#");
 
-    if (requestUrl in params.kmlStyles) {
+    if (styleId in params.kmlStyles) {
       styles = params.kmlStyles[requestUrl] || {};
       styles = styles[styleId];
       for (i = 0; i < styles.children.length; i++) {
         style = styles.children[i];
         if (style.tagName === "pair" && style.key === "normal") {
-          return getStyleById(self, {
-            kmlStyles: params.kmlStyles,
-            placeMark: {
-              styleurl: style.styleurl
-            },
-            kmlUrl: params.kmlUrl
-          }, callback);
+          return getStyleById(self, style.styleurl, params, callback);
         }
       }
       return callback(styles);
@@ -1147,40 +1214,28 @@ function getStyleById(self, params, callback) {
       for (var i = 0; i < styles.children.length; i++) {
         style = styles.children[i];
         if (style.tagName === "pair" && style.key === "normal") {
-          return getStyleById(self, {
-            kmlStyles: params.kmlStyles,
-            placeMark: {
-              styleurl: style.styleurl
-            },
-            kmlUrl: params.kmlUrl
-          }, callback);
+          return getStyleById(self, style.styleurl, params, callback);
         }
       }
       callback(styles);
     }, function() {
       callback({children: []});
     }, self.id, 'loadPlugin', ['KmlOverlay', {
-      url: params.placeMark.styleurl
+      url: requestUrl
     }]);
     return;
   }
 
-  if (params.placeMark.styleurl in params.kmlStyles === false) {
+  if (styleurl in params.kmlStyles === false) {
     return {children: []};
   }
-  styles = params.kmlStyles[params.placeMark.styleurl];
+  styles = params.kmlStyles[styleurl];
   var style;
 
   for (i = 0; i < styles.children.length; i++) {
     style = styles.children[i];
     if (style.tagName === "pair" && style.key === "normal") {
-      return getStyleById(self, {
-        kmlStyles: params.kmlStyles,
-        placeMark: {
-          styleurl: style.styleurl
-        },
-        kmlUrl: params.kmlUrl
-      }, callback);
+      return getStyleById(self, style.styleurl, params, callback);
     }
   }
   callback(styles);

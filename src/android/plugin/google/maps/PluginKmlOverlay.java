@@ -28,8 +28,14 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     style,
     stylemap,
     linestyle,
+    /*
+    colorstyle,
+    */
     polystyle,
     linestring,
+    labelstyle,
+    //liststyle,
+    //iconstyle,
     outerboundaryis,
     innerboundaryis,
     placemark,
@@ -249,11 +255,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
     Bundle parentNode;
     ArrayList<Bundle> pairList = null;
-    ArrayList<Bundle> pairList2 = null;
     KML_TAG kmlTag;
-    String tagName;
-    String tmp;
+    String tagName, styleId;
     int nodeIndex;
+    ArrayList<String> styleIDs;
 
     Bundle currentNode = new Bundle();
     result.putBundle("root", currentNode);
@@ -294,12 +299,25 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
-              tmp = parser.getAttributeValue(null, "id");
-              if (tmp == null || "null".equals(tmp)) {
-                tmp = "__" + currentNode.hashCode() + "__";
+              styleId = parser.getAttributeValue(null, "id");
+              if (styleId == null || "null".equals(styleId)) {
+                styleId = "__" + currentNode.hashCode() + "__";
               }
-              currentNode.putString("id", tmp);
+              currentNode.putString("styleId", styleId);
+
+
               pairList = new ArrayList<Bundle>();
+              break;
+            case styleurl:
+              if (!currentNode.containsKey("styleIDs")) {
+                styleIDs = new ArrayList<String>();
+                currentNode.putStringArrayList("styleIDs", styleIDs);
+              } else {
+                styleIDs = currentNode.getStringArrayList("styleIDs");
+              }
+              styleId = parser.nextText();
+              styleIDs.add(styleId);
+              currentNode.putStringArrayList("styleIDs", styleIDs);
               break;
             case multigeometry:
               if (currentNode != null) {
@@ -322,7 +340,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               pairList = null;
               break;
             case link:
+//            case colorstyle:
+//            case iconstyle:
             case linestyle:
+            case labelstyle:
             case polystyle:
             case pair:
             case point:
@@ -349,7 +370,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case south:
             case href:
             case key:
-            case styleurl:
             case name:
             case width:
             case color:
@@ -422,17 +442,27 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                 break;
               case stylemap:
               case style:
-                String styleId = "#" + currentNode.getString("id");
+                styleId = "#" + currentNode.getString("styleId");
+                currentNode.remove("styleId");
                 currentNode.putParcelableArrayList("children", pairList);
                 styles.putBundle(styleId, currentNode);
+
+
                 //pop
                 nodeIndex = nodeStack.size() - 1;
                 parentNode = nodeStack.get(nodeIndex);
                 nodeStack.remove(nodeIndex);
                 currentNode = parentNode;
-                if ("placemark".equals(currentNode.getString("tagName"))) {
-                  currentNode.putString("styleurl", styleId);
+
+                if (!currentNode.containsKey("styleIDs")) {
+                  styleIDs = new ArrayList<String>();
+                  currentNode.putStringArrayList("styleIDs", styleIDs);
+                } else {
+                  styleIDs = currentNode.getStringArrayList("styleIDs");
                 }
+                styleIDs.add(styleId);
+
+                currentNode.putStringArrayList("styleIDs", styleIDs);
                 break;
               case multigeometry:
                 if (currentNode != null) {
@@ -447,7 +477,10 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                 }
                 break;
               case pair:
+              case labelstyle:
               case linestyle:
+//              case colorstyle:
+//              case iconstyle:
               case polystyle:
                 if (currentNode != null) {
                   pairList.add(currentNode);
