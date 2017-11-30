@@ -82,7 +82,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             polygonOptions.fillColor(color);
         }
         if (opts.has("strokeWidth")) {
-            polygonOptions.strokeWidth((int)(opts.getDouble("strokeWidth") * density));
+            polygonOptions.strokeWidth((float)(opts.getDouble("strokeWidth") * density));
         }
         if (opts.has("visible")) {
             polygonOptions.visible(opts.getBoolean("visible"));

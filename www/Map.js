@@ -898,7 +898,6 @@ function _parseKmlTag(self, params, callback) {
         styles: params.styles
       }, callback);
       break;
-/*
     case "polygon":
       polygonPlacemark(self, {
         kmlUrl: params.kmlUrl,
@@ -909,7 +908,6 @@ function _parseKmlTag(self, params, callback) {
         styles: params.styles
       }, callback);
       break;
-*/
     case "linestring":
       polylinePlacemark(self, {
         kmlUrl: params.kmlUrl,
@@ -1052,7 +1050,6 @@ function groundoverlayPlacemark(self, params, callback) {
     switch (child.tagName) {
       case "icon":
         params.child.url = child.href;
-        console.log(params.child.url, params);
         if (params.child.url && params.child.url.indexOf("://") === -1) {
           var requestUrl = params.kmlUrl.replace(/\?.*$/, "");
           requestUrl = requestUrl.replace(/\#.*$/, "");
@@ -1082,7 +1079,6 @@ function polylinePlacemark(self, params, callback) {
   //--------------
   // add a polyline
   //--------------
-
   params.child.coordinates.forEach(function(latLng) {
     params.viewport.extend(latLng);
   });
@@ -1096,10 +1092,10 @@ function polylinePlacemark(self, params, callback) {
       keys.forEach(function(key) {
         switch(key) {
           case "color":
-            polylineOptions.color = style.color;
+            polylineOptions.color = common.kmlColorToRGBA(style.color);
             break;
           case "width":
-            polylineOptions.width = style.width;
+            polylineOptions.width = parseInt(style.width);
             break;
         }
       });
@@ -1120,58 +1116,72 @@ function polylinePlacemark(self, params, callback) {
 
 }
 function polygonPlacemark(self, params, callback) {
+
+  console.log('polygonPlacemark', params);
   //--------------
   // add a polygon
   //--------------
-  params.child.holes = [];
-  params.child.children.forEach(function(grandChild) {
-    if (grandChild.tagName === "outerboundaryis") {
-      grandChild.coordinates.forEach(function(latLng) {
-        params.viewport.extend(latLng);
-      });
-      params.child.points = grandChild.coordinates;
-    }
-    if (grandChild.tagName === "innerboundaryis") {
-      params.child.holes.push(grandChild.coordinates);
+  var polygonOptions = {};
+  params.child.children.forEach(function(element) {
+    switch (element.tagName) {
+      case "outerboundaryis":
+        element.coordinates.forEach(function(latLng) {
+          params.viewport.extend(latLng);
+        });
+        polygonOptions.points = element.coordinates;
+        break;
+      case "innerboundaryis":
+        polygonOptions.holes = polygonOptions.holes || [];
+        polygonOptions.holes.push(element.coordinates);
+        break;
     }
   });
-  delete params.child.children;
 
-  getStyleById(self, params, function(styles) {
-    styles.children.forEach(function(style) {
-      var keys;
-      switch (style.tagName) {
-        case "linestyle":
-          keys = Object.keys(params.child);
-          keys.forEach(function(key) {
-            switch(key) {
-              case "color":
-                params.child.strokeColor = common.kmlColorToRGBA(style.color);
-                break;
-              case "width":
-                params.child.strokeWidth = parseInt(style.width);
-                break;
-            }
-          });
-          break;
-        case "polystyle":
-          keys = Object.keys(params.child);
-          keys.forEach(function(key) {
-            switch(key) {
-              case "color":
-                params.child.fillColor = common.kmlColorToRGBA(style.color);
-                break;
-              case "outline":
-                params.child.strokeWidth = parseInt(style.width);
-                break;
-            }
-          });
-          break;
-        default:
+  params.styles.children.forEach(function(style) {
+    var keys;
+    if (style.tagName === "polystyle") {
+      polygonOptions.fill = false;
+      polygonOptions.outline = false;
+      keys = Object.keys(style);
+      keys.forEach(function(key) {
+        switch(key) {
+          case "color":
+            polygonOptions.strokeColor = common.kmlColorToRGBA(style.color);
+            break;
+          case "fill":
+            polygonOptions.fill = style.fill === "1";
+            break;
+          case "outline":
+            polygonOptions.outline = style.outline === "1";
+            break;
+        }
+      });
+      if (!polygonOptions.fill) {
+        delete polygonOptions.fillColor;
       }
-    });
-    self.addPolygon(params.child, callback);
+      if (!polygonOptions.outline) {
+        delete polygonOptions.strokeColor;
+      }
+      return;
+    }
+    if (style.tagName === "linestyle") {
+
+      keys = Object.keys(style);
+      keys.forEach(function(key) {
+        switch(key) {
+          case "color":
+            polygonOptions.strokeColor = common.kmlColorToRGBA(style.color);
+            break;
+          case "width":
+            polygonOptions.strokeWidth = parseInt(style.width);
+            break;
+        }
+      });
+    }
   });
+
+
+  self.addPolygon(polygonOptions, callback);
 
 }
 

@@ -46,7 +46,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       polylineOptions.color(color);
     }
     if (opts.has("width")) {
-      polylineOptions.width((int)(opts.getDouble("width") * density));
+      polylineOptions.width((float)(opts.getDouble("width") * density));
     }
     if (opts.has("visible")) {
       polylineOptions.visible(opts.getBoolean("visible"));
