@@ -1452,6 +1452,22 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     var self = this;
     markerOptions = common.markerOptionsFilter(markerOptions);
     exec.call(this, function(result) {
+        markerOptions.icon = markerOptions.icon || {};
+        if (typeof markerOptions.icon === 'string') {
+          markerOptions.icon = {
+            url: markerOptions.icon,
+            size: {}
+          };
+        }
+        markerOptions.icon.size = markerOptions.icon.size || {};
+        markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
+        markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
+        markerOptions.icon.anchor = markerOptions.icon.anchor || [markerOptions.icon.size.width / 2, markerOptions.icon.size.height];
+
+        if (!markerOptions.infoWindowAnchor) {
+          markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
+        }
+
         var marker = new Marker(self, result.id, markerOptions, "Marker", exec);
 
         self.MARKERS[result.id] = marker;

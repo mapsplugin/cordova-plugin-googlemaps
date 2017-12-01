@@ -205,6 +205,24 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     _create(markerId, opts, new ICreateMarkerCallback() {
       @Override
       public void onSuccess(Marker marker) {
+        String markerTag = marker.getTag() + "";
+        if (icons.containsKey(markerTag)) {
+          Bitmap icon = icons.get(markerTag);
+          try {
+            result.put("width", icon.getWidth() / density);
+            result.put("height", icon.getHeight() / density);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        } else {
+          try {
+            result.put("width", 62);
+            result.put("height", 110);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+
         callbackContext.success(result);
       }
 

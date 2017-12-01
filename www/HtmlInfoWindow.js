@@ -333,7 +333,7 @@ var HTMLInfoWindow = function() {
       self.set("offsetY", offsetY);
 
 
-      frame.style.bottom = (iconSize.height - infoOffset.y)+ "px";
+      frame.style.bottom = (iconSize.height + (iconSize.height - infoOffset.y))+ "px";
       frame.style.left = ((-contentsWidth) / 2 + infoOffset.x)  + "px";
 
 

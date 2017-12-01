@@ -75,9 +75,21 @@
       CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
       [self _create:markerId markerOptions:json callbackBlock:^(BOOL successed, id result) {
         CDVPluginResult* pluginResult;
+
         if (successed == NO) {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:result];
         } else {
+          GMSMarker *marker = result;
+          NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+          UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
+          if (image != nil) {
+            [createResult setObject:[NSNumber numberWithInt: (int)image.size.width] forKey:@"width"];
+            [createResult setObject:[NSNumber numberWithInt: (int)image.size.height] forKey:@"height"];
+          } else {
+            [createResult setObject:[NSNumber numberWithInt: 62] forKey:@"width"];
+            [createResult setObject:[NSNumber numberWithInt: 110] forKey:@"height"];
+          }
+
           pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];
         }
         [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
