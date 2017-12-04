@@ -163,8 +163,11 @@ if (!cordova) {
       }
     }
 
+    document.body.addEventListener("transitionend", function() {
+      resetTimer({force: true});
+    }, true);
+
     document.body.addEventListener("followMapDivPositionOnly",followMapDivPositionOnly, true);
-    document.body.addEventListener("transitionend",followMapDivPositionOnly, true);
     document.body.addEventListener("scroll", function(e) {
       if (e.target.hasAttribute("__pluginDomId")) {
         var elemId = e.target.getAttribute("__pluginDomId");

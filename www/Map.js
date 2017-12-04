@@ -1018,8 +1018,17 @@ function markerPlacemark(self, params, callback) {
   var markerOptions = {};
   params.styles.children.forEach(function(style) {
     switch (style.tagName) {
+      case "hotspot":
+        markerOptions.icon = markerOptions.icon || {};
+        markerOptions.icon.hotspot = style;
+        break;
+      case "heading":
+        markerOptions.icon = markerOptions.icon || {};
+        markerOptions.icon.rotation = style;
+        break;
       case "icon":
-        markerOptions.icon = style.href;
+        markerOptions.icon = markerOptions.icon || {};
+        markerOptions.icon.url = style.href;
         break;
       case "balloonstyle":
         markerOptions.balloonstyle = style.balloonstyle;
@@ -1036,6 +1045,8 @@ function markerPlacemark(self, params, callback) {
   });
 
   markerOptions.position = params.child.coordinates[0];
+
+console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)))
   params.viewport.extend(markerOptions.position);
   self.addMarker(markerOptions, callback);
 }
@@ -1211,7 +1222,7 @@ function getStyleById(self, styleurl, params, callback) {
       for (i = 0; i < styles.children.length; i++) {
         style = styles.children[i];
         if (style.tagName === "pair" && style.key === "normal") {
-          return getStyleById(self, style.styleurl, params, callback);
+          return getStyleById(self, style.styleIDs[0], params, callback);
         }
       }
       return callback(styles);
@@ -1224,7 +1235,7 @@ function getStyleById(self, styleurl, params, callback) {
       for (var i = 0; i < styles.children.length; i++) {
         style = styles.children[i];
         if (style.tagName === "pair" && style.key === "normal") {
-          return getStyleById(self, style.styleurl, params, callback);
+          return getStyleById(self, style.styleIDs[0], params, callback);
         }
       }
       callback(styles);
@@ -1240,15 +1251,46 @@ function getStyleById(self, styleurl, params, callback) {
     return {children: []};
   }
   styles = params.kmlStyles[styleurl];
-  var style;
+  var style, j;
 
-  for (i = 0; i < styles.children.length; i++) {
-    style = styles.children[i];
-    if (style.tagName === "pair" && style.key === "normal") {
-      return getStyleById(self, style.styleurl, params, callback);
+  var mvcArray = new BaseArrayClass(styles.styleIDs || []);
+  mvcArray.map(function(styleId, next) {
+    getStyleById(self, styleId, params, next);
+  }, function(styleSets) {
+
+    //-----------------------------------
+    // Merge styles with parent styles,
+    //-----------------------------------
+    var merged = {};
+    styleSets.unshift(styles);
+    styleSets.forEach(function(styleSet) {
+      styleSet.children.forEach(function(element) {
+        merged[element.tagName] = merged[element.tagName] || {};
+        var names = Object.keys(element);
+        names.forEach(function(name) {
+          merged[element.tagName][name] = element[name];
+        });
+      });
+    });
+    var result = {
+      children: []
+    };
+    var tagNames = Object.keys(merged);
+    tagNames.forEach(function(tagName) {
+      result.children.push(merged[tagName]);
+    });
+
+
+    for (i = 0; i < styles.children.length; i++) {
+      style = styles.children[i];
+      if (style.tagName === "pair" && style.key === "normal") {
+        return getStyleById(self, style.styleIDs[0], params, callback);
+      }
     }
-  }
-  callback(styles);
+
+    callback(result);
+  });
+
 }
 
 

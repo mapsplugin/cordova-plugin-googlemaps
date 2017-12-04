@@ -25,17 +25,17 @@ import java.util.Locale;
 public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
   private enum KML_TAG {
+    kml,
     style,
     stylemap,
     linestyle,
-    /*
     colorstyle,
-    */
     polystyle,
-    linestring,
+    balloonstyle,
     labelstyle,
-    //liststyle,
-    //iconstyle,
+    iconstyle,
+
+    linestring,
     outerboundaryis,
     innerboundaryis,
     placemark,
@@ -53,9 +53,12 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     key,
     styleurl,
     color,
+    heading,
+    scale,
     outline,
     width,
     fill,
+    hotspot,
     name,
     description,
     icon,
@@ -71,7 +74,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     displayName,
     value,
 
-    balloonstyle,
     bgcolor,
     textcolor,
     text,
@@ -245,7 +247,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
   }
 
 
-
   private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
   {
     int eventType = parser.getEventType();
@@ -254,14 +255,19 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     Bundle styles = new Bundle();
 
     Bundle parentNode;
-    ArrayList<Bundle> pairList = null;
+    ArrayList<Bundle> childElements = null;
+    ArrayList<ArrayList<Bundle>> childElementsStack = new ArrayList<ArrayList<Bundle>>();
     KML_TAG kmlTag;
-    String tagName, styleId;
+    String tagName, styleId, attrName, attrValue;
     int nodeIndex;
     ArrayList<String> styleIDs;
 
     Bundle currentNode = new Bundle();
     result.putBundle("root", currentNode);
+
+    int i, attrCnt = 0;
+
+
 
     while (eventType != XmlPullParser.END_DOCUMENT){
       kmlTag = null;
@@ -273,7 +279,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
           try {
             kmlTag = KML_TAG.valueOf(tagName);
           } catch(Exception e) {
-            //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
+            Log.e("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
             // ignore
             //e.printStackTrace();
           }
@@ -285,15 +291,13 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
           Log.d("AsyncKmlParser", "---> tagName = " + tagName );
           switch (kmlTag) {
-            case balloonstyle:
-              //push
-              nodeStack.add(currentNode);
-
-              currentNode = new Bundle();
-              currentNode.putString("tagName", tagName);
-              break;
             case stylemap:
             case style:
+            case colorstyle:
+            case linestyle:
+            case labelstyle:
+            case polystyle:
+            case iconstyle:
               //push
               nodeStack.add(currentNode);
 
@@ -306,7 +310,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               currentNode.putString("styleId", styleId);
 
 
-              pairList = new ArrayList<Bundle>();
+              childElementsStack.add(childElements);
+              childElements = new ArrayList<Bundle>();
               break;
             case styleurl:
               if (!currentNode.containsKey("styleIDs")) {
@@ -319,6 +324,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               styleIDs.add(styleId);
               currentNode.putStringArrayList("styleIDs", styleIDs);
               break;
+            case pair:
             case multigeometry:
               if (currentNode != null) {
                 //push
@@ -326,7 +332,9 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
                 currentNode = new Bundle();
                 currentNode.putString("tagName", tagName);
-                pairList = new ArrayList<Bundle>();
+
+                childElementsStack.add(childElements);
+                childElements = new ArrayList<Bundle>();
               }
               break;
             case networklink:
@@ -337,15 +345,9 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
               currentNode = new Bundle();
               currentNode.putString("tagName", tagName);
-              pairList = null;
+
               break;
             case link:
-//            case colorstyle:
-//            case iconstyle:
-            case linestyle:
-            case labelstyle:
-            case polystyle:
-            case pair:
             case point:
             case linestring:
             case outerboundaryis:
@@ -354,6 +356,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case icon:
             case folder:
             case document:
+            case balloonstyle:
             case latlonbox:
               if (currentNode != null) {
                 //push
@@ -361,6 +364,23 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
                 currentNode = new Bundle();
                 currentNode.putString("tagName", tagName);
+              }
+              break;
+            case hotspot:
+              if (currentNode != null) {
+                //push
+                nodeStack.add(currentNode);
+
+                currentNode = new Bundle();
+                currentNode.putString("tagName", tagName);
+
+                attrCnt = parser.getAttributeCount();
+                for (i = 0; i < attrCnt; i++) {
+                  attrName = parser.getAttributeName(i);
+                  attrValue = parser.getAttributeValue(i);
+                  currentNode.putString(attrName, attrValue);
+                }
+
               }
               break;
             case visibility:
@@ -373,6 +393,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             case name:
             case width:
             case color:
+            case heading:
+            case scale:
             case outline:
             case fill:
             case bgcolor:
@@ -395,7 +417,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                 String lines[] = txt.split("\\n");
                 String tmpArry[];
                 Bundle latLng;
-                int i;
                 for (i = 0; i < lines.length; i++) {
                   lines[i] = lines[i].replaceAll("[^0-9,.\\-]", "");
                   if (!"".equals(lines[i])) {
@@ -422,7 +443,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             try {
               kmlTag = KML_TAG.valueOf(tagName);
             } catch(Exception e) {
-              //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
+              Log.e("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
               //e.printStackTrace();
             }
 
@@ -432,21 +453,27 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             }
 
             switch (kmlTag) {
-              case balloonstyle:
-                pairList.add(currentNode);
-                //pop
-                nodeIndex = nodeStack.size() - 1;
-                parentNode = nodeStack.get(nodeIndex);
-                nodeStack.remove(nodeIndex);
-                currentNode = parentNode;
-                break;
+
               case stylemap:
               case style:
+              case colorstyle:
+              case linestyle:
+              case labelstyle:
+              case polystyle:
+              case iconstyle:
                 styleId = "#" + currentNode.getString("styleId");
                 currentNode.remove("styleId");
-                currentNode.putParcelableArrayList("children", pairList);
+                Log.d(TAG, "---> " + currentNode);
+                if (currentNode.containsKey("children")) {
+                  currentNode.getParcelableArrayList("children").addAll(childElements);
+                } else {
+                  currentNode.putParcelableArrayList("children", childElements);
+                }
+
                 styles.putBundle(styleId, currentNode);
 
+                childElementsStack.remove(childElementsStack.size() - 1);
+                childElements = childElementsStack.get(childElementsStack.size() - 1);
 
                 //pop
                 nodeIndex = nodeStack.size() - 1;
@@ -464,34 +491,43 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
                 currentNode.putStringArrayList("styleIDs", styleIDs);
                 break;
-              case multigeometry:
+              case pair:
                 if (currentNode != null) {
+                  currentNode.putString("tagName", tagName);
+                  childElements.add(currentNode);
                   //pop
                   nodeIndex = nodeStack.size() - 1;
                   parentNode = nodeStack.get(nodeIndex);
-                  parentNode.putParcelableArrayList("children", pairList);
+                  if (parentNode.containsKey("children")) {
+                    parentNode.getParcelableArrayList("children").addAll(childElements);
+                  } else {
+                    parentNode.putParcelableArrayList("children", childElements);
+                  }
+                  nodeStack.remove(nodeIndex);
+                  currentNode = parentNode;
+
+                  childElementsStack.remove(childElementsStack.size() - 1);
+                  childElements = childElementsStack.get(childElementsStack.size() - 1);
+
+                }
+                break;
+              case multigeometry:
+                if (currentNode != null) {
+                  childElements.add(currentNode);
+                  //pop
+                  nodeIndex = nodeStack.size() - 1;
+                  parentNode = nodeStack.get(nodeIndex);
+                  parentNode.putParcelableArrayList("children", childElements);
                   parentNode.putString("tagName", tagName);
                   nodeStack.remove(nodeIndex);
                   currentNode = parentNode;
-                  pairList = null;
-                }
-                break;
-              case pair:
-              case labelstyle:
-              case linestyle:
-//              case colorstyle:
-//              case iconstyle:
-              case polystyle:
-                if (currentNode != null) {
-                  pairList.add(currentNode);
 
-                  //pop
-                  nodeIndex = nodeStack.size() - 1;
-                  parentNode = nodeStack.get(nodeIndex);
-                  nodeStack.remove(nodeIndex);
-                  currentNode = parentNode;
+                  childElementsStack.remove(childElementsStack.size() - 1);
+                  childElements = childElementsStack.get(childElementsStack.size() - 1);
+
                 }
                 break;
+
               case networklink:
               case placemark:
               case groundoverlay:
@@ -503,6 +539,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               case outerboundaryis:
               case innerboundaryis:
               case link:
+              case hotspot:
               case linestring:
               case coordinates:
               case polygon:
@@ -513,17 +550,41 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                   nodeStack.remove(nodeIndex);
 
                   if (parentNode.containsKey("children")) {
-                    pairList = parentNode.getParcelableArrayList("children");
-                    pairList.add(currentNode);
-                    parentNode.putParcelableArrayList("children", pairList);
+                    parentNode.getParcelableArrayList("children").add(currentNode);
                   } else {
-                    pairList = new ArrayList<Bundle>();
-                    pairList.add(currentNode);
-                    parentNode.putParcelableArrayList("children", pairList);
+                    childElementsStack.add(childElements);
+                    childElements = new ArrayList<Bundle>();
+                    childElements.add(currentNode);
+                    parentNode.putParcelableArrayList("children", childElements);
                   }
                   currentNode = parentNode;
+
                 }
                 break;
+                /*
+              case iconstyle:
+                if (currentNode != null) {
+                  //pop
+                  nodeIndex = nodeStack.size() - 1;
+                  parentNode = nodeStack.get(nodeIndex);
+                  nodeStack.remove(nodeIndex);
+
+                  if (parentNode.containsKey("children")) {
+                    parentNode.getParcelableArrayList("children").add(currentNode);
+                  } else {
+                    childElementsStack.add(childElements);
+                    childElements = new ArrayList<Bundle>();
+                    childElements.add(currentNode);
+                    parentNode.putParcelableArrayList("children", childElements);
+                  }
+                  currentNode = parentNode;
+
+                  childElementsStack.remove(childElementsStack.size() - 1);
+                  childElements = childElementsStack.get(childElementsStack.size() - 1);
+
+                }
+                break;
+                */
               default:
                 break;
             }
