@@ -281,52 +281,58 @@ function _clearInternalCache() {
 function _removeCacheById(elemId) {
   delete internalCache[elemId];
 }
-function getZIndex(dom) {
+function getZIndex(dom, floorLevel, solt) {
     if (dom === document.body) {
       internalCache = undefined;
       internalCache = {};
     }
-    var z = null;
     if (!dom) {
       return 0;
     }
 
+    var z = 0;
     if (window.getComputedStyle) {
-      try {
-        z = parseInt(document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index'), 10);
-      } catch(e) {}
+      z = document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index');
     }
     if (dom.currentStyle) {
-        z = parseInt(dom.currentStyle['z-index']);
+        z = dom.currentStyle['z-index'];
     }
-    if (dom === document.body && z === "auto") {
-      z = 0;
-    }
-    if (isNaN(z)) {
-        z = 0;
-    }
+    var elemId = dom.getAttribute("__pluginDomId");
     var parentNode = dom.parentNode;
+    var parentZIndex = 0;
     if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
       var parentElemId = parentNode.getAttribute("__pluginDomId");
       if (parentElemId in internalCache) {
-        z += internalCache[parentElemId];
+        parentZIndex = internalCache[parentElemId];
       } else {
-        var parentZIndex = getZIndex(dom.parentNode);
+        parentZIndex = getZIndex(dom.parentNode, floorLevel - 1, solt);
         internalCache[parentElemId] = parentZIndex;
-        z += parentZIndex;
       }
     }
-    var elemId = dom.getAttribute("__pluginDomId");
-    internalCache[elemId] = z;
+    dom.setAttribute("__parentZIndex", parentZIndex);
+
+    if (z === "auto") {
+      z = 1;
+    } else if (z === "inherit") {
+      z = 0;
+    } else if (z === "initial" || z === "unset") {
+      z = 0;
+    } else {
+      z = parseInt(z);
+    }
+    internalCache[elemId] = z + parentZIndex;
+
+dom.setAttribute("__zindex", z);
+dom.setAttribute("__solt", solt);
 
     return z;
 }
-function getDomDepth(dom, idx, parentDepth, floorLevel) {
+function getDomDepth(dom, idx, zIndex, floorLevel, zIndexSolt) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
     // In order to handle this value as double anytime, add 0.01 (for Android)
-    var result = parentDepth +  (getZIndex(dom) + 1 + idx) / (1 << floorLevel) + 0.01;
+    var result = (zIndex) + 0.01;
 
     var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
     if (currentDepth != result) {

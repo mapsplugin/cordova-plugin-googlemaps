@@ -290,7 +290,8 @@ if (!cordova) {
       observer.observe(document.body.parentElement, {
         attributes : true,
         childList: true,
-        subtree: true
+        subtree: true,
+        attributeFilter: ['style', 'class']
       });
 
     })();
@@ -385,7 +386,8 @@ if (!cordova) {
       bodyRect.right = bodyRect.left + bodyRect.width;
       bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
 
-      traceDomTree(document.body, 0, bodyRect, 0, 0, 1);
+      common._clearInternalCache();
+      traceDomTree(document.body, 0, bodyRect, 0, 0, 1, 0);
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
@@ -535,11 +537,12 @@ if (!cordova) {
       children = null;
     }
 
-    function traceDomTree(element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel) {
+    function traceDomTree(element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel, zIndexSolt) {
       var zIndex = parentZIndex;
       doNotTrace = false;
       var depth = 1;
       var elemId;
+      var calcZindex;
 
       if (common.shouldWatchByNative(element)) {
 
@@ -551,18 +554,23 @@ if (!cordova) {
         }
 
         // get dom depth
-        zIndex = common.getZIndex(element);
+        zIndex = common.getZIndex(element, floorLevel, zIndexSolt);
+        if (zIndex === 0) {
+          zIndexSolt++;
+        }
+        calcZindex = zIndex / (1 << zIndexSolt);
+        calcZindex += parentZIndex;
         var rect;
         if (elemId in cacheDepth &&
             elemId in prevDomPositions &&
-            prevDomPositions[elemId].zIndex === zIndex) {
+            prevDomPositions[elemId].zIndex === calcZindex) {
             depth = cacheDepth[elemId];
         } else {
-            if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
-              depth = parentDepth;
-            } else {
-              depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
-            }
+            //if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
+            //  depth = parentDepth;
+            //} else {
+              depth = common.getDomDepth(element, domIdx, zIndex, floorLevel, zIndexSolt);
+            //}
             cacheDepth[elemId] = depth;
         }
         // Calculate dom clickable region
@@ -614,13 +622,18 @@ if (!cordova) {
               }
 
               // get dom depth
-              zIndex = common.getZIndex(element);
+              zIndex = common.getZIndex(element, floorLevel, zIndexSolt);
+              if (zIndex === 0) {
+                zIndexSolt++;
+              }
+              calcZindex = zIndex / (1 << zIndexSolt);
+              calcZindex += parentZIndex;
               if (elemId in cacheDepth &&
                   elemId in prevDomPositions &&
-                  prevDomPositions[elemId].zIndex === zIndex) {
+                  prevDomPositions[elemId].zIndex === calcZindex) {
                   depth = cacheDepth[elemId];
               } else {
-                  depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
+                  depth = common.getDomDepth(element, domIdx, calcZindex, floorLevel, zIndexSolt);
                   cacheDepth[elemId] = depth;
               }
             }
@@ -632,7 +645,6 @@ if (!cordova) {
       if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
         if (element.children.length > 0) {
           var child;
-          var pZ = zIndex / floorLevel;
           for (var i = 0; i < element.children.length; i++) {
             child = element.children[i];
             if (child.nodeType !== Node.ELEMENT_NODE ||
@@ -640,7 +652,7 @@ if (!cordova) {
               common.getStyle(child, "display") === "none") {
               continue;
             }
-            traceDomTree(child, domIdx + i + 1, parentRect, pZ, depth, floorLevel + 1);
+            traceDomTree(child, domIdx + i + 1, parentRect, zIndex, depth, floorLevel + 1, zIndexSolt);
           }
         }
       }
