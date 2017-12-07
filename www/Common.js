@@ -281,7 +281,7 @@ function _clearInternalCache() {
 function _removeCacheById(elemId) {
   delete internalCache[elemId];
 }
-function getZIndex(dom, floorLevel, solt) {
+function getZIndex(dom, solt) {
     if (dom === document.body) {
       internalCache = undefined;
       internalCache = {};
@@ -305,11 +305,10 @@ function getZIndex(dom, floorLevel, solt) {
       if (parentElemId in internalCache) {
         parentZIndex = internalCache[parentElemId];
       } else {
-        parentZIndex = getZIndex(dom.parentNode, floorLevel - 1, solt);
+        parentZIndex = getZIndex(dom.parentNode, solt);
         internalCache[parentElemId] = parentZIndex;
       }
     }
-    dom.setAttribute("__parentZIndex", parentZIndex);
 
     if (z === "auto") {
       z = 1;
@@ -320,20 +319,19 @@ function getZIndex(dom, floorLevel, solt) {
     } else {
       z = parseInt(z);
     }
+    dom.setAttribute("__parentZIndex", parentZIndex);
+    dom.setAttribute("__solt", solt);
+    dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
-
-dom.setAttribute("__zindex", z);
-dom.setAttribute("__solt", solt);
-
     return z;
 }
-function getDomDepth(dom, idx, zIndex, floorLevel, zIndexSolt) {
+function getDomDepth(dom, idx, zIndex) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
-    // In order to handle this value as double anytime, add 0.01 (for Android)
-    var result = (zIndex) + 0.01;
+    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10);
 
+    /* for debug */
     var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
     if (currentDepth != result) {
       dom.setAttribute("_depth", result); // for debugging
