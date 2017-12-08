@@ -433,30 +433,14 @@ if (!cordova) {
       var minMapDepth = 9999999;
       var maxMapDepth = -1;
       var stopFlag = false;
-      var mapElemIDs = [];
       mapIDs.forEach(function(mapId) {
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
           if (elemId) {
             if (elemId in domPositions) {
-              mapElemIDs.push(elemId);
               minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
               maxMapDepth = Math.max(maxMapDepth, domPositions[elemId].depth);
-
-              div = div.parentNode;
-              while(div) {
-                children = div.children;
-                for (var i = 0; i < children.length; i++) {
-                  elemId = children[i].getAttribute("__pluginDomId");
-                  if (elemId in domPositions) {
-                    domPositions[elemId].parent = true;
-                  }
-                }
-                div = div.parentNode;
-              }
-
-
             } else {
               // Is the map div removed?
               if (window.document.querySelector) {
@@ -494,7 +478,7 @@ if (!cordova) {
       if (touchableMapList.length === 0) {
         finalDomPositions = domPositions;
       } else {
-        finalDomPositions = common.quickfilter(domPositions, minMapDepth, mapElemIDs);
+        finalDomPositions = common.quickfilter(domPositions, minMapDepth);
       }
       var prevKeys = Object.keys(prevFinal);
       var currentKeys = Object.keys(finalDomPositions);
@@ -606,8 +590,7 @@ if (!cordova) {
         domPositions[elemId] = {
           size: rect,
           depth: depth,
-          zIndex: zIndex,
-          parent: element.className.indexOf("_gmaps_cdv_") > -1
+          zIndex: zIndex
         };
         parentRect = rect;
         parentRect.elemId = elemId;

@@ -329,7 +329,7 @@ function getDomDepth(dom, idx, zIndex) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
-    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10) + 0.01;
+    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10);
 
     /* for debug */
     var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
@@ -784,47 +784,7 @@ function getClickableRect(element, parentRect) {
   return rect;
 }
 
-function quickfilter(domPositions, minMapDepth, mapElemIDs) {
-  //console.log("before", JSON.parse(JSON.stringify(domPositions)));
-  var keys = Object.keys(domPositions);
-
-  var tree = {};
-  mapElemIDs.forEach(function(mapElemId) {
-    var size = domPositions[mapElemId].size;
-    var mapRect = {
-      left: size.left,
-      top: size.top,
-      right: size.left + size.width,
-      bottom: size.top + size.height
-    };
-
-    tree[mapElemId] = domPositions[mapElemId];
-
-    keys.forEach(function(elemId) {
-      if (domPositions[elemId].parent) {
-        return;
-      }
-      var domSize = {
-        left: domPositions[elemId].size.left,
-        top: domPositions[elemId].size.top,
-        right: domPositions[elemId].size.left + domPositions[elemId].size.width,
-        bottom: domPositions[elemId].size.bottom + domPositions[elemId].size.height
-      };
-      if (
-          ((domSize.left >= mapRect.left && domSize.left <= mapRect.right) ||
-            (domSize.right >= mapRect.left && domSize.right <= mapRect.right)) &&
-          ((domSize.top >= mapRect.top && domSize.top <= mapRect.bottom) ||
-            (domSize.bottom >= mapRect.top && domSize.bottom <= mapRect.bottom))
-        ) {
-        tree[elemId] = domPositions[elemId];
-      }
-    });
-  });
-
-  //console.log("after", JSON.parse(JSON.stringify(tree)));
-  return tree;
-}
-function quickfilterOld(domPositions, minMapDepth) {
+function quickfilter(domPositions, minMapDepth) {
   var list = Object.keys(domPositions);
   var finalDomPositions = {};
   var i = 0, j = list.length - 1;

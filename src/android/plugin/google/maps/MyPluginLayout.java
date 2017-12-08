@@ -568,9 +568,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             if (domInfo == null) {
               continue;
             }
-            //if (domInfo.getDouble("depth") <= mapDivDepth) {
-            //  continue;
-            //}
+            if (domInfo.getDouble("depth") <= mapDivDepth) {
+              continue;
+            }
 
             htmlElementRect = HTMLNodeRectFs.get(domId);
             if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {

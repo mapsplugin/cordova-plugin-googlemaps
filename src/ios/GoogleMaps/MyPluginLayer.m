@@ -403,9 +403,9 @@
 
             domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
             domDepth = [[domInfo objectForKey:@"depth"] doubleValue];
-            //if (domDepth < mapDivDepth) {
-            //    continue;
-            //}
+            if (domDepth < mapDivDepth) {
+                continue;
+            }
             elementRect = [domInfo objectForKey:@"size"];
             htmlElementRect = CGRectFromString(elementRect);
             if (htmlElementRect.size.width == 0 || htmlElementRect.size.height == 0) {
