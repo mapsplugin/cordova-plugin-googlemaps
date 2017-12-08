@@ -1,92 +1,92 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.1.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.1.1" 
+    xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="BaseArrayClass" src="www/BaseArrayClass.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="LatLng" src="www/LatLng.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="LatLngBounds" src="www/LatLngBounds.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="VisibleRegion" src="www/VisibleRegion.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Location" src="www/Location.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="CameraPosition" src="www/CameraPosition.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Polyline" src="www/Polyline.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Polygon" src="www/Polygon.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Marker" src="www/Marker.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="HtmlInfoWindow" src="www/HtmlInfoWindow.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Circle" src="www/Circle.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="TileOverlay" src="www/TileOverlay.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="GroundOverlay" src="www/GroundOverlay.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Common" src="www/Common.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="encoding" src="www/encoding.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="spherical" src="www/spherical.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="poly" src="www/poly.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Geocoder" src="www/Geocoder.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Map" src="www/Map.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="event" src="www/event.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="MapTypeId" src="www/MapTypeId.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="KmlOverlay" src="www/KmlOverlay.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Environment" src="www/Environment.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="MarkerCluster" src="www/MarkerCluster.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="Cluster" src="www/Cluster.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="geomodel" src="www/geomodel.js">
-      <runs />
+        <runs />
     </js-module>
     <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
-      <clobbers target="plugin.google.maps" />
+        <clobbers target="plugin.google.maps" />
     </js-module>
-
-
     <description>Google Maps native SDK for Android and iOS.
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
 The native map view is faster, use less network usage, display 3D views, and even work on offline network.
@@ -94,25 +94,16 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps</repo>
     <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
     <author>Masashi Katsumata</author>
-
     <license>Apache 2.0</license>
-
     <keywords>google,maps,geo</keywords>
-
     <engines>
-      <engine name="cordova-android" version=">=5.1.0" />
-      <engine name="cordova-ios" version=">=3.0.0" />
+        <engine name="cordova-android" version=">=6.3.0" />
+        <engine name="cordova-ios" version=">=3.0.0" />
     </engines>
-
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
-
-        <info>
-            Official document
-            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
-        </info>
-
+        <info>            Official document            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md        </info>
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
                 <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps" />
@@ -153,10 +144,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
                 <param name="android-package" value="plugin.google.maps.PluginMarkerCluster" />
             </feature>
         </config-file>
-
-        <framework src="com.google.android.gms:play-services-maps:+" />
-        <framework src="com.google.android.gms:play-services-location:+" />
-
+        <preference name="PLAY_SERVICES_VERSION" default="11.6.0"/>
+        <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
+        <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />
@@ -180,16 +170,11 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
-
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <meta-data
-              android:name="com.google.android.geo.API_KEY"
-              android:value="$API_KEY_FOR_ANDROID" />
+            <meta-data android:name="com.google.android.geo.API_KEY" android:value="$API_KEY_FOR_ANDROID" />
             <!-- Google Play Services SDK -->
-            <meta-data android:name="com.google.android.gms.version"
-                       android:value="@integer/google_play_services_version" />
+            <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
         </config-file>
-
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -203,21 +188,14 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <uses-feature android:name="android.hardware.location" />
             <uses-feature android:name="android.hardware.location.gps" />
         </config-file>
-
         <resource-file src="src/android/res/layout/dummy_infowindow.xml" target="res/layout/dummy_infowindow.xml"/>
     </platform>
-
     <!-- ios -->
     <platform name="ios">
         <preference name="API_KEY_FOR_IOS" />
         <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
         <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="Trace your location on the map" />
-
-        <info>
-            Official document
-            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
-        </info>
-
+        <info>            Official document            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md        </info>
         <config-file target="config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
                 <param name="ios-package" value="CordovaGoogleMaps" />
@@ -258,7 +236,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
                 <param name="ios-package" value="PluginMarkerCluster" />
             </feature>
         </config-file>
-
         <header-file src="src/ios/GoogleMaps/PluginCircle.h" />
         <source-file src="src/ios/GoogleMaps/PluginCircle.m" />
         <header-file src="src/ios/GoogleMaps/PluginGeocoder.h" />
@@ -305,42 +282,35 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/PluginMarkerCluster.m" />
         <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
-
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
-
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
             <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
         </config-file>
-
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
             <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
         </config-file>
-
         <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
-          <array>
-            <string>googlechromes</string>
-            <string>comgooglemaps</string>
-          </array>
+            <array>
+                <string>googlechromes</string>
+                <string>comgooglemaps</string>
+            </array>
         </config-file>
-
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
-          <array>
-            <dict>
-              <key>CFBundleTypeRole</key>
-              <string>Editor</string>
-              <key>CFBundleURLName</key>
-              <string>$PACKAGE_NAME</string>
-              <key>CFBundleURLSchemes</key>
-              <array>
-                <string>$PACKAGE_NAME</string>
-              </array>
-            </dict>
-          </array>
+            <array>
+                <dict>
+                    <key>CFBundleTypeRole</key>
+                    <string>Editor</string>
+                    <key>CFBundleURLName</key>
+                    <string>$PACKAGE_NAME</string>
+                    <key>CFBundleURLSchemes</key>
+                    <array>
+                        <string>$PACKAGE_NAME</string>
+                    </array>
+                </dict>
+            </array>
         </config-file>
-
-        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk"  />
-
+        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk" />
     </platform>
 </plugin>
