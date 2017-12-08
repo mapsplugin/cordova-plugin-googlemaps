@@ -394,6 +394,7 @@ if (!cordova) {
       bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
 
       common._clearInternalCache();
+      foundMap = false;
       traceDomTree(document.body, 0, bodyRect, 0, 0, 0);
 
       // If some elements has been removed, should update the positions
@@ -433,14 +434,30 @@ if (!cordova) {
       var minMapDepth = 9999999;
       var maxMapDepth = -1;
       var stopFlag = false;
+      var mapElemIDs = [];
       mapIDs.forEach(function(mapId) {
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
           if (elemId) {
             if (elemId in domPositions) {
+              mapElemIDs.push(elemId);
               minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
               maxMapDepth = Math.max(maxMapDepth, domPositions[elemId].depth);
+
+              div = div.parentNode;
+              while(div) {
+                children = div.children;
+                for (var i = 0; i < children.length; i++) {
+                  elemId = children[i].getAttribute("__pluginDomId");
+                  if (elemId in domPositions) {
+                    domPositions[elemId].parent = true;
+                  }
+                }
+                div = div.parentNode;
+              }
+
+
             } else {
               // Is the map div removed?
               if (window.document.querySelector) {
@@ -478,7 +495,7 @@ if (!cordova) {
       if (touchableMapList.length === 0) {
         finalDomPositions = domPositions;
       } else {
-        finalDomPositions = common.quickfilter(domPositions, minMapDepth);
+        finalDomPositions = common.quickfilter(domPositions, minMapDepth, mapElemIDs);
       }
       var prevKeys = Object.keys(prevFinal);
       var currentKeys = Object.keys(finalDomPositions);
@@ -544,6 +561,7 @@ if (!cordova) {
       children = null;
     }
 
+    var foundMap = false;
     function traceDomTree(element, domIdx, parentRect, parentZIndex, parentDepth, zIndexSolt) {
       var zIndex = parentZIndex;
       doNotTrace = false;
@@ -557,6 +575,9 @@ if (!cordova) {
         if (!elemId) {
           elemId = "pgm" + Math.floor(Math.random() * Date.now());
           element.setAttribute("__pluginDomId", elemId);
+        }
+        if (!foundMap) {
+          foundMap = element.hasAttribute("__pluginMapId");
         }
 
         // get dom depth
@@ -590,7 +611,8 @@ if (!cordova) {
         domPositions[elemId] = {
           size: rect,
           depth: depth,
-          zIndex: zIndex
+          zIndex: zIndex,
+          ignore: foundMap === false
         };
         parentRect = rect;
         parentRect.elemId = elemId;

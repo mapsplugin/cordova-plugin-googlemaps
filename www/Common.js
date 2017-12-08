@@ -319,9 +319,9 @@ function getZIndex(dom, solt) {
     } else {
       z = parseInt(z);
     }
-    dom.setAttribute("__parentZIndex", parentZIndex);
-    dom.setAttribute("__solt", solt);
-    dom.setAttribute("__ZIndex", z);
+    //dom.setAttribute("__parentZIndex", parentZIndex);
+    //dom.setAttribute("__solt", solt);
+    //dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
     return z;
 }
@@ -329,7 +329,9 @@ function getDomDepth(dom, idx, zIndex) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
-    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10);
+
+      dom.setAttribute("_idx", idx); // for debugging
+    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10) + 0.01;
 
     /* for debug */
     var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
@@ -784,35 +786,45 @@ function getClickableRect(element, parentRect) {
   return rect;
 }
 
-function quickfilter(domPositions, minMapDepth) {
-  var list = Object.keys(domPositions);
-  var finalDomPositions = {};
-  var i = 0, j = list.length - 1;
-  var leftRight = true;
-  while(i < j) {
-    if (leftRight) {
-      if (domPositions[list[j]].depth < minMapDepth) {
-        list[i] = list[j];
-        i++;
-        leftRight = false;
-      } else {
-        j--;
+function quickfilter(domPositions, minMapDepth, mapElemIDs) {
+  //console.log("before", JSON.parse(JSON.stringify(domPositions)));
+  var keys = Object.keys(domPositions);
+
+  var tree = {};
+  mapElemIDs.forEach(function(mapElemId) {
+    var size = domPositions[mapElemId].size;
+    var mapRect = {
+      left: size.left,
+      top: size.top,
+      right: size.left + size.width,
+      bottom: size.top + size.height
+    };
+
+    tree[mapElemId] = domPositions[mapElemId];
+
+    keys.forEach(function(elemId) {
+      if (domPositions[elemId].ignore) {
+        return;
       }
-    } else {
-      if (domPositions[list[i]].depth >= minMapDepth) {
-        list[j] = list[i];
-        j--;
-        leftRight = true;
-      } else {
-        i++;
+      var domSize = {
+        left: domPositions[elemId].size.left,
+        top: domPositions[elemId].size.top,
+        right: domPositions[elemId].size.left + domPositions[elemId].size.width,
+        bottom: domPositions[elemId].size.bottom + domPositions[elemId].size.height
+      };
+      if (
+          ((domSize.left >= mapRect.left && domSize.left <= mapRect.right) ||
+            (domSize.right >= mapRect.left && domSize.right <= mapRect.right)) &&
+          ((domSize.top >= mapRect.top && domSize.top <= mapRect.bottom) ||
+            (domSize.bottom >= mapRect.top && domSize.bottom <= mapRect.bottom))
+        ) {
+        tree[elemId] = domPositions[elemId];
       }
-    }
-  }
-  list.splice(0, j);
-  list.forEach(function(domId) {
-    finalDomPositions[domId] = domPositions[domId];
+    });
   });
-  return finalDomPositions;
+
+  //console.log("after", JSON.parse(JSON.stringify(tree)));
+  return tree;
 }
 
 module.exports = {
