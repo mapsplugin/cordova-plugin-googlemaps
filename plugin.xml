@@ -144,7 +144,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
                 <param name="android-package" value="plugin.google.maps.PluginMarkerCluster" />
             </feature>
         </config-file>
-        <preference name="PLAY_SERVICES_VERSION" default="11.0.1"/>
+        <preference name="PLAY_SERVICES_VERSION" default="11.6.0"/>
         <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
         <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
         <!-- plugin src files -->
