@@ -13,16 +13,22 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
+import za.co.twyst.tbxml.TBXML;
+
 public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
+  private HashMap<String, Bundle> styles = new HashMap<String, Bundle>();
 
   private enum KML_TAG {
     kml,
@@ -138,9 +144,212 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       return null;
     }
     try {
+      String line;
+      StringBuilder stringBuilder = new StringBuilder();
+      InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuilder.append(line);
+      }
+      bufferedReader.close();
+
+
+      TBXML tbxml = new TBXML();
+      tbxml.parse(stringBuilder.toString());
+
+      KmlParserClass parser = new KmlParserClass();
+      Bundle result = parser.parseXml(tbxml, tbxml.rootXMLElement());
+
+      tbxml.release();
+      inputStreamReader.close();
+      inputStream.close();
+      inputStream = null;
+      return result;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  class KmlParserClass {
+    private HashMap<String, Bundle> styleHolder = new HashMap<String, Bundle>();
+
+
+    private Bundle parseXml(TBXML tbxml, long rootElement) {
+      Bundle result = new Bundle();
+      String styleId, txt;
+      int i;
+      String tagName = tbxml.elementName(rootElement).toLowerCase();
+      long childNode;
+      Bundle styles;
+      ArrayList<Bundle> children;
+      ArrayList<String> styleIDs;
+
+      Log.d(TAG, "--->tagName = " + tagName + "(" + rootElement + ")");
+      result.putString("tagName", tagName);
+
+      KML_TAG kmlTag = null;
+      try {
+        kmlTag = KML_TAG.valueOf(tagName);
+      } catch(Exception e) {
+        Log.e(TAG, "---> tagName = " + tagName + " is not supported in this plugin.");
+        // ignore
+        //e.printStackTrace();
+      }
+
+      if (kmlTag == null) {
+        return result;
+      }
+      switch (kmlTag) {
+        case linestring:
+        case outerboundaryis:
+        case innerboundaryis:
+        case polygon:
+        case balloonstyle:
+        case pair:
+        case point:
+        case icon:
+        case groundoverlay:
+        case latlonbox:
+        case link:
+        case placemark:
+        case multigeometry:
+        case folder:
+        case networklink:
+        case document:
+        case kml:
+          children = new ArrayList<Bundle>();
+          childNode = tbxml.firstChild(rootElement);
+          while (childNode > 0) {
+            Bundle node = this.parseXml(tbxml, childNode);
+            if (node != null) {
+              if (node.containsKey("value")) {
+                result.putString(node.getString("tagName"), node.getString("value"));
+              } else if (node.containsKey("styleID")) {
+                styleIDs = result.getStringArrayList("styleIDs");
+                if (styleIDs == null) {
+                  styleIDs = new ArrayList<String>();
+                }
+                styleIDs.add(node.getString("styleID"));
+                result.putStringArrayList("styleIDs", styleIDs);
+              } else {
+                children.add(node);
+              }
+            }
+            childNode = tbxml.nextSibling(childNode);
+          }
+          if (children.size() > 0) {
+            result.putParcelableArrayList("children", children);
+          }
+
+          break;
+
+        case visibility:
+        case north:
+        case east:
+        case west:
+        case south:
+        case href:
+        case key:
+        case name:
+        case width:
+        case color:
+        case heading:
+        case scale:
+        case outline:
+        case fill:
+        case bgcolor:
+        case textcolor:
+        case text:
+        case description:
+          result.putString("value", tbxml.textForElement(rootElement));
+          break;
+
+
+        case styleurl:
+          styleId = tbxml.textForElement(rootElement);
+          result.putString("styleID", styleId);
+          break;
+
+        case stylemap:
+        case style:
+        case colorstyle:
+        case linestyle:
+        case labelstyle:
+        case polystyle:
+        case iconstyle:
+
+          // Generate a style id for the tag
+          styleId = tbxml.valueOfAttributeNamed("id", rootElement);
+          if (styleId == null || styleId.isEmpty()) {
+            styleId = "__" + rootElement + "__";
+          }
+          result.putString("styleId", "#" + styleId);
+
+          // Store style information into the styleHolder.
+          styles = new Bundle();
+          children = new ArrayList<Bundle>();
+          childNode = tbxml.firstChild(rootElement);
+          while (childNode > 0) {
+            Bundle node = this.parseXml(tbxml, childNode);
+            if (node != null) {
+              if (node.containsKey("value")) {
+                styles.putString(node.getString("tagName"), node.getString("value"));
+              } else {
+                children.add(node);
+              }
+            }
+            childNode = tbxml.nextSibling(childNode);
+          }
+          if (children.size() > 0) {
+            styles.putParcelableArrayList("children", children);
+          }
+          styleHolder.put(styleId, styles);
+
+
+          break;
+
+        case coordinates:
+
+
+          ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
+
+          txt = tbxml.textForElement(rootElement);
+          txt = txt.replaceAll("\\s+", "\n");
+          txt = txt.replaceAll("\\n+", "\n");
+          String lines[] = txt.split("\\n");
+          String tmpArry[];
+          Bundle latLng;
+          for (i = 0; i < lines.length; i++) {
+            lines[i] = lines[i].replaceAll("[^0-9,.\\-]", "");
+            if (!"".equals(lines[i])) {
+              tmpArry = lines[i].split(",");
+              latLng = new Bundle();
+              latLng.putFloat("lat", Float.parseFloat(tmpArry[1]));
+              latLng.putFloat("lng", Float.parseFloat(tmpArry[0]));
+              latLngList.add(latLng);
+            }
+          }
+
+          result.putParcelableArrayList(tagName, latLngList);
+          break;
+        default:
+      }
+
+      return result;
+    }
+  }
+
+  private Bundle loadKml_old(String urlStr) {
+
+    InputStream inputStream = getKmlContents(urlStr);
+    if (inputStream == null) {
+      return null;
+    }
+    try {
       XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
       parser.setInput(inputStream, null);
-      Bundle kmlData = parseXML(parser);
+      Bundle kmlData = parseXML_old(parser);
 
       inputStream.close();
       inputStream = null;
@@ -247,7 +456,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
   }
 
 
-  private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
+  private Bundle parseXML_old(XmlPullParser parser) throws XmlPullParserException,IOException
   {
     int eventType = parser.getEventType();
     Bundle result = new Bundle();
