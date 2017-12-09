@@ -163,11 +163,16 @@ if (!cordova) {
       }
     }
 
-    document.body.addEventListener("transitionend", function() {
+    document.body.addEventListener("transitionend", function(e) {
+      if (e.target.hasAttribute("__pluginDomId")) {
+        var elemId = e.target.getAttribute("__pluginDomId");
+        removeDomTree(e.target, {
+          keepDomId: true
+        });
+      }
       resetTimer({force: true});
     }, true);
 
-    document.body.addEventListener("followMapDivPositionOnly",followMapDivPositionOnly, true);
     document.body.addEventListener("scroll", function(e) {
       if (e.target.hasAttribute("__pluginDomId")) {
         var elemId = e.target.getAttribute("__pluginDomId");
@@ -192,27 +197,26 @@ if (!cordova) {
     function removeDomTree(node, options) {
       options = options || {};
       var children = node.querySelectorAll('[__pluginDomId]');
-      if (!children || children.length === 0) {
-        return;
-      }
-      children.forEach(function(child) {
-        var elemId = child.getAttribute('__pluginDomId');
-        if (!options.keepDomId) {
-          child.removeAttribute('__pluginDomId');
-          if (child.hasAttribute('__pluginMapId')) {
-            // If no div element, remove the map.
-            var mapId = child.getAttribute('__pluginMapId');
-            if (mapId in MAPS) {
-              MAPS[mapId].remove();
+      if (children && children.length > 0) {
+        children.forEach(function(child) {
+          var elemId = child.getAttribute('__pluginDomId');
+          if (!options.keepDomId) {
+            child.removeAttribute('__pluginDomId');
+            if (child.hasAttribute('__pluginMapId')) {
+              // If no div element, remove the map.
+              var mapId = child.getAttribute('__pluginMapId');
+              if (mapId in MAPS) {
+                MAPS[mapId].remove();
+              }
             }
           }
-        }
-        common._removeCacheById(elemId);
-        delete domPositions[elemId];
-        delete prevDomPositions[elemId];
-        delete cacheDepth[elemId];
-        delete prevFinal[elemId];
-      });
+          common._removeCacheById(elemId);
+          delete domPositions[elemId];
+          delete prevDomPositions[elemId];
+          delete cacheDepth[elemId];
+          delete prevFinal[elemId];
+        });
+      }
       if (node.hasAttribute("__pluginDomId")) {
         var elemId = node.getAttribute('__pluginDomId');
         if (!options.keepDomId) {
@@ -242,55 +246,59 @@ if (!cordova) {
         return;
       }
       var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          var targetCnt = 0;
-          if (mutation.type === "childList") {
-            if (mutation.addedNodes) {
-              mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType !== Node.ELEMENT_NODE) {
-                  return;
-                }
-                targetCnt++;
-                setDomId(node);
-              });
-            }
-            if (mutation.removedNodes) {
-              mutation.removedNodes.forEach(function(node) {
-                if (node.nodeType !== Node.ELEMENT_NODE || !node.hasAttribute("__pluginDomId")) {
-                  return;
-                }
-                targetCnt++;
-                removeDomTree(node);
-              });
-            }
-            if (targetCnt > 0) {
+        common.nextTick(function() {
+          mutations.forEach(function(mutation) {
+            var targetCnt = 0;
+            if (mutation.type === "childList") {
+              if (mutation.addedNodes) {
+                mutation.addedNodes.forEach(function(node) {
+                  if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                  }
+                  targetCnt++;
+                  setDomId(node);
+                });
+              }
+              if (mutation.removedNodes) {
+                mutation.removedNodes.forEach(function(node) {
+                  if (node.nodeType !== Node.ELEMENT_NODE || !node.hasAttribute("__pluginDomId")) {
+                    return;
+                  }
+                  targetCnt++;
+                  removeDomTree(node);
+                });
+              }
+              if (targetCnt > 0) {
+                isThereAnyChange = true;
+                idlingCnt = -1;
+                longIdlingCnt = -1;
+                common.nextTick(putHtmlElements);
+              }
+            } else {
+              if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
+                return;
+              }
+              if (mutation.target.hasAttribute("__pluginDomId")) {
+                removeDomTree(mutation.target, {
+                  keepDomId: true
+                });
+              }
               isThereAnyChange = true;
               idlingCnt = -1;
               longIdlingCnt = -1;
               common.nextTick(putHtmlElements);
+              // var elemId = mutation.target.getAttribute("__pluginDomId");
+              // console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
             }
-          } else {
-            if (mutation.target.nodeType !== Node.ELEMENT_NODE ||
-              !mutation.target.hasAttribute("__pluginDomId")) {
-              return;
-            }
-            removeDomTree(mutation.target, {
-              keepDomId: true
-            });
-            isThereAnyChange = true;
-            idlingCnt = -1;
-            longIdlingCnt = -1;
-            common.nextTick(putHtmlElements);
-            //var elemId = mutation.target.getAttribute("__pluginDomId");
-            //console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
-          }
 
+          });
         });
       });
       observer.observe(document.body.parentElement, {
         attributes : true,
         childList: true,
-        subtree: true
+        subtree: true,
+        attributeFilter: ['style', 'class']
       });
 
     })();
@@ -385,7 +393,9 @@ if (!cordova) {
       bodyRect.right = bodyRect.left + bodyRect.width;
       bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
 
-      traceDomTree(document.body, 0, bodyRect, 0, 0, 1);
+      common._clearInternalCache();
+      foundMap = false;
+      traceDomTree(document.body, 0, bodyRect, 0, 0, 0);
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
@@ -424,14 +434,30 @@ if (!cordova) {
       var minMapDepth = 9999999;
       var maxMapDepth = -1;
       var stopFlag = false;
+      var mapElemIDs = [];
       mapIDs.forEach(function(mapId) {
         var div = MAPS[mapId].getDiv();
         if (div) {
           var elemId = div.getAttribute("__pluginDomId");
           if (elemId) {
             if (elemId in domPositions) {
+              mapElemIDs.push(elemId);
               minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
               maxMapDepth = Math.max(maxMapDepth, domPositions[elemId].depth);
+
+              div = div.parentNode;
+              while(div) {
+                children = div.children;
+                for (var i = 0; i < children.length; i++) {
+                  elemId = children[i].getAttribute("__pluginDomId");
+                  if (elemId in domPositions) {
+                    domPositions[elemId].parent = true;
+                  }
+                }
+                div = div.parentNode;
+              }
+
+
             } else {
               // Is the map div removed?
               if (window.document.querySelector) {
@@ -469,7 +495,7 @@ if (!cordova) {
       if (touchableMapList.length === 0) {
         finalDomPositions = domPositions;
       } else {
-        finalDomPositions = common.quickfilter(domPositions, minMapDepth);
+        finalDomPositions = common.quickfilter(domPositions, minMapDepth, mapElemIDs);
       }
       var prevKeys = Object.keys(prevFinal);
       var currentKeys = Object.keys(finalDomPositions);
@@ -535,7 +561,8 @@ if (!cordova) {
       children = null;
     }
 
-    function traceDomTree(element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel) {
+    var foundMap = false;
+    function traceDomTree(element, domIdx, parentRect, parentZIndex, parentDepth, zIndexSolt) {
       var zIndex = parentZIndex;
       doNotTrace = false;
       var depth = 1;
@@ -549,9 +576,17 @@ if (!cordova) {
           elemId = "pgm" + Math.floor(Math.random() * Date.now());
           element.setAttribute("__pluginDomId", elemId);
         }
+        if (!foundMap) {
+          foundMap = element.hasAttribute("__pluginMapId");
+        }
 
         // get dom depth
-        zIndex = common.getZIndex(element);
+        zIndex = common.getZIndex(element, zIndexSolt);
+        if (zIndex === 0) {
+          zIndexSolt++;
+        }
+        zIndex = zIndex / (1 << (Math.pow(zIndexSolt, zIndexSolt)));
+        zIndex += parentZIndex;
         var rect;
         if (elemId in cacheDepth &&
             elemId in prevDomPositions &&
@@ -561,7 +596,7 @@ if (!cordova) {
             if (parentDepth > MAX_MAP_DEPTH && MAX_MAP_DEPTH !== -1) {
               depth = parentDepth;
             } else {
-              depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
+              depth = common.getDomDepth(element, domIdx, zIndex);
             }
             cacheDepth[elemId] = depth;
         }
@@ -576,7 +611,8 @@ if (!cordova) {
         domPositions[elemId] = {
           size: rect,
           depth: depth,
-          zIndex: zIndex
+          zIndex: zIndex,
+          ignore: foundMap === false
         };
         parentRect = rect;
         parentRect.elemId = elemId;
@@ -614,16 +650,26 @@ if (!cordova) {
               }
 
               // get dom depth
-              zIndex = common.getZIndex(element);
+              zIndex = common.getZIndex(element, zIndexSolt);
+              if (zIndex === 0) {
+                zIndexSolt++;
+              }
+              zIndex = zIndex / (1 << (Math.pow(zIndexSolt, zIndexSolt)));
+              zIndex += parentZIndex;
               if (elemId in cacheDepth &&
                   elemId in prevDomPositions &&
                   prevDomPositions[elemId].zIndex === zIndex) {
                   depth = cacheDepth[elemId];
               } else {
-                  depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
+                  depth = common.getDomDepth(element, domIdx, zIndex);
                   cacheDepth[elemId] = depth;
               }
             }
+          }
+          if (doNotTrace) {
+            removeDomTree(element, {
+              keepDomId: true
+            });
           }
         } else {
           doNotTrace = true;
@@ -632,7 +678,6 @@ if (!cordova) {
       if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
         if (element.children.length > 0) {
           var child;
-          var pZ = zIndex / floorLevel;
           for (var i = 0; i < element.children.length; i++) {
             child = element.children[i];
             if (child.nodeType !== Node.ELEMENT_NODE ||
@@ -640,7 +685,7 @@ if (!cordova) {
               common.getStyle(child, "display") === "none") {
               continue;
             }
-            traceDomTree(child, domIdx + i + 1, parentRect, pZ, depth, floorLevel + 1);
+            traceDomTree(child, domIdx + i + 1, parentRect, zIndex, depth, zIndexSolt);
           }
         }
       }

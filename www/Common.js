@@ -303,53 +303,59 @@ function _clearInternalCache() {
 function _removeCacheById(elemId) {
   delete internalCache[elemId];
 }
-function getZIndex(dom) {
+function getZIndex(dom, solt) {
     if (dom === document.body) {
       internalCache = undefined;
       internalCache = {};
     }
-    var z = null;
     if (!dom) {
       return 0;
     }
 
+    var z = 0;
     if (window.getComputedStyle) {
-      try {
-        z = parseInt(document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index'), 10);
-      } catch(e) {}
+      z = document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index');
     }
     if (dom.currentStyle) {
-        z = parseInt(dom.currentStyle['z-index']);
+        z = dom.currentStyle['z-index'];
     }
-    if (dom === document.body && z === "auto") {
-      z = 0;
-    }
-    if (isNaN(z)) {
-        z = 0;
-    }
+    var elemId = dom.getAttribute("__pluginDomId");
     var parentNode = dom.parentNode;
+    var parentZIndex = 0;
     if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
       var parentElemId = parentNode.getAttribute("__pluginDomId");
       if (parentElemId in internalCache) {
-        z += internalCache[parentElemId];
+        parentZIndex = internalCache[parentElemId];
       } else {
-        var parentZIndex = getZIndex(dom.parentNode);
+        parentZIndex = getZIndex(dom.parentNode, solt);
         internalCache[parentElemId] = parentZIndex;
-        z += parentZIndex;
       }
     }
-    var elemId = dom.getAttribute("__pluginDomId");
-    internalCache[elemId] = z;
 
+    if (z === "auto") {
+      z = 1;
+    } else if (z === "inherit") {
+      z = 0;
+    } else if (z === "initial" || z === "unset") {
+      z = 0;
+    } else {
+      z = parseInt(z);
+    }
+    //dom.setAttribute("__parentZIndex", parentZIndex);
+    //dom.setAttribute("__solt", solt);
+    //dom.setAttribute("__ZIndex", z);
+    internalCache[elemId] = z + parentZIndex;
     return z;
 }
-function getDomDepth(dom, idx, parentDepth, floorLevel) {
+function getDomDepth(dom, idx, zIndex) {
     if (dom.nodeType !== Node.ELEMENT_NODE) {
       return 0;
     }
-    // In order to handle this value as double anytime, add 0.01 (for Android)
-    var result = parentDepth +  (getZIndex(dom) + 1 + idx) / (1 << floorLevel) + 0.01;
 
+      dom.setAttribute("_idx", idx); // for debugging
+    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10) + 0.01;
+
+    /* for debug */
     var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
     if (currentDepth != result) {
       dom.setAttribute("_depth", result); // for debugging
@@ -802,35 +808,45 @@ function getClickableRect(element, parentRect) {
   return rect;
 }
 
-function quickfilter(domPositions, minMapDepth) {
-  var list = Object.keys(domPositions);
-  var finalDomPositions = {};
-  var i = 0, j = list.length - 1;
-  var leftRight = true;
-  while(i < j) {
-    if (leftRight) {
-      if (domPositions[list[j]].depth < minMapDepth) {
-        list[i] = list[j];
-        i++;
-        leftRight = false;
-      } else {
-        j--;
+function quickfilter(domPositions, minMapDepth, mapElemIDs) {
+  //console.log("before", JSON.parse(JSON.stringify(domPositions)));
+  var keys = Object.keys(domPositions);
+
+  var tree = {};
+  mapElemIDs.forEach(function(mapElemId) {
+    var size = domPositions[mapElemId].size;
+    var mapRect = {
+      left: size.left,
+      top: size.top,
+      right: size.left + size.width,
+      bottom: size.top + size.height
+    };
+
+    tree[mapElemId] = domPositions[mapElemId];
+
+    keys.forEach(function(elemId) {
+      if (domPositions[elemId].ignore) {
+        return;
       }
-    } else {
-      if (domPositions[list[i]].depth >= minMapDepth) {
-        list[j] = list[i];
-        j--;
-        leftRight = true;
-      } else {
-        i++;
+      var domSize = {
+        left: domPositions[elemId].size.left,
+        top: domPositions[elemId].size.top,
+        right: domPositions[elemId].size.left + domPositions[elemId].size.width,
+        bottom: domPositions[elemId].size.bottom + domPositions[elemId].size.height
+      };
+      if (
+          ((domSize.left >= mapRect.left && domSize.left <= mapRect.right) ||
+            (domSize.right >= mapRect.left && domSize.right <= mapRect.right)) &&
+          ((domSize.top >= mapRect.top && domSize.top <= mapRect.bottom) ||
+            (domSize.bottom >= mapRect.top && domSize.bottom <= mapRect.bottom))
+        ) {
+        tree[elemId] = domPositions[elemId];
       }
-    }
-  }
-  list.splice(0, j);
-  list.forEach(function(domId) {
-    finalDomPositions[domId] = domPositions[domId];
+    });
   });
-  return finalDomPositions;
+
+  //console.log("after", JSON.parse(JSON.stringify(tree)));
+  return tree;
 }
 
 module.exports = {
