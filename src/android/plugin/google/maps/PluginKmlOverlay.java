@@ -27,10 +27,13 @@ import java.util.Locale;
 
 import za.co.twyst.tbxml.TBXML;
 
+
 public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
   private HashMap<String, Bundle> styles = new HashMap<String, Bundle>();
 
   private enum KML_TAG {
+    NOT_SUPPORTED,
+
     kml,
     style,
     stylemap,
@@ -39,6 +42,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     polystyle,
     balloonstyle,
     labelstyle,
+    liststyle,
     iconstyle,
 
     linestring,
@@ -158,7 +162,12 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       tbxml.parse(stringBuilder.toString());
 
       KmlParserClass parser = new KmlParserClass();
-      Bundle result = parser.parseXml(tbxml, tbxml.rootXMLElement());
+      Bundle root = parser.parseXml(tbxml, tbxml.rootXMLElement());
+      Bundle result = new Bundle();
+      result.putBundle("styles", parser.styleHolder);
+      result.putBundle("root", root);
+
+
 
       tbxml.release();
       inputStreamReader.close();
@@ -172,7 +181,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
   }
 
   class KmlParserClass {
-    private HashMap<String, Bundle> styleHolder = new HashMap<String, Bundle>();
+    public Bundle styleHolder = new Bundle();
 
 
     private Bundle parseXml(TBXML tbxml, long rootElement) {
@@ -192,89 +201,26 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       try {
         kmlTag = KML_TAG.valueOf(tagName);
       } catch(Exception e) {
-        Log.e(TAG, "---> tagName = " + tagName + " is not supported in this plugin.");
+        kmlTag = KML_TAG.NOT_SUPPORTED;
+        //Log.e(TAG, "---> tagName = " + tagName + " is not supported in this plugin.");
         // ignore
         //e.printStackTrace();
       }
 
-      if (kmlTag == null) {
-        return result;
-      }
       switch (kmlTag) {
-        case linestring:
-        case outerboundaryis:
-        case innerboundaryis:
-        case polygon:
-        case balloonstyle:
-        case pair:
-        case point:
-        case icon:
-        case groundoverlay:
-        case latlonbox:
-        case link:
-        case placemark:
-        case multigeometry:
-        case folder:
-        case networklink:
-        case document:
-        case kml:
-          children = new ArrayList<Bundle>();
-          childNode = tbxml.firstChild(rootElement);
-          while (childNode > 0) {
-            Bundle node = this.parseXml(tbxml, childNode);
-            if (node != null) {
-              if (node.containsKey("value")) {
-                result.putString(node.getString("tagName"), node.getString("value"));
-              } else if (node.containsKey("styleID")) {
-                styleIDs = result.getStringArrayList("styleIDs");
-                if (styleIDs == null) {
-                  styleIDs = new ArrayList<String>();
-                }
-                styleIDs.add(node.getString("styleID"));
-                result.putStringArrayList("styleIDs", styleIDs);
-              } else {
-                children.add(node);
-              }
-            }
-            childNode = tbxml.nextSibling(childNode);
-          }
-          if (children.size() > 0) {
-            result.putParcelableArrayList("children", children);
-          }
-
-          break;
-
-        case visibility:
-        case north:
-        case east:
-        case west:
-        case south:
-        case href:
-        case key:
-        case name:
-        case width:
-        case color:
-        case heading:
-        case scale:
-        case outline:
-        case fill:
-        case bgcolor:
-        case textcolor:
-        case text:
-        case description:
-          result.putString("value", tbxml.textForElement(rootElement));
-          break;
-
 
         case styleurl:
           styleId = tbxml.textForElement(rootElement);
-          result.putString("styleID", styleId);
+          styleId = styleId.replace("#", "");
+          result.putString("styleId", styleId);
           break;
 
         case stylemap:
         case style:
+        case balloonstyle:
         case colorstyle:
         case linestyle:
+        case liststyle:
         case labelstyle:
         case polystyle:
         case iconstyle:
@@ -284,7 +230,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
           if (styleId == null || styleId.isEmpty()) {
             styleId = "__" + rootElement + "__";
           }
-          result.putString("styleId", "#" + styleId);
+          styleId = styleId.replace("#", "");
+          result.putString("styleId", styleId);
 
           // Store style information into the styleHolder.
           styles = new Bundle();
@@ -304,7 +251,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
           if (children.size() > 0) {
             styles.putParcelableArrayList("children", children);
           }
-          styleHolder.put(styleId, styles);
+          styleHolder.putBundle(styleId, styles);
 
 
           break;
@@ -333,7 +280,75 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
           result.putParcelableArrayList(tagName, latLngList);
           break;
+/*
+        case visibility:
+        case north:
+        case east:
+        case west:
+        case south:
+        case href:
+        case key:
+        case name:
+        case width:
+        case color:
+        case heading:
+        case scale:
+        case outline:
+        case fill:
+        case bgcolor:
+        case textcolor:
+        case text:
+        case description:
+        //  result.putString("value", tbxml.textForElement(rootElement));
+        //  break;
+
+        case linestring:
+        case outerboundaryis:
+        case innerboundaryis:
+        case polygon:
+        case balloonstyle:
+        case pair:
+        case point:
+        case icon:
+        case groundoverlay:
+        case latlonbox:
+        case link:
+        case placemark:
+        case multigeometry:
+        case folder:
+        case networklink:
+        case document:
+        case kml:
+        case NOT_SUPPORTED:
+*/
         default:
+
+          childNode = tbxml.firstChild(rootElement);
+          if (childNode > 0) {
+            children = new ArrayList<Bundle>();
+            while (childNode > 0) {
+              Bundle node = this.parseXml(tbxml, childNode);
+              if (node != null) {
+                if (node.containsKey("value")) {
+                  result.putString(node.getString("tagName"), node.getString("value"));
+                } else if (node.containsKey("styleId")) {
+                  styleIDs = result.getStringArrayList("styleIDs");
+                  if (styleIDs == null) {
+                    styleIDs = new ArrayList<String>();
+                  }
+                  styleIDs.add(node.getString("styleId"));
+                  result.putStringArrayList("styleIDs", styleIDs);
+                } else {
+                  children.add(node);
+                }
+              }
+              childNode = tbxml.nextSibling(childNode);
+            }
+            result.putParcelableArrayList("children", children);
+          } else {
+            result.putString("value", tbxml.textForElement(rootElement));
+          }
+          break;
       }
 
       return result;

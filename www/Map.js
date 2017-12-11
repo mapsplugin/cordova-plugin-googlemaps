@@ -826,6 +826,7 @@ function loadKmlFile(self, options, callback) {
 }
 
 function kmlTagProcess(self, params, callback) {
+console.log(params.child.tagName, params);
   if (params.child.styleIDs) {
     //---------------------------
     // Read styles if specified
@@ -837,6 +838,7 @@ function kmlTagProcess(self, params, callback) {
         kmlStyles: params.kmlStyles
       }, cb);
     }, function(styleSets) {
+      console.log('styleSets',JSON.parse(JSON.stringify(styleSets)));
 
       //-----------------------------------
       // Merge styles with parent styles,
@@ -875,6 +877,7 @@ function kmlTagProcess(self, params, callback) {
 }
 
 function _parseKmlTag(self, params, callback) {
+console.log(params.child.tagName, JSON.parse(JSON.stringify(params)));
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -888,6 +891,7 @@ function _parseKmlTag(self, params, callback) {
         styles: params.styles
       }, callback);
       break;
+
     case "point":
       markerPlacemark(self, {
         kmlUrl: params.kmlUrl,
@@ -966,6 +970,7 @@ function placeMarkLoader(self, params, callback) {
         child[key] = params.placeMark[key];
       }
     });
+    console.log(child.tagName, JSON.parse(JSON.stringify(child)));
     //-------------------------
     // read a child element
     //-------------------------
@@ -1036,7 +1041,7 @@ function markerPlacemark(self, params, callback) {
     }
   });
 
-  var ignoreProperties = ["coordinates", "styleIDs"];
+  var ignoreProperties = ["coordinates", "styleIDs", "children"];
   var properties = Object.keys(params.child);
   properties = properties.forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1) {
@@ -1044,9 +1049,19 @@ function markerPlacemark(self, params, callback) {
     }
   });
 
-  markerOptions.position = params.child.coordinates[0];
+  if (params.child.children) {
+    params.child.children.forEach(function(child) {
+      if (child.tagName === "coordinates") {
+        markerOptions.position = child.coordinates[0];
+      }
+    });
+  }
+  markerOptions.position = markerOptions.position || {
+    lat: 0,
+    lng: 0
+  };
 
-console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)))
+console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)));
   params.viewport.extend(markerOptions.position);
   self.addMarker(markerOptions, callback);
 }
@@ -1090,12 +1105,19 @@ function polylinePlacemark(self, params, callback) {
   //--------------
   // add a polyline
   //--------------
-  params.child.coordinates.forEach(function(latLng) {
-    params.viewport.extend(latLng);
-  });
   var polylineOptions = {
-    points: params.child.coordinates
+    points: []
   };
+  if (params.child.children) {
+    params.child.children.forEach(function(child) {
+      if (child.tagName === "coordinates") {
+        child.coordinates.forEach(function(latLng) {
+          params.viewport.extend(latLng);
+          polylineOptions.points.push(latLng);
+        });
+      }
+    });
+  }
 
   params.styles.children.forEach(function(style) {
     if (style.tagName === "linestyle") {
@@ -1136,14 +1158,24 @@ function polygonPlacemark(self, params, callback) {
   params.child.children.forEach(function(element) {
     switch (element.tagName) {
       case "outerboundaryis":
-        element.coordinates.forEach(function(latLng) {
-          params.viewport.extend(latLng);
-        });
-        polygonOptions.points = element.coordinates;
+        if (element.children.length === 1 &&
+          element.children[0].tagName === "linearring") {
+          element.children[0].children[0].coordinates.forEach(function(latLng) {
+            params.viewport.extend(latLng);
+          });
+          polygonOptions.points = element.children[0].children[0].coordinates;
+        }
         break;
       case "innerboundaryis":
         polygonOptions.holes = polygonOptions.holes || [];
-        polygonOptions.holes.push(element.coordinates);
+
+        if (element.children.length === 1 &&
+          element.children[0].tagName === "linearring") {
+          element.children[0].children[0].coordinates.forEach(function(latLng) {
+            params.viewport.extend(latLng);
+          });
+          polygonOptions.holes.push(element.children[0].children[0].coordinates);
+        }
         break;
     }
   });
@@ -1261,34 +1293,39 @@ function getStyleById(self, styleurl, params, callback) {
     //-----------------------------------
     // Merge styles with parent styles,
     //-----------------------------------
-    var merged = {};
-    styleSets.unshift(styles);
-    styleSets.forEach(function(styleSet) {
-      styleSet.children.forEach(function(element) {
-        merged[element.tagName] = merged[element.tagName] || {};
-        var names = Object.keys(element);
-        names.forEach(function(name) {
-          merged[element.tagName][name] = element[name];
+    var merged;
+    if (styleSets.length > 0) {
+      merged = {};
+      styleSets.unshift(styles);
+      styleSets.forEach(function(styleSet) {
+        styleSet.children.forEach(function(element) {
+          merged[element.tagName] = merged[element.tagName] || {};
+          var names = Object.keys(element);
+          names.forEach(function(name) {
+            merged[element.tagName][name] = element[name];
+          });
         });
       });
-    });
-    var result = {
-      children: []
-    };
-    var tagNames = Object.keys(merged);
-    tagNames.forEach(function(tagName) {
-      result.children.push(merged[tagName]);
-    });
-
-
-    for (i = 0; i < styles.children.length; i++) {
-      style = styles.children[i];
-      if (style.tagName === "pair" && style.key === "normal") {
-        return getStyleById(self, style.styleIDs[0], params, callback);
-      }
+      var result = {
+        children: []
+      };
+      var tagNames = Object.keys(merged);
+      tagNames.forEach(function(tagName) {
+        result.children.push(merged[tagName]);
+      });
+    } else {
+      merged = styles;
     }
 
-    callback(result);
+
+    // for (i = 0; i < merged.children.length; i++) {
+    //   style = merged.children[i];
+    //   if (style.tagName === "pair" && style.key === "normal") {
+    //     return getStyleById(self, style.styleIDs[0], params, callback);
+    //   }
+    // }
+
+    callback(merged);
   });
 
 }
