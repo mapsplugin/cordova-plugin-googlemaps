@@ -68,8 +68,8 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
       return css;
     }
 
+/*
     var ballon = new HtmlInfoWindow();
-
     var onMarkerClick = function(position, marker) {
       var html = [
         "<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>",

@@ -942,7 +942,7 @@ function _parseKmlTag(self, params, callback) {
       break;
 */
     default:
-      console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
+      //console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
       callback(child);
   }
 }
@@ -1162,7 +1162,10 @@ function polygonPlacemark(self, params, callback) {
   //--------------
   // add a polygon
   //--------------
-  var polygonOptions = {};
+  var polygonOptions = {
+    fill: true,
+    outline: true
+  };
   params.child.children.forEach(function(element) {
     switch (element.tagName) {
       case "outerboundaryis":
@@ -1187,14 +1190,11 @@ function polygonPlacemark(self, params, callback) {
         break;
     }
   });
-  console.log(params.styles);
 
   params.styles.children.forEach(function(style) {
     var keys;
     switch (style.tagName) {
       case "polystyle":
-        polygonOptions.fill = false;
-        polygonOptions.outline = false;
         keys = Object.keys(style);
         keys.forEach(function(key) {
           switch(key) {
@@ -1228,14 +1228,17 @@ function polygonPlacemark(self, params, callback) {
     }
   });
 
-  if (!polygonOptions.fill) {
+  if (polygonOptions.fill === false) {
     polygonOptions.fillColor = [0, 0, 0, 0];
+  } else {
+    polygonOptions.fillColor = polygonOptions.fillColor || [255, 255, 255, 255];
   }
-  if (!polygonOptions.outline) {
+  if (polygonOptions.outline === false) {
     delete polygonOptions.strokeColor;
+    polygonOptions.strokeWidth = 0;
   }
 
-console.log('polygonOptions', polygonOptions);
+  console.log('polygonOptions', polygonOptions);
   self.addPolygon(polygonOptions, callback);
 
 }
@@ -1331,6 +1334,9 @@ function getStyleById(self, styleurl, params, callback) {
     } else {
       merged = styles;
     }
+    merged.children = merged.children.filter(function(style) {
+      return (style.tagName !== "pair" || style.key !== "highlight")
+    })
 
 
     // for (i = 0; i < merged.children.length; i++) {
