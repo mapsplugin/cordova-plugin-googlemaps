@@ -154,6 +154,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
       while ((line = bufferedReader.readLine()) != null) {
         stringBuilder.append(line);
+        stringBuilder.append("\n");
       }
       bufferedReader.close();
 
@@ -217,13 +218,13 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
         case stylemap:
         case style:
-        case balloonstyle:
-        case colorstyle:
-        case linestyle:
-        case liststyle:
-        case labelstyle:
-        case polystyle:
-        case iconstyle:
+//        case balloonstyle:
+//        case colorstyle:
+//        case linestyle:
+//        case liststyle:
+//        case labelstyle:
+//        case polystyle:
+//        case iconstyle:
 
           // Generate a style id for the tag
           styleId = tbxml.valueOfAttributeNamed("id", rootElement);
@@ -264,7 +265,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
           txt = tbxml.textForElement(rootElement);
           txt = txt.replaceAll("\\s+", "\n");
           txt = txt.replaceAll("\\n+", "\n");
-          String lines[] = txt.split("\\n");
+          String lines[] = txt.split("\n");
           String tmpArry[];
           Bundle latLng;
           for (i = 0; i < lines.length; i++) {
@@ -344,7 +345,9 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               }
               childNode = tbxml.nextSibling(childNode);
             }
-            result.putParcelableArrayList("children", children);
+            if (children.size() > 0) {
+              result.putParcelableArrayList("children", children);
+            }
           } else {
             result.putString("value", tbxml.textForElement(rootElement));
           }

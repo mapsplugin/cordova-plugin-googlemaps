@@ -826,7 +826,6 @@ function loadKmlFile(self, options, callback) {
 }
 
 function kmlTagProcess(self, params, callback) {
-console.log(params.child.tagName, params);
   if (params.child.styleIDs) {
     //---------------------------
     // Read styles if specified
@@ -838,7 +837,6 @@ console.log(params.child.tagName, params);
         kmlStyles: params.kmlStyles
       }, cb);
     }, function(styleSets) {
-      console.log('styleSets',JSON.parse(JSON.stringify(styleSets)));
 
       //-----------------------------------
       // Merge styles with parent styles,
@@ -877,7 +875,6 @@ console.log(params.child.tagName, params);
 }
 
 function _parseKmlTag(self, params, callback) {
-console.log(params.child.tagName, JSON.parse(JSON.stringify(params)));
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -970,7 +967,6 @@ function placeMarkLoader(self, params, callback) {
         child[key] = params.placeMark[key];
       }
     });
-    console.log(child.tagName, JSON.parse(JSON.stringify(child)));
     //-------------------------
     // read a child element
     //-------------------------
@@ -1021,23 +1017,31 @@ function markerPlacemark(self, params, callback) {
   // add a marker
   //--------------
   var markerOptions = {};
-  params.styles.children.forEach(function(style) {
-    switch (style.tagName) {
-      case "hotspot":
-        markerOptions.icon = markerOptions.icon || {};
-        markerOptions.icon.hotspot = style;
+  params.styles.children.forEach(function(child) {
+    switch (child.tagName) {
+      case "iconstyle":
+        child.children.forEach(function(style) {
+          switch (style.tagName) {
+            case "hotspot":
+              markerOptions.icon = markerOptions.icon || {};
+              markerOptions.icon.hotspot = style;
+              break;
+            case "heading":
+              markerOptions.icon = markerOptions.icon || {};
+              markerOptions.icon.rotation = style;
+              break;
+            case "icon":
+              markerOptions.icon = markerOptions.icon || {};
+              markerOptions.icon.url = style.href;
+              break;
+            case "balloonstyle":
+              markerOptions.balloonstyle = style.balloonstyle;
+              break;
+          }
+        });
         break;
-      case "heading":
-        markerOptions.icon = markerOptions.icon || {};
-        markerOptions.icon.rotation = style;
-        break;
-      case "icon":
-        markerOptions.icon = markerOptions.icon || {};
-        markerOptions.icon.url = style.href;
-        break;
-      case "balloonstyle":
-        markerOptions.balloonstyle = style.balloonstyle;
-        break;
+      default:
+
     }
   });
 
@@ -1061,7 +1065,7 @@ function markerPlacemark(self, params, callback) {
     lng: 0
   };
 
-console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)));
+  //console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)));
   params.viewport.extend(markerOptions.position);
   self.addMarker(markerOptions, callback);
 }
@@ -1120,18 +1124,22 @@ function polylinePlacemark(self, params, callback) {
   }
 
   params.styles.children.forEach(function(style) {
-    if (style.tagName === "linestyle") {
-      var keys = Object.keys(style);
-      keys.forEach(function(key) {
-        switch(key) {
-          case "color":
-            polylineOptions.color = common.kmlColorToRGBA(style.color);
-            break;
-          case "width":
-            polylineOptions.width = parseInt(style.width);
-            break;
-        }
-      });
+    switch (style.tagName) {
+      case "linestyle":
+        var keys = Object.keys(style);
+        keys.forEach(function(key) {
+          switch(key) {
+            case "color":
+              polylineOptions.color = common.kmlColorToRGBA(style.color);
+              break;
+            case "width":
+              polylineOptions.width = parseInt(style.width);
+              break;
+          }
+        });
+        break;
+      default:
+
     }
   });
 
@@ -1179,51 +1187,55 @@ function polygonPlacemark(self, params, callback) {
         break;
     }
   });
+  console.log(params.styles);
 
   params.styles.children.forEach(function(style) {
     var keys;
-    if (style.tagName === "polystyle") {
-      polygonOptions.fill = false;
-      polygonOptions.outline = false;
-      keys = Object.keys(style);
-      keys.forEach(function(key) {
-        switch(key) {
-          case "color":
-            polygonOptions.strokeColor = common.kmlColorToRGBA(style.color);
-            break;
-          case "fill":
-            polygonOptions.fill = style.fill === "1";
-            break;
-          case "outline":
-            polygonOptions.outline = style.outline === "1";
-            break;
-        }
-      });
-      if (!polygonOptions.fill) {
-        delete polygonOptions.fillColor;
-      }
-      if (!polygonOptions.outline) {
-        delete polygonOptions.strokeColor;
-      }
-      return;
-    }
-    if (style.tagName === "linestyle") {
+    switch (style.tagName) {
+      case "polystyle":
+        polygonOptions.fill = false;
+        polygonOptions.outline = false;
+        keys = Object.keys(style);
+        keys.forEach(function(key) {
+          switch(key) {
+            case "color":
+              polygonOptions.fillColor = common.kmlColorToRGBA(style.color);
+              break;
+            case "fill":
+              polygonOptions.fill = style.fill === "1";
+              break;
+            case "outline":
+              polygonOptions.outline = style.outline === "1";
+              break;
+          }
+        });
+        break;
 
-      keys = Object.keys(style);
-      keys.forEach(function(key) {
-        switch(key) {
-          case "color":
-            polygonOptions.strokeColor = common.kmlColorToRGBA(style.color);
-            break;
-          case "width":
-            polygonOptions.strokeWidth = parseInt(style.width);
-            break;
-        }
-      });
+
+      case "linestyle":
+        keys = Object.keys(style);
+        keys.forEach(function(key) {
+          switch(key) {
+            case "color":
+              polygonOptions.strokeColor = common.kmlColorToRGBA(style.color);
+              break;
+            case "width":
+              polygonOptions.strokeWidth = parseInt(style.width);
+              break;
+          }
+        });
+        break;
     }
   });
 
+  if (!polygonOptions.fill) {
+    polygonOptions.fillColor = [0, 0, 0, 0];
+  }
+  if (!polygonOptions.outline) {
+    delete polygonOptions.strokeColor;
+  }
 
+console.log('polygonOptions', polygonOptions);
   self.addPolygon(polygonOptions, callback);
 
 }
@@ -1302,6 +1314,9 @@ function getStyleById(self, styleurl, params, callback) {
           merged[element.tagName] = merged[element.tagName] || {};
           var names = Object.keys(element);
           names.forEach(function(name) {
+            if (name === "styleIDs") {
+              return;
+            }
             merged[element.tagName][name] = element[name];
           });
         });
