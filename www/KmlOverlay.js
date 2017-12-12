@@ -10,7 +10,7 @@ var argscheck = require('cordova/argscheck'),
  * KmlOverlay Class
  *****************************************************************************/
 var exec;
-var KmlOverlay = function(map, kmlId, viewport, overlays) {
+var KmlOverlay = function(map, kmlId, camera, overlays) {
     BaseClass.apply(this);
     console.log(overlays);
 
@@ -34,8 +34,8 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
         value: map,
         writable: false
     });
-    Object.defineProperty(self, "viewport", {
-        value: viewport,
+    Object.defineProperty(self, "camera", {
+        value: camera,
         writable: false
     });
     Object.defineProperty(self, "overlays", {
@@ -68,12 +68,11 @@ var KmlOverlay = function(map, kmlId, viewport, overlays) {
       return css;
     }
 
-/*
     var ballon = new HtmlInfoWindow();
     var onMarkerClick = function(position, marker) {
       var html = [
         "<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>",
-        "<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:pre'>${description}</div>"
+        "<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>"
       ].join("");
       var styles = null;
       if (marker.get("balloonstyle")) {

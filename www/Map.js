@@ -793,16 +793,18 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   kmlOverlayOptions = kmlOverlayOptions || {};
   kmlOverlayOptions.url = kmlOverlayOptions.url || null;
 
-  loadKmlFile(self, kmlOverlayOptions, function(viewport, placeMarkOverlays) {
+  loadKmlFile(self, kmlOverlayOptions, function(camera, placeMarkOverlays) {
     var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
-    var kmlOverlay = new KmlOverlay(self, kmlId, viewport, placeMarkOverlays);
+    var kmlOverlay = new KmlOverlay(self, kmlId, camera, placeMarkOverlays);
     self.OVERLAYS[kmlId] = kmlOverlay;
     callback(kmlOverlay);
   });
 };
 
 function loadKmlFile(self, options, callback) {
-  var viewport = new LatLngBounds();
+  var camera = {
+    target: new LatLngBounds()
+  };
   exec.call(self, function(kmlData) {
   console.log(JSON.parse(JSON.stringify(kmlData))); // for debug
 //return;
@@ -814,11 +816,14 @@ function loadKmlFile(self, options, callback) {
         styles: {
           children: []
         },
-        viewport: viewport,
+        camera: camera,
         kmlStyles: kmlData.styles
       }, cb);
     }, function(placeMarkOverlays) {
-      callback.call(self, viewport, placeMarkOverlays);
+      placeMarkOverlays = placeMarkOverlays.filter(function(overlay) {
+        return !!overlay;
+      });
+      callback.call(self, camera, placeMarkOverlays);
     });
 
 
@@ -875,6 +880,7 @@ function kmlTagProcess(self, params, callback) {
 }
 
 function _parseKmlTag(self, params, callback) {
+console.log(params.child.tagName, params);
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -883,7 +889,7 @@ function _parseKmlTag(self, params, callback) {
       placeMarkLoader(self, {
         kmlUrl: params.kmlUrl,
         placeMark: params.child,
-        viewport: params.viewport,
+        camera: params.camera,
         kmlStyles: params.kmlStyles,
         styles: params.styles
       }, callback);
@@ -895,7 +901,7 @@ function _parseKmlTag(self, params, callback) {
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport,
+        camera: params.camera,
         styles: params.styles
       }, callback);
       break;
@@ -905,7 +911,7 @@ function _parseKmlTag(self, params, callback) {
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport,
+        camera: params.camera,
         styles: params.styles
       }, callback);
       break;
@@ -915,18 +921,18 @@ function _parseKmlTag(self, params, callback) {
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport,
+        camera: params.camera,
         styles: params.styles
       }, callback);
       break;
-/*
+
     case "groundoverlay":
       groundoverlayPlacemark(self, {
         kmlUrl: params.kmlUrl,
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport,
+        camera: params.camera,
         styles: params.styles
       }, callback);
       break;
@@ -936,15 +942,40 @@ function _parseKmlTag(self, params, callback) {
         child: params.child,
         placeMark: params.placeMark,
         kmlStyles: params.kmlStyles,
-        viewport: params.viewport,
+        camera: params.camera,
         styles: params.styles
       }, callback);
       break;
-*/
+
+    case "lookat":
+      lookat(self, {
+        child: params.child,
+        camera: params.camera,
+      }, callback);
+      break;
     default:
       //console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
       callback(child);
   }
+}
+function lookat(self, params, callback) {
+  if ("latitude" in params.child && "longitude" in params.child) {
+    params.camera.target.extend({
+      lat: parseFloat(params.child.latitude),
+      lng: parseFloat(params.child.longitude)
+    });
+  }
+  if ("heading" in params.child) {
+    params.camera.bearing = parseInt(params.child.heading);
+  }
+  if ("tilt" in params.child) {
+    params.camera.tilt = parseInt(params.child.tilt);
+  }
+  // <range> is not available.
+  // if ("range" in params.child) {
+  //   params.camera.tilt = parseInt(params.child.tilt);
+  // }
+  callback();
 }
 
 function placeMarkLoader(self, params, callback) {
@@ -975,10 +1006,13 @@ function placeMarkLoader(self, params, callback) {
       kmlUrl: params.kmlUrl,
       placeMark: params.placeMark,
       kmlStyles: params.kmlStyles,
-      viewport: params.viewport,
+      camera: params.camera,
       styles: params.styles
     }, cb);
   }, function(overlays) {
+    overlays = overlays.filter(function(overlay) {
+      return !!overlay;
+    });
     params.placeMark.children = overlays;
     callback(params.placeMark);
   });
@@ -1006,9 +1040,18 @@ function networklinkPlacemark(self, params, callback) {
   }
   loadKmlFile(self, {
     url: link.href
-  }, function(viewport, placeMarkOverlays) {
-    params.viewport.extend(viewport.southwest);
-    params.viewport.extend(viewport.northeast);
+  }, function(camera, placeMarkOverlays) {
+    params.camera.target.extend(camera.target.southwest);
+    params.camera.target.extend(camera.target.northeast);
+    if ("zoom" in camera) {
+      params.camera.zoom = camera.zoom;
+    }
+    if ("tilt" in camera) {
+      params.camera.tilt = camera.tilt;
+    }
+    if ("heading" in camera) {
+      params.camera.tilt = camera.heading;
+    }
     callback(placeMarkOverlays);
   });
 }
@@ -1066,7 +1109,7 @@ function markerPlacemark(self, params, callback) {
   };
 
   //console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)));
-  params.viewport.extend(markerOptions.position);
+  params.camera.target.extend(markerOptions.position);
   self.addMarker(markerOptions, callback);
 }
 function groundoverlayPlacemark(self, params, callback) {
@@ -1095,8 +1138,8 @@ function groundoverlayPlacemark(self, params, callback) {
         var sw = {lat: parseFloat(child.south), lng: parseFloat(child.west)};
         params.child.bounds.push(ne);
         params.child.bounds.push(sw);
-        params.viewport.extend(ne);
-        params.viewport.extend(sw);
+        params.camera.target.extend(ne);
+        params.camera.target.extend(sw);
         break;
       default:
     }
@@ -1116,7 +1159,7 @@ function polylinePlacemark(self, params, callback) {
     params.child.children.forEach(function(child) {
       if (child.tagName === "coordinates") {
         child.coordinates.forEach(function(latLng) {
-          params.viewport.extend(latLng);
+          params.camera.target.extend(latLng);
           polylineOptions.points.push(latLng);
         });
       }
@@ -1172,7 +1215,7 @@ function polygonPlacemark(self, params, callback) {
         if (element.children.length === 1 &&
           element.children[0].tagName === "linearring") {
           element.children[0].children[0].coordinates.forEach(function(latLng) {
-            params.viewport.extend(latLng);
+            params.camera.target.extend(latLng);
           });
           polygonOptions.points = element.children[0].children[0].coordinates;
         }
@@ -1182,9 +1225,6 @@ function polygonPlacemark(self, params, callback) {
 
         if (element.children.length === 1 &&
           element.children[0].tagName === "linearring") {
-          element.children[0].children[0].coordinates.forEach(function(latLng) {
-            params.viewport.extend(latLng);
-          });
           polygonOptions.holes.push(element.children[0].children[0].coordinates);
         }
         break;
@@ -1335,8 +1375,8 @@ function getStyleById(self, styleurl, params, callback) {
       merged = styles;
     }
     merged.children = merged.children.filter(function(style) {
-      return (style.tagName !== "pair" || style.key !== "highlight")
-    })
+      return (style.tagName !== "pair" || style.key !== "highlight");
+    });
 
 
     // for (i = 0; i < merged.children.length; i++) {

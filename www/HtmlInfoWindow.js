@@ -206,8 +206,8 @@ var HTMLInfoWindow = function() {
       var frame = self.get("frame");
       var contentFrame = frame.firstChild;
       var contentBox = contentFrame.firstChild;
-      contentBox.style.minWidth = "100px";
       contentBox.style.minHeight = "50px";
+      contentBox.style.width = (div.offsetWidth * 0.7) + "px";
 
 
       var content = self.get("content");
