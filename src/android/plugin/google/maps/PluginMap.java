@@ -1390,7 +1390,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               if ("org.json.JSONArray".equals(targetClass.getName())) {
                 JSONArray points = cameraPos.getJSONArray("target");
                 result.cameraBounds = PluginUtil.JSONArray2LatLngBounds(points);
-                result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding / density));
+                result.cameraUpdate = CameraUpdateFactory.newLatLngBounds(result.cameraBounds, (int)(result.cameraPadding * density));
               } else {
                 latLng = cameraPos.getJSONObject("target");
                 builder.target(new LatLng(latLng.getDouble("lat"), latLng.getDouble("lng")));
@@ -1458,7 +1458,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     }
                   }
 
-                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, (int)(finalCameraPosition.cameraPadding / density));
+                  CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(finalCameraPosition.cameraBounds, (int)(finalCameraPosition.cameraPadding * density));
                   try {
                     map.moveCamera(cameraUpdate);
                   } catch (Exception e) {

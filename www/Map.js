@@ -411,6 +411,9 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
     if (!target) {
       return;
     }
+    if (!("padding" in cameraPosition)) {
+      cameraPosition.padding = 20;
+    }
 
     if (utils.isArray(target) || target.type === "LatLngBounds") {
       target = common.convertToPositionArray(target);
@@ -439,6 +442,9 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
       return;
     }
 
+    if (!("padding" in cameraPosition)) {
+      cameraPosition.padding = 20;
+    }
     if (utils.isArray(target) || target.type === "LatLngBounds") {
       target = common.convertToPositionArray(target);
     }
@@ -955,7 +961,8 @@ console.log(params.child.tagName, params);
       break;
     default:
       //console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
-      callback(child);
+      params.placeMark[params.child.tagName] = params.child;
+      callback();
   }
 }
 function lookat(self, params, callback) {
