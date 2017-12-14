@@ -106,7 +106,7 @@ var KmlOverlay = function(map, kmlId, camera, overlays) {
     var seekOverlays = function(overlay) {
       if (overlay.type === "Marker") {
         overlay.on(event.MARKER_CLICK, onMarkerClick);
-      } else if (overlay instanceof BaseArrayClass) {
+      } else if (typeof overlay.forEach === "function") {
         overlay.forEach(seekOverlays);
       }
     };

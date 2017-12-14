@@ -974,8 +974,14 @@ var _stopRequested = false;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
   execOptions = execOptions || {};
-  if (this._isRemoved && !execOptions.remove || !this._isReady) {
-    // Ignore if the instance is already removed, or the instance is not ready.
+  if (this._isRemoved && !execOptions.remove) {
+    // Ignore if the instance is already removed.
+    console.error("[ignore]" + pluginName + "." + methodName + ", because removed.");
+    return true;
+  }
+  if (!this._isReady) {
+    // Ignore if the instance is not ready.
+    console.error("[ignore]" + pluginName + "." + methodName + ", because it's not ready.");
     return true;
   }
   var self = this;

@@ -80,7 +80,7 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
     });
   }, self.map.errorHandler, self.map.id, 'loadPlugin', ['KmlOverlay', {
     url: self.options.url
-  }], {sync: true});
+  }]);
 };
 
 KmlLoader.prototype.kmlTagProcess = function(params, callback) {
@@ -353,29 +353,41 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
     overlays = overlays.filter(function(overlay) {
       return !!overlay;
     });
-    console.log(overlays, params.attrHolder);
+    //console.log(overlays, params.attrHolder);
     var attrNames = Object.keys(params.attrHolder);
-    attrNames.forEach(function(name) {
-      switch(name) {
-        case "extendeddata":
-          overlays.forEach(function(overlay) {
-            overlay.set(name, params.attrHolder[name]);
-          });
-          break;
-        default:
-          overlays.forEach(function(overlay) {
-            overlay.set(name, params.attrHolder[name].value);
-          });
-          break;
-      }
-    });
+
     if (params.placeMark.tagName === "placemark") {
+      attrNames.forEach(function(name) {
+        switch(name) {
+          case "extendeddata":
+            overlays[0].set(name, params.attrHolder[name]);
+            break;
+          default:
+            overlays[0].set(name, params.attrHolder[name].value);
+            break;
+        }
+      });
+
+      Object.defineProperty(overlays[0], "tagName", {
+        value: "placemark",
+        writable: false
+      });
       callback.call(self, overlays[0]);
     } else {
       var container = new BaseArrayClass(overlays);
       Object.defineProperty(container, "tagName", {
           value: params.placeMark.tagName,
           writable: false
+      });
+      attrNames.forEach(function(name) {
+        switch(name) {
+          case "extendeddata":
+            container.set(name, params.attrHolder[name]);
+            break;
+          default:
+            container.set(name, params.attrHolder[name].value);
+            break;
+        }
       });
       callback.call(self, container);
     }
@@ -645,6 +657,10 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   if (!link) {
     return callback.call(self, child);
   }
+  link.children.forEach(function(child) {
+    link[child.tagName] = child.value;
+  });
+  link.href = link.href || "";
 
   if (link.href.indexOf("://") === -1 && link.href.substr(0, 1) !== "/") {
     var a = document.createElement("a");
@@ -652,11 +668,12 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
     link.href = a.protocol + "//" + a.host + ":" + a.port + a.pathname.replace(/\/[^\/]+$/, "") + "/" + link.href;
     a = null;
   }
-  self.parseKmlFile.call(self, {
+
+  var loader = new KmlLoader(self.map, self.exec, {
     url: link.href
-  }, function(camera, placeMarkOverlays) {
-    self.camera.target.push(camera.target.southwest);
-    self.camera.target.push(camera.target.northeast);
+  });
+  loader.parseKmlFile(function(camera, placeMarkOverlays) {
+    self.camera.target.push.apply(self.camera.target, camera.target);
     if ("zoom" in camera) {
       self.camera.zoom = camera.zoom;
     }
