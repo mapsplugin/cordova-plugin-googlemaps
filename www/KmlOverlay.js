@@ -43,8 +43,28 @@ var KmlOverlay = function(map, kmlId, camera, overlays) {
         writable: false
     });
     function templateRenderer(html, marker) {
+      var extendedData = marker.get("extendeddata");
+      var values = null;
+      if (extendedData) {
+        var schemaUrl = null;
+        var children;
+        if (extendedData.children[0].tagName === "schemedata") {
+          schemaUrl = extendedData.children[0].schemaUrl;
+          children = extendData.children[0].children;
+        } else {
+          children = extendData.children;
+        }
+        values = {};
+        children.forEach(function(child) {
+          values[child.name] = child.value;
+        });
+      }
+
       return html.replace(/\$[\{\[](.+?)[\}\]]/g, function(match, name) {
-        return marker.get(name);
+        if (values && name in values) {
+          return values[name] || "";
+        }
+        return marker.get(name) || "";
       });
     }
     function parseBalloonStyle(balloonStyle) {
@@ -83,19 +103,15 @@ var KmlOverlay = function(map, kmlId, camera, overlays) {
     };
 
 
-    var seekOverlays = function(children) {
-      children.forEach(function(child) {
-        if (child.type === "Marker") {
-          child.on(event.MARKER_CLICK, onMarkerClick);
-        }
-        if ('children' in child &&
-          utils.isArray(child.children)) {
-          seekOverlays(child.children);
-        }
-      });
+    var seekOverlays = function(overlay) {
+      if (overlay.type === "Marker") {
+        overlay.on(event.MARKER_CLICK, onMarkerClick);
+      } else if (overlay instanceof BaseArrayClass) {
+        overlay.forEach(seekOverlays);
+      }
     };
 
-    seekOverlays(overlays);
+    overlays.forEach(seekOverlays);
 /*
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {
@@ -165,5 +181,6 @@ KmlOverlay.prototype.remove = function(callback) {
       }
     });
 };
+
 
 module.exports = KmlOverlay;

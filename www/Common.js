@@ -352,14 +352,14 @@ function getDomDepth(dom, idx, zIndex) {
       return 0;
     }
 
-      dom.setAttribute("_idx", idx); // for debugging
+    // dom.setAttribute("_idx", idx); // for debugging
     var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10) + 0.01;
 
     /* for debug */
-    var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
-    if (currentDepth != result) {
-      dom.setAttribute("_depth", result); // for debugging
-    }
+    //var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
+    // if (currentDepth != result) {
+    //   dom.setAttribute("_depth", result); // for debugging
+    // }
 
     return result;
 }

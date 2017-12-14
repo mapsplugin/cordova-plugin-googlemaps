@@ -280,7 +280,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
                   }
                   styleIDs.add(node.getString("styleId"));
                   result.putStringArrayList("styleIDs", styleIDs);
-                } else {
+                } else if (!("schema".equals(node.getString("tagName")))) {
                   children.add(node);
                 }
               }
