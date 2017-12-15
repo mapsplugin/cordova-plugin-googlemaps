@@ -417,6 +417,13 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
 
     if (utils.isArray(target) || target.type === "LatLngBounds") {
       target = common.convertToPositionArray(target);
+      if (target.length === 0) {
+        // skip if no point is specified
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+        return;
+      }
     }
     cameraPosition.target = target;
 
@@ -447,6 +454,13 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     }
     if (utils.isArray(target) || target.type === "LatLngBounds") {
       target = common.convertToPositionArray(target);
+      if (target.length === 0) {
+        // skip if no point is specified
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+        return;
+      }
     }
     cameraPosition.target = target;
     exec.call(this, function() {
@@ -800,9 +814,9 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   kmlOverlayOptions.url = kmlOverlayOptions.url || null;
 
   var loader = new KmlLoader(self, exec, kmlOverlayOptions);
-  loader.parseKmlFile(function(camera, placeMarkOverlays) {
+  loader.parseKmlFile(function(camera, kmlData) {
     var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
-    var kmlOverlay = new KmlOverlay(self, kmlId, camera, placeMarkOverlays[0]);
+    var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData);
     self.OVERLAYS[kmlId] = kmlOverlay;
     callback(kmlOverlay);
   });

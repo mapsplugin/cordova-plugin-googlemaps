@@ -1,7 +1,10 @@
 var utils = require('cordova/utils'),
-    BaseClass = require('./BaseClass');
+  BaseClass = require('./BaseClass');
 
 var ARRAY_FIELD = typeof Symbol === 'undefined' ? '__array' + Date.now() : Symbol.for('array');
+
+var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
+var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
 
 function BaseArrayClass(array) {
   BaseClass.apply(this);
@@ -17,32 +20,44 @@ function BaseArrayClass(array) {
 
 utils.extend(BaseArrayClass, BaseClass);
 
-BaseArrayClass.prototype.map = function(fn, callback) {
-  var self = this;
-
-  if (typeof fn !== "function") {
+BaseArrayClass.prototype.mapSeries = function(fn, callback) {
+  if (typeof fn !== "function" || typeof callback !== "function") {
     return;
   }
+  var self = this;
+
   var results = [];
-  if (typeof fn === "function" && typeof callback !== "function") {
-    //------------------------
-    // example:
-    //    var values = baseArray.forEach(function(item, idx) {
-    //       ...
-    //       return someValue;
-    //    });
-    //------------------------
-    return self[ARRAY_FIELD].map(fn.bind(self));
+  var currentIdx = 0;
+  var _arrayLength = self[ARRAY_FIELD].length;
+  var _looper = function() {
+    fn.call(self, self[ARRAY_FIELD][currentIdx], function(value) {
+      results[currentIdx] = value;
+      currentIdx++;
+      if (currentIdx === _arrayLength) {
+        callback.call(self, results);
+      } else {
+        nextTick(_looper);
+      }
+    });
+  };
+  nextTick(_looper);
+};
+
+BaseArrayClass.prototype.mapAsync = function(fn, callback) {
+  if (typeof fn !== "function" || typeof callback !== "function") {
+    return;
   }
+  var self = this;
   //------------------------
   // example:
-  //    baseArray.forEach(function(item, idx, callback) {
+  //    baseArray.mapAsync(function(item, idx, callback) {
   //       ...
   //       callback(value);
   //    }, function(values) {
   //
   //    });
   //------------------------
+  var results = [];
   self[ARRAY_FIELD].forEach(function() {
     results.push(null);
   });
@@ -63,22 +78,31 @@ BaseArrayClass.prototype.map = function(fn, callback) {
   });
 };
 
-BaseArrayClass.prototype.forEach = function(fn, callback) {
+BaseArrayClass.prototype.map = function(fn, callback) {
   var self = this;
+
   if (typeof fn !== "function") {
     return;
   }
-
+  var results = [];
   if (typeof fn === "function" && typeof callback !== "function") {
     //------------------------
     // example:
-    //    baseArray.forEach(function(item, idx) {
+    //    var values = baseArray.map(function(item, idx) {
     //       ...
+    //       return someValue;
     //    });
     //------------------------
-    self[ARRAY_FIELD].forEach(fn.bind(self));
+    return self[ARRAY_FIELD].map(fn.bind(self));
+  }
+  self.mapAsync(fn, callback);
+};
+
+BaseArrayClass.prototype.forEachAsync = function(fn, callback) {
+  if (typeof fn !== "function" || typeof callback !== "function") {
     return;
   }
+  var self = this;
   //------------------------
   // example:
   //    baseArray.forEach(function(item, callback) {
@@ -105,20 +129,29 @@ BaseArrayClass.prototype.forEach = function(fn, callback) {
   });
 };
 
-BaseArrayClass.prototype.filter = function(fn, callback) {
+BaseArrayClass.prototype.forEach = function(fn, callback) {
   var self = this;
   if (typeof fn !== "function") {
     return;
   }
+
   if (typeof fn === "function" && typeof callback !== "function") {
     //------------------------
     // example:
-    //    baseArray.filter(function(item, idx) {
+    //    baseArray.forEach(function(item, idx) {
     //       ...
-    //       return true or false
     //    });
     //------------------------
-    return self[ARRAY_FIELD].filter(fn.bind(self));
+    self[ARRAY_FIELD].forEach(fn.bind(self));
+    return;
+  }
+  self.forEachAsync(fn, callback);
+};
+
+BaseArrayClass.prototype.filterAsync = function(fn, callback) {
+  var self = this;
+  if (typeof fn !== "function" || typeof callback !== "function") {
+    return;
   }
   //------------------------
   // example:
@@ -147,6 +180,24 @@ BaseArrayClass.prototype.filter = function(fn, callback) {
       }
     });
   });
+};
+
+BaseArrayClass.prototype.filter = function(fn, callback) {
+  var self = this;
+  if (typeof fn !== "function") {
+    return;
+  }
+  if (typeof fn === "function" && typeof callback !== "function") {
+    //------------------------
+    // example:
+    //    baseArray.filter(function(item, idx) {
+    //       ...
+    //       return true or false
+    //    });
+    //------------------------
+    return self[ARRAY_FIELD].filter(fn.bind(self));
+  }
+  self.filterAsync(fn, callback);
 };
 
 BaseArrayClass.prototype.indexOf = function(item) {

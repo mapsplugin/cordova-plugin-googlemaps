@@ -121,7 +121,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       result.putBundle("root", root);
 
 
-
       tbxml.release();
       inputStreamReader.close();
       inputStream.close();
@@ -156,9 +155,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         kmlTag = KML_TAG.valueOf(tagName);
       } catch(Exception e) {
         kmlTag = KML_TAG.NOT_SUPPORTED;
-        //Log.e(TAG, "---> tagName = " + tagName + " is not supported in this plugin.");
-        // ignore
-        //e.printStackTrace();
       }
 
       long[] attributes = tbxml.listAttributesOfElement(rootElement);
@@ -172,7 +168,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
         case styleurl:
           styleId = tbxml.textForElement(rootElement);
-          styleId = styleId.replace("#", "");
           result.putString("styleId", styleId);
           break;
 
@@ -184,7 +179,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
           if (styleId == null || styleId.isEmpty()) {
             styleId = "__" + rootElement + "__";
           }
-          styleId = styleId.replace("#", "");
           result.putString("styleId", styleId);
 
           // Store style information into the styleHolder.
@@ -217,7 +211,6 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
           if (schemaId == null || schemaId.isEmpty()) {
             schemaId = "__" + rootElement + "__";
           }
-          schemaId = schemaId.replace("#", "");
 
           // Store style information into the styleHolder.
           schema = new Bundle();
@@ -268,9 +261,9 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         default:
 
           childNode = tbxml.firstChild(rootElement);
-          if (childNode > 0) {
+          if (childNode != 0) {
             children = new ArrayList<Bundle>();
-            while (childNode > 0) {
+            while (childNode != 0) {
               Bundle node = this.parseXml(tbxml, childNode);
               if (node != null) {
                 if (node.containsKey("styleId")) {

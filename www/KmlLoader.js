@@ -53,7 +53,8 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
   var self = this;
 
   self.exec.call(self, function(kmlData) {
-    console.log(JSON.parse(JSON.stringify(kmlData))); // for debug
+    var rawKmlData = JSON.parse(JSON.stringify(kmlData));
+console.log(rawKmlData);
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
       writable: false
@@ -64,7 +65,7 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
     });
 
     var placeMarks = new BaseArrayClass(kmlData.root.children);
-    placeMarks.map(function(placeMark, cb) {
+    placeMarks.mapSeries(function(placeMark, cb) {
       self.kmlTagProcess.call(self, {
         child: placeMark,
         attrHolder: {},
@@ -76,11 +77,13 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
       placeMarkOverlays = placeMarkOverlays.filter(function(overlay) {
         return !!overlay;
       });
-      callback.call(self, self.camera, placeMarkOverlays);
+      var result = placeMarkOverlays.shift();
+      result.set('kmlData', rawKmlData);
+      callback.call(self, self.camera, result);
     });
   }, self.map.errorHandler, self.map.id, 'loadPlugin', ['KmlOverlay', {
     url: self.options.url
-  }]);
+  }], {sync: true});
 };
 
 KmlLoader.prototype.kmlTagProcess = function(params, callback) {
@@ -150,11 +153,45 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
     // Load additional kml file
     //---------------------------
     var requestUrl = requestId.replace(/\#.*$/, "");
-    requestId = requestId.replace(/^.*?\#/, "#");
+    var requestIdentify = requestId.replace(/^.*?\#/, "");
 
-    if (requestId in self[targetProp]) {
-      results = self[targetProp][requestUrl] || {};
-      results = results[requestId];
+    if (requestUrl in self[targetProp]) {
+      self[targetProp][requestUrl] = self[targetProp][requestUrl] || {};
+      results = self[targetProp][requestUrl][requestIdentify] || {
+        children: []
+      };
+      for (i = 0; i < results.children.length; i++) {
+        child = results.children[i];
+        if (child.tagName === "pair" && child.key === "normal") {
+          return self.getObjectById.call(self, child.styleIDs[0], targetProp, callback);
+        }
+      }
+      callback.call(self, results);
+      return;
+    }
+
+    var loader = new KmlLoader(self.map, self.exec, {
+      url: requestUrl
+    });
+    loader.parseKmlFile(function(camera, anotherKmlData) {
+      var extendProps = [
+        {src: "styles", dst: "kmlStyles"},
+        {src: "schemas", dst: "kmlSchemas"}
+      ];
+      extendProps.forEach(function(property) {
+        var properties = anotherKmlData.get("kmlData")[property.src];
+        self[property.dst][requestUrl] = {};
+
+        var keys = Object.keys(properties);
+        keys.forEach(function(key) {
+          self[property.dst][requestUrl][key] = properties[key];
+        });
+      });
+
+      self[targetProp][requestUrl] = self[targetProp][requestUrl] || {};
+      results = self[targetProp][requestUrl][requestIdentify] || {
+        children: []
+      };
       for (i = 0; i < results.children.length; i++) {
         child = results.children[i];
         if (child.tagName === "pair" && child.key === "normal") {
@@ -162,27 +199,11 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
         }
       }
       return callback.call(self, results);
-    }
-
-    self.exec.call(self, function(kmlData) {
-      self[targetProp][requestUrl] = kmlData.results;
-
-      var results = self[targetProp][requestId];
-      for (var i = 0; i < results.children.length; i++) {
-        child = results.children[i];
-        if (child.tagName === "pair" && child.key === "normal") {
-          return self.getObjectById.call(self, child.styleIDs[0], targetProp, callback);
-        }
-      }
-      callback.call(self, results);
-    }, function() {
-      callback.call(self, {children: []});
-    }, self.map.id, 'loadPlugin', ['KmlOverlay', {
-      url: requestUrl
-    }]);
+    });
     return;
   }
 
+  requestId = requestId.replace("#", "");
   if (requestId in self[targetProp] === false) {
     return {children: []};
   }
@@ -250,7 +271,7 @@ KmlLoader.prototype.getSchemaById = function(requestId, callback) {
 
 KmlLoader.prototype.parseKmlTag = function(params, callback) {
   var self = this;
-//console.log(params.child.tagName, params);
+console.log(params.child.tagName, params, this.kmlUrl);
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -259,7 +280,7 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
       self.parseContainerTag.call(self, {
         placeMark: params.child,
         styles: params.styles,
-        attrHolder: {}
+        attrHolder: JSON.parse(JSON.stringify(params.attrHolder))
       }, callback);
       break;
 
@@ -311,11 +332,73 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
       }, callback);
       break;
 */
+    case "extendeddata":
+      self.parseExtendedDataTag.call(self, {
+        child: params.child,
+        placeMark: params.placeMark,
+        styles: params.styles,
+        attrHolder: params.attrHolder
+      }, callback);
+      break;
     default:
       //console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
       params.attrHolder[params.child.tagName] = params.child;
       callback();
   }
+};
+
+KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
+  var self = this;
+  params.attrHolder.extendeddata = {};
+  (new BaseArrayClass(params.child.children)).forEach(function(child, next) {
+    switch(child.tagName) {
+      case "data":
+        child.children.forEach(function(data) {
+          var dataName = child.name.toLowerCase();
+          switch(data.tagName) {
+            case "displayname":
+              params.attrHolder.extendeddata[dataName + "/displayname"] = data.value;
+              break;
+            case "value":
+              params.attrHolder.extendeddata[dataName] = data.value;
+              break;
+            default:
+              break;
+          }
+        });
+        next();
+        break;
+      case "schemadata":
+        self.getSchemaById(child.schemaUrl, function(schemas) {
+          var schemaUrl = schemas.name;
+          schemas.children.forEach(function(simplefield) {
+            if (simplefield.tagName !== "simplefield") {
+              return;
+            }
+            simplefield.children.forEach(function(valueTag) {
+              var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+              schemaPath = schemaPath.toLowerCase();
+              params.attrHolder.extendeddata[schemaPath] = valueTag.value;
+            });
+          });
+          child.children.forEach(function(simpledata) {
+            var schemaPath = schemaUrl + "/" + simpledata.name;
+            schemaPath = schemaPath.toLowerCase();
+            params.attrHolder.extendeddata[schemaPath] = simpledata.value;
+          });
+          next();
+        });
+        break;
+
+      default:
+
+        child.children.forEach(function(data) {
+          params.attrHolder.extendeddata[child.tagName] = child;
+        });
+        next();
+        break;
+    }
+  }, callback);
 };
 
 KmlLoader.prototype.parseContainerTag = function(params, callback) {
@@ -330,8 +413,9 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
   // Generate overlays or load another files...etc
   //--------------------------------------------------------
   var children = new BaseArrayClass(params.placeMark.children);
-  children.map(function(child, cb) {
+  children.mapSeries(function(child, cb) {
 
+console.log(child, self.kmlUrl);
     //-------------------------
     // Copy parent information
     //-------------------------
@@ -353,8 +437,10 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
     overlays = overlays.filter(function(overlay) {
       return !!overlay;
     });
-    //console.log(overlays, params.attrHolder);
     var attrNames = Object.keys(params.attrHolder);
+    if (overlays.length === 0) {
+      overlays.push(new BaseClass());
+    }
 
     if (params.placeMark.tagName === "placemark") {
       attrNames.forEach(function(name) {
@@ -403,6 +489,15 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   var markerOptions = {};
   params.styles.children.forEach(function(child) {
     switch (child.tagName) {
+      case "balloonstyle":
+        child.children.forEach(function(style) {
+          switch (style.tagName) {
+            case "text":
+              markerOptions.description = style.value;
+              break;
+          }
+        });
+        break;
       case "iconstyle":
         child.children.forEach(function(style) {
           switch (style.tagName) {
@@ -417,9 +512,6 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
             case "icon":
               markerOptions.icon = markerOptions.icon || {};
               markerOptions.icon.url = style.href;
-              break;
-            case "balloonstyle":
-              markerOptions.balloonstyle = style.balloonstyle;
               break;
           }
         });
@@ -450,7 +542,6 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   };
 
   //console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)));
-  console.log(self);
   self.camera.target.push(markerOptions.position);
   self.map.addMarker(markerOptions, callback);
 };
@@ -672,7 +763,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   var loader = new KmlLoader(self.map, self.exec, {
     url: link.href
   });
-  loader.parseKmlFile(function(camera, placeMarkOverlays) {
+  loader.parseKmlFile(function(camera, kmlData) {
     self.camera.target.push.apply(self.camera.target, camera.target);
     if ("zoom" in camera) {
       self.camera.zoom = camera.zoom;
@@ -683,7 +774,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
     if ("heading" in camera) {
       self.camera.tilt = camera.heading;
     }
-    callback.call(self, placeMarkOverlays);
+    callback.call(self, kmlData);
   });
 };
 
