@@ -10,9 +10,9 @@ var argscheck = require('cordova/argscheck'),
  * KmlOverlay Class
  *****************************************************************************/
 var exec;
-var KmlOverlay = function(map, kmlId, camera, overlays) {
+var KmlOverlay = function(map, kmlId, camera, kmlData) {
     BaseClass.apply(this);
-    console.log(overlays);
+    console.log(kmlData);
 
     var self = this;
     self._overlays = [];
@@ -38,33 +38,21 @@ var KmlOverlay = function(map, kmlId, camera, overlays) {
         value: camera,
         writable: false
     });
-    Object.defineProperty(self, "overlays", {
-        value: overlays,
+    Object.defineProperty(self, "kmlData", {
+        value: kmlData,
         writable: false
     });
     function templateRenderer(html, marker) {
       var extendedData = marker.get("extendeddata");
-      var values = null;
-      if (extendedData) {
-        var schemaUrl = null;
-        var children;
-        if (extendedData.children[0].tagName === "schemedata") {
-          schemaUrl = extendedData.children[0].schemaUrl;
-          children = extendData.children[0].children;
-        } else {
-          children = extendData.children;
-        }
-        values = {};
-        children.forEach(function(child) {
-          values[child.name] = child.value;
-        });
-      }
 
-      return html.replace(/\$[\{\[](.+?)[\}\]]/g, function(match, name) {
-        if (values && name in values) {
-          return values[name] || "";
+      return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
+        var text = marker.get(name) || "";
+        if (extendedData) {
+          text = text.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match1, name1) {
+            return extendedData[name1.toLowerCase()] || "";
+          });
         }
-        return marker.get(name) || "";
+        return text;
       });
     }
     function parseBalloonStyle(balloonStyle) {
@@ -90,15 +78,64 @@ var KmlOverlay = function(map, kmlId, camera, overlays) {
 
     var ballon = new HtmlInfoWindow();
     var onMarkerClick = function(position, marker) {
-      var html = [
-        "<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>",
-        "<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>"
-      ].join("");
+      var html = [];
+      var result;
+      var description = marker.get("description") || "";
+      if (description.indexOf("<html>") > -1 || description.indexOf("script") > -1) {
+        var text = templateRenderer(description, marker);
+        // create a sandbox
+        if (text.indexOf("<html") === -1) {
+          text = "<html><body>" + text + "</body></html>";
+        }
+        result = document.createElement("div");
+        if (marker.get('name')) {
+          var name = document.createElement("div");
+          name.style.fontWeight = 500;
+          name.style.fontSize = "medium";
+          name.style.marginBottom = 0;
+          name.innerText = marker.get('name') || "";
+          result.appendChild(name);
+        }
+        if (marker.get('_snippet')) {
+          var snippet = document.createElement("div");
+          snippet.style.fontWeight = 300;
+          snippet.style.fontSize = "small";
+          snippet.style.whiteSpace = "normal";
+          snippet.style.fontFamily = "Roboto,Arial,sans-serif";
+          snippet.innerText = marker.get('_snippet') || "";
+          result.appendChild(snippet);
+        }
+        console.log(text);
+
+        var iframe = document.createElement('iframe');
+        iframe.sandbox = "allow-scripts allow-same-origin";
+        iframe.frameBorder = "no";
+        iframe.scrolling = "yes";
+        iframe.style.overflow = "hidden";
+        iframe.addEventListener('load', function() {
+          iframe.contentWindow.document.open();
+          iframe.contentWindow.document.write(text);
+          iframe.contentWindow.document.close();
+        }, {
+          once: true
+        });
+        result.appendChild(iframe);
+
+      } else {
+        html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
+        html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
+        html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>");
+
+        result = templateRenderer(html.join(""), marker);
+      }
       var styles = null;
       if (marker.get("balloonstyle")) {
         styles = parseBalloonStyle(marker.get("balloonstyle"));
       }
-      ballon.setContent(templateRenderer(html, marker), styles);
+      styles = styles || {};
+      styles.overflow = "hidden";
+
+      ballon.setContent(result, styles);
       ballon.open(marker);
     };
 
@@ -111,7 +148,7 @@ var KmlOverlay = function(map, kmlId, camera, overlays) {
       }
     };
 
-    overlays.forEach(seekOverlays);
+    kmlData.forEach(seekOverlays);
 /*
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {

@@ -341,7 +341,6 @@ console.log(params.child.tagName, params, this.kmlUrl);
       }, callback);
       break;
     default:
-      //console.log("[error] kml parse error: '" +  params.child.tagName + "' is not available for this plugin");
       params.attrHolder[params.child.tagName] = params.child;
       callback();
   }
@@ -444,9 +443,13 @@ console.log(child, self.kmlUrl);
 
     if (params.placeMark.tagName === "placemark") {
       attrNames.forEach(function(name) {
+        var description;
         switch(name) {
           case "extendeddata":
             overlays[0].set(name, params.attrHolder[name]);
+            break;
+          case "snippet":
+            overlays[0].set("_snippet", params.attrHolder[name].value + description);
             break;
           default:
             overlays[0].set(name, params.attrHolder[name].value);
@@ -499,6 +502,7 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
         });
         break;
       case "iconstyle":
+console.log("iconstyle", child);
         child.children.forEach(function(style) {
           switch (style.tagName) {
             case "hotspot":
@@ -511,7 +515,7 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
               break;
             case "icon":
               markerOptions.icon = markerOptions.icon || {};
-              markerOptions.icon.url = style.href;
+              markerOptions.icon.url = style.children[0].value;
               break;
           }
         });
@@ -541,8 +545,8 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
     lng: 0
   };
 
-  //console.log("markerOptions", JSON.parse(JSON.stringify(markerOptions)));
   self.camera.target.push(markerOptions.position);
+
   self.map.addMarker(markerOptions, callback);
 };
 
