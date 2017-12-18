@@ -89,6 +89,10 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
       self.set("polygon", polygon);
     });
   }
+  Object.defineProperty(self, "clickZoom", {
+    value: markerClusterOptions.clickZoom === true,
+    writable: false
+  });
   self.taskQueue = [];
   self._stopRequest = false;
   self._isWorking = false;
@@ -219,7 +223,7 @@ MarkerCluster.prototype.getHashCode = function() {
 };
 
 MarkerCluster.prototype.onClusterClicked = function(cluster) {
-  if (this._isRemoved) {
+  if (this._isRemoved || !this.clickZoom) {
     return null;
   }
   var self = this;
