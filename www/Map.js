@@ -1487,7 +1487,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
       if (/^marker_/i.test(clusterId)) {
         // regular marker
         var marker = markerCluster.getMarkerById(clusterId);
-        if (eventName === event.MARKER_CLICK) {
+        if (eventName === event.MARKER_CLICK || eventName === event.INFO_CLICK) {
           markerCluster.trigger(eventName, position, marker);
         } else {
           if (eventName === event.INFO_OPEN) {
