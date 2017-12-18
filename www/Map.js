@@ -1414,7 +1414,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       "markerMap": markerMap,
       "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
       "debug": markerClusterOptions.debug === true,
-      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
+      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw),
+      "clickZoom": common.defaultTrueOption(markerClusterOptions.clickZoom)
     }, exec);
     markerCluster.one("remove", function() {
       delete self.OVERLAYS[result.id];
@@ -1486,7 +1487,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
       if (/^marker_/i.test(clusterId)) {
         // regular marker
         var marker = markerCluster.getMarkerById(clusterId);
-        if (eventName === event.MARKER_CLICK) {
+        if (eventName === event.MARKER_CLICK || eventName === event.INFO_CLICK) {
           markerCluster.trigger(eventName, position, marker);
         } else {
           if (eventName === event.INFO_OPEN) {
