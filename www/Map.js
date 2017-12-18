@@ -1414,7 +1414,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       "markerMap": markerMap,
       "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
       "debug": markerClusterOptions.debug === true,
-      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
+      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw),
+      "clickZoom": common.defaultTrueOption(markerClusterOptions.clickZoom)
     }, exec);
     markerCluster.one("remove", function() {
       delete self.OVERLAYS[result.id];
