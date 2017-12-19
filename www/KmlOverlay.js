@@ -105,7 +105,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
           snippet.innerText = marker.get('_snippet') || "";
           result.appendChild(snippet);
         }
-        console.log(text);
 
         var iframe = document.createElement('iframe');
         iframe.sandbox = "allow-scripts allow-same-origin";
@@ -122,11 +121,23 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
         result.appendChild(iframe);
 
       } else {
-        html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
-        html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
-        html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>");
-
-        result = templateRenderer(html.join(""), marker);
+        if (marker.get("name")) {
+          html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
+        }
+        if (marker.get("_snippet")) {
+          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
+        }
+        if (marker.get("description")) {
+          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>");
+        }
+        var prevMatchedCnt = 0;
+        result = html.join("");
+        var matches = result.match(/\$[\{\[].+?[\}\]]/gi);
+        while(matches && matches.length !== prevMatchedCnt) {
+          prevMatchedCnt = matches.length;
+          result = templateRenderer(result, marker);
+          matches = result.match(/\$[\{\[].+?[\}\]]/gi);
+        }
       }
       var styles = null;
       if (marker.get("balloonstyle")) {

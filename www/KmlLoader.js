@@ -271,7 +271,7 @@ KmlLoader.prototype.getSchemaById = function(requestId, callback) {
 
 KmlLoader.prototype.parseKmlTag = function(params, callback) {
   var self = this;
-console.log(params.child.tagName, params, this.kmlUrl);
+console.log(params.child.tagName, params, this.kmlUrl.replace(/^.*\//, ''));
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -414,7 +414,6 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
   var children = new BaseArrayClass(params.placeMark.children);
   children.mapSeries(function(child, cb) {
 
-console.log(child, self.kmlUrl);
     //-------------------------
     // Copy parent information
     //-------------------------
@@ -443,13 +442,12 @@ console.log(child, self.kmlUrl);
 
     if (params.placeMark.tagName === "placemark") {
       attrNames.forEach(function(name) {
-        var description;
         switch(name) {
           case "extendeddata":
             overlays[0].set(name, params.attrHolder[name]);
             break;
           case "snippet":
-            overlays[0].set("_snippet", params.attrHolder[name].value + description);
+            overlays[0].set("_snippet", params.attrHolder[name].value);
             break;
           default:
             overlays[0].set(name, params.attrHolder[name].value);
