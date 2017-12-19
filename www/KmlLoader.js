@@ -53,8 +53,9 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
   var self = this;
 
   self.exec.call(self, function(kmlData) {
+console.log(kmlData);
+return;
     var rawKmlData = JSON.parse(JSON.stringify(kmlData));
-console.log(rawKmlData);
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
       writable: false
@@ -94,7 +95,7 @@ KmlLoader.prototype.kmlTagProcess = function(params, callback) {
     // Read styles if specified
     //---------------------------
     var styleIDs = new BaseArrayClass(params.child.styleIDs);
-    styleIDs.map(function(styleId, cb) {
+    styleIDs.mapSeries(function(styleId, cb) {
       self.getStyleById.call(self, styleId, cb);
     }, function(styleSets) {
 
@@ -211,7 +212,7 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
   var style, j;
 
   var mvcArray = new BaseArrayClass(results.styleIDs || []);
-  mvcArray.map(function(styleId, next) {
+  mvcArray.mapSeries(function(styleId, next) {
     self.getObjectById.call(self, requestId, targetProp, next);
   }, function(resultSets) {
 
@@ -271,7 +272,6 @@ KmlLoader.prototype.getSchemaById = function(requestId, callback) {
 
 KmlLoader.prototype.parseKmlTag = function(params, callback) {
   var self = this;
-console.log(params.child.tagName, params, this.kmlUrl.replace(/^.*\//, ''));
   switch (params.child.tagName) {
     case "folder":
     case "placemark":
@@ -696,34 +696,46 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
 
 };
 
-KmlLoader.prototype.parseGroundOverlayTag = function(map, params, callback) {
+KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
   var self = this;
 
   //--------------
   // add a ground overlay
   //--------------
-  params.child.url = null;
-  params.child.bounds = [];
+  var groundoveralyOptions = {
+    url: null,
+    bounds: []
+  };
 
   params.child.children.forEach(function(child) {
     switch (child.tagName) {
       case "icon":
-        params.child.url = child.href;
-        if (params.child.url && params.child.url.indexOf("://") === -1) {
-          var requestUrl = self.kmlUrl.replace(/\?.*$/, "");
-          requestUrl = requestUrl.replace(/\#.*$/, "");
-          requestUrl = requestUrl.replace(/[^\/]*$/, "");
-          params.child.url = requestUrl + params.child.url;
-        }
+        child.children.forEach(function(iconAttrNode) {
+          switch (iconAttrNode.tagName) {
+            case "href":
+              groundoveralyOptions.url = iconAttrNode.value;
+              if (groundoveralyOptions.url && groundoveralyOptions.url.indexOf("://") === -1) {
+                var requestUrl = self.kmlUrl.replace(/\?.*$/, "");
+                requestUrl = requestUrl.replace(/\#.*$/, "");
+                requestUrl = requestUrl.replace(/[^\/]*$/, "");
+                groundoveralyOptions.url = requestUrl + groundoveralyOptions.url;
+              }
+              break;
+          }
+        });
         break;
       case "latlonbox":
+        var box = {};
+        child.children.forEach(function(latlonboxAttrNode) {
+          box[latlonboxAttrNode.tagName] = parseFloat(latlonboxAttrNode.value);
+        });
         if ("rotation" in child) {
-          params.child.bearing = parseFloat(child.rotation);
+          groundoveralyOptions.bearing = box.rotation;
         }
-        var ne = {lat: parseFloat(child.north), lng: parseFloat(child.east)};
-        var sw = {lat: parseFloat(child.south), lng: parseFloat(child.west)};
-        params.child.bounds.push(ne);
-        params.child.bounds.push(sw);
+        var ne = {lat: box.north, lng: box.east};
+        var sw = {lat: box.south, lng: box.west};
+        groundoveralyOptions.bounds.push(ne);
+        groundoveralyOptions.bounds.push(sw);
         self.camera.target.push(ne);
         self.camera.target.push(sw);
         break;
@@ -731,8 +743,9 @@ KmlLoader.prototype.parseGroundOverlayTag = function(map, params, callback) {
     }
   });
   //delete params.child.children;
+  console.log("groundoveralyOptions", groundoveralyOptions);
 
-  self.map.addGroundOverlay(params.child, callback);
+  self.map.addGroundOverlay(groundoveralyOptions, callback);
 };
 
 KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
