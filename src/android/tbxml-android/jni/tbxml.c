@@ -372,7 +372,7 @@ jlongArray Java_za_co_twyst_tbxml_TBXML_jniListAttributesForElement(JNIEnv* env,
     	    	  attribute = attribute->next;
     	      }
 
-   			  __android_log_print(ANDROID_LOG_INFO,"TBXML","ATTRIBUTES: %d",count);
+   			  //__android_log_print(ANDROID_LOG_INFO,"TBXML","ATTRIBUTES: %d",count);
 
    			  // ... copy attribute pointers to returned array
 
@@ -740,5 +740,3 @@ TBXMLAttribute *nextAvailableAttribute(TBXMLDocument *document) {
 
 	return &document->currentAttributeBuffer->attributes[document->currentAttribute];
 }
-
-

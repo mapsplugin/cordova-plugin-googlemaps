@@ -100,7 +100,11 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     }
     try {
       if (urlStr.contains(".kmz")) {
-        String cacheDirPath = cordova.getActivity().getCacheDir() + "/" + urlStr.hashCode();
+        String cacheDirPath = cordova.getActivity().getCacheDir() + "/" + Integer.toString(urlStr.hashCode(), 16);
+        File cacheDir = new File(cacheDirPath);
+        if (!cacheDir.exists()) {
+          cacheDir.mkdirs();
+        }
         ArrayList<File> files =  (PluginUtil.unpackZipFromBytes(inputStream, cacheDirPath));
         inputStream.close();
         for (File file : files) {
