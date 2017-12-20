@@ -319,9 +319,9 @@ function getZIndex(dom, solt) {
     } else {
       z = parseInt(z);
     }
-    //dom.setAttribute("__parentZIndex", parentZIndex);
-    //dom.setAttribute("__solt", solt);
-    //dom.setAttribute("__ZIndex", z);
+    // dom.setAttribute("__parentZIndex", parentZIndex);
+    // dom.setAttribute("__solt", solt);
+    // dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
     return z;
 }
@@ -330,14 +330,14 @@ function getDomDepth(dom, idx, zIndex) {
       return 0;
     }
 
-      dom.setAttribute("_idx", idx); // for debugging
-    var result = (zIndex) + (idx / (1 << Math.pow(idx, idx)) / 10) + 0.01;
+    //dom.setAttribute("_idx", idx); // for debugging
+    var result = (zIndex) + (idx / (1 << Math.pow(idx + 0.1, idx + 0.1)) / 10) + 0.01;
 
     /* for debug */
-    var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
-    if (currentDepth != result) {
-      dom.setAttribute("_depth", result); // for debugging
-    }
+    // var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
+    // if (currentDepth != result) {
+    //   dom.setAttribute("_depth", result); // for debugging
+    // }
 
     return result;
 }
@@ -813,10 +813,10 @@ function quickfilter(domPositions, minMapDepth, mapElemIDs) {
         bottom: domPositions[elemId].size.bottom + domPositions[elemId].size.height
       };
       if (
-          ((domSize.left >= mapRect.left && domSize.left <= mapRect.right) ||
-            (domSize.right >= mapRect.left && domSize.right <= mapRect.right)) &&
-          ((domSize.top >= mapRect.top && domSize.top <= mapRect.bottom) ||
-            (domSize.bottom >= mapRect.top && domSize.bottom <= mapRect.bottom))
+          (domSize.left >= mapRect.left && domSize.left <= mapRect.right) ||
+          (domSize.right >= mapRect.left && domSize.right <= mapRect.right) ||
+          (domSize.top >= mapRect.top && domSize.top <= mapRect.bottom) ||
+          (domSize.bottom >= mapRect.top && domSize.bottom <= mapRect.bottom)
         ) {
         tree[elemId] = domPositions[elemId];
       }

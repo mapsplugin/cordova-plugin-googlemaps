@@ -394,7 +394,6 @@ if (!cordova) {
       bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
 
       common._clearInternalCache();
-      foundMap = false;
       traceDomTree(document.body, 0, bodyRect, 0, 0, 0);
 
       // If some elements has been removed, should update the positions
@@ -561,7 +560,6 @@ if (!cordova) {
       children = null;
     }
 
-    var foundMap = false;
     function traceDomTree(element, domIdx, parentRect, parentZIndex, parentDepth, zIndexSolt) {
       var zIndex = parentZIndex;
       doNotTrace = false;
@@ -576,16 +574,13 @@ if (!cordova) {
           elemId = "pgm" + Math.floor(Math.random() * Date.now());
           element.setAttribute("__pluginDomId", elemId);
         }
-        if (!foundMap) {
-          foundMap = element.hasAttribute("__pluginMapId");
-        }
 
         // get dom depth
         zIndex = common.getZIndex(element, zIndexSolt);
         if (zIndex === 0) {
           zIndexSolt++;
         }
-        zIndex = zIndex / (1 << (Math.pow(zIndexSolt, zIndexSolt)));
+        zIndex = zIndex / Math.pow(zIndexSolt + 0.1, zIndexSolt + 0.1);
         zIndex += parentZIndex;
         var rect;
         if (elemId in cacheDepth &&
@@ -612,7 +607,7 @@ if (!cordova) {
           size: rect,
           depth: depth,
           zIndex: zIndex,
-          ignore: foundMap === false
+          ignore: element.className.indexOf("_gmaps_cdv_") !== -1
         };
         parentRect = rect;
         parentRect.elemId = elemId;
@@ -654,7 +649,7 @@ if (!cordova) {
               if (zIndex === 0) {
                 zIndexSolt++;
               }
-              zIndex = zIndex / (1 << (Math.pow(zIndexSolt, zIndexSolt)));
+              zIndex = zIndex / Math.pow(zIndexSolt + 0.1, zIndexSolt + 0.1);
               zIndex += parentZIndex;
               if (elemId in cacheDepth &&
                   elemId in prevDomPositions &&
