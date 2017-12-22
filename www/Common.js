@@ -786,7 +786,7 @@ function getClickableRect(element, parentRect) {
   return rect;
 }
 
-function quickfilter(domPositions, minMapDepth, mapElemIDs) {
+function quickfilter(domPositions, mapElemIDs) {
   //console.log("before", JSON.parse(JSON.stringify(domPositions)));
   var keys = Object.keys(domPositions);
 

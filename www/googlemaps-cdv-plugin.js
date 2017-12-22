@@ -494,7 +494,7 @@ if (!cordova) {
       if (touchableMapList.length === 0) {
         finalDomPositions = domPositions;
       } else {
-        finalDomPositions = common.quickfilter(domPositions, minMapDepth, mapElemIDs);
+        finalDomPositions = common.quickfilter(domPositions, mapElemIDs);
       }
       var prevKeys = Object.keys(prevFinal);
       var currentKeys = Object.keys(finalDomPositions);
