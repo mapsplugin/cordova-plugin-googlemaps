@@ -129,36 +129,36 @@ if (!cordova) {
     var followPositionTimerCnt = 0;
     var prevMapRects = {};
     var scrollEndTimer = null;
-    // function followMapDivPositionOnly(opts) {
-    //   opts = opts || {};
-    //   var mapRects = {};
-    //   var mapIDs = Object.keys(MAPS);
-    //   var changed = false;
-    //
-    //   mapIDs.forEach(function(mapId) {
-    //     var map = MAPS[mapId];
-    //     if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
-    //       var mapDiv = map.getDiv();
-    //       var divId = mapDiv.getAttribute("__pluginDomId");
-    //       mapRects[divId] = {
-    //         size: mapDiv.getBoundingClientRect(),
-    //         depth: cacheDepth[divId]
-    //       };
-    //       if (!changed && prevMapRects && (divId in prevMapRects) && (
-    //         prevMapRects[divId].size.left !== mapRects[divId].size.left ||
-    //         prevMapRects[divId].size.top !== mapRects[divId].size.top ||
-    //         prevMapRects[divId].size.width !== mapRects[divId].size.width ||
-    //         prevMapRects[divId].size.height !== mapRects[divId].size.height ||
-    //         prevMapRects[divId].depth !== mapRects[divId].depth)) {
-    //         changed = true;
-    //       }
-    //     }
-    //   });
-    //   prevMapRects = mapRects;
-    //   if (changed || opts.force) {
-    //     cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
-    //   }
-    // }
+    function followMapDivPositionOnly(opts) {
+      opts = opts || {};
+      var mapRects = {};
+      var mapIDs = Object.keys(MAPS);
+      var changed = false;
+
+      mapIDs.forEach(function(mapId) {
+        var map = MAPS[mapId];
+        if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
+          var mapDiv = map.getDiv();
+          var divId = mapDiv.getAttribute("__pluginDomId");
+          mapRects[divId] = {
+            size: mapDiv.getBoundingClientRect(),
+            zIndex: common.getZIndex(mapDiv)
+          };
+          if (!changed && prevMapRects && (divId in prevMapRects) && (
+            prevMapRects[divId].size.left !== mapRects[divId].size.left ||
+            prevMapRects[divId].size.top !== mapRects[divId].size.top ||
+            prevMapRects[divId].size.width !== mapRects[divId].size.width ||
+            prevMapRects[divId].size.height !== mapRects[divId].size.height ||
+            prevMapRects[divId].zIndex !== mapRects[divId].zIndex)) {
+            changed = true;
+          }
+        }
+      });
+      prevMapRects = mapRects;
+      if (changed || opts.force) {
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+      }
+    }
 
     document.body.addEventListener("transitionend", function(e) {
       if (e.target.hasAttribute("__pluginDomId")) {
@@ -169,13 +169,13 @@ if (!cordova) {
       resetTimer({force: true});
     }, true);
 
-    // document.body.addEventListener("scroll", function(e) {
-    //   if (scrollEndTimer) {
-    //     clearTimeout(scrollEndTimer);
-    //   }
-    //   scrollEndTimer = setTimeout(onScrollEnd, 100);
-    //   followMapDivPositionOnly();
-    // }, true);
+    document.body.addEventListener("scroll", function(e) {
+      if (scrollEndTimer) {
+        clearTimeout(scrollEndTimer);
+      }
+      scrollEndTimer = setTimeout(onScrollEnd, 100);
+      followMapDivPositionOnly();
+    }, true);
     function onScrollEnd() {
       isThereAnyChange = true;
       idlingCnt = -1;
@@ -372,13 +372,9 @@ if (!cordova) {
       // Should the plugin update the map positions?
       //-------------------------------------------
 
-      var bodyRect = common.getDivRect(document.body);
-      bodyRect.right = bodyRect.left + bodyRect.width;
-      bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
-
       common._clearInternalCache();
       getPluginDomId(document.body);
-      traceDomTree(document.body, 0, "root", bodyRect, 0, 0, 0);
+      traceDomTree(document.body, "root");
 
       // If some elements has been removed, should update the positions
       var elementCnt = Object.keys(domPositions).length;
@@ -538,18 +534,13 @@ console.log("-->pause");
       return elemId;
     }
 
-    function traceDomTree(element, domIdx, elemId, parentRect, parentZIndex, zIndexSolt) {
+    function traceDomTree(element, elemId) {
 
       // get dom z-index
-      var zIndex = common.getZIndex(element, zIndexSolt);
-      //if (zIndex === 0) {
-      //  zIndexSolt++;
-      //}
-      //zIndex = zIndex / Math.pow(zIndexSolt + 0.1, zIndexSolt + 0.1);
-      //zIndex += parentZIndex;
+      var zIndex = common.getZIndex(element);
 
       // Calculate dom clickable region
-      var rect = common.getClickableRect(element, parentRect);
+      var rect = common.getDivRect(element);
 
       // Stores dom information
       domPositions[elemId] = {
@@ -569,7 +560,7 @@ console.log("-->pause");
 
           var childId = getPluginDomId(child);
           domPositions[elemId].children.push(childId);
-          traceDomTree(child, domIdx + i + 1, childId, rect, zIndex, zIndexSolt);
+          traceDomTree(child, childId);
         }
       }
     }
@@ -581,9 +572,9 @@ console.log("-->pause");
 
       common.nextTick(function() {
         putHtmlElements();
-        // if (opts.force) {
-        //   followMapDivPositionOnly(opts);
-        // }
+        if (opts.force) {
+          followMapDivPositionOnly(opts);
+        }
       });
     }
 
@@ -597,7 +588,7 @@ console.log("-->pause");
       var timer = setInterval(function() {
         cnt--;
         if (cnt > 0 && !isSuspended) {
-        //  followMapDivPositionOnly();
+          followMapDivPositionOnly();
         } else {
           clearInterval(timer);
         }
@@ -754,7 +745,7 @@ console.log("-->pause");
                     cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
                   }
               });
-              //map.on('touchevent', followMapDivPositionOnly);
+              map.on('touchevent', followMapDivPositionOnly);
               MAP_CNT++;
               MAPS[mapId] = map;
               isThereAnyChange = true;

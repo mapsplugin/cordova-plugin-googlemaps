@@ -281,7 +281,7 @@ function _clearInternalCache() {
 function _removeCacheById(elemId) {
   delete internalCache[elemId];
 }
-function getZIndex(dom, solt) {
+function getZIndex(dom) {
     if (dom === document.body) {
       internalCache = undefined;
       internalCache = {};
@@ -305,7 +305,7 @@ function getZIndex(dom, solt) {
       if (parentElemId in internalCache) {
         parentZIndex = internalCache[parentElemId];
       } else {
-        parentZIndex = getZIndex(dom.parentNode, solt);
+        parentZIndex = getZIndex(dom.parentNode);
         internalCache[parentElemId] = parentZIndex;
       }
     }
@@ -319,27 +319,9 @@ function getZIndex(dom, solt) {
     } else {
       z = parseInt(z);
     }
-    // dom.setAttribute("__parentZIndex", parentZIndex);
-    // dom.setAttribute("__solt", solt);
-    // dom.setAttribute("__ZIndex", z);
+    dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
     return z;
-}
-function getDomDepth(dom, idx, zIndex) {
-    if (dom.nodeType !== Node.ELEMENT_NODE) {
-      return 0;
-    }
-
-    //dom.setAttribute("_idx", idx); // for debugging
-    var result = (zIndex) + (idx / (1 << Math.pow(idx + 0.1, idx + 0.1)) / 10) + 0.01;
-
-    /* for debug */
-    // var currentDepth = parseFloat(dom.getAttribute("_depth")) || 0;
-    // if (currentDepth != result) {
-    //   dom.setAttribute("_depth", result); // for debugging
-    // }
-
-    return result;
 }
 
 // Get CSS value of an element
@@ -643,149 +625,6 @@ function markerOptionsFilter(markerOptions) {
   return markerOptions;
 }
 
-function getClickableRect(element, parentRect) {
-  var rect = getDivRect(element);
-  return rect;
-  var offsetTop = Math.abs(element.offsetTop),
-    offsetBottom = Math.abs(element.offsetBottom),
-    offsetLeft = Math.abs(element.offsetLeft),
-    offsetRight = Math.abs(element.offsetRight);
-
-  // if (element.hasAttribute("__pluginMapId")) {
-  //   console.log("before", JSON.stringify({
-  //     rect: rect,
-  //     parentRect: parentRect
-  //   }, null, 2));
-  // }
-  rect.right = rect.left + rect.width;
-  rect.bottom = rect.top + rect.height;
-  var overflowX_hidden = getStyle(element.parentNode, "overflow-x") === "hidden";
-  var overflowY_hidden = getStyle(element.parentNode, "overflow-y") === "hidden";
-  if (overflowX_hidden && (offsetLeft > 0 || offsetRight > 0)) {
-    if (rect.left < parentRect.left) {
-      if (rect.right > parentRect.right) {
-        //--------------------
-        //
-        //     |-------|
-        //  |--|-------|--|
-        //  |  |       |  |
-        //  |  |       |  |
-        //  |--|-------|--|
-        //     |-------|
-        //
-        //--------------------
-        rect.width = parentRect.width;
-        rect.left = parentRect.left;
-      } else if (rect.right >= parentRect.left && rect.right <= parentRect.right){
-        //--------------------
-        //
-        //     |-------|
-        //  |--|---|   |
-        //  |  |   |   |
-        //  |  |   |   |
-        //  |--|---|   |
-        //     |-------|
-        //
-        //--------------------
-        rect.width = rect.width - offsetLeft;
-        rect.left = parentRect.left;
-      }
-    } else if (rect.right > parentRect.right && rect.left >= parentRect.left && rect.left <= parentRect.right) {
-      if (rect.left > parentRect.left) {
-        //--------------------
-        //
-        //  |-------|
-        //  |   |---|--|
-        //  |   |   |  |
-        //  |   |   |  |
-        //  |   |---|--|
-        //  |-------|
-        //
-        //--------------------
-        rect.width = rect.width + parentRect.right - rect.right;
-/*
-      } else {
-        //--------------------
-        //
-        //   |------|
-        //   |------|
-        //   |      |
-        //   |------|
-        //   |------|
-        //
-        //--------------------
-        rect.width = parentRect.width;
-*/
-      }
-    }
-    rect.right = rect.left + rect.width;
-  }
-
-  if (overflowY_hidden && (offsetTop > 0 || offsetBottom > 0)) {
-    if (rect.top < parentRect.top) {
-      if (rect.bottom > parentRect.bottom) {
-        //--------------------
-        //
-        //      |-----|
-        //   |-----------|
-        //   |  |     |  |
-        //   |  |     |  |
-        //   |-----------|
-        //      |-----|
-        //
-        //--------------------
-        rect.height = parentRect.height;
-        rect.top = parentRect.top;
-      } else if (rect.bottom >= parentRect.top && rect.bottom <= parentRect.bottom) {
-        //--------------------
-        //
-        //      |-----|
-        //   |-----------|
-        //   |  |     |  |
-        //   |  |-----|  |
-        //   |-----------|
-        //
-        //--------------------
-        rect.height = rect.height - offsetTop;
-        rect.top = parentRect.top;
-      }
-    } else if (rect.bottom > parentRect.bottom && rect.top >= parentRect.top && rect.top <= parentRect.bottom) {
-      if (rect.top > parentRect.top) {
-        //--------------------
-        //
-        //   |-----------|
-        //   |  |-----|  |
-        //   |  |     |  |
-        //   |-----------|
-        //      |-----|
-        //
-        //--------------------
-        rect.height = rect.height - offsetBottom;
-/*
-      } else {
-        //--------------------
-        //
-        //   |--|-----|--|
-        //   |  |     |  |
-        //   |  |     |  |
-        //   |  |     |  |
-        //   |--|-----|--|
-        //
-        //--------------------
-        rect.height = parentRect.height;
-*/
-      }
-    }
-    rect.bottom = rect.top + rect.height;
-  }
-  // if (element.hasAttribute("__pluginMapId")) {
-  //   console.log("after", JSON.stringify({
-  //     rect: rect
-  //   }, null, 2));
-  // }
-  return rect;
-}
-
 function quickfilter(domPositions, mapElemIDs) {
   //console.log("before", JSON.parse(JSON.stringify(domPositions)));
   var keys = Object.keys(domPositions);
@@ -831,10 +670,8 @@ module.exports = {
     _clearInternalCache: _clearInternalCache,
     _removeCacheById: _removeCacheById,
     getZIndex: getZIndex,
-    getDomDepth: getDomDepth,
     deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
-    getClickableRect: getClickableRect,
     getDomInfo: getDomInfo,
     isDom: isDom,
     parseBoolean: parseBoolean,

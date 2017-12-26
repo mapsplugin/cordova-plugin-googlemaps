@@ -494,7 +494,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     private String findClickedDom(String domId, PointF clickPoint) {
-      Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
+      //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
 
       Bundle domInfo = HTMLNodes.get(domId);
@@ -509,7 +509,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       for (String childId: children) {
         rect = HTMLNodeRectFs.get(childId);
         if (rect.contains(clickPoint.x, clickPoint.y)) {
-          Log.d(TAG, "----childId = " + childId + ", rect = " + rect);
+          //Log.d(TAG, "----childId = " + childId + ", rect = " + rect);
           zIndex = domInfo.getInt("zIndex");
           if (maxZindex < zIndex || maxZindex == zIndex) {
             maxZindex = zIndex;
@@ -580,7 +580,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           }
 
           String clickedDomId = findClickedDom("root", clickPoint);
-          Log.d(TAG, "----clickedDomId = " + clickedDomId);
+          //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
 
