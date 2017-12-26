@@ -26,6 +26,7 @@ import android.widget.ScrollView;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   public boolean isDebug = false;
+  public final Object _lockHtmlNodes = new Object();
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
   public HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
@@ -248,7 +250,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public void clearHtmlElements()  {
     Bundle bundle;
     RectF rectF;
-    synchronized (HTMLNodes) {
+    synchronized (_lockHtmlNodes) {
       String[] keys = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
       for (int i = 0; i < HTMLNodes.size(); i++) {
         bundle = HTMLNodes.remove(keys[i]);
@@ -292,7 +294,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     HashMap<String, Bundle> oldBuffer = HTMLNodes;
     HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
 
-    synchronized (HTMLNodes) {
+    synchronized (_lockHtmlNodes) {
       HTMLNodes = newBuffer;
       HTMLNodeRectFs = newBufferRectFs;
     }
@@ -491,12 +493,40 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       this.setWillNotDraw(false);
     }
 
+    private String findClickedDom(String domId, PointF clickPoint) {
+      Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
+
+
+      Bundle domInfo = HTMLNodes.get(domId);
+      ArrayList<String> children = domInfo.getStringArrayList("children");
+      if (children == null) {
+        return domId;
+      }
+      int maxZindex = -9999999;
+      int zIndex;
+      String maxDomId = null;
+      RectF rect;
+      for (String childId: children) {
+        rect = HTMLNodeRectFs.get(childId);
+        if (rect.contains(clickPoint.x, clickPoint.y)) {
+          Log.d(TAG, "----childId = " + childId + ", rect = " + rect);
+          zIndex = domInfo.getInt("zIndex");
+          if (maxZindex < zIndex || maxZindex == zIndex) {
+            maxZindex = zIndex;
+            maxDomId = childId;
+          }
+        }
+      }
+      if (maxDomId == null) {
+        return domId;
+      }
+
+      return findClickedDom(maxDomId, clickPoint);
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
       if (pluginMaps == null || pluginMaps.size() == 0) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-          webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
-        }
         return false;
       }
       MyPluginLayout.this.stopFlag = true;
@@ -511,6 +541,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         return false;
       }
 
+
       PluginMap pluginMap;
       Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
       Entry<String, PluginMap> entry;
@@ -521,9 +552,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       int scrollY = browserView.getScrollY();
       RectF drawRect;
       boolean isMapAction = false;
+      String currentDomId = "root";
 
-
-      synchronized (HTMLNodes) {
+      synchronized (_lockHtmlNodes) {
         while (iterator.hasNext()) {
           entry = iterator.next();
           mapId = entry.getKey();
@@ -547,49 +578,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           if (drawRect == null || !drawRect.contains(clickPoint.x, clickPoint.y)) {
             continue;
           }
-          isMapAction = true;
 
-          //-----------------------------------------------------------
-          // Is the clicked point is on the html elements in the map?
-          //-----------------------------------------------------------
-          String domIDs[] = HTMLNodes.keySet().toArray(new String[HTMLNodes.size()]);
-          Bundle domInfo = HTMLNodes.get(pluginMap.mapDivId);
-          RectF htmlElementRect;
-          double mapDivDepth = domInfo.getDouble("depth");
+          String clickedDomId = findClickedDom("root", clickPoint);
+          Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
-          for (String domId : domIDs) {
-            if (pluginMap.mapDivId.equals(domId)) {
-              continue;
-            }
-            if (!HTMLNodes.containsKey(domId)) {
-              continue;
-            }
-            domInfo = HTMLNodes.get(domId);
-            if (domInfo == null) {
-              continue;
-            }
-            if (domInfo.getDouble("depth") <= mapDivDepth) {
-              continue;
-            }
+          return pluginMap.mapDivId.equals(clickedDomId);
 
-            htmlElementRect = HTMLNodeRectFs.get(domId);
-            if (htmlElementRect.width() == 0 || htmlElementRect.height() == 0) {
-              continue;
-            }
-
-            if (clickPoint.x >= htmlElementRect.left &&
-                clickPoint.x <= (htmlElementRect.right) &&
-                clickPoint.y >= htmlElementRect.top &&
-                clickPoint.y <= htmlElementRect.bottom) {
-              //Log.d(TAG, "---> hit = " + domId);
-              isMapAction = false;
-              break;
-            }
-
-          }
-          if (isMapAction) {
-            break;
-          }
         }
       }
       isScrolling = (!isMapAction && action == MotionEvent.ACTION_DOWN) || isScrolling;
@@ -597,14 +591,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       if (!isMapAction) {
         browserView.requestFocus(View.FOCUS_DOWN);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-          webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
-        }
       }
 
-      MyPluginLayout.this.stopFlag = false;
-      return isMapAction;
+
+      return false;
     }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
