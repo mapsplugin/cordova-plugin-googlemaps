@@ -262,12 +262,14 @@ function shouldWatchByNative(node) {
   var opacityCSS = getStyle(node, 'opacity');
   var pointerEventsCSS = getStyle(node, 'pointer-events');
   opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-  var clickableSize = (
-    node.offsetHeight > 0 && node.offsetWidth > 0 ||
-    node.clientHeight > 0 && node.clientWidth > 0);
+
+  // Do not check the clickableSize, because iOS sets offsetHeight and  clientHeight for customTag element.
+  // var clickableSize = (
+  //   node.offsetHeight > 0 && node.offsetWidth > 0 ||
+  //   node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
     opacityCSS > 0 && visibilityCSS !== "hidden" &&
-    clickableSize && pointerEventsCSS !== "none";
+    pointerEventsCSS !== "none";
 }
 
 
@@ -688,3 +690,4 @@ module.exports = {
     quickfilter: quickfilter,
     nextTick: nextTick
 };
+window.common = module.exports;

@@ -306,128 +306,91 @@
     }
 }
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    // Check other views of other plugins before this plugin
-    // e.g. PhoneGap-Plugin-ListPicker, etc
-    for (UIView *subview in [self.webView.superview subviews]) {
-      // we only want to check against other views
-      if (subview == self.pluginScrollView || subview == self.webView) {
+  // Check other views of other plugins before this plugin
+  // e.g. PhoneGap-Plugin-ListPicker, etc
+  for (UIView *subview in [self.webView.superview subviews]) {
+    // we only want to check against other views
+    if (subview == self.pluginScrollView || subview == self.webView) {
+      continue;
+    }
+
+    UIView *hit = [subview hitTest:point withEvent:event];
+
+    if (hit) {
+      return hit;
+    }
+  }
+  if (self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
+    // Assumes all touches for the browser
+    return [self.webView hitTest:point withEvent:event];
+  }
+
+  float offsetX = self.webView.scrollView.contentOffset.x;
+  float offsetY = self.webView.scrollView.contentOffset.y;
+  float offsetX2 = self.webView.scrollView.contentOffset.x;
+  float offsetY2 = self.webView.scrollView.contentOffset.y;
+
+  float webviewWidth = self.webView.frame.size.width;
+  float webviewHeight = self.webView.frame.size.height;
+
+
+  CGRect rect;
+  NSEnumerator *mapIDs = [self.pluginScrollView.debugView.mapCtrls keyEnumerator];
+  GoogleMapsViewController *mapCtrl;
+  id mapId;
+  NSString *clickedDomId;
+
+  CGFloat zoomScale = self.webView.scrollView.zoomScale;
+  offsetY *= zoomScale;
+  offsetX *= zoomScale;
+  webviewWidth *= zoomScale;
+  webviewHeight *= zoomScale;
+
+  NSDictionary *domInfo;
+
+  CGPoint clickPointAsHtml = CGPointMake((point.x - self.webView.frame.origin.x) * zoomScale, (point.y - self.webView.frame.origin.y) * zoomScale);
+
+  @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+    while(mapId = [mapIDs nextObject]) {
+      mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
+      if (!mapCtrl.mapDivId) {
+        continue;
+      }
+      domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+
+      rect = CGRectFromString([domInfo objectForKey:@"size"]);
+      rect.origin.x += offsetX2;
+      rect.origin.y += offsetY2;
+      rect.origin.x *= zoomScale;
+      rect.origin.y *= zoomScale;
+      rect.size.width *= zoomScale;
+      rect.size.height *= zoomScale;
+
+      // Is the map clickable?
+      if (mapCtrl.clickable == NO) {
+        //NSLog(@"--> map (%@) is not clickable.", mapCtrl.mapId);
         continue;
       }
 
-      UIView *hit = [subview hitTest:point withEvent:event];
-
-      if (hit) {
-        return hit;
+      // Is the map displayed?
+      if (rect.origin.y + rect.size.height < offsetY ||
+          rect.origin.x + rect.size.width < offsetX ||
+          rect.origin.y > offsetY + webviewHeight ||
+          rect.origin.x > offsetX + webviewWidth ||
+          mapCtrl.view.hidden == YES) {
+        //NSLog(@"--> map (%@) is not displayed.", mapCtrl.mapId);
+        continue;
       }
-    }
 
-    if (self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
-      // Assumes all touches for the browser
-      return [self.webView hitTest:point withEvent:event];
-    }
+      // Is the clicked point is in the map rectangle?
+      if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
+          (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
 
-    float offsetX = self.webView.scrollView.contentOffset.x;
-    float offsetY = self.webView.scrollView.contentOffset.y;
-    float offsetX2 = self.webView.scrollView.contentOffset.x;
-    float offsetY2 = self.webView.scrollView.contentOffset.y;
-
-    float webviewWidth = self.webView.frame.size.width;
-    float webviewHeight = self.webView.frame.size.height;
-
-
-    CGRect rect, htmlElementRect= CGRectMake(0, 0, 0, 0);
-    NSEnumerator *mapIDs = [self.pluginScrollView.debugView.mapCtrls keyEnumerator];
-    GoogleMapsViewController *mapCtrl;
-    id mapId;
-    BOOL isMapAction = NO;
-    NSString *elementRect;
-
-    CGFloat zoomScale = self.webView.scrollView.zoomScale;
-    offsetY *= zoomScale;
-    offsetX *= zoomScale;
-    webviewWidth *= zoomScale;
-    webviewHeight *= zoomScale;
-
-    NSDictionary *domInfo, *mapDivInfo;
-    double domDepth, mapDivDepth;
-
-    CGPoint clickPointAsHtml = CGPointMake((point.x - self.webView.frame.origin.x) * zoomScale, (point.y - self.webView.frame.origin.y) * zoomScale);
-@synchronized(self.pluginScrollView.debugView.HTMLNodes) {
-    while(mapId = [mapIDs nextObject]) {
-        mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-        if (!mapCtrl.mapDivId) {
-          continue;
-        }
-        domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-
-        rect = CGRectFromString([domInfo objectForKey:@"size"]);
-        rect.origin.x += offsetX2;
-        rect.origin.y += offsetY2;
-        rect.origin.x *= zoomScale;
-        rect.origin.y *= zoomScale;
-        rect.size.width *= zoomScale;
-        rect.size.height *= zoomScale;
-
-        // Is the map clickable?
-        if (mapCtrl.clickable == NO) {
-            //NSLog(@"--> map (%@) is not clickable.", mapCtrl.mapId);
-            continue;
-        }
-
-        // Is the map displayed?
-        if (rect.origin.y + rect.size.height < offsetY ||
-            rect.origin.x + rect.size.width < offsetX ||
-            rect.origin.y > offsetY + webviewHeight ||
-            rect.origin.x > offsetX + webviewWidth ||
-            mapCtrl.view.hidden == YES) {
-            //NSLog(@"--> map (%@) is not displayed.", mapCtrl.mapId);
-            continue;
-        }
-
-        // Is the clicked point is in the map rectangle?
-        if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
-            (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
-            isMapAction = YES;
+        clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml];
+        //NSLog(@"--->clickedDomId = %@", clickedDomId);
+        if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
+          return [self.webView hitTest:point withEvent:event];
         } else {
-            continue;
-        }
-
-        // Is the clicked point is on the html elements in the map?
-        mapDivInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-
-        mapDivDepth = [[mapDivInfo objectForKey:@"depth"] doubleValue];
-        for (NSString *domId in self.pluginScrollView.debugView.HTMLNodes) {
-            if ([mapCtrl.mapDivId isEqualToString:domId]) {
-                continue;
-            }
-
-            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-            domDepth = [[domInfo objectForKey:@"depth"] doubleValue];
-            if (domDepth < mapDivDepth) {
-                continue;
-            }
-            elementRect = [domInfo objectForKey:@"size"];
-            htmlElementRect = CGRectFromString(elementRect);
-            if (htmlElementRect.size.width == 0 || htmlElementRect.size.height == 0) {
-                continue;
-            }
-
-            //NSLog(@"----> domId = %@, %f, %f - %f, %f (%@ : %@)",
-            //                domId,
-            //                htmlElementRect.origin.x, htmlElementRect.origin.y,
-            //                htmlElementRect.size.width, htmlElementRect.size.height,
-            //                [domInfo objectForKey:@"tagName"],
-            //              [domInfo objectForKey:@"position"]);
-            if (clickPointAsHtml.x >= htmlElementRect.origin.x && clickPointAsHtml.x <= (htmlElementRect.origin.x + htmlElementRect.size.width) &&
-                clickPointAsHtml.y >= htmlElementRect.origin.y && clickPointAsHtml.y <= (htmlElementRect.origin.y + htmlElementRect.size.height)) {
-                isMapAction = NO;
-                //NSLog(@"--> hit (%@) : (domId: %@, depth: %d) ", mapCtrl.mapId, domId, domDepth);
-                break;
-            }
-        }
-
-        if (isMapAction == YES) {
-
           // If user click on the map, return the mapCtrl.view.
           offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
           offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
@@ -440,13 +403,66 @@
 
           return hitView;
         }
+      }
+
     }
+  }
+
+  UIView *hitView =[self.webView hitTest:point withEvent:event];
+  //NSLog(@"--> (hit test) hit = %@", hitView.class);
+  return hitView;
+
 }
 
-    UIView *hitView =[self.webView hitTest:point withEvent:event];
-    //NSLog(@"--> (hit test) hit = %@", hitView.class);
-    return hitView;
 
+- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint {
+  //NSLog(@"---- domId = %@, clickPoint = %f, %f", domId, clickPoint.x, clickPoint.y);
+
+  NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+  NSArray *children = [domInfo objectForKey:@"children"];
+  if (children == nil || [children count] == 0) {
+    return domId;
+  }
+
+  float offsetX = self.webView.scrollView.contentOffset.x;
+  float offsetY = self.webView.scrollView.contentOffset.y;
+  CGFloat zoomScale = self.webView.scrollView.zoomScale;
+
+  int maxZIndex = -CGFLOAT_MAX;
+  int zIndex;
+  NSString *maxDomId = nil;
+  NSString *childId;
+  CGRect rect;
+  for (int i = 0; i < [children count]; i++) {
+    childId = [children objectAtIndex:i];
+    domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:childId];
+    rect = CGRectFromString([domInfo valueForKey:@"size"]);
+    rect.origin.x += offsetX;
+    rect.origin.y += offsetY;
+    rect.origin.x *= zoomScale;
+    rect.origin.y *= zoomScale;
+    rect.size.width *= zoomScale;
+    rect.size.height *= zoomScale;
+
+    if (clickPoint.x >= rect.origin.x &&
+        clickPoint.y >= rect.origin.y &&
+        clickPoint.x <= rect.origin.x + rect.size.width &&
+        clickPoint.y <= rect.origin.y + rect.size.height) {
+      zIndex = [[domInfo valueForKey:@"zIndex"] intValue];
+      if (maxZIndex <= zIndex) {
+        maxZIndex = zIndex;
+        maxDomId = childId;
+      }
+    }
+
+    if (maxDomId == nil) {
+      return domId;
+    }
+    return [self findClickedDom:maxDomId withPoint:clickPoint];
+  }
+
+  return false;
 }
+
 
 @end

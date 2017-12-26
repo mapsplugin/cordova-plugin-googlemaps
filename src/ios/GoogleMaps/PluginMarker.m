@@ -989,17 +989,21 @@
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           NSURL *url = [webview URL];
           NSString *currentURL = url.absoluteString;
+          //NSLog(@"currentURL = %@", url);
           if (![[url lastPathComponent] isEqualToString:@"/"]) {
             currentURL = [currentURL stringByDeletingLastPathComponent];
           }
           //url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
+          currentURL = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
+          currentURL = [currentURL stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
+          currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
+          //NSLog(@"currentURL = %@", currentURL);
+          url = [NSURL URLWithString:currentURL];
 
           //
           // Load the icon from over the internet
           //
           [self.mapCtrl.executeQueue addOperationWithBlock:^{
-
-            NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
 
             [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
@@ -1435,7 +1439,6 @@
     }
 
 
-
     //-------------------------------------------------------------
     // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
     // https://stackoverflow.com/a/20871647
@@ -1445,13 +1448,15 @@
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
                                                completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
                                                  [session finishTasksAndInvalidate];
-                                                 if ( !error ) {
-                                                   UIImage *image = [UIImage imageWithData:data];
+
+                                                 UIImage *image = [UIImage imageWithData:data];
+                                                 if (image) {
                                                    [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
                                                    completionBlock(YES, image);
-                                                 } else {
-                                                   completionBlock(NO, nil);
+                                                   return;
                                                  }
+
+                                                 completionBlock(NO, nil);
 
                                                }];
     [getTask resume];

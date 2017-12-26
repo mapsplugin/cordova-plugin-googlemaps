@@ -231,7 +231,10 @@
                       if (![[url lastPathComponent] isEqualToString:@"/"]) {
                         currentURL = [currentURL stringByDeletingLastPathComponent];
                       }
-                      url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, urlStr]];
+                      NSString *urlStr2 = [NSString stringWithFormat:@"%@/%@", currentURL, urlStr];
+                      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
+                      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
+                      url = [NSURL URLWithString:urlStr2];
 
                       [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 

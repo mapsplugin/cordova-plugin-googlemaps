@@ -378,18 +378,24 @@
         NSDictionary *elementsDic = [command.arguments objectAtIndex:0];
         NSString *domId;
         CGRect rect = CGRectMake(0, 0, 0, 0);
-        NSMutableDictionary *domInfo, *size;
+        NSMutableDictionary *domInfo, *size, *currentDomInfo;
         @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
           for (domId in elementsDic) {
+
             domInfo = [elementsDic objectForKey:domId];
             size = [domInfo objectForKey:@"size"];
             rect.origin.x = [[size objectForKey:@"left"] doubleValue];
             rect.origin.y = [[size objectForKey:@"top"] doubleValue];
             rect.size.width = [[size objectForKey:@"width"] doubleValue];
             rect.size.height = [[size objectForKey:@"height"] doubleValue];
-            [domInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
-            [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:domInfo forKey:domId];
 
+            currentDomInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+            if (currentDomInfo == nil) {
+              currentDomInfo = domInfo;
+            }
+            [currentDomInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
+            [currentDomInfo setObject:[domInfo objectForKey:@"zIndex"] forKey:@"zIndex"];
+            [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:currentDomInfo forKey:domId];
           }
         }
 
