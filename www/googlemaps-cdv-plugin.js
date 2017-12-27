@@ -702,7 +702,7 @@ if (!cordova) {
                 var dummyInfo = {};
                 dummyInfo[elemId] = {
                   size: div.getBoundingClientRect(),
-                  zIndex: 0.01,
+                  zIndex: 0,
                   children: []
                 };
 //console.log(dummyInfo);
