@@ -317,9 +317,15 @@
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
   // Check other views of other plugins before this plugin
   // e.g. PhoneGap-Plugin-ListPicker, etc
-  for (UIView *subview in [self.webView.superview subviews]) {
+  UIView *subview;
+  NSArray *subviews = [self.webView.superview subviews];
+  for (int i = (int)[subviews count] - 1; i >= 0; i++) {
+    subview = [subviews objectAtIndex: i];
+    if (subview == self.webView) {
+      break;
+    }
     // we only want to check against other views
-    if (subview == self.pluginScrollView || subview == self.webView) {
+    if (subview == self.pluginScrollView) {
       continue;
     }
 
