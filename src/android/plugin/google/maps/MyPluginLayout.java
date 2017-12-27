@@ -269,7 +269,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     HashMap<String, RectF> newBufferRectFs = new HashMap<String, RectF>();
 
     Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
-    Log.d("PluginUtil", "--->before = " + elementsBundle);
 
     Iterator<String> domIDs = elementsBundle.keySet().iterator();
     String domId;
@@ -289,7 +288,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       domInfo.remove("size");
       newBuffer.put(domId, domInfo);
     }
-    Log.d("PluginUtil", "--->after = " + HTMLNodes);
 
     Bundle bundle;
     RectF rectF;
@@ -498,34 +496,54 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     private String findClickedDom(String domId, PointF clickPoint) {
       //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
-
+      String maxDomId = null;
+      RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
       //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if (children == null) {
-        return domId;
-      }
-      int maxZindex = (int)Double.NEGATIVE_INFINITY;
-      int zIndex;
-      String maxDomId = null;
-      RectF rect;
-      for (String childId: children) {
-        domInfo = HTMLNodes.get(childId);
-        rect = HTMLNodeRectFs.get(childId);
-        if (rect.contains(clickPoint.x, clickPoint.y)) {
+      if (children != null && children.size() > 0) {
+        int maxZindex = (int) Double.NEGATIVE_INFINITY;
+        int zIndex;
+        String childId, grandChildId;
+        ArrayList<String> grandChildren;
+        for (int i = children.size() - 1; i >= 0; i--) {
+          childId = children.get(i);
+          domInfo = HTMLNodes.get(childId);
+
           zIndex = domInfo.getInt("zIndex");
-          //Log.d(TAG, "----childId = " + childId + ", zIndex = " + zIndex + ", domInfo = " + domInfo);
-          if (maxZindex <= zIndex) {
+          //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+          if (maxZindex < zIndex) {
+            grandChildren = domInfo.getStringArrayList("children");
+            if (grandChildren == null || grandChildren.size() == 0) {
+              rect = HTMLNodeRectFs.get(childId);
+              if (!rect.contains(clickPoint.x, clickPoint.y)) {
+                continue;
+              }
+              maxDomId = childId;
+            } else {
+              grandChildId = findClickedDom(childId, clickPoint);
+              if (grandChildId == null) {
+                continue;
+              }
+              rect = HTMLNodeRectFs.get(grandChildId);
+              if (!rect.contains(clickPoint.x, clickPoint.y)) {
+                continue;
+              }
+              maxDomId = grandChildId;
+            }
             maxZindex = zIndex;
-            maxDomId = childId;
           }
         }
       }
       if (maxDomId == null) {
-        return domId;
+        rect = HTMLNodeRectFs.get(domId);
+        if (!rect.contains(clickPoint.x, clickPoint.y)) {
+          return null;
+        }
+        maxDomId = domId;
       }
 
-      return findClickedDom(maxDomId, clickPoint);
+      return maxDomId;
     }
 
     @Override

@@ -396,7 +396,7 @@
           (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
 
         clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml];
-        //NSLog(@"--->clickedDomId = %@", clickedDomId);
+        NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
           offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
@@ -428,42 +428,66 @@
 
   NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
   NSArray *children = [domInfo objectForKey:@"children"];
-  //NSLog(@"---- domId = %@, clickPoint = %f, %f, children = %@", domId, clickPoint.x, clickPoint.y, children);
-  if (children == nil || [children count] == 0) {
-    return domId;
-  }
-
-//  float offsetX = self.webView.scrollView.contentOffset.x;
-//  float offsetY = self.webView.scrollView.contentOffset.y;
-//  CGFloat zoomScale = self.webView.scrollView.zoomScale;
-
-  int maxZIndex = -1215752192;
-  int zIndex;
+  //NSLog(@"---- domId = %@, clickPoint = %f, %f, %@", domId, clickPoint.x, clickPoint.y, children);
   NSString *maxDomId = nil;
-  NSString *childId;
   CGRect rect;
-  for (int i = 0; i < [children count]; i++) {
-    childId = [children objectAtIndex:i];
-    domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:childId];
-    rect = CGRectFromString([domInfo valueForKey:@"size"]);
+  if (children != nil && children.count > 0) {
 
-    if (clickPoint.x >= rect.origin.x &&
-        clickPoint.y >= rect.origin.y &&
-        clickPoint.x <= rect.origin.x + rect.size.width &&
-        clickPoint.y <= rect.origin.y + rect.size.height) {
-      zIndex = [[domInfo valueForKey:@"zIndex"] intValue];
-      if (maxZIndex <= zIndex) {
+    int maxZIndex = -1215752192;
+    int zIndex;
+    NSString *childId, *grandChildId;
+    NSArray *grandChildren;
+
+    for (int i = (int)children.count - 1; i >= 0; i--) {
+      childId = [children objectAtIndex:i];
+      domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:childId];
+      zIndex = [[domInfo objectForKey:@"zIndex"] intValue];
+
+      if (maxZIndex < zIndex) {
+        grandChildren = [domInfo objectForKey:@"children"];
+        if (grandChildren == nil || grandChildren.count == 0) {
+          rect = CGRectFromString([domInfo objectForKey:@"size"]);
+          if (clickPoint.x < rect.origin.x ||
+              clickPoint.y < rect.origin.y ||
+              clickPoint.x > rect.origin.x + rect.size.width ||
+              clickPoint.y > rect.origin.y + rect.size.height) {
+            continue;
+          }
+          maxDomId = childId;
+        } else {
+          grandChildId = [self findClickedDom:childId withPoint:clickPoint];
+          if (grandChildId == nil) {
+            continue;
+          }
+          domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
+          rect = CGRectFromString([domInfo objectForKey:@"size"]);
+
+          if (clickPoint.x < rect.origin.x ||
+              clickPoint.y < rect.origin.y ||
+              clickPoint.x > rect.origin.x + rect.size.width ||
+              clickPoint.y > rect.origin.y + rect.size.height) {
+            continue;
+          }
+          maxDomId = grandChildId;
+        }
         maxZIndex = zIndex;
-        maxDomId = childId;
       }
     }
-
   }
 
   if (maxDomId == nil) {
-    return domId;
+    domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+    rect = CGRectFromString([domInfo objectForKey:@"size"]);
+
+    if (clickPoint.x < rect.origin.x ||
+        clickPoint.y < rect.origin.y ||
+        clickPoint.x > rect.origin.x + rect.size.width ||
+        clickPoint.y > rect.origin.y + rect.size.height) {
+      return nil;
+    }
+    maxDomId = domId;
   }
-  return [self findClickedDom:maxDomId withPoint:clickPoint];
+  return maxDomId;
 }
 
 
