@@ -288,7 +288,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Iterator<String> domIDs = elementsBundle.keySet().iterator();
     String domId;
-    Bundle domInfo, size;
+    Bundle domInfo, size, currentDomInfo;
     while (domIDs.hasNext()) {
       domId = domIDs.next();
       domInfo = elementsBundle.getBundle(domId);
@@ -303,7 +303,10 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       mPluginLayout.HTMLNodeRectFs.put(domId, rectF);
 
       domInfo.remove("size");
-      mPluginLayout.HTMLNodes.put(domId, domInfo);
+
+      currentDomInfo = mPluginLayout.HTMLNodes.get(domId);
+      currentDomInfo.putInt("zIndex", domInfo.getInt("zIndex"));
+      mPluginLayout.HTMLNodes.put(domId, currentDomInfo);
     }
 
     if (mPluginLayout.isSuspended) {

@@ -100,7 +100,7 @@ public class PluginUtil {
     if (cdvFilePath.indexOf("cdvfile://") != 0) {
       return null;
     }
-    
+
     //CordovaResourceApi resourceApi = webView.getResourceApi();
     Uri fileURL = resourceApi.remapUri(Uri.parse(cdvFilePath));
     File file = resourceApi.mapUriToFile(fileURL);
@@ -121,7 +121,7 @@ public class PluginUtil {
     JSONObject latLng = new JSONObject();
     latLng.put("lat", location.getLatitude());
     latLng.put("lng", location.getLongitude());
-    
+
     JSONObject params = new JSONObject();
     params.put("latLng", latLng);
 
@@ -152,7 +152,7 @@ public class PluginUtil {
     params.put("hashCode", location.hashCode());
     return params;
   }
-  
+
   /**
    * return color integer value
    * @param arrayRGBA
@@ -193,7 +193,7 @@ public class PluginUtil {
     }
     return builder.build();
   }
-  
+
   public static Bundle Json2Bundle(JSONObject json) {
     Bundle mBundle = new Bundle();
     @SuppressWarnings("unchecked")
@@ -213,6 +213,13 @@ public class PluginUtil {
           mBundle.putDouble(key, (Double)value);
         } else if (JSONObject.class.isInstance(value)) {
           mBundle.putBundle(key, Json2Bundle((JSONObject)value));
+        } else if (JSONArray.class.isInstance(value)) {
+          JSONArray values = (JSONArray)value;
+          ArrayList<String> strings = new ArrayList<String>();
+          for (int i = 0; i < values.length(); i++) {
+            strings.add(values.get(i) + "");
+          }
+          mBundle.putStringArrayList(key, strings);
         } else {
           mBundle.putString(key, json.getString(key));
         }
@@ -252,7 +259,7 @@ public class PluginUtil {
     if (bitmap == null) {
       return null;
     }
-    
+
     float density = Resources.getSystem().getDisplayMetrics().density;
     int newWidth = (int)(bitmap.getWidth() * density);
     int newHeight = (int)(bitmap.getHeight() * density);
@@ -276,10 +283,10 @@ public class PluginUtil {
     canvas.setMatrix(scaleMatrix);
     canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
     bitmap.recycle();
-    
+
     return scaledBitmap;
   }
-  
+
   public static Bitmap getBitmapFromBase64encodedImage(String base64EncodedImage) {
     byte[] byteArray= Base64.decode(base64EncodedImage, Base64.DEFAULT);
     Bitmap image= null;
@@ -290,7 +297,7 @@ public class PluginUtil {
     }
     return image;
   }
-  
+
 
   public static JSONObject Bundle2Json(Bundle bundle) {
     JSONObject json = new JSONObject();
@@ -334,7 +341,7 @@ public class PluginUtil {
     }
     return json;
   }
-  
+
   public static  LatLngBounds convertToLatLngBounds(List<LatLng> points) {
     LatLngBounds.Builder latLngBuilder = LatLngBounds.builder();
     Iterator<LatLng> iterator = points.listIterator();
@@ -343,8 +350,8 @@ public class PluginUtil {
     }
     return latLngBuilder.build();
   }
-  
-  
+
+
   public static JSONObject convertIndoorBuildingToJson(IndoorBuilding indoorBuilding) {
     if (indoorBuilding == null) {
       return null;
@@ -355,7 +362,7 @@ public class PluginUtil {
       for(IndoorLevel level : indoorBuilding.getLevels()){
         JSONObject levelInfo = new JSONObject();
           levelInfo.put("name",level.getName());
-        
+
           // TODO Auto-generated catch block
         levelInfo.put("shortName",level.getShortName());
         levels.put(levelInfo);
@@ -367,7 +374,7 @@ public class PluginUtil {
     } catch (JSONException e) {
       e.printStackTrace();
       return null;
-    }  
+    }
     return result;
   }
 }

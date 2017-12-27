@@ -146,34 +146,38 @@
 }
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl {
 
-  dispatch_async(dispatch_get_main_queue(), ^{
-
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       // Hold the mapCtrl instance with mapId.
       [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapCtrl.mapId];
 
       // Add the mapView under the scroll view.
       [self.pluginScrollView attachView:mapCtrl.view];
+      mapCtrl.attached = YES;
 
       [self updateViewPosition:mapCtrl];
-  });
+  }];
 }
 
 - (void)removeMapView:(GoogleMapsViewController *)mapCtrl {
-  dispatch_async(dispatch_get_main_queue(), ^{
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      mapCtrl.attached = NO;
 
       // Remove the mapCtrl instance with mapId.
       [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl.mapId];
 
       // Remove the mapView from the scroll view.
+      [mapCtrl willMoveToParentViewController:nil];
       [mapCtrl.view removeFromSuperview];
+      [mapCtrl removeFromParentViewController];
+      [self.pluginScrollView detachView:mapCtrl.view];
 
-      [mapCtrl.view setFrame:CGRectMake(0, -1000, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
+      [mapCtrl.view setFrame:CGRectMake(0, -mapCtrl.view.frame.size.height, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
       [mapCtrl.view setNeedsDisplay];
 
       if (self.pluginScrollView.debugView.debuggable) {
           [self.pluginScrollView.debugView setNeedsDisplay];
       }
-  });
+  }];
 
 }
 
@@ -241,6 +245,7 @@
     rect.size.height *= zoomScale;
     rect.origin.x += offset.x;
     rect.origin.y += offset.y;
+  //NSLog(@"---->updateViewPos: %@, (%f, %f) - (%f, %f)", mapCtrl.mapId, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 
     float webviewWidth = self.webView.frame.size.width;
     float webviewHeight = self.webView.frame.size.height;
@@ -278,20 +283,24 @@
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-      if (mapCtrl.isRenderedAtOnce) {
+      if (mapCtrl.attached) {
+        if (mapCtrl.isRenderedAtOnce) {
 
-        [UIView animateWithDuration:0.075f animations:^{
+          [UIView animateWithDuration:0.075f animations:^{
+            [mapCtrl.view setFrame:rect];
+            rect.origin.x = 0;
+            rect.origin.y = 0;
+            [mapCtrl.map setFrame:rect];
+          }];
+        } else {
           [mapCtrl.view setFrame:rect];
           rect.origin.x = 0;
           rect.origin.y = 0;
           [mapCtrl.map setFrame:rect];
-        }];
+          mapCtrl.isRenderedAtOnce = YES;
+        }
       } else {
-        [mapCtrl.view setFrame:rect];
-        rect.origin.x = 0;
-        rect.origin.y = 0;
-        [mapCtrl.map setFrame:rect];
-        mapCtrl.isRenderedAtOnce = YES;
+        [mapCtrl.view setFrame:CGRectMake(0, -mapCtrl.view.frame.size.height, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
       }
 
 
@@ -389,8 +398,6 @@
         clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml];
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
-          return [self.webView hitTest:point withEvent:event];
-        } else {
           // If user click on the map, return the mapCtrl.view.
           offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
           offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
@@ -402,6 +409,8 @@
           //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
 
           return hitView;
+        } else {
+          return [self.webView hitTest:point withEvent:event];
         }
       }
 
@@ -416,19 +425,19 @@
 
 
 - (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint {
-  //NSLog(@"---- domId = %@, clickPoint = %f, %f", domId, clickPoint.x, clickPoint.y);
 
   NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
   NSArray *children = [domInfo objectForKey:@"children"];
+  //NSLog(@"---- domId = %@, clickPoint = %f, %f, children = %@", domId, clickPoint.x, clickPoint.y, children);
   if (children == nil || [children count] == 0) {
     return domId;
   }
 
-  float offsetX = self.webView.scrollView.contentOffset.x;
-  float offsetY = self.webView.scrollView.contentOffset.y;
-  CGFloat zoomScale = self.webView.scrollView.zoomScale;
+//  float offsetX = self.webView.scrollView.contentOffset.x;
+//  float offsetY = self.webView.scrollView.contentOffset.y;
+//  CGFloat zoomScale = self.webView.scrollView.zoomScale;
 
-  int maxZIndex = -CGFLOAT_MAX;
+  int maxZIndex = -1215752192;
   int zIndex;
   NSString *maxDomId = nil;
   NSString *childId;
@@ -437,12 +446,6 @@
     childId = [children objectAtIndex:i];
     domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:childId];
     rect = CGRectFromString([domInfo valueForKey:@"size"]);
-    rect.origin.x += offsetX;
-    rect.origin.y += offsetY;
-    rect.origin.x *= zoomScale;
-    rect.origin.y *= zoomScale;
-    rect.size.width *= zoomScale;
-    rect.size.height *= zoomScale;
 
     if (clickPoint.x >= rect.origin.x &&
         clickPoint.y >= rect.origin.y &&
@@ -455,13 +458,12 @@
       }
     }
 
-    if (maxDomId == nil) {
-      return domId;
-    }
-    return [self findClickedDom:maxDomId withPoint:clickPoint];
   }
 
-  return false;
+  if (maxDomId == nil) {
+    return domId;
+  }
+  return [self findClickedDom:maxDomId withPoint:clickPoint];
 }
 
 

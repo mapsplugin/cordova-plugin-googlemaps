@@ -315,7 +315,7 @@ if (!cordova) {
       checkRequested = false;
       if (!isThereAnyChange || mapIDs.length === 0) {
         if (!isSuspended) {
-          console.log("-->pause");
+          //console.log("-->pause");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         }
         if (mapIDs.length === 0) {
@@ -328,7 +328,7 @@ if (!cordova) {
           prevFinal = {};
           common._clearInternalCache();
         }
-        console.log("-->isSuspended = true");
+        //console.log("-->isSuspended = true");
         isSuspended = true;
         isThereAnyChange = false;
         isChecking = false;
@@ -352,7 +352,7 @@ if (!cordova) {
       if (idlingCnt > -1 && touchableMapList.length === 0) {
         idlingCnt++;
         if (!isSuspended) {
-        console.log("-->pause, isSuspended = true");
+        //console.log("-->pause, isSuspended = true");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
           isThereAnyChange = false;
@@ -390,7 +390,7 @@ if (!cordova) {
           });
         }
 
-console.log("-->pause");
+//console.log("-->pause");
         isThereAnyChange = false;
         isChecking = false;
         cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -442,7 +442,7 @@ console.log("-->pause");
         }
       });
       if (stopFlag) {
-      console.log("-->stopFlag = true");
+      //console.log("-->stopFlag = true");
         // There is no map size information (maybe timining?)
         // Try again.
         isThereAnyChange = true;
@@ -470,13 +470,13 @@ console.log("-->pause");
         });
         if (diff.length === 0) {
           if (checkRequested || isThereAnyChange) {
-          console.log("-->isThereAnyChange = true");
+          //console.log("-->isThereAnyChange = true");
             isChecking = false;
             common.nextTick(putHtmlElements);
             return;
           }
           if (!isSuspended) {
-          console.log("-->pause");
+          //console.log("-->pause");
             cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           }
           isSuspended = true;
@@ -495,14 +495,14 @@ console.log("-->pause");
       // Pass information to native
       //-----------------------------------------------------------------
       if (isSuspended) {
-      console.log("-->resume");
+      //console.log("-->resume");
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(finalDomPositions)));
+  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(finalDomPositions)));
       cordova_exec(function() {
         prevDomPositions = domPositions;
-  console.log("--->putHtmlElements to native (done)");
+  //console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
           setTimeout(function() {
             isChecking = false;

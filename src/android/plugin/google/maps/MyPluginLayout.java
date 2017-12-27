@@ -269,6 +269,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     HashMap<String, RectF> newBufferRectFs = new HashMap<String, RectF>();
 
     Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
+    Log.d("PluginUtil", "--->before = " + elementsBundle);
 
     Iterator<String> domIDs = elementsBundle.keySet().iterator();
     String domId;
@@ -288,6 +289,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       domInfo.remove("size");
       newBuffer.put(domId, domInfo);
     }
+    Log.d("PluginUtil", "--->after = " + HTMLNodes);
 
     Bundle bundle;
     RectF rectF;
@@ -498,20 +500,22 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
 
       Bundle domInfo = HTMLNodes.get(domId);
+      //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
       if (children == null) {
         return domId;
       }
-      int maxZindex = -9999999;
+      int maxZindex = (int)Double.NEGATIVE_INFINITY;
       int zIndex;
       String maxDomId = null;
       RectF rect;
       for (String childId: children) {
+        domInfo = HTMLNodes.get(childId);
         rect = HTMLNodeRectFs.get(childId);
         if (rect.contains(clickPoint.x, clickPoint.y)) {
-          //Log.d(TAG, "----childId = " + childId + ", rect = " + rect);
           zIndex = domInfo.getInt("zIndex");
-          if (maxZindex < zIndex || maxZindex == zIndex) {
+          //Log.d(TAG, "----childId = " + childId + ", zIndex = " + zIndex + ", domInfo = " + domInfo);
+          if (maxZindex <= zIndex) {
             maxZindex = zIndex;
             maxDomId = childId;
           }
@@ -545,19 +549,15 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       PluginMap pluginMap;
       Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
       Entry<String, PluginMap> entry;
-      String mapId;
 
       PointF clickPoint = new PointF(event.getX(), event.getY());
 
-      int scrollY = browserView.getScrollY();
       RectF drawRect;
       boolean isMapAction = false;
-      String currentDomId = "root";
 
       synchronized (_lockHtmlNodes) {
         while (iterator.hasNext()) {
           entry = iterator.next();
-          mapId = entry.getKey();
           pluginMap = entry.getValue();
 
           //-----------------------
