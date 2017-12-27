@@ -396,7 +396,7 @@
           (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
 
         clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml];
-        NSLog(@"--->clickedDomId = %@", clickedDomId);
+        //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
           offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
