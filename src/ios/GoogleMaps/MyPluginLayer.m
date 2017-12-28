@@ -321,9 +321,6 @@
   NSArray *subviews = [self.webView.superview subviews];
   for (int i = (int)[subviews count] - 1; i >= 0; i++) {
     subview = [subviews objectAtIndex: i];
-    if (subview == self.webView) {
-      break;
-    }
     // we only want to check against other views
     if (subview == self.pluginScrollView) {
       continue;
@@ -332,6 +329,9 @@
     UIView *hit = [subview hitTest:point withEvent:event];
 
     if (hit) {
+      if (subview == self.webView) {
+        break;
+      }
       return hit;
     }
   }
