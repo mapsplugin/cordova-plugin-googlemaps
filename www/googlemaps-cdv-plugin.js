@@ -550,30 +550,17 @@ if (!cordova) {
       };
 
       if (element.children.length > 0) {
-        var child, maxChild, childId, maxChildId = null;
-        var maxZIndex = Math.log(0);
-        for (var i = element.children.length - 1; i >= 0; i--) {
+        var child;
+        for (var i = 0; i < element.children.length; i++) {
           child = element.children[i];
           if (doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
             !common.shouldWatchByNative(child)) {
             continue;
           }
 
-          zIndex = common.getZIndex(child);
-          if (zIndex > maxZIndex) {
-            maxChildId = getPluginDomId(child);
-            maxZIndex = zIndex;
-            maxChild = child;
-          }
-          if (child.hasAttribute("__pluginMapId")) {
-            childId = getPluginDomId(child);
-            domPositions[elemId].children.push(childId);
-            traceDomTree(child, childId);
-          }
-        }
-        if (maxChildId) {
-          domPositions[elemId].children.push(maxChildId);
-          traceDomTree(maxChild, maxChildId);
+          var childId = getPluginDomId(child);
+          domPositions[elemId].children.push(childId);
+          traceDomTree(child, childId);
         }
       }
     }
