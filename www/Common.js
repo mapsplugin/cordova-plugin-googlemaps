@@ -311,7 +311,7 @@ function getZIndex(dom) {
     }
 
     if (z === "auto") {
-      z = 1;
+      z = 0;
     } else if (z === "inherit") {
       z = 0;
     } else if (z === "initial" || z === "unset") {
