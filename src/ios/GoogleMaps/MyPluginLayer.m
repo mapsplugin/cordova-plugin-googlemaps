@@ -319,7 +319,7 @@
   // e.g. PhoneGap-Plugin-ListPicker, etc
   UIView *subview;
   NSArray *subviews = [self.webView.superview subviews];
-  for (int i = (int)[subviews count] - 1; i >= 0; i++) {
+  for (int i = ((int)[subviews count] - 1); i >= 0; i--) {
     subview = [subviews objectAtIndex: i];
     // we only want to check against other views
     if (subview == self.pluginScrollView) {
