@@ -161,11 +161,12 @@ if (!cordova) {
     }
 
     document.body.addEventListener("transitionend", function(e) {
-      // if (e.target.hasAttribute("__pluginDomId")) {
-      //   removeDomTree(e.target, {
-      //     keepDomId: true
-      //   });
-      // }
+      if (e.target.hasAttribute("__pluginDomId")) {
+        removeDomTree({
+          keepDomId: true
+        });
+        traceDomTree(e.target, e.target.getAttribute("__pluginDomId"));
+      }
       resetTimer({force: true});
     }, true);
 
@@ -184,6 +185,9 @@ if (!cordova) {
     }
 
     function removeDomTree(node, options) {
+      if (!node || !node.querySelectorAll) {
+        return;
+      }
       options = options || {};
       var children = node.querySelectorAll('[__pluginDomId]');
       if (children && children.length > 0) {
@@ -200,7 +204,9 @@ if (!cordova) {
             }
           }
           common._removeCacheById(elemId);
-          delete domPositions[elemId];
+          if (!options.keepDomId || domPositions[elemId] && !("containMapCnt" in domPositions[elemId])) {
+            delete domPositions[elemId];
+          }
           delete prevDomPositions[elemId];
           delete prevFinal[elemId];
         });
@@ -218,7 +224,9 @@ if (!cordova) {
           }
         }
         common._removeCacheById(elemId);
-        delete domPositions[elemId];
+        if (!options.keepDomId || domPositions[elemId] && !("containMapCnt" in domPositions[elemId])) {
+          delete domPositions[elemId];
+        }
         delete prevDomPositions[elemId];
         delete prevFinal[elemId];
       }
@@ -262,11 +270,12 @@ if (!cordova) {
               if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
                 return;
               }
-              // if (mutation.target.hasAttribute("__pluginDomId")) {
-              //   removeDomTree(mutation.target, {
-              //     keepDomId: true
-              //   });
-              // }
+              if (mutation.target.hasAttribute("__pluginDomId")) {
+                removeDomTree({
+                  keepDomId: true
+                });
+                traceDomTree(mutation.target, mutation.target.getAttribute("__pluginDomId"));
+              }
               isThereAnyChange = true;
               idlingCnt = -1;
               longIdlingCnt = -1;
@@ -485,10 +494,10 @@ if (!cordova) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(finalDomPositions)));
+  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(finalDomPositions)));
       cordova_exec(function() {
         prevDomPositions = domPositions;
-  //console.log("--->putHtmlElements to native (done)");
+  console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
           setTimeout(function() {
             isChecking = false;
@@ -510,6 +519,11 @@ if (!cordova) {
 
 
     function traceDomTree(element, elemId) {
+      if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1 ||
+        !common.shouldWatchByNative(element)) {
+        removeDomTree(element);
+        return;
+      }
 
       // get dom z-index
       var zIndex = common.getZIndex(element);
@@ -531,6 +545,7 @@ if (!cordova) {
           child = element.children[i];
           if (doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
             !common.shouldWatchByNative(child)) {
+            removeDomTree(child);
             continue;
           }
 
@@ -724,6 +739,17 @@ if (!cordova) {
                   }
                   if (div) {
                     div.removeAttribute('__pluginMapId');
+                  }
+                  while(div && div.nodeType === NODE.ELEMENT_NODE) {
+                    elemId = div.getAttribute("__pluginDomId");
+                    if (elemId) {
+                      domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
+                      domPositions[elemId].containMapCnt--;
+                      if (domPositions[elemId].containMapCnt < 1) {
+                        delete domPositions[elemId];
+                      }
+                    }
+                    div = div.parentNode;
                   }
                   MAPS[mapId].destroy();
                   delete MAPS[mapId];
