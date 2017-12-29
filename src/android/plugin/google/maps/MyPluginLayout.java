@@ -499,9 +499,14 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       String maxDomId = null;
       RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
-      //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
+      int containMapCnt = 0;
+      if (domInfo.containsKey("containMapCnt")) {
+        containMapCnt = domInfo.getInt("containMapCnt");
+      }
+
+      Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if (children != null && children.size() > 0) {
+      if (containMapCnt > 0 && children != null && children.size() > 0) {
         int maxZindex = (int) Double.NEGATIVE_INFINITY;
         int zIndex;
         String childId, grandChildId;
@@ -509,9 +514,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         for (int i = children.size() - 1; i >= 0; i--) {
           childId = children.get(i);
           domInfo = HTMLNodes.get(childId);
+          Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+          if (domInfo == null) {
+            continue;
+          }
 
           zIndex = domInfo.getInt("zIndex");
-          //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
           if (maxZindex < zIndex) {
             grandChildren = domInfo.getStringArrayList("children");
             if (grandChildren == null || grandChildren.size() == 0) {
@@ -598,7 +606,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           }
 
           String clickedDomId = findClickedDom("root", clickPoint);
-          //Log.d(TAG, "----clickedDomId = " + clickedDomId);
+          Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
 

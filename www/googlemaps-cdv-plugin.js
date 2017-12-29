@@ -161,11 +161,11 @@ if (!cordova) {
     }
 
     document.body.addEventListener("transitionend", function(e) {
-      if (e.target.hasAttribute("__pluginDomId")) {
-        removeDomTree(e.target, {
-          keepDomId: true
-        });
-      }
+      // if (e.target.hasAttribute("__pluginDomId")) {
+      //   removeDomTree(e.target, {
+      //     keepDomId: true
+      //   });
+      // }
       resetTimer({force: true});
     }, true);
 
@@ -262,11 +262,11 @@ if (!cordova) {
               if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
                 return;
               }
-              if (mutation.target.hasAttribute("__pluginDomId")) {
-                removeDomTree(mutation.target, {
-                  keepDomId: true
-                });
-              }
+              // if (mutation.target.hasAttribute("__pluginDomId")) {
+              //   removeDomTree(mutation.target, {
+              //     keepDomId: true
+              //   });
+              // }
               isThereAnyChange = true;
               idlingCnt = -1;
               longIdlingCnt = -1;
@@ -288,10 +288,10 @@ if (!cordova) {
     })();
 
     function setDomId(element) {
-      getPluginDomId(element);
+      common.getPluginDomId(element);
       if (element.children) {
         for (var i = 0; i < element.children.length; i++) {
-          getPluginDomId(element.children[i]);
+          common.getPluginDomId(element.children[i]);
         }
       }
     }
@@ -373,7 +373,7 @@ if (!cordova) {
       //-------------------------------------------
 
       common._clearInternalCache();
-      getPluginDomId(document.body);
+      common.getPluginDomId(document.body);
       traceDomTree(document.body, "root");
 
       // If some elements has been removed, should update the positions
@@ -410,20 +410,6 @@ if (!cordova) {
           if (elemId) {
             if (elemId in domPositions) {
               mapElemIDs.push(elemId);
-
-              div = div.parentNode;
-              while(div) {
-                children = div.children;
-                for (var i = 0; i < children.length; i++) {
-                  elemId = children[i].getAttribute("__pluginDomId");
-                  if (elemId in domPositions) {
-                    domPositions[elemId].parent = true;
-                  }
-                }
-                div = div.parentNode;
-              }
-
-
             } else {
               // Is the map div removed?
               if (window.document.querySelector) {
@@ -521,18 +507,7 @@ if (!cordova) {
       children = null;
     }
 
-    function getPluginDomId(element) {
-      // Generates a __pluginDomId
-      if (!element || element.nodeType !== Node.ELEMENT_NODE) {
-        return;
-      }
-      var elemId = element.getAttribute("__pluginDomId");
-      if (!elemId) {
-        elemId = "pgm" + Math.floor(Math.random() * Date.now());
-        element.setAttribute("__pluginDomId", elemId);
-      }
-      return elemId;
-    }
+
 
     function traceDomTree(element, elemId) {
 
@@ -543,13 +518,14 @@ if (!cordova) {
       var rect = common.getDivRect(element);
 
       // Stores dom information
-      domPositions[elemId] = {
+      domPositions[elemId] = domPositions[elemId] || {
         size: rect,
         zIndex: zIndex,
         children: []
       };
-
-      if (element.children.length > 0) {
+      domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
+//console.log(elemId + ", containMapCnt = ", domPositions[elemId].containMapCnt);
+      if (domPositions[elemId].containMapCnt > 0 && element.children.length > 0) {
         var child;
         for (var i = 0; i < element.children.length; i++) {
           child = element.children[i];
@@ -558,8 +534,10 @@ if (!cordova) {
             continue;
           }
 
-          var childId = getPluginDomId(child);
-          domPositions[elemId].children.push(childId);
+          var childId = common.getPluginDomId(child);
+          if (domPositions[elemId].children.indexOf(childId) === -1) {
+            domPositions[elemId].children.push(childId);
+          }
           traceDomTree(child, childId);
         }
       }
@@ -667,7 +645,7 @@ if (!cordova) {
       BaseArrayClass: BaseArrayClass,
       Map: {
           getMap: function(div, mapOptions) {
-              var mapId;
+              var mapId, elem, elemId;
               if (common.isDom(div)) {
                 mapId = div.getAttribute("__pluginMapId");
                 if (!mapOptions || mapOptions.visible !== false) {
@@ -676,6 +654,18 @@ if (!cordova) {
                 }
               }
               if (mapId && MAPS[mapId].getDiv() !== div) {
+                elem = MAPS[mapId].getDiv();
+                while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                  elemId = elem.getAttribute("__pluginDomId");
+                  if (elemId && elemId in domPositions) {
+                    domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
+                    domPositions[elemId].containMapCnt--;
+                    if (domPositions[elemId].containMapCnt < 1) {
+                      delete domPositions[elemId];
+                    }
+                  }
+                  elem = elem.parentNode;
+                }
                 MAPS[mapId].remove();
                 mapId = undefined;
               }
@@ -693,20 +683,28 @@ if (!cordova) {
               if (common.isDom(div)) {
                 div.setAttribute("__pluginMapId", mapId);
 
-                var elemId = div.getAttribute("__pluginDomId");
-                if (!elemId) {
-                  elemId = "pgm" + Math.floor(Math.random() * Date.now());
-                  div.setAttribute("__pluginDomId", elemId);
-                }
+                elemId = common.getPluginDomId(div);
 
-                var dummyInfo = {};
-                dummyInfo[elemId] = {
+                var mapRects = {};
+                mapRects[elemId] = {
                   size: div.getBoundingClientRect(),
-                  zIndex: 0,
-                  children: []
+                  zIndex: common.getZIndex(div)
                 };
-//console.log(dummyInfo);
-                cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [dummyInfo]);
+                cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+
+                elem = div;
+                while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                  elemId = common.getPluginDomId(elem);
+                  domPositions[elemId] = domPositions[elemId] || {
+                    size: elem.getBoundingClientRect(),
+                    zIndex: common.getZIndex(elem),
+                    children: []
+                  };
+                  domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
+                  domPositions[elemId].containMapCnt++;
+                  elem = elem.parentNode;
+                }
+                resetTimer({force: true});
               }
 
               var map = new Map(mapId, execCmd);

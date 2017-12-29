@@ -212,7 +212,6 @@
 }
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
-
     CGFloat zoomScale = self.webView.scrollView.zoomScale;
     [self.pluginScrollView setFrame:self.webView.frame];
 
@@ -437,7 +436,12 @@
   //NSLog(@"---- domId = %@, clickPoint = %f, %f, %@", domId, clickPoint.x, clickPoint.y, children);
   NSString *maxDomId = nil;
   CGRect rect;
-  if (children != nil && children.count > 0) {
+
+
+  domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+  int containMapCnt = [[domInfo objectForKey:@"containMapCnt"] intValue];
+
+  if (containMapCnt > 0 && children != nil && children.count > 0) {
 
     int maxZIndex = -1215752192;
     int zIndex;

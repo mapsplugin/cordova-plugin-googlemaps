@@ -666,6 +666,23 @@ function quickfilter(domPositions, mapElemIDs) {
   return tree;
 }
 
+function getPluginDomId(element) {
+  // Generates a __pluginDomId
+  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+    return;
+  }
+  var elemId = element.getAttribute("__pluginDomId");
+  if (!elemId) {
+    if (element === document.body) {
+      elemId = "root";
+    } else {
+      elemId = "pgm" + Math.floor(Math.random() * Date.now());
+    }
+    element.setAttribute("__pluginDomId", elemId);
+  }
+  return elemId;
+}
+
 module.exports = {
     _clearInternalCache: _clearInternalCache,
     _removeCacheById: _removeCacheById,
@@ -686,5 +703,6 @@ module.exports = {
     shouldWatchByNative: shouldWatchByNative,
     markerOptionsFilter: markerOptionsFilter,
     quickfilter: quickfilter,
-    nextTick: nextTick
+    nextTick: nextTick,
+    getPluginDomId: getPluginDomId
 };
