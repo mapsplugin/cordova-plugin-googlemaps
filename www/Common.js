@@ -259,15 +259,25 @@ function shouldWatchByNative(node) {
 
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
-  var opacityCSS = getStyle(node, 'opacity');
   var pointerEventsCSS = getStyle(node, 'pointer-events');
-  opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-  var clickableSize = (
-    node.offsetHeight > 0 && node.offsetWidth > 0 ||
-    node.clientHeight > 0 && node.clientWidth > 0);
+
+  //-----------------------------------------
+  // no longer check the opacity property,
+  // because the app might start changing the opacity later.
+  //-----------------------------------------
+  //var opacityCSS = getStyle(node, 'opacity');
+  //opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
+
+  //-----------------------------------------
+  // no longer check the clickable size,
+  // because HTML still can display larger element inside one small element.
+  //-----------------------------------------
+  // var clickableSize = (
+  //   node.offsetHeight > 0 && node.offsetWidth > 0 ||
+  //   node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
-    opacityCSS > 0 && visibilityCSS !== "hidden" &&
-    clickableSize && pointerEventsCSS !== "none";
+    visibilityCSS !== "hidden" &&
+    pointerEventsCSS !== "none";
 }
 
 

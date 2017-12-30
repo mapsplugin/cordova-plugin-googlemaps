@@ -521,6 +521,7 @@ Map.prototype.remove = function(callback) {
     if (self._isRemoved) {
       return;
     }
+    self.trigger("remove");
     Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
@@ -541,7 +542,6 @@ Map.prototype.remove = function(callback) {
         }
     }
     self.set('div', undefined);
-    self.trigger("remove");
 
 
     // Close the active infoWindow

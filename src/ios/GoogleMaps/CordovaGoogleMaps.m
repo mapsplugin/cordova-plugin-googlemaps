@@ -394,7 +394,6 @@
               currentDomInfo = domInfo;
             }
             [currentDomInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
-            [currentDomInfo setObject:[domInfo objectForKey:@"zIndex"] forKey:@"zIndex"];
             [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:currentDomInfo forKey:domId];
           }
         }

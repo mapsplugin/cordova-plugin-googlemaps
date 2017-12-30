@@ -115,10 +115,6 @@ if (!cordova) {
       //document.body.style.display='';
     //}, 0);
 
-    var prevDomPositions = {};
-    var idlingCnt = -1;
-    var longIdlingCnt = -1;
-
     var isChecking = false;
     document.head.appendChild(navDecorBlocker);
     var doNotTraceTags = [
@@ -162,10 +158,7 @@ if (!cordova) {
 
     document.body.addEventListener("transitionend", function(e) {
       if (e.target.hasAttribute("__pluginDomId")) {
-        removeDomTree({
-          keepDomId: true
-        });
-        traceDomTree(e.target, e.target.getAttribute("__pluginDomId"));
+        traceDomTree(e.target, e.target.getAttribute("__pluginDomId"), false);
       }
       resetTimer({force: true});
     }, true);
@@ -179,56 +172,48 @@ if (!cordova) {
     }, true);
     function onScrollEnd() {
       isThereAnyChange = true;
-      idlingCnt = -1;
-      longIdlingCnt = -1;
       common.nextTick(putHtmlElements);
     }
 
-    function removeDomTree(node, options) {
+    function removeDomTree(node) {
       if (!node || !node.querySelectorAll) {
         return;
       }
-      options = options || {};
       var children = node.querySelectorAll('[__pluginDomId]');
       if (children && children.length > 0) {
+        var isRemoved = node._isRemoved;
         children.forEach(function(child) {
           var elemId = child.getAttribute('__pluginDomId');
-          if (!options.keepDomId) {
+          if (isRemoved) {
             child.removeAttribute('__pluginDomId');
             if (child.hasAttribute('__pluginMapId')) {
               // If no div element, remove the map.
               var mapId = child.getAttribute('__pluginMapId');
+console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
               if (mapId in MAPS) {
                 MAPS[mapId].remove();
               }
             }
-          }
-          common._removeCacheById(elemId);
-          if (!options.keepDomId || domPositions[elemId] && !("containMapCnt" in domPositions[elemId])) {
             delete domPositions[elemId];
           }
-          delete prevDomPositions[elemId];
-          delete prevFinal[elemId];
+          common._removeCacheById(elemId);
         });
       }
       if (node.hasAttribute("__pluginDomId")) {
         var elemId = node.getAttribute('__pluginDomId');
-        if (!options.keepDomId) {
+        if (node._isRemoved) {
           node.removeAttribute('__pluginDomId');
           if (node.hasAttribute('__pluginMapId')) {
             // If no div element, remove the map.
-            var mapId = child.getAttribute('__pluginMapId');
+            var mapId = node.getAttribute('__pluginMapId');
             if (mapId in MAPS) {
+console.log("---> map.remove() = " + elemId);
               MAPS[mapId].remove();
             }
           }
-        }
-        common._removeCacheById(elemId);
-        if (!options.keepDomId || domPositions[elemId] && !("containMapCnt" in domPositions[elemId])) {
           delete domPositions[elemId];
         }
-        delete prevDomPositions[elemId];
-        delete prevFinal[elemId];
+        common._removeCacheById(elemId);
       }
     }
     //----------------------------------------------
@@ -241,29 +226,31 @@ if (!cordova) {
         common.nextTick(function() {
           mutations.forEach(function(mutation) {
             var targetCnt = 0;
+            var node, i;
             if (mutation.type === "childList") {
               if (mutation.addedNodes) {
-                mutation.addedNodes.forEach(function(node) {
+                for (i = 0; i < mutation.addedNodes.length; i++) {
+                  node = mutation.addedNodes[i];
                   if (node.nodeType !== Node.ELEMENT_NODE) {
-                    return;
+                    continue;
                   }
                   targetCnt++;
                   setDomId(node);
-                });
+                }
               }
               if (mutation.removedNodes) {
-                mutation.removedNodes.forEach(function(node) {
+                for (i = 0; i < mutation.removedNodes.length; i++) {
+                  node = mutation.removedNodes[i];
                   if (node.nodeType !== Node.ELEMENT_NODE || !node.hasAttribute("__pluginDomId")) {
-                    return;
+                    continue;
                   }
                   targetCnt++;
+                  node._isRemoved = true;
                   removeDomTree(node);
-                });
+                }
               }
               if (targetCnt > 0) {
                 isThereAnyChange = true;
-                idlingCnt = -1;
-                longIdlingCnt = -1;
                 common.nextTick(putHtmlElements);
               }
             } else {
@@ -271,14 +258,9 @@ if (!cordova) {
                 return;
               }
               if (mutation.target.hasAttribute("__pluginDomId")) {
-                removeDomTree({
-                  keepDomId: true
-                });
-                traceDomTree(mutation.target, mutation.target.getAttribute("__pluginDomId"));
+                traceDomTree(mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
               }
               isThereAnyChange = true;
-              idlingCnt = -1;
-              longIdlingCnt = -1;
               common.nextTick(putHtmlElements);
               // var elemId = mutation.target.getAttribute("__pluginDomId");
               // console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
@@ -312,7 +294,6 @@ if (!cordova) {
     var domPositions = {};
     var shouldUpdate = false;
     var doNotTrace = false;
-    var prevFinal = {};
     var checkRequested = false;
 
     function putHtmlElements() {
@@ -322,21 +303,12 @@ if (!cordova) {
         return;
       }
       checkRequested = false;
-      if (!isThereAnyChange || mapIDs.length === 0) {
+      if (!isThereAnyChange) {
         if (!isSuspended) {
-          //console.log("-->pause");
+          //console.log("-->pause(320)");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         }
-        if (mapIDs.length === 0) {
-          // If no map, release the JS heap memory
-          domPositions = undefined;
-          prevDomPositions = undefined;
-          prevFinal = undefined;
-          domPositions = {};
-          prevDomPositions = {};
-          prevFinal = {};
-          common._clearInternalCache();
-        }
+
         //console.log("-->isSuspended = true");
         isSuspended = true;
         isThereAnyChange = false;
@@ -350,6 +322,7 @@ if (!cordova) {
       //-------------------------------------------
       var touchableMapList, i, mapId, map;
       touchableMapList = [];
+      mapIDs = Object.keys(MAPS);
       for (i = 0; i < mapIDs.length; i++) {
         mapId = mapIDs[i];
         map = MAPS[mapId];
@@ -358,10 +331,10 @@ if (!cordova) {
           touchableMapList.push(mapId);
         }
       }
-      if (idlingCnt > -1 && touchableMapList.length === 0) {
-        idlingCnt++;
+      if (touchableMapList.length === 0) {
+//console.log("--->touchableMapList.length = 0");
         if (!isSuspended) {
-        //console.log("-->pause, isSuspended = true");
+//        console.log("-->pause, isSuspended = true");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
           isThereAnyChange = false;
@@ -371,6 +344,7 @@ if (!cordova) {
       }
 
       if (checkRequested) {
+//console.log("--->checkRequested");
         setTimeout(function() {
           isChecking = false;
           common.nextTick(putHtmlElements);
@@ -383,62 +357,55 @@ if (!cordova) {
 
       common._clearInternalCache();
       common.getPluginDomId(document.body);
-      traceDomTree(document.body, "root");
-
-      // If some elements has been removed, should update the positions
-      var elementCnt = Object.keys(domPositions).length;
-      var prevElementCnt = Object.keys(prevDomPositions).length;
-      if (elementCnt !== prevElementCnt) {
-        shouldUpdate = true;
-      }
-      if (!shouldUpdate && idlingCnt > -1) {
-        idlingCnt++;
-        if (idlingCnt === 2) {
-          mapIDs.forEach(function(mapId) {
-              MAPS[mapId].refreshLayout();
-          });
-        }
-
-//console.log("-->pause");
-        isThereAnyChange = false;
-        isChecking = false;
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
-        return;
-      }
-      idlingCnt = 0;
-      longIdlingCnt = 0;
+      traceDomTree(document.body, "root", false);
 
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
       var stopFlag = false;
       var mapElemIDs = [];
+      mapIDs = Object.keys(MAPS);
       mapIDs.forEach(function(mapId) {
+        var ele;
         var div = MAPS[mapId].getDiv();
-        if (div) {
+        if (!div) {
+//           // the map div is removed
+// console.log("mapId = " + mapId + " is already removed");
+//           if (mapId in MAPS) {
+//             MAPS[mapId].remove();
+//             return;
+//           }
+//           stopFlag = true;
+        } else {
           var elemId = div.getAttribute("__pluginDomId");
           if (elemId) {
             if (elemId in domPositions) {
               mapElemIDs.push(elemId);
             } else {
               // Is the map div removed?
-              if (window.document.querySelector) {
-                var ele = document.querySelector("[__pluginMapId='" + mapId + "']");
-                if (!ele) {
-                  // If no div element, remove the map.
-                  if (mapId in MAPS) {
-                    MAPS[mapId].remove();
-                    return;
-                  }
-                  stopFlag = true;
+              ele = document.querySelector("[__pluginMapId='" + mapId + "']");
+              if (!ele) {
+    console.log("mapId = " + mapId + " is already removed");
+                // If no div element, remove the map.
+                if (mapId in MAPS) {
+                  MAPS[mapId].remove();
+                  return;
                 }
+                stopFlag = true;
               }
             }
+          } else {
+console.log("mapId = " + mapId + " is already removed");
+            // the map div is removed
+            if (mapId in MAPS) {
+              MAPS[mapId].remove();
+              return;
+            }
+            stopFlag = true;
           }
         }
       });
       if (stopFlag) {
-      //console.log("-->stopFlag = true");
-        // There is no map size information (maybe timining?)
+        // There is no map information (maybe timining?)
         // Try again.
         isThereAnyChange = true;
         setTimeout(function() {
@@ -451,34 +418,6 @@ if (!cordova) {
       //-----------------------------------------------------------------
       // Ignore the elements that their z-index is smaller than map div
       //-----------------------------------------------------------------
-      var finalDomPositions;
-      //if (touchableMapList.length === 0) {
-        finalDomPositions = domPositions;
-      //} else {
-      //  finalDomPositions = common.quickfilter(domPositions, mapElemIDs);
-      //}
-      var prevKeys = Object.keys(prevFinal);
-      var currentKeys = Object.keys(finalDomPositions);
-      if (prevKeys.length === currentKeys.length) {
-        var diff = prevKeys.filter(function(prevKey) {
-          return currentKeys.indexOf(prevKey) === -1;
-        });
-        if (diff.length === 0) {
-          if (checkRequested || isThereAnyChange) {
-          //console.log("-->isThereAnyChange = true");
-            isChecking = false;
-            common.nextTick(putHtmlElements);
-            return;
-          }
-          if (!isSuspended) {
-          //console.log("-->pause");
-            cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
-          }
-          isSuspended = true;
-          isChecking = false;
-          return;
-        }
-      }
       if (checkRequested) {
         setTimeout(function() {
           isChecking = false;
@@ -490,14 +429,13 @@ if (!cordova) {
       // Pass information to native
       //-----------------------------------------------------------------
       if (isSuspended) {
-      //console.log("-->resume");
+        //console.log("-->resume(470)");
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(finalDomPositions)));
+  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
       cordova_exec(function() {
-        prevDomPositions = domPositions;
-  console.log("--->putHtmlElements to native (done)");
+  //console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
           setTimeout(function() {
             isChecking = false;
@@ -509,7 +447,7 @@ if (!cordova) {
         isThereAnyChange = false;
         isSuspended = true;
         cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
-      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [finalDomPositions]);
+      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
       parentNode = null;
       elemId = null;
@@ -518,7 +456,7 @@ if (!cordova) {
 
 
 
-    function traceDomTree(element, elemId) {
+    function traceDomTree(element, elemId, isMapChild) {
       if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1 ||
         !common.shouldWatchByNative(element)) {
         removeDomTree(element);
@@ -532,28 +470,28 @@ if (!cordova) {
       var rect = common.getDivRect(element);
 
       // Stores dom information
-      domPositions[elemId] = domPositions[elemId] || {
+      var isCached = elemId in domPositions;
+      domPositions[elemId] = {
+        isMap: (isCached ? domPositions[elemId].isMap : false),
         size: rect,
         zIndex: zIndex,
-        children: []
+        children: [],
+        containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
       };
-      domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
-//console.log(elemId + ", containMapCnt = ", domPositions[elemId].containMapCnt);
-      if (domPositions[elemId].containMapCnt > 0 && element.children.length > 0) {
+      var containMapCnt = (Object.keys(domPositions[elemId].containMapIDs)).length;
+      isMapChild = isMapChild || domPositions[elemId].isMap;
+      if ((containMapCnt > 0 || isMapChild) && element.children.length > 0) {
         var child;
         for (var i = 0; i < element.children.length; i++) {
           child = element.children[i];
           if (doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
             !common.shouldWatchByNative(child)) {
-            removeDomTree(child);
             continue;
           }
 
           var childId = common.getPluginDomId(child);
-          if (domPositions[elemId].children.indexOf(childId) === -1) {
-            domPositions[elemId].children.push(childId);
-          }
-          traceDomTree(child, childId);
+          domPositions[elemId].children.push(childId);
+          traceDomTree(child, childId, isMapChild);
         }
       }
     }
@@ -669,13 +607,14 @@ if (!cordova) {
                 }
               }
               if (mapId && MAPS[mapId].getDiv() !== div) {
+              console.log("--->different mapdiv = " + mapId, MAPS[mapId].getDiv(), div);
                 elem = MAPS[mapId].getDiv();
                 while(elem && elem.nodeType === Node.ELEMENT_NODE) {
                   elemId = elem.getAttribute("__pluginDomId");
                   if (elemId && elemId in domPositions) {
-                    domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
-                    domPositions[elemId].containMapCnt--;
-                    if (domPositions[elemId].containMapCnt < 1) {
+                    domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
+                    delete domPositions[elemId].containMapIDs[mapId];
+                    if ((Object.keys(domPositions[elemId].containMapIDs).length) < 1) {
                       delete domPositions[elemId];
                     }
                   }
@@ -695,42 +634,12 @@ if (!cordova) {
               } else {
                 mapId = "map_" + MAP_CNT + "_" + saltHash;
               }
-              if (common.isDom(div)) {
-                div.setAttribute("__pluginMapId", mapId);
-
-                elemId = common.getPluginDomId(div);
-
-                var mapRects = {};
-                mapRects[elemId] = {
-                  size: div.getBoundingClientRect(),
-                  zIndex: common.getZIndex(div)
-                };
-                cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
-
-                elem = div;
-                while(elem && elem.nodeType === Node.ELEMENT_NODE) {
-                  elemId = common.getPluginDomId(elem);
-                  domPositions[elemId] = domPositions[elemId] || {
-                    size: elem.getBoundingClientRect(),
-                    zIndex: common.getZIndex(elem),
-                    children: []
-                  };
-                  domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
-                  domPositions[elemId].containMapCnt++;
-                  elem = elem.parentNode;
-                }
-                resetTimer({force: true});
-              }
 
               var map = new Map(mapId, execCmd);
 
               // Catch all events for this map instance, then pass to the instance.
               document.addEventListener(mapId, nativeCallback.bind(map));
-              /*
-                      map.showDialog = function() {
-                        showDialog(mapId).bind(map);
-                      };
-              */
+
               map.one('remove', function() {
                   document.removeEventListener(mapId, nativeCallback);
                   var div = map.getDiv();
@@ -740,39 +649,74 @@ if (!cordova) {
                   if (div) {
                     div.removeAttribute('__pluginMapId');
                   }
-                  while(div && div.nodeType === NODE.ELEMENT_NODE) {
-                    elemId = div.getAttribute("__pluginDomId");
-                    if (elemId) {
-                      domPositions[elemId].containMapCnt = domPositions[elemId].containMapCnt || 0;
-                      domPositions[elemId].containMapCnt--;
-                      if (domPositions[elemId].containMapCnt < 1) {
-                        delete domPositions[elemId];
-                      }
+                  console.log("--->removeMap mapId = " + mapId);
+
+                  var keys = Object.keys(domPositions);
+                  keys.forEach(function(elemId) {
+                    domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
+                    delete domPositions[elemId].containMapIDs[mapId];
+                    if ((Object.keys(domPositions[elemId].containMapIDs)).length < 1) {
+                      delete domPositions[elemId];
                     }
-                    div = div.parentNode;
-                  }
+                  });
                   MAPS[mapId].destroy();
                   delete MAPS[mapId];
                   map = undefined;
 
                   if ((Object.keys(MAPS)).length === 0) {
-                    // If no map, release the JS heap memory
-                    domPositions = undefined;
-                    prevDomPositions = undefined;
-                    prevFinal = undefined;
-                    domPositions = {};
-                    prevDomPositions = {};
-                    prevFinal = {};
                     common._clearInternalCache();
 
                     isSuspended = true;
                     cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
                   }
               });
-              map.on('touchevent', followMapDivPositionOnly);
               MAP_CNT++;
               MAPS[mapId] = map;
+              isSuspended = false;
               isThereAnyChange = true;
+              isChecking = false;
+
+
+
+
+              if (common.isDom(div)) {
+                div.setAttribute("__pluginMapId", mapId);
+
+                elemId = common.getPluginDomId(div);
+    console.log("---> map.getMap() = " + elemId + ", mapId = " + mapId);
+
+                var mapRects = {};
+                mapRects[elemId] = {
+                  size: div.getBoundingClientRect()
+                };
+                cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+
+                elem = div;
+                var isCached;
+                while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                  elemId = common.getPluginDomId(elem);
+                  isCached = elemId in domPositions;
+                  domPositions[elemId] = {
+                    isMap: false,
+                    size: elem.getBoundingClientRect(),
+                    zIndex: common.getZIndex(elem),
+                    children: [],
+                    containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
+                  };
+                  domPositions[elemId].containMapIDs[mapId] = 1;
+                  elem = elem.parentNode;
+                }
+
+                elemId = common.getPluginDomId(div);
+                domPositions[elemId].isMap = true;
+
+                resetTimer({force: true});
+              }
+
+
+
+
+
 
               var args = [mapId];
               for (var i = 0; i < arguments.length; i++) {

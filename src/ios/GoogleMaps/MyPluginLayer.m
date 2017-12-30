@@ -400,7 +400,7 @@
       if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
           (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml];
+        clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml isMapChild:NO];
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
@@ -429,19 +429,21 @@
 }
 
 
-- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint {
+- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint isMapChild:(BOOL)isMapChild {
 
   NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
   NSArray *children = [domInfo objectForKey:@"children"];
-  //NSLog(@"---- domId = %@, clickPoint = %f, %f, %@", domId, clickPoint.x, clickPoint.y, children);
   NSString *maxDomId = nil;
   CGRect rect;
 
 
   domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-  int containMapCnt = [[domInfo objectForKey:@"containMapCnt"] intValue];
+  NSDictionary *containMapIDs = [domInfo objectForKey:@"containMapIDs"];
+  unsigned long containMapCnt = [[containMapIDs allKeys] count];
+  isMapChild = isMapChild || [[domInfo objectForKey:@"isMap"] boolValue];
+  //NSLog(@"---- domId = %@, containMapCnt = %ld, isMapChild = %@", domId, containMapCnt, isMapChild ? @"YES":@"NO");
 
-  if (containMapCnt > 0 && children != nil && children.count > 0) {
+  if ((containMapCnt > 0 || isMapChild) && children != nil && children.count > 0) {
 
     int maxZIndex = -1215752192;
     int zIndex;
@@ -463,9 +465,12 @@
               clickPoint.y > rect.origin.y + rect.size.height) {
             continue;
           }
+          if (isMapChild) {
+            return childId;
+          }
           maxDomId = childId;
         } else {
-          grandChildId = [self findClickedDom:childId withPoint:clickPoint];
+          grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild];
           if (grandChildId == nil) {
             continue;
           }
@@ -477,6 +482,9 @@
               clickPoint.x > rect.origin.x + rect.size.width ||
               clickPoint.y > rect.origin.y + rect.size.height) {
             continue;
+          }
+          if (isMapChild) {
+            return grandChildId;
           }
           maxDomId = grandChildId;
         }

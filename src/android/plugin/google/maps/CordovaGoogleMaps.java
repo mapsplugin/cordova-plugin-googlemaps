@@ -301,12 +301,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       rectF.bottom = rectF.top  + (float)(Double.parseDouble(size.get("height") + "") * zoomScale);
 
       mPluginLayout.HTMLNodeRectFs.put(domId, rectF);
-
-      domInfo.remove("size");
-
-      currentDomInfo = mPluginLayout.HTMLNodes.get(domId);
-      currentDomInfo.putInt("zIndex", domInfo.getInt("zIndex"));
-      mPluginLayout.HTMLNodes.put(domId, currentDomInfo);
     }
 
     if (mPluginLayout.isSuspended) {

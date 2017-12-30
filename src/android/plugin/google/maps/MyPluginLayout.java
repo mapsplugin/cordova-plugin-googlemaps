@@ -500,11 +500,14 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
       int containMapCnt = 0;
-      if (domInfo.containsKey("containMapCnt")) {
-        containMapCnt = domInfo.getInt("containMapCnt");
+      if (domInfo.containsKey("containMapIDs")) {
+        Set<String> keys = domInfo.getBundle("containMapIDs").keySet();
+        if (keys != null) {
+          containMapCnt = keys.size();
+        }
       }
 
-      Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
+      //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
       if (containMapCnt > 0 && children != null && children.size() > 0) {
         int maxZindex = (int) Double.NEGATIVE_INFINITY;
@@ -514,7 +517,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         for (int i = children.size() - 1; i >= 0; i--) {
           childId = children.get(i);
           domInfo = HTMLNodes.get(childId);
-          Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+          //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
           if (domInfo == null) {
             continue;
           }
@@ -606,7 +609,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           }
 
           String clickedDomId = findClickedDom("root", clickPoint);
-          Log.d(TAG, "----clickedDomId = " + clickedDomId);
+          //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
 
