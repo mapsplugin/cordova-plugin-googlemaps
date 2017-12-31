@@ -157,10 +157,25 @@ if (!cordova) {
     }
 
     document.body.addEventListener("transitionend", function(e) {
-      if (e.target.hasAttribute("__pluginDomId")) {
-        traceDomTree(e.target, e.target.getAttribute("__pluginDomId"), false);
-      }
-      resetTimer({force: true});
+      setTimeout(function() {
+        common.nextTick(function() {
+          if (e.target.hasAttribute("__pluginDomId")) {
+            console.log("transitionend", e.target.getAttribute("__pluginDomId"));
+            var isMapChild = false;
+            var ele = e.target;
+            while(!isMapChild && ele && ele.nodeType === Node.ELEMENT_NODE) {
+              isMapChild = ele.hasAttribute("__pluginMapId");
+              ele = ele.parentNode;
+            }
+            traceDomTree(e.target, e.target.getAttribute("__pluginDomId"), isMapChild);
+
+            isSuspended = true;
+            isThereAnyChange = true;
+            isChecking = false;
+            resetTimer({force: true});
+          }
+        });
+      }, 100);
     }, true);
 
     document.body.addEventListener("scroll", function(e) {
@@ -260,10 +275,10 @@ console.log("---> map.remove() = " + elemId);
               if (mutation.target.hasAttribute("__pluginDomId")) {
                 traceDomTree(mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
               }
+               var elemId = mutation.target.getAttribute("__pluginDomId");
+               console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
               isThereAnyChange = true;
               common.nextTick(putHtmlElements);
-              // var elemId = mutation.target.getAttribute("__pluginDomId");
-              // console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
             }
 
           });
@@ -305,11 +320,11 @@ console.log("---> map.remove() = " + elemId);
       checkRequested = false;
       if (!isThereAnyChange) {
         if (!isSuspended) {
-          //console.log("-->pause(320)");
+          console.log("-->pause(320)");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         }
 
-        //console.log("-->isSuspended = true");
+        console.log("-->isSuspended = true");
         isSuspended = true;
         isThereAnyChange = false;
         isChecking = false;
@@ -332,7 +347,7 @@ console.log("---> map.remove() = " + elemId);
         }
       }
       if (touchableMapList.length === 0) {
-//console.log("--->touchableMapList.length = 0");
+console.log("--->touchableMapList.length = 0");
         if (!isSuspended) {
 //        console.log("-->pause, isSuspended = true");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -344,7 +359,7 @@ console.log("---> map.remove() = " + elemId);
       }
 
       if (checkRequested) {
-//console.log("--->checkRequested");
+console.log("--->checkRequested");
         setTimeout(function() {
           isChecking = false;
           common.nextTick(putHtmlElements);
@@ -429,13 +444,13 @@ console.log("mapId = " + mapId + " is already removed");
       // Pass information to native
       //-----------------------------------------------------------------
       if (isSuspended) {
-        //console.log("-->resume(470)");
+        console.log("-->resume(470)");
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
+  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
       cordova_exec(function() {
-  //console.log("--->putHtmlElements to native (done)");
+  console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
           setTimeout(function() {
             isChecking = false;
@@ -472,7 +487,7 @@ console.log("mapId = " + mapId + " is already removed");
       // Stores dom information
       var isCached = elemId in domPositions;
       domPositions[elemId] = {
-        isMap: (isCached ? domPositions[elemId].isMap : false),
+        isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
         zIndex: zIndex,
         children: [],
