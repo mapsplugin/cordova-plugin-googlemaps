@@ -195,35 +195,36 @@ if (!cordova) {
       if (!node || !node.querySelectorAll) {
         return;
       }
+      var elemId, mapId;
       var children = node.querySelectorAll('[__pluginDomId]');
       if (children && children.length > 0) {
         var isRemoved = node._isRemoved;
+        var child;
         for (var i = 0; i < children.length; i++) {
-          (function(child) {
-            var elemId = child.getAttribute('__pluginDomId');
-            if (isRemoved) {
-              child.removeAttribute('__pluginDomId');
-              if (child.hasAttribute('__pluginMapId')) {
-                // If no div element, remove the map.
-                var mapId = child.getAttribute('__pluginMapId');
-  //console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
-                if (mapId in MAPS) {
-                  MAPS[mapId].remove();
-                }
+          child = children[i];
+          elemId = child.getAttribute('__pluginDomId');
+          if (isRemoved) {
+            child.removeAttribute('__pluginDomId');
+            if (child.hasAttribute('__pluginMapId')) {
+              // If no div element, remove the map.
+              mapId = child.getAttribute('__pluginMapId');
+//console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
+              if (mapId in MAPS) {
+                MAPS[mapId].remove();
               }
-              delete domPositions[elemId];
             }
-            common._removeCacheById(elemId);
-          })(children[i]);
+            delete domPositions[elemId];
+          }
+          common._removeCacheById(elemId);
         }
       }
       if (node.hasAttribute("__pluginDomId")) {
-        var elemId = node.getAttribute('__pluginDomId');
+        elemId = node.getAttribute('__pluginDomId');
         if (node._isRemoved) {
           node.removeAttribute('__pluginDomId');
           if (node.hasAttribute('__pluginMapId')) {
             // If no div element, remove the map.
-            var mapId = node.getAttribute('__pluginMapId');
+            mapId = node.getAttribute('__pluginMapId');
             if (mapId in MAPS) {
 //console.log("---> map.remove() = " + elemId);
               MAPS[mapId].remove();
