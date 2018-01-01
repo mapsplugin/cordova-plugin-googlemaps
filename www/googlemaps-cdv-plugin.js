@@ -204,7 +204,7 @@ if (!cordova) {
             if (child.hasAttribute('__pluginMapId')) {
               // If no div element, remove the map.
               var mapId = child.getAttribute('__pluginMapId');
-console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
+//console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
               if (mapId in MAPS) {
                 MAPS[mapId].remove();
               }
@@ -222,7 +222,7 @@ console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
             // If no div element, remove the map.
             var mapId = node.getAttribute('__pluginMapId');
             if (mapId in MAPS) {
-console.log("---> map.remove() = " + elemId);
+//console.log("---> map.remove() = " + elemId);
               MAPS[mapId].remove();
             }
           }
@@ -275,8 +275,8 @@ console.log("---> map.remove() = " + elemId);
               if (mutation.target.hasAttribute("__pluginDomId")) {
                 traceDomTree(mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
               }
-               var elemId = mutation.target.getAttribute("__pluginDomId");
-               console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
+              var elemId = mutation.target.getAttribute("__pluginDomId");
+              //console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
               isThereAnyChange = true;
               common.nextTick(putHtmlElements);
             }
@@ -320,11 +320,11 @@ console.log("---> map.remove() = " + elemId);
       checkRequested = false;
       if (!isThereAnyChange) {
         if (!isSuspended) {
-          console.log("-->pause(320)");
+          //console.log("-->pause(320)");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         }
 
-        console.log("-->isSuspended = true");
+        //console.log("-->isSuspended = true");
         isSuspended = true;
         isThereAnyChange = false;
         isChecking = false;
@@ -347,7 +347,7 @@ console.log("---> map.remove() = " + elemId);
         }
       }
       if (touchableMapList.length === 0) {
-console.log("--->touchableMapList.length = 0");
+//console.log("--->touchableMapList.length = 0");
         if (!isSuspended) {
 //        console.log("-->pause, isSuspended = true");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
@@ -359,7 +359,7 @@ console.log("--->touchableMapList.length = 0");
       }
 
       if (checkRequested) {
-console.log("--->checkRequested");
+//console.log("--->checkRequested");
         setTimeout(function() {
           isChecking = false;
           common.nextTick(putHtmlElements);
@@ -399,7 +399,7 @@ console.log("--->checkRequested");
               // Is the map div removed?
               ele = document.querySelector("[__pluginMapId='" + mapId + "']");
               if (!ele) {
-    console.log("mapId = " + mapId + " is already removed");
+    //console.log("mapId = " + mapId + " is already removed");
                 // If no div element, remove the map.
                 if (mapId in MAPS) {
                   MAPS[mapId].remove();
@@ -409,7 +409,7 @@ console.log("--->checkRequested");
               }
             }
           } else {
-console.log("mapId = " + mapId + " is already removed");
+//console.log("mapId = " + mapId + " is already removed");
             // the map div is removed
             if (mapId in MAPS) {
               MAPS[mapId].remove();
@@ -444,13 +444,13 @@ console.log("mapId = " + mapId + " is already removed");
       // Pass information to native
       //-----------------------------------------------------------------
       if (isSuspended) {
-        console.log("-->resume(470)");
+        //console.log("-->resume(470)");
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
+  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
       cordova_exec(function() {
-  console.log("--->putHtmlElements to native (done)");
+  //console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
           setTimeout(function() {
             isChecking = false;
@@ -622,7 +622,7 @@ console.log("mapId = " + mapId + " is already removed");
                 }
               }
               if (mapId && MAPS[mapId].getDiv() !== div) {
-              console.log("--->different mapdiv = " + mapId, MAPS[mapId].getDiv(), div);
+              //console.log("--->different mapdiv = " + mapId, MAPS[mapId].getDiv(), div);
                 elem = MAPS[mapId].getDiv();
                 while(elem && elem.nodeType === Node.ELEMENT_NODE) {
                   elemId = elem.getAttribute("__pluginDomId");
@@ -664,7 +664,7 @@ console.log("mapId = " + mapId + " is already removed");
                   if (div) {
                     div.removeAttribute('__pluginMapId');
                   }
-                  console.log("--->removeMap mapId = " + mapId);
+                  //console.log("--->removeMap mapId = " + mapId);
 
                   var keys = Object.keys(domPositions);
                   keys.forEach(function(elemId) {
@@ -698,7 +698,7 @@ console.log("mapId = " + mapId + " is already removed");
                 div.setAttribute("__pluginMapId", mapId);
 
                 elemId = common.getPluginDomId(div);
-    console.log("---> map.getMap() = " + elemId + ", mapId = " + mapId);
+    //console.log("---> map.getMap() = " + elemId + ", mapId = " + mapId);
 
                 var mapRects = {};
                 mapRects[elemId] = {

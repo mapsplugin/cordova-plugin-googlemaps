@@ -493,7 +493,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       this.setWillNotDraw(false);
     }
 
-    private String findClickedDom(String domId, PointF clickPoint) {
+    private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild) {
       //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
@@ -506,10 +506,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           containMapCnt = keys.size();
         }
       }
+      isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
 
       //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if (containMapCnt > 0 && children != null && children.size() > 0) {
+      if ((containMapCnt > 0 || isMapChild) && children != null && children.size() > 0) {
         int maxZindex = (int) Double.NEGATIVE_INFINITY;
         int zIndex;
         String childId, grandChildId;
@@ -530,15 +531,22 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               if (!rect.contains(clickPoint.x, clickPoint.y)) {
                 continue;
               }
+              if (isMapChild) {
+                return childId;
+              }
               maxDomId = childId;
             } else {
-              grandChildId = findClickedDom(childId, clickPoint);
+              grandChildId = findClickedDom(childId, clickPoint, isMapChild);
               if (grandChildId == null) {
                 continue;
               }
               rect = HTMLNodeRectFs.get(grandChildId);
               if (!rect.contains(clickPoint.x, clickPoint.y)) {
                 continue;
+              }
+
+              if (isMapChild) {
+                return grandChildId;
               }
               maxDomId = grandChildId;
             }
@@ -608,7 +616,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          String clickedDomId = findClickedDom("root", clickPoint);
+          String clickedDomId = findClickedDom("root", clickPoint, false);
           //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
