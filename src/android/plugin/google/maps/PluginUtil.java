@@ -222,6 +222,13 @@ public class PluginUtil {
           mBundle.putDouble(key, (Double)value);
         } else if (JSONObject.class.isInstance(value)) {
           mBundle.putBundle(key, Json2Bundle((JSONObject)value));
+        } else if (JSONArray.class.isInstance(value)) {
+          JSONArray values = (JSONArray)value;
+          ArrayList<String> strings = new ArrayList<String>();
+          for (int i = 0; i < values.length(); i++) {
+            strings.add(values.get(i) + "");
+          }
+          mBundle.putStringArrayList(key, strings);
         } else {
           mBundle.putString(key, json.getString(key));
         }

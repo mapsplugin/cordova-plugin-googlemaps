@@ -573,22 +573,25 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
         RectF drawRect = mapCtrl.mPluginLayout.HTMLNodeRectFs.get(mapDivId);
 
-        final int scrollY = webView.getView().getScrollY();
+        Log.d(TAG, "--->mapDivId = " + mapDivId + ", drawRect = " + drawRect);
+        if (drawRect != null) {
+          final int scrollY = webView.getView().getScrollY();
 
-        int width = (int)drawRect.width();
-        int height = (int)drawRect.height();
-        int x = (int) drawRect.left;
-        int y = (int) drawRect.top + scrollY;
-        ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+          int width = (int) drawRect.width();
+          int height = (int) drawRect.height();
+          int x = (int) drawRect.left;
+          int y = (int) drawRect.top + scrollY;
+          ViewGroup.LayoutParams lParams = mapView.getLayoutParams();
+          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
 
-        params.width = width;
-        params.height = height;
-        params.leftMargin = x;
-        params.topMargin = y;
-        mapView.setLayoutParams(params);
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
+          mapView.setLayoutParams(params);
 
-        callbackContext.success();
+          callbackContext.success();
+        }
       }
     });
   }

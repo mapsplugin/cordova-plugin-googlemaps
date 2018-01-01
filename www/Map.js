@@ -151,11 +151,7 @@ Map.prototype.getMap = function(mapId, div, options) {
         // Gets the map div size.
         // The plugin needs to consider the viewport zoom ratio
         // for the case window.innerHTML > body.offsetWidth.
-        elemId = div.getAttribute("__pluginDomId");
-        if (!elemId) {
-            elemId = "pgm" + Math.floor(Math.random() * Date.now());
-            div.setAttribute("__pluginDomId", elemId);
-        }
+        elemId = common.getPluginDomId(div);
         args.push(elemId);
 
     }
@@ -545,6 +541,7 @@ Map.prototype.remove = function(callback) {
     if (self._isRemoved) {
       return;
     }
+    self.trigger("remove");
     Object.defineProperty(self, "_isRemoved", {
         value: true,
         writable: false
@@ -565,7 +562,6 @@ Map.prototype.remove = function(callback) {
         }
     }
     self.set('div', undefined);
-    self.trigger("remove");
 
 
     // Close the active infoWindow
@@ -661,11 +657,7 @@ Map.prototype.setDiv = function(div) {
         if (!positionCSS || positionCSS === "static") {
           div.style.position = "relative";
         }
-        elemId = div.getAttribute("__pluginDomId");
-        if (!elemId) {
-            elemId = "pgm" + Math.floor(Math.random() * Date.now());
-            div.setAttribute("__pluginDomId", elemId);
-        }
+        elemId = common.getPluginDomId(div);
         args.push(elemId);
         while (div.parentNode) {
             div.style.backgroundColor = 'rgba(0,0,0,0)';
