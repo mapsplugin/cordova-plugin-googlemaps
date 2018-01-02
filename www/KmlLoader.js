@@ -54,7 +54,7 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
 
   self.exec.call(self, function(kmlData) {
 console.log(kmlData);
-    //var rawKmlData = JSON.parse(JSON.stringify(kmlData));
+    var rawKmlData = JSON.parse(JSON.stringify(kmlData));
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
       writable: false
@@ -74,7 +74,8 @@ console.log(kmlData);
         }
       }, cb);
     }, function(placeMarkOverlays) {
-      placeMarkOverlays = placeMarkOverlays.filter(function(overlay) {
+      var mvcArray = new BaseArrayClass(placeMarkOverlays);
+      placeMarkOverlays = mvcArray.filter(function(overlay) {
         return !!overlay;
       });
       var result = placeMarkOverlays.shift();
@@ -104,7 +105,8 @@ KmlLoader.prototype.kmlTagProcess = function(params, callback) {
       var merged = {};
       styleSets.unshift(params.styles);
       styleSets.forEach(function(styleSet) {
-        styleSet.children.forEach(function(element) {
+        var mvcArray = new BaseArrayClass(styleSet);
+        mvcArray.forEach(function(element) {
           merged[element.tagName] = merged[element.tagName] || {};
           var names = Object.keys(element);
           names.forEach(function(name) {
@@ -205,16 +207,34 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
 
   requestId = requestId.replace("#", "");
   if (requestId in self[targetProp] === false) {
-    return {children: []};
+    callback.call(self, {children: []});
+    return;
   }
   results = self[targetProp][requestId];
-  var style, j;
 
-  var mvcArray = new BaseArrayClass(results.styleIDs || []);
-  mvcArray.mapSeries(function(styleId, next) {
-    self.getObjectById.call(self, requestId, targetProp, next);
+  var mvcArray = new BaseArrayClass(results.children || []);
+  var results2 = mvcArray.filter(function(style) {
+    if (style.tagName !== "pair") {
+      return true;
+    }
+    for (var j = 0; j < style.children.length; j++) {
+      if (style.children[j].tagName === "key" &&
+        style.children[j].value !== "highlight") {
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!results2.styleIDs || results2.styleIDs.length === 0) {
+    callback.call(self, {children: results2});
+    return;
+  }
+
+//todo: double check the below flow
+  var mvcArray2 = new BaseArrayClass(results2.styleIDs || []);
+  mvcArray2.mapSeries(function(styleId, next) {
+    self.getObjectById.call(self, styleId, targetProp, next);
   }, function(resultSets) {
-
     //-----------------------------------
     // Merge results with parent results,
     //-----------------------------------
@@ -272,6 +292,7 @@ KmlLoader.prototype.getSchemaById = function(requestId, callback) {
 KmlLoader.prototype.parseKmlTag = function(params, callback) {
   var self = this;
   switch (params.child.tagName) {
+    case "kml":
     case "folder":
     case "placemark":
     case "document":
@@ -402,7 +423,7 @@ KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
 KmlLoader.prototype.parseContainerTag = function(params, callback) {
   var self = this;
 
-  var keys = Object.keys(params.placeMark);
+  var keys = new BaseArrayClass(Object.keys(params.placeMark));
   keys = keys.filter(function(key) {
     return key !== "children";
   });
@@ -431,7 +452,7 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
       attrHolder: params.attrHolder
     }, cb);
   }, function(overlays) {
-    overlays = overlays.filter(function(overlay) {
+    overlays = (new BaseArrayClass(overlays)).filter(function(overlay) {
       return !!overlay;
     });
     var attrNames = Object.keys(params.attrHolder);
@@ -453,11 +474,10 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
             break;
         }
       });
-
-      Object.defineProperty(overlays[0], "tagName", {
-        value: "placemark",
-        writable: false
-      });
+      // Object.defineProperty(overlays[0], "tagName", {
+      //   value: "placemark",
+      //   writable: false
+      // });
       callback.call(self, overlays[0]);
     } else {
       var container = new BaseArrayClass(overlays);
@@ -550,7 +570,7 @@ console.log("iconstyle", child);
 KmlLoader.prototype.parsePolygonTag = function(params, callback) {
   var self = this;
 
-  //console.log('polygonPlacemark', params);
+  console.log('polygonPlacemark', params);
   //--------------
   // add a polygon
   //--------------
@@ -599,7 +619,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
         style.children.forEach(function(node) {
           switch(node.tagName) {
             case "color":
-              polygonOptions.fillColor = common.kmlColorToRGBA(node.value);
+              polygonOptions.fillColor = kmlColorToRGBA(node.value);
               break;
             case "fill":
               polygonOptions.fill = node.value === "1";
@@ -616,7 +636,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
         style.children.forEach(function(node) {
           switch(node.tagName) {
             case "color":
-              polygonOptions.strokeColor = common.kmlColorToRGBA(node.value);
+              polygonOptions.strokeColor = kmlColorToRGBA(node.value);
               break;
             case "width":
               polygonOptions.strokeWidth = parseInt(node.value);
@@ -668,7 +688,7 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
         keys.forEach(function(key) {
           switch(key) {
             case "color":
-              polylineOptions.color = common.kmlColorToRGBA(style.color);
+              polylineOptions.color = kmlColorToRGBA(style.color);
               break;
             case "width":
               polylineOptions.width = parseInt(style.width);
@@ -815,6 +835,28 @@ KmlLoader.prototype.parseCameraTag = function(params, callback) {
 };
 
 
+//-------------------------------
+// KML color (AABBGGRR) to RGBA
+//-------------------------------
+function kmlColorToRGBA(colorStr) {
+  var rgba = [];
+  colorStr = colorStr.replace("#", "");
+  for (var i = 6; i >= 0; i -= 2) {
+    rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
+  }
+  return rgba;
+}
+//-------------------------------
+// KML color (AABBGGRR) to rgba(RR, GG, BB, AA)
+//-------------------------------
+function kmlColorToCSS(colorStr) {
+  var rgba = [];
+  colorStr = colorStr.replace("#", "");
+  for (var i = 6; i >= 0; i -= 2) {
+    rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
+  }
+  return "rgba(" + rgba.join(",") + ")";
+}
 
 
 
