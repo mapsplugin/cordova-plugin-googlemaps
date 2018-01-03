@@ -104,24 +104,27 @@ KmlLoader.prototype.kmlTagProcess = function(params, callback) {
       //-----------------------------------
       var merged = {};
       styleSets.unshift(params.styles);
-      styleSets.forEach(function(styleSet) {
-        var mvcArray = new BaseArrayClass(styleSet);
-        mvcArray.forEach(function(element) {
-          merged[element.tagName] = merged[element.tagName] || {};
-          var names = Object.keys(element);
-          names.forEach(function(name) {
-            merged[element.tagName][name] = element[name];
+      (new BaseArrayClass(styleSets)).forEach(function(styleSet) {
+        (new BaseArrayClass(styleSet.children)).forEach(function(style) {
+          merged[style.tagName] = merged[style.tagName] || {};
+          style.children.forEach(function(styleEle) {
+            merged[style.tagName][styleEle.tagName] = styleEle;
           });
         });
       });
-      var result = {
-        children: []
-      };
-      var tagNames = Object.keys(merged);
-      tagNames.forEach(function(tagName) {
-        result.children.push(merged[tagName]);
+
+      params.styles = {};
+      var keys = Object.keys(merged);
+      params.styles.children = (new BaseArrayClass(keys)).map(function(tagName) {
+        var properties = Object.keys(merged[tagName]);
+        var children = (new BaseArrayClass(properties)).map(function(propName) {
+          return merged[tagName][propName];
+        });
+        return {
+          tagName: tagName,
+          children: children
+        };
       });
-      params.styles = result;
       //------------------------
       // then process the tag.
       //------------------------
@@ -213,70 +216,40 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
   results = self[targetProp][requestId];
 
   var mvcArray = new BaseArrayClass(results.children || []);
-  var results2 = mvcArray.filter(function(style) {
+  results.children = mvcArray.filter(function(style) {
     if (style.tagName !== "pair") {
       return true;
     }
     for (var j = 0; j < style.children.length; j++) {
       if (style.children[j].tagName === "key" &&
-        style.children[j].value !== "highlight") {
-        return true;
+        style.children[j].value === "highlight") {
+        return false;
       }
     }
-    return false;
+    return true;
   });
-  if (!results2.styleIDs || results2.styleIDs.length === 0) {
-    callback.call(self, {children: results2});
+
+  var containPairTag = false;
+  for (var i = 0; i < results.children.length; i++) {
+    if (results.children[i].tagName === "pair") {
+      containPairTag = true;
+      break;
+    }
+  }
+  if (!containPairTag) {
+    callback.call(self, {
+      children: results.children
+    });
     return;
   }
 
-//todo: double check the below flow
-  var mvcArray2 = new BaseArrayClass(results2.styleIDs || []);
-  mvcArray2.mapSeries(function(styleId, next) {
-    self.getObjectById.call(self, styleId, targetProp, next);
-  }, function(resultSets) {
-    //-----------------------------------
-    // Merge results with parent results,
-    //-----------------------------------
-    var merged;
-    if (resultSets.length > 0) {
-      merged = {};
-      resultSets.unshift(results);
-      resultSets.forEach(function(resultset) {
-        resultset.children.forEach(function(element) {
-          merged[element.tagName] = merged[element.tagName] || {};
-          var names = Object.keys(element);
-          names.forEach(function(name) {
-            if (name === "styleIDs") {
-              return;
-            }
-            merged[element.tagName][name] = element[name];
-          });
-        });
-      });
-      var result = {
-        children: []
-      };
-      var tagNames = Object.keys(merged);
-      tagNames.forEach(function(tagName) {
-        result.children.push(merged[tagName]);
-      });
-    } else {
-      merged = results;
-    }
-    merged.children = merged.children.filter(function(style) {
-      return (style.tagName !== "pair" || style.key !== "highlight");
+  //---------------------------------------------------------
+  // should contain 'tagName = "key", value="normal"' only
+  //---------------------------------------------------------
+  self.getObjectById.call(self, results.children[0].styleIDs[0], targetProp, function(resultSets) {
+    callback.call(self, {
+      children: resultSets
     });
-
-
-    // for (i = 0; i < merged.children.length; i++) {
-    //   style = merged.children[i];
-    //   if (style.tagName === "pair" && style.key === "normal") {
-    //     return getObjectById.call(self, style.styleIDs[0], targetProp, callback);
-    //   }
-    // }
-
-    callback.call(self, merged);
   });
 
 };
@@ -304,6 +277,7 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
       }, callback);
       break;
 
+    case "photooverlay":
     case "point":
       self.parsePointTag.call(self, {
         child: params.child,
@@ -502,12 +476,13 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
 
 KmlLoader.prototype.parsePointTag = function(params, callback) {
   var self = this;
+console.log("parsePointTag", params);
 
   //--------------
   // add a marker
   //--------------
   var markerOptions = {};
-  params.styles.children.forEach(function(child) {
+  (new BaseArrayClass(params.styles.children)).forEach(function(child) {
     switch (child.tagName) {
       case "balloonstyle":
         child.children.forEach(function(style) {
@@ -519,7 +494,6 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
         });
         break;
       case "iconstyle":
-console.log("iconstyle", child);
         child.children.forEach(function(style) {
           switch (style.tagName) {
             case "hotspot":
@@ -551,9 +525,30 @@ console.log("iconstyle", child);
   });
 
   if (params.child.children) {
-    params.child.children.forEach(function(child) {
-      if (child.tagName === "coordinates") {
-        markerOptions.position = child.coordinates[0];
+    var options = new BaseClass();
+    var properties = new BaseArrayClass(params.child.children);
+    properties.forEach(function(child) {
+      options.set(child.tagName, child);
+    });
+    properties.forEach(function(child) {
+      switch (child.tagName) {
+        case "point":
+          markerOptions.position = child.children[0].coordinates[0];
+          break;
+        case "description":
+          if (markerOptions.description) {
+            markerOptions.description = templateRenderer(markerOptions.description, options);
+          }
+          markerOptions.description = templateRenderer(markerOptions.description, options);
+          break;
+        case "snippet":
+          if (markerOptions.snippet) {
+            markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
+          }
+          markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
+          break;
+        default:
+
       }
     });
   }
@@ -655,6 +650,8 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
   if (polygonOptions.outline === false) {
     delete polygonOptions.strokeColor;
     polygonOptions.strokeWidth = 0;
+  } else {
+    polygonOptions.strokeColor = polygonOptions.strokeColor || [255, 255, 255, 255];
   }
 
   //console.log('polygonOptions', polygonOptions);
@@ -858,6 +855,34 @@ function kmlColorToCSS(colorStr) {
   return "rgba(" + rgba.join(",") + ")";
 }
 
+//-------------------------------
+// Template engine
+//-------------------------------
+function templateRenderer(html, marker) {
+  if (!html) {
+    return html;
+  }
+  var extendedData = marker.get("extendeddata");
+
+  return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
+    var textProp = marker.get(name);
+    var text = "";
+    if (textProp) {
+      text = textProp.value;
+      if (extendedData) {
+        text = text.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match1, name1) {
+          var extProp = extendedData[name1.toLowerCase()];
+          var extValue = "${" + name1 + "}";
+          if (extProp) {
+            extValue = extProp.value;
+          }
+          return extValue;
+        });
+      }
+    }
+    return text;
+  });
+}
 
 
 module.exports = KmlLoader;

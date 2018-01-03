@@ -807,6 +807,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 
   var loader = new KmlLoader(self, exec, kmlOverlayOptions);
   loader.parseKmlFile(function(camera, kmlData) {
+console.log(camera, kmlData);
     var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
     var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData);
     self.OVERLAYS[kmlId] = kmlOverlay;

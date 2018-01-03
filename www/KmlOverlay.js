@@ -78,6 +78,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
 
     var ballon = new HtmlInfoWindow();
     var onMarkerClick = function(position, marker) {
+console.log(marker);
       var html = [];
       var result;
       var description = marker.get("description") || "";
@@ -155,10 +156,11 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
       if (overlay.type === "Marker") {
         overlay.on(event.MARKER_CLICK, onMarkerClick);
       } else if (typeof overlay.forEach === "function") {
-        overlay.forEach(seekOverlays);
+        (new BaseArrayClass(overlay)).forEach(seekOverlays);
       }
     };
 
+console.log(kmlData);
     kmlData.forEach(seekOverlays);
 /*
     var ignores = ["map", "id", "hashCode", "type"];

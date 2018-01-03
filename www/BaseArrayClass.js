@@ -27,20 +27,26 @@ BaseArrayClass.prototype.mapSeries = function(fn, callback) {
   var self = this;
 
   var results = [];
-  var currentIdx = 0;
   var _arrayLength = self[ARRAY_FIELD].length;
-  var _looper = function() {
+  if (_arrayLength === 0) {
+    callback.call(self, []);
+    return;
+  }
+  var _looper = function(currentIdx) {
     fn.call(self, self[ARRAY_FIELD][currentIdx], function(value) {
       results[currentIdx] = value;
-      currentIdx++;
-      if (currentIdx === _arrayLength) {
+      if (_arrayLength === results.length) {
         callback.call(self, results);
       } else {
-        nextTick(_looper);
+        nextTick(function() {
+          _looper(currentIdx + 1);
+        });
       }
     });
   };
-  nextTick(_looper);
+  nextTick(function() {
+    _looper(0);
+  });
 };
 
 BaseArrayClass.prototype.mapAsync = function(fn, callback) {
