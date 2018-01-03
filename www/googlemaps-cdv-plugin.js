@@ -492,8 +492,8 @@ if (!cordova) {
         isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
         zIndex: zIndex,
-        overflowX: common.getStyle("overflow-x"),
-        overflowY: common.getStyle("overflow-y"),
+        overflowX: common.getStyle(element, "overflow-x"),
+        overflowY: common.getStyle(element, "overflow-y"),
         children: [],
         containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
       };
