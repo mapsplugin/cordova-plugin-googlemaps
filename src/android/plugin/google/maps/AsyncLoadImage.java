@@ -295,6 +295,12 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
             // Disconnect the current connection
             http.disconnect();
             redirectCnt++;
+            continue;
+          }
+          if (status == HttpURLConnection.HTTP_OK) {
+            break;
+          } else {
+            return null;
           }
         }
 
