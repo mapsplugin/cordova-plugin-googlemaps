@@ -12,8 +12,7 @@
 
 @interface PluginObjects : NSObject
 
-+ (PluginObjects*)sharedInstance;
-@property (nonatomic, strong) NSMutableDictionary *objects;
+@property (atomic, strong) NSMutableDictionary *objects;
 
 // set
 - (void)setObject:(id)objId forKey:(NSString*)key;

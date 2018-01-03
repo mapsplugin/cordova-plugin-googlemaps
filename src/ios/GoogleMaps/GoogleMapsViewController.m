@@ -23,7 +23,7 @@
   self.clickable = YES;
   self.isRenderedAtOnce = NO;
   self.mapDivId = nil;
-  self.objects = [PluginObjects sharedInstance];
+  self.objects = [[PluginObjects alloc] init];
   self.executeQueue =  [NSOperationQueue new];
   self.executeQueue.maxConcurrentOperationCount = 10;
 
