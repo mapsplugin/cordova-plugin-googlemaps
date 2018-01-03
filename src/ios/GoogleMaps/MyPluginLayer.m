@@ -8,6 +8,13 @@
 
 #import "MyPluginLayer.h"
 
+@implementation OverflowCSS : NSObject
+  BOOL cropX;
+  BOOL cropY;
+  CGRect rect;
+@end
+
+
 @implementation MyPluginLayer
 
 - (id)initWithWebView:(UIView *)webView {
@@ -400,7 +407,7 @@
       if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
           (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml isMapChild:NO];
+        clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml isMapChild:NO overflow:nil];
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
@@ -429,12 +436,13 @@
 }
 
 
-- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint isMapChild:(BOOL)isMapChild {
+- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint isMapChild:(BOOL)isMapChild overflow:(OverflowCSS *)overflow {
 
   NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
   NSArray *children = [domInfo objectForKey:@"children"];
   NSString *maxDomId = nil;
   CGRect rect;
+  float right, bottom;
 
 
   domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
@@ -442,6 +450,16 @@
   unsigned long containMapCnt = [[containMapIDs allKeys] count];
   isMapChild = isMapChild || [[domInfo objectForKey:@"isMap"] boolValue];
   //NSLog(@"---- domId = %@, containMapCnt = %ld, isMapChild = %@", domId, containMapCnt, isMapChild ? @"YES":@"NO");
+
+  NSString *overflowX = [domInfo objectForKey:@"overflowX"];
+  NSString *overflowY = [domInfo objectForKey:@"overflowY"];
+  if ([@"hidden" isEqualToString:overflowX] || [@"scroll" isEqualToString:overflowX] ||
+    [@"hidden" isEqualToString:overflowY] || [@"scroll" isEqualToString:overflowY]) {
+    overflow = [OverflowCSS alloc];
+    overflow.cropX = [@"hidden" isEqualToString:overflowX] || [@"scroll" isEqualToString:overflowX];
+    overflow.cropY = [@"hidden" isEqualToString:overflowY] || [@"scroll" isEqualToString:overflowY];
+    overflow.rect = CGRectFromString([domInfo objectForKey:@"size"]);
+  }
 
   if ((containMapCnt > 0 || isMapChild) && children != nil && children.count > 0) {
 
@@ -459,10 +477,23 @@
         grandChildren = [domInfo objectForKey:@"children"];
         if (grandChildren == nil || grandChildren.count == 0) {
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
+          right = rect.size.width;
+          bottom = rect.size.height;
+          if (overflow != nil) {
+            if (overflow.cropX) {
+              rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
+              right = MIN(right, overflow.rect.size.width);
+            }
+            if (overflow.cropY) {
+              rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
+              bottom = MIN(bottom, overflow.rect.size.height);
+            }
+          }
+
           if (clickPoint.x < rect.origin.x ||
               clickPoint.y < rect.origin.y ||
-              clickPoint.x > rect.origin.x + rect.size.width ||
-              clickPoint.y > rect.origin.y + rect.size.height) {
+              clickPoint.x > right ||
+              clickPoint.y > bottom) {
             continue;
           }
           if (isMapChild) {
@@ -470,17 +501,30 @@
           }
           maxDomId = childId;
         } else {
-          grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild];
+          grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild overflow:overflow];
           if (grandChildId == nil) {
             continue;
           }
           domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
+          right = rect.origin.x + rect.size.width;
+          bottom = rect.origin.y + rect.size.height;
+          if (overflow != nil) {
+            if (overflow.cropX) {
+              rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
+              right = MIN(right, overflow.rect.size.width);
+            }
+            if (overflow.cropY) {
+              rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
+              bottom = MIN(bottom, overflow.rect.size.height);
+            }
+          }
+
           if (clickPoint.x < rect.origin.x ||
               clickPoint.y < rect.origin.y ||
-              clickPoint.x > rect.origin.x + rect.size.width ||
-              clickPoint.y > rect.origin.y + rect.size.height) {
+              clickPoint.x > right ||
+              clickPoint.y > bottom) {
             continue;
           }
           if (isMapChild) {
@@ -497,10 +541,23 @@
     domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
     rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
+    right = rect.size.width;
+    bottom = rect.size.height;
+    if (overflow != nil) {
+      if (overflow.cropX) {
+        rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
+        right = MIN(right, overflow.rect.size.width);
+      }
+      if (overflow.cropY) {
+        rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
+        bottom = MIN(bottom, overflow.rect.size.height);
+      }
+    }
+
     if (clickPoint.x < rect.origin.x ||
         clickPoint.y < rect.origin.y ||
-        clickPoint.x > rect.origin.x + rect.size.width ||
-        clickPoint.y > rect.origin.y + rect.size.height) {
+        clickPoint.x > right ||
+        clickPoint.y > bottom) {
       return nil;
     }
     maxDomId = domId;

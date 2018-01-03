@@ -10,6 +10,12 @@
 #import "GoogleMapsViewController.h"
 #import "MyPluginScrollView.h"
 
+@interface OverflowCSS : NSObject
+@property BOOL cropX;
+@property BOOL cropY;
+@property CGRect rect;
+@end
+
 @interface MyPluginLayer : UIView<UIScrollViewDelegate>
 
 @property (nonatomic) UIView *webView;
