@@ -7,43 +7,48 @@
 //
 #import "PluginObjects.h"
 
-static PluginObjects *sharedInstance;
-
 
 @implementation PluginObjects
 
-+ (PluginObjects*)sharedInstance {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-      sharedInstance = [[PluginObjects alloc] init];
-      sharedInstance.objects = [NSMutableDictionary dictionary];
-    });
-    return sharedInstance;
-}
+static NSObject *_lock;
+
 - (instancetype)init {
-    self = [super init];
-    return self;
+  self = [super init];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    _lock = [NSObject alloc];
+  });
+  self.objects = [NSMutableDictionary dictionary];
+  return self;
 }
 
 - (void)setObject:(id)objId forKey:(NSString*)key {
-    @synchronized(self) {
-      [self.objects setObject:objId forKey:key];
-    }
+  @synchronized(_lock) {
+    [self.objects setObject:objId forKey:key];
+  }
 }
 
-- (UIImage*)objectForKey:(NSString*)key {
+- (id)objectForKey:(NSString*)key {
+  @synchronized(_lock) {
     return [self.objects objectForKey:key];
+  }
 }
 - (void)removeObjectForKey:(NSString*)key {
+  @synchronized(_lock) {
     [self.objects removeObjectForKey:key];
+  }
 }
 
 - (void)removeAllObjects {
+  @synchronized(_lock) {
     [self.objects removeAllObjects];
+  }
 }
 
 - (NSArray<NSString *>*)allKeys {
+  @synchronized(_lock) {
     return [self.objects allKeys];
+  }
 }
 
 
