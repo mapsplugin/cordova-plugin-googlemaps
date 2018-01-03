@@ -18,7 +18,7 @@
 - (void)setObject:(id)objId forKey:(NSString*)key;
 
 // get
-- (UIImage*)objectForKey:(NSString*)key;
+- (id)objectForKey:(NSString*)key;
 
 // remove
 - (void)removeObjectForKey:(NSString*)key;
