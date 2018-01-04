@@ -127,16 +127,7 @@ BaseArrayClass.prototype.forEachAsync = function(fn, callback) {
     return;
   }
 
-  for (i = 0; i < self[ARRAY_FIELD].length; i++) {
-    (function(item, idx) {
-      fn.call(self, item, function() {
-        finishCnt++;
-        if (finishCnt === _arrayLength) {
-          callback.call(self);
-        }
-      });
-    })(self[ARRAY_FIELD][i], i);
-  }
+  self[ARRAY_FIELD].forEach(fn.bind(self));
 };
 
 BaseArrayClass.prototype.forEach = function(fn, callback) {
@@ -207,13 +198,7 @@ BaseArrayClass.prototype.filter = function(fn, callback) {
     //       return true or false
     //    });
     //------------------------
-    var results = [];
-    for (var i = 0; i < self[ARRAY_FIELD].length; i++) {
-      if (fn.call(self, self[ARRAY_FIELD][i], i) === true) {
-        results.push(self[ARRAY_FIELD][i]);
-      }
-    }
-    return results;
+    return self[ARRAY_FIELD].filter(fn);
   }
   self.filterAsync(fn, callback);
 };

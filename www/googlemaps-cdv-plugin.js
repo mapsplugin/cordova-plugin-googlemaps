@@ -2,9 +2,6 @@
 var cordova_exec = require('cordova/exec');
 var isSuspended = false;
 if (typeof Array.prototype.forEach !== "function") {
-  //-------------------
-  // Android 4.4 hack
-  //-------------------
   (function() {
     Array.prototype.forEach = function(fn, thisArg) {
       thisArg = thisArg || this;
@@ -15,9 +12,6 @@ if (typeof Array.prototype.forEach !== "function") {
   })();
 }
 if (typeof Array.prototype.filter !== "function") {
-  //-------------------
-  // Android 4.4 hack
-  //-------------------
   (function() {
     Array.prototype.filter = function(fn, thisArg) {
       thisArg = thisArg || this;
@@ -32,9 +26,6 @@ if (typeof Array.prototype.filter !== "function") {
   })();
 }
 if (typeof Array.prototype.map !== "function") {
-  //-------------------
-  // Android 4.4 hack
-  //-------------------
   (function() {
     Array.prototype.map = function(fn, thisArg) {
       thisArg = thisArg || this;

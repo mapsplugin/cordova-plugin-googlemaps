@@ -74,8 +74,7 @@ console.log(kmlData);
         }
       }, cb);
     }, function(placeMarkOverlays) {
-      var mvcArray = new BaseArrayClass(placeMarkOverlays);
-      placeMarkOverlays = mvcArray.filter(function(overlay) {
+      placeMarkOverlays = placeMarkOverlays.filter(function(overlay) {
         return !!overlay;
       });
       var result = placeMarkOverlays.shift();
@@ -104,8 +103,8 @@ KmlLoader.prototype.kmlTagProcess = function(params, callback) {
       //-----------------------------------
       var merged = {};
       styleSets.unshift(params.styles);
-      (new BaseArrayClass(styleSets)).forEach(function(styleSet) {
-        (new BaseArrayClass(styleSet.children)).forEach(function(style) {
+      styleSets.forEach(function(styleSet) {
+        styleSet.children.forEach(function(style) {
           merged[style.tagName] = merged[style.tagName] || {};
           style.children.forEach(function(styleEle) {
             merged[style.tagName][styleEle.tagName] = styleEle;
@@ -115,9 +114,9 @@ KmlLoader.prototype.kmlTagProcess = function(params, callback) {
 
       params.styles = {};
       var keys = Object.keys(merged);
-      params.styles.children = (new BaseArrayClass(keys)).map(function(tagName) {
+      params.styles.children = keys.map(function(tagName) {
         var properties = Object.keys(merged[tagName]);
-        var children = (new BaseArrayClass(properties)).map(function(propName) {
+        var children = properties.map(function(propName) {
           return merged[tagName][propName];
         });
         return {
@@ -215,8 +214,7 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
   }
   results = self[targetProp][requestId];
 
-  var mvcArray = new BaseArrayClass(results.children || []);
-  results.children = mvcArray.filter(function(style) {
+  results.children.filter(function(style) {
     if (style.tagName !== "pair") {
       return true;
     }
@@ -230,7 +228,7 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
   });
 
   var containPairTag = false;
-  for (var i = 0; i < results.children.length; i++) {
+  for (i = 0; i < results.children.length; i++) {
     if (results.children[i].tagName === "pair") {
       containPairTag = true;
       break;
@@ -343,7 +341,7 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
 KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
   var self = this;
   params.attrHolder.extendeddata = {};
-  (new BaseArrayClass(params.child.children)).forEach(function(child, next) {
+  params.child.children.forEach(function(child, next) {
     switch(child.tagName) {
       case "data":
         child.children.forEach(function(data) {
@@ -398,7 +396,7 @@ console.log(schemas);
 KmlLoader.prototype.parseContainerTag = function(params, callback) {
   var self = this;
 
-  var keys = new BaseArrayClass(Object.keys(params.placeMark));
+  var keys = Object.keys(params.placeMark);
   keys = keys.filter(function(key) {
     return key !== "children";
   });
@@ -427,7 +425,7 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
       attrHolder: params.attrHolder
     }, cb);
   }, function(overlays) {
-    overlays = (new BaseArrayClass(overlays)).filter(function(overlay) {
+    overlays = overlays.filter(function(overlay) {
       return !!overlay;
     });
     var attrNames = Object.keys(params.attrHolder);
@@ -483,7 +481,7 @@ console.log("parsePointTag", params);
   // add a marker
   //--------------
   var markerOptions = {};
-  (new BaseArrayClass(params.styles.children)).forEach(function(child) {
+  params.styles.children.forEach(function(child) {
     switch (child.tagName) {
       case "balloonstyle":
         child.children.forEach(function(style) {
@@ -518,7 +516,7 @@ console.log("parsePointTag", params);
   });
 
   var ignoreProperties = ["coordinates", "styleIDs", "children"];
-  (new BaseArrayClass(Object.keys(params.attrHolder))).forEach(function(pName) {
+  (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1) {
       markerOptions[pName] = params.child[pName];
     }
@@ -526,14 +524,16 @@ console.log("parsePointTag", params);
 
   if (params.child.children) {
     var options = new BaseClass();
-    var properties = new BaseArrayClass(params.child.children);
-    properties.forEach(function(child) {
+    params.child.children.forEach(function(child) {
       options.set(child.tagName, child);
     });
-    properties.forEach(function(child) {
+    params.child.children.forEach(function(child) {
       switch (child.tagName) {
         case "point":
-          markerOptions.position = findTag(child.children, "coordinates", "coordinates");
+          var coordinates = findTag(child.children, "coordinates", "coordinates");
+          if (coordinates && coordinates.length === 1) {
+            markerOptions.position = coordinates[0];
+          }
           break;
         case "description":
           if (markerOptions.description) {
@@ -559,13 +559,14 @@ console.log("parsePointTag", params);
 
   self.camera.target.push(markerOptions.position);
 
+console.log(markerOptions);
   self.map.addMarker(markerOptions, callback);
 };
 
 function findTag(children, tagName, fieldName) {
   for (var i = 0; i < children.length; i++) {
     if (children[i].tagName === tagName) {
-      return child[fieldName];
+      return children[i][fieldName];
     }
   }
 }
@@ -591,7 +592,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
               coordinates = element.children[0].children[0].coordinates;
               break;
             case "coordinates":
-              markerOptions.position = findTag(child.children, "coordinates", "coordinates");
+              coordinates = findTag(element.children, "coordinates", "coordinates");
               break;
           }
           coordinates.forEach(function(latLng) {
@@ -661,7 +662,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
     polygonOptions.strokeColor = polygonOptions.strokeColor || [255, 255, 255, 255];
   }
 
-  //console.log('polygonOptions', polygonOptions);
+  console.log('polygonOptions', polygonOptions);
   self.map.addPolygon(polygonOptions, callback);
 
 };
