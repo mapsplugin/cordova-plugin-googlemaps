@@ -363,6 +363,7 @@ KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
         break;
       case "schemadata":
         self.getSchemaById(child.schemaUrl, function(schemas) {
+console.log(schemas);
           var schemaUrl = schemas.name;
           schemas.children.forEach(function(simplefield) {
             if (simplefield.tagName !== "simplefield") {
@@ -517,8 +518,7 @@ console.log("parsePointTag", params);
   });
 
   var ignoreProperties = ["coordinates", "styleIDs", "children"];
-  var properties = Object.keys(params.attrHolder);
-  properties = properties.forEach(function(pName) {
+  (new BaseArrayClass(Object.keys(params.attrHolder))).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1) {
       markerOptions[pName] = params.child[pName];
     }
@@ -533,7 +533,7 @@ console.log("parsePointTag", params);
     properties.forEach(function(child) {
       switch (child.tagName) {
         case "point":
-          markerOptions.position = child.children[0].coordinates[0];
+          markerOptions.position = findTag(child.children, "coordinates", "coordinates");
           break;
         case "description":
           if (markerOptions.description) {
@@ -562,6 +562,13 @@ console.log("parsePointTag", params);
   self.map.addMarker(markerOptions, callback);
 };
 
+function findTag(children, tagName, fieldName) {
+  for (var i = 0; i < children.length; i++) {
+    if (children[i].tagName === tagName) {
+      return child[fieldName];
+    }
+  }
+}
 KmlLoader.prototype.parsePolygonTag = function(params, callback) {
   var self = this;
 
@@ -584,7 +591,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
               coordinates = element.children[0].children[0].coordinates;
               break;
             case "coordinates":
-              coordinates = element.children[0].coordinates;
+              markerOptions.position = findTag(child.children, "coordinates", "coordinates");
               break;
           }
           coordinates.forEach(function(latLng) {

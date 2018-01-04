@@ -1,6 +1,52 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var cordova_exec = require('cordova/exec');
 var isSuspended = false;
+if (typeof Array.prototype.forEach !== "function") {
+  //-------------------
+  // Android 4.4 hack
+  //-------------------
+  (function() {
+    Array.prototype.forEach = function(fn, thisArg) {
+      thisArg = thisArg || this;
+      for (var i = 0; i < this.length; i++) {
+        fn.call(thisArg, this[i], i, this);
+      }
+    };
+  })();
+}
+if (typeof Array.prototype.filter !== "function") {
+  //-------------------
+  // Android 4.4 hack
+  //-------------------
+  (function() {
+    Array.prototype.filter = function(fn, thisArg) {
+      thisArg = thisArg || this;
+      var results = [];
+      for (var i = 0; i < this.length; i++) {
+        if (fn.call(thisArg, this[i], i, this) === true) {
+          results.push(this[i]);
+        }
+      }
+      return results;
+    };
+  })();
+}
+if (typeof Array.prototype.map !== "function") {
+  //-------------------
+  // Android 4.4 hack
+  //-------------------
+  (function() {
+    Array.prototype.map = function(fn, thisArg) {
+      thisArg = thisArg || this;
+      var results = [];
+      for (var i = 0; i < this.length; i++) {
+        results.push(fn.call(thisArg, this[i], i, this));
+      }
+      return results;
+    };
+  })();
+}
+
 if (!cordova) {
   document.addEventListener("deviceready", function() {
     isSuspended = true;

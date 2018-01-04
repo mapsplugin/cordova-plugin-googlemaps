@@ -145,7 +145,9 @@ console.log(marker);
         styles = parseBalloonStyle(marker.get("balloonstyle"));
       }
       styles = styles || {};
-      styles.overflow = "hidden";
+      styles.overflow = "scroll";
+      styles["max-width"] = (map.getDiv().offsetWidth * 0.8) + "px";
+      styles["max-height"] = (map.getDiv().offsetHeight * 0.6) + "px";
 
       ballon.setContent(result, styles);
       ballon.open(marker);
