@@ -235,9 +235,7 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
     }
   }
   if (!containPairTag) {
-    callback.call(self, {
-      children: results.children
-    });
+    callback.call(self, results);
     return;
   }
 
@@ -245,9 +243,8 @@ KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
   // should contain 'tagName = "key", value="normal"' only
   //---------------------------------------------------------
   self.getObjectById.call(self, results.children[0].styleIDs[0], targetProp, function(resultSets) {
-    callback.call(self, {
-      children: resultSets
-    });
+    results.children = resultSets;
+    callback.call(self, results);
   });
 
 };
@@ -341,7 +338,7 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
 KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
   var self = this;
   params.attrHolder.extendeddata = {};
-  params.child.children.forEach(function(child, next) {
+  params.child.children.forEach(function(child) {
     switch(child.tagName) {
       case "data":
         child.children.forEach(function(data) {
@@ -357,28 +354,31 @@ KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
               break;
           }
         });
-        next();
         break;
       case "schemadata":
         self.getSchemaById(child.schemaUrl, function(schemas) {
-console.log(schemas);
           var schemaUrl = schemas.name;
           schemas.children.forEach(function(simplefield) {
             if (simplefield.tagName !== "simplefield") {
               return;
             }
-            simplefield.children.forEach(function(valueTag) {
-              var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+            if ("children" in simplefield) {
+              simplefield.children.forEach(function(valueTag) {
+                var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+                schemaPath = schemaPath.toLowerCase();
+                params.attrHolder.extendeddata[schemaPath] = valueTag.value;
+              });
+            } else {
+              var schemaPath = schemaUrl + "/" + simplefield.name;
               schemaPath = schemaPath.toLowerCase();
-              params.attrHolder.extendeddata[schemaPath] = valueTag.value;
-            });
+              params.attrHolder.extendeddata[schemaPath] = simplefield.value;
+            }
           });
           child.children.forEach(function(simpledata) {
             var schemaPath = schemaUrl + "/" + simpledata.name;
             schemaPath = schemaPath.toLowerCase();
             params.attrHolder.extendeddata[schemaPath] = simpledata.value;
           });
-          next();
         });
         break;
 
@@ -387,10 +387,10 @@ console.log(schemas);
         child.children.forEach(function(data) {
           params.attrHolder.extendeddata[child.tagName] = child;
         });
-        next();
         break;
     }
-  }, callback);
+  });
+  callback();
 };
 
 KmlLoader.prototype.parseContainerTag = function(params, callback) {
@@ -518,7 +518,7 @@ console.log("parsePointTag", params);
   var ignoreProperties = ["coordinates", "styleIDs", "children"];
   (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1) {
-      markerOptions[pName] = params.child[pName];
+      markerOptions[pName] = params.attrHolder[pName];
     }
   });
 
@@ -531,22 +531,25 @@ console.log("parsePointTag", params);
       switch (child.tagName) {
         case "point":
           var coordinates = findTag(child.children, "coordinates", "coordinates");
-          if (coordinates && coordinates.length === 1) {
+          if (coordinates) {
             markerOptions.position = coordinates[0];
           }
           break;
-        case "description":
-          if (markerOptions.description) {
-            markerOptions.description = templateRenderer(markerOptions.description, options);
-          }
-          markerOptions.description = templateRenderer(markerOptions.description, options);
+        case "coordinates":
+          markerOptions.position = child.coordinates[0];
           break;
-        case "snippet":
-          if (markerOptions.snippet) {
-            markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
-          }
-          markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
-          break;
+        // case "description":
+        //   if (markerOptions.description) {
+        //     markerOptions.description = templateRenderer(markerOptions.description, options);
+        //   }
+        //   markerOptions.description = templateRenderer(markerOptions.description, options);
+        //   break;
+        // case "snippet":
+        //   if (markerOptions.snippet) {
+        //     markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
+        //   }
+        //   markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
+        //   break;
         default:
 
       }
@@ -558,6 +561,18 @@ console.log("parsePointTag", params);
   };
 
   self.camera.target.push(markerOptions.position);
+
+  if (!markerOptions.description && markerOptions.extendeddata) {
+    var keys = Object.keys(markerOptions.extendeddata);
+    var table = [
+      "<table border='1'>"
+    ];
+    keys.forEach(function(key) {
+      table.push("<tr><th>" + key + "</th><td>" + markerOptions.extendeddata[key] + "</td></tr>");
+    });
+    table.push("</table>");
+    markerOptions.description = table.join("");
+  }
 
 console.log(markerOptions);
   self.map.addMarker(markerOptions, callback);
@@ -580,7 +595,8 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
   var polygonOptions = {
     fill: true,
     outline: true,
-    holes: []
+    holes: [],
+    strokeWidth: 1
   };
   params.child.children.forEach(function(element) {
     var coordinates;

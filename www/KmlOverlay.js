@@ -157,7 +157,9 @@ console.log(marker);
     var seekOverlays = function(overlay) {
       if (overlay.type === "Marker") {
         overlay.on(event.MARKER_CLICK, onMarkerClick);
-      } else if (typeof overlay.forEach === "function") {
+      } else if (overlay instanceof BaseArrayClass) {
+        overlay.forEach(seekOverlays);
+      } else if (Array.isArray(overlay)) {
         (new BaseArrayClass(overlay)).forEach(seekOverlays);
       }
     };
