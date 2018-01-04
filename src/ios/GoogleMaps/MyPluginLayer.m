@@ -408,7 +408,7 @@
           (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
 
         clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml isMapChild:NO overflow:nil];
-        //NSLog(@"--->clickedDomId = %@", clickedDomId);
+        NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
           offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
@@ -477,8 +477,8 @@
         grandChildren = [domInfo objectForKey:@"children"];
         if (grandChildren == nil || grandChildren.count == 0) {
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
-          right = rect.size.width;
-          bottom = rect.size.height;
+          right = rect.origin.x + rect.size.width;
+          bottom = rect.origin.y + rect.size.height;
           if (overflow != nil) {
             if (overflow.cropX) {
               rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
@@ -541,8 +541,8 @@
     domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
     rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
-    right = rect.size.width;
-    bottom = rect.size.height;
+    right = rect.origin.x + rect.size.width;
+    bottom = rect.origin.y + rect.size.height;
     if (overflow != nil) {
       if (overflow.cropX) {
         rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
