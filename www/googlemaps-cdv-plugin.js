@@ -345,7 +345,7 @@ if (!cordova) {
       };
       var bodyRect = common.getDivRect(document.body);
       bodyRect.right = bodyRect.left + bodyRect.width;
-      bodyRect.bottom = bodyRect.top + bodyRect.heihgt;
+      bodyRect.bottom = bodyRect.top + bodyRect.height;
 
       traceDomTree(document.body, 0, bodyRect, 0, 0, 1);
 
