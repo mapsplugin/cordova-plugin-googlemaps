@@ -1,6 +1,5 @@
 package plugin.google.maps;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -17,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -485,6 +483,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     scrollView.scrollTo(browserView.getScrollX(), browserView.getScrollY());
   }
 
+  private class Overflow {
+    boolean cropX;
+    boolean cropY;
+    RectF rect;
+  }
 
   private class FrontLayerLayout extends FrameLayout {
 
@@ -493,7 +496,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       this.setWillNotDraw(false);
     }
 
-    private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild) {
+    private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild, Overflow overflow) {
       //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
@@ -507,6 +510,16 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
       }
       isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
+
+      String overflowX = domInfo.getString("overflowX");
+      String overflowY = domInfo.getString("overflowY");
+      if ("hidden".equals(overflowX) || "scroll".equals(overflowX) ||
+          "hidden".equals(overflowY) || "scroll".equals(overflowY)) {
+        overflow = new Overflow();
+        overflow.cropX = "hidden".equals(overflowX) || "scroll".equals(overflowX);
+        overflow.cropY = "hidden".equals(overflowY) || "scroll".equals(overflowY);
+        overflow.rect = HTMLNodeRectFs.get(domId);
+      }
 
       //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
@@ -528,6 +541,16 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             grandChildren = domInfo.getStringArrayList("children");
             if (grandChildren == null || grandChildren.size() == 0) {
               rect = HTMLNodeRectFs.get(childId);
+              if (overflow != null ) {
+                if (overflow.cropX) {
+                  rect.left = Math.max(rect.left, overflow.rect.left);
+                  rect.right = Math.min(rect.right, overflow.rect.right);
+                }
+                if (overflow.cropY) {
+                  rect.top = Math.max(rect.top, overflow.rect.top);
+                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+                }
+              }
               if (!rect.contains(clickPoint.x, clickPoint.y)) {
                 continue;
               }
@@ -536,11 +559,21 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               }
               maxDomId = childId;
             } else {
-              grandChildId = findClickedDom(childId, clickPoint, isMapChild);
+              grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
               if (grandChildId == null) {
                 continue;
               }
               rect = HTMLNodeRectFs.get(grandChildId);
+              if (overflow != null ) {
+                if (overflow.cropX) {
+                  rect.left = Math.max(rect.left, overflow.rect.left);
+                  rect.right = Math.min(rect.right, overflow.rect.right);
+                }
+                if (overflow.cropY) {
+                  rect.top = Math.max(rect.top, overflow.rect.top);
+                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+                }
+              }
               if (!rect.contains(clickPoint.x, clickPoint.y)) {
                 continue;
               }
@@ -556,6 +589,16 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       }
       if (maxDomId == null) {
         rect = HTMLNodeRectFs.get(domId);
+        if (overflow != null ) {
+          if (overflow.cropX) {
+            rect.left = Math.max(rect.left, overflow.rect.left);
+            rect.right = Math.min(rect.right, overflow.rect.right);
+          }
+          if (overflow.cropY) {
+            rect.top = Math.max(rect.top, overflow.rect.top);
+            rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+          }
+        }
         if (!rect.contains(clickPoint.x, clickPoint.y)) {
           return null;
         }
@@ -616,7 +659,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          String clickedDomId = findClickedDom("root", clickPoint, false);
+          String clickedDomId = findClickedDom("root", clickPoint, false, null);
           //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
