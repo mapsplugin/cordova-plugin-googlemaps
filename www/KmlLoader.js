@@ -769,7 +769,7 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
         child.children.forEach(function(latlonboxAttrNode) {
           box[latlonboxAttrNode.tagName] = parseFloat(latlonboxAttrNode.value);
         });
-        if ("rotation" in child) {
+        if (box.rotation) {
           groundoveralyOptions.bearing = box.rotation;
         }
         var ne = {lat: box.north, lng: box.east};

@@ -320,6 +320,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
+        options.inPreferredConfig = Config.ARGB_8888;
 
         // The below line just checking the bitmap size (width,height).
         // Returned value is always null.
@@ -333,6 +334,17 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
         // Resize
         int newWidth = (int)(mWidth * density);
         int newHeight = (int)(mHeight * density);
+        if (newWidth > 2000 || newHeight > 2000) {
+          float rationResize;
+          if (newWidth >=  newHeight) {
+            rationResize = 2000.0f / ((float) newWidth);
+          } else {
+            rationResize = 2000.0f / ((float) newHeight);
+          }
+          newWidth = (int)(((float)newWidth) * rationResize);
+          newHeight = (int)(((float)newHeight) * rationResize);
+          Log.w(TAG, "Since the image size is too large, the image size resizes down mandatory");
+        }
 
 
         /**

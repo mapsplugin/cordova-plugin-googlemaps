@@ -808,6 +808,9 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   var loader = new KmlLoader(self, exec, kmlOverlayOptions);
   loader.parseKmlFile(function(camera, kmlData) {
 console.log(camera, kmlData);
+    if (kmlData instanceof BaseClass) {
+      kmlData = new BaseArrayClass([kmlData]);
+    }
     var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
     var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData);
     self.OVERLAYS[kmlId] = kmlOverlay;
@@ -828,6 +831,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlayOptions.visible = common.defaultTrueOption(groundOverlayOptions.visible);
     groundOverlayOptions.zIndex = groundOverlayOptions.zIndex || 0;
     groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
+    groundOverlayOptions.noCaching = true;
 
     exec.call(this, function(result) {
         var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions, exec);
