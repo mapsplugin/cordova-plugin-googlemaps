@@ -738,6 +738,7 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
 
 KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
   var self = this;
+  console.log(params);
 
   //--------------
   // add a ground overlay
@@ -778,6 +779,10 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
         groundoveralyOptions.bounds.push(sw);
         self.camera.target.push(ne);
         self.camera.target.push(sw);
+        break;
+      case "gx:latlonquad":
+        groundoveralyOptions.bounds = child.children[0].coordinates;
+        Array.prototype.push.apply(self.camera.target, child.children[0].coordinates);
         break;
       default:
     }
