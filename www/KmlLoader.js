@@ -1,6 +1,7 @@
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
+    event = require('./event'),
     BaseClass = require('./BaseClass'),
     BaseArrayClass = require('./BaseArrayClass'),
     LatLngBounds = require('./LatLngBounds');
@@ -12,9 +13,12 @@ var KmlLoader = function(map, exec, options) {
   BaseClass.apply(this);
 
   var self = this;
-  self._overlays = [];
   //self.set("visible", KmlLoaderOptions.visible === undefined ? true : KmlLoaderOptions.visible);
   //self.set("zIndex", KmlLoaderOptions.zIndex || 0);
+  Object.defineProperty(self, "_overlays", {
+      value: new BaseArrayClass(),
+      writable: false
+  });
   Object.defineProperty(self, "_isReady", {
       value: true,
       writable: false
@@ -314,13 +318,13 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
         attrHolder: params.attrHolder
       }, callback);
       break;
-/*
-    case "camera":
-      self.parseCameraTag.call(self, {
+
+    case "lookat":
+      self.parseLookAtTag.call(self, {
         child: params.child,
       }, callback);
       break;
-*/
+
     case "extendeddata":
       self.parseExtendedDataTag.call(self, {
         child: params.child,
@@ -750,6 +754,9 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
 
   params.child.children.forEach(function(child) {
     switch (child.tagName) {
+      case "color":
+        groundoveralyOptions.opacity = ((kmlColorToRGBA(child.value)).pop() / 256);
+        break;
       case "icon":
         child.children.forEach(function(iconAttrNode) {
           switch (iconAttrNode.tagName) {
@@ -780,72 +787,127 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
         self.camera.target.push(ne);
         self.camera.target.push(sw);
         break;
-      case "gx:latlonquad":
-        groundoveralyOptions.bounds = child.children[0].coordinates;
-        Array.prototype.push.apply(self.camera.target, child.children[0].coordinates);
-        break;
+      // case "gx:latlonquad":
+      //   groundoveralyOptions.bounds = child.children[0].coordinates;
+      //   Array.prototype.push.apply(self.camera.target, child.children[0].coordinates);
+      //   break;
       default:
     }
   });
   //delete params.child.children;
   console.log("groundoveralyOptions", groundoveralyOptions);
+  console.log(self.camera.target);
 
   self.map.addGroundOverlay(groundoveralyOptions, callback);
 };
 
 KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   var self = this;
+  var networkLinkOptions = {};
+  console.log(params);
 
-  var link = null;
-  if (params.child.children) {
-    for (var i = 0; i < params.child.children.length; i++) {
-      if (params.child.children[i].tagName === "link") {
-        link = params.child.children[i];
+  params.child.children.forEach(function(child) {
+    switch(child.tagName) {
+      case "link":
+        networkLinkOptions.link = {};
+        child.children.forEach(function(gChild) {
+          networkLinkOptions.link[gChild.tagName] = gChild.value;
+        });
         break;
-      }
+      case "region":
+        networkLinkOptions.region = {};
+        child.children.forEach(function(gChild) {
+          switch(gChild.tagName) {
+            case "latlonaltbox":
+              var box = {};
+              gChild.children.forEach(function(latlonboxAttrNode) {
+                box[latlonboxAttrNode.tagName] = parseFloat(latlonboxAttrNode.value);
+              });
+              networkLinkOptions.region.bounds = {
+                se: {lat: box.south, lng: box.east},
+                sw: {lat: box.south, lng: box.west},
+                ne: {lat: box.north, lng: box.east},
+                nw: {lat: box.north, lng: box.west}
+              };
+              break;
+            case "lod":
+              networkLinkOptions.region.levelOfDetail = {};
+              gChild.children.forEach(function(lodEle) {
+                networkLinkOptions.region.levelOfDetail[lodEle.tagName] = parseInt(lodEle.value);
+              });
+              break;
+          }
+        });
+
     }
-  }
-  if (!link) {
+  });
+
+  console.log(networkLinkOptions);
+
+  if (!networkLinkOptions.link) {
+    // <networklink> tag must contain <link> tag.
+    // If not contained, simply ignore the tag.
     return callback.call(self, child);
   }
-  link.children.forEach(function(child) {
-    link[child.tagName] = child.value;
-  });
-  link.href = link.href || "";
 
-  if (link.href.indexOf("://") === -1 && link.href.substr(0, 1) !== "/") {
+
+  if (networkLinkOptions.link.href.indexOf("://") === -1 && networkLinkOptions.link.href.substr(0, 1) !== "/") {
     var a = document.createElement("a");
     a.href = self.kmlUrl;
-    link.href = a.protocol + "//" + a.host + ":" + a.port + a.pathname.replace(/\/[^\/]+$/, "") + "/" + link.href;
+    networkLinkOptions.link.href = a.protocol + "//" + a.host + ":" + a.port + a.pathname.replace(/\/[^\/]+$/, "") + "/" + networkLinkOptions.link.href;
     a = null;
   }
 
-  var loader = new KmlLoader(self.map, self.exec, {
-    url: link.href
+  var networkOverlay = new BaseClass();
+  networkOverlay.set("_loaded", false);
+  networkOverlay.set("_visible", false);
+  networkOverlay.on("_visible_changed", function(oldValue, newValue) {
+    if (newValue === true) {
+      self.map.addKmlOverlay({
+        url: networkLinkOptions.link.href
+      }, function(overlay) {
+        networkOverlay.set("layer", overlay);
+      });
+    } else {
+      var overlay = networkOverlay.get("overlay");
+      if (overlay) {
+        overlay.remove();
+        networkOverlay.set("layer", null);
+      }
+    }
   });
-  loader.parseKmlFile(function(camera, kmlData) {
-    self.camera.target.push.apply(self.camera.target, camera.target);
-    if ("zoom" in camera) {
-      self.camera.zoom = camera.zoom;
-    }
-    if ("tilt" in camera) {
-      self.camera.tilt = camera.tilt;
-    }
-    if ("heading" in camera) {
-      self.camera.tilt = camera.heading;
-    }
-    callback.call(self, kmlData);
-  });
+  self._overlays.push(networkOverlay);
+
+  if (networkLinkOptions.region && networkLinkOptions.link.viewrefreshmode === "onRegion") {
+    self.map.on(event.CAMERA_MOVE_END, function() {
+      var visibleRegion = self.map.getVisibleRegion();
+      var bounds = new LatLngBounds(visibleRegion.southwest, visibleRegion.northeast);
+      if (bounds.contains(networkLinkOptions.region.bounds.sw) ||
+          bounds.contains(networkLinkOptions.region.bounds.sw) ||
+          bounds.contains(networkLinkOptions.region.bounds.nw) ||
+          bounds.contains(networkLinkOptions.region.bounds.ne)) {
+        networkOverlay.set("_visible", true);
+      } else {
+        networkOverlay.set("_visible", false);
+      }
+    });
+  } else {
+    //-------------------------------
+    // Simply load another kml file
+    //-------------------------------
+    networkOverlay.set("_visible", true);
+  }
+  callback.call(self);
 };
 
-KmlLoader.prototype.parseCameraTag = function(params, callback) {
+KmlLoader.prototype.parseLookAtTag = function(params, callback) {
   var self = this;
 
   if ("latitude" in params.child && "longitude" in params.child) {
-    self.camera.target.push({
+    self.camera.target = {
       lat: parseFloat(params.child.latitude),
       lng: parseFloat(params.child.longitude)
-    });
+    };
   }
   if ("heading" in params.child) {
     self.camera.bearing = parseInt(params.child.heading);
@@ -853,11 +915,8 @@ KmlLoader.prototype.parseCameraTag = function(params, callback) {
   if ("tilt" in params.child) {
     self.camera.tilt = parseInt(params.child.tilt);
   }
-  // <range> is not available.
-  // if ("range" in params.child) {
-  //   self.camera.tilt = parseInt(params.child.tilt);
-  // }
-  self.callback(self);
+
+  callback.call(self);
 };
 
 
