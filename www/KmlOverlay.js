@@ -78,7 +78,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
 
     var ballon = new HtmlInfoWindow();
     var onMarkerClick = function(position, marker) {
-console.log(marker);
       var html = [];
       var result;
       var description = marker.get("description") || "";
@@ -164,7 +163,6 @@ console.log(marker);
       }
     };
 
-console.log(kmlData);
     kmlData.forEach(seekOverlays);
 /*
     var ignores = ["map", "id", "hashCode", "type"];
@@ -196,6 +194,29 @@ KmlOverlay.prototype.getId = function() {
     return this.id;
 };
 
+KmlOverlay.prototype.setVisible = function(visible) {
+  var self = this;
+  if (self._isRemoved) {
+    return;
+  }
+
+  var applyChildren = function(children) {
+    children.forEach(function(child) {
+      if ('setVisible' in child &&
+        typeof child.setVisible === 'function') {
+        child.setVisible();
+        return;
+      }
+      if (child instanceof BaseArrayClass) {
+        applyChildren(child);
+        return;
+      }
+    });
+  };
+
+  return applyChildren(self.kmlData);
+};
+
 KmlOverlay.prototype.remove = function(callback) {
     var self = this;
     if (self._isRemoved) {
@@ -208,27 +229,21 @@ KmlOverlay.prototype.remove = function(callback) {
 
 
     var removeChildren = function(children, cb) {
-      if (!children || !utils.isArray(children)) {
-        return cb();
-      }
-
-      var baseArray = new BaseArrayClass(children);
-      baseArray.forEach(function(child, next) {
+      children.forEach(function(child, next) {
         if ('remove' in child &&
           typeof child.remove === 'function') {
           child.remove(next);
           return;
         }
-        if ('children' in child &&
-          utils.isArray(child.children)) {
-          removeChildren(child.children, next);
-        } else {
-          next();
+        if (child instanceof BaseArrayClass) {
+          removeChildren(child, next);
+          return;
         }
+        next();
       }, cb);
     };
 
-    removeChildren(self.overlays, function() {
+    removeChildren(self.kmlData, function() {
       self.destroy();
       if (typeof callback === "function") {
           callback.call(self);
