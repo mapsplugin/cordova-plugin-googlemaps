@@ -198,7 +198,7 @@ if (!cordova) {
       setTimeout(function() {
         common.nextTick(function() {
           if (e.target.hasAttribute("__pluginDomId")) {
-            console.log("transitionend", e.target.getAttribute("__pluginDomId"));
+            //console.log("transitionend", e.target.getAttribute("__pluginDomId"));
             var isMapChild = false;
             var ele = e.target;
             while(!isMapChild && ele && ele.nodeType === Node.ELEMENT_NODE) {
