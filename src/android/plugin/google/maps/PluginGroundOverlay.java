@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -108,8 +109,9 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         AsyncLoadImage.AsyncLoadImageResult result = (AsyncLoadImage.AsyncLoadImageResult)object;
         BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(result.image);
         options.image(bitmapDescriptor);
+        //options.zIndex(Calendar.getInstance().getTimeInMillis());
         GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
-        overlayImage.put(groundOverlay.getId(), result.image);
+        overlayImage.put("groundoverlay_" + idBase, result.image);
 
         groundOverlay.setTag("groundoverlay_" + idBase);
 
@@ -164,7 +166,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
                     !objectId.startsWith("groundoverlay_initOpts_") &&
                     !objectId.startsWith("groundoverlay_bounds_")) {
                   GroundOverlay groundOverlay = (GroundOverlay) pluginMap.objects.remove(objectId);
-                  image = overlayImage.remove(groundOverlay.getId());
+                  image = overlayImage.remove(objectId);
                   if (image != null && !image.isRecycled()) {
                     image.recycle();
                   }
@@ -223,7 +225,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         synchronized (pluginMap.objects) {
           GroundOverlay groundOverlay = (GroundOverlay) pluginMap.objects.remove(id);
           if (groundOverlay != null) {
-            Bitmap image = overlayImage.remove(groundOverlay.getId());
+            Bitmap image = overlayImage.remove(id);
             if (image != null && !image.isRecycled()) {
               image.recycle();
             }
@@ -262,13 +264,13 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         AsyncLoadImage.AsyncLoadImageResult result = (AsyncLoadImage.AsyncLoadImageResult) object;
         GroundOverlay groundOverlay = getGroundOverlay(id);
         if (groundOverlay != null) {
-          Bitmap currentBmp = overlayImage.remove(groundOverlay.getId());
+          Bitmap currentBmp = overlayImage.remove(id);
           if (currentBmp != null) {
             currentBmp.recycle();
           }
         }
         if (result.image != null) {
-          overlayImage.put(groundOverlay.getId(), result.image);
+          overlayImage.put(id, result.image);
           groundOverlay.setImage(BitmapDescriptorFactory.fromBitmap(result.image));
           callbackContext.success();
         } else {
@@ -294,7 +296,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     String id = args.getString(0);
     final GroundOverlay groundOverlay = (GroundOverlay)pluginMap.objects.get(id);
 
-    String propertyId = "groundoverlay_initOpts_" + groundOverlay.getId();
+    String propertyId = id.replace("groundoverlay_", "groundoverlay_initOpts_");
     JSONObject opts = (JSONObject) pluginMap.objects.get(propertyId);
 
     JSONArray points = args.getJSONArray(1);
@@ -309,7 +311,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       }
     });
 
-    String boundsId = "groundoverlay_bounds_" + groundOverlay.getId();
+    String boundsId = id.replace("groundoverlay_", "groundoverlay_bounds_");
     pluginMap.objects.put(boundsId, bounds);
 
     callbackContext.success();
@@ -386,7 +388,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         groundOverlay.setVisible(isVisible);
       }
     });
-    String propertyId = "groundoverlay_property_" + groundOverlay.getId();
+    String propertyId = id.replace("groundoverlay_",  "groundoverlay_property_");
     JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isVisible", isVisible);
     pluginMap.objects.put(propertyId, properties);

@@ -204,7 +204,7 @@ KmlOverlay.prototype.setVisible = function(visible) {
     children.forEach(function(child) {
       if ('setVisible' in child &&
         typeof child.setVisible === 'function') {
-        child.setVisible();
+        child.setVisible(visible);
         return;
       }
       if (child instanceof BaseArrayClass) {

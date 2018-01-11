@@ -164,7 +164,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       ArrayList<Bundle> children;
       ArrayList<String> styleIDs;
 
-      Log.d(TAG, "--->tagName = " + tagName + "(" + rootElement + ")");
+      //Log.d(TAG, "--->tagName = " + tagName + "(" + rootElement + ")");
       result.putString("tagName", tagName);
 
       KML_TAG kmlTag = null;
@@ -314,7 +314,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     InputStream inputStream;
     try {
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
+        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         URL url = new URL(urlStr);
         boolean redirect = true;
         HttpURLConnection http = null;
@@ -369,7 +369,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
+        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         inputStream = new FileInputStream(urlStr);
       } else {
         if (urlStr.indexOf("file:///android_asset/") == 0) {
@@ -389,7 +389,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
+        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         inputStream = cordova.getActivity().getResources().getAssets().open(urlStr);
       }
 

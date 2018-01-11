@@ -70,7 +70,7 @@ console.log(kmlData);
     });
 
     var placeMarks = new BaseArrayClass(kmlData.root.children);
-    placeMarks.mapSeries(function(placeMark, cb) {
+    placeMarks.mapAsync(function(placeMark, cb) {
       self.kmlTagProcess.call(self, {
         child: placeMark,
         attrHolder: {},
@@ -99,7 +99,7 @@ KmlLoader.prototype.kmlTagProcess = function(params, callback) {
     // Read styles if specified
     //---------------------------
     var styleIDs = new BaseArrayClass(params.child.styleIDs);
-    styleIDs.mapSeries(function(styleId, cb) {
+    styleIDs.mapAsync(function(styleId, cb) {
       self.getStyleById.call(self, styleId, cb);
     }, function(styleSets) {
 
@@ -410,7 +410,7 @@ KmlLoader.prototype.parseContainerTag = function(params, callback) {
   // Generate overlays or load another files...etc
   //--------------------------------------------------------
   var children = new BaseArrayClass(params.placeMark.children);
-  children.mapSeries(function(child, cb) {
+  children.mapAsync(function(child, cb) {
 
     //-------------------------
     // Copy parent information
@@ -805,7 +805,7 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
 KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   var self = this;
   var networkLinkOptions = {};
-  console.log(params);
+  //console.log(params);
 
   var attrNames = Object.keys(params.attrHolder);
   attrNames.forEach(function(attrName) {
@@ -813,7 +813,6 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
       case "region":
         networkLinkOptions.region = networkLinkOptions.region || {};
         params.attrHolder[attrName].children.forEach(function(gChild) {
-          console.log(gChild);
           switch(gChild.tagName) {
             case "latlonaltbox":
               var box = {};
@@ -882,7 +881,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
     }
   });
 
-  console.log(networkLinkOptions);
+  //console.log(networkLinkOptions);
 
   if (!networkLinkOptions.link) {
     // <networklink> tag must contain <link> tag.
@@ -902,7 +901,6 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   networkOverlay.set("_loaded", false);
   networkOverlay.set("_visible", false);
   networkOverlay.on("_visible_changed", function(oldValue, newValue) {
-
     var overlay = networkOverlay.get("overlay");
     if (newValue === true) {
       if (overlay) {
@@ -926,34 +924,32 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   self.camera.target.push(networkLinkOptions.region.bounds.sw);
   self.camera.target.push(networkLinkOptions.region.bounds.ne);
   self.camera.target.push(networkLinkOptions.region.bounds.nw);
-  self.map.addPolygon({
-    'points': [
-      networkLinkOptions.region.bounds.se,
-      networkLinkOptions.region.bounds.sw,
-      networkLinkOptions.region.bounds.nw,
-      networkLinkOptions.region.bounds.ne
-    ],
-    'strokeColor' : '#FFFFFF77',
-    'strokeWidth': 1,
-    'fillColor' : '#00000000'
-  },callback);
+  // self.map.addPolygon({
+  //   'points': [
+  //     networkLinkOptions.region.bounds.se,
+  //     networkLinkOptions.region.bounds.sw,
+  //     networkLinkOptions.region.bounds.nw,
+  //     networkLinkOptions.region.bounds.ne
+  //   ],
+  //   'strokeColor' : '#FFFFFF77',
+  //   'strokeWidth': 1,
+  //   'fillColor' : '#00000000'
+  // }, function(groundoverlay) {
 
-  if (networkLinkOptions.region && networkLinkOptions.link.viewrefreshmode === "onRegion") {
-    self.map.on(event.CAMERA_MOVE_END, function() {
-      var vRegion = self.map.getVisibleRegion();
-      var nRegion = new VisibleRegion(networkLinkOptions.region.bounds.sw, networkLinkOptions.region.bounds.ne);
+    if (networkLinkOptions.region && networkLinkOptions.link.viewrefreshmode === "onRegion") {
+      self.map.on(event.CAMERA_MOVE_END, function() {
+        var vRegion = self.map.getVisibleRegion();
+        var nRegion = new VisibleRegion(networkLinkOptions.region.bounds.sw, networkLinkOptions.region.bounds.ne);
 
-      if (vRegion.contains(networkLinkOptions.region.bounds.sw) ||
-          vRegion.contains(networkLinkOptions.region.bounds.se) ||
-          vRegion.contains(networkLinkOptions.region.bounds.nw) ||
-          vRegion.contains(networkLinkOptions.region.bounds.ne) ||
-          nRegion.contains(vRegion.farLeft) ||
-          nRegion.contains(vRegion.farRight) ||
-          nRegion.contains(vRegion.nearLeft) ||
-          nRegion.contains(vRegion.nearRight)) {
+        if (vRegion.contains(networkLinkOptions.region.bounds.sw) ||
+            vRegion.contains(networkLinkOptions.region.bounds.se) ||
+            vRegion.contains(networkLinkOptions.region.bounds.nw) ||
+            vRegion.contains(networkLinkOptions.region.bounds.ne) ||
+            nRegion.contains(vRegion.farLeft) ||
+            nRegion.contains(vRegion.farRight) ||
+            nRegion.contains(vRegion.nearLeft) ||
+            nRegion.contains(vRegion.nearRight)) {
 
-        if (networkLinkOptions.region.lod.maxlodpixels !== -1 ||
-            networkLinkOptions.region.lod.minlodpixels !== -1) {
           (new BaseArrayClass([
             networkLinkOptions.region.bounds.sw,
             networkLinkOptions.region.bounds.ne
@@ -962,29 +958,38 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
           }, function(points) {
             var width = Math.abs(points[0][0] - points[1][0]);
             var height = Math.abs(points[0][1] - points[1][1]);
-            if (width <= networkLinkOptions.region.lod.maxlodpixels &&
-                height <= networkLinkOptions.region.lod.maxlodpixels &&
-                width >= networkLinkOptions.region.lod.minlodpixels &&
-                height >= networkLinkOptions.region.lod.minlodpixels) {
+
+            var maxCondition = (networkLinkOptions.region.lod.maxlodpixels === -1 ||
+                                width <= networkLinkOptions.region.lod.maxlodpixels &&
+                                height <= networkLinkOptions.region.lod.maxlodpixels);
+            var minCondition = (networkLinkOptions.region.lod.minlodpixels === -1 ||
+                                width >= networkLinkOptions.region.lod.minlodpixels &&
+                                height >= networkLinkOptions.region.lod.minlodpixels);
+
+            if (maxCondition && minCondition) {
+              // groundoverlay.setVisible(true);
               networkOverlay.set("_visible", true);
             } else {
+              // groundoverlay.setVisible(false);
               networkOverlay.set("_visible", false);
             }
           }));
         } else {
-          networkOverlay.set("_visible", true);
+          // groundoverlay.setVisible(false);
+          networkOverlay.set("_visible", false);
         }
-      } else {
-        networkOverlay.set("_visible", false);
-      }
-    });
-  } else {
-    //-------------------------------
-    // Simply load another kml file
-    //-------------------------------
-    networkOverlay.set("_visible", true);
-  }
-  //callback.call(self);
+      });
+    } else {
+      //-------------------------------
+      // Simply load another kml file
+      //-------------------------------
+      // groundoverlay.setVisible(true);
+      networkOverlay.set("_visible", true);
+    }
+
+    callback.call(networkOverlay);
+  //});
+
 };
 
 KmlLoader.prototype.parseLookAtTag = function(params, callback) {
