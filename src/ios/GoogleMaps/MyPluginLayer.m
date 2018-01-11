@@ -60,7 +60,6 @@
                                   repeats:YES];
     });
 
-
     return self;
 }
 
@@ -321,6 +320,11 @@
     }
 }
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+  CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
+  CGPoint point2 = CGPointMake(point.x, point.y - statusBarFrame.size.height);
+  //NSLog(@"-->zoomScale = %f", self.webView.scrollView.zoomScale);
+
+
   // Check other views of other plugins before this plugin
   // e.g. PhoneGap-Plugin-ListPicker, etc
   UIView *subview;
@@ -332,7 +336,11 @@
       continue;
     }
 
-    UIView *hit = [subview hitTest:point withEvent:event];
+    if (subview.isHidden || !subview.isUserInteractionEnabled) {
+      continue;
+    }
+
+    UIView *hit = [subview hitTest:point2 withEvent:event];
 
     if (hit) {
       if (subview == self.webView) {
@@ -348,8 +356,6 @@
 
   float offsetX = self.webView.scrollView.contentOffset.x;
   float offsetY = self.webView.scrollView.contentOffset.y;
-  float offsetX2 = self.webView.scrollView.contentOffset.x;
-  float offsetY2 = self.webView.scrollView.contentOffset.y;
 
   float webviewWidth = self.webView.frame.size.width;
   float webviewHeight = self.webView.frame.size.height;
@@ -361,15 +367,13 @@
   id mapId;
   NSString *clickedDomId;
 
-  CGFloat zoomScale = self.webView.scrollView.zoomScale;
+  CGFloat zoomScale = [[UIScreen mainScreen] scale];
   offsetY *= zoomScale;
   offsetX *= zoomScale;
   webviewWidth *= zoomScale;
   webviewHeight *= zoomScale;
 
   NSDictionary *domInfo;
-
-  CGPoint clickPointAsHtml = CGPointMake((point.x - self.webView.frame.origin.x) * zoomScale, (point.y - self.webView.frame.origin.y) * zoomScale);
 
   @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
     while(mapId = [mapIDs nextObject]) {
@@ -380,12 +384,6 @@
       domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
 
       rect = CGRectFromString([domInfo objectForKey:@"size"]);
-      rect.origin.x += offsetX2;
-      rect.origin.y += offsetY2;
-      rect.origin.x *= zoomScale;
-      rect.origin.y *= zoomScale;
-      rect.size.width *= zoomScale;
-      rect.size.height *= zoomScale;
 
       // Is the map clickable?
       if (mapCtrl.clickable == NO) {
@@ -394,8 +392,8 @@
       }
 
       // Is the map displayed?
-      if (rect.origin.y + rect.size.height < offsetY ||
-          rect.origin.x + rect.size.width < offsetX ||
+      if (rect.origin.y + rect.size.height < 0 ||
+          rect.origin.x + rect.size.width < 0 ||
           rect.origin.y > offsetY + webviewHeight ||
           rect.origin.x > offsetX + webviewWidth ||
           mapCtrl.view.hidden == YES) {
@@ -404,21 +402,15 @@
       }
 
       // Is the clicked point is in the map rectangle?
-      if ((point.x + offsetX2) >= rect.origin.x && (point.x + offsetX2) <= (rect.origin.x + rect.size.width) &&
-          (point.y + offsetY2) >= rect.origin.y && (point.y + offsetY2) <= (rect.origin.y + rect.size.height)) {
+      if (CGRectContainsPoint(rect, point)) {
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:clickPointAsHtml isMapChild:NO overflow:nil];
-        NSLog(@"--->clickedDomId = %@", clickedDomId);
+        clickedDomId = [self findClickedDom:@"root" withPoint:point isMapChild:NO overflow:nil];
+        //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
-          offsetX = (mapCtrl.view.frame.origin.x * zoomScale) - offsetX;
-          offsetY = (mapCtrl.view.frame.origin.y * zoomScale) - offsetY;
-          CGPoint point2 = CGPointMake(point.x * zoomScale, point.y * zoomScale);
-          point2.x -= offsetX;
-          point2.y -= offsetY;
 
-          UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
-          //NSLog(@"--> (hit test) point = %f, %f / hit = %@", clickPointAsHtml.x, clickPointAsHtml.y,  hitView.class);
+          UIView *hitView =[mapCtrl.view hitTest:CGPointMake(point.x - mapCtrl.view.frame.origin.x, point.y - mapCtrl.view.frame.origin.y) withEvent:event];
+
 
           return hitView;
         } else {
@@ -482,11 +474,11 @@
           if (overflow != nil) {
             if (overflow.cropX) {
               rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
-              right = MIN(right, overflow.rect.size.width);
+              right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
             }
             if (overflow.cropY) {
               rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
-              bottom = MIN(bottom, overflow.rect.size.height);
+              bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
             }
           }
 
@@ -513,11 +505,11 @@
           if (overflow != nil) {
             if (overflow.cropX) {
               rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
-              right = MIN(right, overflow.rect.size.width);
+              right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
             }
             if (overflow.cropY) {
               rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
-              bottom = MIN(bottom, overflow.rect.size.height);
+              bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
             }
           }
 
@@ -546,11 +538,11 @@
     if (overflow != nil) {
       if (overflow.cropX) {
         rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
-        right = MIN(right, overflow.rect.size.width);
+        right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
       }
       if (overflow.cropY) {
         rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
-        bottom = MIN(bottom, overflow.rect.size.height);
+        bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
       }
     }
 
