@@ -259,7 +259,9 @@ function shouldWatchByNative(node) {
 
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
-  var pointerEventsCSS = getStyle(node, 'pointer-events');
+
+  // Do not check this at here.
+  //var pointerEventsCSS = getStyle(node, 'pointer-events');
 
   //-----------------------------------------
   // no longer check the opacity property,
@@ -276,8 +278,7 @@ function shouldWatchByNative(node) {
   //   node.offsetHeight > 0 && node.offsetWidth > 0 ||
   //   node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
-    visibilityCSS !== "hidden" &&
-    pointerEventsCSS !== "none";
+    visibilityCSS !== "hidden";
 }
 
 

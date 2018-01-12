@@ -511,6 +511,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       }
       isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
 
+      String pointerEvents = domInfo.getString("pointerEvents");
       String overflowX = domInfo.getString("overflowX");
       String overflowY = domInfo.getString("overflowY");
       if ("hidden".equals(overflowX) || "scroll".equals(overflowX) ||
@@ -523,7 +524,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if ((containMapCnt > 0 || isMapChild) && children != null && children.size() > 0) {
+      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents)) && children != null && children.size() > 0) {
         int maxZindex = (int) Double.NEGATIVE_INFINITY;
         int zIndex;
         String childId, grandChildId;
@@ -531,7 +532,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         for (int i = children.size() - 1; i >= 0; i--) {
           childId = children.get(i);
           domInfo = HTMLNodes.get(childId);
-          //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
           if (domInfo == null) {
             continue;
           }
@@ -554,14 +554,17 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               if (!rect.contains(clickPoint.x, clickPoint.y)) {
                 continue;
               }
-              if (isMapChild) {
-                return childId;
+
+              //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+              if ("none".equals(domInfo.getString("pointerEvents"))) {
+                continue;
               }
               maxDomId = childId;
             } else {
               grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
+              //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
               if (grandChildId == null) {
-                continue;
+                grandChildId = childId;
               }
               rect = HTMLNodeRectFs.get(grandChildId);
               if (overflow != null ) {
@@ -578,8 +581,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 continue;
               }
 
-              if (isMapChild) {
-                return grandChildId;
+              domInfo = HTMLNodes.get(grandChildId);
+              //Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
+              if ("none".equals(domInfo.getString("pointerEvents"))) {
+                continue;
               }
               maxDomId = grandChildId;
             }
@@ -588,6 +593,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
       }
       if (maxDomId == null) {
+        if ("none".equals(pointerEvents)) {
+          return null;
+        }
         rect = HTMLNodeRectFs.get(domId);
         if (overflow != null ) {
           if (overflow.cropX) {
@@ -616,7 +624,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       MyPluginLayout.this.stopFlag = true;
 
       int action = event.getAction();
-      //Log.d("FrontLayerLayout", "----> action = " + MotionEvent.actionToString(action) + ", isScrolling = " + isScrolling);
+      //Log.d("FrontLayerLayout", "----> action = " + action + ", isScrolling = " + isScrolling);
 
       // The scroll action that started in the browser region is end.
       isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
@@ -660,7 +668,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           }
 
           String clickedDomId = findClickedDom("root", clickPoint, false, null);
-          //Log.d(TAG, "----clickedDomId = " + clickedDomId);
+          Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
 
