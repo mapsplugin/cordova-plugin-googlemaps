@@ -386,6 +386,32 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     });
   }
 
+  @Override
+  public void onStart() {
+    super.onStart();
+    mapView.onStart();
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    mapView.onStop();
+  }
+
+  @Override
+  public void onPause(boolean multitasking) {
+    super.onPause(multitasking);
+    mapView.onPause();
+
+    mapCtrl.mPluginLayout.removePluginMap(this.mapId);
+  }
+  @Override
+  public void onResume(boolean multitasking) {
+    super.onResume(multitasking);
+    mapView.onResume();
+    mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
+  }
+
   private class AdjustInitCamera implements Runnable {
     private JSONObject mParams;
     private CallbackContext mCallback;
