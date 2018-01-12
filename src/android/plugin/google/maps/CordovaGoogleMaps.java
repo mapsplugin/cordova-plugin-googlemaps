@@ -445,7 +445,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     Runtime.getRuntime().gc();
     callbackContext.success();
   }
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     //------------------------------------------
     // Create an instance of PluginMap class.
@@ -464,85 +465,66 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     pluginMap.getMap(args, callbackContext);
   }
 
+
+  @Override
+  public void onStart() {
+    super.onStart();
+
+    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
+    for (PluginEntry pluginEntry: pluginEntries) {
+      if (pluginEntry.service.startsWith("map_")) {
+        pluginEntry.plugin.onStart();
+      }
+    }
+
+  }
+  @Override
+  public void onStop() {
+    super.onStart();
+
+    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
+    for (PluginEntry pluginEntry: pluginEntries) {
+      if (pluginEntry.service.startsWith("map_")) {
+        pluginEntry.plugin.onStop();
+      }
+    }
+
+  }
   @Override
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
 
-        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-        PluginMap pluginMap;
-
-        // prevent the ConcurrentModificationException error.
-        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-        for (String mapId : mapIdArray) {
-          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-            pluginMap = mPluginLayout.pluginMaps.get(mapId);
-            pluginMap.mapView.onPause();
-          }
-        }
+    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
+    for (PluginEntry pluginEntry: pluginEntries) {
+      if (pluginEntry.service.startsWith("map_")) {
+        pluginEntry.plugin.onPause(multitasking);
       }
-    });
+    }
+
   }
 
   @Override
   public void onResume(boolean multitasking) {
-    super.onResume(multitasking);
-    if (mPluginLayout != null) {
-      mPluginLayout.isSuspended = false;
-
-      if (mPluginLayout.pluginMaps.size() > 0) {
-        this.activity.runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            CURRENT_URL = webView.getUrl();
-            webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
-          }
-        });
+    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
+    for (PluginEntry pluginEntry: pluginEntries) {
+      if (pluginEntry.service.startsWith("map_")) {
+        pluginEntry.plugin.onResume(multitasking);
       }
     }
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-
-        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-        PluginMap pluginMap;
-
-        // prevent the ConcurrentModificationException error.
-        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-        for (String mapId : mapIdArray) {
-          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-            pluginMap = mPluginLayout.pluginMaps.get(mapId);
-            pluginMap.mapView.onResume();
-          }
-        }
-      }
-    });
   }
 
   @Override
   public void onDestroy() {
     super.onDestroy();
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-
-        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-        PluginMap pluginMap;
-
-        // prevent the ConcurrentModificationException error.
-        String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
-        for (String mapId : mapIdArray) {
-          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-            pluginMap = mPluginLayout.pluginMaps.get(mapId);
-            pluginMap.mapView.onDestroy();
-          }
-        }
+    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
+    for (PluginEntry pluginEntry: pluginEntries) {
+      if (pluginEntry.service.startsWith("map_")) {
+        pluginEntry.plugin.onDestroy();
       }
-    });
+    }
+
   }
 
   protected void sendNoResult(CallbackContext callbackContext) {
