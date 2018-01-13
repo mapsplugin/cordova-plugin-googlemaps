@@ -517,7 +517,7 @@ if (!cordova) {
         return;
       }
 
-      // get dom z-index
+      // Get the z-index CSS
       var zIndex = common.getZIndex(element);
 
       // Calculate dom clickable region
@@ -526,6 +526,7 @@ if (!cordova) {
       // Stores dom information
       var isCached = elemId in domPositions;
       domPositions[elemId] = {
+        pointerEvents: common.getStyle(element, 'pointer-events'),
         isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
         zIndex: zIndex,
@@ -536,7 +537,7 @@ if (!cordova) {
       };
       var containMapCnt = (Object.keys(domPositions[elemId].containMapIDs)).length;
       isMapChild = isMapChild || domPositions[elemId].isMap;
-      if ((containMapCnt > 0 || isMapChild) && element.children.length > 0) {
+      if ((containMapCnt > 0 || isMapChild || domPositions[elemId].pointerEvents === "none") && element.children.length > 0) {
         var child;
         for (var i = 0; i < element.children.length; i++) {
           child = element.children[i];
@@ -755,10 +756,13 @@ if (!cordova) {
                   elemId = common.getPluginDomId(elem);
                   isCached = elemId in domPositions;
                   domPositions[elemId] = {
+                    pointerEvents: common.getStyle(elem, 'pointer-events'),
                     isMap: false,
                     size: elem.getBoundingClientRect(),
                     zIndex: common.getZIndex(elem),
                     children: [],
+                    overflowX: common.getStyle(elem, "overflow-x"),
+                    overflowY: common.getStyle(elem, "overflow-y"),
                     containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
                   };
                   domPositions[elemId].containMapIDs[mapId] = 1;

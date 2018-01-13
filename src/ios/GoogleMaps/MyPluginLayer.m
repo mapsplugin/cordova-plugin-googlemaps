@@ -443,6 +443,7 @@
   isMapChild = isMapChild || [[domInfo objectForKey:@"isMap"] boolValue];
   //NSLog(@"---- domId = %@, containMapCnt = %ld, isMapChild = %@", domId, containMapCnt, isMapChild ? @"YES":@"NO");
 
+  NSString *pointerEvents = [domInfo objectForKey:@"pointerEvents"];
   NSString *overflowX = [domInfo objectForKey:@"overflowX"];
   NSString *overflowY = [domInfo objectForKey:@"overflowY"];
   if ([@"hidden" isEqualToString:overflowX] || [@"scroll" isEqualToString:overflowX] ||
@@ -453,7 +454,7 @@
     overflow.rect = CGRectFromString([domInfo objectForKey:@"size"]);
   }
 
-  if ((containMapCnt > 0 || isMapChild) && children != nil && children.count > 0) {
+  if ((containMapCnt > 0 || isMapChild || [@"none" isEqualToString:pointerEvents]) && children != nil && children.count > 0) {
 
     int maxZIndex = -1215752192;
     int zIndex;
@@ -488,14 +489,14 @@
               clickPoint.y > bottom) {
             continue;
           }
-          if (isMapChild) {
-            return childId;
+          if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
+            continue;
           }
           maxDomId = childId;
         } else {
           grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild overflow:overflow];
           if (grandChildId == nil) {
-            continue;
+            grandChildId = childId;
           }
           domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
@@ -519,8 +520,9 @@
               clickPoint.y > bottom) {
             continue;
           }
-          if (isMapChild) {
-            return grandChildId;
+          domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
+          if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
+            continue;
           }
           maxDomId = grandChildId;
         }
@@ -530,6 +532,9 @@
   }
 
   if (maxDomId == nil) {
+    if ([@"none" isEqualToString:pointerEvents]) {
+      return nil;
+    }
     domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
     rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
