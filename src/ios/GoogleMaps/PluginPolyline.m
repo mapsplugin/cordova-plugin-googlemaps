@@ -127,7 +127,7 @@
           // geodesic
           [properties setObject:[NSNumber numberWithBool:polyline.geodesic] forKey:@"geodesic"];
           // zIndex
-          [properties setObject:[NSNumber numberWithFloat:polyline.zIndex] forKey:@"zIndex"];;
+          [properties setObject:[NSNumber numberWithFloat:polyline.zIndex] forKey:@"zIndex"];
           [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
