@@ -223,13 +223,13 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
         case schema:
 
-          // Generate a style id for the tag
+          // Generate a schema id for the tag
           schemaId = tbxml.valueOfAttributeNamed("id", rootElement);
           if (schemaId == null || schemaId.isEmpty()) {
             schemaId = "__" + rootElement + "__";
           }
 
-          // Store style information into the styleHolder.
+          // Store schema information into the schemaHolder.
           schema = new Bundle();
           schema.putString("name", tbxml.valueOfAttributeNamed("name", rootElement));
           children = new ArrayList<Bundle>();

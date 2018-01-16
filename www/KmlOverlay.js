@@ -44,9 +44,13 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
     });
     function templateRenderer(html, marker) {
       var extendedData = marker.get("extendeddata");
+      console.log(marker, extendedData);
 
       return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
-        var text = marker.get(name) || "";
+        var text = "";
+        if (marker.get(name)) {
+          text = marker.get(name).value;
+        }
         if (extendedData) {
           text = text.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match1, name1) {
             return extendedData[name1.toLowerCase()] || "";
@@ -77,32 +81,53 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
     }
 
     var ballon = new HtmlInfoWindow();
-    var onMarkerClick = function(position, marker) {
+    var onOverlayClick = function(position, overlay) {
+      map.get("invisible_dot").setPosition(position);
+
+console.log(overlay);
+
+      var description = overlay.get("description");
+      if (description) {
+        description = description.value;
+      } else if (overlay.get("extendeddata")) {
+        var keys = Object.keys(overlay.get("extendeddata"));
+        var table = [
+          "<table border='1'>"
+        ];
+        keys.forEach(function(key) {
+          table.push("<tr><th>" + key + "</th><td>" + markerOptions.extendeddata[key] + "</td></tr>");
+        });
+        table.push("</table>");
+        description = table.join("");
+      }
+      description = description || "";
+
+
+
       var html = [];
       var result;
-      var description = marker.get("description") || "";
       if (description.indexOf("<html>") > -1 || description.indexOf("script") > -1) {
-        var text = templateRenderer(description, marker);
+        var text = templateRenderer(description, overlay);
         // create a sandbox
         if (text.indexOf("<html") === -1) {
           text = "<html><body>" + text + "</body></html>";
         }
         result = document.createElement("div");
-        if (marker.get('name')) {
+        if (overlay.get('name')) {
           var name = document.createElement("div");
           name.style.fontWeight = 500;
           name.style.fontSize = "medium";
           name.style.marginBottom = 0;
-          name.innerText = marker.get('name') || "";
+          name.innerText = overlay.get('name') || "";
           result.appendChild(name);
         }
-        if (marker.get('_snippet')) {
+        if (overlay.get('snippet')) {
           var snippet = document.createElement("div");
           snippet.style.fontWeight = 300;
           snippet.style.fontSize = "small";
           snippet.style.whiteSpace = "normal";
           snippet.style.fontFamily = "Roboto,Arial,sans-serif";
-          snippet.innerText = marker.get('_snippet') || "";
+          snippet.innerText = overlay.get('snippet').value || "";
           result.appendChild(snippet);
         }
 
@@ -121,13 +146,13 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
         result.appendChild(iframe);
 
       } else {
-        if (marker.get("name")) {
+        if (overlay.get("name")) {
           html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
         }
-        if (marker.get("_snippet")) {
+        if (overlay.get("_snippet")) {
           html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
         }
-        if (marker.get("description")) {
+        if (overlay.get("description")) {
           html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>");
         }
         var prevMatchedCnt = 0;
@@ -135,13 +160,13 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
         var matches = result.match(/\$[\{\[].+?[\}\]]/gi);
         while(matches && matches.length !== prevMatchedCnt) {
           prevMatchedCnt = matches.length;
-          result = templateRenderer(result, marker);
+          result = templateRenderer(result, overlay);
           matches = result.match(/\$[\{\[].+?[\}\]]/gi);
         }
       }
       var styles = null;
-      if (marker.get("balloonstyle")) {
-        styles = parseBalloonStyle(marker.get("balloonstyle"));
+      if (overlay.get("balloonstyle")) {
+        styles = parseBalloonStyle(overlay.get("balloonstyle"));
       }
       styles = styles || {};
       styles.overflow = "scroll";
@@ -149,17 +174,29 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
       styles["max-height"] = (map.getDiv().offsetHeight * 0.6) + "px";
 
       ballon.setContent(result, styles);
-      ballon.open(marker);
+      ballon.open(map.get("invisible_dot"));
+      map.animateCamera({
+        target: position
+      });
     };
 
-
+    var eventNames = {
+      "marker": event.MARKER_CLICK,
+      "polyline": event.POLYLINE_CLICK,
+      "polygon": event.POLYGON_CLICK,
+      "groundoverlay": event.GROUND_OVERLAY_CLICK
+    };
     var seekOverlays = function(overlay) {
-      if (overlay.type === "Marker") {
-        overlay.on(event.MARKER_CLICK, onMarkerClick);
+      if (overlay.type === "Marker" ) {
+
+      } else if (overlay.type === "Polygon") {
+        overlay.on(event.POLYGON_CLICK, onOverlayClick);
       } else if (overlay instanceof BaseArrayClass) {
         overlay.forEach(seekOverlays);
       } else if (Array.isArray(overlay)) {
         (new BaseArrayClass(overlay)).forEach(seekOverlays);
+      } else if (overlay instanceof BaseClass && overlay.type in eventNames) {
+        overlay.on(eventNames[overlay.type], onOverlayClick);
       }
     };
 
