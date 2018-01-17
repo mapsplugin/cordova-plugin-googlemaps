@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.1.1)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.0)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -38,16 +38,9 @@ $> cordova plugin add cordova-plugin-googlemaps \
 #### If you can't reinstall the plugin, try like this:
 
 ```
-$> npm cache clean
-
 $> cordova platform rm android ios
 
-// Add the SDK plugin at first with --nofetch option
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk --nofetch
-
-$> cordova plugin add cordova-plugin-googlemaps --nofetch
-
-$> cordova platform add android ios
+$> cordova platform add android@6 ios
 ```
 
 ### Configuration
@@ -83,19 +76,11 @@ Example using config.xml
 
 ## Release Notes
 
-- [v2.1.0 Release notes](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.1.0/README.md)
+- No longer supported for Android 4.3 or lower versions. At least Android 4.4 is required.
 
-- `plugin.google.maps.geometry.poly` namespace is added.
+- Implement the CSS/HTML element hierarchy correctly.
 
-- `HtmlInfoWindow` follows the marker smoothly.
 
-- The code of `external service` removed. Please use the [Launch Navigator Cordova/Phonegap Plugin](https://github.com/dpa99c/phonegap-launch-navigator) instead.
-
-- The calculation of DOM element hierarchy was fixed.
-
-- [@ionic-native/google-maps@4.3.3](https://www.npmjs.com/package/@ionic-native/google-maps) was released.
-
-- v2.1.1 has small bug fixes.
 
 ## Quick demo
 
