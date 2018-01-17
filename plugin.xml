@@ -119,6 +119,12 @@ The native map view is faster, use less network usage, display 3D views, and eve
           <clobbers target="plugin.google.maps" />
         </js-module>
 
+        <!-- Crosswalk -->
+        <config-file target="config.xml" parent="/*">
+          <preference name="xwalkZOrderOnTop" value="true" />
+          <preference name="BackgroundColor" value="0" />
+        </config-file>
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
                 <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps" />
@@ -163,8 +169,11 @@ The native map view is faster, use less network usage, display 3D views, and eve
             </feature>
         </config-file>
 
-        <framework src="com.google.android.gms:play-services-maps:+" />
-        <framework src="com.google.android.gms:play-services-location:+" />
+        <!--
+          Specifies the minimum Google Play Services for this plugin
+          https://github.com/apache/cordova-android/blob/673a6773b2f78ba76d2144c66ab7a3add78648ae/bin/templates/cordova/lib/builders/StudioBuilder.js#L177
+        -->
+        <framework src="com.google.android.gms:play-services:+" versions=">=11.8.0" />
 
         <!-- plugin src files -->
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
@@ -209,7 +218,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
                        android:value="@integer/google_play_services_version" />
         </config-file>
 
-        <config-file target="AndroidManifest.xml" parent="/manifest">
+        <config-file target="app/src/main/AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
             <!-- The following two permissions are not required to use
