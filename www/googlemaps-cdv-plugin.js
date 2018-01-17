@@ -175,7 +175,7 @@ if (!cordova) {
           var mapDiv = map.getDiv();
           var divId = mapDiv.getAttribute("__pluginDomId");
           mapRects[divId] = {
-            size: mapDiv.getBoundingClientRect(),
+            size: common.getDivRect(mapDiv),
             zIndex: common.getZIndex(mapDiv)
           };
           if (!changed && prevMapRects && (divId in prevMapRects) && (
@@ -737,18 +737,16 @@ if (!cordova) {
 
 
 
+                var args = [mapId];
+                for (var i = 0; i < arguments.length; i++) {
+                    args.push(arguments[i]);
+                }
 
               if (common.isDom(div)) {
                 div.setAttribute("__pluginMapId", mapId);
 
                 elemId = common.getPluginDomId(div);
     //console.log("---> map.getMap() = " + elemId + ", mapId = " + mapId);
-
-                var mapRects = {};
-                mapRects[elemId] = {
-                  size: div.getBoundingClientRect()
-                };
-                cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
 
                 elem = div;
                 var isCached;
@@ -758,7 +756,7 @@ if (!cordova) {
                   domPositions[elemId] = {
                     pointerEvents: common.getStyle(elem, 'pointer-events'),
                     isMap: false,
-                    size: elem.getBoundingClientRect(),
+                    size: common.getDivRect(elem),
                     zIndex: common.getZIndex(elem),
                     children: [],
                     overflowX: common.getStyle(elem, "overflow-x"),
@@ -772,7 +770,15 @@ if (!cordova) {
                 elemId = common.getPluginDomId(div);
                 domPositions[elemId].isMap = true;
 
-                resetTimer({force: true});
+                //console.log("--->getMap (start)", JSON.parse(JSON.stringify(domPositions)));
+                cordova_exec(function() {
+                  cordova_exec(function() {
+                    map.getMap.apply(map, args);
+                  }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
+                }, null, 'CordovaGoogleMaps', 'resume', []);
+                //resetTimer({force: true});
+              } else {
+                map.getMap.apply(map, args);
               }
 
 
@@ -780,11 +786,6 @@ if (!cordova) {
 
 
 
-              var args = [mapId];
-              for (var i = 0; i < arguments.length; i++) {
-                  args.push(arguments[i]);
-              }
-              map.getMap.apply(map, args);
               return map;
           }
       },

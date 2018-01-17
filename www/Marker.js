@@ -87,22 +87,27 @@ var Marker = function(map, id, markerOptions, className, _exec) {
     });
     self.on("flat_changed", function() {
         var flat = self.get("flat");
+        flat = flat === true;
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFlat', [self.getId(), flat]);
     });
     self.on("draggable_changed", function() {
         var draggable = self.get("draggable");
+        draggable = draggable === true;
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setDraggable', [self.getId(), draggable]);
     });
     self.on("anchor_changed", function() {
         var anchor = self.get("anchor");
+        if (!anchor) { return; }
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIconAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
     self.on("infoWindowAnchor_changed", function() {
         var anchor = self.get("infoWindowAnchor");
+        if (!anchor) { return; }
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
     self.on("zIndex_changed", function() {
         var zIndex = self.get("zIndex");
+        if (zIndex === null || zIndex === undefined) { return; }
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
     self.on("opacity_changed", function() {

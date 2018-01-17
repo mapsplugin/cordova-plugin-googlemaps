@@ -279,8 +279,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       RectF rectF = new RectF();
       rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
       rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
-      rectF.right = rectF.left  + (float)(Double.parseDouble(size.get("width") + "") * zoomScale);
-      rectF.bottom = rectF.top  + (float)(Double.parseDouble(size.get("height") + "") * zoomScale);
+      rectF.right = (float)(Double.parseDouble(size.get("right") + "") * zoomScale);
+      rectF.bottom =  (float)(Double.parseDouble(size.get("bottom") + "") * zoomScale);
       newBufferRectFs.put(domId, rectF);
 
       domInfo.remove("size");
@@ -440,13 +440,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     if (!HTMLNodes.containsKey(pluginMap.mapDivId)) {
-      Log.e(TAG, "----> 100x100");
+      Log.e(TAG, "----> 200x200");
       Bundle dummyInfo = new Bundle();
       dummyInfo.putDouble("offsetX", 0);
       dummyInfo.putDouble("offsetY", 3000);
       dummyInfo.putBoolean("isDummy", true);
       HTMLNodes.put(pluginMap.mapDivId, dummyInfo);
-      HTMLNodeRectFs.put(pluginMap.mapDivId, new RectF(0, 3000, 100, 100));
+      HTMLNodeRectFs.put(pluginMap.mapDivId, new RectF(0, 3000, 200, 200));
     }
     pluginMaps.put(pluginMap.mapId, pluginMap);
 
@@ -668,7 +668,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           }
 
           String clickedDomId = findClickedDom("root", clickPoint, false, null);
-          Log.d(TAG, "----clickedDomId = " + clickedDomId);
+          //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
 

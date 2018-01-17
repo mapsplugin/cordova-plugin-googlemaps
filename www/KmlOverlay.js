@@ -12,7 +12,6 @@ var argscheck = require('cordova/argscheck'),
 var exec;
 var KmlOverlay = function(map, kmlId, camera, kmlData) {
     BaseClass.apply(this);
-    console.log(kmlData);
 
     var self = this;
     self._overlays = [];
@@ -44,7 +43,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
     });
     function templateRenderer(html, marker) {
       var extendedData = marker.get("extendeddata");
-      console.log(marker, extendedData);
 
       return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
         var text = "";
@@ -83,8 +81,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
     var ballon = new HtmlInfoWindow();
     var onOverlayClick = function(position, overlay) {
       map.get("invisible_dot").setPosition(position);
-
-console.log(overlay);
 
       var description = overlay.get("description");
       if (description) {
@@ -174,24 +170,36 @@ console.log(overlay);
       styles["max-height"] = (map.getDiv().offsetHeight * 0.6) + "px";
 
       ballon.setContent(result, styles);
-      ballon.open(map.get("invisible_dot"));
-      map.animateCamera({
-        target: position
-      });
+      var marker = map.get("invisible_dot");
+      if (overlay.type === "Marker") {
+        marker.set("infoWindowAnchor", marker.get("infoWindowAnchor"));
+        marker.setIcon(marker.get("icon"));
+        marker.setVisible(false);
+        overlay.setAnimation(plugin.google.maps.Animation.BOUNCE);
+        ballon.open(marker);
+      } else {
+        marker.set("infoWindowAnchor", undefined);
+        marker.set("anchor", undefined);
+        marker.setIcon(undefined);
+        marker.setVisible(true);
+        marker.setAnimation(plugin.google.maps.Animation.DROP);
+        map.animateCamera({
+          target: position,
+          duration: 300
+        }, function() {
+          ballon.open(marker);
+        });
+      }
     };
 
     var eventNames = {
-      "marker": event.MARKER_CLICK,
-      "polyline": event.POLYLINE_CLICK,
-      "polygon": event.POLYGON_CLICK,
-      "groundoverlay": event.GROUND_OVERLAY_CLICK
+      "Marker": event.MARKER_CLICK,
+      "Polyline": event.POLYLINE_CLICK,
+      "Polygon": event.POLYGON_CLICK,
+      "GroundOverlay": event.GROUND_OVERLAY_CLICK
     };
     var seekOverlays = function(overlay) {
-      if (overlay.type === "Marker" ) {
-
-      } else if (overlay.type === "Polygon") {
-        overlay.on(event.POLYGON_CLICK, onOverlayClick);
-      } else if (overlay instanceof BaseArrayClass) {
+      if (overlay instanceof BaseArrayClass) {
         overlay.forEach(seekOverlays);
       } else if (Array.isArray(overlay)) {
         (new BaseArrayClass(overlay)).forEach(seekOverlays);

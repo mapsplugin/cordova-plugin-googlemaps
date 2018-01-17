@@ -214,14 +214,24 @@ function getDivRect(div) {
       rect.top = Math.max(rect.top, window.pageOffsetY);
       rect.width = Math.max(rect.width, window.innerWidth);
       rect.height = Math.max(rect.height, window.innerHeight);
+      rect.right = rect.left + rect.width;
+      rect.bottom = rect.top + rect.height;
     } else {
       rect = div.getBoundingClientRect();
+      if ("right" in rect === false) {
+        rect.right = rect.left + rect.width;
+      }
+      if ("bottom" in rect === false) {
+        rect.bottom = rect.top + rect.height;
+      }
     }
     return {
       left: rect.left,
       top: rect.top,
       width: rect.width,
-      height: rect.height
+      height: rect.height,
+      right: rect.right,
+      bottom: rect.bottom
     };
 }
 
@@ -330,7 +340,7 @@ function getZIndex(dom) {
     } else {
       z = parseInt(z);
     }
-    dom.setAttribute("__ZIndex", z);
+    //dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
     return z;
 }

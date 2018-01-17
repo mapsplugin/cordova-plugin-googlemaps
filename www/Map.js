@@ -202,8 +202,7 @@ Map.prototype.getMap = function(mapId, div, options) {
         // Create an invisible marker for kmlOverlay
         self.addMarker({
           position: {lat: 0, lng: 0},
-          clickable: false,
-          icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABV0RVh0Q3JlYXRpb24gVGltZQAxLzE2LzE4sNPm4QAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAANSURBVAiZY/j//z8DAAj8Av6Fzas0AAAAAElFTkSuQmCC" // 1x1 transparent png
+          icon: "white"
         }, function(marker) {
           self.set("invisible_dot", marker);
           self.trigger(event.MAP_READY, self);
