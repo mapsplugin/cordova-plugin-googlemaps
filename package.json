@@ -22,12 +22,16 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=6.2.0"
+  "engines": {
+    "cordovaDependencies": {
+      "3.0.0": {
+        "cordova-android": ">=6.3.0"
+      },
+      "5.0.0": {
+        "cordova": ">100"
+      }
     }
-  ],
+  },
   "author": "Masashi Katsumata, Hirbod Mirjavadi",
   "license": "Apache 2.0",
   "bugs": {
