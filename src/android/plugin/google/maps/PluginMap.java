@@ -389,26 +389,34 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onStart() {
     super.onStart();
-    mapView.onStart();
+    if (mapView != null) {
+      mapView.onStart();
+    }
   }
 
   @Override
   public void onStop() {
     super.onStop();
-    mapView.onStop();
+    if (mapView != null) {
+      mapView.onStop();
+    }
   }
 
   @Override
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
-    mapView.onPause();
+    if (mapView != null) {
+      mapView.onPause();
+    }
 
     mapCtrl.mPluginLayout.removePluginMap(this.mapId);
   }
   @Override
   public void onResume(boolean multitasking) {
     super.onResume(multitasking);
-    mapView.onResume();
+    if (mapView != null) {
+      mapView.onResume();
+    }
     mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
   }
 
