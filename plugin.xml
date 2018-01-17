@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.1.2-beta-20180116-1710" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.1.2-beta-20180116-1730" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -88,9 +88,6 @@
     <js-module name="geomodel" src="www/geomodel.js">
       <runs />
     </js-module>
-    <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
-      <clobbers target="plugin.google.maps" />
-    </js-module>
 
     <description>Google Maps native SDK for Android and iOS.
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
@@ -105,8 +102,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <keywords>google,maps,geo</keywords>
 
     <engines>
-      <engine name="cordova-android" version=">=5.1.0" />
-      <engine name="cordova-ios" version=">=3.0.0" />
+      <engine name="cordova-android" version=">=7.0.0" />
+      <engine name="cordova-ios" version=">=4.5.0" />
     </engines>
 
     <!-- android -->
@@ -117,6 +114,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
             Official document
             https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
         </info>
+
+        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
+          <clobbers target="plugin.google.maps" />
+        </js-module>
 
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
@@ -199,7 +200,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/tbxml-android/libs/x86/libtbxml.so" target-dir="libs/x86/" />
         <source-file src="src/android/tbxml-android/libs/x86_64/libtbxml.so" target-dir="libs/x86_64/" />
 
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+        <config-file target="app/src/main/AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.geo.API_KEY"
               android:value="$API_KEY_FOR_ANDROID" />
@@ -230,6 +231,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <preference name="API_KEY_FOR_IOS" />
         <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
         <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="Trace your location on the map" />
+
+        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
+          <clobbers target="plugin.google.maps" />
+        </js-module>
 
         <info>
             Official document
