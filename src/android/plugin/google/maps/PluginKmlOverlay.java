@@ -1,29 +1,21 @@
 package plugin.google.maps;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import za.co.twyst.tbxml.TBXML;
 
@@ -99,21 +91,23 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       return null;
     }
     try {
-      if (urlStr.contains(".kmz")) {
-        String cacheDirPath = cordova.getActivity().getCacheDir() + "/" + Integer.toString(urlStr.hashCode(), 16);
-        File cacheDir = new File(cacheDirPath);
-        if (!cacheDir.exists()) {
-          cacheDir.mkdirs();
-        }
-        ArrayList<File> files =  (PluginUtil.unpackZipFromBytes(inputStream, cacheDirPath));
-        inputStream.close();
-        for (File file : files) {
-          if (file.getName().contains(".kml")) {
-            inputStream = new FileInputStream(file);
-            break;
-          }
-        }
-      }
+      // KMZ is not ready yet.... sorry
+
+//      if (urlStr.contains(".kmz")) {
+//        String cacheDirPath = cordova.getActivity().getCacheDir() + "/" + Integer.toString(urlStr.hashCode(), 16);
+//        File cacheDir = new File(cacheDirPath);
+//        if (!cacheDir.exists()) {
+//          cacheDir.mkdirs();
+//        }
+//        ArrayList<File> files =  (PluginUtil.unpackZipFromBytes(inputStream, cacheDirPath));
+//        inputStream.close();
+//        for (File file : files) {
+//          if (file.getName().contains(".kml")) {
+//            inputStream = new FileInputStream(file);
+//            break;
+//          }
+//        }
+//      }
 
 
       String line;

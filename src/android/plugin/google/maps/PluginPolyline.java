@@ -1,7 +1,6 @@
 package plugin.google.maps;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;

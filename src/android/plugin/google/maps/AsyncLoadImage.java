@@ -1,6 +1,5 @@
 package plugin.google.maps;
 
-import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -11,11 +10,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.webkit.WebView;
 
 import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaWebView;
 
