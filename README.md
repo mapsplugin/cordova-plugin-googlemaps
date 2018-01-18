@@ -80,7 +80,7 @@ Example using config.xml
 
 - Implement the CSS/HTML element hierarchy correctly.
 
-
+- Implement map.addKmlOverlay()
 
 ## Quick demo
 
@@ -244,6 +244,13 @@ map.addTileOverlay({
     return "../images/map-for-free/" + zoom + "_" + x + "-" + y + ".gif"
   }
 }, function(tileOverlay) { ... });</pre></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/KmlOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/multiple_maps/images/kmloverlay.png?raw=true"><br>KmlOverlay</a></td>
+  <td><pre>
+map.addKmlOverlay({
+  'url': 'http://www.weather.gov/source/crh/shapefiles/wwa.kmz'
+}, function(kmlOverlay) { ... });</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true"><br>Geocoder</a></td>
