@@ -38,7 +38,7 @@ Geolocation.prototype.getMyLocation = function(params, success_callback, error_c
   };
   exec.call({
     _isReady: true
-  }, successHandler, errorHandler, 'Geolocation', 'getMyLocation', [params], {sync: true});
+  }, successHandler, errorHandler, 'pgmGeolocation', 'getMyLocation', [params], {sync: true});
 };
 
 /**

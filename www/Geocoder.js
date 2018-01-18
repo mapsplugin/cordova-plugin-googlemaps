@@ -41,7 +41,7 @@ Geocoder.geocode = function(geocoderRequest, callback) {
             } else {
                 mvcResults.trigger("error", error);
             }
-        }, "Geocoder", 'geocode', [request]);
+        }, "pgmGeocoder", 'geocode', [request]);
     });
 
     geocoderRequest = geocoderRequest || {};

@@ -70,8 +70,8 @@ if (!cordova) {
   var encoding = require('./encoding');
   var spherical = require('./spherical');
   var poly = require('./poly');
-  var Geocoder = require('./Geocoder');
-  var Geolocation = require('./Geolocation');
+  var Geocoder = require('./pgmGeocoder');
+  var Geolocation = require('./pgmGeolocation');
   var Environment = require('./Environment');
   var MapTypeId = require('./MapTypeId');
 

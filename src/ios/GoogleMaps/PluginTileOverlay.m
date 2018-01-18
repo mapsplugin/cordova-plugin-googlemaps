@@ -116,8 +116,13 @@
 
 
 
-
-      if (json[@"visible"]) {
+      // Visible property
+      NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+      if ([@"0" isEqualToString:visibleValue]) {
+        // false
+        layer.map = nil;
+      } else {
+        // true or default
         layer.map = self.mapCtrl.map;
       }
       if ([json valueForKey:@"zIndex"]) {

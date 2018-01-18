@@ -93,10 +93,17 @@
             groundOverlay.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
 
-        BOOL isVisible = NO;
-        if (json[@"visible"]) {
-            groundOverlay.map = self.mapCtrl.map;
-            isVisible = YES;
+        BOOL isVisible = YES;
+
+        // Visible property
+        NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+        if ([@"0" isEqualToString:visibleValue]) {
+          // false
+          isVisible = NO;
+          groundOverlay.map = nil;
+        } else {
+          // true or default
+          groundOverlay.map = self.mapCtrl.map;
         }
         BOOL isClickable = NO;
         if ([[json valueForKey:@"clickable"] boolValue]) {

@@ -179,9 +179,14 @@
   }
 
   // Visible property
-  if (json[@"visible"]) {
-    [iconProperty setObject:json[@"visible"] forKey:@"visible"];
+  NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+  BOOL visible = YES;
+  if ([@"0" isEqualToString:visibleValue]) {
+    // false
+    visible = NO;
+    [iconProperty setObject:[NSNumber numberWithBool:false] forKey:@"visible"];
   } else {
+    // default or true
     [iconProperty setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   }
 
@@ -201,8 +206,10 @@
     // Load icon in asynchronise
     [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];
   } else {
-    if (json[@"visible"]) {
+    if (visible) {
       marker.map = self.mapCtrl.map;
+    } else {
+      marker.map = nil;
     }
 
 
@@ -808,8 +815,10 @@
       marker.icon = [GMSMarker markerImageWithColor:iconColor];
 
       // The `visible` property
-      if (iconProperty[@"visible"]) {
+      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
         marker.map = self.mapCtrl.map;
+      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+        marker.map = nil;
       }
 
       if (animation) {
@@ -909,8 +918,10 @@
 
 
       // The `visible` property
-      if (iconProperty[@"visible"]) {
+      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
         marker.map = self.mapCtrl.map;
+      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+        marker.map = nil;
       }
 
       if (animation) {
@@ -1023,8 +1034,10 @@
               if (!succeeded) {
                 NSLog(@"[fail] url = %@", url);
                 // The `visible` property
-                if (iconProperty[@"visible"]) {
+                if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
                   marker.map = self.mapCtrl.map;
+                } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+                  marker.map = nil;
                 }
                 if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
                   [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
@@ -1076,8 +1089,10 @@
                 }
 
                 // The `visible` property
-                if (iconProperty[@"visible"]) {
+                if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
                   marker.map = self.mapCtrl.map;
+                } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+                  marker.map = nil;
                 }
 
 
@@ -1236,8 +1251,10 @@
 
 
       // The `visible` property
-      if (iconProperty[@"visible"]) {
+      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
         marker.map = self.mapCtrl.map;
+      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+        marker.map = nil;
       }
 
       if (animation) {
@@ -1275,8 +1292,10 @@
       if (!succeeded) {
         NSLog(@"[fail] url = %@", url);
         // The `visible` property
-        if (iconProperty[@"visible"]) {
+        if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
           marker.map = self.mapCtrl.map;
+        } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+          marker.map = nil;
         }
         if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
           [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
@@ -1328,8 +1347,10 @@
         }
 
         // The `visible` property
-        if (iconProperty[@"visible"]) {
+        if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
           marker.map = self.mapCtrl.map;
+        } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+          marker.map = nil;
         }
 
 
