@@ -230,7 +230,7 @@
       NSString *polygonKey = [command.arguments objectAtIndex:0];
       NSInteger holeIndex = [[command.arguments objectAtIndex:1] integerValue];
       NSInteger pointIndex = [[command.arguments objectAtIndex:2] integerValue];
-      GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
+      //GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
 
 
       // Get properties
@@ -393,7 +393,7 @@
 
       NSString *polygonKey = [command.arguments objectAtIndex:0];
       NSInteger index = [[command.arguments objectAtIndex:1] integerValue];
-      GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
+      //GMSPolygon *polygon = (GMSPolygon *)[self.mapCtrl.objects objectForKey:polygonKey];
 
       // Get properties
       NSString *propertyId = [polygonKey stringByReplacingOccurrencesOfString:@"polygon_" withString:@"polygon_property_"];
@@ -643,7 +643,7 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
       NSString *polygonKey = [command.arguments objectAtIndex:0];
-      GMSPolygon *polygon = [self.mapCtrl.objects objectForKey:polygonKey];
+      //GMSPolygon *polygon = [self.mapCtrl.objects objectForKey:polygonKey];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Get properties

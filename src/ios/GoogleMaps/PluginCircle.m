@@ -303,7 +303,7 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
       NSString *key = [command.arguments objectAtIndex:0];
-      GMSCircle *circle = (GMSCircle *)[self.mapCtrl.objects objectForKey:key];
+      //GMSCircle *circle = (GMSCircle *)[self.mapCtrl.objects objectForKey:key];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property

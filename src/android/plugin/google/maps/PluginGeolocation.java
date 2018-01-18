@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -20,8 +21,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -36,6 +39,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +59,7 @@ public class PluginGeolocation extends CordovaPlugin {
     super.initialize(cordova, webView);
     activity = cordova.getActivity();
   }
+  private static Location lastLocation = null;
 
 
   @Override
@@ -110,6 +115,23 @@ public class PluginGeolocation extends CordovaPlugin {
         callbackContext.error("Geolocation permission request was denied.");
         return;
       }
+    }
+    if (Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
+      //---------------------------------------------------------------------
+      // If the user requests the location in two seconds from the last time,
+      // return the last result in order to save battery usage.
+      // (Don't request the device location too much! Save battery usage!)
+      //---------------------------------------------------------------------
+      JSONObject result;
+      try {
+        result = PluginUtil.location2Json(lastLocation);
+        result.put("status", true);
+        callbackContext.success(result);
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+
+      return;
     }
 
     if (googleApiClient == null) {
@@ -279,85 +301,69 @@ public class PluginGeolocation extends CordovaPlugin {
     }
 
     LocationRequest locationRequest= LocationRequest.create()
-        .setExpirationTime(5000)
+        //.setExpirationTime(5000)
+        .setFastestInterval(1000)
         .setNumUpdates(2)
         .setSmallestDisplacement(0)
         .setPriority(priority)
-        .setInterval(5000);
+        .setMaxWaitTime(6000)
+        .setInterval(3000);
 
 
-    final PendingResult<Status> result =  LocationServices.FusedLocationApi.requestLocationUpdates(
-        googleApiClient, locationRequest, new LocationListener() {
-
+    LocationServices.getFusedLocationProviderClient(cordova.getActivity())
+        .requestLocationUpdates(locationRequest, new LocationCallback() {
           @Override
-          public void onLocationChanged(Location location) {
-            /*
-            if (callbackContext.isFinished()) {
-              return;
+          public void onLocationResult(LocationResult locationResult) {
+            Location location = null;
+            if (locationResult.getLocations().size() > 0) {
+              location = locationResult.getLocations().get(0);
+              lastLocation = location;
+            } else if (locationResult.getLastLocation() != null) {
+              location = locationResult.getLastLocation();
             }
-            */
-            JSONObject result;
-            try {
-              result = PluginUtil.location2Json(location);
-              result.put("status", true);
-              callbackContext.success(result);
-            } catch (JSONException e) {
-              e.printStackTrace();
+
+            Log.d(TAG, "===> location =" + location);
+            if (location != null) {
+              JSONObject result;
+              try {
+                result = PluginUtil.location2Json(location);
+                result.put("status", true);
+                callbackContext.success(result);
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+            } else {
+              if (!isRetry) {
+                Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
+
+                PluginGeolocation.this.sendNoResult(callbackContext);
+
+                // Retry
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                  @Override
+                  public void run() {
+                    _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
+                  }
+                }, 3000);
+              } else {
+                // Send back the error result
+                JSONObject result = new JSONObject();
+                try {
+                  result.put("status", false);
+                  result.put("error_code", "cannot_detect");
+                  result.put("error_message", "Can not detect your location. Try again.");
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
+                callbackContext.error(result);
+              }
             }
 
             googleApiClient.disconnect();
           }
+        }, Looper.myLooper());
 
-        });
-
-    result.setResultCallback(new ResultCallback<Status>() {
-
-      public void onResult(Status status) {
-        if (!status.isSuccess()) {
-          String errorMsg = status.getStatusMessage();
-          PluginResult result = new PluginResult(PluginResult.Status.ERROR, errorMsg);
-          callbackContext.sendPluginResult(result);
-        } else {
-          // no update location
-          Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-          if (location != null) {
-            try {
-              JSONObject result = PluginUtil.location2Json(location);
-              result.put("status", true);
-              callbackContext.success(result);
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }
-          } else {
-            if (!isRetry) {
-              Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
-
-              PluginGeolocation.this.sendNoResult(callbackContext);
-
-              // Retry
-              Handler handler = new Handler();
-              handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                  _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
-                }
-              }, 3000);
-            } else {
-              // Send back the error result
-              JSONObject result = new JSONObject();
-              try {
-                result.put("status", false);
-                result.put("error_code", "cannot_detect");
-                result.put("error_message", "Can not detect your location. Try again.");
-              } catch (JSONException e) {
-                e.printStackTrace();
-              }
-              callbackContext.error(result);
-            }
-          }
-        }
-      }
-    });
   }
 
   private void _onActivityResultLocationPage(Bundle bundle) {
