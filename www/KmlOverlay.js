@@ -1,4 +1,4 @@
-ar argscheck = require('cordova/argscheck'),
+var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),

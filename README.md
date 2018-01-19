@@ -249,7 +249,7 @@ map.addTileOverlay({
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/KmlOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/multiple_maps/images/kmloverlay.png?raw=true"><br>KmlOverlay</a></td>
   <td><pre>
 map.addKmlOverlay({
-  'url': 'http://www.weather.gov/source/crh/shapefiles/wwa.kmz'
+  'url': 'polygon.kml'
 }, function(kmlOverlay) { ... });</pre></td>
 </tr>
 <tr>
