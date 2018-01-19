@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.VisibleRegion;
@@ -77,7 +79,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter,
     GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveCanceledListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
-    GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener {
+    GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener, GoogleMap.OnMyLocationClickListener, GoogleMap.OnPoiClickListener {
 
   private LatLngBounds initCameraBounds;
   private Activity activity;
@@ -95,6 +97,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private boolean isDragging = false;
   //public final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
   public final ObjectCache objects = new ObjectCache();
+
 
 
   private enum TEXT_STYLE_ALIGNMENTS {
@@ -295,6 +298,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               map.setOnInfoWindowClickListener(PluginMap.this);
               map.setOnInfoWindowLongClickListener(PluginMap.this);
               map.setOnInfoWindowCloseListener(PluginMap.this);
+              map.setOnMyLocationClickListener(PluginMap.this);
+              map.setOnPoiClickListener(PluginMap.this);
 
               //Custom info window
               map.setInfoWindowAdapter(PluginMap.this);
@@ -723,6 +728,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   map.setOnMyLocationButtonClickListener(null);
                   map.setOnMapLoadedCallback(null);
                   map.setOnMarkerDragListener(null);
+                  map.setOnMyLocationClickListener(null);
+                  map.setOnPoiClickListener(null);
                 } catch (SecurityException e) {
                   e.printStackTrace();
                 }
@@ -2421,6 +2428,16 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     return false;
   }
 
+  @Override
+  public void onMyLocationClick(@NonNull Location location) {
+    PluginGeolocation.setLastLocation(location);
+    try {
+      JSONObject result = PluginUtil.location2Json(location);
+      jsCallback(String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s',{evtName: 'my_location_click', callback:'_onMapEvent', args: [%s]});}", mapId, result.toString(0)));
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+  }
 
   /**
    * Notify the myLocationChange event to JS
@@ -2562,6 +2579,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
     }
     jsCallback(String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName:'indoor_level_activated', callback:'_onMapEvent', args: [%s]});}", mapId, jsonStr));
+  }
+  @Override
+  public void onPoiClick(PointOfInterest pointOfInterest) {
+
+    String js = String.format(Locale.ENGLISH, "javascript:if(window.cordova){cordova.fireDocumentEvent('%s', {evtName: '%s', callback:'_onMapEvent', args:['%s', '%s', new plugin.google.maps.LatLng(%f, %f)]});}",
+    mapId, "poi_click", pointOfInterest.placeId, pointOfInterest.name, pointOfInterest.latLng.latitude, pointOfInterest.latLng.longitude);
+    jsCallback(js);
   }
 
   private void jsCallback(final String js) {

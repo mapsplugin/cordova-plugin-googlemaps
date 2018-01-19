@@ -43,6 +43,14 @@
   [super didReceiveMemoryWarning];
 }
 
+- (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
+
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});",
+                        self.mapId, @"poi_click", placeID, name, location.latitude, location.longitude];
+  [self execJS:jsString];
+}
+
 /**
  * Called when the My Location button is tapped.
  *
@@ -65,6 +73,39 @@
  * @callback the my location button is clicked.
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+
+  if (self.map.isMyLocationEnabled) {
+    // Since the google maps sdk for iOS does not provide any events when you tap on the blue dot,
+    // detect the user tap on it by myself
+    CGPoint blueDotPoint = [self.map.projection pointForCoordinate:self.map.myLocation.coordinate];
+    CGPoint tapPoint = [self.map.projection pointForCoordinate:coordinate];
+
+    if (ABS(blueDotPoint.x - tapPoint.x) < 10 && ABS(blueDotPoint.y - tapPoint.y) < 10) {
+
+      NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+      [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.latitude] forKey:@"lat"];
+      [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.longitude] forKey:@"lng"];
+
+      NSMutableDictionary *json = [NSMutableDictionary dictionary];
+
+      [json setObject:latLng forKey:@"latLng"];
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation speed]] forKey:@"speed"];
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation altitude]] forKey:@"altitude"];
+
+      //todo: calcurate the correct accuracy based on horizontalAccuracy and verticalAccuracy
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation horizontalAccuracy]] forKey:@"accuracy"];
+      [json setObject:[NSNumber numberWithDouble:[self.map.myLocation.timestamp timeIntervalSince1970]] forKey:@"time"];
+      [json setObject:[NSNumber numberWithInteger:[self.map.myLocation hash]] forKey:@"hashCode"];
+
+      NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
+      NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+      NSString* jsString = [NSString
+                            stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [%@]});",
+                            self.mapId, @"my_location_click", sourceArrayString];
+      [self execJS:jsString];
+    }
+  }
 
   if (self.activeMarker) {
     /*
@@ -487,7 +528,8 @@
  * Map tiles are loaded
  */
 - (void) mapViewDidFinishTileRendering:(GMSMapView *)mapView {
-  [self triggerMapEvent:@"map_loaded"];
+  // no longer available from v2.2.0
+  //[self triggerMapEvent:@"map_loaded"];
 }
 
 /**

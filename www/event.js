@@ -1,9 +1,10 @@
 module.exports = {
     MAP_READY: 'map_ready',
-    MAP_LOADED: 'map_loaded',
     MAP_CLICK: 'map_click',
     MAP_LONG_CLICK: 'map_long_click',
+    POI_CLICK: 'poi_click',
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
+    MY_LOCATION_CLICK: 'my_location_click',
     INDOOR_BUILDING_FOCUSED: 'indoor_building_focused',
     INDOOR_LEVEL_ACTIVATED: 'indoor_level_activated',
     CAMERA_MOVE_START: 'camera_move_start',
