@@ -11,6 +11,8 @@
 
 @interface PluginGeolocation : CDVPlugin<CLLocationManagerDelegate>
 
+@property (nonatomic, strong) NSMutableDictionary *lastResult;
+@property (nonatomic, strong) CLLocation *lastLocation;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableArray *locationCommandQueue;
 - (void)getMyLocation:(CDVInvokedUrlCommand*)command;
