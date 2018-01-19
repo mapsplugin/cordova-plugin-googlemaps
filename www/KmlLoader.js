@@ -59,7 +59,6 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
 
   self.exec.call(self, function(kmlData) {
     var rawKmlData = JSON.parse(JSON.stringify(kmlData));
-  console.log(rawKmlData);
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
       writable: false
@@ -710,7 +709,6 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   }
 
   params.styles.children.forEach(function(style) {
-console.log(style);
     switch (style.tagName) {
       case "linestyle":
         style.children.forEach(function(node) {
