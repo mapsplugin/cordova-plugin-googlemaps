@@ -91,12 +91,13 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       if (description) {
         description = description.value;
       } else if (overlay.get("extendeddata")) {
-        var keys = Object.keys(overlay.get("extendeddata"));
+        var extendeddata = overlay.get("extendeddata");
+        var keys = Object.keys(extendeddata);
         var table = [
           "<table border='1'>"
         ];
         keys.forEach(function(key) {
-          table.push("<tr><th>" + key + "</th><td>" + markerOptions.extendeddata[key] + "</td></tr>");
+          table.push("<tr><th>" + key + "</th><td>" + extendeddata[key] + "</td></tr>");
         });
         table.push("</table>");
         description = table.join("");
@@ -180,7 +181,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         marker.set("infoWindowAnchor", marker.get("infoWindowAnchor"));
         marker.setIcon(marker.get("icon"));
         marker.setVisible(false);
-        overlay.setAnimation(plugin.google.maps.Animation.BOUNCE);
         ballon.open(marker);
       } else {
         marker.set("infoWindowAnchor", undefined);

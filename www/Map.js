@@ -31,7 +31,6 @@ var Map = function(id, _exec) {
     BaseClass.apply(self);
 
     self.MARKERS = {};
-    self.KML_LAYERS = {};
     self.OVERLAYS = {};
 
     Object.defineProperty(self, "type", {
@@ -198,16 +197,7 @@ Map.prototype.getMap = function(mapId, div, options) {
             writable: false
         });
         self.refreshLayout();
-
-        // Create an invisible marker for kmlOverlay
-        self.addMarker({
-          position: {lat: 0, lng: 0},
-          icon: "skyblue",
-          visible: false
-        }, function(marker) {
-          self.set("invisible_dot", marker);
-          self.trigger(event.MAP_READY, self);
-        });
+        self.trigger(event.MAP_READY, self);
       }, 250);
     }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {sync: true});
 
@@ -300,7 +290,6 @@ Map.prototype.clear = function(callback) {
 
     clearObj(self.OVERLAYS);
     clearObj(self.MARKERS);
-    clearObj(self.KML_LAYERS);
     self.trigger("map_clear");
 
     exec.call(this, function() {
@@ -598,7 +587,6 @@ Map.prototype.remove = function(callback) {
 
     clearObj(self.OVERLAYS);
     clearObj(self.MARKERS);
-    clearObj(self.KML_LAYERS);
 
     exec.call(this, function() {
         if (typeof callback === "function") {
@@ -815,6 +803,18 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   kmlOverlayOptions.url = kmlOverlayOptions.url || null;
   kmlOverlayOptions.clickable = common.defaultTrueOption(kmlOverlayOptions.clickable);
   kmlOverlayOptions.suppressInfoWindows = kmlOverlayOptions.suppressInfoWindows === true;
+
+  var invisible_dot = self.get("invisible_dot");
+  if (!invisible_dot || invisible_dot._isRemoved) {
+    // Create an invisible marker for kmlOverlay
+    self.addMarker({
+      position: {lat: 0, lng: 0},
+      icon: "skyblue",
+      visible: false
+    }, function(marker) {
+      self.set("invisible_dot", marker);
+    });
+  }
 
   var loader = new KmlLoader(self, exec, kmlOverlayOptions);
   loader.parseKmlFile(function(camera, kmlData) {
