@@ -61,6 +61,11 @@ public class PluginGeolocation extends CordovaPlugin {
   }
   private static Location lastLocation = null;
 
+  public static void setLastLocation(Location location) {
+    // Sets the last location if the end user click on the mylocation (blue dot)
+    lastLocation = location;
+  }
+
 
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
