@@ -1,4 +1,4 @@
-var argscheck = require('cordova/argscheck'),
+ar argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
     BaseClass = require('./BaseClass'),
@@ -10,7 +10,7 @@ var argscheck = require('cordova/argscheck'),
  * KmlOverlay Class
  *****************************************************************************/
 var exec;
-var KmlOverlay = function(map, kmlId, camera, kmlData) {
+var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
     BaseClass.apply(this);
 
     var self = this;
@@ -80,6 +80,11 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
 
     var ballon = new HtmlInfoWindow();
     var onOverlayClick = function(position, overlay) {
+      self.trigger(event.KML_CLICK, overlay, position);
+
+      if (kmlOverlayOptions.suppressInfoWindows) {
+        return;
+      }
       map.get("invisible_dot").setPosition(position);
 
       var description = overlay.get("description");
@@ -208,7 +213,10 @@ var KmlOverlay = function(map, kmlId, camera, kmlData) {
       }
     };
 
-    kmlData.forEach(seekOverlays);
+    if (kmlOverlayOptions.clickable) {
+      kmlData.forEach(seekOverlays);
+    }
+
 /*
     var ignores = ["map", "id", "hashCode", "type"];
     for (var key in kmlOverlayOptions) {

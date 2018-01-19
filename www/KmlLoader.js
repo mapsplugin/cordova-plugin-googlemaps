@@ -920,7 +920,9 @@ KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
         overlay.setVisible(true);
       } else {
         self.map.addKmlOverlay({
-          url: networkLinkOptions.link.href
+          url: networkLinkOptions.link.href,
+          clickable: self.options.clickable,
+          suppressInfoWindows: self.options.suppressInfoWindows
         }, function(overlay) {
           networkOverlay.set("overlay", overlay);
         });

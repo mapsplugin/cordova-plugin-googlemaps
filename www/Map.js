@@ -813,6 +813,8 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   var self = this;
   kmlOverlayOptions = kmlOverlayOptions || {};
   kmlOverlayOptions.url = kmlOverlayOptions.url || null;
+  kmlOverlayOptions.clickable = common.defaultTrueOption(kmlOverlayOptions.clickable);
+  kmlOverlayOptions.suppressInfoWindows = kmlOverlayOptions.suppressInfoWindows === true;
 
   var loader = new KmlLoader(self, exec, kmlOverlayOptions);
   loader.parseKmlFile(function(camera, kmlData) {
@@ -820,7 +822,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
       kmlData = new BaseArrayClass([kmlData]);
     }
     var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
-    var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData);
+    var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
     self.OVERLAYS[kmlId] = kmlOverlay;
     callback(kmlOverlay);
   });
