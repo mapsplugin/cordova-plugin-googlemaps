@@ -75,12 +75,14 @@ BaseArrayClass.prototype.mapAsync = function(fn, callback) {
   }
   for (i = 0; i < self[ARRAY_FIELD].length; i++) {
     (function(item, idx) {
-      fn.call(self, item, function(value) {
-        results[idx] = value;
-        finishCnt++;
-        if (finishCnt === _arrayLength) {
-          callback.call(self, results);
-        }
+      nextTick(function() {
+        fn.call(self, item, function(value) {
+          results[idx] = value;
+          finishCnt++;
+          if (finishCnt === _arrayLength) {
+            callback.call(self, results);
+          }
+        });
       });
     })(self[ARRAY_FIELD][i], i);
   }
@@ -127,7 +129,16 @@ BaseArrayClass.prototype.forEachAsync = function(fn, callback) {
     return;
   }
 
-  self[ARRAY_FIELD].forEach(fn.bind(self));
+  for (var i = 0; i < self[ARRAY_FIELD].length; i++) {
+    (function(item, idx) {
+      fn.call(self, item, function() {
+        finishCnt++;
+        if (finishCnt === _arrayLength) {
+          callback.call(self);
+        }
+      });
+    })(self[ARRAY_FIELD][i], i);
+  }
 };
 
 BaseArrayClass.prototype.forEach = function(fn, callback) {

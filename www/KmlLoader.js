@@ -654,7 +654,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
               polygonOptions.strokeColor = kmlColorToRGBA(node.value);
               break;
             case "width":
-              polygonOptions.strokeWidth = parseInt(node.value);
+              polygonOptions.strokeWidth = parseFloat(node.value);
               break;
           }
         });
@@ -689,6 +689,7 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
 };
 
 KmlLoader.prototype.parseLineStringTag = function(params, callback) {
+  //console.log(JSON.parse(JSON.stringify(params)));
   var self = this;
   //--------------
   // add a polyline
@@ -709,16 +710,16 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   }
 
   params.styles.children.forEach(function(style) {
+console.log(style);
     switch (style.tagName) {
       case "linestyle":
-        var keys = Object.keys(style);
-        keys.forEach(function(key) {
-          switch(key) {
+        style.children.forEach(function(node) {
+          switch(node.tagName) {
             case "color":
-              polylineOptions.color = kmlColorToRGBA(style.color);
+              polylineOptions.color = kmlColorToRGBA(node.value);
               break;
             case "width":
-              polylineOptions.width = parseInt(style.width);
+              polylineOptions.width = parseFloat(node.value);
               break;
           }
         });
@@ -737,7 +738,7 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   });
 
 
-//  console.log('polylinePlacemark', polylineOptions);
+  //console.log('polylinePlacemark', polylineOptions);
 
   self.map.addPolyline(polylineOptions, callback);
 
