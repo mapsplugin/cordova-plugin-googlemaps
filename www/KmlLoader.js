@@ -711,6 +711,7 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   params.styles.children.forEach(function(style) {
     switch (style.tagName) {
       case "linestyle":
+      case "polystyle":
         style.children.forEach(function(node) {
           switch(node.tagName) {
             case "color":
