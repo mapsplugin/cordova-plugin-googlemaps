@@ -88,21 +88,24 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       map.get("invisible_dot").setPosition(position);
 
       var description = overlay.get("description");
-      if (description) {
-        description = description.value;
-      } else if (overlay.get("extendeddata")) {
+      if (!description && overlay.get("extendeddata")) {
         var extendeddata = overlay.get("extendeddata");
         var keys = Object.keys(extendeddata);
-        var table = [
-          "<table border='1'>"
-        ];
+        var table = [];
         keys.forEach(function(key) {
-          table.push("<tr><th>" + key + "</th><td>" + extendeddata[key] + "</td></tr>");
+          if (extendeddata[key] !== "" && extendeddata[key] !== null && extendeddata[key] !== undefined) {
+            table.push("<tr><th>" + key + "</th><td>" + extendeddata[key] + "</td></tr>");
+          }
         });
-        table.push("</table>");
-        description = table.join("");
+        if (table.length > 0) {
+          table.unshift("<table border='1'>");
+          table.push("</table>");
+          description = table.join("");
+          overlay.set("description", {
+            value: description
+          });
+        }
       }
-      description = description || "";
 
 
 
