@@ -88,7 +88,7 @@
 
         NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
 
-        if (timeStamp - self.lastLocation.timestamp.timeIntervalSince1970 < 2000) {
+        if (self.lastLocation && timeStamp - self.lastLocation.timestamp.timeIntervalSince1970 < 2000) {
           //---------------------------------------------------------------------
           // If the user requests the location in two seconds from the last time,
           // return the last result in order to save battery usage.

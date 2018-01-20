@@ -22,7 +22,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -121,7 +120,7 @@ public class PluginGeolocation extends CordovaPlugin {
         return;
       }
     }
-    if (Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
+    if (lastLocation != null && Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
       //---------------------------------------------------------------------
       // If the user requests the location in two seconds from the last time,
       // return the last result in order to save battery usage.
@@ -146,7 +145,7 @@ public class PluginGeolocation extends CordovaPlugin {
 
           @Override
           public void onConnected(Bundle connectionHint) {
-            Log.e(TAG, "===> onConnected");
+            Log.d(TAG, "===> onConnected");
             PluginGeolocation.this.sendNoResult(callbackContext);
 
             _checkLocationSettings(isHigh, callbackContext);
@@ -176,6 +175,8 @@ public class PluginGeolocation extends CordovaPlugin {
       googleApiClient.connect();
     } else if (googleApiClient.isConnected()) {
       _checkLocationSettings(isHigh, callbackContext);
+    } else {
+      Log.e(TAG, "===> googleApiClient.isConnected() is not connected");
     }
   }
 
