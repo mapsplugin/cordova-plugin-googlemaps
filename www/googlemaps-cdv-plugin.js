@@ -487,7 +487,7 @@ if (!cordova) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-      console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
+      //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
       cordova_exec(function() {
         //console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
@@ -832,7 +832,7 @@ if (!cordova) {
                 elemId = common.getPluginDomId(div);
                 domPositions[elemId].isMap = true;
 
-                console.log("--->getMap (start)", JSON.parse(JSON.stringify(domPositions)));
+                //console.log("--->getMap (start)", JSON.parse(JSON.stringify(domPositions)));
                 cordova_exec(function() {
                   cordova_exec(function() {
                     map.getMap.apply(map, args);
