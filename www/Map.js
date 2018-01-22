@@ -166,15 +166,6 @@ Map.prototype.getMap = function(mapId, div, options) {
     var div = self.get("div");
     if (common.isDom(div)) {
       while (div.parentNode) {
-        if (common.getStyle(div, "-webkit-overflow-scrolling") === "touch") {
-          // Disable scrolling, becase the `scroll` events are not fired.
-          div.style["-webkit-overflow-scrolling"] = "auto";
-          div.addEventListener('touchstart', self._onTouchEvents.bind(self));
-          div.addEventListener('touchmove', self._onTouchEvents.bind(self));
-          div.addEventListener('touchend', self._onTouchEvents.bind(self));
-          div.addEventListener('touchcancel', self._onTouchEvents.bind(self));
-          div.addEventListener('touchleave', self._onTouchEvents.bind(self));
-        }
         div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
         // prevent multiple readding the class
@@ -665,11 +656,6 @@ Map.prototype.setDiv = function(div) {
     }
     self.set("div", null);
   } else {
-    var currentDiv = this.get('div');
-    if (common.isDom(currentDiv)) {
-      currentDiv.removeAttribute('__pluginMapId');
-      currentDiv.removeAttribute('__pluginDomId');
-    }
     div.setAttribute("__pluginMapId", self.id);
 
     // Webkit redraw mandatory
@@ -678,6 +664,7 @@ Map.prototype.setDiv = function(div) {
     div.offsetHeight;
     div.style.display = '';
 
+console.log("--->setDiv");
     self.set("div", div);
 
     var positionCSS = common.getStyle(div, "position");
@@ -689,15 +676,6 @@ Map.prototype.setDiv = function(div) {
     while (div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
 
-      if (common.getStyle(div, "-webkit-overflow-scrolling") === "touch") {
-        // Disable scrolling, becase the `scroll` events are not fired.
-        div.style["-webkit-overflow-scrolling"] = "auto";
-        div.addEventListener('touchstart', self._onTouchEvents.bind(self));
-        div.addEventListener('touchmove', self._onTouchEvents.bind(self));
-        div.addEventListener('touchend', self._onTouchEvents.bind(self));
-        div.addEventListener('touchcancel', self._onTouchEvents.bind(self));
-        div.addEventListener('touchleave', self._onTouchEvents.bind(self));
-      }
       // prevent multiple readding the class
       if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
         div.classList.add('_gmaps_cdv_');
@@ -1295,7 +1273,4 @@ Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
   }
 };
 
-Map.prototype._onTouchEvents = function() {
-  this.trigger('touchevent');
-};
 module.exports = Map;

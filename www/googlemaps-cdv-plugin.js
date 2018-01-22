@@ -487,7 +487,7 @@ if (!cordova) {
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
-      //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
+      console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
       cordova_exec(function() {
         //console.log("--->putHtmlElements to native (done)");
         if (checkRequested) {
@@ -696,6 +696,68 @@ if (!cordova) {
 
               // Catch all events for this map instance, then pass to the instance.
               document.addEventListener(mapId, nativeCallback.bind(map));
+              map.on('div_changed', function(oldDiv, newDiv) {
+                if (common.isDom(oldDiv)) {
+                  oldDiv.removeAttribute('__pluginMapId');
+                  var ele = oldDiv;
+                  while(ele != document.body.parentNode) {
+                    elemId = ele.getAttribute('__pluginDomId');
+                    if (elemId) {
+                      domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
+                      delete domPositions[elemId].containMapIDs[mapId];
+                      if ((Object.keys(domPositions[elemId].containMapIDs)).length < 1) {
+                        delete domPositions[elemId];
+                      }
+                    }
+                    ele.removeAttribute('__pluginDomId');
+                    if (ele.classList) {
+                      ele.classList.remove('_gmaps_cdv_');
+                    } else if (ele.className) {
+                      ele.className = ele.className.replace(/_gmaps_cdv_/g, "");
+                      ele.className = ele.className.replace(/\s+/g, " ");
+                    }
+                    ele = ele.parentNode;
+                  }
+                }
+
+                if (common.isDom(newDiv)) {
+
+                  elemId = common.getPluginDomId(newDiv);
+                  console.log("---> setDiv() = " + elemId + ", mapId = " + mapId);
+
+                  elem = newDiv;
+                  var isCached;
+                  while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                    //
+                    // if (common.getStyle(elem, "-webkit-overflow-scrolling") === "touch") {
+                    //   // Disable scrolling, becase the `scroll` events are not fired.
+                    //   elem.style["-webkit-overflow-scrolling"] = "auto";
+                    //   elem.addEventListener('touchstart', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchmove', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchend', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchcancel', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchleave', self._onTouchEvents.bind(self));
+                    // }
+                    elemId = common.getPluginDomId(elem);
+                    isCached = elemId in domPositions;
+                    domPositions[elemId] = {
+                      pointerEvents: common.getStyle(elem, 'pointer-events'),
+                      isMap: false,
+                      size: common.getDivRect(elem),
+                      zIndex: common.getZIndex(elem),
+                      children: (elemId in domPositions ? domPositions[elemId].children : []),
+                      overflowX: common.getStyle(elem, "overflow-x"),
+                      overflowY: common.getStyle(elem, "overflow-y"),
+                      containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
+                    };
+                    domPositions[elemId].containMapIDs[mapId] = 1;
+                    elem = elem.parentNode;
+                  }
+
+                  elemId = common.getPluginDomId(newDiv);
+                  domPositions[elemId].isMap = true;
+                }
+              });
 
               map.one('remove', function() {
                   document.removeEventListener(mapId, nativeCallback);
@@ -770,7 +832,7 @@ if (!cordova) {
                 elemId = common.getPluginDomId(div);
                 domPositions[elemId].isMap = true;
 
-                //console.log("--->getMap (start)", JSON.parse(JSON.stringify(domPositions)));
+                console.log("--->getMap (start)", JSON.parse(JSON.stringify(domPositions)));
                 cordova_exec(function() {
                   cordova_exec(function() {
                     map.getMap.apply(map, args);
