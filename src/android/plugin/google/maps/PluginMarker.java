@@ -215,8 +215,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
         } else {
           try {
-            result.put("width", 25 * density);
-            result.put("height", 30 * density);
+            result.put("width", 31  / density);
+            result.put("height", 55  / density);
           } catch (Exception e) {
             e.printStackTrace();
           }

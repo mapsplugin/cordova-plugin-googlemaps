@@ -849,6 +849,8 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
       icon: "skyblue",
       visible: false
     }, function(marker) {
+console.log(marker.get("icon"));
+      marker.set("_icon_default", marker.get("icon"));
       self.set("invisible_dot", marker);
     });
   }

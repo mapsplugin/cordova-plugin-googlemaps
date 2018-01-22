@@ -41,6 +41,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         value: kmlData,
         writable: false
     });
+
     function templateRenderer(html, marker) {
       var extendedData = marker.get("extendeddata");
 
@@ -78,8 +79,14 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       return css;
     }
 
+    self.set("clickable", kmlOverlayOptions.clickable);
+
     var ballon = new HtmlInfoWindow();
     var onOverlayClick = function(position, overlay) {
+console.log("clickable = ", self.get("clickable"));
+      if (!self.get("clickable")) {
+        return;
+      }
       self.trigger(event.KML_CLICK, overlay, position);
 
       if (kmlOverlayOptions.suppressInfoWindows) {
@@ -100,10 +107,10 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         if (table.length > 0) {
           table.unshift("<table border='1'>");
           table.push("</table>");
-          description = table.join("");
-          overlay.set("description", {
-            value: description
-          });
+          description = {
+            value: table.join("")
+          };
+          overlay.set("description", description);
         }
       }
 
@@ -111,8 +118,8 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
 
       var html = [];
       var result;
-      if (description.indexOf("<html>") > -1 || description.indexOf("script") > -1) {
-        var text = templateRenderer(description, overlay);
+      if (description && (description.value.indexOf("<html>") > -1 || description.value.indexOf("script") > -1)) {
+        var text = templateRenderer(description.value, overlay);
         // create a sandbox
         if (text.indexOf("<html") === -1) {
           text = "<html><body>" + text + "</body></html>";
@@ -182,13 +189,13 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       var marker = map.get("invisible_dot");
       if (overlay.type === "Marker") {
         marker.set("infoWindowAnchor", marker.get("infoWindowAnchor"));
-        marker.setIcon(marker.get("icon"));
+        marker.set("icon", overlay.get("icon"));
         marker.setVisible(false);
         ballon.open(marker);
       } else {
         marker.set("infoWindowAnchor", undefined);
         marker.set("anchor", undefined);
-        marker.setIcon(undefined);
+        marker.set("icon", marker.get("_icon_default"));
         marker.setVisible(true);
         marker.setAnimation(plugin.google.maps.Animation.DROP);
         map.animateCamera({
@@ -216,9 +223,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       }
     };
 
-    if (kmlOverlayOptions.clickable) {
-      kmlData.forEach(seekOverlays);
-    }
+    kmlData.forEach(seekOverlays);
 
 /*
     var ignores = ["map", "id", "hashCode", "type"];
@@ -250,11 +255,28 @@ KmlOverlay.prototype.getId = function() {
     return this.id;
 };
 
+KmlOverlay.prototype.setClickable = function(clickable) {
+  clickable = common.parseBoolean(clickable);
+  this.set('clickable', clickable);
+  return this;
+};
+
+KmlOverlay.prototype.getClickable = function() {
+  return this.get('clickable');
+};
+
+KmlOverlay.prototype.getVisible = function() {
+  return this.get('visible');
+};
+
 KmlOverlay.prototype.setVisible = function(visible) {
   var self = this;
   if (self._isRemoved) {
     return;
   }
+
+  visible = common.parseBoolean(visible);
+  this.set('visible', visible);
 
   var applyChildren = function(children) {
     children.forEach(function(child) {
@@ -270,7 +292,7 @@ KmlOverlay.prototype.setVisible = function(visible) {
     });
   };
 
-  return applyChildren(self.kmlData);
+  applyChildren(self.kmlData);
 };
 
 KmlOverlay.prototype.remove = function(callback) {
