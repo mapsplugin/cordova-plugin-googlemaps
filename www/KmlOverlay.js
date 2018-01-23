@@ -193,9 +193,13 @@ console.log("clickable = ", self.get("clickable"));
         marker.setVisible(false);
         ballon.open(marker);
       } else {
-        marker.set("infoWindowAnchor", undefined);
-        marker.set("anchor", undefined);
-        marker.set("icon", marker.get("_icon_default"));
+        var _icon = JSON.parse(JSON.stringify(marker.get("_icon_default")));
+        marker.set("infoWindowAnchor", [0, 0], true);
+        marker.set("icon", {
+          url: "skyblue",
+          anchor: [_icon.size.width / 2, _icon.size.height],
+          size: _icon.size
+        }, true);
         marker.setVisible(true);
         marker.setAnimation(plugin.google.maps.Animation.DROP);
         map.animateCamera({

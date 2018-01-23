@@ -10,7 +10,7 @@ var HTMLInfoWindow = function() {
     var self = this;
     BaseClass.apply(self);
     var zoomScale = parseFloat(window.devicePixelRatio);
-    zoomScale = 1;
+    //zoomScale = 1;
     var callbackTable = {};
     var listenerMgr = {
       one: function(target, eventName, callback) {
