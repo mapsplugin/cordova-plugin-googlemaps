@@ -700,7 +700,7 @@ if (!cordova) {
                 if (common.isDom(oldDiv)) {
                   oldDiv.removeAttribute('__pluginMapId');
                   var ele = oldDiv;
-                  while(ele != document.body.parentNode) {
+                  while(ele && ele != document.body.parentNode) {
                     elemId = ele.getAttribute('__pluginDomId');
                     if (elemId) {
                       domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
