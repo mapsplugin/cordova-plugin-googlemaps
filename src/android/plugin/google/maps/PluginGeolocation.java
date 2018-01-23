@@ -307,13 +307,11 @@ public class PluginGeolocation extends CordovaPlugin {
     }
 
     LocationRequest locationRequest= LocationRequest.create()
-        //.setExpirationTime(5000)
-        .setFastestInterval(1000)
         .setNumUpdates(2)
         .setSmallestDisplacement(0)
         .setPriority(priority)
-        .setMaxWaitTime(6000)
-        .setInterval(3000);
+        .setExpirationDuration(12000)
+        .setMaxWaitTime(6000);
 
 
     LocationServices.getFusedLocationProviderClient(cordova.getActivity())
