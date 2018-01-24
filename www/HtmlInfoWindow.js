@@ -65,9 +65,9 @@ var HTMLInfoWindow = function() {
     anchorDiv.setAttribute("class", "pgm-anchor");
     anchorDiv.style.overflow="visible";
     anchorDiv.style.position="absolute";
-    //anchorDiv.style.display = "inline-block";
-    anchorDiv.style.width = '1px';
-    anchorDiv.style.height = '1px';
+    anchorDiv.style["z-index"] = 0;
+    anchorDiv.style.width = 0;
+    anchorDiv.style.height = 0;
     //anchorDiv.style.border = "1px solid green";
     //anchorDiv.style.backgroundColor = "rgba(125, 125, 255, 0.5)";
 

@@ -36,12 +36,10 @@ var Map = function(id, _exec) {
   infoWindowLayer.style.position = "absolute";
   infoWindowLayer.style.left = 0;
   infoWindowLayer.style.top = 0;
-  infoWindowLayer.style.right = 0;
-  infoWindowLayer.style.bottom = 0;
-  infoWindowLayer.style.width = "100%";
-  infoWindowLayer.style.height = "100%";
-  infoWindowLayer.style.zIndex = -100000;
-  infoWindowLayer.style["pointer-events"] = "none";
+  infoWindowLayer.style.width = 0;
+  infoWindowLayer.style.height = 0;
+  infoWindowLayer.style.overflow = "visible";
+  infoWindowLayer.style["z-index"] = 0;
 
   Object.defineProperty(self, "_layers", {
     value: {
@@ -182,8 +180,17 @@ Map.prototype.getMap = function(mapId, div, options) {
     //------------------------------------------------------------------------
     var div = self.get("div");
     if (common.isDom(div)) {
+
+      // Insert the infoWindow layer
       if (self._layers.info.parentNode) {
         self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+      }
+      var positionCSS;
+      for (var i = 0; i < div.children.length; i++) {
+        positionCSS = common.getStyle(div.children[i], "position");
+        if (positionCSS === "static") {
+          div.children[i].style.position = "relative";
+        }
       }
       div.insertBefore(self._layers.info, div.firstChild);
 
@@ -680,8 +687,17 @@ Map.prototype.setDiv = function(div) {
     self.set("div", null);
   } else {
     div.setAttribute("__pluginMapId", self.id);
+
+    // Insert the infoWindow layer
     if (self._layers.info.parentNode) {
       self._layers.info.parentNode.removeChild(self_.layers.info.parentNode);
+    }
+    var positionCSS;
+    for (var i = 0; i < div.children.length; i++) {
+      positionCSS = common.getStyle(div.children[i], "position");
+      if (positionCSS === "static") {
+        div.children[i].style.position = "relative";
+      }
     }
     div.insertBefore(self._layers.info, div.firstChild);
 
@@ -693,7 +709,7 @@ Map.prototype.setDiv = function(div) {
 
     self.set("div", div);
 
-    var positionCSS = common.getStyle(div, "position");
+    positionCSS = common.getStyle(div, "position");
     if (!positionCSS || positionCSS === "static") {
       div.style.position = "relative";
     }
