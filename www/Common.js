@@ -239,9 +239,6 @@ var ignoreTags = [
   "pre", "textarea", "p", "form", "input", "caption", "canvas", "svg"
 ];
 
-// .pgm-ignore class allows you to indicate that the DOM element is not touchable.
-// This is useful when you have lots of items, such as list item.
-var ignoreClasses = ["nav-decor", "pgm-ignore"];
 
 function shouldWatchByNative(node) {
   if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
@@ -259,12 +256,6 @@ function shouldWatchByNative(node) {
   var classNames = (node.className || "").split(" ");
   if (classNames.indexOf("_gmaps_cdv_") > -1) {
     return true;
-  }
-  var matches = classNames.filter(function(clsName) {
-    return ignoreClasses.indexOf(clsName) !== -1;
-  });
-  if (matches && matches.length > 0) {
-    return false;
   }
 
   var visibilityCSS = getStyle(node, 'visibility');
