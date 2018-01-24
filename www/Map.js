@@ -41,7 +41,7 @@ var Map = function(id, _exec) {
   infoWindowLayer.style.width = "100%";
   infoWindowLayer.style.height = "100%";
   infoWindowLayer.style.zIndex = -100000;
-  infoWindowLayer.className = "pgm-ignore";
+  infoWindowLayer.style["pointer-events"] = "none";
 
   Object.defineProperty(self, "_layers", {
     value: {
