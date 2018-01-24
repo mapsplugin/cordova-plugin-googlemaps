@@ -20,7 +20,6 @@ var argscheck = require('cordova/argscheck'),
   CameraPosition = require('./CameraPosition'),
   MarkerCluster = require('./MarkerCluster');
 
-
 /**
  * Google Maps model.
  */
@@ -32,6 +31,24 @@ var Map = function(id, _exec) {
 
   self.MARKERS = {};
   self.OVERLAYS = {};
+
+  var infoWindowLayer = document.createElement("div");
+  infoWindowLayer.style.position = "absolute";
+  infoWindowLayer.style.left = 0;
+  infoWindowLayer.style.top = 0;
+  infoWindowLayer.style.right = 0;
+  infoWindowLayer.style.bottom = 0;
+  infoWindowLayer.style.width = "100%";
+  infoWindowLayer.style.height = "100%";
+  infoWindowLayer.style.zIndex = -100000;
+  infoWindowLayer.className = "pgm-ignore";
+
+  Object.defineProperty(self, "_layers", {
+    value: {
+      info: infoWindowLayer
+    },
+    writable: false
+  });
 
   Object.defineProperty(self, "type", {
     value: "Map",
@@ -165,6 +182,12 @@ Map.prototype.getMap = function(mapId, div, options) {
     //------------------------------------------------------------------------
     var div = self.get("div");
     if (common.isDom(div)) {
+      if (self._layers.info.parentNode) {
+        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+      }
+      div.insertBefore(self._layers.info, div.firstChild);
+
+
       while (div.parentNode) {
         div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
@@ -657,6 +680,10 @@ Map.prototype.setDiv = function(div) {
     self.set("div", null);
   } else {
     div.setAttribute("__pluginMapId", self.id);
+    if (self._layers.info.parentNode) {
+      self._layers.info.parentNode.removeChild(self_.layers.info.parentNode);
+    }
+    div.insertBefore(self._layers.info, div.firstChild);
 
     // Webkit redraw mandatory
     // http://stackoverflow.com/a/3485654/697856
@@ -664,7 +691,6 @@ Map.prototype.setDiv = function(div) {
     div.offsetHeight;
     div.style.display = '';
 
-console.log("--->setDiv");
     self.set("div", div);
 
     var positionCSS = common.getStyle(div, "position");

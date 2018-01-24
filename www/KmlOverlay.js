@@ -48,9 +48,9 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
         var text = "";
         if (marker.get(name)) {
-          text = marker.get(name).value;
+          text = marker.get(name).value || "";
         }
-        if (extendedData) {
+        if (extendedData && text) {
           text = text.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match1, name1) {
             return extendedData[name1.toLowerCase()] || "";
           });
@@ -116,8 +116,12 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
 
       var html = [];
       var result;
-      if (description && (description.value.indexOf("<html>") > -1 || description.value.indexOf("script") > -1)) {
-        var text = templateRenderer(description.value, overlay);
+      var descriptionTxt = "";
+      if (description && description.value) {
+        descriptionTxt = description.value;
+      }
+      if (description && (descriptionTxt.indexOf("<html>") > -1 || descriptionTxt.indexOf("script") > -1)) {
+        var text = templateRenderer(descriptionTxt, overlay);
         // create a sandbox
         if (text.indexOf("<html") === -1) {
           text = "<html><body>" + text + "</body></html>";
@@ -191,8 +195,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       } else {
         marker.setPosition(position);
         marker.setVisible(true);
-        ballon.open(marker);
-/*
         marker.setAnimation(plugin.google.maps.Animation.DROP);
         map.animateCamera({
           target: position,
@@ -200,7 +202,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         }, function() {
           ballon.open(marker);
         });
-*/
       }
     };
 

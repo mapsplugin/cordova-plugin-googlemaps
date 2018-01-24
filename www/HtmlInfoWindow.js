@@ -9,8 +9,6 @@ var utils = require('cordova/utils'),
 var HTMLInfoWindow = function() {
     var self = this;
     BaseClass.apply(self);
-    var zoomScale = parseFloat(window.devicePixelRatio);
-    //zoomScale = 1;
     var callbackTable = {};
     var listenerMgr = {
       one: function(target, eventName, callback) {
@@ -71,7 +69,7 @@ var HTMLInfoWindow = function() {
     anchorDiv.style.width = '1px';
     anchorDiv.style.height = '1px';
     //anchorDiv.style.border = "1px solid green";
-    anchorDiv.style.overflow = "visible";
+    //anchorDiv.style.backgroundColor = "rgba(125, 125, 255, 0.5)";
 
     anchorDiv.style.transition = "transform 0s ease";
     anchorDiv.style['will-change'] = "transform";
@@ -235,7 +233,7 @@ var HTMLInfoWindow = function() {
       }
       // Insert the contents to this HTMLInfoWindow
       if (!anchorDiv.parentNode) {
-          div.appendChild(anchorDiv);
+          map._layers.info.appendChild(anchorDiv);
       }
 
       // Adjust the HTMLInfoWindow size
@@ -265,13 +263,6 @@ var HTMLInfoWindow = function() {
         x: 15,
         y: 15
       };
-
-      anchor.x /= zoomScale;
-      anchor.y /= zoomScale;
-      infoOffset.x /= zoomScale;
-      infoOffset.y /= zoomScale;
-      iconSize.width /= zoomScale;
-      iconSize.height /= zoomScale;
 
       var icon = marker.get("icon");
 
@@ -325,8 +316,8 @@ var HTMLInfoWindow = function() {
       var frameBorder = parseInt(common.getStyle(contentFrame, "border-left-width").replace(/[^\d]/g, ""), 10);
       //var offsetX = (contentsWidth + frameBorder + anchor.x ) * 0.5 + (iconSize.width / 2  - infoOffset.x);
       //var offsetY = contentsHeight + anchor.y - (frameBorder * 2) - infoOffset.y + 15;
-      var offsetX = -(iconSize.width / 2);
-      var offsetY = -iconSize.height;
+      var offsetX = -(iconSize.width / 2) - (cordova.platformId === "android" ? 1 : 0);
+      var offsetY = -iconSize.height - (cordova.platformId === "android" ? 1 : 0);
       anchorDiv.style.width = iconSize.width + "px";
       anchorDiv.style.height = iconSize.height + "px";
 

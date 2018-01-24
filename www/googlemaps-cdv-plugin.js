@@ -723,7 +723,7 @@ if (!cordova) {
                 if (common.isDom(newDiv)) {
 
                   elemId = common.getPluginDomId(newDiv);
-                  console.log("---> setDiv() = " + elemId + ", mapId = " + mapId);
+                  //console.log("---> setDiv() = " + elemId + ", mapId = " + mapId);
 
                   elem = newDiv;
                   var isCached;
