@@ -492,7 +492,9 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
         child.children.forEach(function(style) {
           switch (style.tagName) {
             case "text":
-              markerOptions.description = style.value;
+              markerOptions.description = {
+                value: style.value
+              };
               break;
           }
         });
