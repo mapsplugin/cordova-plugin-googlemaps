@@ -83,7 +83,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
 
     var ballon = new HtmlInfoWindow();
     var onOverlayClick = function(position, overlay) {
-console.log("clickable = ", self.get("clickable"));
       if (!self.get("clickable")) {
         return;
       }
@@ -92,7 +91,6 @@ console.log("clickable = ", self.get("clickable"));
       if (kmlOverlayOptions.suppressInfoWindows) {
         return;
       }
-      map.get("invisible_dot").setPosition(position);
 
       var description = overlay.get("description");
       if (!description && overlay.get("extendeddata")) {
@@ -188,19 +186,13 @@ console.log("clickable = ", self.get("clickable"));
       ballon.setContent(result, styles);
       var marker = map.get("invisible_dot");
       if (overlay.type === "Marker") {
-        marker.set("infoWindowAnchor", marker.get("infoWindowAnchor"));
-        marker.set("icon", overlay.get("icon"));
         marker.setVisible(false);
-        ballon.open(marker);
+        ballon.open(overlay);
       } else {
-        var _icon = JSON.parse(JSON.stringify(marker.get("_icon_default")));
-        marker.set("infoWindowAnchor", [0, 0], true);
-        marker.set("icon", {
-          url: "skyblue",
-          anchor: [_icon.size.width / 2, _icon.size.height],
-          size: _icon.size
-        }, true);
+        marker.setPosition(position);
         marker.setVisible(true);
+        ballon.open(marker);
+/*
         marker.setAnimation(plugin.google.maps.Animation.DROP);
         map.animateCamera({
           target: position,
@@ -208,6 +200,7 @@ console.log("clickable = ", self.get("clickable"));
         }, function() {
           ballon.open(marker);
         });
+*/
       }
     };
 

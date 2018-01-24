@@ -827,7 +827,6 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
       icon: "skyblue",
       visible: false
     }, function(marker) {
-      marker.set("_icon_default", marker.get("icon"));
       self.set("invisible_dot", marker);
     });
   }
@@ -1065,7 +1064,6 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     if (!markerOptions.infoWindowAnchor) {
       markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
     }
-console.log(JSON.parse(JSON.stringify(markerOptions)));
 
     var marker = new Marker(self, result.id, markerOptions, "Marker", exec);
 
