@@ -183,7 +183,11 @@ Map.prototype.getMap = function(mapId, div, options) {
 
       // Insert the infoWindow layer
       if (self._layers.info.parentNode) {
-        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+        try {
+          self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+        } catch (e) {
+          // ignore
+        }
       }
       var positionCSS;
       for (var i = 0; i < div.children.length; i++) {
@@ -690,7 +694,11 @@ Map.prototype.setDiv = function(div) {
 
     // Insert the infoWindow layer
     if (self._layers.info.parentNode) {
-      self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+      try {
+        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+      } catch(e) {
+        //ignore
+      }
     }
     var positionCSS;
     for (var i = 0; i < div.children.length; i++) {
