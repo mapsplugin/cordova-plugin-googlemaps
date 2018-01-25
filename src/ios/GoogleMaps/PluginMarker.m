@@ -86,9 +86,8 @@
             [createResult setObject:[NSNumber numberWithInt: (int)image.size.width] forKey:@"width"];
             [createResult setObject:[NSNumber numberWithInt: (int)image.size.height] forKey:@"height"];
           } else {
-            CGFloat zoomScale = [[UIScreen mainScreen] scale];
-            [createResult setObject:[NSNumber numberWithInt: 62/zoomScale] forKey:@"width"];
-            [createResult setObject:[NSNumber numberWithInt: 110/zoomScale] forKey:@"height"];
+            [createResult setObject:[NSNumber numberWithInt: 24] forKey:@"width"];
+            [createResult setObject:[NSNumber numberWithInt: 40] forKey:@"height"];
           }
 
           pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];

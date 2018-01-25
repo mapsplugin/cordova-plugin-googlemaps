@@ -195,17 +195,19 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       } else {
         marker.setPosition(position);
         marker.setVisible(true);
-        marker.setAnimation(plugin.google.maps.Animation.DROP);
         marker.off(event.MARKER_CLICK);
-        marker.on(event.MARKER_CLICK, function() {
-          ballon.open(marker);
-        });
         map.animateCamera({
           target: position,
           duration: 300
         }, function() {
-          marker.trigger(event.MARKER_CLICK);
+          marker.setAnimation(plugin.google.maps.Animation.DROP, function() {
+            marker.on(event.MARKER_CLICK, function() {
+              ballon.open(marker);
+            });
+            marker.trigger(event.MARKER_CLICK);
+          });
         });
+
       }
     };
 
