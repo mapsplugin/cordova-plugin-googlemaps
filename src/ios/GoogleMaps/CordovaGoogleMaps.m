@@ -205,12 +205,9 @@
 
   NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
   NSString *CFBundleExecutable = [info objectForKey:@"CFBundleExecutable"];
-  NSArray *tagschemes = [NSArray arrayWithObjects:NSLinguisticTagSchemeLanguage, nil];
-  NSLinguisticTagger *tagger = [[NSLinguisticTagger alloc] initWithTagSchemes:tagschemes options:0];
-  [tagger setString:CFBundleExecutable];
-  NSString *language = [tagger tagAtIndex:0 scheme:NSLinguisticTagSchemeLanguage tokenRange:NULL sentenceRange:NULL];
 
-  if (([@"en" isEqualToString:language] == NO) && ([language hasPrefix:@"en_"] == NO)) {
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
+  if ([regex numberOfMatchesInString:CFBundleExecutable options:0 range:NSMakeRange(0, CFBundleExecutable.length)] == 0) {
     NSString *message = [NSString stringWithFormat:@"Google Maps SDK for iOS crashes with app name '%@'.\nCheck out the comment in the CordovaGoogleMaps.m file.", CFBundleExecutable];
 
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"[action required]"
