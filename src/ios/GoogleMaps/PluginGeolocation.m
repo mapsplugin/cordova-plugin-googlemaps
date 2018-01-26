@@ -53,6 +53,9 @@
         [alert addAction:ok];
 
 
+        [self.viewController presentViewController:alert
+                                          animated:YES
+                                        completion:nil];
 
     } else {
 
