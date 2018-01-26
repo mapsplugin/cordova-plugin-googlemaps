@@ -70,8 +70,8 @@ if (!cordova) {
   var encoding = require('./encoding');
   var spherical = require('./spherical');
   var poly = require('./poly');
-  var Geocoder = require('./pgmGeocoder');
-  var Geolocation = require('./pgmGeolocation');
+  var Geocoder = require('./Geocoder');
+  var LocationService = require('./LocationService');
   var Environment = require('./Environment');
   var MapTypeId = require('./MapTypeId');
 
@@ -643,7 +643,7 @@ if (!cordova) {
     /*****************************************************************************
      * Name space
      *****************************************************************************/
-    var singletonGeolocation = new Geolocation(execCmd);
+    var singletonLocationService = new LocationService(execCmd);
     module.exports = {
       event: event,
       Animation: {
@@ -858,7 +858,7 @@ if (!cordova) {
       MapTypeId: MapTypeId,
       environment: Environment,
       Geocoder: Geocoder,
-      Geolocation: singletonGeolocation,
+      LocationService: singletonLocationService,
       geometry: {
           encoding: encoding,
           spherical: spherical,

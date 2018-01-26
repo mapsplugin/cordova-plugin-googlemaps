@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Geolocation class
+ * LocationService class
  *****************************************************************************/
  var argscheck = require('cordova/argscheck'),
      utils = require('cordova/utils'),
@@ -7,14 +7,14 @@
      BaseClass = require('./BaseClass');
 
 var exec;
-function Geolocation(_exec) {
+function LocationService(_exec) {
   exec = _exec;
   BaseClass.apply(this);
 }
 
-utils.extend(Geolocation, BaseClass);
+utils.extend(LocationService, BaseClass);
 
-Geolocation.prototype.getMyLocation = function(params, success_callback, error_callback) {
+LocationService.prototype.getMyLocation = function(params, success_callback, error_callback) {
   var self = this;
   var args = [params || {}, success_callback || null, error_callback];
   if (typeof args[0] === "function") {
@@ -38,12 +38,12 @@ Geolocation.prototype.getMyLocation = function(params, success_callback, error_c
   };
   exec.call({
     _isReady: true
-  }, successHandler, errorHandler, 'pgmGeolocation', 'getMyLocation', [params], {sync: true});
+  }, successHandler, errorHandler, 'LocationService', 'getMyLocation', [params], {sync: true});
 };
 
 /**
  // TODO:
-Geolocation.prototype.followMyPosition = function(params, success_callback, error_callback) {
+LocationService.prototype.followMyPosition = function(params, success_callback, error_callback) {
   var self = this;
   var args = [params || {}, success_callback || null, error_callback];
   if (typeof args[0] === "function") {
@@ -67,7 +67,7 @@ Geolocation.prototype.followMyPosition = function(params, success_callback, erro
   }, successHandler, errorHandler, 'CordovaGoogleMaps', 'followMyPosition', [params], {sync: true});
 };
 
-Geolocation.prototype.clearFollowing = function() {
+LocationService.prototype.clearFollowing = function() {
   var self = this;
   self.off('currentPosition_changed');
   exec.call({
@@ -76,4 +76,4 @@ Geolocation.prototype.clearFollowing = function() {
 };
 **/
 
-module.exports = Geolocation;
+module.exports = LocationService;

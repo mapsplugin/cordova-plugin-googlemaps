@@ -1,5 +1,5 @@
 //
-//  CordovaGoogleMaps.h
+//  PluginLocationService.h
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.
@@ -9,7 +9,7 @@
 #import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
 
-@interface PluginGeolocation : CDVPlugin<CLLocationManagerDelegate>
+@interface PluginLocationService : CDVPlugin<CLLocationManagerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *lastResult;
 @property (nonatomic, strong) CLLocation *lastLocation;

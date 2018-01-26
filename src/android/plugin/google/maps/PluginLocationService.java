@@ -43,9 +43,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class PluginGeolocation extends CordovaPlugin {
+public class PluginLocationService extends CordovaPlugin {
   private Activity activity;
-  private final String TAG = "PluginGeolocation";
+  private final String TAG = "PluginLocationService";
   private HashMap<String, Bundle> bufferForLocationDialog = new HashMap<String, Bundle>();
 
   private final int ACTIVITY_LOCATION_DIALOG = 0x7f999900; // Invite the location dialog using Google Play Services
@@ -74,7 +74,7 @@ public class PluginGeolocation extends CordovaPlugin {
       public void run() {
         try {
           if ("getMyLocation".equals(action)) {
-            PluginGeolocation.this.getMyLocation(args, callbackContext);
+            PluginLocationService.this.getMyLocation(args, callbackContext);
           }
 
         } catch (JSONException e) {
@@ -146,7 +146,7 @@ public class PluginGeolocation extends CordovaPlugin {
           @Override
           public void onConnected(Bundle connectionHint) {
             Log.d(TAG, "===> onConnected");
-            PluginGeolocation.this.sendNoResult(callbackContext);
+            PluginLocationService.this.sendNoResult(callbackContext);
 
             _checkLocationSettings(isHigh, callbackContext);
           }
@@ -221,11 +221,11 @@ public class PluginGeolocation extends CordovaPlugin {
               int hashCode = bundle.hashCode();
 
               bufferForLocationDialog.put("bundle_" + hashCode, bundle);
-              PluginGeolocation.this.sendNoResult(callbackContext);
+              PluginLocationService.this.sendNoResult(callbackContext);
 
               // Show the dialog by calling startResolutionForResult(),
               // and check the result in onActivityResult().
-              cordova.setActivityResultCallback(PluginGeolocation.this);
+              cordova.setActivityResultCallback(PluginLocationService.this);
               status.startResolutionForResult(cordova.getActivity(), hashCode);
             } catch (IntentSender.SendIntentException e) {
               // Show the dialog that is original version of this plugin.
@@ -271,10 +271,10 @@ public class PluginGeolocation extends CordovaPlugin {
           int hashCode = bundle.hashCode();
 
           bufferForLocationDialog.put("bundle_" + hashCode, bundle);
-          PluginGeolocation.this.sendNoResult(callbackContext);
+          PluginLocationService.this.sendNoResult(callbackContext);
 
           //Launch settings, allowing user to make a change
-          cordova.setActivityResultCallback(PluginGeolocation.this);
+          cordova.setActivityResultCallback(PluginLocationService.this);
           Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
           activity.startActivityForResult(intent, hashCode);
         }
@@ -341,7 +341,7 @@ public class PluginGeolocation extends CordovaPlugin {
               if (!isRetry) {
                 Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
 
-                PluginGeolocation.this.sendNoResult(callbackContext);
+                PluginLocationService.this.sendNoResult(callbackContext);
 
                 // Retry
                 Handler handler = new Handler();

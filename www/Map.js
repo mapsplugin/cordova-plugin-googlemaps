@@ -274,7 +274,7 @@ Map.prototype.setOptions = function(options) {
 };
 
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
-  plugin.google.maps.Geolocation.getMyLocation(params, success_callback, error_callback);
+  plugin.google.maps.LocationService.getMyLocation(params, success_callback, error_callback);
 };
 
 Map.prototype.setCameraTarget = function(latLng) {

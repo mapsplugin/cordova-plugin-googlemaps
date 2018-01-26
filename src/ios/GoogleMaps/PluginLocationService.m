@@ -1,14 +1,14 @@
 //
-//  CordovaGoogleMaps.m
+//  PluginLocationService.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.
 //
 //
 
-#import "PluginGeolocation.h"
+#import "PluginLocationService.h"
 
-@implementation PluginGeolocation
+@implementation PluginLocationService
 
 - (void)pluginInitialize
 {
