@@ -177,6 +177,7 @@ public class PluginGeolocation extends CordovaPlugin {
       _checkLocationSettings(isHigh, callbackContext);
     } else {
       Log.e(TAG, "===> googleApiClient.isConnected() is not connected");
+      googleApiClient.connect();
     }
   }
 

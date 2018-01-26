@@ -97,6 +97,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private boolean isDragging = false;
   //public final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
   public final ObjectCache objects = new ObjectCache();
+  private View myLocationButton;
 
 
 
@@ -228,6 +229,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           @Override
           public void onMapReady(GoogleMap googleMap) {
 
+            myLocationButton = new View(activity);
+            FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams((int)(48 * density), (int)(48 * density));
+            lParams.gravity = Gravity.RIGHT;
+            lParams.rightMargin = (int)(6 * density);
+            lParams.topMargin = (int)(6 * density);
+            lParams.leftMargin = 0;
+            myLocationButton.setClickable(true);
+            myLocationButton.setVisibility(View.GONE);
+            myLocationButton.setLayoutParams(lParams);
+            myLocationButton.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                PluginMap.this.onMyLocationButtonClick();
+              }
+            });
+            mapView.addView(myLocationButton);
+
             map = googleMap;
             projection = map.getProjection();
 
@@ -270,6 +288,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     right = (int) (padding.getInt("right") * density);
                   }
                   map.setPadding(left, top, right, bottom);
+
+                  FrameLayout.LayoutParams lParams2 = (FrameLayout.LayoutParams) myLocationButton.getLayoutParams();
+                  lParams2.rightMargin = right + (int)(5 * density);
+                  lParams2.topMargin = top + (int)(5 * density);
+                  myLocationButton.setLayoutParams(lParams2);
+
                 }
 
                 if (preferences.has("zoom")) {
@@ -310,20 +334,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               if (params.has("controls")) {
                 JSONObject controls = params.getJSONObject("controls");
 
-                if (controls.has("myLocationButton")) {
-                  final Boolean isEnabled = controls.getBoolean("myLocationButton");
+                if (controls.has("myLocationButton") || controls.has("myLocation")) {
+                  final JSONArray args = new JSONArray();
+                  args.put(controls);
+
                   cordova.getThreadPool().submit(new Runnable() {
                     @Override
                     public void run() {
-                      if (isEnabled) {
-                        try {
-                          JSONArray args = new JSONArray();
-                          args.put(isEnabled);
-                          PluginMap.this.setMyLocationEnabled(args, callbackContext);
-                        } catch (JSONException e) {
-                          e.printStackTrace();
-                          callbackContext.error(e.getMessage() + "");
-                        }
+                      try {
+                        PluginMap.this.setMyLocationEnabled(args, callbackContext);
+                      } catch (JSONException e) {
+                        e.printStackTrace();
+                        callbackContext.error(e.getMessage() + "");
                       }
                     }
                   });
@@ -1199,6 +1221,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 right = (int) (padding.getInt("right") * density);
               }
               map.setPadding(left, top, right, bottom);
+
+              FrameLayout.LayoutParams lParams2 = (FrameLayout.LayoutParams) myLocationButton.getLayoutParams();
+              lParams2.rightMargin = right + (int)(5 * density);
+              lParams2.topMargin = top + (int)(5 * density);
+              myLocationButton.setLayoutParams(lParams2);
             }
 
             if (preferences.has("zoom")) {
@@ -1246,15 +1273,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             if (controls.has("mapToolbar")) {
               settings.setMapToolbarEnabled(controls.getBoolean("mapToolbar"));
             }
-            if (controls.has("myLocationButton")) {
-              boolean isEnabled = controls.getBoolean("myLocationButton");
-              settings.setMyLocationButtonEnabled(isEnabled);
-
+            if (controls.has("myLocation") || controls.has("myLocationButton")) {
               JSONArray args = new JSONArray();
-              args.put(isEnabled);
+              args.put(controls);
               PluginMap.this.setMyLocationEnabled(args, callbackContext);
             } else {
-              callbackContext.success();
+                callbackContext.success();
             }
           } else {
             callbackContext.success();
@@ -1650,6 +1674,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
   }
 
+
   /**
    * Enable MyLocation feature if set true
    * @param args
@@ -1679,22 +1704,24 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
 
     }
+    JSONObject params = args.getJSONObject(0);
+    final Boolean isMyLocationButtonEnabled = params.getBoolean("myLocationButton");
+    final Boolean isMyLocationEnabled = params.getBoolean("myLocation");
 
-    final Boolean isEnabled = args.getBoolean(0);
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         try {
-          map.setMyLocationEnabled(isEnabled);
+          map.getUiSettings().setMyLocationButtonEnabled(isMyLocationButtonEnabled);
+          myLocationButton.setVisibility(isMyLocationButtonEnabled ? View.INVISIBLE : View.GONE);
+          map.setMyLocationEnabled(isMyLocationEnabled);
         } catch (SecurityException e) {
           e.printStackTrace();
         }
-        map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
         callbackContext.success();
       }
     });
   }
-
   /**
    * Clear all markups
    * @param args Parameters given from JavaScript side
@@ -2015,6 +2042,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         map.setPadding(left, top, right, bottom);
+
+        FrameLayout.LayoutParams lParams2 = (FrameLayout.LayoutParams) myLocationButton.getLayoutParams();
+        lParams2.rightMargin = right + (int)(5 * density);
+        lParams2.topMargin = top + (int)(5 * density);
+        myLocationButton.setLayoutParams(lParams2);
+
         callbackContext.success();
       }
     });

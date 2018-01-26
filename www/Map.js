@@ -29,6 +29,9 @@ var Map = function(id, _exec) {
   var self = this;
   BaseClass.apply(self);
 
+  self.set("myLocation", true);
+  self.set("myLocationButton", true);
+
   self.MARKERS = {};
   self.OVERLAYS = {};
 
@@ -91,6 +94,11 @@ Map.prototype.getMap = function(mapId, div, options) {
 
   self.set("clickable", options.clickable === false ? false : true);
   self.set("visible", options.visible === false ? false : true);
+
+  if (options.control) {
+    this.set("myLocation", options.control.myLocation === true);
+    this.set("myLocationButton", options.control.myLocationButton === true);
+  }
 
   if (!common.isDom(div)) {
     self.set("visible", false);
@@ -235,6 +243,10 @@ Map.prototype.getMap = function(mapId, div, options) {
 Map.prototype.setOptions = function(options) {
   options = options || {};
 
+  if (options.control) {
+    this.set("myLocation", options.control.myLocation === true);
+    this.set("myLocationButton", options.control.myLocationButton === true);
+  }
   if (options.camera) {
     if (options.camera.latLng) {
       options.camera.target = options.camera.latLng;
@@ -515,13 +527,30 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 };
 
-Map.prototype.setMyLocationEnabled = function(enabled) {
+Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [enabled], {
+  this.set("myLocationButton", enabled);
+  exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+    myLocationButton: enabled,
+    myLocation: this.get("myLocation")
+  }], {
     sync: true
   });
   return this;
 };
+
+Map.prototype.setMyLocationEnabled = function(enabled) {
+  enabled = common.parseBoolean(enabled);
+  this.set("myLocation", enabled);
+  exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+    myLocationButton: this.get("myLocationButton"),
+    myLocation: enabled
+  }], {
+    sync: true
+  });
+  return this;
+};
+
 Map.prototype.setIndoorEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);

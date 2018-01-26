@@ -155,7 +155,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                   !objectId.startsWith("marker_imageSize") &&
                   !objectId.startsWith("marker_icon_")) {
                 Marker marker = (Marker) pluginMap.objects.remove(objectId);
-                marker.setIcon(null);
                 marker.setTag(null);
                 marker.remove();
                 marker = null;
