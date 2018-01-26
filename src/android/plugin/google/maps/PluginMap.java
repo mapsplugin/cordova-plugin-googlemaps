@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -1704,18 +1705,25 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
 
     }
-    JSONObject params = args.getJSONObject(0);
-    final Boolean isMyLocationButtonEnabled = params.getBoolean("myLocationButton");
-    final Boolean isMyLocationEnabled = params.getBoolean("myLocation");
+    final JSONObject params = args.getJSONObject(0);
 
     this.activity.runOnUiThread(new Runnable() {
+      @SuppressLint("MissingPermission")
       @Override
       public void run() {
         try {
-          map.getUiSettings().setMyLocationButtonEnabled(isMyLocationButtonEnabled);
-          myLocationButton.setVisibility(isMyLocationButtonEnabled ? View.INVISIBLE : View.GONE);
-          map.setMyLocationEnabled(isMyLocationEnabled);
-        } catch (SecurityException e) {
+          if (params.has("myLocationButton")) {
+            Boolean isMyLocationButtonEnabled = params.getBoolean("myLocationButton");
+            map.getUiSettings().setMyLocationButtonEnabled(isMyLocationButtonEnabled);
+            myLocationButton.setVisibility(isMyLocationButtonEnabled ? View.INVISIBLE : View.GONE);
+          }
+
+
+          if (params.has("myLocation")) {
+            Boolean isMyLocationEnabled = params.getBoolean("myLocation");
+            map.setMyLocationEnabled(isMyLocationEnabled);
+          }
+        } catch (Exception e) {
           e.printStackTrace();
         }
         callbackContext.success();

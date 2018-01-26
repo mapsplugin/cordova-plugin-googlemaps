@@ -29,8 +29,8 @@ var Map = function(id, _exec) {
   var self = this;
   BaseClass.apply(self);
 
-  self.set("myLocation", true);
-  self.set("myLocationButton", true);
+  self.set("myLocation", false);
+  self.set("myLocationButton", false);
 
   self.MARKERS = {};
   self.OVERLAYS = {};
