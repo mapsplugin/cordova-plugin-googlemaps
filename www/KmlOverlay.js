@@ -14,7 +14,6 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
     BaseClass.apply(this);
 
     var self = this;
-    self._overlays = [];
     //self.set("visible", kmlOverlayOptions.visible === undefined ? true : kmlOverlayOptions.visible);
     //self.set("zIndex", kmlOverlayOptions.zIndex || 0);
     Object.defineProperty(self, "_isReady", {
@@ -249,8 +248,11 @@ KmlOverlay.prototype.getHashCode = function() {
     return this.hashCode;
 };
 
-KmlOverlay.prototype.getOverlays = function() {
-    return this._overlays;
+KmlOverlay.prototype.getDefaultViewport = function() {
+    return this.camera;
+};
+KmlOverlay.prototype.getMetadata = function() {
+    return this.kmlData;
 };
 KmlOverlay.prototype.getMap = function() {
     return this.map;
