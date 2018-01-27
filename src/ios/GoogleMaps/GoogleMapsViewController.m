@@ -80,7 +80,7 @@
     CGPoint blueDotPoint = [self.map.projection pointForCoordinate:self.map.myLocation.coordinate];
     CGPoint tapPoint = [self.map.projection pointForCoordinate:coordinate];
 
-    if (ABS(blueDotPoint.x - tapPoint.x) < 10 && ABS(blueDotPoint.y - tapPoint.y) < 10) {
+    if (ABS(blueDotPoint.x - tapPoint.x) < 20 * self.screenScale && ABS(blueDotPoint.y - tapPoint.y) < 20 * self.screenScale) {
 
       NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
       [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.latitude] forKey:@"lat"];
@@ -618,7 +618,13 @@
   [self syncInfoWndPosition];
 }
 
+
 - (void)execJS: (NSString *)jsString {
+  // Insert setTimeout() in order to prevent the GDC and webView deadlock
+  // ( you can not click the ok button of Alert() )
+  // https://stackoverflow.com/a/23833841/697856
+  jsString = [NSString stringWithFormat:@"setTimeout(function(){%@}, 0);", jsString];
+
   if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
     [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
   } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
