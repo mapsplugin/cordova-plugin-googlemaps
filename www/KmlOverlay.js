@@ -251,7 +251,7 @@ KmlOverlay.prototype.getHashCode = function() {
 KmlOverlay.prototype.getDefaultViewport = function() {
     return this.camera;
 };
-KmlOverlay.prototype.getMetadata = function() {
+KmlOverlay.prototype.getKmlData = function() {
     return this.kmlData;
 };
 KmlOverlay.prototype.getMap = function() {
