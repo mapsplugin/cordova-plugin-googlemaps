@@ -2227,6 +2227,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       } else {
         this.onMarkerEvent("info_close", marker);
       }
+    } else {
+      this.onMarkerEvent("info_close", marker);
     }
     //activeMarker = null; // <-- This causes HTMLinfoWindow is not able to close when you tap on the map.
   }
