@@ -405,16 +405,17 @@
       if (CGRectContainsPoint(rect, point)) {
 
         clickedDomId = [self findClickedDom:@"root" withPoint:point isMapChild:NO overflow:nil];
+        point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x, point.y - mapCtrl.view.frame.origin.y);
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
 
-          UIView *hitView =[mapCtrl.view hitTest:CGPointMake(point.x - mapCtrl.view.frame.origin.x, point.y - mapCtrl.view.frame.origin.y) withEvent:event];
-
+          UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
+          [mapCtrl mapView:mapCtrl.map didTapAtPoint:point2];
 
           return hitView;
         } else {
-          return [self.webView hitTest:point withEvent:event];
+          return [self.webView hitTest:point2 withEvent:event];
         }
       }
 
@@ -426,7 +427,6 @@
   return hitView;
 
 }
-
 
 - (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint isMapChild:(BOOL)isMapChild overflow:(OverflowCSS *)overflow {
 

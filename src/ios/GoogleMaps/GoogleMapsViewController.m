@@ -72,13 +72,14 @@
 /**
  * @callback the my location button is clicked.
  */
-- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+- (void)mapView:(GMSMapView *)mapView didTapAtPoint:(CGPoint)tapPoint {
+
+  CLLocationCoordinate2D coordinate = [self.map.projection coordinateForPoint:tapPoint];
 
   if (self.map.isMyLocationEnabled) {
     // Since the google maps sdk for iOS does not provide any events when you tap on the blue dot,
     // detect the user tap on it by myself
     CGPoint blueDotPoint = [self.map.projection pointForCoordinate:self.map.myLocation.coordinate];
-    CGPoint tapPoint = [self.map.projection pointForCoordinate:coordinate];
 
     if (ABS(blueDotPoint.x - tapPoint.x) < 20 * self.screenScale && ABS(blueDotPoint.y - tapPoint.y) < 20 * self.screenScale) {
 
