@@ -183,24 +183,32 @@
   if ([@"0" isEqualToString:visibleValue]) {
     // false
     visible = NO;
+    if (iconProperty == nil) {
+      iconProperty = [NSMutableDictionary dictionary];
+    }
     [iconProperty setObject:[NSNumber numberWithBool:false] forKey:@"visible"];
   } else {
     // default or true
+    if (iconProperty == nil) {
+      iconProperty = [NSMutableDictionary dictionary];
+    }
     [iconProperty setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   }
 
   // Animation
   if ([json valueForKey:@"animation"]) {
     animation = [json valueForKey:@"animation"];
-    if (iconProperty) {
-      [iconProperty setObject:animation forKey:@"animation"];
+    if (iconProperty == nil) {
+      iconProperty = [NSMutableDictionary dictionary];
     }
+    [iconProperty setObject:animation forKey:@"animation"];
+    NSLog(@"--->animation = %@", animation);
   }
 
-  if (iconProperty) {
-    if ([json valueForKey:@"infoWindowAnchor"]) {
-      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
-    }
+  if ([json valueForKey:@"infoWindowAnchor"]) {
+    [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+  }
+  if (iconProperty && [iconProperty objectForKey:@"icon"]) {
 
     // Load icon in asynchronise
     [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];
@@ -213,7 +221,9 @@
 
 
     if (animation) {
-      [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];
+      [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+        callbackBlock(YES, marker);
+      }];
     } else {
       callbackBlock(YES, marker);
     }
