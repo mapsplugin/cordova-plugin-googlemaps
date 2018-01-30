@@ -319,6 +319,21 @@ var heading = plugin.google.maps.geometry.spherical.computeHeading(
 label.innerText = "heading : " + heading.toFixed(0) + "&deg;";
 </pre></td>
 </tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/locationservice/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/locationService.png?raw=true"><br>Location service</a></td>
+  <td><pre>
+plugin.google.maps.LocationService.getMyLocation(function(result) {
+
+  alert(["Current your location:\n",
+      "latitude:" + location.latLng.lat.toFixed(3),
+      "longitude:" + location.latLng.lng.toFixed(3),
+      "speed:" + location.speed,
+      "time:" + location.time,
+      "bearing:" + location.bearing].join("\n"));
+
+});
+</pre></td>
+</tr>
 </table>
 
 
@@ -365,6 +380,7 @@ You can write your code `similar like` the Google Maps JavaScript API v3.
 | google.maps.geometry.poly         | plugin.google.maps.geometry.poly      |
 | (not available)                   | MarkerCluster                         |
 | google.maps.KmlLayer              | KMLLayer                              |
+| (not available)                   | LocationService                       |
 | google.maps.StreetView            | (not available)                       |
 | google.maps.Data                  | (not available)                       |
 | google.maps.DirectionsService     | (not available)                       |
