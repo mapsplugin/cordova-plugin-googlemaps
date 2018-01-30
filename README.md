@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.0)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.1)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -28,6 +28,8 @@ $> cordova plugin add cordova-plugin-googlemaps \
 - Implement the CSS/HTML element hierarchy correctly.
 
 - Implement map.addKmlOverlay()
+
+- Bug fix: can not use Geocoder (v2.2.1)
 
 - [other updates](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/README.md)
 
