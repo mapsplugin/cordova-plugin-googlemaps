@@ -13,90 +13,13 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 $> cordova plugin add cordova-plugin-googlemaps \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
+
+(Optional variables)
+  PLAY_SERVICES_VERSION="11.8.0" (for Android)
+  LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message"  (for iOS)
+  LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"  (for iOS)
 ```
 
-*Develop version (current multiple_maps branch)*
-```bash
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
-    --variable API_KEY_FOR_ANDROID="..." \
-    --variable API_KEY_FOR_IOS="..."
-```
-
-If you re-install the plugin, please always remove the plugin first, then remove the SDK
-
-```bash
-$> cordova plugin rm cordova-plugin-googlemaps
-
-$> cordova plugin rm com.googlemaps.ios
-
-$> cordova plugin add cordova-plugin-googlemaps \
-    --variable API_KEY_FOR_ANDROID="..." \
-    --variable API_KEY_FOR_IOS="..." \
-    --no-fetch
-```
-
-#### If you can't reinstall the plugin, try like this:
-
-```
-$> cordova platform rm android ios
-
-$> cordova platform add android@6 ios
-```
-
-### (Android) Configuration
-
-You can specify the SDK version of Google Play Services.
-
-**Note that the maps plugin v2.2.0 requires the Google Play Services v11.8.0 or over.**
-
-Example using the Cordova CLI
-
-```bash
-$> cordova plugin add cordova-plugin-googlemaps \
-    --variable API_KEY_FOR_ANDROID="..." \
-    --variable API_KEY_FOR_IOS="..." \
-    --variable PLAY_SERVICES_VERSION="11.8.0"
-```
-
-Example using config.xml
-```xml
-<plugin name="cordova-plugin-googlemaps" spec="2.2.0">
-    <variable name="API_KEY_FOR_ANDROID" value="YOUR_ANDROID_API_KEY_IS_HERE" />
-    <variable name="API_KEY_FOR_IOS" value="YOUR_IOS_API_KEY_IS_HERE" />
-    <variable name="PLAY_SERVICES_VERSION" value="11.8.0" />
-</plugin>
-```
-
-### (iOS) Configuration
-
-You can also configure the following variables to customize the iOS location plist entries
-
-- `LOCATION_WHEN_IN_USE_DESCRIPTION` for `NSLocationWhenInUseUsageDescription` (defaults to "Show your location on the map")
-- `LOCATION_ALWAYS_USAGE_DESCRIPTION` for `NSLocationAlwaysUsageDescription` (defaults t "Trace your location on the map")
-
-Example using the Cordova CLI
-
-```bash
-$> cordova plugin rm cordova-plugin-googlemaps
-
-$> cordova plugin rm com.googlemaps.ios
-
-$> cordova plugin add cordova-plugin-googlemaps \
-    --variable API_KEY_FOR_ANDROID="..." \
-    --variable API_KEY_FOR_IOS="..." \
-    --variable LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message" \
-    --variable LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"
-```
-
-Example using config.xml
-```xml
-<plugin name="cordova-plugin-googlemaps" spec="2.2.0">
-    <variable name="API_KEY_FOR_ANDROID" value="YOUR_ANDROID_API_KEY_IS_HERE" />
-    <variable name="API_KEY_FOR_IOS" value="YOUR_IOS_API_KEY_IS_HERE" />
-    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="My custom when in use message" />
-    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="My custom always usage message" />
-</plugin>
-```
 
 ## Release Notes
 
