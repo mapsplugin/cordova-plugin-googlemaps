@@ -106,6 +106,9 @@ Example using config.xml
 
 - Implement map.addKmlOverlay()
 
+- [other updates](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/README.md)
+
+
 ## Quick demo
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
@@ -168,6 +171,7 @@ function onButtonClick() {
 
 ## Documentation
 
+![](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/documentation.png?raw=true)
 [All documentations are here!!](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md)
 
 **Quick examples**
@@ -323,14 +327,12 @@ label.innerText = "heading : " + heading.toFixed(0) + "&deg;";
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/locationservice/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/locationService.png?raw=true"><br>Location service</a></td>
   <td><pre>
 plugin.google.maps.LocationService.getMyLocation(function(result) {
-
   alert(["Current your location:\n",
       "latitude:" + location.latLng.lat.toFixed(3),
       "longitude:" + location.latLng.lng.toFixed(3),
       "speed:" + location.speed,
       "time:" + location.time,
       "bearing:" + location.bearing].join("\n"));
-
 });
 </pre></td>
 </tr>
