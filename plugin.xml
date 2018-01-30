@@ -236,7 +236,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         Minimum required version of Google Play Services SDK for this plugin.
         https://developers.google.com/android/guides/releases
         -->
-        <preference name="PLAY_SERVICES_VERSION" default="11.8.+" />
+        <preference name="PLAY_SERVICES_VERSION" default="11.8.0" />
         <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
         <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
     </platform>
