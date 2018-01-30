@@ -1,6 +1,43 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var cordova_exec = require('cordova/exec');
 var isSuspended = false;
+if (typeof Array.prototype.forEach !== "function") {
+  (function() {
+    Array.prototype.forEach = function(fn, thisArg) {
+      thisArg = thisArg || this;
+      for (var i = 0; i < this.length; i++) {
+        fn.call(thisArg, this[i], i, this);
+      }
+    };
+  })();
+}
+if (typeof Array.prototype.filter !== "function") {
+  (function() {
+    Array.prototype.filter = function(fn, thisArg) {
+      thisArg = thisArg || this;
+      var results = [];
+      for (var i = 0; i < this.length; i++) {
+        if (fn.call(thisArg, this[i], i, this) === true) {
+          results.push(this[i]);
+        }
+      }
+      return results;
+    };
+  })();
+}
+if (typeof Array.prototype.map !== "function") {
+  (function() {
+    Array.prototype.map = function(fn, thisArg) {
+      thisArg = thisArg || this;
+      var results = [];
+      for (var i = 0; i < this.length; i++) {
+        results.push(fn.call(thisArg, this[i], i, this));
+      }
+      return results;
+    };
+  })();
+}
+
 if (!cordova) {
   document.addEventListener("deviceready", function() {
     isSuspended = true;
@@ -34,6 +71,7 @@ if (!cordova) {
   var spherical = require('./spherical');
   var poly = require('./poly');
   var Geocoder = require('./Geocoder');
+  var LocationService = require('./LocationService');
   var Environment = require('./Environment');
   var MapTypeId = require('./MapTypeId');
 
@@ -101,7 +139,7 @@ if (!cordova) {
    *****************************************************************************/
   (function() {
     if (!document.body || !document.body.firstChild) {
-      setTimeout(arguments.callee, 25);
+      common.nextTick(arguments.callee, 25);
       return;
     }
 
@@ -114,14 +152,7 @@ if (!cordova) {
       //document.body.style.display='';
     //}, 0);
 
-    var prevDomPositions = {};
-    var prevChildrenCnt = 0;
-    var idlingCnt = -1;
-    var longIdlingCnt = -1;
-
     var isChecking = false;
-    var pauseResizeTimer = false;
-    var cacheDepth = {};
     document.head.appendChild(navDecorBlocker);
     var doNotTraceTags = [
       "svg", "p", "pre", "script", "style"
@@ -129,395 +160,428 @@ if (!cordova) {
 
     var followPositionTimer = null;
     var followPositionTimerCnt = 0;
-    function followMapDivPositionOnly() {
+    var prevMapRects = {};
+    var scrollEndTimer = null;
+    function followMapDivPositionOnly(opts) {
+      opts = opts || {};
       var mapRects = {};
       var mapIDs = Object.keys(MAPS);
-      mapIDs.forEach(function(mapId) {
-        var map = MAPS[mapId];
+      var changed = false;
+      var mapId, map;
+      for (var i = 0; i < mapIDs.length; i++) {
+        mapId = mapIDs[i];
+        map = MAPS[mapId];
         if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
           var mapDiv = map.getDiv();
           var divId = mapDiv.getAttribute("__pluginDomId");
           mapRects[divId] = {
             size: common.getDivRect(mapDiv),
-            depth: cacheDepth[divId]
+            zIndex: common.getZIndex(mapDiv)
           };
+          if (!changed && prevMapRects && (divId in prevMapRects) && (
+            prevMapRects[divId].size.left !== mapRects[divId].size.left ||
+            prevMapRects[divId].size.top !== mapRects[divId].size.top ||
+            prevMapRects[divId].size.width !== mapRects[divId].size.width ||
+            prevMapRects[divId].size.height !== mapRects[divId].size.height ||
+            prevMapRects[divId].zIndex !== mapRects[divId].zIndex)) {
+            changed = true;
+          }
         }
-      });
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
-    }
-
-    function onTouchEnd(event) {
-      followPositionTimerCnt = 0;
-      followPositionTimer = setInterval(function() {
-        if (followPositionTimerCnt++ > 25) {
-          clearInterval(followPositionTimer);
-          followPositionTimer = null;
-          return;
-        }
-        followMapDivPositionOnly();
-      }, 50);
-    }
-
-    function onTouchStart() {
-      if (followPositionTimer) {
-        clearInterval(followPositionTimer);
-        followPositionTimer = null;
+      }
+      prevMapRects = mapRects;
+      if (changed || opts.force) {
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
       }
     }
+
+    document.body.addEventListener("transitionend", function(e) {
+      setTimeout(function() {
+        common.nextTick(function() {
+          if (e.target.hasAttribute("__pluginDomId")) {
+            //console.log("transitionend", e.target.getAttribute("__pluginDomId"));
+            var isMapChild = false;
+            var ele = e.target;
+            while(!isMapChild && ele && ele.nodeType === Node.ELEMENT_NODE) {
+              isMapChild = ele.hasAttribute("__pluginMapId");
+              ele = ele.parentNode;
+            }
+            traceDomTree(e.target, e.target.getAttribute("__pluginDomId"), isMapChild);
+
+            isSuspended = true;
+            isThereAnyChange = true;
+            isChecking = false;
+            resetTimer({force: true});
+          }
+        });
+      }, 100);
+    }, true);
+
+    document.body.addEventListener("scroll", function(e) {
+      if (scrollEndTimer) {
+        clearTimeout(scrollEndTimer);
+      }
+      scrollEndTimer = setTimeout(onScrollEnd, 100);
+      followMapDivPositionOnly();
+    }, true);
+    function onScrollEnd() {
+      isThereAnyChange = true;
+      common.nextTick(putHtmlElements);
+    }
+
+    function removeDomTree(node) {
+      if (!node || !node.querySelectorAll) {
+        return;
+      }
+      var elemId, mapId;
+      var children = node.querySelectorAll('[__pluginDomId]');
+      if (children && children.length > 0) {
+        var isRemoved = node._isRemoved;
+        var child;
+        for (var i = 0; i < children.length; i++) {
+          child = children[i];
+          elemId = child.getAttribute('__pluginDomId');
+          if (isRemoved) {
+            child.removeAttribute('__pluginDomId');
+            if (child.hasAttribute('__pluginMapId')) {
+              // If no div element, remove the map.
+              mapId = child.getAttribute('__pluginMapId');
+//console.log("---->no map div, elemId = " + elemId + ", mapId = " + mapId);
+              if (mapId in MAPS) {
+                MAPS[mapId].remove();
+              }
+            }
+            delete domPositions[elemId];
+          }
+          common._removeCacheById(elemId);
+        }
+      }
+      if (node.hasAttribute("__pluginDomId")) {
+        elemId = node.getAttribute('__pluginDomId');
+        if (node._isRemoved) {
+          node.removeAttribute('__pluginDomId');
+          if (node.hasAttribute('__pluginMapId')) {
+            // If no div element, remove the map.
+            mapId = node.getAttribute('__pluginMapId');
+            if (mapId in MAPS) {
+//console.log("---> map.remove() = " + elemId);
+              MAPS[mapId].remove();
+            }
+          }
+          delete domPositions[elemId];
+        }
+        common._removeCacheById(elemId);
+      }
+    }
+    //----------------------------------------------
+    // Observe styles and children
+    //----------------------------------------------
+    var isThereAnyChange = true;
+    (function() {
+
+      var observer = new MutationObserver(function(mutations) {
+        common.nextTick(function() {
+          var i, mutation, targetCnt, node, j, elemId;
+          for (j = 0; j < mutations.length; j++) {
+            mutation = mutations[j];
+            targetCnt = 0;
+            if (mutation.type === "childList") {
+              if (mutation.addedNodes) {
+                for (i = 0; i < mutation.addedNodes.length; i++) {
+                  node = mutation.addedNodes[i];
+                  if (node.nodeType !== Node.ELEMENT_NODE) {
+                    continue;
+                  }
+                  targetCnt++;
+                  setDomId(node);
+                }
+              }
+              if (mutation.removedNodes) {
+                for (i = 0; i < mutation.removedNodes.length; i++) {
+                  node = mutation.removedNodes[i];
+                  if (node.nodeType !== Node.ELEMENT_NODE || !node.hasAttribute("__pluginDomId")) {
+                    continue;
+                  }
+                  targetCnt++;
+                  node._isRemoved = true;
+                  removeDomTree(node);
+                }
+              }
+            } else {
+              if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
+                return;
+              }
+              if (mutation.target.hasAttribute("__pluginDomId")) {
+                traceDomTree(mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
+              }
+              elemId = mutation.target.getAttribute("__pluginDomId");
+              //console.log('style', elemId, common.shouldWatchByNative(mutation.target), mutation);
+            }
+
+          }
+          isThereAnyChange = true;
+          common.nextTick(putHtmlElements);
+        });
+      });
+      observer.observe(document.body.parentElement, {
+        attributes : true,
+        childList: true,
+        subtree: true,
+        attributeFilter: ['style', 'class']
+      });
+
+    })();
+
+    function setDomId(element) {
+      common.getPluginDomId(element);
+      if (element.children) {
+        for (var i = 0; i < element.children.length; i++) {
+          common.getPluginDomId(element.children[i]);
+        }
+      }
+    }
+
+
+    //----------------------------------------------
+    // Send the DOM hierarchy to native side
+    //----------------------------------------------
+    var domPositions = {};
+    var shouldUpdate = false;
+    var doNotTrace = false;
+    var checkRequested = false;
 
     function putHtmlElements() {
       var mapIDs = Object.keys(MAPS);
       if (isChecking) {
+        checkRequested = true;
         return;
       }
-      if (mapIDs.length === 0) {
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+      checkRequested = false;
+      if (!isThereAnyChange) {
+        if (!isSuspended) {
+          //console.log("-->pause(320)");
+          cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+        }
+
+        //console.log("-->isSuspended = true");
         isSuspended = true;
+        isThereAnyChange = false;
+        isChecking = false;
         return;
-      }
-      if (isSuspended) {
-        isSuspended = false;
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
       }
       isChecking = true;
 
       //-------------------------------------------
       // If there is no visible map, stop checking
       //-------------------------------------------
-      var visibleMapDivList, i, mapId, map;
-      visibleMapList = [];
+      var touchableMapList, i, mapId, map;
+      touchableMapList = [];
+      mapIDs = Object.keys(MAPS);
       for (i = 0; i < mapIDs.length; i++) {
         mapId = mapIDs[i];
         map = MAPS[mapId];
-        if (map && map.getVisible() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
-          visibleMapList.push(mapId);
+        if (map &&
+          map.getVisible() && map.getClickable() && map.getDiv() && common.shouldWatchByNative(map.getDiv())) {
+          touchableMapList.push(mapId);
         }
       }
-      if (idlingCnt > -1 && visibleMapList.length === 0 && Object.keys(MAPS).length === 0) {
-        idlingCnt++;
+      if (touchableMapList.length === 0) {
+//console.log("--->touchableMapList.length = 0");
         if (!isSuspended) {
+//        console.log("-->pause, isSuspended = true");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
+          isThereAnyChange = false;
         }
-        //if (idlingCnt < 5) {
-        //  setTimeout(putHtmlElements, 50);
-        //}
         isChecking = false;
         return;
       }
-      if (isSuspended) {
-        isSuspended = false;
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
-      }
 
+      if (checkRequested) {
+//console.log("--->checkRequested");
+        setTimeout(function() {
+          isChecking = false;
+          common.nextTick(putHtmlElements);
+        }, 50);
+        return;
+      }
       //-------------------------------------------
       // Should the plugin update the map positions?
       //-------------------------------------------
-      var domPositions = {};
-      var shouldUpdate = false;
-      var doNotTrace = false;
 
-      var traceDomTree = function(element, domIdx, parentRect, parentZIndex, parentDepth, floorLevel) {
-        var zIndex = parentZIndex;
-        doNotTrace = false;
-        var depth = 1;
-
-        if (common.shouldWatchByNative(element)) {
-
-          // Generates a __pluginDomId
-          var elemId = element.getAttribute("__pluginDomId");
-          if (!elemId) {
-            elemId = "pgm" + Math.floor(Math.random() * Date.now());
-            element.setAttribute("__pluginDomId", elemId);
-            if (common.getStyle(element, "-webkit-overflow-scrolling") === "touch") {
-              element.addEventListener("touchstart", onTouchStart);
-              element.addEventListener("touchmove", followMapDivPositionOnly);
-              element.addEventListener("touchend", onTouchEnd);
-              element.addEventListener("touchcancel", onTouchEnd);
-              element.addEventListener("touchleave", onTouchEnd);
-            }
-          }
-
-          // get dom depth
-          zIndex = common.getZIndex(element);
-          if (elemId in cacheDepth &&
-              elemId in prevDomPositions &&
-              prevDomPositions[elemId].zIndex === zIndex) {
-              depth = cacheDepth[elemId];
-          } else {
-              depth = common.getDomDepth(element, domIdx, parentDepth, floorLevel);
-              cacheDepth[elemId] = depth;
-          }
-
-          // Calculate dom clickable region
-          var rect = common.getDivRect(element);
-          rect.right = rect.left + rect.width;
-          rect.bottom = rect.top + rect.height;
-          rect.overflowX_hidden = common.getStyle(element, "overflow-x") === "hidden";
-          rect.overflowY_hidden = common.getStyle(element, "overflow-y") === "hidden";
-          if (rect.overflowX_hidden && (rect.left !== parentRect.left || rect.width !== parentRect.width)) {
-            if (rect.left < parentRect.left) {
-              if (rect.right > parentRect.right) {
-                rect.width = parentRect.width;
-                rect.left = parentRect.left;
-              } else {
-                rect.width = rect.width + rect.left - parentRect.left;
-                rect.left = parentRect.left;
-              }
-            } else if (rect.right > parentRect.right) {
-              if (rect.left > parentRect.left) {
-                rect.width = rect.width + parentRect.right - rect.right;
-              } else {
-                rect.width = parentRect.width;
-              }
-            }
-            rect.right = rect.left + rect.width;
-          }
-
-          if (rect.overflowY_hidden && (rect.top !== parentRect.top || rect.height !== parentRect.height)) {
-            if (rect.top < parentRect.top) {
-              if (rect.bottom > parentRect.bottom) {
-                rect.height = parentRect.height;
-                rect.top = parentRect.top;
-              } else {
-                rect.height = rect.height + rect.top - parentRect.top;
-                rect.top = parentRect.top;
-              }
-            } else if (rect.bottom > parentRect.bottom) {
-              if (rect.top > parentRect.top) {
-                rect.height = rect.height + parentRect.bottom - rect.bottom;
-              } else {
-                rect.height = parentRect.height;
-              }
-            }
-            rect.bottom = rect.top + rect.height;
-          }
-          // Stores dom bounds and depth
-          domPositions[elemId] = {
-            size: rect,
-            depth: depth,
-            zIndex: zIndex
-          };
-          parentRect = rect;
-          parentRect.elemId = elemId;
-
-          if (!shouldUpdate) {
-            if (elemId in prevDomPositions) {
-              if (domPositions[elemId].size.left !== prevDomPositions[elemId].size.left ||
-                  domPositions[elemId].size.top !== prevDomPositions[elemId].size.top ||
-                  domPositions[elemId].size.width !== prevDomPositions[elemId].size.width ||
-                  domPositions[elemId].size.height !== prevDomPositions[elemId].size.height ||
-                  domPositions[elemId].depth !== prevDomPositions[elemId].depth) {
-                  shouldUpdate = true;
-              }
-            } else {
-              shouldUpdate = true;
-            }
-          }
-        } else {
-          if (element.nodeType === Node.ELEMENT_NODE) {
-            //if (element.hasAttribute("__pluginDomId")) {
-            //    shouldUpdate = true;
-            //    element.removeAttribute("__pluginDomId");
-            //}
-            if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1) {
-              doNotTrace = true;
-            }
-          } else {
-            doNotTrace = true;
-          }
-        }
-        if (!doNotTrace && element.nodeType === Node.ELEMENT_NODE) {
-          if (element.children.length > 0) {
-            var child;
-            var pZ = zIndex / floorLevel;
-            for (var i = 0; i < element.children.length; i++) {
-              child = element.children[i];
-              if (child.nodeType !== Node.ELEMENT_NODE ||
-                doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
-                common.getStyle(child, "display") === "none") {
-                continue;
-              }
-              traceDomTree(child, domIdx + i + 1, parentRect, pZ, depth, floorLevel + 1);
-            }
-          }
-        }
-      };
-      var bodyRect = common.getDivRect(document.body);
-      bodyRect.right = bodyRect.left + bodyRect.width;
-      bodyRect.bottom = bodyRect.top + bodyRect.height;
-
-      traceDomTree(document.body, 0, bodyRect, 0, 0, 1);
-
-      // If some elements has been removed, should update the positions
-      var elementCnt = Object.keys(domPositions).length;
-      var prevElementCnt = Object.keys(prevDomPositions).length;
-      if (elementCnt !== prevElementCnt) {
-        shouldUpdate = true;
-      }
-
-      if (!shouldUpdate && idlingCnt > -1) {
-        idlingCnt++;
-        if (idlingCnt === 2) {
-          mapIDs.forEach(function(mapId) {
-              MAPS[mapId].refreshLayout();
-          });
-        }
-        if (idlingCnt > 2 && !pauseResizeTimer) {
-          pauseResizeTimer = true;
-          cordova_exec(null, null, 'CordovaGoogleMaps', 'pauseResizeTimer', []);
-        }
-        // Stop timer when user does not touch the app and no changes are occurred during 1500ms.
-        // (50ms * 5times + 200ms * 5times).
-        // This save really the battery life significantly.
-        if (idlingCnt < 10) {
-          if (idlingCnt === 8) {
-            cordova.fireDocumentEvent("ecocheck", {});
-          }
-          setTimeout(putHtmlElements, idlingCnt < 5 ? 50 : 200);
-        }
-        isChecking = false;
-        return;
-      }
-      idlingCnt = 0;
-      longIdlingCnt = 0;
+      common._clearInternalCache();
+      common.getPluginDomId(document.body);
+      traceDomTree(document.body, "root", false);
 
       // If the map div is not displayed (such as display='none'),
       // ignore the map temporally.
-      var minMapDepth = 9999999;
-      mapIDs.forEach(function(mapId) {
-        var div = MAPS[mapId].getDiv();
-        if (div) {
-          var elemId = div.getAttribute("__pluginDomId");
-          if (elemId) {
-            if (elemId in domPositions) {
-              minMapDepth = Math.min(minMapDepth, domPositions[elemId].depth);
-            } else {
-              // Is the map div removed?
-              if (window.document.querySelector) {
-                var ele = document.querySelector("[__pluginMapId='" + mapId + "']");
+      var stopFlag = false;
+      var mapElemIDs = [];
+      mapIDs = Object.keys(MAPS);
+      (function() {
+        var ele, mapId, div, elemId;
+        for (var i = 0; i < mapIDs.length; i++) {
+          mapId = mapIDs[i];
+          div = MAPS[mapId].getDiv();
+          if (div) {
+            elemId = div.getAttribute("__pluginDomId");
+            if (elemId) {
+              if (elemId in domPositions) {
+                mapElemIDs.push(elemId);
+              } else {
+                // Is the map div removed?
+                ele = document.querySelector("[__pluginMapId='" + mapId + "']");
                 if (!ele) {
                   // If no div element, remove the map.
-                  MAPS[mapId].remove();
+                  if (mapId in MAPS) {
+                    MAPS[mapId].remove();
+                    return;
+                  }
+                  stopFlag = true;
                 }
               }
-
-              domPositions[elemId] = {
-                size: {
-                  top: 10000,
-                  left: 0,
-                  width: 100,
-                  height: 100
-                },
-                depth: 0
-              };
+            } else {
+              // the map div is removed
+              if (mapId in MAPS) {
+                MAPS[mapId].remove();
+                return;
+              }
+              stopFlag = true;
             }
+          // } else {
+          //   // the map div is removed
+          //   console.log("mapId = " + mapId + " is already removed");
+          //   if (mapId in MAPS) {
+          //     MAPS[mapId].remove();
+          //     return;
+          //   }
+          //   stopFlag = true;
           }
         }
-      });
+      })();
+      if (stopFlag) {
+        // There is no map information (maybe timining?)
+        // Try again.
+        isThereAnyChange = true;
+        setTimeout(function() {
+          isChecking = false;
+          common.nextTick(putHtmlElements);
+        }, 50);
+        return;
+      }
 
       //-----------------------------------------------------------------
       // Ignore the elements that their z-index is smaller than map div
       //-----------------------------------------------------------------
-      var finalDomPositions;
-      if (visibleMapList.length === 0) {
-        finalDomPositions = domPositions;
-      } else {
-        var quickfilter = function(list, head, tail) {
-          var i = head, j = tail;
-          var leftRight = true;
-          while(i < j) {
-            if (leftRight) {
-              if (domPositions[list[j]].depth < minMapDepth) {
-                list[i] = list[j];
-                i++;
-                leftRight = false;
-              } else {
-                j--;
-              }
-            } else {
-              if (domPositions[list[i]].depth >= minMapDepth) {
-                list[j] = list[i];
-                j--;
-                leftRight = true;
-              } else {
-                i++;
-              }
-            }
-          }
-          list.splice(0, j);
-        };
-        var list = Object.keys(domPositions);
-        quickfilter(list, 0, list.length - 1);
-        finalDomPositions = {};
-        list.forEach(function(domId) {
-          finalDomPositions[domId] = domPositions[domId];
-        });
+      if (checkRequested) {
+        setTimeout(function() {
+          isChecking = false;
+          common.nextTick(putHtmlElements);
+        }, 50);
+        return;
       }
       //-----------------------------------------------------------------
       // Pass information to native
       //-----------------------------------------------------------------
+      if (isSuspended) {
+        //console.log("-->resume(470)");
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+        isSuspended = false;
+      }
+      //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(domPositions)));
       cordova_exec(function() {
-        prevDomPositions = domPositions;
-        mapIDs.forEach(function(mapId) {
-            if (mapId in MAPS) {
-                MAPS[mapId].refreshLayout();
-            }
-        });
-        setTimeout(putHtmlElements, 50);
+        //console.log("--->putHtmlElements to native (done)");
+        if (checkRequested) {
+          setTimeout(function() {
+            isChecking = false;
+            common.nextTick(putHtmlElements);
+          }, 50);
+          return;
+        }
         isChecking = false;
-      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [finalDomPositions]);
+        isThereAnyChange = false;
+        isSuspended = true;
+        cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
       parentNode = null;
       elemId = null;
       children = null;
     }
 
-    // This is the special event that is fired by the google maps plugin
-    // (Not generic plugin)
-    function resetTimer() {
-      idlingCnt = -1;
-      longIdlingCnt = -1;
-      cacheDepth = {};
-      cacheZIndex = {};
-      pauseResizeTimer = false;
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'resumeResizeTimer', []);
-      putHtmlElements();
-    }
 
-    var intervalTimer = null;
-    document.addEventListener("ecocheck", function() {
-      if (intervalTimer || idlingCnt < 8) {
+
+    function traceDomTree(element, elemId, isMapChild) {
+      if (doNotTraceTags.indexOf(element.tagName.toLowerCase()) > -1 ||
+        !common.shouldWatchByNative(element)) {
+        removeDomTree(element);
         return;
       }
 
-      // In order to detect the DOM nodes that are inserted very later,
-      // monitoring HTML elements every 1 sec.
-      intervalTimer = setInterval(function() {
-        if (idlingCnt > 8) {
-          idlingCnt = 9;
-          // If no update in 10 sec,
-          // the plugin belives no more update.
-          if (longIdlingCnt < 10) {
-            longIdlingCnt++;
-            putHtmlElements();
-          } else {
-            clearInterval(intervalTimer);
-            if (!pauseResizeTimer) {
-              pauseResizeTimer = true;
-              cordova_exec(null, null, 'CordovaGoogleMaps', 'pauseResizeTimer', []);
-            }
-            intervalTimer = null;
+      // Get the z-index CSS
+      var zIndex = common.getZIndex(element);
+
+      // Calculate dom clickable region
+      var rect = common.getDivRect(element);
+
+      // Stores dom information
+      var isCached = elemId in domPositions;
+      domPositions[elemId] = {
+        pointerEvents: common.getStyle(element, 'pointer-events'),
+        isMap: element.hasAttribute("__pluginMapId"),
+        size: rect,
+        zIndex: zIndex,
+        overflowX: common.getStyle(element, "overflow-x"),
+        overflowY: common.getStyle(element, "overflow-y"),
+        children: [],
+        containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
+      };
+      var containMapCnt = (Object.keys(domPositions[elemId].containMapIDs)).length;
+      isMapChild = isMapChild || domPositions[elemId].isMap;
+      if ((containMapCnt > 0 || isMapChild || domPositions[elemId].pointerEvents === "none") && element.children.length > 0) {
+        var child;
+        for (var i = 0; i < element.children.length; i++) {
+          child = element.children[i];
+          if (doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
+            !common.shouldWatchByNative(child)) {
+            continue;
           }
+
+          var childId = common.getPluginDomId(child);
+          domPositions[elemId].children.push(childId);
+          traceDomTree(child, childId, isMapChild);
         }
-      }, 1000);
-    });
+      }
+    }
+
+    // This is the special event that is fired by the google maps plugin
+    // (Not generic plugin)
+    function resetTimer(opts) {
+      opts = opts || {};
+
+      common.nextTick(function() {
+        putHtmlElements();
+        if (opts.force) {
+          followMapDivPositionOnly(opts);
+        }
+      });
+    }
 
     document.addEventListener("deviceready", putHtmlElements, {
       once: true
     });
     document.addEventListener("plugin_touch", resetTimer);
-    window.addEventListener("orientationchange", resetTimer);
+    window.addEventListener("orientationchange", function() {
+      var cnt = 30;
+      resetTimer({force: true});
+      var timer = setInterval(function() {
+        cnt--;
+        if (cnt > 0) {
+          followMapDivPositionOnly();
+        } else {
+          clearInterval(timer);
+        }
+      }, 50);
+    });
 
     //----------------------------------------------------
     // Stop all executions if the page will be closed.
@@ -528,7 +592,7 @@ if (!cordova) {
 /*
       if (_isWaitMethod && _executingCnt > 0) {
         // Wait until all tasks currently running are stopped.
-        setTimeout(arguments.callee, 100);
+        common.nextTick(arguments.callee, 100);
         return;
       }
 */
@@ -540,7 +604,7 @@ if (!cordova) {
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
     function onBackButton(e) {
-      cordova.fireDocumentEvent('plugin_touch', {});
+      common.nextTick(putHtmlElements);
       if (anotherBackbuttonHandler) {
         // anotherBackbuttonHandler must handle the page moving transaction.
         // The plugin does not take care anymore if another callback is registered.
@@ -574,89 +638,236 @@ if (!cordova) {
       }
     };
 
+
+
+    /*****************************************************************************
+     * Name space
+     *****************************************************************************/
+    var singletonLocationService = new LocationService(execCmd);
+    module.exports = {
+      event: event,
+      Animation: {
+          BOUNCE: 'BOUNCE',
+          DROP: 'DROP'
+      },
+
+      BaseClass: BaseClass,
+      BaseArrayClass: BaseArrayClass,
+      Map: {
+          getMap: function(div, mapOptions) {
+              var mapId, elem, elemId;
+              if (common.isDom(div)) {
+                mapId = div.getAttribute("__pluginMapId");
+                if (!mapOptions || mapOptions.visible !== false) {
+                  // Add gray color until the map is displayed.
+                  div.style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+                }
+              }
+              if (mapId && MAPS[mapId].getDiv() !== div) {
+              //console.log("--->different mapdiv = " + mapId, MAPS[mapId].getDiv(), div);
+                elem = MAPS[mapId].getDiv();
+                while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                  elemId = elem.getAttribute("__pluginDomId");
+                  if (elemId && elemId in domPositions) {
+                    domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
+                    delete domPositions[elemId].containMapIDs[mapId];
+                    if ((Object.keys(domPositions[elemId].containMapIDs).length) < 1) {
+                      delete domPositions[elemId];
+                    }
+                  }
+                  elem = elem.parentNode;
+                }
+                MAPS[mapId].remove();
+                mapId = undefined;
+              }
+              if (mapId && mapId in MAPS) {
+                //--------------------------------------------------
+                // Backward compatibility for v1
+                //
+                // If the div is already recognized as map div,
+                // return the map instance
+                //--------------------------------------------------
+                return MAPS[mapId];
+              } else {
+                mapId = "map_" + MAP_CNT + "_" + saltHash;
+              }
+
+              var map = new Map(mapId, execCmd);
+
+              // Catch all events for this map instance, then pass to the instance.
+              document.addEventListener(mapId, nativeCallback.bind(map));
+              map.on('div_changed', function(oldDiv, newDiv) {
+                if (common.isDom(oldDiv)) {
+                  oldDiv.removeAttribute('__pluginMapId');
+                  var ele = oldDiv;
+                  while(ele && ele != document.body.parentNode) {
+                    elemId = ele.getAttribute('__pluginDomId');
+                    if (elemId) {
+                      domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
+                      delete domPositions[elemId].containMapIDs[mapId];
+                      if ((Object.keys(domPositions[elemId].containMapIDs)).length < 1) {
+                        delete domPositions[elemId];
+                      }
+                    }
+                    ele.removeAttribute('__pluginDomId');
+                    if (ele.classList) {
+                      ele.classList.remove('_gmaps_cdv_');
+                    } else if (ele.className) {
+                      ele.className = ele.className.replace(/_gmaps_cdv_/g, "");
+                      ele.className = ele.className.replace(/\s+/g, " ");
+                    }
+                    ele = ele.parentNode;
+                  }
+                }
+
+                if (common.isDom(newDiv)) {
+
+                  elemId = common.getPluginDomId(newDiv);
+                  //console.log("---> setDiv() = " + elemId + ", mapId = " + mapId);
+
+                  elem = newDiv;
+                  var isCached;
+                  while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                    //
+                    // if (common.getStyle(elem, "-webkit-overflow-scrolling") === "touch") {
+                    //   // Disable scrolling, becase the `scroll` events are not fired.
+                    //   elem.style["-webkit-overflow-scrolling"] = "auto";
+                    //   elem.addEventListener('touchstart', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchmove', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchend', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchcancel', self._onTouchEvents.bind(self));
+                    //   elem.addEventListener('touchleave', self._onTouchEvents.bind(self));
+                    // }
+                    elemId = common.getPluginDomId(elem);
+                    isCached = elemId in domPositions;
+                    domPositions[elemId] = {
+                      pointerEvents: common.getStyle(elem, 'pointer-events'),
+                      isMap: false,
+                      size: common.getDivRect(elem),
+                      zIndex: common.getZIndex(elem),
+                      children: (elemId in domPositions ? domPositions[elemId].children : []),
+                      overflowX: common.getStyle(elem, "overflow-x"),
+                      overflowY: common.getStyle(elem, "overflow-y"),
+                      containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
+                    };
+                    domPositions[elemId].containMapIDs[mapId] = 1;
+                    elem = elem.parentNode;
+                  }
+
+                  elemId = common.getPluginDomId(newDiv);
+                  domPositions[elemId].isMap = true;
+                }
+              });
+
+              map.one('remove', function() {
+                  document.removeEventListener(mapId, nativeCallback);
+                  var div = map.getDiv();
+                  if (!div) {
+                    div = document.querySelector("[__pluginMapId='" + mapId + "']");
+                  }
+                  if (div) {
+                    div.removeAttribute('__pluginMapId');
+                  }
+                  //console.log("--->removeMap mapId = " + mapId);
+
+                  var keys = Object.keys(domPositions);
+                  var elemId;
+                  for (var i = 0; i < keys.length; i++) {
+                    elemId = keys[i];
+                    domPositions[elemId].containMapIDs = domPositions[elemId].containMapIDs || {};
+                    delete domPositions[elemId].containMapIDs[mapId];
+                    if ((Object.keys(domPositions[elemId].containMapIDs)).length < 1) {
+                      delete domPositions[elemId];
+                    }
+                  }
+                  MAPS[mapId].destroy();
+                  delete MAPS[mapId];
+                  map = undefined;
+
+                  if ((Object.keys(MAPS)).length === 0) {
+                    common._clearInternalCache();
+
+                    isSuspended = true;
+                    cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+                  }
+              });
+              MAP_CNT++;
+              MAPS[mapId] = map;
+              isSuspended = false;
+              isThereAnyChange = true;
+              isChecking = false;
+
+
+
+                var args = [mapId];
+                for (var i = 0; i < arguments.length; i++) {
+                    args.push(arguments[i]);
+                }
+
+              if (common.isDom(div)) {
+                div.setAttribute("__pluginMapId", mapId);
+
+                elemId = common.getPluginDomId(div);
+    //console.log("---> map.getMap() = " + elemId + ", mapId = " + mapId);
+
+                elem = div;
+                var isCached;
+                while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+                  elemId = common.getPluginDomId(elem);
+                  isCached = elemId in domPositions;
+                  domPositions[elemId] = {
+                    pointerEvents: common.getStyle(elem, 'pointer-events'),
+                    isMap: false,
+                    size: common.getDivRect(elem),
+                    zIndex: common.getZIndex(elem),
+                    children: [],
+                    overflowX: common.getStyle(elem, "overflow-x"),
+                    overflowY: common.getStyle(elem, "overflow-y"),
+                    containMapIDs: (isCached ? domPositions[elemId].containMapIDs : {})
+                  };
+                  domPositions[elemId].containMapIDs[mapId] = 1;
+                  elem = elem.parentNode;
+                }
+
+                elemId = common.getPluginDomId(div);
+                domPositions[elemId].isMap = true;
+
+                //console.log("--->getMap (start)", JSON.parse(JSON.stringify(domPositions)));
+                cordova_exec(function() {
+                  cordova_exec(function() {
+                    map.getMap.apply(map, args);
+                  }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
+                }, null, 'CordovaGoogleMaps', 'resume', []);
+                //resetTimer({force: true});
+              } else {
+                map.getMap.apply(map, args);
+              }
+
+
+
+
+
+
+              return map;
+          }
+      },
+      HtmlInfoWindow: HtmlInfoWindow,
+      LatLng: LatLng,
+      LatLngBounds: LatLngBounds,
+      Marker: Marker,
+      MapTypeId: MapTypeId,
+      environment: Environment,
+      Geocoder: Geocoder,
+      LocationService: singletonLocationService,
+      geometry: {
+          encoding: encoding,
+          spherical: spherical,
+          poly: poly
+      }
+    };
+
   }());
 
-  /*****************************************************************************
-   * Name space
-   *****************************************************************************/
-  module.exports = {
-    event: event,
-    Animation: {
-        BOUNCE: 'BOUNCE',
-        DROP: 'DROP'
-    },
-
-    BaseClass: BaseClass,
-    BaseArrayClass: BaseArrayClass,
-    Map: {
-        getMap: function(div, mapOptions) {
-            var mapId;
-            if (common.isDom(div)) {
-              mapId = div.getAttribute("__pluginMapId");
-              if (!mapOptions || mapOptions.visible !== false) {
-                // Add gray color until the map is displayed.
-                div.style.backgroundColor = "rgba(255, 30, 30, 0.5);";
-              }
-            }
-            if (mapId && MAPS[mapId].getDiv() !== div) {
-              MAPS[mapId].remove();
-              mapId = undefined;
-            }
-            if (mapId && mapId in MAPS) {
-              //--------------------------------------------------
-              // Backward compatibility for v1
-              //
-              // If the div is already recognized as map div,
-              // return the map instance
-              //--------------------------------------------------
-              return MAPS[mapId];
-            } else {
-              mapId = "map_" + MAP_CNT + "_" + saltHash;
-            }
-            if (common.isDom(div)) {
-              div.setAttribute("__pluginMapId", mapId);
-            }
-
-            var map = new Map(mapId, execCmd);
-
-            // Catch all events for this map instance, then pass to the instance.
-            document.addEventListener(mapId, nativeCallback.bind(map));
-            /*
-                    map.showDialog = function() {
-                      showDialog(mapId).bind(map);
-                    };
-            */
-            map.one('remove', function() {
-                document.removeEventListener(mapId, nativeCallback);
-                MAPS[mapId].destroy();
-                delete MAPS[mapId];
-                map = undefined;
-            });
-            MAP_CNT++;
-            MAPS[mapId] = map;
-            cordova.fireDocumentEvent('plugin_touch', {});
-
-            var args = [mapId];
-            for (var i = 0; i < arguments.length; i++) {
-                args.push(arguments[i]);
-            }
-            map.getMap.apply(map, args);
-            return map;
-        }
-    },
-    HtmlInfoWindow: HtmlInfoWindow,
-    LatLng: LatLng,
-    LatLngBounds: LatLngBounds,
-    Marker: Marker,
-    MapTypeId: MapTypeId,
-    environment: Environment,
-    Geocoder: Geocoder,
-    geometry: {
-        encoding: encoding,
-        spherical: spherical,
-        poly: poly
-    }
-  };
 
   cordova.addConstructor(function() {
       if (!window.Cordova) {
@@ -692,17 +903,17 @@ if (!cordova) {
  *****************************************************************************/
 
 function onMapResize(event) {
-    //console.log("---> onMapResize");
-    var mapIDs = Object.keys(MAPS);
-    mapIDs.forEach(function(mapId) {
-        MAPS[mapId].refreshLayout();
-    });
+  var mapIDs = Object.keys(MAPS);
+  for (var i = 0; i< mapIDs.length; i++) {
+    mapId = mapIDs[i];
+    MAPS[mapId].refreshLayout();
+  }
 }
 
 function nativeCallback(params) {
-    var args = params.args || [];
-    args.unshift(params.evtName);
-    this[params.callback].apply(this, args);
+  var args = params.args || [];
+  args.unshift(params.evtName);
+  this[params.callback].apply(this, args);
 }
 
 /*****************************************************************************
@@ -718,10 +929,17 @@ var _lastGetMapExecuted = 0;
 var _isResizeMapExecuting = false;
 var _stopRequested = false;
 
+
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
   execOptions = execOptions || {};
-  if (this._isRemoved && !execOptions.remove || !this._isReady) {
-    // Ignore if the instance is already removed, or the instance is not ready.
+  if (this._isRemoved && !execOptions.remove) {
+    // Ignore if the instance is already removed.
+    console.error("[ignore]" + pluginName + "." + methodName + ", because removed.");
+    return true;
+  }
+  if (!this._isReady) {
+    // Ignore if the instance is not ready.
+    console.error("[ignore]" + pluginName + "." + methodName + ", because it's not ready.");
     return true;
   }
   var self = this;
@@ -737,9 +955,9 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        setTimeout(function() {
+        common.nextTick(function() {
           success.apply(self,results);
-        }, 0);
+        });
       }
 
       var delay = 0;
@@ -753,7 +971,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       }
       setTimeout(function() {
         _executingCnt--;
-        _exec();
+        common.nextTick(_exec);
       }, delay);
     }, function() {
       //console.log("error: " + methodName);
@@ -765,16 +983,16 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
         for (var i = 0; i < arguments.length; i++) {
           results.push(arguments[i]);
         }
-        setTimeout(function() {
+        common.nextTick(function() {
           error.apply(self,results);
-        }, 0);
+        });
       }
 
       if (methodName === _isWaitMethod) {
         _isWaitMethod = null;
       }
       _executingCnt--;
-      _exec();
+      common.nextTick(_exec);
     }, pluginName, methodName, args]
   });
 
@@ -782,7 +1000,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
   if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT ) {
     return;
   }
-  _exec();
+  common.nextTick(_exec);
 }
 function _exec() {
   //console.log("commandQueue.length: " + commandQueue.length);

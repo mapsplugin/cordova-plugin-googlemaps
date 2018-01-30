@@ -39,8 +39,13 @@ BaseClass.prototype = {
   bindTo: function(key, target, targetKey, noNotify) {
     targetKey = targetKey || key;
 
+    // If `noNotify` is true, prevent `(targetKey)_changed` event occurrs,
+    // when bind the value for the first time only.
+    // (Same behaviour as Google Maps JavaScript v3)
+    target.set(targetKey, value, noNotify);
+
     this.on(key + '_changed', function(oldValue, value) {
-      target.set(targetKey, value, noNotify);
+      target.set(targetKey, value);
     });
   },
 
@@ -65,6 +70,9 @@ BaseClass.prototype = {
   },
 
   on: function(eventName, listener) {
+    if (!listener || typeof listener !== "function") {
+      throw Error('Listener for on()/addEventListener() method is not a function');
+    }
     var topic;
     this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
     topic = this[SUBSCRIPTIONS_FIELD][eventName];
@@ -92,6 +100,9 @@ BaseClass.prototype = {
   },
 
   one: function(eventName, listener) {
+    if (!listener || typeof listener !== "function") {
+      throw Error('Listener for one()/addEventListenerOnce() method is not a function');
+    }
 
     var self = this;
 

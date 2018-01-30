@@ -1,69 +1,36 @@
 package plugin.google.maps;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.HashMap;
+
+import za.co.twyst.tbxml.TBXML;
+
 
 public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
+  private HashMap<String, Bundle> styles = new HashMap<String, Bundle>();
 
   private enum KML_TAG {
+    NOT_SUPPORTED,
+
+    kml,
     style,
-    stylemap,
-    linestyle,
-    polystyle,
-    linestring,
-    outerboundaryis,
-    innerboundaryis,
-    placemark,
-    point,
-    polygon,
-    pair,
-    multigeometry,
-    networklink,
-    link,
-    groundoverlay,
-    latlonbox,
-    folder,
-    document,
-
-    key,
     styleurl,
-    color,
-    width,
-    fill,
-    name,
-    description,
-    icon,
-    href,
-    north,
-    south,
-    east,
-    west,
-    visibility,
-    open,
-    address,
-    data,
-    displayName,
-    value,
-
+    stylemap,
+    schema,
     coordinates
   }
 
@@ -124,17 +91,214 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       return null;
     }
     try {
-      XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-      parser.setInput(inputStream, null);
-      Bundle kmlData = parseXML(parser);
+      // KMZ is not ready yet.... sorry
 
+//      if (urlStr.contains(".kmz")) {
+//        String cacheDirPath = cordova.getActivity().getCacheDir() + "/" + Integer.toString(urlStr.hashCode(), 16);
+//        File cacheDir = new File(cacheDirPath);
+//        if (!cacheDir.exists()) {
+//          cacheDir.mkdirs();
+//        }
+//        ArrayList<File> files =  (PluginUtil.unpackZipFromBytes(inputStream, cacheDirPath));
+//        inputStream.close();
+//        for (File file : files) {
+//          if (file.getName().contains(".kml")) {
+//            inputStream = new FileInputStream(file);
+//            break;
+//          }
+//        }
+//      }
+
+
+      String line;
+      StringBuilder stringBuilder = new StringBuilder();
+      InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuilder.append(line);
+        stringBuilder.append("\n");
+      }
+      bufferedReader.close();
+
+
+      TBXML tbxml = new TBXML();
+      tbxml.parse(stringBuilder.toString());
+
+      KmlParserClass parser = new KmlParserClass();
+      Bundle root = parser.parseXml(tbxml, tbxml.rootXMLElement());
+      Bundle result = new Bundle();
+      result.putBundle("schemas", parser.schemaHolder);
+      result.putBundle("styles", parser.styleHolder);
+      result.putBundle("root", root);
+
+
+      tbxml.release();
+      inputStreamReader.close();
       inputStream.close();
       inputStream = null;
-      parser = null;
-      return kmlData;
+      return result;
     } catch (Exception e) {
       e.printStackTrace();
       return null;
+    }
+  }
+
+  class KmlParserClass {
+    public Bundle styleHolder = new Bundle();
+    public Bundle schemaHolder = new Bundle();
+
+
+    private Bundle parseXml(TBXML tbxml, long rootElement) {
+      Bundle result = new Bundle();
+      String styleId, schemaId, txt, attrName;
+      int i;
+      String tagName = tbxml.elementName(rootElement).toLowerCase();
+      long childNode;
+      Bundle styles, schema, extendedData;
+      ArrayList<Bundle> children;
+      ArrayList<String> styleIDs;
+
+      //Log.d(TAG, "--->tagName = " + tagName + "(" + rootElement + ")");
+      result.putString("tagName", tagName);
+
+      KML_TAG kmlTag = null;
+      try {
+        kmlTag = KML_TAG.valueOf(tagName);
+      } catch(Exception e) {
+        kmlTag = KML_TAG.NOT_SUPPORTED;
+      }
+
+      long[] attributes = tbxml.listAttributesOfElement(rootElement);
+      for (i = 0; i < attributes.length; i++) {
+        attrName = tbxml.attributeName(attributes[i]);
+        result.putString(attrName, tbxml.attributeValue(attributes[i]));
+      }
+
+
+      switch (kmlTag) {
+
+        case styleurl:
+          styleId = tbxml.textForElement(rootElement);
+          result.putString("styleId", styleId);
+          break;
+
+        case stylemap:
+        case style:
+
+          // Generate a style id for the tag
+          styleId = tbxml.valueOfAttributeNamed("id", rootElement);
+          if (styleId == null || styleId.isEmpty()) {
+            styleId = "__" + rootElement + "__";
+          }
+          result.putString("styleId", styleId);
+
+          // Store style information into the styleHolder.
+          styles = new Bundle();
+          children = new ArrayList<Bundle>();
+          childNode = tbxml.firstChild(rootElement);
+          while (childNode > 0) {
+            Bundle node = this.parseXml(tbxml, childNode);
+            if (node != null) {
+              if (node.containsKey("value")) {
+                styles.putString(node.getString("tagName"), node.getString("value"));
+              } else {
+                children.add(node);
+              }
+            }
+            childNode = tbxml.nextSibling(childNode);
+          }
+          if (children.size() > 0) {
+            styles.putParcelableArrayList("children", children);
+          }
+          styleHolder.putBundle(styleId, styles);
+
+
+          break;
+
+        case schema:
+
+          // Generate a schema id for the tag
+          schemaId = tbxml.valueOfAttributeNamed("id", rootElement);
+          if (schemaId == null || schemaId.isEmpty()) {
+            schemaId = "__" + rootElement + "__";
+          }
+
+          // Store schema information into the schemaHolder.
+          schema = new Bundle();
+          schema.putString("name", tbxml.valueOfAttributeNamed("name", rootElement));
+          children = new ArrayList<Bundle>();
+          childNode = tbxml.firstChild(rootElement);
+          while (childNode > 0) {
+            Bundle node = this.parseXml(tbxml, childNode);
+            if (node != null) {
+              children.add(node);
+            }
+            childNode = tbxml.nextSibling(childNode);
+          }
+          if (children.size() > 0) {
+            schema.putParcelableArrayList("children", children);
+          }
+          schemaHolder.putBundle(schemaId, schema);
+
+
+          break;
+        case coordinates:
+
+
+          ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
+
+          txt = tbxml.textForElement(rootElement);
+          txt = txt.replaceAll("\\s+", "\n");
+          txt = txt.replaceAll("\\n+", "\n");
+          String lines[] = txt.split("\n");
+          String tmpArry[];
+          Bundle latLng;
+          for (i = 0; i < lines.length; i++) {
+            lines[i] = lines[i].replaceAll("[^0-9,.\\-]", "");
+            if (!"".equals(lines[i])) {
+              tmpArry = lines[i].split(",");
+              latLng = new Bundle();
+              latLng.putFloat("lat", Float.parseFloat(tmpArry[1]));
+              latLng.putFloat("lng", Float.parseFloat(tmpArry[0]));
+              latLngList.add(latLng);
+            }
+          }
+
+          result.putParcelableArrayList(tagName, latLngList);
+          break;
+
+
+
+        default:
+
+          childNode = tbxml.firstChild(rootElement);
+          if (childNode != 0) {
+            children = new ArrayList<Bundle>();
+            while (childNode != 0) {
+              Bundle node = this.parseXml(tbxml, childNode);
+              if (node != null) {
+                if (node.containsKey("styleId")) {
+                  styleIDs = result.getStringArrayList("styleIDs");
+                  if (styleIDs == null) {
+                    styleIDs = new ArrayList<String>();
+                  }
+                  styleIDs.add(node.getString("styleId"));
+                  result.putStringArrayList("styleIDs", styleIDs);
+                } else if (!("schema".equals(node.getString("tagName")))) {
+                  children.add(node);
+                }
+              }
+              childNode = tbxml.nextSibling(childNode);
+            }
+
+            result.putParcelableArrayList("children", children);
+          } else {
+            result.putString("value", tbxml.textForElement(rootElement));
+          }
+          break;
+      }
+
+      return result;
     }
   }
 
@@ -144,7 +308,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
     InputStream inputStream;
     try {
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
+        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         URL url = new URL(urlStr);
         boolean redirect = true;
         HttpURLConnection http = null;
@@ -199,7 +363,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
+        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         inputStream = new FileInputStream(urlStr);
       } else {
         if (urlStr.indexOf("file:///android_asset/") == 0) {
@@ -219,7 +383,7 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        Log.d("PluginKmlOverlay", "---> url = " + urlStr);
+        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         inputStream = cordova.getActivity().getResources().getAssets().open(urlStr);
       }
 
@@ -232,245 +396,4 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
   }
 
-
-
-  private Bundle parseXML(XmlPullParser parser) throws XmlPullParserException,IOException
-  {
-    int eventType = parser.getEventType();
-    Bundle result = new Bundle();
-    ArrayList<Bundle> nodeStack = new ArrayList<Bundle>();
-    Bundle styles = new Bundle();
-
-    Bundle parentNode;
-    ArrayList<Bundle> pairList = null;
-    KML_TAG kmlTag;
-    String tagName;
-    String tmp;
-    int nodeIndex;
-
-    Bundle currentNode = new Bundle();
-    result.putBundle("root", currentNode);
-
-    while (eventType != XmlPullParser.END_DOCUMENT){
-      kmlTag = null;
-      switch (eventType){
-        case XmlPullParser.START_DOCUMENT:
-          break;
-        case XmlPullParser.START_TAG:
-          tagName = parser.getName().toLowerCase(Locale.US);
-          try {
-            kmlTag = KML_TAG.valueOf(tagName);
-          } catch(Exception e) {
-            //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
-            // ignore
-            //e.printStackTrace();
-          }
-
-          if (kmlTag == null) {
-            eventType = parser.next();
-            continue;
-          }
-
-          switch (kmlTag) {
-            case stylemap:
-            case style:
-              //push
-              nodeStack.add(currentNode);
-
-              currentNode = new Bundle();
-              currentNode.putString("tagName", tagName);
-              tmp = parser.getAttributeValue(null, "id");
-              if (tmp == null) {
-                tmp = "__default__";
-              }
-              currentNode.putString("id", tmp);
-              pairList = new ArrayList<Bundle>();
-              break;
-            case multigeometry:
-              if (currentNode != null) {
-                //push
-                nodeStack.add(currentNode);
-
-                currentNode = new Bundle();
-                currentNode.putString("tagName", tagName);
-                pairList = new ArrayList<Bundle>();
-              }
-              break;
-            case networklink:
-            case placemark:
-            case groundoverlay:
-              //push
-              nodeStack.add(currentNode);
-
-              currentNode = new Bundle();
-              currentNode.putString("tagName", tagName);
-              pairList = null;
-              break;
-            case link:
-            case linestyle:
-            case polystyle:
-            case pair:
-            case point:
-            case linestring:
-            case outerboundaryis:
-            case innerboundaryis:
-            case polygon:
-            case icon:
-            case folder:
-            case document:
-            case latlonbox:
-              if (currentNode != null) {
-                //push
-                nodeStack.add(currentNode);
-
-                currentNode = new Bundle();
-                currentNode.putString("tagName", tagName);
-              }
-              break;
-            case visibility:
-            case north:
-            case east:
-            case west:
-            case south:
-            case href:
-            case key:
-            case styleurl:
-            case name:
-            case width:
-            case color:
-            case fill:
-            case description:
-              if (currentNode != null) {
-                currentNode.putString(tagName, parser.nextText());
-              }
-              break;
-
-            case coordinates:
-              if (currentNode != null) {
-
-                ArrayList<Bundle> latLngList = new ArrayList<Bundle>();
-
-                String txt = parser.nextText();
-                txt = txt.replaceAll("\\s+", "\n");
-                txt = txt.replaceAll("\\n+", "\n");
-                String lines[] = txt.split("\\n");
-                String tmpArry[];
-                Bundle latLng;
-                int i;
-                for (i = 0; i < lines.length; i++) {
-                  lines[i] = lines[i].replaceAll("[^0-9,.\\-]", "");
-                  if (!"".equals(lines[i])) {
-                    tmpArry = lines[i].split(",");
-                    latLng = new Bundle();
-                    latLng.putFloat("lat", Float.parseFloat(tmpArry[1]));
-                    latLng.putFloat("lng", Float.parseFloat(tmpArry[0]));
-                    latLngList.add(latLng);
-                  }
-                }
-
-                currentNode.putParcelableArrayList(tagName, latLngList);
-              }
-              break;
-            default:
-              break;
-          }
-          break;
-        case XmlPullParser.END_TAG:
-          if (currentNode != null) {
-
-            tagName = parser.getName().toLowerCase(Locale.US);
-            kmlTag = null;
-            try {
-              kmlTag = KML_TAG.valueOf(tagName);
-            } catch(Exception e) {
-              //Log.d("AsyncKmlParser", "---> tagName = " + tagName + " is not supported in this plugin.");
-              //e.printStackTrace();
-            }
-
-            if (kmlTag == null) {
-              eventType = parser.next();
-              continue;
-            }
-
-            switch (kmlTag) {
-              case stylemap:
-              case style:
-                currentNode.putParcelableArrayList("children", pairList);
-                styles.putBundle("#" + currentNode.getString("id"), currentNode);
-                //pop
-                nodeIndex = nodeStack.size() - 1;
-                parentNode = nodeStack.get(nodeIndex);
-                nodeStack.remove(nodeIndex);
-                currentNode = parentNode;
-                break;
-              case multigeometry:
-                if (currentNode != null) {
-                  //pop
-                  nodeIndex = nodeStack.size() - 1;
-                  parentNode = nodeStack.get(nodeIndex);
-                  parentNode.putParcelableArrayList("children", pairList);
-                  parentNode.putString("tagName", tagName);
-                  nodeStack.remove(nodeIndex);
-                  currentNode = parentNode;
-                  pairList = null;
-                }
-                break;
-              case pair:
-              case linestyle:
-              case polystyle:
-                if (currentNode != null) {
-                  pairList.add(currentNode);
-
-                  //pop
-                  nodeIndex = nodeStack.size() - 1;
-                  parentNode = nodeStack.get(nodeIndex);
-                  nodeStack.remove(nodeIndex);
-                  currentNode = parentNode;
-                }
-                break;
-              case networklink:
-              case placemark:
-              case groundoverlay:
-              case document:
-              case folder:
-              case latlonbox:
-              case icon:
-              case point:
-              case outerboundaryis:
-              case innerboundaryis:
-              case link:
-              case linestring:
-              case coordinates:
-              case polygon:
-                if (currentNode != null) {
-                  //pop
-                  nodeIndex = nodeStack.size() - 1;
-                  parentNode = nodeStack.get(nodeIndex);
-                  nodeStack.remove(nodeIndex);
-
-                  if (parentNode.containsKey("children")) {
-                    pairList = parentNode.getParcelableArrayList("children");
-                    pairList.add(currentNode);
-                    parentNode.putParcelableArrayList("children", pairList);
-                  } else {
-                    pairList = new ArrayList<Bundle>();
-                    pairList.add(currentNode);
-                    parentNode.putParcelableArrayList("children", pairList);
-                  }
-                  currentNode = parentNode;
-                }
-                break;
-              default:
-                break;
-            }
-          }
-          break;
-      }
-      eventType = parser.next();
-    }
-    //result.putParcelableArrayList("placeMarks", placeMarks);
-
-    result.putBundle("styles", styles);
-    return result;
-  }
 }

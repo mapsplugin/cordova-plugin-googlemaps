@@ -74,10 +74,17 @@
       // Create the Polyline, and assign it to the map.
       GMSPolyline *polyline = [GMSPolyline polylineWithPath:mutablePath];
 
-      BOOL isVisible = NO;
-      if (json[@"visible"]) {
+
+      BOOL isVisible = YES;
+      // Visible property
+      NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+      if ([@"0" isEqualToString:visibleValue]) {
+        // false
+        isVisible = NO;
+        polyline.map = nil;
+      } else {
+        // true or default
         polyline.map = self.mapCtrl.map;
-        isVisible = YES;
       }
       BOOL isClickable = NO;
       if ([[json valueForKey:@"clickable"] boolValue]) {

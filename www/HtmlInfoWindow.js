@@ -9,7 +9,49 @@ var utils = require('cordova/utils'),
 var HTMLInfoWindow = function() {
     var self = this;
     BaseClass.apply(self);
-    var zoomScale = parseFloat(window.devicePixelRatio);
+    var callbackTable = {};
+    var listenerMgr = {
+      one: function(target, eventName, callback) {
+        callbackTable[target.hashCode] = callbackTable[target.hashCode] || {};
+        callbackTable[target.hashCode][eventName] = callbackTable[target.hashCode][eventName] || [];
+        callbackTable[target.hashCode][eventName].push(callback);
+        target.one.call(target, eventName, callback);
+      },
+      on: function(target, eventName, callback) {
+        callbackTable[target.hashCode] = callbackTable[target.hashCode] || {};
+        callbackTable[target.hashCode][eventName] = callbackTable[target.hashCode][eventName] || [];
+        callbackTable[target.hashCode][eventName].push(callback);
+        target.on.call(target, eventName, callback);
+      },
+      bindTo: function(srcObj, srcField, dstObj, dstField, noNotify) {
+        var eventName = srcField + "_changed";
+        dstField = dstField || srcField;
+        var callback = function(oldValue, newValue) {
+          dstObj.set(dstField, newValue, noNotify);
+        };
+        callbackTable[dstObj.hashCode] = callbackTable[dstObj.hashCode] || {};
+        callbackTable[dstObj.hashCode][eventName] = callbackTable[dstObj.hashCode][eventName] || [];
+        callbackTable[dstObj.hashCode][eventName].push(callback);
+        srcObj.on.call(srcObj, eventName, callback);
+      },
+      off: function(target, eventName) {
+        if (!target || !eventName ||
+          !(target.hashCode in callbackTable) ||
+          !(eventName in callbackTable[target.hashCode])) {
+          return;
+        }
+        callbackTable[target.hashCode][eventName].forEach(function(listener) {
+          target.off.call(target, eventName, listener);
+        });
+        delete callbackTable[target.hashCode][eventName];
+      }
+    };
+
+
+    Object.defineProperty(self, "_hook", {
+        value: listenerMgr,
+        writable: false
+    });
 
 
     var frame = document.createElement("div");
@@ -23,15 +65,19 @@ var HTMLInfoWindow = function() {
     anchorDiv.setAttribute("class", "pgm-anchor");
     anchorDiv.style.overflow="visible";
     anchorDiv.style.position="absolute";
-    //anchorDiv.style.display = "inline-block";
-    anchorDiv.style.width = '1px';
-    anchorDiv.style.height = '1px';
+    anchorDiv.style["z-index"] = 0;
+    anchorDiv.style.width = 0;
+    anchorDiv.style.height = 0;
     //anchorDiv.style.border = "1px solid green";
-    anchorDiv.style.overflow = "visible";
-    anchorDiv.style.setProperty("will-change", "transform");
-    anchorDiv.style.setProperty("-webkit-will-change", "transform");
-    anchorDiv.style.setProperty("transition", "transform .075s ease");
-    anchorDiv.style.setProperty("-webkit-transition", "transform .075s ease");
+    //anchorDiv.style.backgroundColor = "rgba(125, 125, 255, 0.5)";
+
+    anchorDiv.style.transition = "transform 0s ease";
+    anchorDiv.style['will-change'] = "transform";
+
+    anchorDiv.style['-webkit-backface-visibility'] = 'hidden';
+    anchorDiv.style['-webkit-perspective'] = 1000;
+    anchorDiv.style['-webkit-transition'] = "-webkit-transform 0s ease";
+
     anchorDiv.appendChild(frame);
     self.set("anchor", anchorDiv);
 
@@ -149,7 +195,6 @@ var HTMLInfoWindow = function() {
     eraseBorder.classList.add('pgm-html-info-tail-erase-border');
     tailFrame.appendChild(eraseBorder);
 
-
     var calculate = function() {
 
       var marker = self.get("marker");
@@ -160,8 +205,8 @@ var HTMLInfoWindow = function() {
       var frame = self.get("frame");
       var contentFrame = frame.firstChild;
       var contentBox = contentFrame.firstChild;
-      contentBox.style.minWidth = "100px";
       contentBox.style.minHeight = "50px";
+      contentBox.style.width = (div.offsetWidth * 0.7) + "px";
 
 
       var content = self.get("content");
@@ -188,7 +233,7 @@ var HTMLInfoWindow = function() {
       }
       // Insert the contents to this HTMLInfoWindow
       if (!anchorDiv.parentNode) {
-          div.appendChild(anchorDiv);
+          map._layers.info.appendChild(anchorDiv);
       }
 
       // Adjust the HTMLInfoWindow size
@@ -218,13 +263,6 @@ var HTMLInfoWindow = function() {
         x: 15,
         y: 15
       };
-
-      anchor.x /= zoomScale;
-      anchor.y /= zoomScale;
-      infoOffset.x /= zoomScale;
-      infoOffset.y /= zoomScale;
-      iconSize.width /= zoomScale;
-      iconSize.height /= zoomScale;
 
       var icon = marker.get("icon");
 
@@ -278,8 +316,8 @@ var HTMLInfoWindow = function() {
       var frameBorder = parseInt(common.getStyle(contentFrame, "border-left-width").replace(/[^\d]/g, ""), 10);
       //var offsetX = (contentsWidth + frameBorder + anchor.x ) * 0.5 + (iconSize.width / 2  - infoOffset.x);
       //var offsetY = contentsHeight + anchor.y - (frameBorder * 2) - infoOffset.y + 15;
-      var offsetX = -(iconSize.width / 2);
-      var offsetY = -iconSize.height;
+      var offsetX = -(iconSize.width / 2) - (cordova.platformId === "android" ? 1 : 0);
+      var offsetY = -iconSize.height - (cordova.platformId === "android" ? 1 : 0);
       anchorDiv.style.width = iconSize.width + "px";
       anchorDiv.style.height = iconSize.height + "px";
 
@@ -292,46 +330,25 @@ var HTMLInfoWindow = function() {
 
 
       //console.log("frameLeft = " + frame.style.left );
-      var infoPosition = map.get("infoPosition");
-      self.trigger("infoPosition_changed", "", infoPosition);
+      var point = map.get("infoPosition");
+      anchorDiv.style.visibility = "hidden";
+      var x = point.x + self.get("offsetX");
+      var y = point.y + self.get("offsetY");
+      anchorDiv.style['-webkit-transform'] = "translate3d(" + x + "px, " + y + "px, 0px)";
+      anchorDiv.style.transform = "translate3d(" + x + "px, " + y + "px, 0px)";
+      anchorDiv.style.visibility = "visible";
+      self.trigger("infoPosition_changed", "", point);
+      self.trigger(event.INFO_OPEN);
     };
 
-    var isInfoOpenFired = false;
-
-    self.on("infoPosition_changed", function(ignore, point) {
-
-
-        var x = point.x + self.get("offsetX");
-        var y = point.y + self.get("offsetY");
-
-        if (!isInfoOpenFired) {
-          // Set position first time
-          isInfoOpenFired = true;
-          //anchorDiv.style.left = x + "px";
-          //anchorDiv.style.top = y + "px";
-          anchorDiv.style.visibility = "hidden";
-          var done = function() {
-            anchorDiv.removeEventListener("transitionend", this);
-            anchorDiv.removeEventListener("webkitTransitionEnd", this);
-            anchorDiv.style.visibility = "visible";
-          };
-          anchorDiv.addEventListener("transitionend", done, {once: true});
-          anchorDiv.addEventListener("webkitTransitionEnd", done, {once: true});
-          anchorDiv.style.setProperty("-webkit-transform", "translate3d(" + x + "px, " + y + "px, 0)");
-          anchorDiv.style.setProperty("transform", "translate3d(" + x + "px, " + y + "px, 0)");
-          self.trigger(event.INFO_OPEN);
-        } else {
-          anchorDiv.style.setProperty("-webkit-transform", "translate3d(" + x + "px, " + y + "px, 0)");
-          anchorDiv.style.setProperty("transform", "translate3d(" + x + "px, " + y + "px, 0)");
-        }
-
-        cordova.fireDocumentEvent('plugin_touch', {});
+    self._hook.on(self, "infoPosition_changed", function(ignore, point) {
+      var x = point.x + self.get("offsetX");
+      var y = point.y + self.get("offsetY");
+      anchorDiv.style['-webkit-transform'] = "translate3d(" + x + "px, " + y + "px, 0px)";
+      anchorDiv.style.transform = "translate3d(" + x + "px, " + y + "px, 0px)";
     });
-    self.on(event.INFO_CLOSE, function() {
-        isInfoOpenFired = false;
-    });
-    self.on("infoWindowAnchor_changed", calculate);
-    self.on("icon_changed", calculate);
+
+    self._hook.on(self, "infoWindowAnchor_changed", calculate);
 
     self.set("isInfoWindowVisible", false);
 
@@ -348,7 +365,7 @@ HTMLInfoWindow.prototype.close = function() {
 
     var marker = self.get("marker");
     if (marker) {
-      self.off("isInfoWindowVisible_changed");
+      self._hook.off(marker, "isInfoWindowVisible_changed");
     }
     if (!self.isInfoWindowShown() || !marker) {
       return;
@@ -359,11 +376,12 @@ HTMLInfoWindow.prototype.close = function() {
     this.set('marker', undefined);
 
     var map = marker.getMap();
-    map.off("infoPosition_changed");
-    marker.off("icon_changed");
-    marker.off("infoWindowAnchor_changed");
+    self._hook.off(marker.getMap(), "map_clear");
+    self._hook.off(marker, "infoPosition_changed");
+    self._hook.off(marker, "icon_changed");
+    //self._hook.off(self, "infoWindowAnchor_changed");
+    self._hook.off(marker, event.INFO_CLOSE);  //This event listener is assigned in the open method. So detach it.
     self.trigger(event.INFO_CLOSE);
-    marker.off(event.INFO_CLOSE, self.close);  //This event listener is assigned in the open method. So detach it.
     map.set("active_marker_id", null);
 
     //var div = map.getDiv();
@@ -404,18 +422,24 @@ HTMLInfoWindow.prototype.open = function(marker) {
 
     marker.set("infoWindow", self);
     marker.set("isInfoWindowVisible", true);
+    self._hook.on(marker, "icon_changed", function() {
+      self.trigger.call(self, "infoWindowAnchor_changed");
+    });
     self.set("isInfoWindowVisible", true);
-    marker.one("isInfoWindowVisible_changed", function() {
-      self.close.call(self);
+    self._hook.on(marker, "isInfoWindowVisible_changed", function(prevValue, newValue) {
+      if (newValue === false) {
+        self.close.call(self);
+      }
     });
 
     map.fromLatLngToPoint(marker.getPosition(), function(point) {
         map.set("infoPosition", {x: point[0], y: point[1]});
 
-        map.bindTo("infoPosition", self);
-        marker.bindTo("infoWindowAnchor", self);
-        marker.bindTo("icon", self);
-        marker.one(event.INFO_CLOSE, self.close.bind(self));
+        self._hook.bindTo(map, "infoPosition", self);
+        self._hook.bindTo(marker, "infoWindowAnchor", self);
+        self._hook.bindTo(marker, "icon", self);
+        self._hook.one(marker.getMap(), "map_clear", self.close.bind(self));
+        self._hook.one(marker, event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
         self.trigger.call(self, "infoWindowAnchor_changed");

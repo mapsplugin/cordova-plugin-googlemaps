@@ -76,10 +76,17 @@
             circle.zIndex = [[json valueForKey:@"zIndex"] floatValue];
         }
 
-        BOOL isVisible = NO;
-        if (json[@"visible"]) {
-            circle.map = self.mapCtrl.map;
-            isVisible = YES;
+        BOOL isVisible = YES;
+
+        // Visible property
+        NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+        if ([@"0" isEqualToString:visibleValue]) {
+          // false
+          isVisible = NO;
+          circle.map = nil;
+        } else {
+          // true or default
+          circle.map = self.mapCtrl.map;
         }
         BOOL isClickable = NO;
         if ([[json valueForKey:@"clickable"] boolValue]) {
@@ -296,7 +303,7 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
       NSString *key = [command.arguments objectAtIndex:0];
-      GMSCircle *circle = (GMSCircle *)[self.mapCtrl.objects objectForKey:key];
+      //GMSCircle *circle = (GMSCircle *)[self.mapCtrl.objects objectForKey:key];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property

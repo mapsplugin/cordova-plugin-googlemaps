@@ -41,16 +41,20 @@ var TileOverlay = function(map, tileOverlayId, tileOverlayOptions, _exec) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    self.on("fadeIn_changed", function(oldValue, fadeIn) {
+    self.on("fadeIn_changed", function() {
+        var fadeIn = self.get("fadeIn");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
     });
-    self.on("opacity_changed", function(oldValue, opacity) {
+    self.on("opacity_changed", function() {
+        var opacity = self.get("opacity");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
     });
-    self.on("zIndex_changed", function(oldValue, zIndex) {
+    self.on("zIndex_changed", function() {
+        var zIndex = self.get("zIndex");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
-    self.on("visible_changed", function(oldValue, visible) {
+    self.on("visible_changed", function() {
+        var visible = self.get("visible");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
 };

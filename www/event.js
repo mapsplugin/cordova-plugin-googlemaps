@@ -1,8 +1,9 @@
 module.exports = {
     MAP_READY: 'map_ready',
-    MAP_LOADED: 'map_loaded',
     MAP_CLICK: 'map_click',
     MAP_LONG_CLICK: 'map_long_click',
+    POI_CLICK: 'poi_click',
+    MY_LOCATION_CLICK: 'my_location_click',
     MY_LOCATION_BUTTON_CLICK: 'my_location_button_click',
     INDOOR_BUILDING_FOCUSED: 'indoor_building_focused',
     INDOOR_LEVEL_ACTIVATED: 'indoor_level_activated',
@@ -18,12 +19,12 @@ module.exports = {
     INFO_LONG_CLICK: 'info_long_click',
     INFO_CLOSE: 'info_close',
     INFO_OPEN: 'info_open',
-    CLUSTER_CLICK: 'cluster_click',
     MARKER_CLICK: 'marker_click',
     MARKER_DRAG: 'marker_drag',
     MARKER_DRAG_START: 'marker_drag_start',
     MARKER_DRAG_END: 'marker_drag_end',
     MAP_DRAG: 'map_drag',
     MAP_DRAG_START: 'map_drag_start',
-    MAP_DRAG_END: 'map_drag_end'
+    MAP_DRAG_END: 'map_drag_end',
+    KML_CLICK: 'kml_click'
 };

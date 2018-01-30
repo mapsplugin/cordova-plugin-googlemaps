@@ -18,7 +18,6 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -97,7 +96,6 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
 
           //  this.create(args, callbackContext);
           //  return true;
-          Log.d(TAG, "(debug)action=" + action + " containsKey=" + methods.containsKey(action));
           if (methods.containsKey(action)) {
             if (self.mapCtrl.mPluginLayout.isDebug) {
               try {

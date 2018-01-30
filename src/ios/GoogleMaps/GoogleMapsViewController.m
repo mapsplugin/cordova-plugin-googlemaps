@@ -23,7 +23,7 @@
   self.clickable = YES;
   self.isRenderedAtOnce = NO;
   self.mapDivId = nil;
-  self.objects = [[NSMutableDictionary alloc] init];
+  self.objects = [[PluginObjects alloc] init];
   self.executeQueue =  [NSOperationQueue new];
   self.executeQueue.maxConcurrentOperationCount = 10;
 
@@ -41,6 +41,14 @@
 - (void)didReceiveMemoryWarning
 {
   [super didReceiveMemoryWarning];
+}
+
+- (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
+
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});",
+                        self.mapId, @"poi_click", placeID, name, location.latitude, location.longitude];
+  [self execJS:jsString];
 }
 
 /**
@@ -64,7 +72,41 @@
 /**
  * @callback the my location button is clicked.
  */
-- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+- (void)mapView:(GMSMapView *)mapView didTapAtPoint:(CGPoint)tapPoint {
+
+  CLLocationCoordinate2D coordinate = [self.map.projection coordinateForPoint:tapPoint];
+
+  if (self.map.isMyLocationEnabled) {
+    // Since the google maps sdk for iOS does not provide any events when you tap on the blue dot,
+    // detect the user tap on it by myself
+    CGPoint blueDotPoint = [self.map.projection pointForCoordinate:self.map.myLocation.coordinate];
+
+    if (ABS(blueDotPoint.x - tapPoint.x) < 20 * self.screenScale && ABS(blueDotPoint.y - tapPoint.y) < 20 * self.screenScale) {
+
+      NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+      [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.latitude] forKey:@"lat"];
+      [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.longitude] forKey:@"lng"];
+
+      NSMutableDictionary *json = [NSMutableDictionary dictionary];
+
+      [json setObject:latLng forKey:@"latLng"];
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation speed]] forKey:@"speed"];
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation altitude]] forKey:@"altitude"];
+
+      //todo: calcurate the correct accuracy based on horizontalAccuracy and verticalAccuracy
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation horizontalAccuracy]] forKey:@"accuracy"];
+      [json setObject:[NSNumber numberWithDouble:[self.map.myLocation.timestamp timeIntervalSince1970]] forKey:@"time"];
+      [json setObject:[NSNumber numberWithInteger:[self.map.myLocation hash]] forKey:@"hashCode"];
+
+      NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
+      NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+      NSString* jsString = [NSString
+                            stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [%@]});",
+                            self.mapId, @"my_location_click", sourceArrayString];
+      [self execJS:jsString];
+    }
+  }
 
   if (self.activeMarker) {
     /*
@@ -487,7 +529,8 @@
  * Map tiles are loaded
  */
 - (void) mapViewDidFinishTileRendering:(GMSMapView *)mapView {
-  [self triggerMapEvent:@"map_loaded"];
+  // no longer available from v2.2.0
+  //[self triggerMapEvent:@"map_loaded"];
 }
 
 /**
@@ -576,7 +619,13 @@
   [self syncInfoWndPosition];
 }
 
+
 - (void)execJS: (NSString *)jsString {
+  // Insert setTimeout() in order to prevent the GDC and webView deadlock
+  // ( you can not click the ok button of Alert() )
+  // https://stackoverflow.com/a/23833841/697856
+  jsString = [NSString stringWithFormat:@"setTimeout(function(){%@}, 0);", jsString];
+
   if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
     [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
   } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
@@ -656,7 +705,7 @@
   //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
   NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
   Boolean useHtmlInfoWnd = marker.title == nil && marker.snippet == nil;
 
@@ -788,14 +837,22 @@
     }
 
     // Calculate the size for the title strings
-    textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
+    CGRect textRect = [title boundingRectWithSize:CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)
+                                 options:NSStringDrawingUsesLineFragmentOrigin
+                              attributes:@{NSFontAttributeName:titleFont}
+                                 context:nil];
+    textSize = textRect.size;
     rectSize = CGSizeMake(textSize.width + 10, textSize.height + 22);
 
     // Calculate the size for the snippet strings
     if (snippet) {
       snippetFont = [UIFont systemFontOfSize:12.0f];
       snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-      snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
+      textRect = [snippet boundingRectWithSize:CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)
+                                 options:NSStringDrawingUsesLineFragmentOrigin
+                              attributes:@{NSFontAttributeName:snippetFont}
+                                 context:nil];
+      snippetSize = textRect.size;
       rectSize.height += snippetSize.height + 4;
       if (rectSize.width < snippetSize.width + leftImg.size.width) {
         rectSize.width = snippetSize.width + leftImg.size.width;
@@ -833,6 +890,7 @@
   CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
 
   int y;
   int i = 0;
@@ -862,6 +920,7 @@
       shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
       shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
       shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+      CGImageRelease(shadowImageRef);
 
     } else {
       x += shadowImageLeft.size.width;
@@ -881,6 +940,7 @@
   shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
   x += shadowImageLeft.size.width;
 
   y = 1;

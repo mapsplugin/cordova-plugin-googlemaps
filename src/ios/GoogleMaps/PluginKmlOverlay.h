@@ -16,11 +16,12 @@
 
 @property (nonatomic) BOOL initialized;
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
-@property (nonatomic, strong) NSString* kmlId;
-@property (nonatomic, strong) UIView* _loadingView;
-@property (nonatomic, strong) UIActivityIndicatorView *spinner;
+- (void)create:(CDVInvokedUrlCommand*)command;
+@end
 
-- (void)createKmlOverlay:(CDVInvokedUrlCommand*)command;
+@interface KmlParseClass : NSObject
+@property (nonatomic) NSMutableDictionary *styleHolder;
+@property (nonatomic) NSMutableDictionary *schemaHolder;
 
-
+-(NSMutableDictionary *)parseXml:(TBXML *)tbxml rootElement:(TBXMLElement *)rootElement;
 @end

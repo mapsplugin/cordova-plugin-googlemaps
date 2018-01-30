@@ -93,10 +93,17 @@
             groundOverlay.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
 
-        BOOL isVisible = NO;
-        if (json[@"visible"]) {
-            groundOverlay.map = self.mapCtrl.map;
-            isVisible = YES;
+        BOOL isVisible = YES;
+
+        // Visible property
+        NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+        if ([@"0" isEqualToString:visibleValue]) {
+          // false
+          isVisible = NO;
+          groundOverlay.map = nil;
+        } else {
+          // true or default
+          groundOverlay.map = self.mapCtrl.map;
         }
         BOOL isClickable = NO;
         if ([[json valueForKey:@"clickable"] boolValue]) {
@@ -231,7 +238,10 @@
                       if (![[url lastPathComponent] isEqualToString:@"/"]) {
                         currentURL = [currentURL stringByDeletingLastPathComponent];
                       }
-                      url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, urlStr]];
+                      NSString *urlStr2 = [NSString stringWithFormat:@"%@/%@", currentURL, urlStr];
+                      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
+                      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
+                      url = [NSURL URLWithString:urlStr2];
 
                       [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
@@ -469,7 +479,7 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
       NSString *key = [command.arguments objectAtIndex:0];
-      GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.mapCtrl.objects objectForKey:key];
+      //GMSGroundOverlay *groundOverlay = (GMSGroundOverlay *)[self.mapCtrl.objects objectForKey:key];
       Boolean isClickable = [[command.arguments objectAtIndex:1] boolValue];
 
       // Update the property
@@ -506,34 +516,61 @@
 }
 
 
-
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
-    [self.mapCtrl.executeQueue addOperationWithBlock:^{
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-        NSURLRequest *req = [NSURLRequest requestWithURL:url
-                                          cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                          timeoutInterval:5];
-        NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
-        if (cachedResponse != nil) {
-          UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
-          completionBlock(YES, image);
-          return;
-        }
+    NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                         cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                                     timeoutInterval:5];
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
+    if (cachedResponse != nil) {
+      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
+      completionBlock(YES, image);
+      return;
+    }
 
 
-        [NSURLConnection sendAsynchronousRequest:req
-              queue:self.mapCtrl.executeQueue
-              completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
-                if ( !error ) {
-                  UIImage *image = [UIImage imageWithData:data];
-                  completionBlock(YES, image);
-                } else {
-                  completionBlock(NO, nil);
-                }
+    //-------------------------------------------------------------
+    // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
+    // https://stackoverflow.com/a/20871647
+    //-------------------------------------------------------------
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                                               completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                                 [session finishTasksAndInvalidate];
 
-        }];
-    }];
+                                                 UIImage *image = [UIImage imageWithData:data];
+                                                 if (image) {
+                                                   completionBlock(YES, image);
+                                                   return;
+                                                 }
+
+                                                 completionBlock(NO, nil);
+
+                                               }];
+    [getTask resume];
+    //-------------------------------------------------------------
+    // NSURLConnection sendAsynchronousRequest is deprecated.
+    //-------------------------------------------------------------
+    /*
+     [NSURLConnection sendAsynchronousRequest:req
+     queue:self.mapCtrl.executeQueue
+     completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
+     if ( !error ) {
+     [self.icons setObject:data forKey:uniqueKey cost:data.length];
+     UIImage *image = [UIImage imageWithData:data];
+     completionBlock(YES, image);
+     } else {
+     completionBlock(NO, nil);
+     }
+
+     }];
+     */
+
+
+  }];
 }
 
 @end

@@ -14,4 +14,5 @@
 @property (nonatomic) MyPluginLayerDebugView *debugView;
 
 - (void)attachView:(UIView *)view;
+- (void)detachView:(UIView *)view;
 @end

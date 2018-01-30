@@ -1,7 +1,5 @@
 package plugin.google.maps;
 
-import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
@@ -82,7 +80,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             polygonOptions.fillColor(color);
         }
         if (opts.has("strokeWidth")) {
-            polygonOptions.strokeWidth((int)(opts.getDouble("strokeWidth") * density));
+            polygonOptions.strokeWidth((float)(opts.getDouble("strokeWidth") * density));
         }
         if (opts.has("visible")) {
             polygonOptions.visible(opts.getBoolean("visible"));

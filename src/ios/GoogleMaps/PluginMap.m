@@ -184,7 +184,6 @@
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
 
-
     // Save the map rectangle.
     if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.mapDivId]) {
       NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];;
@@ -193,9 +192,15 @@
       [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];
     }
 
-    //[googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
+
+      //[googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
+
   }];
 }
 
@@ -264,9 +269,10 @@
 
 - (void)setMyLocationEnabled:(CDVInvokedUrlCommand *)command {
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-    Boolean isEnabled = [[command.arguments objectAtIndex:0] boolValue];
-    self.mapCtrl.map.settings.myLocationButton = isEnabled;
-    self.mapCtrl.map.myLocationEnabled = isEnabled;
+    NSDictionary *params =[command.arguments objectAtIndex:0];
+
+    self.mapCtrl.map.settings.myLocationButton = [[params valueForKey:@"myLocationButton"] boolValue];
+    self.mapCtrl.map.myLocationEnabled = [[params valueForKey:@"myLocation"] boolValue];
   }];
 
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -433,7 +439,6 @@
  */
 -(void)animateCamera:(CDVInvokedUrlCommand *)command
 {
-  NSLog(@"--->animateCamera");
   [self updateCameraPosition:@"animateCamera" command:command];
 }
 
@@ -757,9 +762,16 @@
         isEnabled = [[controls valueForKey:@"myLocationButton"] boolValue];
         if (isEnabled == true) {
           self.mapCtrl.map.settings.myLocationButton = YES;
-          self.mapCtrl.map.myLocationEnabled = YES;
         } else {
           self.mapCtrl.map.settings.myLocationButton = NO;
+        }
+      }
+      //myLocation
+      if ([controls valueForKey:@"myLocation"] != nil) {
+        isEnabled = [[controls valueForKey:@"myLocation"] boolValue];
+        if (isEnabled == true) {
+          self.mapCtrl.map.myLocationEnabled = YES;
+        } else {
           self.mapCtrl.map.myLocationEnabled = NO;
         }
       }

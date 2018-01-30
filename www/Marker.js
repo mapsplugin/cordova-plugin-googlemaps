@@ -61,43 +61,61 @@ var Marker = function(map, id, markerOptions, className, _exec) {
       self.showInfoWindow.apply(self);
     });
 
-    self.on("position_changed", function(oldValue, position) {
+    self.on("position_changed", function() {
+        var position = self.get("position");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPosition', [self.getId(), position.lat, position.lng]);
     });
-    self.on("rotation_changed", function(oldValue, rotation) {
+    self.on("rotation_changed", function() {
+        var rotation = self.get("rotation");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRotation', [self.getId(), rotation]);
     });
-    self.on("snippet_changed", function(oldValue, snippet) {
+    self.on("snippet_changed", function() {
+        var snippet = self.get("snippet");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setSnippet', [self.getId(), snippet]);
     });
-    self.on("visible_changed", function(oldValue, visible) {
+    self.on("visible_changed", function() {
+        var visible = self.get("visible");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
-    self.on("title_changed", function(oldValue, title) {
+    self.on("title_changed", function() {
+        var title = self.get("title");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setTitle', [self.getId(), title]);
     });
-    self.on("icon_changed", function(oldValue, url) {
-        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIcon', [self.getId(), url]);
+    self.on("icon_changed", function() {
+        var icon = self.get("icon");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIcon', [self.getId(), icon]);
     });
-    self.on("flat_changed", function(oldValue, flat) {
+    self.on("flat_changed", function() {
+        var flat = self.get("flat");
+        flat = flat === true;
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFlat', [self.getId(), flat]);
     });
-    self.on("draggable_changed", function(oldValue, draggable) {
+    self.on("draggable_changed", function() {
+        var draggable = self.get("draggable");
+        draggable = draggable === true;
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setDraggable', [self.getId(), draggable]);
     });
-    self.on("anchor_changed", function(oldValue, anchor) {
+    self.on("anchor_changed", function() {
+        var anchor = self.get("anchor");
+        if (!anchor) { return; }
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIconAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
-    self.on("infoWindowAnchor_changed", function(oldValue, anchor) {
+    self.on("infoWindowAnchor_changed", function() {
+        var anchor = self.get("infoWindowAnchor");
+        if (!anchor) { return; }
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
     });
-    self.on("zIndex_changed", function(oldValue, zIndex) {
+    self.on("zIndex_changed", function() {
+        var zIndex = self.get("zIndex");
+        if (zIndex === null || zIndex === undefined) { return; }
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
-    self.on("opacity_changed", function(oldValue, opacity) {
+    self.on("opacity_changed", function() {
+        var opacity = self.get("opacity");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
     });
-    self.on("disableAutoPan_changed", function(oldValue, disableAutoPan) {
+    self.on("disableAutoPan_changed", function() {
+        var disableAutoPan = self.get("disableAutoPan");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setDisableAutoPan', [self.getId(), disableAutoPan]);
     });
 

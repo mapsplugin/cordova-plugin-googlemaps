@@ -120,7 +120,7 @@ public class Environment extends CordovaPlugin {
 
   @SuppressWarnings("unused")
   public Boolean getLicenseInfo(JSONArray args, final CallbackContext callbackContext) {
-    callbackContext.success();
+    callbackContext.success("Google Maps Android API v2 does not need this method anymore. But for iOS, you still need to display the lincense.");
     return true;
   }
 

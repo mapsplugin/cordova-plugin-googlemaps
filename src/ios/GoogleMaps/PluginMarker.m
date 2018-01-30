@@ -75,9 +75,21 @@
       CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
       [self _create:markerId markerOptions:json callbackBlock:^(BOOL successed, id result) {
         CDVPluginResult* pluginResult;
+
         if (successed == NO) {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:result];
         } else {
+          GMSMarker *marker = result;
+          NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+          UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
+          if (image != nil) {
+            [createResult setObject:[NSNumber numberWithInt: (int)image.size.width] forKey:@"width"];
+            [createResult setObject:[NSNumber numberWithInt: (int)image.size.height] forKey:@"height"];
+          } else {
+            [createResult setObject:[NSNumber numberWithInt: 24] forKey:@"width"];
+            [createResult setObject:[NSNumber numberWithInt: 40] forKey:@"height"];
+          }
+
           pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];
         }
         [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -166,35 +178,52 @@
   }
 
   // Visible property
-  if (json[@"visible"]) {
-    [iconProperty setObject:json[@"visible"] forKey:@"visible"];
+  NSString *visibleValue = [NSString stringWithFormat:@"%@",  json[@"visible"]];
+  BOOL visible = YES;
+  if ([@"0" isEqualToString:visibleValue]) {
+    // false
+    visible = NO;
+    if (iconProperty == nil) {
+      iconProperty = [NSMutableDictionary dictionary];
+    }
+    [iconProperty setObject:[NSNumber numberWithBool:false] forKey:@"visible"];
   } else {
+    // default or true
+    if (iconProperty == nil) {
+      iconProperty = [NSMutableDictionary dictionary];
+    }
     [iconProperty setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
   }
 
   // Animation
   if ([json valueForKey:@"animation"]) {
     animation = [json valueForKey:@"animation"];
-    if (iconProperty) {
-      [iconProperty setObject:animation forKey:@"animation"];
+    if (iconProperty == nil) {
+      iconProperty = [NSMutableDictionary dictionary];
     }
+    [iconProperty setObject:animation forKey:@"animation"];
+    NSLog(@"--->animation = %@", animation);
   }
 
-  if (iconProperty) {
-    if ([json valueForKey:@"infoWindowAnchor"]) {
-      [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
-    }
+  if ([json valueForKey:@"infoWindowAnchor"]) {
+    [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
+  }
+  if (iconProperty && [iconProperty objectForKey:@"icon"]) {
 
     // Load icon in asynchronise
     [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];
   } else {
-    if (json[@"visible"]) {
+    if (visible) {
       marker.map = self.mapCtrl.map;
+    } else {
+      marker.map = nil;
     }
 
 
     if (animation) {
-      [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];
+      [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+        callbackBlock(YES, marker);
+      }];
     } else {
       callbackBlock(YES, marker);
     }
@@ -795,8 +824,10 @@
       marker.icon = [GMSMarker markerImageWithColor:iconColor];
 
       // The `visible` property
-      if (iconProperty[@"visible"]) {
+      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
         marker.map = self.mapCtrl.map;
+      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+        marker.map = nil;
       }
 
       if (animation) {
@@ -813,7 +844,8 @@
   }
 
   if (iconPath == nil) {
-    callbackBlock(NO, @"icon property is null");
+    callbackBlock(YES, marker);
+    //callbackBlock(NO, @"icon property is null");
     return;
   }
 
@@ -895,8 +927,10 @@
 
 
       // The `visible` property
-      if (iconProperty[@"visible"]) {
+      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
         marker.map = self.mapCtrl.map;
+      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+        marker.map = nil;
       }
 
       if (animation) {
@@ -988,25 +1022,31 @@
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           NSURL *url = [webview URL];
           NSString *currentURL = url.absoluteString;
+          //NSLog(@"currentURL = %@", url);
           if (![[url lastPathComponent] isEqualToString:@"/"]) {
             currentURL = [currentURL stringByDeletingLastPathComponent];
           }
           //url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
+          currentURL = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
+          currentURL = [currentURL stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
+          currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
+          //NSLog(@"currentURL = %@", currentURL);
+          url = [NSURL URLWithString:currentURL];
 
           //
           // Load the icon from over the internet
           //
           [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-            NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
-
             [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
               if (!succeeded) {
                 NSLog(@"[fail] url = %@", url);
                 // The `visible` property
-                if (iconProperty[@"visible"]) {
+                if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
                   marker.map = self.mapCtrl.map;
+                } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+                  marker.map = nil;
                 }
                 if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
                   [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
@@ -1058,8 +1098,10 @@
                 }
 
                 // The `visible` property
-                if (iconProperty[@"visible"]) {
+                if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
                   marker.map = self.mapCtrl.map;
+                } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+                  marker.map = nil;
                 }
 
 
@@ -1218,8 +1260,10 @@
 
 
       // The `visible` property
-      if (iconProperty[@"visible"]) {
+      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
         marker.map = self.mapCtrl.map;
+      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+        marker.map = nil;
       }
 
       if (animation) {
@@ -1257,8 +1301,10 @@
       if (!succeeded) {
         NSLog(@"[fail] url = %@", url);
         // The `visible` property
-        if (iconProperty[@"visible"]) {
+        if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
           marker.map = self.mapCtrl.map;
+        } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+          marker.map = nil;
         }
         if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
           [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
@@ -1310,8 +1356,10 @@
         }
 
         // The `visible` property
-        if (iconProperty[@"visible"]) {
+        if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
           marker.map = self.mapCtrl.map;
+        } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+          marker.map = nil;
         }
 
 
@@ -1434,7 +1482,6 @@
     }
 
 
-
     //-------------------------------------------------------------
     // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
     // https://stackoverflow.com/a/20871647
@@ -1443,13 +1490,16 @@
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
     NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
                                                completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
-                                                 if ( !error ) {
-                                                   UIImage *image = [UIImage imageWithData:data];
+                                                 [session finishTasksAndInvalidate];
+
+                                                 UIImage *image = [UIImage imageWithData:data];
+                                                 if (image) {
                                                    [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
                                                    completionBlock(YES, image);
-                                                 } else {
-                                                   completionBlock(NO, nil);
+                                                   return;
                                                  }
+
+                                                 completionBlock(NO, nil);
 
                                                }];
     [getTask resume];

@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.1.1)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.0)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -38,19 +38,36 @@ $> cordova plugin add cordova-plugin-googlemaps \
 #### If you can't reinstall the plugin, try like this:
 
 ```
-$> npm cache clean
-
 $> cordova platform rm android ios
 
-// Add the SDK plugin at first with --nofetch option
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk --nofetch
-
-$> cordova plugin add cordova-plugin-googlemaps --nofetch
-
-$> cordova platform add android ios
+$> cordova platform add android@6 ios
 ```
 
-### Configuration
+### (Android) Configuration
+
+You can specify the SDK version of Google Play Services.
+
+**Note that the maps plugin v2.2.0 requires the Google Play Services v11.8.0 or over.**
+
+Example using the Cordova CLI
+
+```bash
+$> cordova plugin add cordova-plugin-googlemaps \
+    --variable API_KEY_FOR_ANDROID="..." \
+    --variable API_KEY_FOR_IOS="..." \
+    --variable PLAY_SERVICES_VERSION="11.8.0"
+```
+
+Example using config.xml
+```xml
+<plugin name="cordova-plugin-googlemaps" spec="2.2.0">
+    <variable name="API_KEY_FOR_ANDROID" value="YOUR_ANDROID_API_KEY_IS_HERE" />
+    <variable name="API_KEY_FOR_IOS" value="YOUR_IOS_API_KEY_IS_HERE" />
+    <variable name="PLAY_SERVICES_VERSION" value="11.8.0" />
+</plugin>
+```
+
+### (iOS) Configuration
 
 You can also configure the following variables to customize the iOS location plist entries
 
@@ -73,7 +90,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 Example using config.xml
 ```xml
-<plugin name="cordova-plugin-googlemaps" spec="2.0.0">
+<plugin name="cordova-plugin-googlemaps" spec="2.2.0">
     <variable name="API_KEY_FOR_ANDROID" value="YOUR_ANDROID_API_KEY_IS_HERE" />
     <variable name="API_KEY_FOR_IOS" value="YOUR_IOS_API_KEY_IS_HERE" />
     <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="My custom when in use message" />
@@ -83,19 +100,11 @@ Example using config.xml
 
 ## Release Notes
 
-- [v2.1.0 Release notes](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.1.0/README.md)
+- No longer supported for Android 4.3 or lower versions. At least Android 4.4 is required.
 
-- `plugin.google.maps.geometry.poly` namespace is added.
+- Implement the CSS/HTML element hierarchy correctly.
 
-- `HtmlInfoWindow` follows the marker smoothly.
-
-- The code of `external service` removed. Please use the [Launch Navigator Cordova/Phonegap Plugin](https://github.com/dpa99c/phonegap-launch-navigator) instead.
-
-- The calculation of DOM element hierarchy was fixed.
-
-- [@ionic-native/google-maps@4.3.3](https://www.npmjs.com/package/@ionic-native/google-maps) was released.
-
-- v2.1.1 has small bug fixes.
+- Implement map.addKmlOverlay()
 
 ## Quick demo
 
@@ -261,6 +270,13 @@ map.addTileOverlay({
 }, function(tileOverlay) { ... });</pre></td>
 </tr>
 <tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/KmlOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/multiple_maps/images/kmloverlay.png?raw=true"><br>KmlOverlay</a></td>
+  <td><pre>
+map.addKmlOverlay({
+  'url': 'polygon.kml'
+}, function(kmlOverlay) { ... });</pre></td>
+</tr>
+<tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Geocoder/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/geocoder.png?raw=true"><br>Geocoder</a></td>
   <td><pre>
 plugin.google.maps.Geocoder.geocode({
@@ -348,7 +364,7 @@ You can write your code `similar like` the Google Maps JavaScript API v3.
 | google.maps.geometry.encoding     | plugin.google.maps.geometry.encoding  |
 | google.maps.geometry.poly         | plugin.google.maps.geometry.poly      |
 | (not available)                   | MarkerCluster                         |
-| google.maps.KmlLayer              | KMLLayer (v1.4.5 is available)        |
+| google.maps.KmlLayer              | KMLLayer                              |
 | google.maps.StreetView            | (not available)                       |
 | google.maps.Data                  | (not available)                       |
 | google.maps.DirectionsService     | (not available)                       |
@@ -383,24 +399,26 @@ It means **you can use the native Google Maps views similar like HTML element**.
 
 ## Official Communities
 
-- Google+ : @wf9a5m75
+- Google+ : (manager by @wf9a5m75)
+
   https://plus.google.com/communities/117427728522929652853
 
-- Gitter : @Hirbod
+- Gitter : (manager by @Hirbod)
+
   https://gitter.im/nightstomp/cordova-plugin-googlemaps
 
 ---
 
-## Buy me a beer
+## Buy us a beer
 
-We appreciate if you donate some amount to help this project from this button.
+Thank you for supporting our activities.
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 The donated amount is used for buying testing machine (such as iPhone, Android) or new software.
 
 
-## Buy me a beer (by bitcoin)
+## Buy us a beer (by bitcoin)
 
 Thank you for supporting us by bitcoin.
 

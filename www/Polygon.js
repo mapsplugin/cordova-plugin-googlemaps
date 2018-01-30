@@ -100,25 +100,32 @@ var Polygon = function(map, polygonId, polygonOptions, _exec) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    self.on("clickable_changed", function(oldValue, clickable) {
+    self.on("clickable_changed", function() {
+        var clickable = self.get("clickable");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
     });
-    self.on("geodesic_changed", function(oldValue, geodesic) {
+    self.on("geodesic_changed", function() {
+        var geodesic = self.get("geodesic");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
     });
-    self.on("zIndex_changed", function(oldValue, zIndex) {
+    self.on("zIndex_changed", function() {
+        var zIndex = self.get("zIndex");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
-    self.on("visible_changed", function(oldValue, visible) {
+    self.on("visible_changed", function() {
+        var visible = self.get("visible");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
-    self.on("strokeWidth_changed", function(oldValue, width) {
+    self.on("strokeWidth_changed", function() {
+        var width = self.get("strokeWidth");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
     });
-    self.on("strokeColor_changed", function(oldValue, color) {
+    self.on("strokeColor_changed", function() {
+        var color = self.get("strokeColor");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
-    self.on("fillColor_changed", function(oldValue, color) {
+    self.on("fillColor_changed", function() {
+        var color = self.get("fillColor");
         exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
 
