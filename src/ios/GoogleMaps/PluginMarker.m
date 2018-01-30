@@ -208,7 +208,7 @@
   if ([json valueForKey:@"infoWindowAnchor"]) {
     [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
   }
-  if (iconProperty && [iconProperty objectForKey:@"icon"]) {
+  if (iconProperty && [iconProperty objectForKey:@"url"]) {
 
     // Load icon in asynchronise
     [self setIcon_:marker iconProperty:iconProperty callbackBlock:callbackBlock];

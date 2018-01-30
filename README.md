@@ -23,15 +23,17 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ## Release Notes
 
-- No longer supported for Android 4.3 or lower versions. At least Android 4.4 is required.
+- **v2.2.0**
+  - No longer supported for Android 4.3 or lower versions. At least Android 4.4 is required.
+  - Implement the CSS/HTML element hierarchy correctly.
+  - Implement map.addKmlOverlay()
+  - [other updates](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/README.md)
 
-- Implement the CSS/HTML element hierarchy correctly.
+- **v2.2.1**
+  - Bug fix: can not use Geocoder
 
-- Implement map.addKmlOverlay()
-
-- Bug fix: can not use Geocoder (v2.2.1)
-
-- [other updates](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/README.md)
+- **v2.2.2**
+  - Bug fix: the icon property of Marker class does not affect
 
 
 ## Quick demo
