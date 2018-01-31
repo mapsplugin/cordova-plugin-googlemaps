@@ -47,6 +47,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   protected final HashMap<String, Integer> iconCacheKeys = new HashMap<String, Integer>();
   private static final Paint paint = new Paint();
   private final HashMap<String, Integer> semaphoreAsync = new HashMap<String, Integer>();
+  private boolean _clearDone = false;
 
   protected interface ICreateMarkerCallback {
     void onSuccess(Marker marker);
@@ -65,7 +66,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Set<String> keySet = pluginMap.objects.keySet();
+        Set<String> keySet = pluginMap.objects.keys;
         String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
         for (String objectId : objectIdArray) {
@@ -93,6 +94,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
   @Override
   protected void clear() {
     synchronized (semaphoreAsync) {
+      _clearDone = false;
 
       cordova.getThreadPool().submit(new Runnable() {
         @Override
@@ -143,7 +145,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          Set<String> keySet = pluginMap.objects.keySet();
+          Set<String> keySet = pluginMap.objects.keys;
           String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
           for (String objectId : objectIdArray) {
@@ -153,7 +155,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                   !objectId.startsWith("marker_imageSize") &&
                   !objectId.startsWith("marker_icon_")) {
                 Marker marker = (Marker) pluginMap.objects.remove(objectId);
-                marker.setIcon(null);
                 marker.setTag(null);
                 marker.remove();
                 marker = null;
@@ -165,6 +166,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
           }
 
           synchronized (semaphoreAsync) {
+            _clearDone = true;
             semaphoreAsync.notify();
           }
 
@@ -172,9 +174,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       });
 
       try {
-        semaphoreAsync.wait(5);
+        if (!_clearDone) {
+          semaphoreAsync.wait(1000);
+        }
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        // ignore
+        //e.printStackTrace();
       }
     }
 
@@ -199,6 +204,23 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     _create(markerId, opts, new ICreateMarkerCallback() {
       @Override
       public void onSuccess(Marker marker) {
+        if (icons.containsKey(markerId)) {
+          Bitmap icon = icons.get(markerId);
+          try {
+            result.put("width", icon.getWidth() / density);
+            result.put("height", icon.getHeight() / density);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        } else {
+          try {
+            result.put("width", 24);
+            result.put("height", 42);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+
         callbackContext.success(result);
       }
 
@@ -985,11 +1007,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.width = width;
     options.height = height;
     options.noCaching = noCaching;
+    final int taskId = options.hashCode();
 
     AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
-        iconLoadingTasks.remove(this.hashCode());
+        iconLoadingTasks.remove(taskId);
 
         if (result == null || result.image == null) {
           callback.onPostExecute(marker);
@@ -1108,7 +1131,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
     AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, onComplete);
     task.execute();
-    iconLoadingTasks.put(task.hashCode(), task);
+    iconLoadingTasks.put(taskId, task);
   }
 
 

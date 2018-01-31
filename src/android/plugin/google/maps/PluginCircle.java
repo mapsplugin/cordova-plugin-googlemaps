@@ -148,8 +148,8 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
   @SuppressWarnings("unused")
   public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    int width = (int)(args.getDouble(1) * density);
-    this.setInt("setStrokeWidth", id, width, callbackContext);
+    float width = (float)(args.getDouble(1) * density);
+    this.setFloat("setStrokeWidth", id, width, callbackContext);
   }
 
   /**

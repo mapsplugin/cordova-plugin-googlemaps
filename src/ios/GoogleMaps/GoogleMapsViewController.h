@@ -12,12 +12,14 @@
 #import "PluginUtil.h"
 #import "NSData+Base64.h"
 #import "MyPlgunProtocol.h"
+#import "PluginObjects.h"
 #import <GoogleMaps/GoogleMaps.h>
 
 @interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
 
 @property (nonatomic, strong) UIView* webView;
 @property (nonatomic) NSMutableDictionary* plugins;
+@property (nonatomic) BOOL attached;
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) BOOL isDragging;
 @property (nonatomic) CGRect screenSize;
@@ -29,7 +31,7 @@
 @property (nonatomic) BOOL isRenderedAtOnce;
 @property (nonatomic) GMSMarker* activeMarker;
 @property (nonatomic, readwrite, strong) NSString *mapDivId;
-@property (nonatomic, strong) NSMutableDictionary* objects;
+@property (nonatomic, strong) PluginObjects *objects;
 @property (atomic, strong) NSOperationQueue *executeQueue;
 
 
@@ -37,6 +39,7 @@
 - (id)initWithOptions:(NSDictionary *) options;
 
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
+- (void)mapView:(GMSMapView *)mapView didTapAtPoint:(CGPoint)tapPoint;
 
 - (void)execJS: (NSString *)jsString;
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;

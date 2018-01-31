@@ -15,32 +15,40 @@
 @implementation GoogleMapsViewController
 
 - (id)initWithOptions:(NSDictionary *) options {
-    self = [super init];
-    self.plugins = [NSMutableDictionary dictionary];
-    self.isFullScreen = NO;
-    self.screenSize = [[UIScreen mainScreen] bounds];
-    self.screenScale = [[UIScreen mainScreen] scale];
-    self.clickable = YES;
-    self.isRenderedAtOnce = NO;
-    self.mapDivId = nil;
-    self.objects = [[NSMutableDictionary alloc] init];
-    self.executeQueue =  [NSOperationQueue new];
-    self.executeQueue.maxConcurrentOperationCount = 10;
+  self = [super init];
+  self.plugins = [NSMutableDictionary dictionary];
+  self.isFullScreen = NO;
+  self.screenSize = [[UIScreen mainScreen] bounds];
+  self.screenScale = [[UIScreen mainScreen] scale];
+  self.clickable = YES;
+  self.isRenderedAtOnce = NO;
+  self.mapDivId = nil;
+  self.objects = [[PluginObjects alloc] init];
+  self.executeQueue =  [NSOperationQueue new];
+  self.executeQueue.maxConcurrentOperationCount = 10;
 
 
-    return self;
+  return self;
 }
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
+  [super viewDidLoad];
 
 }
 
 
 - (void)didReceiveMemoryWarning
 {
-    [super didReceiveMemoryWarning];
+  [super didReceiveMemoryWarning];
+}
+
+- (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
+
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});",
+                        self.mapId, @"poi_click", placeID, name, location.latitude, location.longitude];
+  [self execJS:jsString];
 }
 
 /**
@@ -52,11 +60,11 @@
  */
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
 
-	NSString* jsString = [NSString
-      stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});",
-      self.mapId, @"my_location_button_click"];
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});",
+                        self.mapId, @"my_location_button_click"];
   [self execJS:jsString];
-	return NO;
+  return NO;
 }
 
 #pragma mark - GMSMapViewDelegate
@@ -64,19 +72,55 @@
 /**
  * @callback the my location button is clicked.
  */
-- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+- (void)mapView:(GMSMapView *)mapView didTapAtPoint:(CGPoint)tapPoint {
+
+  CLLocationCoordinate2D coordinate = [self.map.projection coordinateForPoint:tapPoint];
+
+  if (self.map.isMyLocationEnabled) {
+    // Since the google maps sdk for iOS does not provide any events when you tap on the blue dot,
+    // detect the user tap on it by myself
+    CGPoint blueDotPoint = [self.map.projection pointForCoordinate:self.map.myLocation.coordinate];
+
+    if (ABS(blueDotPoint.x - tapPoint.x) < 20 * self.screenScale && ABS(blueDotPoint.y - tapPoint.y) < 20 * self.screenScale) {
+
+      NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
+      [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.latitude] forKey:@"lat"];
+      [latLng setObject:[NSNumber numberWithFloat:self.map.myLocation.coordinate.longitude] forKey:@"lng"];
+
+      NSMutableDictionary *json = [NSMutableDictionary dictionary];
+
+      [json setObject:latLng forKey:@"latLng"];
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation speed]] forKey:@"speed"];
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation altitude]] forKey:@"altitude"];
+
+      //todo: calcurate the correct accuracy based on horizontalAccuracy and verticalAccuracy
+      [json setObject:[NSNumber numberWithFloat:[self.map.myLocation horizontalAccuracy]] forKey:@"accuracy"];
+      [json setObject:[NSNumber numberWithDouble:[self.map.myLocation.timestamp timeIntervalSince1970]] forKey:@"time"];
+      [json setObject:[NSNumber numberWithInteger:[self.map.myLocation hash]] forKey:@"hashCode"];
+
+      NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
+      NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+      NSString* jsString = [NSString
+                            stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [%@]});",
+                            self.mapId, @"my_location_click", sourceArrayString];
+      [self execJS:jsString];
+    }
+  }
 
   if (self.activeMarker) {
-    NSString *clusterId_markerId =[NSString stringWithFormat:@"%@", self.activeMarker.userData];
-    NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
-    NSString *className = [tmp objectAtIndex:0];
-    if ([className isEqualToString:@"markercluster"]) {
-      if ([clusterId_markerId containsString:@"-marker_"]) {
-        [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
-      }
-    } else {
-      [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
-    }
+    /*
+     NSString *clusterId_markerId =[NSString stringWithFormat:@"%@", self.activeMarker.userData];
+     NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"_"];
+     NSString *className = [tmp objectAtIndex:0];
+     if ([className isEqualToString:@"markercluster"]) {
+     if ([clusterId_markerId containsString:@"-marker_"]) {
+     [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
+     }
+     } else {
+     [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+     }
+     */
 
     //self.map.selectedMarker = nil;
     self.activeMarker = nil;
@@ -102,12 +146,12 @@
   for (j = 0; j < [keys count]; j++) {
     key = [keys objectAtIndex:j];
     if ([key containsString:@"-marker"] ||
-      [key containsString:@"property"] == NO) {
+        [key containsString:@"property"] == NO) {
       continue;
     }
 
     properties = [self.objects objectForKey:key];
-      //NSLog(@"--> key = %@, properties = %@", key, properties);
+    //NSLog(@"--> key = %@, properties = %@", key, properties);
 
     // Skip invisible polyline
     isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
@@ -132,50 +176,50 @@
     }
 
   }
-/*
-  for (i = 0; i < [pluginNames count]; i++) {
-    pluginName = [pluginNames objectAtIndex:i];
+  /*
+   for (i = 0; i < [pluginNames count]; i++) {
+   pluginName = [pluginNames objectAtIndex:i];
 
-    // Skip marker class
-    if ([pluginName hasSuffix:@"-marker"]) {
-      continue;
-    }
+   // Skip marker class
+   if ([pluginName hasSuffix:@"-marker"]) {
+   continue;
+   }
 
-    // Get the plugin (marker, polyline, polygon, circle, groundOverlay)
-    plugin = [self.plugins objectForKey:pluginName];
+   // Get the plugin (marker, polyline, polygon, circle, groundOverlay)
+   plugin = [self.plugins objectForKey:pluginName];
 
 
-    keys = [plugin.objects allKeys];
-    for (j = 0; j < [keys count]; j++) {
-      key = [keys objectAtIndex:j];
-      if ([key containsString:@"property"]) {
-        properties = [plugin.objects objectForKey:key];
+   keys = [plugin.objects allKeys];
+   for (j = 0; j < [keys count]; j++) {
+   key = [keys objectAtIndex:j];
+   if ([key containsString:@"property"]) {
+   properties = [plugin.objects objectForKey:key];
 
-        // Skip invisible polyline
-        isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
-        if ([isVisible boolValue] == NO) {
-          //NSLog(@"--> key = %@, isVisible = NO", key);
-          continue;
-        }
+   // Skip invisible polyline
+   isVisible = (NSNumber *)[properties objectForKey:@"isVisible"];
+   if ([isVisible boolValue] == NO) {
+   //NSLog(@"--> key = %@, isVisible = NO", key);
+   continue;
+   }
 
-        // Skip isClickable polyline
-        isClickable = (NSNumber *)[properties objectForKey:@"isClickable"];
-        if ([isClickable boolValue] == NO) {
-          //NSLog(@"--> key = %@, isClickable = NO", key);
-          continue;
-        }
-        //NSLog(@"--> key = %@, isVisible = YES, isClickable = YES", key);
+   // Skip isClickable polyline
+   isClickable = (NSNumber *)[properties objectForKey:@"isClickable"];
+   if ([isClickable boolValue] == NO) {
+   //NSLog(@"--> key = %@, isClickable = NO", key);
+   continue;
+   }
+   //NSLog(@"--> key = %@, isVisible = YES, isClickable = YES", key);
 
-        // Skip if the click point is out of the polyline bounds.
-        bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
-        if ([bounds containsCoordinate:coordinate]) {
-          [boundsHitList addObject:key];
-          [boundsPluginList addObject:plugin];
-        }
-      }
-    }
-  }
-*/
+   // Skip if the click point is out of the polyline bounds.
+   bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
+   if ([bounds containsCoordinate:coordinate]) {
+   [boundsHitList addObject:key];
+   [boundsPluginList addObject:plugin];
+   }
+   }
+   }
+   }
+   */
 
 
   CLLocationCoordinate2D origin = [self.map.projection coordinateForPoint:CGPointMake(0, 0)];
@@ -377,10 +421,10 @@
   }
   CLLocationCoordinate2D position = self.activeMarker.position;
   CGPoint point = [self.map.projection
-                      pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
+                   pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
   NSString* jsString = [NSString
-                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
-                              self.mapId, point.x, point.y ];
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
+                        self.mapId, point.x, point.y ];
   [self execJS:jsString];
 }
 
@@ -446,27 +490,22 @@
   // Pan the camera mondatory
   //--------------------------
   GMSCameraPosition* cameraPosition = [GMSCameraPosition
-          cameraWithTarget:marker.position zoom:self.map.camera.zoom];
+                                       cameraWithTarget:marker.position zoom:self.map.camera.zoom];
 
   [self.map animateToCameraPosition:cameraPosition];
-  return NO;
+  return YES;
 }
 
 - (void)mapView:(GMSMapView *)mapView didCloseInfoWindowOfMarker:(nonnull GMSMarker *)marker {
 
   // Get the marker plugin
-  BOOL useHtmlInfoWnd = marker.title == nil &&
-                        marker.snippet == nil;
-
-  if (useHtmlInfoWnd) {
-    NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
-    if ([markerTag hasPrefix:@"markercluster_"]) {
-      if ([markerTag containsString:@"-marker_"]) {
-        [self triggerClusterEvent:@"info_close" marker:marker];
-      }
-    } else {
-      [self triggerMarkerEvent:@"info_close" marker:marker];
+  NSString *markerTag = [NSString stringWithFormat:@"%@", marker.userData];
+  if ([markerTag hasPrefix:@"markercluster_"]) {
+    if ([markerTag containsString:@"-marker_"]) {
+      [self triggerClusterEvent:@"info_close" marker:marker];
     }
+  } else {
+    [self triggerMarkerEvent:@"info_close" marker:marker];
   }
 
   //self.map.selectedMarker = nil; // <-- this causes the didCloseInfoWindowOfMarker event again
@@ -475,22 +514,23 @@
 
 
 /*
-- (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
-  NSString *overlayClass = NSStringFromClass([overlay class]);
-  if ([overlayClass isEqualToString:@"GMSPolygon"] ||
-      [overlayClass isEqualToString:@"GMSPolyline"] ||
-      [overlayClass isEqualToString:@"GMSCircle"] ||
-      [overlayClass isEqualToString:@"GMSGroundOverlay"]) {
-    [self triggerOverlayEvent:@"overlay_click" id:overlay.title];
-  }
-}
-*/
+ - (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
+ NSString *overlayClass = NSStringFromClass([overlay class]);
+ if ([overlayClass isEqualToString:@"GMSPolygon"] ||
+ [overlayClass isEqualToString:@"GMSPolyline"] ||
+ [overlayClass isEqualToString:@"GMSCircle"] ||
+ [overlayClass isEqualToString:@"GMSGroundOverlay"]) {
+ [self triggerOverlayEvent:@"overlay_click" id:overlay.title];
+ }
+ }
+ */
 
 /**
  * Map tiles are loaded
  */
 - (void) mapViewDidFinishTileRendering:(GMSMapView *)mapView {
-  [self triggerMapEvent:@"map_loaded"];
+  // no longer available from v2.2.0
+  //[self triggerMapEvent:@"map_loaded"];
 }
 
 /**
@@ -511,9 +551,9 @@
 - (void)triggerMapEvent: (NSString *)eventName coordinate:(CLLocationCoordinate2D)coordinate
 {
 
-	NSString* jsString = [NSString
-      stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});",
-      self.mapId, eventName, coordinate.latitude, coordinate.longitude];
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});",
+                        self.mapId, eventName, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -572,19 +612,25 @@
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString
-    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});",
-    self.mapId, eventName, sourceArrayString];
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});",
+                        self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
 
   [self syncInfoWndPosition];
 }
 
+
 - (void)execJS: (NSString *)jsString {
-    if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-        [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-    } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-        [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-    }
+  // Insert setTimeout() in order to prevent the GDC and webView deadlock
+  // ( you can not click the ok button of Alert() )
+  // https://stackoverflow.com/a/23833841/697856
+  jsString = [NSString stringWithFormat:@"setTimeout(function(){%@}, 0);", jsString];
+
+  if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+    [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
+  } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+    [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+  }
 }
 
 /**
@@ -621,10 +667,10 @@
   NSString *markerId = [tmp objectAtIndex:([tmp count] - 1)];
 
   NSString* jsString = [NSString
-                              stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
-                              self.mapId, eventName, markerId,
-                              marker.position.latitude,
-                              marker.position.longitude];
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        self.mapId, eventName, markerId,
+                        marker.position.latitude,
+                        marker.position.longitude];
   [self execJS:jsString];
 }
 
@@ -633,9 +679,9 @@
  */
 - (void)triggerOverlayEvent: (NSString *)eventName overlayId:(NSString*)overlayId coordinate:(CLLocationCoordinate2D)coordinate
 {
-	NSString* jsString = [NSString
-    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
-    self.mapId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        self.mapId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -659,7 +705,7 @@
   //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
-  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+  NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
   NSDictionary *properties = [self.objects objectForKey:markerPropertyId];
   Boolean useHtmlInfoWnd = marker.title == nil && marker.snippet == nil;
 
@@ -700,55 +746,55 @@
   float scale = leftImg.scale;
   int sizeEdgeWidth = 10;
 
-	int width = 0;
+  int width = 0;
 
-	if (styles && [styles objectForKey:@"width"]) {
-		NSString *widthString = [styles valueForKey:@"width"];
+  if (styles && [styles objectForKey:@"width"]) {
+    NSString *widthString = [styles valueForKey:@"width"];
 
-        // check if string is numeric
-        NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
-        BOOL isNumeric = [nf numberFromString:widthString] != nil;
+    // check if string is numeric
+    NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+    BOOL isNumeric = [nf numberFromString:widthString] != nil;
 
-		if ([widthString hasSuffix:@"%"]) {
-			double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
+    if ([widthString hasSuffix:@"%"]) {
+      double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
 
-			width = (int)((double)mapView.frame.size.width * (widthDouble / 100));
-		} else if (isNumeric) {
-			double widthDouble = [widthString doubleValue];
+      width = (int)((double)mapView.frame.size.width * (widthDouble / 100));
+    } else if (isNumeric) {
+      double widthDouble = [widthString doubleValue];
 
-			if (widthDouble <= 1.0) {
-				width = (int)((double)mapView.frame.size.width * (widthDouble));
-			} else {
-				width = (int)widthDouble;
-			}
-		}
-	}
+      if (widthDouble <= 1.0) {
+        width = (int)((double)mapView.frame.size.width * (widthDouble));
+      } else {
+        width = (int)widthDouble;
+      }
+    }
+  }
 
-	int maxWidth = 0;
+  int maxWidth = 0;
 
-	if (styles && [styles objectForKey:@"maxWidth"]) {
-		NSString *widthString = [styles valueForKey:@"maxWidth"];
+  if (styles && [styles objectForKey:@"maxWidth"]) {
+    NSString *widthString = [styles valueForKey:@"maxWidth"];
 
-        NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
-        BOOL isNumeric = [nf numberFromString:widthString] != nil;
+    NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+    BOOL isNumeric = [nf numberFromString:widthString] != nil;
 
-		if ([widthString hasSuffix:@"%"]) {
-			double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
+    if ([widthString hasSuffix:@"%"]) {
+      double widthDouble = [[widthString stringByReplacingOccurrencesOfString:@"%" withString:@""] doubleValue];
 
-			maxWidth = (int)((double)mapView.frame.size.width * (widthDouble / 100));
+      maxWidth = (int)((double)mapView.frame.size.width * (widthDouble / 100));
 
-			// make sure to take padding into account.
-			maxWidth -= sizeEdgeWidth;
-		} else if (isNumeric) {
-			double widthDouble = [widthString doubleValue];
+      // make sure to take padding into account.
+      maxWidth -= sizeEdgeWidth;
+    } else if (isNumeric) {
+      double widthDouble = [widthString doubleValue];
 
-			if (widthDouble <= 1.0) {
-				maxWidth = (int)((double)mapView.frame.size.width * (widthDouble));
-			} else {
-				maxWidth = (int)widthDouble;
-			}
-		}
-	}
+      if (widthDouble <= 1.0) {
+        maxWidth = (int)((double)mapView.frame.size.width * (widthDouble));
+      } else {
+        maxWidth = (int)widthDouble;
+      }
+    }
+  }
 
   //-------------------------------------
   // Calculate the size for the contents
@@ -756,54 +802,62 @@
   if ([title rangeOfString:@"data:image/"].location != NSNotFound &&
       [title rangeOfString:@";base64,"].location != NSNotFound) {
 
-      isTextMode = false;
-      NSArray *tmp = [title componentsSeparatedByString:@","];
-      NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
-      base64Image = [[UIImage alloc] initWithData:decodedData];
-      rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
+    isTextMode = false;
+    NSArray *tmp = [title componentsSeparatedByString:@","];
+    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
+    base64Image = [[UIImage alloc] initWithData:decodedData];
+    rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
 
   } else {
 
-      isTextMode = true;
+    isTextMode = true;
 
-      BOOL isBold = FALSE;
-      BOOL isItalic = FALSE;
-      if (styles) {
-          if ([[styles objectForKey:@"font-style"] isEqualToString:@"italic"]) {
-              isItalic = TRUE;
-          }
-          if ([[styles objectForKey:@"font-weight"] isEqualToString:@"bold"]) {
-              isBold = TRUE;
-          }
+    BOOL isBold = FALSE;
+    BOOL isItalic = FALSE;
+    if (styles) {
+      if ([[styles objectForKey:@"font-style"] isEqualToString:@"italic"]) {
+        isItalic = TRUE;
       }
-      if (isBold == TRUE && isItalic == TRUE) {
-          // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
-          titleFont = [UIFont systemFontOfSize:17.0f];
-          UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
-                                                  fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
-          titleFont = [UIFont fontWithDescriptor:fontDescriptor size:0];
-      } else if (isBold == TRUE && isItalic == FALSE) {
-          titleFont = [UIFont boldSystemFontOfSize:17.0f];
-      } else if (isBold == TRUE && isItalic == FALSE) {
-          titleFont = [UIFont italicSystemFontOfSize:17.0f];
-      } else {
-          titleFont = [UIFont systemFontOfSize:17.0f];
+      if ([[styles objectForKey:@"font-weight"] isEqualToString:@"bold"]) {
+        isBold = TRUE;
       }
+    }
+    if (isBold == TRUE && isItalic == TRUE) {
+      // ref: http://stackoverflow.com/questions/4713236/how-do-i-set-bold-and-italic-on-uilabel-of-iphone-ipad#21777132
+      titleFont = [UIFont systemFontOfSize:17.0f];
+      UIFontDescriptor *fontDescriptor = [titleFont.fontDescriptor
+                                          fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
+      titleFont = [UIFont fontWithDescriptor:fontDescriptor size:0];
+    } else if (isBold == TRUE && isItalic == FALSE) {
+      titleFont = [UIFont boldSystemFontOfSize:17.0f];
+    } else if (isBold == TRUE && isItalic == FALSE) {
+      titleFont = [UIFont italicSystemFontOfSize:17.0f];
+    } else {
+      titleFont = [UIFont systemFontOfSize:17.0f];
+    }
 
-      // Calculate the size for the title strings
-      textSize = [title sizeWithFont:titleFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
-      rectSize = CGSizeMake(textSize.width + 10, textSize.height + 22);
+    // Calculate the size for the title strings
+    CGRect textRect = [title boundingRectWithSize:CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)
+                                 options:NSStringDrawingUsesLineFragmentOrigin
+                              attributes:@{NSFontAttributeName:titleFont}
+                                 context:nil];
+    textSize = textRect.size;
+    rectSize = CGSizeMake(textSize.width + 10, textSize.height + 22);
 
-      // Calculate the size for the snippet strings
-      if (snippet) {
-          snippetFont = [UIFont systemFontOfSize:12.0f];
-          snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-          snippetSize = [snippet sizeWithFont:snippetFont constrainedToSize: CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)];
-          rectSize.height += snippetSize.height + 4;
-          if (rectSize.width < snippetSize.width + leftImg.size.width) {
-              rectSize.width = snippetSize.width + leftImg.size.width;
-          }
+    // Calculate the size for the snippet strings
+    if (snippet) {
+      snippetFont = [UIFont systemFontOfSize:12.0f];
+      snippet = [snippet stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+      textRect = [snippet boundingRectWithSize:CGSizeMake(mapView.frame.size.width - 13, mapView.frame.size.height - 13)
+                                 options:NSStringDrawingUsesLineFragmentOrigin
+                              attributes:@{NSFontAttributeName:snippetFont}
+                                 context:nil];
+      snippetSize = textRect.size;
+      rectSize.height += snippetSize.height + 4;
+      if (rectSize.width < snippetSize.width + leftImg.size.width) {
+        rectSize.width = snippetSize.width + leftImg.size.width;
       }
+    }
   }
   if (rectSize.width < leftImg.size.width * scale) {
     rectSize.width = leftImg.size.width * scale;
@@ -811,13 +865,13 @@
     rectSize.width += sizeEdgeWidth;
   }
 
-	if (width > 0) {
-		rectSize.width = width;
-	}
-	if (maxWidth > 0 &&
-		maxWidth < rectSize.width) {
-		rectSize.width = maxWidth;
-	}
+  if (width > 0) {
+    rectSize.width = width;
+  }
+  if (maxWidth > 0 &&
+      maxWidth < rectSize.width) {
+    rectSize.width = maxWidth;
+  }
 
   //-------------------------------------
   // Draw the the info window
@@ -829,13 +883,14 @@
   trimArea = CGRectMake(15, 0, 15, leftImg.size.height);
   if (scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * scale,
-                      trimArea.origin.y * scale,
-                      trimArea.size.width * scale +1,
-                      trimArea.size.height * scale);
+                          trimArea.origin.y * scale,
+                          trimArea.size.width * scale +1,
+                          trimArea.size.height * scale);
   }
   CGImageRef shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   UIImage *shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   UIImage *shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
 
   int y;
   int i = 0;
@@ -858,13 +913,14 @@
       trimArea = CGRectMake(15, 0, 5, leftImg.size.height);
       if (scale > 1.0f) {
         trimArea = CGRectMake(trimArea.origin.x * scale,
-                          trimArea.origin.y * scale,
-                          trimArea.size.width * scale,
-                          trimArea.size.height * scale);
+                              trimArea.origin.y * scale,
+                              trimArea.size.width * scale,
+                              trimArea.size.height * scale);
       }
       shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
       shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
       shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+      CGImageRelease(shadowImageRef);
 
     } else {
       x += shadowImageLeft.size.width;
@@ -877,13 +933,14 @@
   trimArea = CGRectMake(0, 0, sizeEdgeWidth, leftImg.size.height);
   if (scale > 1.0f) {
     trimArea = CGRectMake(trimArea.origin.x * scale,
-                      trimArea.origin.y * scale,
-                      trimArea.size.width * scale,
-                      trimArea.size.height * scale);
+                          trimArea.origin.y * scale,
+                          trimArea.size.width * scale,
+                          trimArea.size.height * scale);
   }
   shadowImageRef = CGImageCreateWithImageInRect(leftImg.CGImage, trimArea);
   shadowImageLeft = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUp];
   shadowImageRight = [UIImage imageWithCGImage:shadowImageRef scale:scale orientation:UIImageOrientationUpMirrored];
+  CGImageRelease(shadowImageRef);
   x += shadowImageLeft.size.width;
 
   y = 1;
@@ -920,10 +977,10 @@
     NSString *textAlignValue = [styles objectForKey:@"text-align"];
 
     NSDictionary *aligments = [NSDictionary dictionaryWithObjectsAndKeys:
-                            ^() {return NSTextAlignmentLeft; }, @"left",
-                            ^() {return NSTextAlignmentRight; }, @"right",
-                            ^() {return NSTextAlignmentCenter; }, @"center",
-                            nil];
+                               ^() {return NSTextAlignmentLeft; }, @"left",
+                               ^() {return NSTextAlignmentRight; }, @"right",
+                               ^() {return NSTextAlignmentCenter; }, @"center",
+                               nil];
 
     typedef NSTextAlignment (^CaseBlock)();
     CaseBlock caseBlock = aligments[textAlignValue];
@@ -949,12 +1006,12 @@
       style.alignment = textAlignment;
 
       NSDictionary *attributes = @{
-          NSForegroundColorAttributeName : titleColor,
-          NSFontAttributeName : titleFont,
-          NSParagraphStyleAttributeName : style
-      };
+                                   NSForegroundColorAttributeName : titleColor,
+                                   NSFontAttributeName : titleFont,
+                                   NSParagraphStyleAttributeName : style
+                                   };
       [title drawInRect:textRect
-               withAttributes:attributes];
+         withAttributes:attributes];
       //CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 0.5);
       //CGContextStrokeRect(context, textRect);
     }
@@ -967,10 +1024,10 @@
       style.alignment = textAlignment;
 
       NSDictionary *attributes = @{
-          NSForegroundColorAttributeName : [UIColor grayColor],
-          NSFontAttributeName : snippetFont,
-          NSParagraphStyleAttributeName : style
-      };
+                                   NSForegroundColorAttributeName : [UIColor grayColor],
+                                   NSFontAttributeName : snippetFont,
+                                   NSParagraphStyleAttributeName : style
+                                   };
       [snippet drawInRect:textRect withAttributes:attributes];
     }
   } else {
@@ -982,7 +1039,6 @@
     CGContextScaleCTM(context, 1.0, -1.0);
     CGContextDrawImage(context, imageRect, base64Image.CGImage);
   }
-
 
   //-------------------------------------
   // Generate new image
@@ -1004,19 +1060,19 @@
 
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building {
   if (building == nil) {
-      return;
+    return;
   }
   //Notify to the JS
-	NSString* jsString = [NSString
-    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_building_focused', callback: '_onMapEvent'});",
-    self.mapId];
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_building_focused', callback: '_onMapEvent'});",
+                        self.mapId];
   [self execJS:jsString];
 }
 
 - (void) didChangeActiveLevel: (GMSIndoorLevel *)activeLevel {
 
   if (activeLevel == nil) {
-      return;
+    return;
   }
   GMSIndoorBuilding *building = self.map.indoorDisplay.activeBuilding;
 
@@ -1043,12 +1099,12 @@
 
 
   NSString *JSONstring = [[NSString alloc] initWithData:data
-                                           encoding:NSUTF8StringEncoding];
+                                               encoding:NSUTF8StringEncoding];
 
   //Notify to the JS
-	NSString* jsString = [NSString
-    stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});",
-    self.mapId, JSONstring];
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});",
+                        self.mapId, JSONstring];
 
   [self execJS:jsString];
 }

@@ -1,7 +1,6 @@
 package plugin.google.maps;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -46,7 +45,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
       polylineOptions.color(color);
     }
     if (opts.has("width")) {
-      polylineOptions.width((int)(opts.getDouble("width") * density));
+      polylineOptions.width((float)(opts.getDouble("width") * density));
     }
     if (opts.has("visible")) {
       polylineOptions.visible(opts.getBoolean("visible"));
@@ -216,8 +215,8 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
    */
   public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String id = args.getString(0);
-    int width = (int)(args.getDouble(1) * density);
-    this.setInt("setWidth", id, width, callbackContext);
+    float width = (float)(args.getDouble(1) * density);
+    this.setFloat("setWidth", id, width, callbackContext);
   }
 
   /**

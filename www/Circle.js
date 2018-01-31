@@ -13,6 +13,10 @@ var Circle = function(map, circleId, circleOptions, _exec) {
     BaseClass.apply(this);
 
     var self = this;
+    Object.defineProperty(self, "_isReady", {
+        value: true,
+        writable: false
+    });
     Object.defineProperty(self, "map", {
         value: map,
         writable: false
@@ -39,29 +43,37 @@ var Circle = function(map, circleId, circleOptions, _exec) {
     //-----------------------------------------------
     // Sets event listeners
     //-----------------------------------------------
-    self.on("center_changed", function(oldValue, center) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
+    self.on("center_changed", function() {
+        var center = self.get("center");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
     });
-    self.on("fillColor_changed", function(oldValue, color) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.on("fillColor_changed", function() {
+        var color = self.get("fillColor");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
-    self.on("strokeColor_changed", function(oldValue, color) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.on("strokeColor_changed", function() {
+        var color = self.get("strokeColor");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
     });
-    self.on("strokeWidth_changed", function(oldValue, width) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    self.on("strokeWidth_changed", function() {
+        var width = self.get("strokeWidth");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
     });
-    self.on("clickable_changed", function(oldValue, clickable) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    self.on("clickable_changed", function() {
+        var clickable = self.get("clickable");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
     });
-    self.on("radius_changed", function(oldValue, radius) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
+    self.on("radius_changed", function() {
+        var radius = self.get("radius");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
     });
-    self.on("zIndex_changed", function(oldValue, zIndex) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.on("zIndex_changed", function() {
+        var zIndex = self.get("zIndex");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
     });
-    self.on("visible_changed", function(oldValue, visible) {
-        exec(null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.on("visible_changed", function() {
+        var visible = self.get("visible");
+        exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
     });
 
 };
@@ -138,10 +150,22 @@ Circle.prototype.setRadius = function(radius) {
     return this;
 };
 
-Circle.prototype.remove = function() {
-    this.trigger(this.id + "_remove");
-    exec(null, this.errorHandler, this.getPluginName(), 'remove', [this.getId()]);
-    this.destroy();
+Circle.prototype.remove = function(callback) {
+    var self = this;
+    if (self._isRemoved) {
+      return;
+    }
+    Object.defineProperty(self, "_isRemoved", {
+        value: true,
+        writable: false
+    });
+    self.trigger(self.id + "_remove");
+    exec.call(self, function() {
+        self.destroy();
+        if (typeof callback === "function") {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {remove: true});
 };
 
 Circle.prototype.getBounds = function() {

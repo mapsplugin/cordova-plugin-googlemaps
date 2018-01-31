@@ -18,7 +18,6 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -73,53 +72,56 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
           return;
         }
 
-        if (methods.size() == 0) {
-          TAG = MyPlugin.this.getServiceName();
-          //Log.d("MyPlugin", "TAG = " + TAG);
-          if (!TAG.contains("-")) {
-            mapCtrl.mPluginLayout.pluginMaps.put(TAG, (PluginMap) MyPlugin.this);
-          } else {
-            PluginEntry pluginEntry = new PluginEntry(TAG, MyPlugin.this);
-            pluginMap.plugins.put(TAG, pluginEntry);
+        synchronized (methods) {
+          if (methods.size() == 0) {
+            TAG = MyPlugin.this.getServiceName();
+            if (!TAG.contains("-")) {
+              mapCtrl.mPluginLayout.pluginMaps.put(TAG, (PluginMap) MyPlugin.this);
+            } else {
+              PluginEntry pluginEntry = new PluginEntry(TAG, MyPlugin.this);
+              pluginMap.plugins.put(TAG, pluginEntry);
+            }
+
+
+            //CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
+            //    Log.d("MyPlugin", "---> this = " + this);
+            //    Log.d("MyPlugin", "---> plugin = " + plugin);
+
+            Method[] classMethods = self.getClass().getMethods();
+            for (Method classMethod : classMethods) {
+              methods.put(classMethod.getName(), classMethod);
+            }
           }
 
 
-          //CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
-          //    Log.d("MyPlugin", "---> this = " + this);
-          //    Log.d("MyPlugin", "---> plugin = " + plugin);
-
-          Method[] classMethods = self.getClass().getMethods();
-          for (Method classMethod : classMethods) {
-            methods.put(classMethod.getName(), classMethod);
-          }
-        }
-        //  this.create(args, callbackContext);
-        //  return true;
-        if (methods.containsKey(action)) {
-          if (self.mapCtrl.mPluginLayout.isDebug) {
-            try {
-              if (args != null && args.length() > 0) {
-                Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
-              } else {
-                Log.d(TAG, "(debug)action=" + action);
+          //  this.create(args, callbackContext);
+          //  return true;
+          if (methods.containsKey(action)) {
+            if (self.mapCtrl.mPluginLayout.isDebug) {
+              try {
+                if (args != null && args.length() > 0) {
+                  Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
+                } else {
+                  Log.d(TAG, "(debug)action=" + action);
+                }
+              } catch (JSONException e) {
+                e.printStackTrace();
               }
-            } catch (JSONException e) {
+            }
+            Method method = methods.get(action);
+            try {
+              if (isRemoved) {
+                // Ignore every execute calls.
+                return;
+              }
+              method.invoke(self, args, callbackContext);
+            } catch (IllegalAccessException e) {
               e.printStackTrace();
+              callbackContext.error("Cannot access to the '" + action + "' method.");
+            } catch (InvocationTargetException e) {
+              e.printStackTrace();
+              callbackContext.error("Cannot access to the '" + action + "' method.");
             }
-          }
-          Method method = methods.get(action);
-          try {
-            if (isRemoved) {
-              // Ignore every execute calls.
-              return;
-            }
-            method.invoke(self, args, callbackContext);
-          } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            callbackContext.error("Cannot access to the '" + action + "' method.");
-          } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            callbackContext.error("Cannot access to the '" + action + "' method.");
           }
         }
       }
@@ -127,6 +129,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     return true;
 
   }
+
 
   protected void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     // dummy
@@ -217,7 +220,7 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
   }
   protected void clear() {
-    String[] keys = pluginMap.objects.keySet().toArray(new String[pluginMap.objects.size()]);
+    String[] keys = pluginMap.objects.keys.toArray(new String[pluginMap.objects.size()]);
     Object object;
     for (String key : keys) {
       object = pluginMap.objects.remove(key);

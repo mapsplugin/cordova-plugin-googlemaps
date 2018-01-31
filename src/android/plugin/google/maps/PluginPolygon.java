@@ -80,7 +80,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             polygonOptions.fillColor(color);
         }
         if (opts.has("strokeWidth")) {
-            polygonOptions.strokeWidth((int)(opts.getDouble("strokeWidth") * density));
+            polygonOptions.strokeWidth((float)(opts.getDouble("strokeWidth") * density));
         }
         if (opts.has("visible")) {
             polygonOptions.visible(opts.getBoolean("visible"));
@@ -134,7 +134,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Set<String> keySet = pluginMap.objects.keySet();
+                Set<String> keySet = pluginMap.objects.keys;
                 String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
                 for (String objectId : objectIdArray) {
@@ -188,8 +188,8 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
     @SuppressWarnings("unused")
     public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         String id = args.getString(0);
-        int width = (int)(args.getDouble(1) * density);
-        this.setInt("setStrokeWidth", id, width, callbackContext);
+        float width = (float)(args.getDouble(1) * density);
+        this.setFloat("setStrokeWidth", id, width, callbackContext);
     }
 
     /**

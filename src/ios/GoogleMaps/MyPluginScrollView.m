@@ -15,7 +15,7 @@
 {
   self = [super initWithFrame:aRect];
   self.debugView = [[MyPluginLayerDebugView alloc] initWithFrame:CGRectMake(0, 0, aRect.size.width, 5000)];
-  
+
   return self;
 }
 
@@ -23,5 +23,9 @@
   [self.debugView removeFromSuperview];
   [self addSubview:view];
   [self addSubview:self.debugView];
+}
+- (void)detachView:(UIView *)view {
+  [self.debugView removeFromSuperview];
+  [view removeFromSuperview];
 }
 @end
