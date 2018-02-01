@@ -237,9 +237,29 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     */
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
+    startTimer();
+  }
+
+  public void stopTimer() {
+    try {
+      redrawTimer.cancel();
+      redrawTimer.purge();
+      timerLock.notify();
+    } catch (Exception e) {}
+    redrawTimer = null;
+  }
+
+  public void startTimer() {
+    if (redrawTimer != null) {
+      return;
+    }
+    try {
+      timerLock.notify();
+    } catch (Exception e) {}
+
 
     redrawTimer = new Timer();
-    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 100, 25);
+    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
     mActivity.getWindow().getDecorView().requestFocus();
   }
 
