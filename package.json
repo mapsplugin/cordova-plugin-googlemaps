@@ -6,7 +6,8 @@
     "id": "cordova-plugin-googlemaps",
     "platforms": [
       "android",
-      "ios"
+      "ios",
+      "browser"
     ]
   },
   "repository": {

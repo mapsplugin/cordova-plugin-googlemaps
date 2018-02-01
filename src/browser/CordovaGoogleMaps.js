@@ -14,6 +14,10 @@
   confighelper.readConfig(function(configs) {
     // Get API key from config.xml
     var API_KEY_FOR_BROWSER = configs.getPreferenceValue("API_KEY_FOR_BROWSER");
+    if (!API_KEY_FOR_BROWSER) {
+      alert("Google Maps API key is required.");
+      return;
+    }
 
     var secureStripeScript = document.createElement('script');
     secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
