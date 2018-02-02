@@ -109,7 +109,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
       <preference name="API_KEY_FOR_BROWSER" />
 
       <hook type="after_prepare" src="src/browser/after_prepare.js" />
-
+      <feature name="CordovaGoogleMaps">
+          <param name="browser-package" value="CordovaGoogleMaps" />
+      </feature>
       <js-module src="src/browser/googlemaps-cdv-plugin.js">
         <clobbers target="plugin.google.maps" />
       </js-module>

@@ -152,4 +152,6 @@ function createError(message, methodName, args) {
   return error;
 }
 
+console.log(new BaseClass());
+
 module.exports = BaseClass;
