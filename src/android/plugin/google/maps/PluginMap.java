@@ -445,8 +445,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (mapView != null) {
       mapView.onPause();
     }
+    mapCtrl.mPluginLayout.stopTimer();
 
     mapCtrl.mPluginLayout.removePluginMap(this.mapId);
+
   }
   @Override
   public void onResume(boolean multitasking) {
@@ -455,6 +457,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       mapView.onResume();
     }
     mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
+    mapCtrl.mPluginLayout.startTimer();
   }
 
   private class AdjustInitCamera implements Runnable {

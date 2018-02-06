@@ -215,11 +215,11 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       } else {
         //Log.d(TAG, "--> iconUrl = " + iconUrl);
 
-        if (iconUrl.indexOf("file:///android_asset/") == 0) {
-          iconUrl = iconUrl.replace("file:///android_asset/", "");
-        }
+//        if (iconUrl.indexOf("file:///android_asset/") == 0) {
+//          iconUrl = iconUrl.replace("file:///android_asset/", "");
+//        }
 
-        //Log.d(TAG, "iconUrl = " + iconUrl);
+        //Log.d(TAG, "iconUrl(222) = " + iconUrl);
         if (iconUrl.contains("./")) {
           try {
             boolean isAbsolutePath = iconUrl.startsWith("/");
@@ -229,7 +229,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
             if (!isAbsolutePath) {
               iconUrl = iconUrl.substring(1);
             }
-            //Log.d(TAG, "iconUrl = " + iconUrl);
+            Log.d(TAG, "iconUrl(232) = " + iconUrl);
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -393,16 +393,28 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
         image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
       } else {
         try {
-          InputStream inputStream;
-          if (iconUrl.startsWith("/")) {
+          InputStream inputStream = null;
+          if (iconUrl.startsWith("file:/android_asset/")) {
+            AssetManager assetManager = cordova.getActivity().getAssets();
+            iconUrl = iconUrl.replace("file:/android_asset/", "");
+            inputStream = assetManager.open(iconUrl);
+            //Log.d(TAG, "--> iconUrl = " + iconUrl);
+          } else if (iconUrl.startsWith("file:///android_asset/")) {
+            AssetManager assetManager = cordova.getActivity().getAssets();
+            iconUrl = iconUrl.replace("file:///android_asset/", "");
+            inputStream = assetManager.open(iconUrl);
+            //Log.d(TAG, "--> iconUrl = " + iconUrl);
+          } else if (iconUrl.startsWith("/")) {
             File file = new File(iconUrl);
             inputStream = new FileInputStream(file);
-          } else {
-            AssetManager assetManager = cordova.getActivity().getAssets();
-            inputStream = assetManager.open(iconUrl);
           }
-          image = BitmapFactory.decodeStream(inputStream);
-          inputStream.close();
+          if (inputStream != null) {
+            image = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+          } else {
+            Log.e(TAG, "Can not load the file from '" + iconUrl + "'");
+            return null;
+          }
         } catch (IOException e) {
           e.printStackTrace();
           return null;

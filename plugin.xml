@@ -101,10 +101,12 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
     <keywords>google,maps,geo</keywords>
 
+<!--
     <engines>
       <engine name="cordova-android" version=">=5.1.0" />
       <engine name="cordova-ios" version=">=4.0.0" />
     </engines>
+-->
     <platform name="browser">
       <preference name="API_KEY_FOR_BROWSER" />
 
@@ -124,6 +126,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
     </platform>
 
     <!-- android -->
+<!--
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
 
@@ -141,11 +144,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
         </js-module>
 
         <config-file target="config.xml" parent="/*">
-          <!-- for Crosswalk -->
           <preference name="xwalkZOrderOnTop" value="true" />
           <preference name="BackgroundColor" value="0" />
 
-          <!-- for this plugin -->
           <preference name="android-minSdkVersion" value="19" />
         </config-file>
 
@@ -230,7 +231,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <meta-data
               android:name="com.google.android.geo.API_KEY"
               android:value="$API_KEY_FOR_ANDROID" />
-            <!-- Google Play Services SDK -->
             <meta-data android:name="com.google.android.gms.version"
                        android:value="@integer/google_play_services_version" />
         </config-file>
@@ -238,13 +238,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-            <!-- The following two permissions are not required to use
-                 Google Maps Android API v2, but are recommended. -->
             <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-            <!-- OpenGL ES version 2 -->
             <uses-feature android:glEsVersion="0x00020000" android:required="true" />
-            <!-- GPS -->
             <uses-feature android:name="android.hardware.location" />
             <uses-feature android:name="android.hardware.location.gps" />
         </config-file>
@@ -253,16 +249,11 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/android/res/drawable/dummy_my_location_button.png" target="res/drawable/dummy_my_location_button.png"/>
         <resource-file src="src/android/res/drawable/dummy_mylocation_button_shadow.xml" target="res/drawable/dummy_mylocation_button_shadow.xml"/>
 
-        <!--
-        Minimum required version of Google Play Services SDK for this plugin.
-        https://developers.google.com/android/guides/releases
-        -->
         <preference name="PLAY_SERVICES_VERSION" default="11.8.0" />
         <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
         <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
     </platform>
 
-    <!-- ios -->
     <platform name="ios">
         <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
           <clobbers target="plugin.google.maps" />
@@ -413,4 +404,5 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk"  />
 
     </platform>
+-->
 </plugin>
