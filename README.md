@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.2)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.3)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -20,6 +20,27 @@ $> cordova plugin add cordova-plugin-googlemaps \
   LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"  (for iOS)
 ```
 
+## PhoneGap Build settings
+
+```xml
+<widget ...>
+  <plugin name="cordova-plugin-googlemaps" spec="^2.2.3">
+    <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
+    <variable name="API_KEY_FOR_IOS" value="(api key)" />
+    <variable name="PLAY_SERVICES_VERSION" value="11.8.0" />
+    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Show your location on the map" />
+    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="Trace your location on the map" />
+  </plugin>
+
+  <!--
+    You need to specify cli-7.1.0 or greater version.
+    https://build.phonegap.com/current-support
+  -->
+  <preference name="phonegap-version" value="cli-7.1.0" />
+</widget>
+```
+
+
 
 ## Release Notes
 
@@ -35,6 +56,8 @@ $> cordova plugin add cordova-plugin-googlemaps \
 - **v2.2.2**
   - Bug fix: the icon property of Marker class does not affect
 
+- **v2.2.3**
+  - Bug fix: the icon property of Marker class does not affect if the html is hosted on `file://android_assets/`.
 
 ## Quick demo
 

@@ -168,14 +168,18 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     if (skipRedraw) {
       return;
     }
-    self.redraw(true);
+    self.redraw({
+      force: true
+    });
   };
   self.addMarkers = function(markers) {
     if (utils.isArray(markers) || Array.isArray(markers)) {
       for (var i = 0; i < markers.length; i++) {
         self.addMarker(markers[i], true);
       }
-      self.redraw(true);
+      self.redraw({
+        force: true
+      });
     }
   };
 
@@ -192,7 +196,9 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     sel.redraw.call(self);
   });
 
-  self.redraw.call(self, true);
+  self.redraw.call(self, {
+    force: true
+  });
 
   if (self.debug) {
     self.debugTimer = setInterval(function() {
