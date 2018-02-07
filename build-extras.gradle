@@ -1,0 +1,11 @@
+android {
+  defaultConfig {
+    compileSdkVersion 19
+    targetSdkVersion 22
+  }
+
+   packagingOptions {
+     exclude 'README'
+     exclude 'LICENSE'
+   }
+}

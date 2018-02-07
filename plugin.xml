@@ -200,6 +200,11 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
 
+        <framework src="build-extras.gradle"  custom="true" type="gradleReference" />
+        <framework src="src/android/frameworks/tbxml-android.gradle"  custom="true" type="gradleReference" />
+        <resource-file src="src/android/frameworks/tbxml-android.aar"  target="libs/tbxml-android.aar" />
+        <resource-file src="src/android/frameworks/tbxml-android.aar"  target="app/src/libs/tbxml-android.aar" />
+<!--
         <source-file src="src/android/tbxml-android/src/za/co/twyst/tbxml/TBXML.java" target-dir="src/za/co/twyst/tbxml" />
         <source-file src="src/android/tbxml-android/libs/arm64-v8a/libtbxml.so" target-dir="libs/arm64-v8a/" />
         <source-file src="src/android/tbxml-android/libs/armeabi/libtbxml.so" target-dir="libs/armeabi/" />
@@ -208,7 +213,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/tbxml-android/libs/mips64/libtbxml.so" target-dir="libs/mips64/" />
         <source-file src="src/android/tbxml-android/libs/x86/libtbxml.so" target-dir="libs/x86/" />
         <source-file src="src/android/tbxml-android/libs/x86_64/libtbxml.so" target-dir="libs/x86_64/" />
-
+-->
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.geo.API_KEY"
