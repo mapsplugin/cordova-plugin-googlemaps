@@ -1,0 +1,19 @@
+repositories {
+  mavenCentral()
+  flatDir{
+    dirs 'src/main/libs', 'libs'
+  }
+}
+
+dependencies {
+  compile(name:'tbxml-android', ext:'aar')
+}
+
+android {
+  compileSdkVersion 19
+
+  packagingOptions {
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
+  }
+}
