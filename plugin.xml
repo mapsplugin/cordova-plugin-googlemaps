@@ -110,6 +110,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
 
+        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
+          <clobbers target="plugin.google.maps" />
+        </js-module>
+
         <info>
             Official document
             https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
@@ -128,7 +132,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
           <preference name="android-minSdkVersion" value="19" />
         </config-file>
 
-        <config-file target="res/xml/config.xml" parent="/*">
+        <config-file target="src/res/xml/config.xml" parent="/*">
             <feature name="CordovaGoogleMaps">
                 <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps" />
                 <param name="onload" value="true" />
@@ -201,7 +205,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <hook type="after_platform_add" src="src/android/install_libs.js" />
         <hook type="before_plugin_uninstall" src="src/android/uninstall_libs.js" />
 
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+        <config-file target="src/AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.geo.API_KEY"
               android:value="$API_KEY_FOR_ANDROID" />
@@ -210,7 +214,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
                        android:value="@integer/google_play_services_version" />
         </config-file>
 
-        <config-file target="AndroidManifest.xml" parent="/manifest">
+        <config-file target="src/AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
             <!-- The following two permissions are not required to use
