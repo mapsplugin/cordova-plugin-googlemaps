@@ -557,6 +557,10 @@ if (!cordova) {
     // (Not generic plugin)
     function resetTimer(opts) {
       opts = opts || {};
+      if (opts.force) {
+        isThereAnyChange = true;
+        isSuspended = false;
+      }
 
       common.nextTick(function() {
         putHtmlElements();
@@ -572,11 +576,10 @@ if (!cordova) {
     document.addEventListener("plugin_touch", resetTimer);
     window.addEventListener("orientationchange", function() {
       var cnt = 30;
-      resetTimer({force: true});
       var timer = setInterval(function() {
         cnt--;
         if (cnt > 0) {
-          followMapDivPositionOnly();
+          resetTimer({force: true});
         } else {
           clearInterval(timer);
         }
