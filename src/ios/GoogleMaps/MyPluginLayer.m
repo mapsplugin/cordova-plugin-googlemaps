@@ -331,6 +331,7 @@
   NSArray *subviews = [self.webView.superview subviews];
   for (int i = ((int)[subviews count] - 1); i >= 0; i--) {
     subview = [subviews objectAtIndex: i];
+    //NSLog(@"--->subview[%d] = %@", i, subview);
     // we only want to check against other views
     if (subview == self.pluginScrollView) {
       continue;
@@ -340,7 +341,7 @@
       continue;
     }
 
-    UIView *hit = [subview hitTest:point2 withEvent:event];
+    UIView *hit = [subview hitTest:point withEvent:event];
 
     if (hit) {
       if (subview == self.webView) {
@@ -351,6 +352,7 @@
   }
   if (self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
     // Assumes all touches for the browser
+    //NSLog(@"--->browser!");
     return [self.webView hitTest:point withEvent:event];
   }
 
@@ -405,7 +407,7 @@
       if (CGRectContainsPoint(rect, point)) {
 
         clickedDomId = [self findClickedDom:@"root" withPoint:point isMapChild:NO overflow:nil];
-        point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x, point.y - mapCtrl.view.frame.origin.y);
+        point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
@@ -415,7 +417,8 @@
 
           return hitView;
         } else {
-          return [self.webView hitTest:point2 withEvent:event];
+    //NSLog(@"--->browser!");
+          return [self.webView hitTest:point withEvent:event];
         }
       }
 
