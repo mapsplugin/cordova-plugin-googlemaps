@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v4.content.PermissionChecker;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -82,10 +84,56 @@ public class PluginLocationService extends CordovaPlugin {
   @SuppressWarnings("unused")
   public void getMyLocation(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     synchronized (semaphore) {
+
+
+
+      LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+      List<String> providers = locationManager.getAllProviders();
+      int availableProviders = 0;
+      //if (mPluginLayout != null && mPluginLayout.isDebug) {
+      Log.d(TAG, "---debug at getMyLocation(available providers)--");
+      //}
+      Iterator<String> iterator = providers.iterator();
+      String provider;
+      boolean isAvailable;
+      while(iterator.hasNext()) {
+        provider = iterator.next();
+        if ("passive".equals(provider)) {
+          continue;
+        }
+        isAvailable = locationManager.isProviderEnabled(provider);
+        if (isAvailable) {
+          availableProviders++;
+        }
+        //if (mPluginLayout != null && mPluginLayout.isDebug) {
+        Log.d(TAG, "   " + provider + " = " + (isAvailable ? "" : "not ") + "available");
+        //}
+      }
+      if (availableProviders == 0) {
+        JSONObject result = new JSONObject();
+        try {
+          result.put("status", false);
+          result.put("error_code", "not_available");
+          result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        callbackContext.error(result);
+        return;
+      }
+
+
+
+
+
       JSONObject params = args.getJSONObject(0);
       boolean requestHighAccuracy = false;
       if (params.has("enableHighAccuracy")) {
         requestHighAccuracy = params.getBoolean("enableHighAccuracy");
+      }
+      if (requestHighAccuracy && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        callbackContext.error("Location manager is disabled.");
+        return;
       }
 
       // enableHighAccuracy = true -> PRIORITY_HIGH_ACCURACY
@@ -102,20 +150,22 @@ public class PluginLocationService extends CordovaPlugin {
     }
 
     // Request geolocation permission.
-    boolean locationPermission = cordova.hasPermission("android.permission.ACCESS_COARSE_LOCATION");
+    boolean locationPermission = PermissionChecker.checkSelfPermission(cordova.getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PermissionChecker.PERMISSION_GRANTED;
 
     if (!locationPermission) {
       //_saveArgs = args;
       //_saveCallbackContext = callbackContext;
       synchronized (semaphore) {
-        cordova.requestPermissions(this, callbackContext.hashCode(), new String[]{"android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"});
+        cordova.requestPermissions(this, callbackContext.hashCode(), new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
+        });
         try {
           semaphore.wait();
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
       }
-      locationPermission = cordova.hasPermission("android.permission.ACCESS_COARSE_LOCATION");
+      locationPermission = PermissionChecker.checkSelfPermission(cordova.getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PermissionChecker.PERMISSION_GRANTED;
 
       if (!locationPermission) {
 
@@ -462,6 +512,9 @@ public class PluginLocationService extends CordovaPlugin {
     boolean isAvailable;
     while(iterator.hasNext()) {
       provider = iterator.next();
+      if ("passive".equals(provider)) {
+        continue;
+      }
       isAvailable = locationManager.isProviderEnabled(provider);
       if (isAvailable) {
         availableProviders++;
@@ -546,9 +599,4 @@ public class PluginLocationService extends CordovaPlugin {
     }
   }
 
-//  protected void sendNoResult(CallbackContext callbackContext) {
-//    PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-//    pluginResult.setKeepCallback(true);
-//    callbackContext.sendPluginResult(pluginResult);
-//  }
 }
