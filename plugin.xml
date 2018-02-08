@@ -109,11 +109,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
-
-        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
-          <clobbers target="plugin.google.maps" />
-        </js-module>
-
         <info>
             Official document
             https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
@@ -252,9 +247,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
     <!-- ios -->
     <platform name="ios">
-        <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
-          <clobbers target="plugin.google.maps" />
-        </js-module>
 
         <preference name="API_KEY_FOR_IOS" />
         <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
