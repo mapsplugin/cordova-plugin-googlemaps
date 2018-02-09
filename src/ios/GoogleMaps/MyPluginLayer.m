@@ -413,7 +413,7 @@
           // If user click on the map, return the mapCtrl.view.
 
           UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
-          [mapCtrl mapView:mapCtrl.map didTapAtPoint:point2];
+          //[mapCtrl mapView:mapCtrl.map didTapAtPoint:point2];
 
           return hitView;
         } else {

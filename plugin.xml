@@ -389,7 +389,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
           </array>
         </config-file>
 
-        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk"  />
+        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.6.0"  />
+
+        <hook type="before_platform_add" src="src/ios/check_sdk_version.js" />
+        <hook type="before_plugin_install" src="src/ios/check_sdk_version.js" />
 
     </platform>
 </plugin>
