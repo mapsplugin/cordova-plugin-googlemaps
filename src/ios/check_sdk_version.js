@@ -18,14 +18,15 @@ module.exports = function(ctx) {
       if (pluginInfo.id === "com.googlemaps.ios") {
         var version = parseInt(pluginInfo.version.replace(/[^\d]/g, ""), 10);
         if (version < 260) {
-          console.error('\x1b[36m%s\x1b[0m', "-------[cordova googlemaps plugin error]----------");
-          console.error('\x1b[36m%s\x1b[0m', "   This version requires 'com.googlemaps.ios@2.6.0'.");
-          console.error('\x1b[36m%s\x1b[0m', "   Please reinstall the iOS SDK with following steps:");
-          console.error('\x1b[36m%s\x1b[0m', "");
-          console.error('\x1b[36m%s\x1b[0m', "   $> cordova plugin rm com.googlemaps.ios -f ");
-          console.error('\x1b[36m%s\x1b[0m', "   $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk#2.6.0");
-          console.error('\x1b[36m%s\x1b[0m', "-------------------------------------------------");
-          reject();
+          var errorMsg = [];
+          errorMsg.push("-------[cordova googlemaps plugin error]----------");
+          errorMsg.push("   This version requires 'com.googlemaps.ios@2.6.0'.");
+          errorMsg.push("   Please reinstall the iOS SDK with following steps:");
+          errorMsg.push("");
+          errorMsg.push("   $> cordova plugin rm com.googlemaps.ios -f ");
+          errorMsg.push("   $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk#2.6.0");
+          errorMsg.push("-------------------------------------------------");
+          reject(errorMsg.join("\n"));
           return;
         }
       }
