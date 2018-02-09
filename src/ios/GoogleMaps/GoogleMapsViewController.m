@@ -97,9 +97,8 @@
 /**
  * @callback the my location button is clicked.
  */
-- (void)mapView:(GMSMapView *)mapView didTapAtPoint:(CGPoint)tapPoint {
+- (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
 
-  CLLocationCoordinate2D coordinate = [self.map.projection coordinateForPoint:tapPoint];
 
   if (self.activeMarker) {
     /*

@@ -39,7 +39,6 @@
 - (id)initWithOptions:(NSDictionary *) options;
 
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView;
-- (void)mapView:(GMSMapView *)mapView didTapAtPoint:(CGPoint)tapPoint;
 
 - (void)execJS: (NSString *)jsString;
 - (void) didChangeActiveBuilding: (GMSIndoorBuilding *)building;
