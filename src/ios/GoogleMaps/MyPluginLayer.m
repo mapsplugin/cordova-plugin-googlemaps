@@ -19,6 +19,7 @@
 
 - (id)initWithWebView:(UIView *)webView {
     self.executeQueue = [NSOperationQueue new];
+    self._lockObject = [[NSObject alloc] init];
 
     self = [super initWithFrame:[webView frame]];
     self.webView = webView;
@@ -111,22 +112,24 @@
         NSMutableDictionary *domInfo, *size;
         NSString *domId;
 
-        @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+        @synchronized(self._lockObject) {
 
-          NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
-          NSArray *keys2;
-          int i, j;
-          for (i = 0; i < [keys count]; i++) {
-            domId = [keys objectAtIndex:i];
-            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-            if (domInfo) {
-                keys2 = [domInfo allKeys];
-                for (j = 0; j < [keys2 count]; j++) {
-                    [domInfo removeObjectForKey:[keys2 objectAtIndex:j]];
-                }
-                domInfo = nil;
+          if (self.pluginScrollView.debugView.HTMLNodes != nil) {
+            NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
+            NSArray *keys2;
+            int i, j;
+            for (i = 0; i < [keys count]; i++) {
+              domId = [keys objectAtIndex:i];
+              domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+              if (domInfo) {
+                  keys2 = [domInfo allKeys];
+                  for (j = 0; j < [keys2 count]; j++) {
+                      [domInfo removeObjectForKey:[keys2 objectAtIndex:j]];
+                  }
+                  domInfo = nil;
+              }
+              [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
             }
-            [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
           }
           self.pluginScrollView.debugView.HTMLNodes = nil;
 
@@ -320,7 +323,7 @@
     }
 }
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-  CGPoint point2 = CGPointMake(point.x - self.webView.frame.origin.x, point.y - self.webView.frame.origin.y);
+  CGPoint browserClickPoint = CGPointMake(point.x - self.webView.frame.origin.x, point.y - self.webView.frame.origin.y);
   //NSLog(@"-->zoomScale = %f", self.webView.scrollView.zoomScale);
 
 
@@ -352,7 +355,7 @@
   if (self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
     // Assumes all touches for the browser
     //NSLog(@"--->browser!");
-    return [self.webView hitTest:point2 withEvent:event];
+    return [self.webView hitTest:browserClickPoint withEvent:event];
   }
 
   float offsetX = self.webView.scrollView.contentOffset.x;
@@ -403,22 +406,22 @@
       }
 
       // Is the clicked point is in the map rectangle?
-      if (CGRectContainsPoint(rect, point2)) {
+      if (CGRectContainsPoint(rect, browserClickPoint)) {
       //NSLog(@"--->in map");
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:point isMapChild:NO overflow:nil];
-        //point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
+        clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
+          CGPoint mapPoint = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
 
-          UIView *hitView =[mapCtrl.view hitTest:point2 withEvent:event];
+          UIView *hitView =[mapCtrl.view hitTest:mapPoint withEvent:event];
           //[mapCtrl mapView:mapCtrl.map didTapAtPoint:point2];
 
           return hitView;
         } else {
     //NSLog(@"--->in browser!");
-          return [self.webView hitTest:point2 withEvent:event];
+          return [self.webView hitTest:browserClickPoint withEvent:event];
         }
       }
 
@@ -426,7 +429,7 @@
   }
 
     //NSLog(@"--->in browser!");
-  UIView *hitView =[self.webView hitTest:point2 withEvent:event];
+  UIView *hitView =[self.webView hitTest:browserClickPoint withEvent:event];
   //NSLog(@"--> (hit test) hit = %@", hitView.class);
   return hitView;
 

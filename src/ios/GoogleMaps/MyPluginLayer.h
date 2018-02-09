@@ -25,6 +25,7 @@
 @property (nonatomic) BOOL stopFlag;
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (nonatomic) dispatch_semaphore_t semaphore;
+@property (atomic, strong) NSObject *_lockObject;
 
 - (id)initWithWebView:(UIView *)webView;
 - (void)resizeTask:(NSTimer *)timer;

@@ -69,6 +69,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Bug fix: can not click html element when you device is rotated.
   - Add: Use `android-support-library-v4`
   - Fix: `cordova-plugin-gooelmaps.CordovaGoogleMaps is already defined warning` message.
+  - Update: `com.googlemaps.ios@2.6.0` is required. Please reinstall the plugin.
 
 ---
 
