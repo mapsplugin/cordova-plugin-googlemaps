@@ -320,8 +320,7 @@
     }
 }
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-  CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
-  CGPoint point2 = CGPointMake(point.x, point.y - statusBarFrame.size.height);
+  CGPoint point2 = CGPointMake(point.x - self.webView.frame.origin.x, point.y - self.webView.frame.origin.y);
   //NSLog(@"-->zoomScale = %f", self.webView.scrollView.zoomScale);
 
 
@@ -353,7 +352,7 @@
   if (self.pluginScrollView.debugView.mapCtrls == nil || self.pluginScrollView.debugView.mapCtrls.count == 0) {
     // Assumes all touches for the browser
     //NSLog(@"--->browser!");
-    return [self.webView hitTest:point withEvent:event];
+    return [self.webView hitTest:point2 withEvent:event];
   }
 
   float offsetX = self.webView.scrollView.contentOffset.x;
@@ -404,10 +403,11 @@
       }
 
       // Is the clicked point is in the map rectangle?
-      if (CGRectContainsPoint(rect, point)) {
+      if (CGRectContainsPoint(rect, point2)) {
+      //NSLog(@"--->in map");
 
         clickedDomId = [self findClickedDom:@"root" withPoint:point isMapChild:NO overflow:nil];
-        point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
+        //point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
@@ -417,15 +417,16 @@
 
           return hitView;
         } else {
-    //NSLog(@"--->browser!");
-          return [self.webView hitTest:point withEvent:event];
+    //NSLog(@"--->in browser!");
+          return [self.webView hitTest:point2 withEvent:event];
         }
       }
 
     }
   }
 
-  UIView *hitView =[self.webView hitTest:point withEvent:event];
+    //NSLog(@"--->in browser!");
+  UIView *hitView =[self.webView hitTest:point2 withEvent:event];
   //NSLog(@"--> (hit test) hit = %@", hitView.class);
   return hitView;
 
