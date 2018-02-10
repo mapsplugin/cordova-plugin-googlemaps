@@ -1,0 +1,26 @@
+NSLocationWhenInUseUsageDescription = "この端末の位置を調べるために必要です";
+NSLocationAlwaysUsageDescription = "この端末の位置を追跡するために必要です";
+
+/*
+ * Generic
+ */
+"CLOSE_BUTTON" = "閉じる";
+
+/*
+ * CordovaGoogleMaps.m
+ */
+"APIKEY_IS_UNDEFINED_TITLE" = "APIキー エラー";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "API_KEY_FOR_IOS変数が設定されていません";
+
+"APP_NAME_ERROR_TITLE" = "config.xmlの変更が必要です";
+"APP_NAME_ERROR_MESSAGE" = "CFBundleExecutableに英数字以外の文字が含まれていると\nGoogle Maps SDK for iOSがクラッシュします。\n詳しくはCordovaGoogleMaps.mファイルのコメントを\nお読みください。";
+
+/*
+ * PluginLocationService.m
+ */
+"LOCAITON_IS_UNAVAILABLE_ERROR_TITLE" = "位置情報が有効になっていません";
+"LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE" = "この端末の位置情報が無効になっています。'設定 > プライバシー > 位置情報サービス'を有効にしてください";
+
+"LOCAITON_IS_DENIED_MESSAGE" = "位置情報サービスの利用が拒否されました";
+"CAN_NOT_GET_LOCATION_MESSAGE" = "現在位置を取得できませんでした";
+"LOCATION_REJECTED_BY_USER_MESSAGE" = "位置情報サービスの利用が拒否されました";

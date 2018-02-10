@@ -8,6 +8,7 @@
 
 #import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
+#import "PluginUtil.h"
 
 @interface PluginLocationService : CDVPlugin<CLLocationManagerDelegate>
 
