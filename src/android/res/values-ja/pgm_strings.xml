@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="welcome_message">こんにちは。</string>
+  <string name="pgm_google_close_button">閉じる</string>
+  <string name="pgm_api_key_error">platforms/android/app/src/AndroidManifest.xmlファイル内の\'API_KEY_FOR_ANDROID\'をあなたのAPIキーに置き換えてください</string>
+  <string name="pgm_google_play_error">この端末ではGoogle Maps Android API v2が利用できません。</string>
+  <string name="pgm_google_play_developer_error">アプリケーションの設定が間違えています。このエラーは修復不可能かつ重大な失敗なものです。開発者は端末ログを確認してください。</string>
+  <string name="pgm_google_play_internal_error">Google Play Servicesの内部エラーが発生しました。おそらくもう一度試みていただければ解決します。</string>
+  <string name="pgm_google_play_invalid_account">ログインしているGoogleアカウントが不正です。再度ログインして試してみてください。</string>
+  <string name="pgm_google_play_lincense_check_failed">このアプリケーションの使用がユーザーに認められていません。このエラーは修復不可能かつ重大な失敗なものです。</string>
+  <string name="pgm_google_play_network_error">ネットワークエラーが発生しました。おそらくもう一度試みていただければ解決します。</string>
+  <string name="pgm_google_play_service_disabled">この端末にインストールされているGoogle Play Servicesが無効になっています。Google Play Servicesを有効にしてください。</string>
+  <string name="pgm_google_play_service_invalid">この端末にインストールされているGoogle Play Servicesでは認証ができません。Google Play Storeから最新版のGoogle Play Servicesをインストールしてください。</string>
+  <string name="pgm_google_play_service_missing">この端末にGoogle Play Servicesがインストールされていません。Google Play Storeから最新版のGoogle Play Servicesをインストールしてください。</string>
+  <string name="pgm_google_play_service_update_required">この端末にインストールされているGoogle Play Servicesが古過ぎです。Google Play Storeから最新版のGoogle Play Servicesをインストールしてください。</string>
+  <string name="pgm_google_play_sign_in_required">Google Maps Android API v2を使用しようと試みましたが、あなたがGoogleアカウントにログインしていません。Googleアカウントにログインしてから再度試してみてください。</string>
+  <string name="pgm_no_location_providers">利用できる位置情報を取得できる方法(GPSなど)がないため、この端末の位置情報が取得できませんでした。</string>
+  <string name="pgm_no_location_service_is_disabled">位置情報サービス(GPSなど)が無効になっています。</string>
+  <string name="pgm_location_rejected_by_user">位置情報サービス(GPSなど)の利用がユーザーにより拒否されました。</string>
+  <string name="pgm_can_not_get_location">この端末の位置情報が取得できませんでした。もう一度試してみてください。</string>
 </resources>

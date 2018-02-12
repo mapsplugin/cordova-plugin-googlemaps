@@ -114,7 +114,7 @@ public class PluginLocationService extends CordovaPlugin {
         try {
           result.put("status", false);
           result.put("error_code", "not_available");
-          result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
+          result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_no_location_providers"));
         } catch (JSONException e) {
           e.printStackTrace();
         }
@@ -132,7 +132,15 @@ public class PluginLocationService extends CordovaPlugin {
         requestHighAccuracy = params.getBoolean("enableHighAccuracy");
       }
       if (requestHighAccuracy && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-        callbackContext.error("Location manager is disabled.");
+        JSONObject result = new JSONObject();
+        try {
+          result.put("status", false);
+          result.put("error_code", "not_available");
+          result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_no_location_service_is_disabled"));
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        callbackContext.error(result);
         return;
       }
 
@@ -169,7 +177,7 @@ public class PluginLocationService extends CordovaPlugin {
 
       if (!locationPermission) {
 
-        PluginResult errorResult = new PluginResult(PluginResult.Status.ERROR, "Geolocation permission request was denied.");
+        PluginResult errorResult = new PluginResult(PluginResult.Status.ERROR, PluginUtil.getPgmStrings(activity,"pgm_location_rejected_by_user"));
 
         synchronized (semaphore) {
           for (CallbackContext callback: regularAccuracyRequestList) {
@@ -483,7 +491,7 @@ public class PluginLocationService extends CordovaPlugin {
                 try {
                   result.put("status", false);
                   result.put("error_code", "cannot_detect");
-                  result.put("error_message", "Can not detect your location. Try again.");
+                  result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_can_not_get_location"));
                 } catch (JSONException e) {
                   e.printStackTrace();
                 }
@@ -528,7 +536,7 @@ public class PluginLocationService extends CordovaPlugin {
       try {
         result.put("status", false);
         result.put("error_code", "not_available");
-        result.put("error_message", "Since this device does not have any location provider, this app can not detect your location.");
+        result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_no_location_providers"));
       } catch (JSONException e) {
         e.printStackTrace();
       }
@@ -585,7 +593,7 @@ public class PluginLocationService extends CordovaPlugin {
     try {
       result.put("status", false);
       result.put("error_code", "service_denied");
-      result.put("error_message", "This app has been rejected to use Location Services.");
+      result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_location_rejected_by_user"));
     } catch (JSONException e) {
       e.printStackTrace();
     }
