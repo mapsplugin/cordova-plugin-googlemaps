@@ -1719,7 +1719,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       locationPermission = PermissionChecker.checkSelfPermission(cordova.getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PermissionChecker.PERMISSION_GRANTED;
 
       if (!locationPermission) {
-        callbackContext.error("Geolocation permission request was denied.");
+        callbackContext.error(PluginUtil.getPgmStrings(activity,"pgm_location_rejected_by_user"));
         return;
       }
 

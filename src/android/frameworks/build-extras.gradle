@@ -1,7 +1,7 @@
 android {
   defaultConfig {
-    compileSdkVersion 19
-    targetSdkVersion 22
+    compileSdkVersion 26
+    targetSdkVersion 26
   }
 
    packagingOptions {
