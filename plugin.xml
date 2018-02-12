@@ -102,6 +102,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <keywords>google,maps,geo</keywords>
 
     <engines>
+      <engine name="cordova" version=">=7.1.0" />
       <engine name="cordova-android" version=">=5.1.0" />
       <engine name="cordova-ios" version=">=4.0.0" />
     </engines>
