@@ -1,6 +1,3 @@
-NSLocationWhenInUseUsageDescription = "This app needs this permission to obtain your location.";
-NSLocationAlwaysUsageDescription = "This app needs this permission to follow your location.";
-
 /*
  * Generic
  */

@@ -1,6 +1,3 @@
-NSLocationWhenInUseUsageDescription = "この端末の位置を調べるために必要です";
-NSLocationAlwaysUsageDescription = "この端末の位置を追跡するために必要です";
-
 /*
  * Generic
  */

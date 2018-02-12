@@ -252,6 +252,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <platform name="ios">
 
         <preference name="API_KEY_FOR_IOS" />
+        <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
+        <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background." />
 
         <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
           <clobbers target="plugin.google.maps" />
@@ -372,6 +374,14 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+            <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
+            <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
