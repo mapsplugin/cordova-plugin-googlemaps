@@ -216,13 +216,13 @@ if (!cordova) {
       }, 100);
     }, true);
 
-    document.body.addEventListener("scroll", function(e) {
-      if (scrollEndTimer) {
-        clearTimeout(scrollEndTimer);
-      }
-      scrollEndTimer = setTimeout(onScrollEnd, 100);
-      followMapDivPositionOnly();
-    }, true);
+    // document.body.addEventListener("scroll", function(e) {
+    //   if (scrollEndTimer) {
+    //     clearTimeout(scrollEndTimer);
+    //   }
+    //   scrollEndTimer = setTimeout(onScrollEnd, 100);
+    //   followMapDivPositionOnly();
+    // }, true);
     function onScrollEnd() {
       isThereAnyChange = true;
       common.nextTick(putHtmlElements);
@@ -570,18 +570,18 @@ if (!cordova) {
       once: true
     });
     document.addEventListener("plugin_touch", resetTimer);
-    window.addEventListener("orientationchange", function() {
-      var cnt = 30;
-      resetTimer({force: true});
-      var timer = setInterval(function() {
-        cnt--;
-        if (cnt > 0) {
-          followMapDivPositionOnly();
-        } else {
-          clearInterval(timer);
-        }
-      }, 50);
-    });
+    // window.addEventListener("orientationchange", function() {
+    //   var cnt = 30;
+    //   resetTimer({force: true});
+    //   var timer = setInterval(function() {
+    //     cnt--;
+    //     if (cnt > 0) {
+    //       followMapDivPositionOnly();
+    //     } else {
+    //       clearInterval(timer);
+    //     }
+    //   }, 50);
+    // });
 
     //----------------------------------------------------
     // Stop all executions if the page will be closed.
@@ -602,41 +602,41 @@ if (!cordova) {
     //--------------------------------------------
     // Hook the backbutton of Android action
     //--------------------------------------------
-    var anotherBackbuttonHandler = null;
-    function onBackButton(e) {
-      common.nextTick(putHtmlElements);
-      if (anotherBackbuttonHandler) {
-        // anotherBackbuttonHandler must handle the page moving transaction.
-        // The plugin does not take care anymore if another callback is registered.
-        anotherBackbuttonHandler(e);
-      } else {
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
-      }
-    }
-    document.addEventListener("backbutton", onBackButton);
+    // var anotherBackbuttonHandler = null;
+    // function onBackButton(e) {
+    //   common.nextTick(putHtmlElements);
+    //   if (anotherBackbuttonHandler) {
+    //     // anotherBackbuttonHandler must handle the page moving transaction.
+    //     // The plugin does not take care anymore if another callback is registered.
+    //     anotherBackbuttonHandler(e);
+    //   } else {
+    //     cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
+    //   }
+    // }
+    // document.addEventListener("backbutton", onBackButton);
 
-    var _org_addEventListener = document.addEventListener;
-    var _org_removeEventListener = document.removeEventListener;
-    document.addEventListener = function(eventName, callback) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      if (eventName.toLowerCase() !== "backbutton") {
-        _org_addEventListener.apply(this, args);
-        return;
-      }
-      if (!anotherBackbuttonHandler) {
-        anotherBackbuttonHandler = callback;
-      }
-    };
-    document.removeEventListener = function(eventName, callback) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      if (eventName.toLowerCase() !== "backbutton") {
-        _org_removeEventListener.apply(this, args);
-        return;
-      }
-      if (anotherBackbuttonHandler === callback) {
-        anotherBackbuttonHandler = null;
-      }
-    };
+    // var _org_addEventListener = document.addEventListener;
+    // var _org_removeEventListener = document.removeEventListener;
+    // document.addEventListener = function(eventName, callback) {
+    //   var args = Array.prototype.slice.call(arguments, 0);
+    //   if (eventName.toLowerCase() !== "backbutton") {
+    //     _org_addEventListener.apply(this, args);
+    //     return;
+    //   }
+    //   if (!anotherBackbuttonHandler) {
+    //     anotherBackbuttonHandler = callback;
+    //   }
+    // };
+    // document.removeEventListener = function(eventName, callback) {
+    //   var args = Array.prototype.slice.call(arguments, 0);
+    //   if (eventName.toLowerCase() !== "backbutton") {
+    //     _org_removeEventListener.apply(this, args);
+    //     return;
+    //   }
+    //   if (anotherBackbuttonHandler === callback) {
+    //     anotherBackbuttonHandler = null;
+    //   }
+    // };
 
 
 
