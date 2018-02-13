@@ -29,16 +29,19 @@
         // kCLAuthorizationStatusDenied
         // kCLAuthorizationStatusRestricted
         //----------------------------------------------------
-        UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Location Services disabled"
-                                                                       message:@"This app needs access to your location. Please turn on Location Services in your device settings."
+        NSString *LOCAITON_IS_UNAVAILABLE_ERROR_TITLE = PGM_LOCALIZATION(@"LOCAITON_IS_UNAVAILABLE_ERROR_TITLE", nil);
+        NSString *LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE = PGM_LOCALIZATION(@"LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE", nil);
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCAITON_IS_UNAVAILABLE_ERROR_TITLE
+                                                                       message:LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE
                                                                 preferredStyle:UIAlertControllerStyleAlert];
 
-        UIAlertAction* ok = [UIAlertAction actionWithTitle:NSLocalizedString(@"CLOSE", @"CLOSE")
+        NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
+        UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
                                                      style:UIAlertActionStyleDefault
                                                    handler:^(UIAlertAction* action)
             {
                 NSString *error_code = @"service_denied";
-                NSString *error_message = @"This app has rejected to use Location Services.";
+                NSString *error_message = PGM_LOCALIZATION(@"LOCAITON_IS_DENIED_MESSAGE", nil);
 
                 NSMutableDictionary *json = [NSMutableDictionary dictionary];
                 [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
@@ -117,7 +120,7 @@
             NSMutableDictionary *json = [NSMutableDictionary dictionary];
             [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
             NSString *error_code = @"error";
-            NSString *error_message = @"Cannot get your location.";
+            NSString *error_message = PGM_LOCALIZATION(@"CAN_NOT_GET_LOCATION_MESSAGE", nil);
             [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
             [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
 
@@ -174,10 +177,10 @@
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
     [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
     NSString *error_code = @"error";
-    NSString *error_message = @"Cannot get your location.";
+    NSString *error_message = PGM_LOCALIZATION(@"CAN_NOT_GET_LOCATION_MESSAGE", nil);
     if (error.code == kCLErrorDenied) {
         error_code = @"service_denied";
-        error_message = @"This app has rejected to use Location Services.";
+        error_message = PGM_LOCALIZATION(@"LOCATION_REJECTED_BY_USER_MESSAGE", nil);
     }
 
     [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
