@@ -70,6 +70,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Add: Use `android-support-library-v4`
   - Fix: `cordova-plugin-gooelmaps.CordovaGoogleMaps is already defined warning` message.
   - Update: `com.googlemaps.ios@2.6.0` is required. Please reinstall the plugin.
+  - Add: This plugin messages are localized for English and Japanese.
 
 ---
 
