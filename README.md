@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.4)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.5)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -17,8 +17,8 @@ $> cordova plugin add cordova-plugin-googlemaps \
 (Optional variables)
   PLAY_SERVICES_VERSION="11.8.0" (for Android)
   ANDROID_SUPPORT_V4_VERSION="24.1.0" (for Android)
-  LOCATION_WHEN_IN_USE_DESCRIPTION="My custom when in use message"  (for iOS)
-  LOCATION_ALWAYS_USAGE_DESCRIPTION="My custom always usage message"  (for iOS)
+  LOCATION_WHEN_IN_USE_DESCRIPTION="(your custom message)"  (for iOS)
+  LOCATION_ALWAYS_USAGE_DESCRIPTION="(your custom message)"  (for iOS)
 ```
 
 ## PhoneGap Build settings
@@ -32,8 +32,8 @@ $> cordova plugin add cordova-plugin-googlemaps \
     <!-- these are optional settings -->
     <variable name="PLAY_SERVICES_VERSION" value="11.8.0" />
     <variable name="ANDROID_SUPPORT_V4_VERSION" value="24.1.0" />
-    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="Show your location on the map" />
-    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="Trace your location on the map" />
+    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="(your custom message)" />
+    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="(your custom message)" />
   </plugin>
 
   <!--
