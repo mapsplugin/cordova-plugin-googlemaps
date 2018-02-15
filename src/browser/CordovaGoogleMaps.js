@@ -49,8 +49,10 @@ var CordovaGoogleMaps = {
   getMap: function(onSuccess, onError, args) {
     var mapId = args[0];
     args.unshift(this);
+
     var pluginMap = new (PluginMap.bind.apply(PluginMap, args));
     MAPS[mapId] = pluginMap;
+    cordova.define(mapId, pluginMap);
 
     pluginMap.one(event.MAP_READY, onSuccess);
 

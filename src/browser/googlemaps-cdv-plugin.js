@@ -1,10 +1,11 @@
-
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     event = require('cordova-plugin-googlemaps.event'),
     common = require('cordova-plugin-googlemaps.Common');
 
-var Map = require('cordova-plugin-googlemaps.Map');
+var Map = require('cordova-plugin-googlemaps.Map'),
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
+
 var cordova_exec = require('cordova/exec');
 
 var commandQueue = [];
@@ -134,6 +135,7 @@ function _exec() {
 
 module.exports = {
   event: event,
+  BaseClass: BaseClass,
   Map: {
     getMap: function(div, mapOptions) {
       var mapId, elem, elemId;
@@ -173,6 +175,7 @@ module.exports = {
       } else {
         mapId = "map_" + MAP_CNT + "_" + saltHash;
       }
+      var map = new Map(mapId, execCmd);
 
       if (common.isDom(div)) {
         div.setAttribute("__pluginMapId", mapId);
@@ -195,7 +198,6 @@ module.exports = {
       for (var i = 0; i < arguments.length; i++) {
         args.push(arguments[i]);
       }
-      var map = new Map(mapId, execCmd);
       map.getMap.apply(map, args);
       return map;
     }
