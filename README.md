@@ -25,7 +25,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.2.4">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.2.5">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -72,7 +72,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Update: `com.googlemaps.ios@2.6.0` is required. Please reinstall the plugin.
   - Add: This plugin messages are localized for English and Japanese.
 
-- **v2.2.5**
+- **v2.2.5** (small update)
   - Bug fix: setMyLocationEnabed(true) hide the MyLocationButton.
   - Fix: Conflict with `cordova-plugin-geolocation`
 
