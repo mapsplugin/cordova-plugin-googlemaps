@@ -251,7 +251,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <!-- localized messages for Japanese -->
         <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml" />
         <!-- localized messages for Portuguese -->
-        <resource-file src="src/android/res/values-pt/pgm_strings.xml" target="res/values-pt/pgm_strings.xml" />
+        <resource-file src="src/android/res/values-pt-rPT/pgm_strings.xml" target="res/values-pt-rPT/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -369,14 +369,14 @@ The native map view is faster, use less network usage, display 3D views, and eve
           <array>
             <string>English</string>
             <string>Japanese</string>
-            <string>Portuguese</string>
+            <string>Brazilian Portuguese</string>
           </array>
         </config-file>
         <config-file target="*-Info.plist" parent="CFBundleLocalizations">
           <array>
             <string>en</string>
             <string>ja</string>
-            <string>pt</string>
+            <string>pt-BR</string>
           </array>
         </config-file>
 
@@ -384,8 +384,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/ios/strings/Base.lproj/pgm_Localizable.strings" target="Base.lproj/pgm_Localizable.strings" />
         <!-- localized messages for Japanese -->
         <resource-file src="src/ios/strings/ja.lproj/pgm_Localizable.strings" target="ja.lproj/pgm_Localizable.strings" />
-        <!-- localized messages for Portuguese -->
-        <resource-file src="src/ios/strings/pt.lproj/pgm_Localizable.strings" target="pt.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Brazilian Portuguese -->
+        <resource-file src="src/ios/strings/pt-BR.lproj/pgm_Localizable.strings" target="pt-BR.lproj/pgm_Localizable.strings" />
         <!-- localized messages for German -->
         <resource-file src="src/ios/strings/de.lproj/pgm_Localizable.strings" target="de.lproj/pgm_Localizable.strings" />
 
