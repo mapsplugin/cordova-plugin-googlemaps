@@ -107,7 +107,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
       <engine name="cordova-ios" version=">=4.0.0" />
       <engine name="apple-xcode" version=">=9.0.0" />
       <engine name="apple-ios" version=">=10.0.0" />
-      <engine name="android-sdk" version=">=19" />
     </engines>
 
     <!-- android -->
@@ -223,8 +222,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <!-- OpenGL ES version 2 -->
             <uses-feature android:glEsVersion="0x00020000" android:required="true" />
             <!-- GPS -->
-            <uses-feature android:name="android.hardware.location" android:required="false" />
-            <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+            <uses-feature android:name="android.hardware.location" />
+            <uses-feature android:name="android.hardware.location.gps" />
         </config-file>
 
         <resource-file src="src/android/res/layout/dummy_infowindow.xml" target="res/layout/dummy_infowindow.xml"/>
