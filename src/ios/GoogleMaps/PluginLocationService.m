@@ -29,10 +29,10 @@
         // kCLAuthorizationStatusDenied
         // kCLAuthorizationStatusRestricted
         //----------------------------------------------------
-        NSString *LOCAITON_IS_UNAVAILABLE_ERROR_TITLE = PGM_LOCALIZATION(@"LOCAITON_IS_UNAVAILABLE_ERROR_TITLE", nil);
-        NSString *LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE = PGM_LOCALIZATION(@"LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE", nil);
-        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCAITON_IS_UNAVAILABLE_ERROR_TITLE
-                                                                       message:LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE
+        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = PGM_LOCALIZATION(@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE", nil);
+        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = PGM_LOCALIZATION(@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE", nil);
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCATION_IS_UNAVAILABLE_ERROR_TITLE
+                                                                       message:LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE
                                                                 preferredStyle:UIAlertControllerStyleAlert];
 
         NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
@@ -41,7 +41,7 @@
                                                    handler:^(UIAlertAction* action)
             {
                 NSString *error_code = @"service_denied";
-                NSString *error_message = PGM_LOCALIZATION(@"LOCAITON_IS_DENIED_MESSAGE", nil);
+                NSString *error_message = PGM_LOCALIZATION(@"LOCATION_IS_DENIED_MESSAGE", nil);
 
                 NSMutableDictionary *json = [NSMutableDictionary dictionary];
                 [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];

@@ -15,9 +15,9 @@
 /*
  * PluginLocationService.m
  */
-"LOCAITON_IS_UNAVAILABLE_ERROR_TITLE" = "O serviço de localização não esta disponível";
-"LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE" = "Esse aplicativo precisa acessar sua localização. Por favor ative em 'Ajustes > Privacidade > Serviços de Localização'";
+"LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "O serviço de localização não esta disponível";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Esse aplicativo precisa acessar sua localização. Por favor ative em 'Ajustes > Privacidade > Serviços de Localização'";
 
-"LOCAITON_IS_DENIED_MESSAGE" = "O aplicativo foi rejeitado para usar os Serviços de Localização.";
+"LOCATION_IS_DENIED_MESSAGE" = "O aplicativo foi rejeitado para usar os Serviços de Localização.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Não foi possível obter sua localização.";
 "LOCATION_REJECTED_BY_USER_MESSAGE" = "O serviço de localização foi rejeitado pelo usuário.";
