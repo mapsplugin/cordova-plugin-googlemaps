@@ -381,6 +381,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <string>Ukrainian</string>
             <string>Brazilian Portuguese</string>
             <string>German</string>
+            <string>French</string>
           </array>
         </config-file>
         <config-file target="*-Info.plist" parent="CFBundleLocalizations">
@@ -391,6 +392,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <string>uk</string>
             <string>pt-BR</string>
             <string>de</string>
+            <string>fr</string>
           </array>
         </config-file>
 
