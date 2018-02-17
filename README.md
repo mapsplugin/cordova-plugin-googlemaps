@@ -78,7 +78,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 - **v2.2.6**
   - Add: support languages
-    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`)
+    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`)
   - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
 
 ---
