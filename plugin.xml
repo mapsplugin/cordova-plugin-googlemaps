@@ -248,6 +248,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml" />
         <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml" />
+        <resource-file src="src/android/res/values-ru/pgm_strings.xml" target="res/values-ru/pgm_strings.xml" />
+        <resource-file src="src/android/res/values-uk/pgm_strings.xml" target="res/values-uk/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -373,6 +375,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         </config-file>
         <resource-file src="src/ios/strings/Base.lproj/pgm_Localizable.strings" target="Base.lproj/pgm_Localizable.strings" />
         <resource-file src="src/ios/strings/ja.lproj/pgm_Localizable.strings" target="ja.lproj/pgm_Localizable.strings" />
+        <resource-file src="src/ios/strings/ru.lproj/pgm_Localizable.strings" target="ru.lproj/pgm_Localizable.strings" />
+        <resource-file src="src/ios/strings/uk.lproj/pgm_Localizable.strings" target="uk.lproj/pgm_Localizable.strings" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
