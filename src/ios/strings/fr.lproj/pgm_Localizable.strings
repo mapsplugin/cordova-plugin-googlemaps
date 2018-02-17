@@ -1,0 +1,23 @@
+/*
+ * Generic
+ */
+"CLOSE_BUTTON" = "FERMER";
+
+/*
+ * CordovaGoogleMaps.m
+ */
+"APIKEY_IS_UNDEFINED_TITLE" = "Erreur liée à la clé API";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "La variable 'API_KEY_FOR_IOS' n'est pas enregistrée.";
+
+"APP_NAME_ERROR_TITLE" = "Vous devez modifier le fichier config.xml";
+"APP_NAME_ERROR_MESSAGE" = "Google Maps SDK pour iOS crash si CFBundleExecutable contient des caractères non-Anglais.\nPour plus de détails, veuillez consulter le commentaire dans le fichier CordovaGoogleMaps.m.";
+
+/*
+ * PluginLocationService.m
+ */
+"LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "Le service de localisation n'est pas disponible";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Cette application nécessite l'accès à votre localisation. Veuillez l'activer dans 'Réglages > Confidentialité > Service de localisation'";
+
+"LOCATION_IS_DENIED_MESSAGE" = "Cette application a rejeté l'utilisation du service de localisation.";
+"CAN_NOT_GET_LOCATION_MESSAGE" = "Votre localisation est introuvable.";
+"LOCATION_REJECTED_BY_USER_MESSAGE" = "Le service de localisation a été rejeté par l'utilisateur.";

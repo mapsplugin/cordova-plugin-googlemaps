@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.2.6-beta-20180217-1130" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.2.6-beta-20180217-1316" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -258,6 +258,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/android/res/values-pt-rPT/pgm_strings.xml" target="res/values-pt-rPT/pgm_strings.xml" />
         <!-- localized messages for German -->
         <resource-file src="src/android/res/values-de/pgm_strings.xml" target="res/values-de/pgm_strings.xml" />
+        <!-- localized messages for French -->
+        <resource-file src="src/android/res/values-fr/pgm_strings.xml" target="res/values-fr/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -404,6 +406,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/ios/strings/pt-BR.lproj/pgm_Localizable.strings" target="pt-BR.lproj/pgm_Localizable.strings" />
         <!-- localized messages for German -->
         <resource-file src="src/ios/strings/de.lproj/pgm_Localizable.strings" target="de.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for French -->
+        <resource-file src="src/ios/strings/fr.lproj/pgm_Localizable.strings" target="fr.lproj/pgm_Localizable.strings" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
