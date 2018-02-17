@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.2.5" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.2.6-beta-20180217-1130" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -246,10 +246,18 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
+        <!-- Base messages -->
         <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml" />
+        <!-- localized messages for Japanese -->
         <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml" />
+        <!-- localized messages for Russian -->
         <resource-file src="src/android/res/values-ru/pgm_strings.xml" target="res/values-ru/pgm_strings.xml" />
+        <!-- localized messages for Ukrainian -->
         <resource-file src="src/android/res/values-uk/pgm_strings.xml" target="res/values-uk/pgm_strings.xml" />
+        <!-- localized messages for Portuguese -->
+        <resource-file src="src/android/res/values-pt-rPT/pgm_strings.xml" target="res/values-pt-rPT/pgm_strings.xml" />
+        <!-- localized messages for German -->
+        <resource-file src="src/android/res/values-de/pgm_strings.xml" target="res/values-de/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -365,18 +373,37 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <config-file target="*-Info.plist" parent="CFBundleDevelopmentRegion">
           <array>
+            <string>English</string>
             <string>Japanese</string>
+            <string>Russian</string>
+            <string>Ukrainian</string>
+            <string>Brazilian Portuguese</string>
+            <string>German</string>
           </array>
         </config-file>
         <config-file target="*-Info.plist" parent="CFBundleLocalizations">
-            <array>
-                <string>ja</string>
-            </array>
+          <array>
+            <string>en</string>
+            <string>ja</string>
+            <string>ru</string>
+            <string>uk</string>
+            <string>pt-BR</string>
+            <string>de</string>
+          </array>
         </config-file>
+
+        <!-- Base messages -->
         <resource-file src="src/ios/strings/Base.lproj/pgm_Localizable.strings" target="Base.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Japanese -->
         <resource-file src="src/ios/strings/ja.lproj/pgm_Localizable.strings" target="ja.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Brazilian Russian -->
         <resource-file src="src/ios/strings/ru.lproj/pgm_Localizable.strings" target="ru.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Brazilian Ukrainian -->
         <resource-file src="src/ios/strings/uk.lproj/pgm_Localizable.strings" target="uk.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Brazilian Portuguese -->
+        <resource-file src="src/ios/strings/pt-BR.lproj/pgm_Localizable.strings" target="pt-BR.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for German -->
+        <resource-file src="src/ios/strings/de.lproj/pgm_Localizable.strings" target="de.lproj/pgm_Localizable.strings" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
