@@ -374,15 +374,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
 
         <config-file target="*-Info.plist" parent="CFBundleDevelopmentRegion">
-          <array>
-            <string>English</string>
-            <string>Japanese</string>
-            <string>Russian</string>
-            <string>Ukrainian</string>
-            <string>Brazilian Portuguese</string>
-            <string>German</string>
-            <string>French</string>
-          </array>
+          <string>English</string>
         </config-file>
         <config-file target="*-Info.plist" parent="CFBundleLocalizations">
           <array>
