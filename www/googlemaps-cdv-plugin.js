@@ -518,7 +518,7 @@ if (!cordova) {
       }
 
       // Get the z-index CSS
-      var zIndex = common.getZIndex(element);
+      var zIndexProp = common.getZIndex(element);
 
       // Calculate dom clickable region
       var rect = common.getDivRect(element);
@@ -529,7 +529,7 @@ if (!cordova) {
         pointerEvents: common.getStyle(element, 'pointer-events'),
         isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
-        zIndex: zIndex,
+        zIndex: zIndexProp,
         overflowX: common.getStyle(element, "overflow-x"),
         overflowY: common.getStyle(element, "overflow-y"),
         children: [],
@@ -537,7 +537,7 @@ if (!cordova) {
       };
       var containMapCnt = (Object.keys(domPositions[elemId].containMapIDs)).length;
       isMapChild = isMapChild || domPositions[elemId].isMap;
-      if ((containMapCnt > 0 || isMapChild || domPositions[elemId].pointerEvents === "none") && element.children.length > 0) {
+      if ((containMapCnt > 0 || isMapChild || domPositions[elemId].pointerEvents === "none" || zIndexProp.isInherit) && element.children.length > 0) {
         var child;
         for (var i = 0; i < element.children.length; i++) {
           child = element.children[i];

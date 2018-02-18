@@ -442,6 +442,7 @@
   NSString *maxDomId = nil;
   CGRect rect;
   float right, bottom;
+  NSDictionary *zIndexProp;
 
 
   domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
@@ -461,19 +462,23 @@
     overflow.rect = CGRectFromString([domInfo objectForKey:@"size"]);
   }
 
-  if ((containMapCnt > 0 || isMapChild || [@"none" isEqualToString:pointerEvents]) && children != nil && children.count > 0) {
+  zIndexProp = [domInfo objectForKey:@"zIndex"];
+  if ((containMapCnt > 0 || isMapChild || [@"none" isEqualToString:pointerEvents] ||
+       [[zIndexProp objectForKey:@"isInherit"] boolValue]) && children != nil && children.count > 0) {
 
     int maxZIndex = -1215752192;
-    int zIndex;
+    int zIndexValue;
     NSString *childId, *grandChildId;
     NSArray *grandChildren;
 
     for (int i = (int)children.count - 1; i >= 0; i--) {
       childId = [children objectAtIndex:i];
       domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:childId];
-      zIndex = [[domInfo objectForKey:@"zIndex"] intValue];
+      zIndexProp = [domInfo objectForKey:@"zIndex"];
+      zIndexValue = [[zIndexProp objectForKey:@"z"] intValue];
 
-      if (maxZIndex < zIndex) {
+      if (maxZIndex < zIndexValue || [[zIndexProp objectForKey:@"isInherit"] boolValue]) {
+
         grandChildren = [domInfo objectForKey:@"children"];
         if (grandChildren == nil || grandChildren.count == 0) {
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
@@ -499,13 +504,20 @@
           if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
             continue;
           }
-          maxDomId = childId;
+          if (maxZIndex < zIndexValue) {
+            maxZIndex = zIndexValue;
+            maxDomId = childId;
+          }
         } else {
           grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild overflow:overflow];
           if (grandChildId == nil) {
+            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
             grandChildId = childId;
+          } else {
+            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
+            zIndexProp = [domInfo objectForKey:@"zIndex"];
+            zIndexValue = [[zIndexProp objectForKey:@"z"] intValue];
           }
-          domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
           right = rect.origin.x + rect.size.width;
@@ -531,9 +543,12 @@
           if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
             continue;
           }
-          maxDomId = grandChildId;
+          if (maxZIndex < zIndexValue) {
+            maxZIndex = zIndexValue;
+            maxDomId = grandChildId;
+          }
         }
-        maxZIndex = zIndex;
+
       }
     }
   }

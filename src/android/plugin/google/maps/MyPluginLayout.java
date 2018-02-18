@@ -517,11 +517,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild, Overflow overflow) {
-      //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
+      //Log.d(TAG, "-(findClickedDom)domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
       RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
+      Bundle zIndexProp;
       int containMapCnt = 0;
       if (domInfo.containsKey("containMapIDs")) {
         Set<String> keys = domInfo.getBundle("containMapIDs").keySet();
@@ -542,11 +543,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         overflow.rect = HTMLNodeRectFs.get(domId);
       }
 
-      //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
+      //Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo);
+      zIndexProp = domInfo.getBundle("zIndex");
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents)) && children != null && children.size() > 0) {
+      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents) || zIndexProp.getBoolean("isInherit")) && children != null && children.size() > 0) {
         int maxZindex = (int) Double.NEGATIVE_INFINITY;
-        int zIndex;
+        int zIndexValue;
         String childId, grandChildId;
         ArrayList<String> grandChildren;
         for (int i = children.size() - 1; i >= 0; i--) {
@@ -556,8 +558,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          zIndex = domInfo.getInt("zIndex");
-          if (maxZindex < zIndex) {
+          zIndexProp = domInfo.getBundle("zIndex");
+          zIndexValue = zIndexProp.getInt("z");
+          if (maxZindex < zIndexValue || zIndexProp.getBoolean("isInherit")) {
             grandChildren = domInfo.getStringArrayList("children");
             if (grandChildren == null || grandChildren.size() == 0) {
               rect = HTMLNodeRectFs.get(childId);
@@ -575,16 +578,22 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 continue;
               }
 
-              //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+              //Log.d(TAG, "---childId = " + childId + ", domInfo = " + domInfo);
               if ("none".equals(domInfo.getString("pointerEvents"))) {
                 continue;
               }
-              maxDomId = childId;
+              //Log.d(TAG, "----childId = " + childId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
+              if (maxZindex < zIndexValue) {
+                maxZindex = zIndexValue;
+                maxDomId = childId;
+              }
             } else {
               grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
-              //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
+              //Log.d(TAG, "---findClickedDom("+ childId + ") -> " + grandChildId);
               if (grandChildId == null) {
                 grandChildId = childId;
+              } else {
+                zIndexValue = HTMLNodes.get(grandChildId).getBundle("zIndex").getInt("z");
               }
               rect = HTMLNodeRectFs.get(grandChildId);
               if (overflow != null ) {
@@ -606,9 +615,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               if ("none".equals(domInfo.getString("pointerEvents"))) {
                 continue;
               }
-              maxDomId = grandChildId;
+              //Log.d(TAG, "----grandChildId = " + grandChildId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
+              if (maxZindex < zIndexValue) {
+                maxZindex = zIndexValue;
+                maxDomId = grandChildId;
+              }
             }
-            maxZindex = zIndex;
           }
         }
       }
