@@ -245,10 +245,6 @@ if (cordova) {
             MAPS[mapId].destroy();
             delete MAPS[mapId];
             map = undefined;
-
-            if ((Object.keys(MAPS)).length === 0) {
-              common._clearInternalCache();
-            }
           });
 
           var args = [mapId];
