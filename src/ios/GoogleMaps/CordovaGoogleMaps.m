@@ -189,9 +189,6 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
-  if (self.pluginLayer != nil) {
-    self.pluginLayer.isSuspended = false;
-  }
 
   /*---------------------------------------------------------------------------------------
    * If CFBundleExecutable is not English, the Google Maps SDK for iOS will crash.
@@ -410,23 +407,6 @@
   }];
 }
 
-- (void)resume:(CDVInvokedUrlCommand *)command {
-  if (self.pluginLayer != nil) {
-    self.pluginLayer.isSuspended = false;
-    dispatch_semaphore_signal(self.pluginLayer.semaphore);
-  }
-  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
-}
-- (void)pause:(CDVInvokedUrlCommand *)command {
-  if (self.pluginLayer != nil) {
-    self.pluginLayer.isSuspended = true;
-  }
-  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
   [self.executeQueue addOperationWithBlock:^{
 
@@ -435,20 +415,7 @@
     if (self.pluginLayer != nil) {
       [self.pluginLayer putHTMLElements:elements];
     }
-    /*
-     if (self.pluginLayer.needUpdatePosition) {
-     self.pluginLayer.needUpdatePosition = NO;
-     NSArray *keys=[self.pluginMaps allKeys];
-     NSString *mapId;
-     PluginMap *pluginMap;
-
-     for (int i = 0; i < [keys count]; i++) {
-     mapId = [keys objectAtIndex:i];
-     pluginMap = [self.pluginMaps objectForKey:mapId];
-     [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
-     }
-     }
-     */
+      
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     pluginResult = nil;
