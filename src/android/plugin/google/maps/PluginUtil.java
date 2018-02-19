@@ -426,4 +426,10 @@ public class PluginUtil {
 
     return files;
   }
+
+  public static String getPgmStrings(Activity activity, String key) {
+    int resId = PluginUtil.getAppResource(activity, key, "string");
+    Resources res = activity.getResources();
+    return res.getString(resId);
+  }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">Закрити</string>
+  <string name="pgm_api_key_error">Будь ласка, замініть \'API_KEY_FOR_ANDROID\' в platforms/android/app/src/AndroidManifest.xml на Ваш API ключ!</string>
+  <string name="pgm_google_play_error">По якісь причині Google Maps Android API v2 не доступний на цьому пристрої.</string>
+  <string name="pgm_google_play_developer_error">Програма невірно налаштована. Виникла фатальна помилка. Розробник додатку повинен подивитись в логи, щоб виправити помилку.</string>
+  <string name="pgm_google_play_internal_error">Відбулася внутрішня помилка Google Play Services. Будь ласка, спробуйте ще раз для вирішення проблеми.</string>
+  <string name="pgm_google_play_invalid_account">Ви спробували підключитися до сервісу з недійсним ім\'ям облікового запису.</string>
+  <string name="pgm_google_play_lincense_check_failed">Виникла фатальна помилка. Додаток не ліцензійований для користувача.</string>
+  <string name="pgm_google_play_network_error">Виникла помилка мережі. Будь ласка, спробуйте ще раз для вирішення проблеми.</string>
+  <string name="pgm_google_play_service_disabled">Встановлений Google Play Services на цьому пристрої - відключений. Будь ласка, увімкніть Google Play Services.</string>
+  <string name="pgm_google_play_service_invalid">Встановлена версія Google Play Services на цьому пристрої не є автентична. Будь ласка, обновіть Google Play Services із Google Play Store.</string>
+  <string name="pgm_google_play_service_missing">Google Play Services відсутній на цьому пристрої. Будь ласка, встановіть Google Play Services.</string>
+  <string name="pgm_google_play_service_update_required">Встановлена версія Google Play Services застаріла. Будь ласка, обновіть Google Play Services із Google Play Store.</string>
+  <string name="pgm_google_play_sign_in_required">Ви спробували підключитися до сервісу, але ви не ввійшли в систему. Будь ласка, перевірте конфігурацію Google Play Services.</string>
+  <string name="pgm_no_location_providers">Оскільки цей пристрій не підтримує пошук місцезнаходження, цей додаток не може визначити Ваше розташування.</string>
+  <string name="pgm_no_location_service_is_disabled">Сервіс місцезнаходження вимкнений.</string>
+  <string name="pgm_location_rejected_by_user">Сервіс пошуку місцезнаходження відхилений користувачем.</string>
+  <string name="pgm_can_not_get_location">Не вдається виявити Ваше місцезнаходження. Спробуйте знову.</string>
+</resources>

@@ -238,6 +238,16 @@
                       if (![[url lastPathComponent] isEqualToString:@"/"]) {
                         currentURL = [currentURL stringByDeletingLastPathComponent];
                       }
+
+                      // remove page unchor (i.e index.html#page=test, index.html?key=value)
+                      NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:nil];
+                      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+                      // remove file name (i.e /index.html)
+                      regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:nil];
+                      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+
                       NSString *urlStr2 = [NSString stringWithFormat:@"%@/%@", currentURL, urlStr];
                       urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
                       urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":///" withString:@"://"];

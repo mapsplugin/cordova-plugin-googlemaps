@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.2.3" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.2.5" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -93,7 +93,7 @@
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
 The native map view is faster, use less network usage, display 3D views, and even work on offline network.
 </description>
-    <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps</repo>
+    <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps.git</repo>
     <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
     <author>Masashi Katsumata</author>
 
@@ -102,14 +102,16 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <keywords>google,maps,geo</keywords>
 
     <engines>
+      <engine name="cordova" version=">=7.1.0" />
       <engine name="cordova-android" version=">=5.1.0" />
       <engine name="cordova-ios" version=">=4.0.0" />
+      <engine name="apple-xcode" version=">=9.0.0" />
+      <engine name="apple-ios" version=">=10.0.0" />
     </engines>
 
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />
-
         <info>
             Official document
             https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
@@ -196,20 +198,11 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
 
-        <framework src="build-extras.gradle"  custom="true" type="gradleReference" />
+        <framework src="src/android/frameworks/build-extras.gradle"  custom="true" type="gradleReference" />
         <framework src="src/android/frameworks/tbxml-android.gradle"  custom="true" type="gradleReference" />
         <resource-file src="src/android/frameworks/tbxml-android.aar"  target="libs/tbxml-android.aar" />
         <resource-file src="src/android/frameworks/tbxml-android.aar"  target="app/src/libs/tbxml-android.aar" />
-<!--
-        <source-file src="src/android/tbxml-android/src/za/co/twyst/tbxml/TBXML.java" target-dir="src/za/co/twyst/tbxml" />
-        <source-file src="src/android/tbxml-android/libs/arm64-v8a/libtbxml.so" target-dir="libs/arm64-v8a/" />
-        <source-file src="src/android/tbxml-android/libs/armeabi/libtbxml.so" target-dir="libs/armeabi/" />
-        <source-file src="src/android/tbxml-android/libs/armeabi-v7a/libtbxml.so" target-dir="libs/armeabi-v7a/" />
-        <source-file src="src/android/tbxml-android/libs/mips/libtbxml.so" target-dir="libs/mips/" />
-        <source-file src="src/android/tbxml-android/libs/mips64/libtbxml.so" target-dir="libs/mips64/" />
-        <source-file src="src/android/tbxml-android/libs/x86/libtbxml.so" target-dir="libs/x86/" />
-        <source-file src="src/android/tbxml-android/libs/x86_64/libtbxml.so" target-dir="libs/x86_64/" />
--->
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <meta-data
               android:name="com.google.android.geo.API_KEY"
@@ -244,14 +237,27 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <preference name="PLAY_SERVICES_VERSION" default="11.8.0" />
         <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
         <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
+
+        <!--
+        Minimum required version of Android Support library v4 for this plugin.
+        https://developers.google.com/android/guides/releases
+        -->
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="24.1.0" />
+        <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
+
+
+        <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml" />
+        <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml" />
+        <resource-file src="src/android/res/values-ru/pgm_strings.xml" target="res/values-ru/pgm_strings.xml" />
+        <resource-file src="src/android/res/values-uk/pgm_strings.xml" target="res/values-uk/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
     <platform name="ios">
 
         <preference name="API_KEY_FOR_IOS" />
-        <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="Show your location on the map"/>
-        <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="Trace your location on the map" />
+        <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
+        <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background." />
 
         <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
           <clobbers target="plugin.google.maps" />
@@ -357,6 +363,21 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
 
+        <config-file target="*-Info.plist" parent="CFBundleDevelopmentRegion">
+          <array>
+            <string>Japanese</string>
+          </array>
+        </config-file>
+        <config-file target="*-Info.plist" parent="CFBundleLocalizations">
+            <array>
+                <string>ja</string>
+            </array>
+        </config-file>
+        <resource-file src="src/ios/strings/Base.lproj/pgm_Localizable.strings" target="Base.lproj/pgm_Localizable.strings" />
+        <resource-file src="src/ios/strings/ja.lproj/pgm_Localizable.strings" target="ja.lproj/pgm_Localizable.strings" />
+        <resource-file src="src/ios/strings/ru.lproj/pgm_Localizable.strings" target="ru.lproj/pgm_Localizable.strings" />
+        <resource-file src="src/ios/strings/uk.lproj/pgm_Localizable.strings" target="uk.lproj/pgm_Localizable.strings" />
+
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
@@ -391,7 +412,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
           </array>
         </config-file>
 
-        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk"  />
+        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.6.0"  />
+
+        <hook type="before_platform_add" src="src/ios/check_sdk_version.js" />
+        <hook type="before_plugin_install" src="src/ios/check_sdk_version.js" />
 
     </platform>
 </plugin>

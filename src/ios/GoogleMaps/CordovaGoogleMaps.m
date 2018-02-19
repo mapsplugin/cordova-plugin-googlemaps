@@ -12,6 +12,7 @@
 
 - (void)pluginInitialize
 {
+
 #if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
@@ -28,15 +29,15 @@
     //-------------------------------
     NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
     if (APIKey == nil) {
-      NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-      NSString *bundleName = [NSString stringWithFormat:@"%@", [info objectForKey:@"CFBundleDisplayName"]];
-      NSString *message = [NSString stringWithFormat:@"Please replace 'API_KEY_FOR_IOS' in the platforms/ios/%@/%@-Info.plist with your API Key!", bundleName, bundleName];
+      NSString *errorTitle = PGM_LOCALIZATION(@"APIKEY_IS_UNDEFINED_TITLE", nil);
+      NSString *errorMsg = PGM_LOCALIZATION(@"APIKEY_IS_UNDEFINED_MESSAGE", nil);
 
-      UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"API key is not setted."
-                                                                     message:message
+      UIAlertController* alert = [UIAlertController alertControllerWithTitle:errorTitle
+                                                                     message:errorMsg
                                                               preferredStyle:UIAlertControllerStyleAlert];
 
-      UIAlertAction* ok = [UIAlertAction actionWithTitle:NSLocalizedString(@"CLOSE", @"CLOSE")
+      NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
+      UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
                                                    style:UIAlertActionStyleDefault
                                                  handler:^(UIAlertAction* action)
                            {
@@ -208,13 +209,16 @@
 
   NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
   if ([regex numberOfMatchesInString:CFBundleExecutable options:0 range:NSMakeRange(0, CFBundleExecutable.length)] == 0) {
-    NSString *message = [NSString stringWithFormat:@"Google Maps SDK for iOS crashes with app name '%@'.\nCheck out the comment in the CordovaGoogleMaps.m file.", CFBundleExecutable];
 
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"[action required]"
-                                                                   message:message
+    NSString *APP_NAME_ERROR_TITLE = PGM_LOCALIZATION(@"APP_NAME_ERROR_TITLE", nil);
+    NSString *APP_NAME_ERROR_MESSAGE = PGM_LOCALIZATION(@"APP_NAME_ERROR_MESSAGE", nil);
+
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:APP_NAME_ERROR_TITLE
+                                                                   message:APP_NAME_ERROR_MESSAGE
                                                             preferredStyle:UIAlertControllerStyleAlert];
 
-    UIAlertAction* ok = [UIAlertAction actionWithTitle:NSLocalizedString(@"CLOSE", @"CLOSE")
+    NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
+    UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
                                                  style:UIAlertActionStyleDefault
                                                handler:^(UIAlertAction* action)
                          {

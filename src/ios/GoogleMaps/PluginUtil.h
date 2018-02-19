@@ -21,6 +21,9 @@
 #import <Cordova/CDVCommandDelegate.h>
 #import <Cordova/CDVCommandDelegateImpl.h>
 
+#define PGM_LOCALIZATION(key, comment) \
+  [[NSBundle mainBundle] localizedStringForKey:(key) value:(comment) table:@"pgm_Localizable"]
+
 typedef void (^MYCompletionHandler)(NSError *error);
 
 // Switch statement in Objective-C

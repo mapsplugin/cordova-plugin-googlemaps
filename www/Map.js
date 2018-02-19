@@ -123,6 +123,10 @@ Map.prototype.getMap = function(mapId, div, options) {
         this.set('camera_tilt', options.camera.tilt);
       }
     }
+    if (options.controls) {
+      this.set('myLocation', options.controls.myLocation === true);
+      this.set('myLocationButton', options.controls.myLocationButton === true);
+    }
     args.push(options);
   } else {
 
@@ -150,6 +154,10 @@ Map.prototype.getMap = function(mapId, div, options) {
       if (options.camera.tilt) {
         this.set('camera_tilt', options.camera.tilt);
       }
+    }
+    if (options.controls) {
+      this.set('myLocation', options.controls.myLocation === true);
+      this.set('myLocationButton', options.controls.myLocationButton === true);
     }
     if (utils.isArray(options.styles)) {
       options.styles = JSON.stringify(options.styles);
@@ -525,11 +533,12 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 };
 
 Map.prototype.setMyLocationButtonEnabled = function(enabled) {
+  var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocationButton", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
-    myLocation: this.get("myLocation")
+    myLocation: self.get("myLocation")
   }], {
     sync: true
   });
@@ -537,10 +546,11 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
 };
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
+  var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
-    myLocationButton: this.get("myLocationButton"),
+    myLocationButton: self.get("myLocationButton"),
     myLocation: enabled
   }], {
     sync: true

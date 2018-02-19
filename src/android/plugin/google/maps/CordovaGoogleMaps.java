@@ -100,40 +100,40 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
           boolean isNeedToUpdate = false;
 
-          String errorMsg = "Google Maps Android API v2 is not available for some reason on this device. Do you install the latest Google Play Services from Google Play Store?";
+          String errorMsg = PluginUtil.getPgmStrings(activity, "pgm_google_play_error");
           switch (checkGooglePlayServices) {
             case ConnectionResult.DEVELOPER_ERROR:
-              errorMsg = "The application is misconfigured. This error is not recoverable and will be treated as fatal. The developer should look at the logs after this to determine more actionable information.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_developer_error");
               break;
             case ConnectionResult.INTERNAL_ERROR:
-              errorMsg = "An internal error of Google Play Services occurred. Please retry, and it should resolve the problem.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_internal_error");
               break;
             case ConnectionResult.INVALID_ACCOUNT:
-              errorMsg = "You attempted to connect to the service with an invalid account name specified.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_invalid_account");
               break;
             case ConnectionResult.LICENSE_CHECK_FAILED:
-              errorMsg = "The application is not licensed to the user. This error is not recoverable and will be treated as fatal.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_lincense_check_failed");
               break;
             case ConnectionResult.NETWORK_ERROR:
-              errorMsg = "A network error occurred. Please retry, and it should resolve the problem.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_network_error");
               break;
             case ConnectionResult.SERVICE_DISABLED:
-              errorMsg = "The installed version of Google Play services has been disabled on this device. Please turn on Google Play Services.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_disabled");
               break;
             case ConnectionResult.SERVICE_INVALID:
-              errorMsg = "The version of the Google Play services installed on this device is not authentic. Please update the Google Play Services from Google Play Store.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_invalid");
               isNeedToUpdate = true;
               break;
             case ConnectionResult.SERVICE_MISSING:
-              errorMsg = "Google Play services is missing on this device. Please install the Google Play Services.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_missing");
               isNeedToUpdate = true;
               break;
             case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-              errorMsg = "The installed version of Google Play services is out of date. Please update the Google Play Services from Google Play Store.";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_update_required");
               isNeedToUpdate = true;
               break;
             case ConnectionResult.SIGN_IN_REQUIRED:
-              errorMsg = "You attempted to connect to the service but you are not signed in. Please check the Google Play Services configuration";
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_sign_in_required");
               break;
             default:
               isNeedToUpdate = true;
@@ -145,7 +145,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           alertDialogBuilder
               .setMessage(errorMsg)
               .setCancelable(false)
-              .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+              .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog,int id) {
                   dialog.dismiss();
                   if (finalIsNeedToUpdate) {
@@ -184,9 +184,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
 
           alertDialogBuilder
-              .setMessage("Please replace 'API_KEY_FOR_ANDROID' in the platforms/android/AndroidManifest.xml with your API Key!")
+              .setMessage(PluginUtil.getPgmStrings(activity,"pgm_api_key_error"))
               .setCancelable(false)
-              .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+              .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog,int id) {
                   dialog.dismiss();
                 }

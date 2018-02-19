@@ -1,0 +1,23 @@
+/*
+ * Generic
+ */
+"CLOSE_BUTTON" = "ЗАКРИТИ";
+
+/*
+ * CordovaGoogleMaps.m
+ */
+"APIKEY_IS_UNDEFINED_TITLE" = "Невірний API ключ";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "Змінна 'API_KEY_FOR_IOS' не зареєстрована.";
+
+"APP_NAME_ERROR_TITLE" = "Вам потрібно змінити файл config.xml";
+"APP_NAME_ERROR_MESSAGE" = "Google Maps SDK for iOS не працюватиме, якщо CFBundleExecutable міститиме неанглійські слова.\nБільш дутально, в коментарях до файлу CordovaGoogleMaps.m.";
+
+/*
+ * PluginLocationService.m
+ */
+"LOCAITON_IS_UNAVAILABLE_ERROR_TITLE" = "Сервіс пошуку розташування недоступний";
+"LOCAITON_IS_UNAVAILABLE_ERROR_MESSAGE" = "Цей пристрій повинен отримати Ваше місцезнаходження. Будь ласка перейдіть 'Settings > Privacy > Location Services'";
+
+"LOCAITON_IS_DENIED_MESSAGE" = "Сервіс пошуку місцезнаходження відхилений.";
+"CAN_NOT_GET_LOCATION_MESSAGE" = "Невдається отримати Ваше місцерозташування.";
+"LOCATION_REJECTED_BY_USER_MESSAGE" = "Сервіс пошуку місцезнаходження відхилений користувачем.";
