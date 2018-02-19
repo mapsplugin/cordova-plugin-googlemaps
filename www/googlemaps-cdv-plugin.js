@@ -144,9 +144,6 @@ if (cordova) {
 
     function traceDomTree(mapId, element, elemId) {
 
-      // Get the z-index CSS
-      var zIndex = common.getZIndex(element);
-
       // Calculate dom clickable region
       var rect = common.getDivRect(element);
 
@@ -155,7 +152,7 @@ if (cordova) {
         pointerEvents: common.getStyle(element, 'pointer-events'),
         isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
-        zIndex: zIndex,
+        zIndex: 0,
         overflowX: common.getStyle(element, "overflow-x"),
         overflowY: common.getStyle(element, "overflow-y"),
         children: [],
@@ -266,7 +263,7 @@ if (cordova) {
             pointerEvents: common.getStyle(div, 'pointer-events'),
             isMap: true,
             size: common.getDivRect(div),
-            zIndex: common.getZIndex(div),
+            zIndex: 0,
             children: [],
             overflowX: common.getStyle(div, "overflow-x"),
             overflowY: common.getStyle(div, "overflow-y"),
