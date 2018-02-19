@@ -149,14 +149,10 @@ if (cordova) {
 
       // Stores dom information
       domPositionsByMap[mapId][elemId] = {
-        pointerEvents: common.getStyle(element, 'pointer-events'),
-        isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
-        zIndex: 0,
         overflowX: common.getStyle(element, "overflow-x"),
         overflowY: common.getStyle(element, "overflow-y"),
-        children: [],
-        containMapIDs: {}
+        children: []
       };
 
       var child;
@@ -256,16 +252,10 @@ if (cordova) {
 
           domPositionsByMap[mapId] = {};
           domPositionsByMap[mapId][elemId] = {
-            pointerEvents: common.getStyle(div, 'pointer-events'),
-            isMap: true,
             size: common.getDivRect(div),
-            zIndex: 0,
             children: [],
             overflowX: common.getStyle(div, "overflow-x"),
-            overflowY: common.getStyle(div, "overflow-y"),
-            containMapIDs: {
-              elemId: 1
-            }
+            overflowY: common.getStyle(div, "overflow-y")
           };
 
 

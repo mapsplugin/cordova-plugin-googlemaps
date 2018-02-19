@@ -274,22 +274,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       this.setWillNotDraw(false);
     }
 
-    private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild, Overflow overflow) {
+    private String findClickedDom(String domId, PointF clickPoint, Overflow overflow) {
       //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
       RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
-      int containMapCnt = 0;
-      if (domInfo.containsKey("containMapIDs")) {
-        Set<String> keys = domInfo.getBundle("containMapIDs").keySet();
-        if (keys != null) {
-          containMapCnt = keys.size();
-        }
-      }
-      isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
 
-      String pointerEvents = domInfo.getString("pointerEvents");
       String overflowX = domInfo.getString("overflowX");
       String overflowY = domInfo.getString("overflowY");
       if ("hidden".equals(overflowX) || "scroll".equals(overflowX) ||
@@ -302,9 +293,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents)) && children != null && children.size() > 0) {
-        int maxZindex = (int) Double.NEGATIVE_INFINITY;
-        int zIndex;
+      if (children != null && children.size() > 0) {
         String childId, grandChildId;
         ArrayList<String> grandChildren;
         for (int i = children.size() - 1; i >= 0; i--) {
@@ -314,66 +303,53 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          zIndex = domInfo.getInt("zIndex");
-          if (maxZindex < zIndex) {
-            grandChildren = domInfo.getStringArrayList("children");
-            if (grandChildren == null || grandChildren.size() == 0) {
-              rect = HTMLNodeRectFs.get(childId);
-              if (overflow != null ) {
-                if (overflow.cropX) {
-                  rect.left = Math.max(rect.left, overflow.rect.left);
-                  rect.right = Math.min(rect.right, overflow.rect.right);
-                }
-                if (overflow.cropY) {
-                  rect.top = Math.max(rect.top, overflow.rect.top);
-                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
-                }
+          grandChildren = domInfo.getStringArrayList("children");
+          if (grandChildren == null || grandChildren.size() == 0) {
+            rect = HTMLNodeRectFs.get(childId);
+            if (overflow != null ) {
+              if (overflow.cropX) {
+                rect.left = Math.max(rect.left, overflow.rect.left);
+                rect.right = Math.min(rect.right, overflow.rect.right);
               }
-              if (!rect.contains(clickPoint.x, clickPoint.y)) {
-                continue;
+              if (overflow.cropY) {
+                rect.top = Math.max(rect.top, overflow.rect.top);
+                rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
               }
-
-              //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
-              if ("none".equals(domInfo.getString("pointerEvents"))) {
-                continue;
-              }
-              maxDomId = childId;
-            } else {
-              grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
-              //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
-              if (grandChildId == null) {
-                grandChildId = childId;
-              }
-              rect = HTMLNodeRectFs.get(grandChildId);
-              if (overflow != null ) {
-                if (overflow.cropX) {
-                  rect.left = Math.max(rect.left, overflow.rect.left);
-                  rect.right = Math.min(rect.right, overflow.rect.right);
-                }
-                if (overflow.cropY) {
-                  rect.top = Math.max(rect.top, overflow.rect.top);
-                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
-                }
-              }
-              if (!rect.contains(clickPoint.x, clickPoint.y)) {
-                continue;
-              }
-
-              domInfo = HTMLNodes.get(grandChildId);
-              //Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
-              if ("none".equals(domInfo.getString("pointerEvents"))) {
-                continue;
-              }
-              maxDomId = grandChildId;
             }
-            maxZindex = zIndex;
+            if (!rect.contains(clickPoint.x, clickPoint.y)) {
+              continue;
+            }
+
+            //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+            maxDomId = childId;
+          } else {
+            grandChildId = findClickedDom(childId, clickPoint, overflow);
+            //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
+            if (grandChildId == null) {
+              grandChildId = childId;
+            }
+            rect = HTMLNodeRectFs.get(grandChildId);
+            if (overflow != null ) {
+              if (overflow.cropX) {
+                rect.left = Math.max(rect.left, overflow.rect.left);
+                rect.right = Math.min(rect.right, overflow.rect.right);
+              }
+              if (overflow.cropY) {
+                rect.top = Math.max(rect.top, overflow.rect.top);
+                rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+              }
+            }
+            if (!rect.contains(clickPoint.x, clickPoint.y)) {
+              continue;
+            }
+
+            domInfo = HTMLNodes.get(grandChildId);
+            //Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
+            maxDomId = grandChildId;
           }
         }
       }
       if (maxDomId == null) {
-        if ("none".equals(pointerEvents)) {
-          return null;
-        }
         rect = HTMLNodeRectFs.get(domId);
         if (overflow != null ) {
           if (overflow.cropX) {
