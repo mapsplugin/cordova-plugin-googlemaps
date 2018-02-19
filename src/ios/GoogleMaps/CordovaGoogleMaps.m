@@ -426,43 +426,6 @@
   CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-- (void)updateMapPositionOnly:(CDVInvokedUrlCommand *)command {
-  [self.executeQueue addOperationWithBlock:^{
-    if (self.pluginLayer != nil) {
-
-      NSDictionary *elementsDic = [command.arguments objectAtIndex:0];
-      NSString *domId;
-      CGRect rect = CGRectMake(0, 0, 0, 0);
-      NSMutableDictionary *domInfo, *size, *currentDomInfo;
-      @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
-        for (domId in elementsDic) {
-
-          domInfo = [elementsDic objectForKey:domId];
-          size = [domInfo objectForKey:@"size"];
-          rect.origin.x = [[size objectForKey:@"left"] doubleValue];
-          rect.origin.y = [[size objectForKey:@"top"] doubleValue];
-          rect.size.width = [[size objectForKey:@"width"] doubleValue];
-          rect.size.height = [[size objectForKey:@"height"] doubleValue];
-
-          currentDomInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-          if (currentDomInfo == nil) {
-            currentDomInfo = domInfo;
-          }
-          [currentDomInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
-          [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:currentDomInfo forKey:domId];
-        }
-      }
-
-      self.pluginLayer.isSuspended = false;
-      dispatch_semaphore_signal(self.pluginLayer.semaphore);
-      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [self.pluginLayer resizeTask:nil];
-      }];
-    }
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  }];
-}
 
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command {
   [self.executeQueue addOperationWithBlock:^{
