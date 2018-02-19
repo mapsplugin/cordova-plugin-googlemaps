@@ -404,7 +404,7 @@
       // Is the clicked point is in the map rectangle?
       if (CGRectContainsPoint(rect, point)) {
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:point isMapChild:NO overflow:nil];
+        clickedDomId = [self findClickedDom:mapCtrl.mapDivId withPoint:point isMapChild:NO overflow:nil];
         point2 = CGPointMake(point.x - mapCtrl.view.frame.origin.x, point.y - mapCtrl.view.frame.origin.y);
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {

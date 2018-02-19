@@ -220,9 +220,6 @@ Map.prototype.getMap = function(mapId, div, options) {
         div = div.parentNode;
       }
     }
-    cordova.fireDocumentEvent("plugin_touch", {
-      force: true
-    });
 
     //------------------------------------------------------------------------
     // In order to work map.getVisibleRegion() correctly, wait a little.
@@ -574,7 +571,6 @@ Map.prototype.getVisible = function() {
   return this.get("visible");
 };
 Map.prototype.setVisible = function(isVisible) {
-  cordova.fireDocumentEvent('plugin_touch');
   var self = this;
   isVisible = common.parseBoolean(isVisible);
   self.set("visible", isVisible);
@@ -583,7 +579,6 @@ Map.prototype.setVisible = function(isVisible) {
 };
 
 Map.prototype.setClickable = function(isClickable) {
-  cordova.fireDocumentEvent('plugin_touch');
   var self = this;
   isClickable = common.parseBoolean(isClickable);
   self.set("clickable", isClickable);
@@ -766,9 +761,6 @@ Map.prototype.setDiv = function(div) {
     }
   }
   exec.call(this, function() {
-    cordova.fireDocumentEvent('plugin_touch', {
-      force: true
-    });
     self.refreshLayout();
   }, self.errorHandler, self.id, 'setDiv', args, {
     sync: true

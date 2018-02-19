@@ -687,7 +687,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          String clickedDomId = findClickedDom("root", clickPoint, false, null);
+          String clickedDomId = findClickedDom(pluginMap.mapDivId, clickPoint, false, null);
           //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
