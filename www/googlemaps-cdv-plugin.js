@@ -37,13 +37,7 @@ if (typeof Array.prototype.map !== "function") {
   })();
 }
 
-if (!cordova) {
-  document.addEventListener("deviceready", function() {
-    cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
-  }, {
-    once: true
-  });
-} else {
+if (cordova) {
 
   var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
@@ -212,12 +206,6 @@ if (!cordova) {
       BaseClass: BaseClass,
       BaseArrayClass: BaseArrayClass,
       Map: {
-        // removeMap: function (mapId, callback) {
-        //   domPositionsByMap[mapId] = {};
-        //   var map = MAPS[mapId];
-        //   delete MAPS[mapId];
-        //   return map.remove(callback);
-        // },
         updateDomPositions: function(mapDiv) {
           var mapId = mapDiv.getAttribute('__pluginMapId');
           var mapElemId = common.getPluginDomId(mapDiv);
@@ -263,7 +251,6 @@ if (!cordova) {
 
             if ((Object.keys(MAPS)).length === 0) {
               common._clearInternalCache();
-              cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
             }
           });
 
@@ -290,10 +277,8 @@ if (!cordova) {
 
 
           cordova_exec(function() {
-            cordova_exec(function() {
-              map.getMap.apply(map, args);
-            }, null, 'CordovaGoogleMaps', 'putHtmlElements', [buildAllDomPositions()]);
-          }, null, 'CordovaGoogleMaps', 'resume', []);
+            map.getMap.apply(map, args);
+          }, null, 'CordovaGoogleMaps', 'putHtmlElements', [buildAllDomPositions()]);
 
           return map;
         }

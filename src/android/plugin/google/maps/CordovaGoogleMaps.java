@@ -257,10 +257,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
           } else if ("clearHtmlElements".equals(action)) {
             CordovaGoogleMaps.this.clearHtmlElements(args, callbackContext);
-          } else if ("pause".equals(action)) {
-            CordovaGoogleMaps.this.pause(args, callbackContext);
-          } else if ("resume".equals(action)) {
-            CordovaGoogleMaps.this.resume(args, callbackContext);
           } else if ("getMap".equals(action)) {
             CordovaGoogleMaps.this.getMap(args, callbackContext);
           } else if ("removeMap".equals(action)) {
@@ -276,29 +272,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
-
-
-  public void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout == null) {
-      callbackContext.success();
-      return;
-    }
-    mPluginLayout.isSuspended = true;
-    callbackContext.success();
-  }
-  public void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout == null) {
-      callbackContext.success();
-      return;
-    }
-    if (mPluginLayout.isSuspended) {
-      mPluginLayout.isSuspended = false;
-      synchronized (mPluginLayout.timerLock) {
-        mPluginLayout.timerLock.notify();
-      }
-    }
-    callbackContext.success();
-  }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {
       callbackContext.success();
@@ -315,14 +288,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           return;
       }
 
-      //Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
-      if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-          mPluginLayout.putHTMLElements(elements);
-      }
+      mPluginLayout.putHTMLElements(elements);
 
-    synchronized (mPluginLayout.timerLock) {
-      mPluginLayout.timerLock.notify();
-    }
     callbackContext.success();
   }
 
