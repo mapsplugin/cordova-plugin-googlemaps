@@ -1,6 +1,6 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var cordova_exec = require('cordova/exec');
-var execCmd = require("commandQueueExecutor");
+var execCmd = require("./commandQueueExecutor");
 
 var isSuspended = false;
 if (typeof Array.prototype.forEach !== "function") {
