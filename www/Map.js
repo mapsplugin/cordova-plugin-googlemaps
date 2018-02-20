@@ -95,138 +95,72 @@ Map.prototype.getMap = function(mapId, div, options) {
   self.set("clickable", options.clickable === false ? false : true);
   self.set("visible", options.visible === false ? false : true);
 
-  if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+  if (options.camera) {
+    if (options.camera.latLng) {
+      options.camera.target = options.camera.latLng;
+      delete options.camera.latLng;
+    }
+    this.set('camera', options.camera);
+    if (options.camera.target) {
+      this.set('camera_target', options.camera.target);
+    }
+    if (options.camera.bearing) {
+      this.set('camera_bearing', options.camera.bearing);
+    }
+    if (options.camera.zoom) {
+      this.set('camera_zoom', options.camera.zoom);
+    }
+    if (options.camera.tilt) {
+      this.set('camera_tilt', options.camera.tilt);
+    }
+  }
+  if (options.controls) {
+    this.set('myLocation', options.controls.myLocation === true);
+    this.set('myLocationButton', options.controls.myLocationButton === true);
+  }
+  if (utils.isArray(options.styles)) {
+    options.styles = JSON.stringify(options.styles);
+  }
+  args.push(options);
+
+  div.style.overflow = "hidden";
+  self.set("div", div);
+
+  if (div.offsetWidth < 200 || div.offsetHeight < 200) {
+    // If the map Div is too small, wait a little.
+    var callee = arguments.callee;
+    setTimeout(function() {
+      callee.call(self, mapId, div, options);
+    }, 250 + Math.random() * 100);
+    return;
   }
 
-  if (!common.isDom(div)) {
-    self.set("visible", false);
-    options = div;
-    options = options || {};
-    if (options.camera) {
-      if (options.camera.latLng) {
-        options.camera.target = options.camera.latLng;
-        delete options.camera.latLng;
-      }
-      this.set('camera', options.camera);
-      if (options.camera.target) {
-        this.set('camera_target', options.camera.target);
-      }
-      if (options.camera.bearing) {
-        this.set('camera_bearing', options.camera.bearing);
-      }
-      if (options.camera.zoom) {
-        this.set('camera_zoom', options.camera.zoom);
-      }
-      if (options.camera.tilt) {
-        this.set('camera_tilt', options.camera.tilt);
-      }
-    }
-    if (options.controls) {
-      this.set('myLocation', options.controls.myLocation === true);
-      this.set('myLocationButton', options.controls.myLocationButton === true);
-    }
-    args.push(options);
-  } else {
-
-    var positionCSS = common.getStyle(div, "position");
-    if (!positionCSS || positionCSS === "static") {
-      // important for HtmlInfoWindow
-      div.style.position = "relative";
-    }
-    options = options || {};
-    if (options.camera) {
-      if (options.camera.latLng) {
-        options.camera.target = options.camera.latLng;
-        delete options.camera.latLng;
-      }
-      this.set('camera', options.camera);
-      if (options.camera.target) {
-        this.set('camera_target', options.camera.target);
-      }
-      if (options.camera.bearing) {
-        this.set('camera_bearing', options.camera.bearing);
-      }
-      if (options.camera.zoom) {
-        this.set('camera_zoom', options.camera.zoom);
-      }
-      if (options.camera.tilt) {
-        this.set('camera_tilt', options.camera.tilt);
-      }
-    }
-    if (options.controls) {
-      this.set('myLocation', options.controls.myLocation === true);
-      this.set('myLocationButton', options.controls.myLocationButton === true);
-    }
-    if (utils.isArray(options.styles)) {
-      options.styles = JSON.stringify(options.styles);
-    }
-    args.push(options);
-
-    div.style.overflow = "hidden";
-    self.set("div", div);
-
-    if (div.offsetWidth < 200 || div.offsetHeight < 200) {
-      // If the map Div is too small, wait a little.
-      var callee = arguments.callee;
-      setTimeout(function() {
-        callee.call(self, mapId, div, options);
-      }, 250 + Math.random() * 100);
-      return;
-    }
-    var elements = [];
-    var elemId, clickable, size;
-
-
-    // Gets the map div size.
-    // The plugin needs to consider the viewport zoom ratio
-    // for the case window.innerHTML > body.offsetWidth.
-    elemId = common.getPluginDomId(div);
-    args.push(elemId);
-
-  }
+  // Gets the map div size.
+  // The plugin needs to consider the viewport zoom ratio
+  // for the case window.innerHTML > body.offsetWidth.
+  var elemId = common.getPluginDomId(div);
+  args.push(elemId);
 
   exec.call({
     _isReady: true
   }, function() {
 
-    //------------------------------------------------------------------------
-    // Clear background colors of map div parents after the map is created
-    //------------------------------------------------------------------------
     var div = self.get("div");
-    if (common.isDom(div)) {
 
-      // Insert the infoWindow layer
-      if (self._layers.info.parentNode) {
-        try {
-          self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
-        } catch (e) {
-          // ignore
-        }
+    // Insert the infoWindow layer
+    if (self._layers.info.parentNode) {
+      try {
+        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+      } catch (e) {
+        // ignore
       }
-      var positionCSS;
-      for (var i = 0; i < div.children.length; i++) {
-        positionCSS = common.getStyle(div.children[i], "position");
-        if (positionCSS === "static") {
-          div.children[i].style.position = "relative";
-        }
-      }
-      div.insertBefore(self._layers.info, div.firstChild);
+    }
+    div.insertBefore(self._layers.info, div.firstChild);
 
-
-      while (div.parentNode) {
-        div.style.backgroundColor = 'rgba(0,0,0,0) !important';
-
-        // prevent multiple readding the class
-        if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-          div.classList.add('_gmaps_cdv_');
-        } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-          div.className = div.className + ' _gmaps_cdv_';
-        }
-
-        div = div.parentNode;
-      }
+    // Add _gmaps_cdv to all parents for transparent background
+    while (div.parentNode) {
+      div.classList.add('_gmaps_cdv_');
+      div = div.parentNode;
     }
 
     //------------------------------------------------------------------------
@@ -248,9 +182,9 @@ Map.prototype.getMap = function(mapId, div, options) {
 Map.prototype.setOptions = function(options) {
   options = options || {};
 
-  if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+  if (options.controls) {
+    this.set("myLocation", options.controls.myLocation === true);
+    this.set("myLocationButton", options.controls.myLocationButton === true);
   }
   if (options.camera) {
     if (options.camera.latLng) {
@@ -632,15 +566,7 @@ Map.prototype.remove = function(callback) {
   var div = self.get('div');
   if (div) {
     while (div) {
-      if (div.style) {
-        div.style.backgroundColor = '';
-      }
-      if (div.classList) {
-        div.classList.remove('_gmaps_cdv_');
-      } else if (div.className) {
-        div.className = div.className.replace(/_gmaps_cdv_/g, "");
-        div.className = div.className.replace(/\s+/g, " ");
-      }
+      div.classList.remove('_gmaps_cdv_');
       div = div.parentNode;
     }
   }
@@ -734,13 +660,6 @@ Map.prototype.setDiv = function(div) {
         //ignore
       }
     }
-    var positionCSS;
-    for (var i = 0; i < div.children.length; i++) {
-      positionCSS = common.getStyle(div.children[i], "position");
-      if (positionCSS === "static") {
-        div.children[i].style.position = "relative";
-      }
-    }
     div.insertBefore(self._layers.info, div.firstChild);
 
     // Webkit redraw mandatory
@@ -751,22 +670,10 @@ Map.prototype.setDiv = function(div) {
 
     self.set("div", div);
 
-    positionCSS = common.getStyle(div, "position");
-    if (!positionCSS || positionCSS === "static") {
-      div.style.position = "relative";
-    }
     elemId = common.getPluginDomId(div);
     args.push(elemId);
     while (div.parentNode) {
-      div.style.backgroundColor = 'rgba(0,0,0,0)';
-
-      // prevent multiple readding the class
-      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-        div.classList.add('_gmaps_cdv_');
-      } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-        div.className = div.className + ' _gmaps_cdv_';
-      }
-
+      div.classList.add('_gmaps_cdv_');
       div = div.parentNode;
     }
   }
