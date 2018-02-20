@@ -69,42 +69,6 @@ if (cordova) {
   var MAPS = {};
 
   /*****************************************************************************
-   * To prevent strange things happen,
-   * disable the changing of viewport zoom level by double clicking.
-   * This code has to run before the device ready event.
-   *****************************************************************************/
-  (function() {
-    var viewportTag = null;
-    var metaTags = document.getElementsByTagName('meta');
-    for (var i = 0; i < metaTags.length; i++) {
-      if (metaTags[i].getAttribute('name') === "viewport") {
-        viewportTag = metaTags[i];
-        break;
-      }
-    }
-    if (!viewportTag) {
-      viewportTag = document.createElement("meta");
-      viewportTag.setAttribute('name', 'viewport');
-    }
-
-    var viewportTagContent = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no';
-
-    // Detect if iOS device
-    if (/(iPhone|iPod|iPad)/i.test(window.navigator.userAgent)) {
-      // Get iOS major version
-      var iosVersion = parseInt((window.navigator.userAgent).match(/OS (\d+)_(\d+)_?(\d+)? like Mac OS X/i)[1]);
-      // Detect if device is running >iOS 11
-      // iOS 11's UIWebView and WKWebView changes the viewport behaviour to render viewport without the status bar. Need to override with "viewport-fit: cover" to include the status bar.
-      if (iosVersion >= 11) {
-        viewportTagContent += ', viewport-fit=cover';
-      }
-    }
-
-    // Update viewport tag attribute
-    viewportTag.setAttribute('content', viewportTagContent);
-  })();
-
-  /*****************************************************************************
    * Prevent background, background-color, background-image properties
    *****************************************************************************/
   var navDecorBlocker = document.createElement("style");
@@ -133,7 +97,6 @@ if (cordova) {
     }
 
     document.body.style.backgroundColor = "rgba(0,0,0,0)";
-    document.body.offsetHeight;
 
     document.head.appendChild(navDecorBlocker);
 
@@ -341,7 +304,6 @@ var _isExecuting = false;
 var _executingCnt = 0;
 var MAX_EXECUTE_CNT = 10;
 var _lastGetMapExecuted = 0;
-var _isResizeMapExecuting = false;
 var _stopRequested = false;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
@@ -361,9 +323,6 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
     "execOptions": execOptions,
     "args": [function() {
       //console.log("success: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
       if (!_stopRequested && success) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
@@ -389,9 +348,6 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       }, delay);
     }, function() {
       //console.log("error: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
       if (!_stopRequested && error) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
@@ -432,13 +388,6 @@ function _exec() {
     var commandParams = commandQueue.shift();
     methodName = commandParams.args[3];
     //console.log("target: " + methodName);
-    if (methodName === "resizeMap") {
-      if (_isResizeMapExecuting) {
-        _executingCnt--;
-        continue;
-      }
-      _isResizeMapExecuting = true;
-    }
     if (_stopRequested && (!commandParams.execOptions.remove || methodName !== "clear")) {
       _executingCnt--;
       continue;
