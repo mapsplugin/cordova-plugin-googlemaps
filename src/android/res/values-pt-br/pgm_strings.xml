@@ -15,6 +15,6 @@
   <string name="pgm_google_play_sign_in_required">Você tentou se conectar ao serviço, mas você não iniciou sessão. Verifique a configuração do Google Play Services</string>
   <string name="pgm_no_location_providers">Uma vez que este dispositivo não tem nenhum provedor de localização, este aplicativo não pode detectar sua localização.</string>
   <string name="pgm_no_location_service_is_disabled">O serviço de localização está desabilitado.</string>
-  <string name="pgm_location_rejected_by_user">O serviço de localização é rejeitado pelo usuário.</string>
+  <string name="pgm_location_rejected_by_user">O serviço de localização foi rejeitado pelo usuário.</string>
   <string name="pgm_can_not_get_location">Não é possível detectar sua localização. Tente novamente.</string>
 </resources>
