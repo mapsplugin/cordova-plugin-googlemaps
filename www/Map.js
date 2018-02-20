@@ -79,6 +79,13 @@ Map.prototype.getId = function() {
   return this.id;
 };
 
+/**		
+ * @desc Recalculate the position of HTML elements		
+ */		
+Map.prototype.refreshLayout = function(event) {		
+  exec.call(this, null, null, this.id, 'resizeMap', []);		
+};
+
 Map.prototype.getMap = function(mapId, div, options) {
 
   var self = this,
@@ -151,21 +158,19 @@ Map.prototype.getMap = function(mapId, div, options) {
     div.insertBefore(self._layers.info, div.firstChild);
 
     // Add _gmaps_cdv to all parents for transparent background
-    while (div.parentNode) {
+    while (true) {
       div.classList.add('_gmaps_cdv_');
       div = div.parentNode;
+      if (div.tagName === 'BODY') break;
     }
 
-    //------------------------------------------------------------------------
-    // In order to work map.getVisibleRegion() correctly, wait a little.
-    //------------------------------------------------------------------------
-    setTimeout(function() {
-      Object.defineProperty(self, "_isReady", {
-        value: true,
-        writable: false
-      });
-      self.trigger(event.MAP_READY, self);
-    }, 250);
+    // Refresh layout and trigger MAP_READY
+    Object.defineProperty(self, "_isReady", {
+      value: true,
+      writable: false
+    });
+    self.refreshLayout();
+    self.trigger(event.MAP_READY, self);
   }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {
     sync: true
   });
@@ -557,9 +562,10 @@ Map.prototype.remove = function(callback) {
   });
   var div = self.get('div');
   if (div) {
-    while (div) {
+    while (true) {
       div.classList.remove('_gmaps_cdv_');
       div = div.parentNode;
+      if (div.tagName === 'BODY') break;
     }
   }
   self.set('div', undefined);
@@ -664,13 +670,14 @@ Map.prototype.setDiv = function(div) {
 
     elemId = common.getPluginDomId(div);
     args.push(elemId);
-    while (div.parentNode) {
+    while (true) {
       div.classList.add('_gmaps_cdv_');
       div = div.parentNode;
+      if (div.tagName === 'BODY') break;
     }
   }
   exec.call(this, function() {
-    // success
+    self.refreshLayout();
   }, self.errorHandler, self.id, 'setDiv', args, {
     sync: true
   });
