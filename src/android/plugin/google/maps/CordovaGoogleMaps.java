@@ -169,7 +169,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView, activity);
-        mPluginLayout.isSuspended = true;
 
 
         // Check the API key
@@ -220,7 +219,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   @Override
   public boolean onOverrideUrlLoading(String url) {
-    mPluginLayout.isSuspended = true;
     /*
     this.activity.runOnUiThread(new Runnable() {
       @Override
