@@ -1,5 +1,7 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var cordova_exec = require('cordova/exec');
+var execCmd = require("commandQueueExecutor");
+
 var isSuspended = false;
 if (typeof Array.prototype.forEach !== "function") {
   (function() {
@@ -586,28 +588,12 @@ if (!cordova) {
       }, 50);
     });
 
-    //----------------------------------------------------
-    // Stop all executions if the page will be closed.
-    //----------------------------------------------------
-    function stopExecution() {
-      // Request stop all tasks.
-      _stopRequested = true;
-/*
-      if (_isWaitMethod && _executingCnt > 0) {
-        // Wait until all tasks currently running are stopped.
-        common.nextTick(arguments.callee, 100);
-        return;
-      }
-*/
-    }
-    window.addEventListener("unload", stopExecution);
-
     //--------------------------------------------
     // Hook the backbutton of Android action
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
     function onBackButton(e) {
-      common.nextTick(putHtmlElements);
+      common.nextTick(putHtmlElements);  // <-- super important!
       if (anotherBackbuttonHandler) {
         // anotherBackbuttonHandler must handle the page moving transaction.
         // The plugin does not take care anymore if another callback is registered.
@@ -917,129 +903,4 @@ function nativeCallback(params) {
   var args = params.args || [];
   args.unshift(params.evtName);
   this[params.callback].apply(this, args);
-}
-
-/*****************************************************************************
- * Command queue mechanism
- * (Save the number of method executing at the same time)
- *****************************************************************************/
-var commandQueue = [];
-var _isWaitMethod = null;
-var _isExecuting = false;
-var _executingCnt = 0;
-var MAX_EXECUTE_CNT = 10;
-var _lastGetMapExecuted = 0;
-var _isResizeMapExecuting = false;
-var _stopRequested = false;
-
-
-function execCmd(success, error, pluginName, methodName, args, execOptions) {
-  execOptions = execOptions || {};
-  if (this._isRemoved && !execOptions.remove) {
-    // Ignore if the instance is already removed.
-    console.error("[ignore]" + pluginName + "." + methodName + ", because removed.");
-    return true;
-  }
-  if (!this._isReady) {
-    // Ignore if the instance is not ready.
-    console.error("[ignore]" + pluginName + "." + methodName + ", because it's not ready.");
-    return true;
-  }
-  var self = this;
-  commandQueue.push({
-    "execOptions": execOptions,
-    "args": [function() {
-      //console.log("success: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
-      if (!_stopRequested && success) {
-        var results = [];
-        for (var i = 0; i < arguments.length; i++) {
-          results.push(arguments[i]);
-        }
-        common.nextTick(function() {
-          success.apply(self,results);
-        });
-      }
-
-      var delay = 0;
-      if (methodName === _isWaitMethod) {
-        // Prevent device crash when the map.getMap() executes multiple time in short period
-        if (_isWaitMethod === "getMap" && Date.now() - _lastGetMapExecuted < 1500) {
-          delay = 1500;
-        }
-        _lastGetMapExecuted = Date.now();
-        _isWaitMethod = null;
-      }
-      setTimeout(function() {
-        _executingCnt--;
-        common.nextTick(_exec);
-      }, delay);
-    }, function() {
-      //console.log("error: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
-      if (!_stopRequested && error) {
-        var results = [];
-        for (var i = 0; i < arguments.length; i++) {
-          results.push(arguments[i]);
-        }
-        common.nextTick(function() {
-          error.apply(self,results);
-        });
-      }
-
-      if (methodName === _isWaitMethod) {
-        _isWaitMethod = null;
-      }
-      _executingCnt--;
-      common.nextTick(_exec);
-    }, pluginName, methodName, args]
-  });
-
-  //console.log("commandQueue.length: " + commandQueue.length, commandQueue);
-  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT ) {
-    return;
-  }
-  common.nextTick(_exec);
-}
-function _exec() {
-  //console.log("commandQueue.length: " + commandQueue.length);
-  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || _isWaitMethod || commandQueue.length === 0) {
-    return;
-  }
-  _isExecuting = true;
-
-  var methodName;
-  while (commandQueue.length > 0 && _executingCnt < MAX_EXECUTE_CNT) {
-    if (!_stopRequested) {
-      _executingCnt++;
-    }
-    var commandParams = commandQueue.shift();
-    methodName = commandParams.args[3];
-    //console.log("target: " + methodName);
-    if (methodName === "resizeMap") {
-      if (_isResizeMapExecuting) {
-        _executingCnt--;
-        continue;
-      }
-      _isResizeMapExecuting = true;
-    }
-    if (_stopRequested && (!commandParams.execOptions.remove || methodName !== "clear")) {
-      _executingCnt--;
-      continue;
-    }
-    //console.log("start: " + methodName);
-    if (commandParams.execOptions.sync) {
-      _isWaitMethod = methodName;
-      cordova_exec.apply(this, commandParams.args);
-      break;
-    }
-    cordova_exec.apply(this, commandParams.args);
-  }
-  //console.log("commandQueue.length: " + commandQueue.length);
-  _isExecuting = false;
-
 }
