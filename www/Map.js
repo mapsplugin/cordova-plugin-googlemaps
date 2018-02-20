@@ -79,13 +79,6 @@ Map.prototype.getId = function() {
   return this.id;
 };
 
-/**
- * @desc Recalculate the position of HTML elements
- */
-Map.prototype.refreshLayout = function(event) {
-  exec.call(this, null, null, this.id, 'resizeMap', []);
-};
-
 Map.prototype.getMap = function(mapId, div, options) {
 
   var self = this,
@@ -171,7 +164,6 @@ Map.prototype.getMap = function(mapId, div, options) {
         value: true,
         writable: false
       });
-      self.refreshLayout();
       self.trigger(event.MAP_READY, self);
     }, 250);
   }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {
@@ -678,7 +670,7 @@ Map.prototype.setDiv = function(div) {
     }
   }
   exec.call(this, function() {
-    self.refreshLayout();
+    // success
   }, self.errorHandler, self.id, 'setDiv', args, {
     sync: true
   });

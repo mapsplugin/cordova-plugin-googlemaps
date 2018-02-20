@@ -304,7 +304,6 @@ var _isExecuting = false;
 var _executingCnt = 0;
 var MAX_EXECUTE_CNT = 10;
 var _lastGetMapExecuted = 0;
-var _isResizeMapExecuting = false;
 var _stopRequested = false;
 
 function execCmd(success, error, pluginName, methodName, args, execOptions) {
@@ -324,9 +323,6 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
     "execOptions": execOptions,
     "args": [function() {
       //console.log("success: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
       if (!_stopRequested && success) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
@@ -352,9 +348,6 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
       }, delay);
     }, function() {
       //console.log("error: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
       if (!_stopRequested && error) {
         var results = [];
         for (var i = 0; i < arguments.length; i++) {
@@ -395,13 +388,6 @@ function _exec() {
     var commandParams = commandQueue.shift();
     methodName = commandParams.args[3];
     //console.log("target: " + methodName);
-    if (methodName === "resizeMap") {
-      if (_isResizeMapExecuting) {
-        _executingCnt--;
-        continue;
-      }
-      _isResizeMapExecuting = true;
-    }
     if (_stopRequested && (!commandParams.execOptions.remove || methodName !== "clear")) {
       _executingCnt--;
       continue;
