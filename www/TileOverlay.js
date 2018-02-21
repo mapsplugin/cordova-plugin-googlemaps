@@ -86,14 +86,12 @@ TileOverlay.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
 };
 TileOverlay.prototype.setFadeIn = function(fadeIn) {
-    fadeIn = common.parseBoolean(fadeIn);
     this.set('fadeIn', fadeIn);
 };
 TileOverlay.prototype.getFadeIn = function() {
     return this.get('fadeIn');
 };
 TileOverlay.prototype.setVisible = function(visible) {
-    visible = common.parseBoolean(visible);
     this.set('visible', visible);
 };
 TileOverlay.prototype.getOpacity = function() {

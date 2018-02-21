@@ -465,7 +465,6 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   var self = this;
-  enabled = common.parseBoolean(enabled);
   this.set("myLocationButton", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
@@ -478,7 +477,6 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
   var self = this;
-  enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: self.get("myLocationButton"),
@@ -490,18 +488,15 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
 };
 
 Map.prototype.setIndoorEnabled = function(enabled) {
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
   return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
   return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
   var self = this;
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
   return this;
 };
@@ -513,7 +508,6 @@ Map.prototype.getVisible = function() {
 };
 Map.prototype.setVisible = function(isVisible) {
   var self = this;
-  isVisible = common.parseBoolean(isVisible);
   self.set("visible", isVisible);
   exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
   return this;
@@ -521,7 +515,6 @@ Map.prototype.setVisible = function(isVisible) {
 
 Map.prototype.setClickable = function(isClickable) {
   var self = this;
-  isClickable = common.parseBoolean(isClickable);
   self.set("clickable", isClickable);
   exec.call(this, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
   return this;
@@ -535,7 +528,6 @@ Map.prototype.getClickable = function() {
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
 Map.prototype.setAllGesturesEnabled = function(enabled) {
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
   return this;
 };

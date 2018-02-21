@@ -196,7 +196,6 @@ Marker.prototype.setAnimation = function(animation, callback) {
 };
 
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
-    disableAutoPan = common.parseBoolean(disableAutoPan);
     this.set('disableAutoPan', disableAutoPan);
     return this;
 };
@@ -227,7 +226,6 @@ Marker.prototype.setInfoWindowAnchor = function(anchorX, anchorY) {
     return this;
 };
 Marker.prototype.setDraggable = function(draggable) {
-    draggable = common.parseBoolean(draggable);
     this.set('draggable', draggable);
     return this;
 };
@@ -235,7 +233,6 @@ Marker.prototype.isDraggable = function() {
     return this.get('draggable');
 };
 Marker.prototype.setFlat = function(flat) {
-    flat = common.parseBoolean(flat);
     this.set('flat', flat);
     return this;
 };
@@ -256,7 +253,6 @@ Marker.prototype.setTitle = function(title) {
     return this;
 };
 Marker.prototype.setVisible = function(visible) {
-    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     if (!visible && this.map.get("active_marker_id") === this.id) {
         this.map.set("active_marker_id", undefined);

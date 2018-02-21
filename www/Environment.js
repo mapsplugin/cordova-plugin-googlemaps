@@ -13,7 +13,6 @@ Environment.setBackgroundColor = function(color) {
 };
 
 Environment.setDebuggable = function(debug) {
-    debug = common.parseBoolean(debug);
     cordova.exec(null, null, 'Environment', 'setDebuggable', [debug]);
 };
 
