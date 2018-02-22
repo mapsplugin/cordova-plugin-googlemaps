@@ -69,14 +69,19 @@ In order to make it easy, the plugin does everything automatically, and for this
 As a result of all this, the plugin is indeed easy to integrate in your app.
 But right after you have integrated it, your app becomes slow, uses a lot of CPU, a lot of memory, crashes randomly, and becomes totally unusable.
 
+### Other small things
+
+If you look at the source code of the official plugin you'll quickly see:
+* A lot of code duplication. But I mean, really a lot.
+* A lot of useless "utility" methods. For instance, _parseBoolean_, which transforms _"true"_ and _1_ to _true_ and is called every time you use a method which has a boolean parameter. Just in case you code like a monkey.
 
 ## What we changed in our fork
 
-### Remove all crap
+### Remove all "magic"
 
 1st, we removed everything that is listed under section "What the official plugin does automatically and is really not OK"
 
-### Drop support for useless features 
+### Drop support for the scrolling Maps 
 
 Then, we decided to drop support for the ability to make the Map scroll:
 https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/scroll.gif
@@ -95,6 +100,11 @@ As explained, the native layer which intercepts all touch events must always kno
 
 The official plugin does that automatically. For a very high price in CPU and memory.
 
-With this for:
-* the developer must tell the plugin which maps are "active". For this, we suggest to call _map.setClickable(false)_ whenever the user leaves the screen which contains the Map, and _map.setClickable(true)_ whenever the user enters it.
-* the developer needs to call a new API _updateDomPositions(div)_ every time an HTML element is inserted/removed on top of the Map.
+This fork doesn't, so the developer needs to:
+* tell the plugin which maps are "active". For this, we suggest to call _map.setClickable(false)_ whenever the user leaves the screen which contains the Map, and _map.setClickable(true)_ whenever the user enters it.
+* call a new API _updateDomPositions(div)_ every time an HTML element is inserted/removed on top of the Map.
+
+## What next?
+
+We will maintain this fork for the years to come, because we use it and we need it.
+If some people are interested in contributing to that light version of the plugin, we are happy to welcome them.
