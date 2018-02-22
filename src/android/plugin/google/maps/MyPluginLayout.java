@@ -419,7 +419,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          String clickedDomId = findClickedDom(pluginMap.mapDivId, clickPoint, false, null);
+          String clickedDomId = findClickedDom(pluginMap.mapDivId, clickPoint, null);
           //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
@@ -464,7 +464,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
 
   //   }
-  // }
+  }
 
   private class TouchableWrapper extends FrameLayout {
 

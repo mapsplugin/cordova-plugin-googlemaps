@@ -230,7 +230,6 @@ Polygon.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
 };
 Polygon.prototype.setVisible = function(visible) {
-    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     return this;
 };
@@ -238,7 +237,6 @@ Polygon.prototype.getVisible = function() {
     return this.get('visible');
 };
 Polygon.prototype.setClickable = function(clickable) {
-    clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
     return this;
 };
@@ -246,7 +244,6 @@ Polygon.prototype.getClickable = function() {
     return this.get('clickable');
 };
 Polygon.prototype.setGeodesic = function(geodesic) {
-    geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
     return this;
 };

@@ -136,7 +136,6 @@ Polyline.prototype.getStrokeWidth = function() {
     return this.get('strokeWidth');
 };
 Polyline.prototype.setVisible = function(visible) {
-    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     return this;
 };
@@ -144,7 +143,6 @@ Polyline.prototype.getVisible = function() {
     return this.get('visible');
 };
 Polyline.prototype.setClickable = function(clickable) {
-    clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
     return this;
 };
@@ -152,7 +150,6 @@ Polyline.prototype.getClickable = function() {
     return this.get('clickable');
 };
 Polyline.prototype.setGeodesic = function(geodesic) {
-    geodesic = common.parseBoolean(geodesic);
     this.set('geodesic', geodesic);
     return this;
 };

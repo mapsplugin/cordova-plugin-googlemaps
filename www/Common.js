@@ -176,12 +176,6 @@ function HLStoRGB(h, l, s) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-function parseBoolean(boolValue) {
-    return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
-        boolValue === true ||
-        boolValue === 1;
-}
-
 function isDom(element) {
     return !!element &&
         typeof element === "object" &&
@@ -604,7 +598,6 @@ module.exports = {
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
     isDom: isDom,
-    parseBoolean: parseBoolean,
     HLStoRGB: HLStoRGB,
     HTMLColor2RGBA: HTMLColor2RGBA,
     isHTMLColorString: isHTMLColorString,
