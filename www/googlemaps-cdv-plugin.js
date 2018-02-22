@@ -179,7 +179,9 @@ if (cordova) {
         },
         getMap: function(div, mapOptions) {
 
-          var mapId = div.getAttribute('id') + Math.random();
+          // Use the given mapId, but strip all special characters because they 
+          var givenMapId = mapOptions && mapOptions.mapId ? mapOptions.mapId.replace(/[^a-zA-Z ]/g, '') : '';
+          var mapId = givenMapId + Math.random();
           div.setAttribute("__pluginMapId", mapId);
           var map = new Map(mapId, execCmd);
 
