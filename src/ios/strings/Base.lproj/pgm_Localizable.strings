@@ -7,7 +7,7 @@
  * CordovaGoogleMaps.m
  */
 "APIKEY_IS_UNDEFINED_TITLE" = "API key error";
-"APIKEY_IS_UNDEFINED_MESSAGE" = "The variable 'API_KEY_FOR_IOS' is not registered.";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "The variable \'API_KEY_FOR_IOS\' is not registered.";
 
 "APP_NAME_ERROR_TITLE" = "You need to change the config.xml file";
 "APP_NAME_ERROR_MESSAGE" = "Google Maps SDK for iOS crashes if CFBundleExecutable contains non-English characters.\nMore details, Check out the comment in the CordovaGoogleMaps.m file.";
@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "Location Service is not available";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "This app needs to access your location. Please turn on 'Settings > Privacy > Location Services'";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "This app needs to access your location. Please turn on \'Settings > Privacy > Location Services\'";
 
 "LOCATION_IS_DENIED_MESSAGE" = "This app has rejected to use Location Services.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Cannot get your location.";

@@ -7,7 +7,7 @@
  * CordovaGoogleMaps.m
  */
 "APIKEY_IS_UNDEFINED_TITLE" = "Erro de chave de API";
-"APIKEY_IS_UNDEFINED_MESSAGE" = "A variável 'API_KEY_FOR_IOS' não foi registrada.";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "A variável \'API_KEY_FOR_IOS\' não foi registrada.";
 
 "APP_NAME_ERROR_TITLE" = "Você precisa alterar o arquivo config.xml";
 "APP_NAME_ERROR_MESSAGE" = "O Google Maps SDK para iOS falha se o campo CFBundleExecutable conter caracteres não-inglês.\nPara maiores detalhes, cheque o comentário no arquivo CordovaGoogleMaps.m";
@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "O serviço de localização não esta disponível";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Esse aplicativo precisa acessar sua localização. Por favor ative em 'Ajustes > Privacidade > Serviços de Localização'";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Esse aplicativo precisa acessar sua localização. Por favor ative em \'Ajustes > Privacidade > Serviços de Localização\'";
 
 "LOCATION_IS_DENIED_MESSAGE" = "O aplicativo foi rejeitado para usar os Serviços de Localização.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Não foi possível obter sua localização.";
