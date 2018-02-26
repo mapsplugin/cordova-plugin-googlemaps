@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">Tutup</string>
+  <string name="pgm_api_key_error">Silahkan ganti \'API_KEY_FOR_ANDROID\' di platforms/android/app/src/AndroidManifest.xml dengan Key API anda!</string>
+  <string name="pgm_google_play_error">Google Maps Android API v2 tidak dapat digunakan pada perangkat ini.</string>
+  <string name="pgm_google_play_developer_error">Pengaturan applikasi ini salah. Kesalahan ini tidak dapat diperbaharui dan dianggap FATAL. Developer harus memeriksa informasi logs setelah ini untuk memastikan tidandakan.</string>
+  <string name="pgm_google_play_internal_error">terdapat kesalahan pada Google Play Services. Silahkan Coba lagi, untuk memperbaiki masalah.</string>
+  <string name="pgm_google_play_invalid_account">Anda mencoba menghubungi service dengan nama akun yang tidak sesuai.</string>
+  <string name="pgm_google_play_lincense_check_failed">Appilkasi ini tidak diberikan licensi kepada pengguna. Error  ini tidak dapat diperbaharui dan dianggap FATAL.</string>
+  <string name="pgm_google_play_network_error">Kesalahan pada Jaringan. Silahkan Coba lagi,untuk memperbaiki masalah.</string>
+  <string name="pgm_google_play_service_disabled">versi Google Play yang di install telah di non aktifkan pada perangkat ini. Silahkan Aktifkan Google Play Services.</string>
+  <string name="pgm_google_play_service_invalid">Versi Google Play services yang di install pada perangkat ini tidak asli. Silahkan perbaharui Google Play Services melalui Google Play Store.</string>
+  <string name="pgm_google_play_service_missing">Google Play services tidak terdapat pada perangkat ini. Silahkan install  Google Play Services.</string>
+  <string name="pgm_google_play_service_update_required">Versi Google Play services sudha ketinggalan. Silahkan perbaharui Google Play Services melalui Google Play Store.</string>
+  <string name="pgm_google_play_sign_in_required">Anda mencoba terhubung pada service tetapi belum signed in. Silahkan periksa pengaturan Google Play Services </string>
+  <string name="pgm_no_location_providers">Karena perangkat ini tidak tersedia provider lokasi, Applikasi tidak dapat mengetahui lokasi anda.</string>
+  <string name="pgm_no_location_service_is_disabled">Service Lokasi tidak aktif.</string>
+  <string name="pgm_location_rejected_by_user">Service Lokasi Ditolak pengguna.</string>
+  <string name="pgm_can_not_get_location">Tidak dapat mengetahui lokasi anda. Silahkan Coba lagi.</string>
+</resources>
