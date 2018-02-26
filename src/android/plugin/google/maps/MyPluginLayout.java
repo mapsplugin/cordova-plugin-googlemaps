@@ -30,8 +30,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener, ViewTreeObserver.OnGlobalLayoutListener {
@@ -51,15 +49,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
   public HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
-  private Paint debugPaint = new Paint();
-  public boolean stopFlag = false;
-  public boolean needUpdatePosition = false;
-  public boolean isSuspended = false;
   private float zoomScale;
-  public final Object timerLock = new Object();
-  public boolean isWaiting = false;
-
-  public Timer redrawTimer;
 
   @Override
   public void onGlobalLayout() {
@@ -71,112 +61,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
     observer.addOnScrollChangedListener(this);
   }
-
-
-  private class ResizeTask extends TimerTask {
-    @Override
-    public void run() {
-      if (isSuspended) {
-        //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
-        synchronized (timerLock) {
-          isWaiting = true;
-          try {
-            timerLock.wait();
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
-        return;
-      }
-      isWaiting = false;
-      //final PluginMap pluginMap = pluginMaps.get(mapId);
-      //if (pluginMap.mapDivId == null) {
-      //  return;
-      //}
-      //int scrollX = browserView.getScrollX();
-      final int scrollY = browserView.getScrollY();
-      //final int webviewWidth = browserView.getWidth();
-      //final int webviewHeight = browserView.getHeight();
-
-      mActivity.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-
-          Set<String> keySet = pluginMaps.keySet();
-          String[] toArrayBuf = new String[pluginMaps.size()];
-          String[] mapIds = keySet.toArray(toArrayBuf);
-          toArrayBuf = null;
-          keySet = null;
-          String mapId;
-          PluginMap pluginMap;
-          RectF drawRect;
-          for (int i = 0; i < mapIds.length; i++) {
-            mapId = mapIds[i];
-            pluginMap = pluginMaps.get(mapId);
-            if (pluginMap == null || pluginMap.mapDivId == null) {
-              continue;
-            }
-            drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
-            if (drawRect == null) {
-              continue;
-            }
-
-            int width = (int)drawRect.width();
-            int height = (int)drawRect.height();
-            int x = (int) drawRect.left;
-            int y = (int) drawRect.top + scrollY;
-            ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
-
-            if (lParams instanceof FrameLayout.LayoutParams) {
-              FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-
-              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
-              if (params.leftMargin == x && params.topMargin == y &&
-                  params.width == width && params.height == height) {
-                return;
-              }
-              params.width = width;
-              params.height = height;
-              params.leftMargin = x;
-              params.topMargin = y;
-              pluginMap.mapView.setLayoutParams(params);
-
-            } else if (lParams instanceof AbsoluteLayout.LayoutParams) {
-              AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-              if (params.x == x && params.y == y &&
-                params.width == width && params.height == height) {
-                return;
-              }
-              params.width = width;
-              params.height = height;
-              params.x = x;
-              params.y = y;
-              pluginMap.mapView.setLayoutParams(params);
-            } else if (lParams instanceof LinearLayout.LayoutParams) {
-              LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-
-              if (params.leftMargin == x && params.topMargin == y &&
-                params.width == width && params.height == height) {
-                return;
-              }
-              params.width = width;
-              params.height = height;
-              params.leftMargin = x;
-              params.topMargin = y;
-              pluginMap.mapView.setLayoutParams(params);
-            }
-
-          }
-          mapIds = null;
-          pluginMap = null;
-          mapId = null;
-          pluginMap = null;
-          drawRect = null;
-        }
-      });
-
-    }
-  };
 
   @SuppressLint("NewApi")
   public MyPluginLayout(CordovaWebView webView, Activity activity) {
@@ -220,50 +104,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     this.addView(frontLayer);
     root.addView(this);
     browserView.setBackgroundColor(Color.TRANSPARENT);
-    /*
-    if("org.xwalk.core.XWalkView".equals(browserView.getClass().getName())
-      || "org.crosswalk.engine.XWalkCordovaView".equals(browserView.getClass().getName())) {
-      try {
-    // view.setZOrderOnTop(true)
-    // Called just in time as with root.setBackground(...) the color
-    // come in front and take the whole screen
-        browserView.getClass().getMethod("setZOrderOnTop", boolean.class)
-          .invoke(browserView, true);
-      }
-      catch(Exception e) {
-        e.printStackTrace();
-      }
-    }
-    */
+    
     scrollView.setHorizontalScrollBarEnabled(false);
     scrollView.setVerticalScrollBarEnabled(false);
-    startTimer();
   }
-
-  public void stopTimer() {
-    try {
-      redrawTimer.cancel();
-      redrawTimer.purge();
-      timerLock.notify();
-    } catch (Exception e) {}
-    redrawTimer = null;
-  }
-
-  public void startTimer() {
-    if (redrawTimer != null) {
-      return;
-    }
-    try {
-      timerLock.notify();
-    } catch (Exception e) {}
-
-
-    redrawTimer = new Timer();
-    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
-    mActivity.getWindow().getDecorView().requestFocus();
-  }
-
-
 
   public void clearHtmlElements()  {
     Bundle bundle;
@@ -329,92 +173,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     keys = null;
     elementsBundle = null;
   }
-
-  /*
-  public void updateViewPosition(final String mapId) {
-    //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
-
-    if (!pluginMaps.containsKey(mapId)) {
-      return;
-    }
-
-    final PluginMap pluginMap = pluginMaps.get(mapId);
-        if (pluginMap.mapDivId == null) {
-          return;
-        }
-        final ViewGroup.LayoutParams lParams = pluginMap.mapView.getLayoutParams();
-        //int scrollX = browserView.getScrollX();
-    final int scrollY = browserView.getScrollY();
-    final int webviewWidth = browserView.getWidth();
-    final int webviewHeight = browserView.getHeight();
-    final RectF drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
-
-    final int width = (int)drawRect.width();
-    final int height = (int)drawRect.height();
-    final int x = (int) drawRect.left;
-    final int y = (int) drawRect.top + scrollY;
-
-    mActivity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (lParams instanceof AbsoluteLayout.LayoutParams) {
-          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-          if (params.x == x && params.y == y &&
-              params.width == width && params.height == height) {
-            return;
-          }
-          params.width = width;
-          params.height = height;
-          params.x = x;
-          params.y = y;
-          Log.d("MyPluginLayout", "-->absolute " + params.x + ", " + params.y + " - " + params.width + ", " + params.height);
-          pluginMap.mapView.setLayoutParams(params);
-        } else if (lParams instanceof LinearLayout.LayoutParams) {
-          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-
-          if (params.leftMargin == x && params.topMargin == y &&
-            params.width == width && params.height == height) {
-            return;
-          }
-          params.width = width;
-          params.height = height;
-          params.leftMargin = x;
-          params.topMargin = y;
-          Log.d("MyPluginLayout", "-->LinearLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
-          pluginMap.mapView.setLayoutParams(params);
-
-        } else if (lParams instanceof FrameLayout.LayoutParams) {
-          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-
-          if (params.leftMargin == x && params.topMargin == y &&
-            params.width == width && params.height == height) {
-            return;
-          }
-          params.width = width;
-          params.height = height;
-          params.leftMargin = x;
-          params.topMargin = y;
-          params.gravity = Gravity.TOP;
-          Log.d("MyPluginLayout", "-->FrameLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
-          pluginMap.mapView.setLayoutParams(params);
-        }
-        //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
-/ *
-        if ((drawRect.top + drawRect.height() < 0) ||
-          (drawRect.top >  webviewHeight) ||
-          (drawRect.left + drawRect.width() < 0) ||
-          (drawRect.left > webviewWidth))  {
-
-          pluginMap.mapView.setVisibility(View.INVISIBLE);
-        } else {
-          pluginMap.mapView.setVisibility(View.VISIBLE);
-        }
-        frontLayer.invalidate();
-        * /
-      }
-    });
-  }
-*/
 
   public void setDebug(final boolean debug) {
     this.isDebug = debug;
@@ -516,22 +274,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       this.setWillNotDraw(false);
     }
 
-    private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild, Overflow overflow) {
+    private String findClickedDom(String domId, PointF clickPoint, Overflow overflow) {
       //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
       RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
-      int containMapCnt = 0;
-      if (domInfo.containsKey("containMapIDs")) {
-        Set<String> keys = domInfo.getBundle("containMapIDs").keySet();
-        if (keys != null) {
-          containMapCnt = keys.size();
-        }
-      }
-      isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
 
-      String pointerEvents = domInfo.getString("pointerEvents");
       String overflowX = domInfo.getString("overflowX");
       String overflowY = domInfo.getString("overflowY");
       if ("hidden".equals(overflowX) || "scroll".equals(overflowX) ||
@@ -544,9 +293,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents)) && children != null && children.size() > 0) {
-        int maxZindex = (int) Double.NEGATIVE_INFINITY;
-        int zIndex;
+      if (children != null && children.size() > 0) {
         String childId, grandChildId;
         ArrayList<String> grandChildren;
         for (int i = children.size() - 1; i >= 0; i--) {
@@ -556,66 +303,53 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          zIndex = domInfo.getInt("zIndex");
-          if (maxZindex < zIndex) {
-            grandChildren = domInfo.getStringArrayList("children");
-            if (grandChildren == null || grandChildren.size() == 0) {
-              rect = HTMLNodeRectFs.get(childId);
-              if (overflow != null ) {
-                if (overflow.cropX) {
-                  rect.left = Math.max(rect.left, overflow.rect.left);
-                  rect.right = Math.min(rect.right, overflow.rect.right);
-                }
-                if (overflow.cropY) {
-                  rect.top = Math.max(rect.top, overflow.rect.top);
-                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
-                }
+          grandChildren = domInfo.getStringArrayList("children");
+          if (grandChildren == null || grandChildren.size() == 0) {
+            rect = HTMLNodeRectFs.get(childId);
+            if (overflow != null ) {
+              if (overflow.cropX) {
+                rect.left = Math.max(rect.left, overflow.rect.left);
+                rect.right = Math.min(rect.right, overflow.rect.right);
               }
-              if (!rect.contains(clickPoint.x, clickPoint.y)) {
-                continue;
+              if (overflow.cropY) {
+                rect.top = Math.max(rect.top, overflow.rect.top);
+                rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
               }
-
-              //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
-              if ("none".equals(domInfo.getString("pointerEvents"))) {
-                continue;
-              }
-              maxDomId = childId;
-            } else {
-              grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
-              //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
-              if (grandChildId == null) {
-                grandChildId = childId;
-              }
-              rect = HTMLNodeRectFs.get(grandChildId);
-              if (overflow != null ) {
-                if (overflow.cropX) {
-                  rect.left = Math.max(rect.left, overflow.rect.left);
-                  rect.right = Math.min(rect.right, overflow.rect.right);
-                }
-                if (overflow.cropY) {
-                  rect.top = Math.max(rect.top, overflow.rect.top);
-                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
-                }
-              }
-              if (!rect.contains(clickPoint.x, clickPoint.y)) {
-                continue;
-              }
-
-              domInfo = HTMLNodes.get(grandChildId);
-              //Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
-              if ("none".equals(domInfo.getString("pointerEvents"))) {
-                continue;
-              }
-              maxDomId = grandChildId;
             }
-            maxZindex = zIndex;
+            if (!rect.contains(clickPoint.x, clickPoint.y)) {
+              continue;
+            }
+
+            //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+            maxDomId = childId;
+          } else {
+            grandChildId = findClickedDom(childId, clickPoint, overflow);
+            //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
+            if (grandChildId == null) {
+              grandChildId = childId;
+            }
+            rect = HTMLNodeRectFs.get(grandChildId);
+            if (overflow != null ) {
+              if (overflow.cropX) {
+                rect.left = Math.max(rect.left, overflow.rect.left);
+                rect.right = Math.min(rect.right, overflow.rect.right);
+              }
+              if (overflow.cropY) {
+                rect.top = Math.max(rect.top, overflow.rect.top);
+                rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+              }
+            }
+            if (!rect.contains(clickPoint.x, clickPoint.y)) {
+              continue;
+            }
+
+            domInfo = HTMLNodes.get(grandChildId);
+            //Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
+            maxDomId = grandChildId;
           }
         }
       }
       if (maxDomId == null) {
-        if ("none".equals(pointerEvents)) {
-          return null;
-        }
         rect = HTMLNodeRectFs.get(domId);
         if (overflow != null ) {
           if (overflow.cropX) {
@@ -641,7 +375,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       if (pluginMaps == null || pluginMaps.size() == 0) {
         return false;
       }
-      MyPluginLayout.this.stopFlag = true;
 
       int action = event.getAction();
       //Log.d("FrontLayerLayout", "----> action = " + action + ", isScrolling = " + isScrolling);
@@ -649,7 +382,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       // The scroll action that started in the browser region is end.
       isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
       if (isScrolling) {
-        MyPluginLayout.this.stopFlag = false;
         return false;
       }
 
@@ -687,7 +419,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          String clickedDomId = findClickedDom("root", clickPoint, false, null);
+          String clickedDomId = findClickedDom(pluginMap.mapDivId, clickPoint, null);
           //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginMap.mapDivId.equals(clickedDomId);
@@ -706,32 +438,32 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-      if (isSuspended || HTMLNodes.isEmpty() || !isDebug) {
-        return;
-      }
+  //   @Override
+  //   protected void onDraw(Canvas canvas) {
+  //     if (HTMLNodes.isEmpty() || !isDebug) {
+  //       return;
+  //     }
 
-      PluginMap pluginMap;
-      Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
-      Entry<String, PluginMap> entry;
-      RectF mapRect;
-      synchronized (HTMLNodeRectFs) {
-        while (iterator.hasNext()) {
-          entry = iterator.next();
-          pluginMap = entry.getValue();
-          if (pluginMap.mapDivId == null) {
-            continue;
-          }
-          mapRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
+  //     PluginMap pluginMap;
+  //     Iterator<Map.Entry<String, PluginMap>> iterator =  pluginMaps.entrySet().iterator();
+  //     Entry<String, PluginMap> entry;
+  //     RectF mapRect;
+  //     synchronized (HTMLNodeRectFs) {
+  //       while (iterator.hasNext()) {
+  //         entry = iterator.next();
+  //         pluginMap = entry.getValue();
+  //         if (pluginMap.mapDivId == null) {
+  //           continue;
+  //         }
+  //         mapRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
 
-          debugPaint.setColor(Color.argb(100, 0, 255, 0));
-          canvas.drawRect(mapRect, debugPaint);
-        }
-      }
+  //         debugPaint.setColor(Color.argb(100, 0, 255, 0));
+  //         canvas.drawRect(mapRect, debugPaint);
+  //       }
+  //     }
 
 
-    }
+  //   }
   }
 
   private class TouchableWrapper extends FrameLayout {

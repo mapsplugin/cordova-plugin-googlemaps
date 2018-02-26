@@ -24,21 +24,6 @@ function isHTMLColorString(inputValue) {
     return inputValue in HTML_COLORS;
 }
 
-function deleteFromObject(object, type) {
-    if (object === null) return object;
-    if (typeof object !== "object") {
-      return object;
-    }
-    for(var index in Object.keys(object)) {
-        var key = Object.keys(object)[index];
-        if (typeof object[key] === 'object') {
-           object[key] = deleteFromObject(object[key], type);
-        } else if (typeof object[key] === type) {
-           delete object[key];
-        }
-    }
-    return object;
-}
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
     if (colorValue instanceof Array) {
@@ -191,12 +176,6 @@ function HLStoRGB(h, l, s) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-function parseBoolean(boolValue) {
-    return typeof(boolValue) === "string" && boolValue.toLowerCase() === "true" ||
-        boolValue === true ||
-        boolValue === 1;
-}
-
 function isDom(element) {
     return !!element &&
         typeof element === "object" &&
@@ -235,105 +214,12 @@ function getDivRect(div) {
     };
 }
 
-var ignoreTags = [
-  "pre", "textarea", "p", "form", "input", "caption", "canvas", "svg"
-];
-
-
 function shouldWatchByNative(node) {
-  if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
-    if (node === document.body) {
-      return true;
-    }
-    return false;
-  }
-
-  var tagName = node.tagName.toLowerCase();
-  if (ignoreTags.indexOf(tagName) > -1) {
-    return false;
-  }
-
-  var classNames = (node.className || "").split(" ");
-  if (classNames.indexOf("_gmaps_cdv_") > -1) {
-    return true;
-  }
 
   var visibilityCSS = getStyle(node, 'visibility');
   var displayCSS = getStyle(node, 'display');
-
-  // Do not check this at here.
-  //var pointerEventsCSS = getStyle(node, 'pointer-events');
-
-  //-----------------------------------------
-  // no longer check the opacity property,
-  // because the app might start changing the opacity later.
-  //-----------------------------------------
-  //var opacityCSS = getStyle(node, 'opacity');
-  //opacityCSS = /^[\d.]+$/.test(opacityCSS + "") ? opacityCSS : 1;
-
-  //-----------------------------------------
-  // no longer check the clickable size,
-  // because HTML still can display larger element inside one small element.
-  //-----------------------------------------
-  // var clickableSize = (
-  //   node.offsetHeight > 0 && node.offsetWidth > 0 ||
-  //   node.clientHeight > 0 && node.clientWidth > 0);
   return displayCSS !== "none" &&
     visibilityCSS !== "hidden";
-}
-
-
-// Get z-index order
-// http://stackoverflow.com/a/24136505
-var internalCache = {};
-function _clearInternalCache() {
-  internalCache = undefined;
-  internalCache = {};
-}
-function _removeCacheById(elemId) {
-  delete internalCache[elemId];
-}
-function getZIndex(dom) {
-    if (dom === document.body) {
-      internalCache = undefined;
-      internalCache = {};
-    }
-    if (!dom) {
-      return 0;
-    }
-
-    var z = 0;
-    if (window.getComputedStyle) {
-      z = document.defaultView.getComputedStyle(dom, null).getPropertyValue('z-index');
-    }
-    if (dom.currentStyle) {
-        z = dom.currentStyle['z-index'];
-    }
-    var elemId = dom.getAttribute("__pluginDomId");
-    var parentNode = dom.parentNode;
-    var parentZIndex = 0;
-    if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
-      var parentElemId = parentNode.getAttribute("__pluginDomId");
-      if (parentElemId in internalCache) {
-        parentZIndex = internalCache[parentElemId];
-      } else {
-        parentZIndex = getZIndex(dom.parentNode);
-        internalCache[parentElemId] = parentZIndex;
-      }
-    }
-
-    if (z === "auto") {
-      z = 0;
-    } else if (z === "inherit") {
-      z = 0;
-    } else if (z === "initial" || z === "unset") {
-      z = 0;
-    } else {
-      z = parseInt(z);
-    }
-    //dom.setAttribute("__ZIndex", z);
-    internalCache[elemId] = z + parentZIndex;
-    return z;
 }
 
 // Get CSS value of an element
@@ -709,14 +595,9 @@ function hashCode(text) {
 }
 
 module.exports = {
-    _clearInternalCache: _clearInternalCache,
-    _removeCacheById: _removeCacheById,
-    getZIndex: getZIndex,
-    deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
     isDom: isDom,
-    parseBoolean: parseBoolean,
     HLStoRGB: HLStoRGB,
     HTMLColor2RGBA: HTMLColor2RGBA,
     isHTMLColorString: isHTMLColorString,

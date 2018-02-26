@@ -95,154 +95,82 @@ Map.prototype.getMap = function(mapId, div, options) {
   self.set("clickable", options.clickable === false ? false : true);
   self.set("visible", options.visible === false ? false : true);
 
-  if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+  if (options.camera) {
+    if (options.camera.latLng) {
+      options.camera.target = options.camera.latLng;
+      delete options.camera.latLng;
+    }
+    this.set('camera', options.camera);
+    if (options.camera.target) {
+      this.set('camera_target', options.camera.target);
+    }
+    if (options.camera.bearing) {
+      this.set('camera_bearing', options.camera.bearing);
+    }
+    if (options.camera.zoom) {
+      this.set('camera_zoom', options.camera.zoom);
+    }
+    if (options.camera.tilt) {
+      this.set('camera_tilt', options.camera.tilt);
+    }
+  }
+  if (options.controls) {
+    this.set('myLocation', options.controls.myLocation === true);
+    this.set('myLocationButton', options.controls.myLocationButton === true);
+  }
+  if (utils.isArray(options.styles)) {
+    options.styles = JSON.stringify(options.styles);
+  }
+  args.push(options);
+
+  div.style.overflow = "hidden";
+  self.set("div", div);
+
+  if (div.offsetWidth < 200 || div.offsetHeight < 200) {
+    // If the map Div is too small, wait a little.
+    var callee = arguments.callee;
+    setTimeout(function() {
+      callee.call(self, mapId, div, options);
+    }, 250 + Math.random() * 100);
+    return;
   }
 
-  if (!common.isDom(div)) {
-    self.set("visible", false);
-    options = div;
-    options = options || {};
-    if (options.camera) {
-      if (options.camera.latLng) {
-        options.camera.target = options.camera.latLng;
-        delete options.camera.latLng;
-      }
-      this.set('camera', options.camera);
-      if (options.camera.target) {
-        this.set('camera_target', options.camera.target);
-      }
-      if (options.camera.bearing) {
-        this.set('camera_bearing', options.camera.bearing);
-      }
-      if (options.camera.zoom) {
-        this.set('camera_zoom', options.camera.zoom);
-      }
-      if (options.camera.tilt) {
-        this.set('camera_tilt', options.camera.tilt);
-      }
-    }
-    if (options.controls) {
-      this.set('myLocation', options.controls.myLocation === true);
-      this.set('myLocationButton', options.controls.myLocationButton === true);
-    }
-    args.push(options);
-  } else {
-
-    var positionCSS = common.getStyle(div, "position");
-    if (!positionCSS || positionCSS === "static") {
-      // important for HtmlInfoWindow
-      div.style.position = "relative";
-    }
-    options = options || {};
-    if (options.camera) {
-      if (options.camera.latLng) {
-        options.camera.target = options.camera.latLng;
-        delete options.camera.latLng;
-      }
-      this.set('camera', options.camera);
-      if (options.camera.target) {
-        this.set('camera_target', options.camera.target);
-      }
-      if (options.camera.bearing) {
-        this.set('camera_bearing', options.camera.bearing);
-      }
-      if (options.camera.zoom) {
-        this.set('camera_zoom', options.camera.zoom);
-      }
-      if (options.camera.tilt) {
-        this.set('camera_tilt', options.camera.tilt);
-      }
-    }
-    if (options.controls) {
-      this.set('myLocation', options.controls.myLocation === true);
-      this.set('myLocationButton', options.controls.myLocationButton === true);
-    }
-    if (utils.isArray(options.styles)) {
-      options.styles = JSON.stringify(options.styles);
-    }
-    args.push(options);
-
-    div.style.overflow = "hidden";
-    self.set("div", div);
-
-    if (div.offsetWidth < 200 || div.offsetHeight < 200) {
-      // If the map Div is too small, wait a little.
-      var callee = arguments.callee;
-      setTimeout(function() {
-        callee.call(self, mapId, div, options);
-      }, 250 + Math.random() * 100);
-      return;
-    }
-    var elements = [];
-    var elemId, clickable, size;
-
-
-    // Gets the map div size.
-    // The plugin needs to consider the viewport zoom ratio
-    // for the case window.innerHTML > body.offsetWidth.
-    elemId = common.getPluginDomId(div);
-    args.push(elemId);
-
-  }
+  // Gets the map div size.
+  // The plugin needs to consider the viewport zoom ratio
+  // for the case window.innerHTML > body.offsetWidth.
+  var elemId = common.getPluginDomId(div);
+  args.push(elemId);
 
   exec.call({
     _isReady: true
   }, function() {
 
-    //------------------------------------------------------------------------
-    // Clear background colors of map div parents after the map is created
-    //------------------------------------------------------------------------
     var div = self.get("div");
-    if (common.isDom(div)) {
 
-      // Insert the infoWindow layer
-      if (self._layers.info.parentNode) {
-        try {
-          self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
-        } catch (e) {
-          // ignore
-        }
-      }
-      var positionCSS;
-      for (var i = 0; i < div.children.length; i++) {
-        positionCSS = common.getStyle(div.children[i], "position");
-        if (positionCSS === "static") {
-          div.children[i].style.position = "relative";
-        }
-      }
-      div.insertBefore(self._layers.info, div.firstChild);
-
-
-      while (div.parentNode) {
-        div.style.backgroundColor = 'rgba(0,0,0,0) !important';
-
-        // prevent multiple readding the class
-        if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-          div.classList.add('_gmaps_cdv_');
-        } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-          div.className = div.className + ' _gmaps_cdv_';
-        }
-
-        div = div.parentNode;
+    // Insert the infoWindow layer
+    if (self._layers.info.parentNode) {
+      try {
+        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+      } catch (e) {
+        // ignore
       }
     }
-    cordova.fireDocumentEvent("plugin_touch", {
-      force: true
-    });
+    div.insertBefore(self._layers.info, div.firstChild);
 
-    //------------------------------------------------------------------------
-    // In order to work map.getVisibleRegion() correctly, wait a little.
-    //------------------------------------------------------------------------
-    setTimeout(function() {
-      Object.defineProperty(self, "_isReady", {
-        value: true,
-        writable: false
-      });
-      self.refreshLayout();
-      self.trigger(event.MAP_READY, self);
-    }, 250);
+    // Add _gmaps_cdv to all parents for transparent background
+    while (true) {
+      div.classList.add('_gmaps_cdv_');
+      div = div.parentNode;
+      if (div.tagName === 'BODY') break;
+    }
+
+    // Refresh layout and trigger MAP_READY
+    Object.defineProperty(self, "_isReady", {
+      value: true,
+      writable: false
+    });
+    self.refreshLayout();
+    self.trigger(event.MAP_READY, self);
   }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {
     sync: true
   });
@@ -251,9 +179,9 @@ Map.prototype.getMap = function(mapId, div, options) {
 Map.prototype.setOptions = function(options) {
   options = options || {};
 
-  if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+  if (options.controls) {
+    this.set("myLocation", options.controls.myLocation === true);
+    this.set("myLocationButton", options.controls.myLocationButton === true);
   }
   if (options.camera) {
     if (options.camera.latLng) {
@@ -537,7 +465,6 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 
 Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   var self = this;
-  enabled = common.parseBoolean(enabled);
   this.set("myLocationButton", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
@@ -550,7 +477,6 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
   var self = this;
-  enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: self.get("myLocationButton"),
@@ -562,18 +488,15 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
 };
 
 Map.prototype.setIndoorEnabled = function(enabled) {
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
   return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
   return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
   var self = this;
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
   return this;
 };
@@ -584,18 +507,14 @@ Map.prototype.getVisible = function() {
   return this.get("visible");
 };
 Map.prototype.setVisible = function(isVisible) {
-  cordova.fireDocumentEvent('plugin_touch');
   var self = this;
-  isVisible = common.parseBoolean(isVisible);
   self.set("visible", isVisible);
   exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
   return this;
 };
 
 Map.prototype.setClickable = function(isClickable) {
-  cordova.fireDocumentEvent('plugin_touch');
   var self = this;
-  isClickable = common.parseBoolean(isClickable);
   self.set("clickable", isClickable);
   exec.call(this, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
   return this;
@@ -609,7 +528,6 @@ Map.prototype.getClickable = function() {
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
 Map.prototype.setAllGesturesEnabled = function(enabled) {
-  enabled = common.parseBoolean(enabled);
   exec.call(this, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
   return this;
 };
@@ -636,17 +554,10 @@ Map.prototype.remove = function(callback) {
   });
   var div = self.get('div');
   if (div) {
-    while (div) {
-      if (div.style) {
-        div.style.backgroundColor = '';
-      }
-      if (div.classList) {
-        div.classList.remove('_gmaps_cdv_');
-      } else if (div.className) {
-        div.className = div.className.replace(/_gmaps_cdv_/g, "");
-        div.className = div.className.replace(/\s+/g, " ");
-      }
+    while (true) {
+      div.classList.remove('_gmaps_cdv_');
       div = div.parentNode;
+      if (div.tagName === 'BODY') break;
     }
   }
   self.set('div', undefined);
@@ -739,13 +650,6 @@ Map.prototype.setDiv = function(div) {
         //ignore
       }
     }
-    var positionCSS;
-    for (var i = 0; i < div.children.length; i++) {
-      positionCSS = common.getStyle(div.children[i], "position");
-      if (positionCSS === "static") {
-        div.children[i].style.position = "relative";
-      }
-    }
     div.insertBefore(self._layers.info, div.firstChild);
 
     // Webkit redraw mandatory
@@ -756,29 +660,15 @@ Map.prototype.setDiv = function(div) {
 
     self.set("div", div);
 
-    positionCSS = common.getStyle(div, "position");
-    if (!positionCSS || positionCSS === "static") {
-      div.style.position = "relative";
-    }
     elemId = common.getPluginDomId(div);
     args.push(elemId);
-    while (div.parentNode) {
-      div.style.backgroundColor = 'rgba(0,0,0,0)';
-
-      // prevent multiple readding the class
-      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-        div.classList.add('_gmaps_cdv_');
-      } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-        div.className = div.className + ' _gmaps_cdv_';
-      }
-
+    while (true) {
+      div.classList.add('_gmaps_cdv_');
       div = div.parentNode;
+      if (div.tagName === 'BODY') break;
     }
   }
   exec.call(this, function() {
-    cordova.fireDocumentEvent('plugin_touch', {
-      force: true
-    });
     self.refreshLayout();
   }, self.errorHandler, self.id, 'setDiv', args, {
     sync: true

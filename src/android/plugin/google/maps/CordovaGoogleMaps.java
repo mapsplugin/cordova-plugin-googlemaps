@@ -169,7 +169,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView, activity);
-        mPluginLayout.isSuspended = true;
 
 
         // Check the API key
@@ -220,7 +219,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   @Override
   public boolean onOverrideUrlLoading(String url) {
-    mPluginLayout.isSuspended = true;
     /*
     this.activity.runOnUiThread(new Runnable() {
       @Override
@@ -257,18 +255,10 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
           } else if ("clearHtmlElements".equals(action)) {
             CordovaGoogleMaps.this.clearHtmlElements(args, callbackContext);
-          } else if ("pause".equals(action)) {
-            CordovaGoogleMaps.this.pause(args, callbackContext);
-          } else if ("resume".equals(action)) {
-            CordovaGoogleMaps.this.resume(args, callbackContext);
           } else if ("getMap".equals(action)) {
             CordovaGoogleMaps.this.getMap(args, callbackContext);
           } else if ("removeMap".equals(action)) {
             CordovaGoogleMaps.this.removeMap(args, callbackContext);
-          } else if ("backHistory".equals(action)) {
-            CordovaGoogleMaps.this.backHistory(args, callbackContext);
-          } else if ("updateMapPositionOnly".equals(action)) {
-            CordovaGoogleMaps.this.updateMapPositionOnly(args, callbackContext);
           }
 
         } catch (JSONException e) {
@@ -280,72 +270,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
-  public void updateMapPositionOnly(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final JSONObject elements = args.getJSONObject(0);
-
-    Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
-    float zoomScale = Resources.getSystem().getDisplayMetrics().density;
-
-    Iterator<String> domIDs = elementsBundle.keySet().iterator();
-    String domId;
-    Bundle domInfo, size, currentDomInfo;
-    while (domIDs.hasNext()) {
-      domId = domIDs.next();
-      domInfo = elementsBundle.getBundle(domId);
-
-      size = domInfo.getBundle("size");
-      RectF rectF = new RectF();
-      rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
-      rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
-      rectF.right = rectF.left  + (float)(Double.parseDouble(size.get("width") + "") * zoomScale);
-      rectF.bottom = rectF.top  + (float)(Double.parseDouble(size.get("height") + "") * zoomScale);
-
-      mPluginLayout.HTMLNodeRectFs.put(domId, rectF);
-    }
-
-    if (mPluginLayout.isSuspended) {
-      mPluginLayout.isSuspended = false;
-      synchronized (mPluginLayout.timerLock) {
-        mPluginLayout.timerLock.notify();
-      }
-    }
-    callbackContext.success();
-  }
-  public void backHistory(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (!webView.backHistory()) {
-          // If no more history back, exit the app
-          cordova.getActivity().finish();
-        }
-      }
-    });
-  }
-
-
-
-  public void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout == null) {
-      callbackContext.success();
-      return;
-    }
-    mPluginLayout.isSuspended = true;
-    callbackContext.success();
-  }
-  public void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout == null) {
-      callbackContext.success();
-      return;
-    }
-    if (mPluginLayout.isSuspended) {
-      mPluginLayout.isSuspended = false;
-      synchronized (mPluginLayout.timerLock) {
-        mPluginLayout.timerLock.notify();
-      }
-    }
-    callbackContext.success();
-  }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {
       callbackContext.success();
@@ -362,14 +286,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           return;
       }
 
-      //Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
-      if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-          mPluginLayout.putHTMLElements(elements);
-      }
+      mPluginLayout.putHTMLElements(elements);
 
-    synchronized (mPluginLayout.timerLock) {
-      mPluginLayout.timerLock.notify();
-    }
     callbackContext.success();
   }
 

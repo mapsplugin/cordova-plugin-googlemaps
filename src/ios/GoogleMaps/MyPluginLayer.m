@@ -23,7 +23,6 @@
 
     self = [super initWithFrame:[webView frame]];
     self.webView = webView;
-    self.isSuspended = false;
     self.opaque = NO;
     [self.webView removeFromSuperview];
     // prevent webView from bouncing
@@ -51,15 +50,6 @@
     [self addSubview:self.webView];
 
     dispatch_queue_t q_background = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-
-    dispatch_async(q_background, ^{
-      self.semaphore = dispatch_semaphore_create(0);
-      self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                  target:self
-                                  selector:@selector(resizeTask:)
-                                  userInfo:nil
-                                  repeats:YES];
-    });
 
     return self;
 }
@@ -115,21 +105,21 @@
         @synchronized(self._lockObject) {
 
           if (self.pluginScrollView.debugView.HTMLNodes != nil) {
-            NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
-            NSArray *keys2;
-            int i, j;
-            for (i = 0; i < [keys count]; i++) {
-              domId = [keys objectAtIndex:i];
-              domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-              if (domInfo) {
-                  keys2 = [domInfo allKeys];
-                  for (j = 0; j < [keys2 count]; j++) {
-                      [domInfo removeObjectForKey:[keys2 objectAtIndex:j]];
-                  }
-                  domInfo = nil;
-              }
-              [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
+          NSArray *keys=[self.pluginScrollView.debugView.HTMLNodes allKeys];
+          NSArray *keys2;
+          int i, j;
+          for (i = 0; i < [keys count]; i++) {
+            domId = [keys objectAtIndex:i];
+            domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+            if (domInfo) {
+                keys2 = [domInfo allKeys];
+                for (j = 0; j < [keys2 count]; j++) {
+                    [domInfo removeObjectForKey:[keys2 objectAtIndex:j]];
+                }
+                domInfo = nil;
             }
+            [self.pluginScrollView.debugView.HTMLNodes removeObjectForKey:domId];
+          }
           }
           self.pluginScrollView.debugView.HTMLNodes = nil;
 
@@ -188,36 +178,6 @@
       }
   }];
 
-}
-
-- (void)resizeTask:(NSTimer *)timer {
-    if (self.isSuspended) {
-      @synchronized (self.semaphore) {
-        dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-      }
-      //return;
-    }
-    if (self.stopFlag) {
-        return;
-    }
-    self.stopFlag = YES;
-    NSArray *keys=[self.pluginScrollView.debugView.mapCtrls allKeys];
-    NSString *mapId;
-    GoogleMapsViewController *mapCtrl;
-
-    for (int i = 0; i < [keys count]; i++) {
-        mapId = [keys objectAtIndex:i];
-        mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-        [self updateViewPosition:mapCtrl];
-    }
-
-    if (self.pluginScrollView.debugView.debuggable == YES) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
-
-            [self.pluginScrollView.debugView setNeedsDisplay];
-        });
-    }
-    self.stopFlag = NO;
 }
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
@@ -409,7 +369,7 @@
       if (CGRectContainsPoint(rect, browserClickPoint)) {
       //NSLog(@"--->in map");
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
+        clickedDomId = [self findClickedDom:mapCtrl.mapDivId withPoint:browserClickPoint overflow:nil];
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
         if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
@@ -435,7 +395,7 @@
 
 }
 
-- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint isMapChild:(BOOL)isMapChild overflow:(OverflowCSS *)overflow {
+- (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint overflow:(OverflowCSS *)overflow {
 
   NSDictionary *domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
   NSArray *children = [domInfo objectForKey:@"children"];
@@ -445,12 +405,7 @@
 
 
   domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
-  NSDictionary *containMapIDs = [domInfo objectForKey:@"containMapIDs"];
-  unsigned long containMapCnt = [[containMapIDs allKeys] count];
-  isMapChild = isMapChild || [[domInfo objectForKey:@"isMap"] boolValue];
-  //NSLog(@"---- domId = %@, containMapCnt = %ld, isMapChild = %@", domId, containMapCnt, isMapChild ? @"YES":@"NO");
 
-  NSString *pointerEvents = [domInfo objectForKey:@"pointerEvents"];
   NSString *overflowX = [domInfo objectForKey:@"overflowX"];
   NSString *overflowY = [domInfo objectForKey:@"overflowY"];
   if ([@"hidden" isEqualToString:overflowX] || [@"scroll" isEqualToString:overflowX] ||
@@ -461,87 +416,72 @@
     overflow.rect = CGRectFromString([domInfo objectForKey:@"size"]);
   }
 
-  if ((containMapCnt > 0 || isMapChild || [@"none" isEqualToString:pointerEvents]) && children != nil && children.count > 0) {
+  if (children != nil && children.count > 0) {
 
-    int maxZIndex = -1215752192;
-    int zIndex;
     NSString *childId, *grandChildId;
     NSArray *grandChildren;
 
     for (int i = (int)children.count - 1; i >= 0; i--) {
       childId = [children objectAtIndex:i];
       domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:childId];
-      zIndex = [[domInfo objectForKey:@"zIndex"] intValue];
 
-      if (maxZIndex < zIndex) {
-        grandChildren = [domInfo objectForKey:@"children"];
-        if (grandChildren == nil || grandChildren.count == 0) {
-          rect = CGRectFromString([domInfo objectForKey:@"size"]);
-          right = rect.origin.x + rect.size.width;
-          bottom = rect.origin.y + rect.size.height;
-          if (overflow != nil) {
-            if (overflow.cropX) {
-              rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
-              right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
-            }
-            if (overflow.cropY) {
-              rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
-              bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
-            }
+      grandChildren = [domInfo objectForKey:@"children"];
+      if (grandChildren == nil || grandChildren.count == 0) {
+        rect = CGRectFromString([domInfo objectForKey:@"size"]);
+        right = rect.origin.x + rect.size.width;
+        bottom = rect.origin.y + rect.size.height;
+        if (overflow != nil) {
+          if (overflow.cropX) {
+            rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
+            right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
           }
-
-          if (clickPoint.x < rect.origin.x ||
-              clickPoint.y < rect.origin.y ||
-              clickPoint.x > right ||
-              clickPoint.y > bottom) {
-            continue;
+          if (overflow.cropY) {
+            rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
+            bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
           }
-          if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
-            continue;
-          }
-          maxDomId = childId;
-        } else {
-          grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild overflow:overflow];
-          if (grandChildId == nil) {
-            grandChildId = childId;
-          }
-          domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
-          rect = CGRectFromString([domInfo objectForKey:@"size"]);
-
-          right = rect.origin.x + rect.size.width;
-          bottom = rect.origin.y + rect.size.height;
-          if (overflow != nil) {
-            if (overflow.cropX) {
-              rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
-              right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
-            }
-            if (overflow.cropY) {
-              rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
-              bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
-            }
-          }
-
-          if (clickPoint.x < rect.origin.x ||
-              clickPoint.y < rect.origin.y ||
-              clickPoint.x > right ||
-              clickPoint.y > bottom) {
-            continue;
-          }
-          domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
-          if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
-            continue;
-          }
-          maxDomId = grandChildId;
         }
-        maxZIndex = zIndex;
+
+        if (clickPoint.x < rect.origin.x ||
+            clickPoint.y < rect.origin.y ||
+            clickPoint.x > right ||
+            clickPoint.y > bottom) {
+          continue;
+        }
+        maxDomId = childId;
+      } else {
+        grandChildId = [self findClickedDom:childId withPoint:clickPoint overflow:overflow];
+        if (grandChildId == nil) {
+          grandChildId = childId;
+        }
+        domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
+        rect = CGRectFromString([domInfo objectForKey:@"size"]);
+
+        right = rect.origin.x + rect.size.width;
+        bottom = rect.origin.y + rect.size.height;
+        if (overflow != nil) {
+          if (overflow.cropX) {
+            rect.origin.x = MAX(rect.origin.x, overflow.rect.origin.x);
+            right = MIN(right, overflow.rect.origin.x + overflow.rect.size.width);
+          }
+          if (overflow.cropY) {
+            rect.origin.y = MAX(rect.origin.y, overflow.rect.origin.y);
+            bottom = MIN(bottom, overflow.rect.origin.y + overflow.rect.size.height);
+          }
+        }
+
+        if (clickPoint.x < rect.origin.x ||
+            clickPoint.y < rect.origin.y ||
+            clickPoint.x > right ||
+            clickPoint.y > bottom) {
+          continue;
+        }
+        domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:grandChildId];
+        maxDomId = grandChildId;
       }
     }
   }
 
   if (maxDomId == nil) {
-    if ([@"none" isEqualToString:pointerEvents]) {
-      return nil;
-    }
     domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
     rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
