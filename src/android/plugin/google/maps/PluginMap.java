@@ -447,7 +447,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (mapView != null) {
       mapView.onPause();
     }
-    mapCtrl.mPluginLayout.stopTimer();
 
     mapCtrl.mPluginLayout.removePluginMap(this.mapId);
 
@@ -459,7 +458,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       mapView.onResume();
     }
     mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
-    mapCtrl.mPluginLayout.startTimer();
   }
 
   private class AdjustInitCamera implements Runnable {
@@ -622,8 +620,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       return;
     }
-
-    mapCtrl.mPluginLayout.needUpdatePosition = true;
 
     if (!mapCtrl.mPluginLayout.HTMLNodes.containsKey(mapDivId)) {
       Bundle dummyInfo = new Bundle();
@@ -2126,7 +2122,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
       this.onClusterEvent("cluster_click", marker);
     } else {
-      webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_touch', {});}");
       this.onMarkerEvent("marker_click", marker);
       activeMarker = marker;
     }

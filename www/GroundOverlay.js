@@ -144,7 +144,6 @@ GroundOverlay.prototype.setZIndex = function(zIndex) {
     this.set('zIndex', zIndex);
 };
 GroundOverlay.prototype.setClickable = function(clickable) {
-    clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
     return this;
 };

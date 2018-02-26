@@ -262,7 +262,6 @@ KmlOverlay.prototype.getId = function() {
 };
 
 KmlOverlay.prototype.setClickable = function(clickable) {
-  clickable = common.parseBoolean(clickable);
   this.set('clickable', clickable);
   return this;
 };
@@ -281,7 +280,6 @@ KmlOverlay.prototype.setVisible = function(visible) {
     return;
   }
 
-  visible = common.parseBoolean(visible);
   this.set('visible', visible);
 
   var applyChildren = function(children) {

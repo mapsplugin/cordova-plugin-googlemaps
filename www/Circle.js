@@ -132,12 +132,10 @@ Circle.prototype.setStrokeWidth = function(width) {
     return this;
 };
 Circle.prototype.setVisible = function(visible) {
-    visible = common.parseBoolean(visible);
     this.set('visible', visible);
     return this;
 };
 Circle.prototype.setClickable = function(clickable) {
-    clickable = common.parseBoolean(clickable);
     this.set('clickable', clickable);
     return this;
 };
