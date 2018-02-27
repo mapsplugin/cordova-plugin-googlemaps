@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">SchlieÃŸen</string>
-  <string name="pgm_api_key_error">Bitte ersetzen Sie \'API_KEY_FOR_ANDROID\' in den Plattformen/android/app/src/AndroidManifest.xml durch Ihren API Key!</string>
-  <string name="pgm_google_play_error">Google Maps Android API v2 ist auf diesem Gerät aus irgendeinem Grund nicht verfügbar.</string>
-  <string name="pgm_google_play_developer_error">Die Anwendung ist falsch konfiguriert. Dieser Fehler ist nicht wiederherstellbar und wird als fatal behandelt. Der Entwickler sollte sich anschließend die Protokolle ansehen, um weitere umsetzbare Informationen zu ermitteln.</string>
-  <string name="pgm_google_play_internal_error">Ein interner Fehler der Google Play-Dienste ist aufgetreten. Bitte versuchen Sie es erneut und das Problem sollte gelöst werden.</string>
-  <string name="pgm_google_play_invalid_account">Sie haben versucht, eine Verbindung zum Dienst mit einem ungültigen Kontonamen herzustellen.</string>
-  <string name="pgm_google_play_lincense_check_failed">Die Anwendung ist für den Benutzer nicht lizenziert. Dieser Fehler ist nicht wiederherstellbar und wird als fatal behandelt.</string>
-  <string name="pgm_google_play_network_error">Ein Netzwerkfehler ist aufgetreten. Bitte versuchen Sie es erneut und das Problem sollte gelöst werden.</string>
-  <string name="pgm_google_play_service_disabled">Die installierte Version der Google Play-Dienste wurde auf diesem Gerät deaktiviert. Bitte schalten Sie die Google Play-Dienste ein.</string>
-  <string name="pgm_google_play_service_invalid">Die Version der auf diesem Gerät installierten Google Play-Dienste ist nicht authentisch. Aktualisieren Sie die Google Play-Dienste im Google Play Store.</string>
-  <string name="pgm_google_play_service_missing">Google Play-Dienste fehlen auf diesem Gerät. Bitte installieren Sie die Google Play-Dienste.
+  <string name="pgm_api_key_error">Bitte ersetzen Sie \'API_KEY_FOR_ANDROID\' unter platforms/android/app/src/AndroidManifest.xml durch Ihren API Key!</string>
+  <string name="pgm_google_play_error">Google Maps Android API v2 ist auf diesem GerÃ¤t aus einem unbekannten Grund nicht verfÃ¼gbar.</string>
+  <string name="pgm_google_play_developer_error">Die Anwendung ist falsch konfiguriert und kann nicht fortgefahren werden. Der Entwickler muss die Protokolle inspezieren, um weitere Informationen zu erhalten.</string>
+  <string name="pgm_google_play_internal_error">Ein interner Fehler der Google Play-Dienste ist aufgetreten. Bitte versuchen Sie es erneut.</string>
+  <string name="pgm_google_play_invalid_account">Sie haben versucht, eine Verbindung zum Dienst mit einem ungÃ¼ltigen Kontonamen herzustellen.</string>
+  <string name="pgm_google_play_lincense_check_failed">Die Anwendung ist fÃ¼r den Benutzer nicht lizenziert. Dieser Fehler ist nicht wiederherstellbar und wird als fatal behandelt.</string>
+  <string name="pgm_google_play_network_error">Ein Netzwerkfehler ist aufgetreten. Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.</string>
+  <string name="pgm_google_play_service_disabled">Die installierte Version der Google Play-Dienste wurde auf diesem GerÃ¤t deaktiviert. Bitte schalten Sie die Google Play-Dienste ein.</string>
+  <string name="pgm_google_play_service_invalid">Die Version der auf diesem GerÃ¤t installierten Google Play-Dienste konnte nicht authentifiziert werden. Bitte Aktualisieren Sie die Google Play-Dienste im Google Play Store.</string>
+  <string name="pgm_google_play_service_missing">Google Play-Dienste fehlen auf diesem GerÃ¤t. Bitte installieren Sie die Google Play-Dienste Ã¼ber den Play Store.
 </string>
   <string name="pgm_google_play_service_update_required">Die installierte Version der Google Play-Dienste ist veraltet. Aktualisieren Sie die Google Play-Dienste im Google Play Store.</string>
-  <string name="pgm_google_play_sign_in_required">Sie haben versucht, eine Verbindung mit dem Dienst herzustellen, aber Sie sind nicht angemeldet. Überprüfen Sie die Konfiguration der Google Play-Dienste</string>
-  <string name="pgm_no_location_providers">Da dieses Gerät keinen Standortanbieter hat, kann diese App Ihren Standort nicht erkennen.</string>
+  <string name="pgm_google_play_sign_in_required">Sie haben versucht, eine Verbindung mit dem Dienst herzustellen, aber Sie sind nicht angemeldet. ÃœberprÃ¼fen Sie die Konfiguration der Google Play-Dienste</string>
+  <string name="pgm_no_location_providers">Da dieses GerÃ¤t keinen Standortanbieter hat, kann diese App Ihren Standort nicht orten.</string>
   <string name="pgm_no_location_service_is_disabled">Der Standortdienst ist deaktiviert.</string>
   <string name="pgm_location_rejected_by_user">Der Standortdienst wird vom Benutzer abgelehnt.</string>
-  <string name="pgm_can_not_get_location">Ich kann Ihren Standort nicht erkennen. Versuch es noch einmal.</string>
+  <string name="pgm_can_not_get_location">Sie konnten nicht lokalisiert werden. Versuchen Sie es bitte erneut.</string>
 </resources>
