@@ -241,7 +241,7 @@ var ignoreTags = [
 
 
 function shouldWatchByNative(node) {
-  if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
+  if (!node || node.nodeType !== Node.ELEMENT_NODE || !node.parentNode || node instanceof SVGElement) {
     if (node === document.body) {
       return true;
     }
