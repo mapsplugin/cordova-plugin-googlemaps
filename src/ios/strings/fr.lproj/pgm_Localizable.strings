@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "Service de localisation non disponible";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Cette application nécessite un accès à votre localisation. Veuillez activer le localisation dans \"Réglages > Confidentialité > Service de localisation\"";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Cette application nécessite un accès à votre localisation. Veuillez activer le service de localisation dans \"Réglages > Confidentialité > Service de localisation\"";
 
 "LOCATION_IS_DENIED_MESSAGE" = "Cette application a rejeté le service de localisation.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Votre localisation est introuvable.";
