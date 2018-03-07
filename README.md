@@ -25,7 +25,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.2.5">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.2.6">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -78,8 +78,10 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 - **v2.2.6**
   - Add: support languages
-    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`)
+    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, `Hindi`)
   - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
+  - Fix: Cannot build with Java 1.7
+
 
 ---
 
