@@ -1,5 +1,7 @@
 repositories {
+  maven { url 'https://maven.google.com' }
   mavenCentral()
+  jcenter()
   flatDir{
     dirs 'src/main/libs', 'libs'
   }
@@ -10,10 +12,10 @@ dependencies {
 }
 
 android {
-  compileSdkVersion 19
+  compileSdkVersion 26
 
   packagingOptions {
-    exclude 'META-INF/NOTICE'
-    exclude 'META-INF/LICENSE'
+    exclude 'README'
+    exclude 'LICENSE'
   }
 }

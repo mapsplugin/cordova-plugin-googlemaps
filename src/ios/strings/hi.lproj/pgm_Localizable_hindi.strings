@@ -1,0 +1,23 @@
+/*
+ * Generic
+ */
+"CLOSE_BUTTON" = "बंद";
+
+/*
+ * CordovaGoogleMaps.m
+ */
+"APIKEY_IS_UNDEFINED_TITLE" = "एपीआई कुंजी त्रुटि";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "चर \'API_KEY_FOR_IOS\' पंजीकृत (रजिस्टर) नहीं हुआ.";
+
+"APP_NAME_ERROR_TITLE" = "आपको config.xml फ़ाइल को बदलना होगा";
+"APP_NAME_ERROR_MESSAGE" = "अगर CFBundleExecutable मे गैर-अंग्रेज़ी वर्णों होने पर गूगल मैप्स एसडीके (Google Maps SDK) क्रैश हो जाता है.\nऔर जानकारी के लिए CordovaGoogleMaps.m मे टिप्पणी को देखें.";
+
+/*
+ * PluginLocationService.m
+ */
+"LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "स्थान सेवा उपलब्ध नहीं है";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "इस एप को आप के स्थान की ज़रुरत है. कृपया \'Settings > Privacy > Location Services\' से चालू करें";
+
+"LOCATION_IS_DENIED_MESSAGE" = "इस एप  ने स्थान सेवा को उपयोग करना अस्वीकार कर दिया है.";
+"CAN_NOT_GET_LOCATION_MESSAGE" = "आपका स्थान उपलब्ध नही है .";
+"LOCATION_REJECTED_BY_USER_MESSAGE" = "उपयोगकर्ता ने स्थान सेवा अस्वीकार कर दिया है.";
