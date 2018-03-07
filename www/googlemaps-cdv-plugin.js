@@ -155,7 +155,7 @@ if (!cordova) {
     var isChecking = false;
     document.head.appendChild(navDecorBlocker);
     var doNotTraceTags = [
-      "svg", "p", "pre", "script", "style"
+      "svg", "p", "pre", "script", "style", "path"
     ];
 
     var followPositionTimer = null;
