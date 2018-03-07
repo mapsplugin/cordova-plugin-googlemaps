@@ -241,7 +241,7 @@ var ignoreTags = [
 
 
 function shouldWatchByNative(node) {
-  if (node.nodeType !== Node.ELEMENT_NODE || !node.parentNode) {
+  if (!node || node.nodeType !== Node.ELEMENT_NODE || !node.parentNode || node instanceof SVGElement) {
     if (node === document.body) {
       return true;
     }
@@ -322,18 +322,21 @@ function getZIndex(dom) {
       }
     }
 
-    if (z === "auto") {
+    var isInherit = false;
+    if (z === "unset" || z === "initial") {
       z = 0;
-    } else if (z === "inherit") {
+    } else if (z === "auto" || z === "inherit") {
       z = 0;
-    } else if (z === "initial" || z === "unset") {
-      z = 0;
+      isInherit = true;
     } else {
       z = parseInt(z);
     }
-    //dom.setAttribute("__ZIndex", z);
+    dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
-    return z;
+    return {
+      isInherit: isInherit,
+      z: z
+    };
 }
 
 // Get CSS value of an element

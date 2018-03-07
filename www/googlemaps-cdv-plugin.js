@@ -1,42 +1,10 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 var cordova_exec = require('cordova/exec');
+var execCmd = require("./commandQueueExecutor");
+var pluginInit = require("./pluginInit");
+
 var isSuspended = false;
-if (typeof Array.prototype.forEach !== "function") {
-  (function() {
-    Array.prototype.forEach = function(fn, thisArg) {
-      thisArg = thisArg || this;
-      for (var i = 0; i < this.length; i++) {
-        fn.call(thisArg, this[i], i, this);
-      }
-    };
-  })();
-}
-if (typeof Array.prototype.filter !== "function") {
-  (function() {
-    Array.prototype.filter = function(fn, thisArg) {
-      thisArg = thisArg || this;
-      var results = [];
-      for (var i = 0; i < this.length; i++) {
-        if (fn.call(thisArg, this[i], i, this) === true) {
-          results.push(this[i]);
-        }
-      }
-      return results;
-    };
-  })();
-}
-if (typeof Array.prototype.map !== "function") {
-  (function() {
-    Array.prototype.map = function(fn, thisArg) {
-      thisArg = thisArg || this;
-      var results = [];
-      for (var i = 0; i < this.length; i++) {
-        results.push(fn.call(thisArg, this[i], i, this));
-      }
-      return results;
-    };
-  })();
-}
+
 
 if (!cordova) {
   document.addEventListener("deviceready", function() {
@@ -79,81 +47,20 @@ if (!cordova) {
   var MAPS = {};
   var saltHash = Math.floor(Math.random() * Date.now());
 
-  /*****************************************************************************
-   * To prevent strange things happen,
-   * disable the changing of viewport zoom level by double clicking.
-   * This code has to run before the device ready event.
-   *****************************************************************************/
-  (function() {
-    var viewportTag = null;
-    var metaTags = document.getElementsByTagName('meta');
-    for (var i = 0; i < metaTags.length; i++) {
-        if (metaTags[i].getAttribute('name') === "viewport") {
-            viewportTag = metaTags[i];
-            break;
-        }
-    }
-    if (!viewportTag) {
-        viewportTag = document.createElement("meta");
-        viewportTag.setAttribute('name', 'viewport');
-    }
-
-    var viewportTagContent = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no';
-
-    // Detect if iOS device
-    if (/(iPhone|iPod|iPad)/i.test(window.navigator.userAgent)) {
-      // Get iOS major version
-      var iosVersion = parseInt((window.navigator.userAgent).match(/OS (\d+)_(\d+)_?(\d+)? like Mac OS X/i)[1]);
-      // Detect if device is running >iOS 11
-      // iOS 11's UIWebView and WKWebView changes the viewport behaviour to render viewport without the status bar. Need to override with "viewport-fit: cover" to include the status bar.
-      if (iosVersion >= 11) {
-        viewportTagContent += ', viewport-fit=cover';
-      }
-    }
-
-    // Update viewport tag attribute
-    viewportTag.setAttribute('content', viewportTagContent);
-  })();
-
-  /*****************************************************************************
-   * Prevent background, background-color, background-image properties
-   *****************************************************************************/
-  var navDecorBlocker = document.createElement("style");
-  navDecorBlocker.setAttribute("type", "text/css");
-  navDecorBlocker.innerText = [
-    "html, body, ._gmaps_cdv_ {",
-    "   background-image: url() !important;",
-    "   background: rgba(0,0,0,0) url() !important;",
-    "   background-color: rgba(0,0,0,0) !important;",
-    "}",
-    "._gmaps_cdv_ .nav-decor {",
-    "   background-color: rgba(0,0,0,0) !important;",
-    "   background: rgba(0,0,0,0) !important;",
-    "   display:none !important;",
-    "}"
-  ].join("");
-  document.head.appendChild(navDecorBlocker);
+  // The pluginInit.js must execute before loading HTML is completed.
+  pluginInit();
 
   /*****************************************************************************
    * Add event lister to all html nodes under the <body> tag.
    *****************************************************************************/
   (function() {
+    // If <body> is not ready yet, wait 25ms, then execute this function again.
     if (!document.body || !document.body.firstChild) {
       common.nextTick(arguments.callee, 25);
       return;
     }
 
-    //setTimeout(function() {
-      // Webkit redraw mandatory
-      // http://stackoverflow.com/a/3485654/697856
-      document.body.style.backgroundColor = "rgba(0,0,0,0)";
-      //document.body.style.display='none';
-      document.body.offsetHeight;
-      //document.body.style.display='';
-    //}, 0);
-
     var isChecking = false;
-    document.head.appendChild(navDecorBlocker);
     var doNotTraceTags = [
       "svg", "p", "pre", "script", "style"
     ];
@@ -518,7 +425,7 @@ if (!cordova) {
       }
 
       // Get the z-index CSS
-      var zIndex = common.getZIndex(element);
+      var zIndexProp = common.getZIndex(element);
 
       // Calculate dom clickable region
       var rect = common.getDivRect(element);
@@ -529,7 +436,7 @@ if (!cordova) {
         pointerEvents: common.getStyle(element, 'pointer-events'),
         isMap: element.hasAttribute("__pluginMapId"),
         size: rect,
-        zIndex: zIndex,
+        zIndex: zIndexProp,
         overflowX: common.getStyle(element, "overflow-x"),
         overflowY: common.getStyle(element, "overflow-y"),
         children: [],
@@ -537,7 +444,7 @@ if (!cordova) {
       };
       var containMapCnt = (Object.keys(domPositions[elemId].containMapIDs)).length;
       isMapChild = isMapChild || domPositions[elemId].isMap;
-      if ((containMapCnt > 0 || isMapChild || domPositions[elemId].pointerEvents === "none") && element.children.length > 0) {
+      if ((containMapCnt > 0 || isMapChild || domPositions[elemId].pointerEvents === "none" || zIndexProp.isInherit) && element.children.length > 0) {
         var child;
         for (var i = 0; i < element.children.length; i++) {
           child = element.children[i];
@@ -586,28 +493,12 @@ if (!cordova) {
       }, 50);
     });
 
-    //----------------------------------------------------
-    // Stop all executions if the page will be closed.
-    //----------------------------------------------------
-    function stopExecution() {
-      // Request stop all tasks.
-      _stopRequested = true;
-/*
-      if (_isWaitMethod && _executingCnt > 0) {
-        // Wait until all tasks currently running are stopped.
-        common.nextTick(arguments.callee, 100);
-        return;
-      }
-*/
-    }
-    window.addEventListener("unload", stopExecution);
-
     //--------------------------------------------
     // Hook the backbutton of Android action
     //--------------------------------------------
     var anotherBackbuttonHandler = null;
     function onBackButton(e) {
-      common.nextTick(putHtmlElements);
+      common.nextTick(putHtmlElements);  // <-- super important!
       if (anotherBackbuttonHandler) {
         // anotherBackbuttonHandler must handle the page moving transaction.
         // The plugin does not take care anymore if another callback is registered.
@@ -917,129 +808,4 @@ function nativeCallback(params) {
   var args = params.args || [];
   args.unshift(params.evtName);
   this[params.callback].apply(this, args);
-}
-
-/*****************************************************************************
- * Command queue mechanism
- * (Save the number of method executing at the same time)
- *****************************************************************************/
-var commandQueue = [];
-var _isWaitMethod = null;
-var _isExecuting = false;
-var _executingCnt = 0;
-var MAX_EXECUTE_CNT = 10;
-var _lastGetMapExecuted = 0;
-var _isResizeMapExecuting = false;
-var _stopRequested = false;
-
-
-function execCmd(success, error, pluginName, methodName, args, execOptions) {
-  execOptions = execOptions || {};
-  if (this._isRemoved && !execOptions.remove) {
-    // Ignore if the instance is already removed.
-    console.error("[ignore]" + pluginName + "." + methodName + ", because removed.");
-    return true;
-  }
-  if (!this._isReady) {
-    // Ignore if the instance is not ready.
-    console.error("[ignore]" + pluginName + "." + methodName + ", because it's not ready.");
-    return true;
-  }
-  var self = this;
-  commandQueue.push({
-    "execOptions": execOptions,
-    "args": [function() {
-      //console.log("success: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
-      if (!_stopRequested && success) {
-        var results = [];
-        for (var i = 0; i < arguments.length; i++) {
-          results.push(arguments[i]);
-        }
-        common.nextTick(function() {
-          success.apply(self,results);
-        });
-      }
-
-      var delay = 0;
-      if (methodName === _isWaitMethod) {
-        // Prevent device crash when the map.getMap() executes multiple time in short period
-        if (_isWaitMethod === "getMap" && Date.now() - _lastGetMapExecuted < 1500) {
-          delay = 1500;
-        }
-        _lastGetMapExecuted = Date.now();
-        _isWaitMethod = null;
-      }
-      setTimeout(function() {
-        _executingCnt--;
-        common.nextTick(_exec);
-      }, delay);
-    }, function() {
-      //console.log("error: " + methodName);
-      if (methodName === "resizeMap") {
-        _isResizeMapExecuting = false;
-      }
-      if (!_stopRequested && error) {
-        var results = [];
-        for (var i = 0; i < arguments.length; i++) {
-          results.push(arguments[i]);
-        }
-        common.nextTick(function() {
-          error.apply(self,results);
-        });
-      }
-
-      if (methodName === _isWaitMethod) {
-        _isWaitMethod = null;
-      }
-      _executingCnt--;
-      common.nextTick(_exec);
-    }, pluginName, methodName, args]
-  });
-
-  //console.log("commandQueue.length: " + commandQueue.length, commandQueue);
-  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT ) {
-    return;
-  }
-  common.nextTick(_exec);
-}
-function _exec() {
-  //console.log("commandQueue.length: " + commandQueue.length);
-  if (_isExecuting || _executingCnt >= MAX_EXECUTE_CNT || _isWaitMethod || commandQueue.length === 0) {
-    return;
-  }
-  _isExecuting = true;
-
-  var methodName;
-  while (commandQueue.length > 0 && _executingCnt < MAX_EXECUTE_CNT) {
-    if (!_stopRequested) {
-      _executingCnt++;
-    }
-    var commandParams = commandQueue.shift();
-    methodName = commandParams.args[3];
-    //console.log("target: " + methodName);
-    if (methodName === "resizeMap") {
-      if (_isResizeMapExecuting) {
-        _executingCnt--;
-        continue;
-      }
-      _isResizeMapExecuting = true;
-    }
-    if (_stopRequested && (!commandParams.execOptions.remove || methodName !== "clear")) {
-      _executingCnt--;
-      continue;
-    }
-    //console.log("start: " + methodName);
-    if (commandParams.execOptions.sync) {
-      _isWaitMethod = methodName;
-      cordova_exec.apply(this, commandParams.args);
-      break;
-    }
-    cordova_exec.apply(this, commandParams.args);
-  }
-  //console.log("commandQueue.length: " + commandQueue.length);
-  _isExecuting = false;
-
 }

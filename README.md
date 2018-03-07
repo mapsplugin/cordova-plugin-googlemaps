@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.5)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.6)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -25,7 +25,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.2.5">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.2.6">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -75,6 +75,13 @@ $> cordova plugin add cordova-plugin-googlemaps \
 - **v2.2.5** (small update)
   - Bug fix: setMyLocationEnabed(true) hide the MyLocationButton.
   - Fix: Conflict with `cordova-plugin-geolocation`
+
+- **v2.2.6**
+  - Add: support languages
+    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, `Hindi`)
+  - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
+  - Fix: Cannot build with Java 1.7
+
 
 ---
 

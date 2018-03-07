@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">Lukk</string>
+  <string name="pgm_api_key_error">Vennligst erstatt \'API_KEY_FOR_ANDROID\' i  platforms/android/app/src/AndroidManifest.xml med din API-nøkkel!</string>
+  <string name="pgm_google_play_error">Google Maps Android API v2 er ikke tilgjengelig av ukjent grunn på enheten.</string>
+  <string name="pgm_google_play_developer_error">Applikasjon er feilkonfigurert. Denne feilen er ikke gjenvinnbart og skal behandles som fatal. Utvikleren bør se på loggen etter dette for å fastslå mer handlingsbar informasjon.</string>
+  <string name="pgm_google_play_internal_error">Det har skjedd en intern feil av Google Play tjeneste. Vennligst prøv igjen og problemme skal løses ut.</string>
+  <string name="pgm_google_play_invalid_account">Du prøver å koble til tjeneste med ugyldig brukkernavn.</string>
+  <string name="pgm_google_play_lincense_check_failed">Applikasjon har ikke licensing for dette brukkernavnet. Denne feilen er ikke gjenvinnbart og skal behandles som fatal.</string>
+  <string name="pgm_google_play_network_error">Det har skjedd koblingsfailen. Vennligst prøv igjen og problemme skal løses ut.</string>
+  <string name="pgm_google_play_service_disabled">Innstallert versjon av Google Play tjenesten har vært deaktivert på denne innhetten. Vennligst slå av Google Play tjenesten.</string>
+  <string name="pgm_google_play_service_invalid">Innstallert versjon av Google Play tjenesten har ikke vært autentisk. Vennligst oppdater Google Play tjenesten fra Google Play Store.</string>
+  <string name="pgm_google_play_service_missing">Google Play tjenesten er utilghengelig på denne enheten. Vennligst installer Google Play tjenesten.</string>
+  <string name="pgm_google_play_service_update_required">Innstallert verjson av Google Play tjenesten er ikke oppdatert. Vennligst oppdater Google Play tjenesten fra Google Play Store.</string>
+  <string name="pgm_google_play_sign_in_required">Du prøver å koble til tjeneste, men du har ikke logget inn. Vennligst sjekk Google Play tjenesten innstellinger.</string>
+  <string name="pgm_no_location_providers">Siden enheten har ingen stedleverandør, kan ikke din lokasjon oppdages av enheten.</string>
+  <string name="pgm_no_location_service_is_disabled">Stedtjenester er deaktivert.</string>
+  <string name="pgm_location_rejected_by_user">Stedtjenester er avvist av brukeren.</string>
+  <string name="pgm_can_not_get_location">Kan ikke oppdage din lokasjon. Vannligst prøv igjen.</string>
+</resources>

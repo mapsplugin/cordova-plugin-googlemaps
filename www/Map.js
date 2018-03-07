@@ -96,8 +96,8 @@ Map.prototype.getMap = function(mapId, div, options) {
   self.set("visible", options.visible === false ? false : true);
 
   if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+    this.set("myLocation", options.controls.myLocation === true);
+    this.set("myLocationButton", options.controls.myLocationButton === true);
   }
 
   if (!common.isDom(div)) {
@@ -252,8 +252,8 @@ Map.prototype.setOptions = function(options) {
   options = options || {};
 
   if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+    this.set("myLocation", options.controls.myLocation === true);
+    this.set("myLocationButton", options.controls.myLocationButton === true);
   }
   if (options.camera) {
     if (options.camera.latLng) {
