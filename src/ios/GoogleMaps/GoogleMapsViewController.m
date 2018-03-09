@@ -445,8 +445,8 @@
           if ([markerTag containsString:@"-marker_"]) {
             [self triggerClusterEvent:@"info_close" marker:self.activeMarker];
           }
-        } else {
-          [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
+//        } else {
+//          [self triggerMarkerEvent:@"info_close" marker:self.activeMarker];
         }
       }
       [self triggerClusterEvent:@"cluster_click" marker:marker];

@@ -2253,6 +2253,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onInfoWindowClose(Marker marker) {
+    Log.d(TAG, "--->onInfoWindowClose");
     boolean useHtmlInfoWnd = marker.getTitle() == null &&
                              marker.getSnippet() == null;
     if (useHtmlInfoWnd) {

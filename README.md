@@ -81,6 +81,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
   - Fix: Cannot build with Java 1.7
   - Fix: map stops if you execute `map.setOptions({controls: {myLocationButton: false})` very after soon `map.getMap(div, {myLocationButton: false})`
+  - Fix: The `INFO_CLOSE` event is triggered twice.
 
 
 ---
