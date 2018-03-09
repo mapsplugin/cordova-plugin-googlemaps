@@ -95,7 +95,7 @@ Map.prototype.getMap = function(mapId, div, options) {
   self.set("clickable", options.clickable === false ? false : true);
   self.set("visible", options.visible === false ? false : true);
 
-  if (options.control) {
+  if (options.controls) {
     this.set("myLocation", options.controls.myLocation === true);
     this.set("myLocationButton", options.controls.myLocationButton === true);
   }
@@ -122,10 +122,6 @@ Map.prototype.getMap = function(mapId, div, options) {
       if (options.camera.tilt) {
         this.set('camera_tilt', options.camera.tilt);
       }
-    }
-    if (options.controls) {
-      this.set('myLocation', options.controls.myLocation === true);
-      this.set('myLocationButton', options.controls.myLocationButton === true);
     }
     args.push(options);
   } else {
@@ -154,10 +150,6 @@ Map.prototype.getMap = function(mapId, div, options) {
       if (options.camera.tilt) {
         this.set('camera_tilt', options.camera.tilt);
       }
-    }
-    if (options.controls) {
-      this.set('myLocation', options.controls.myLocation === true);
-      this.set('myLocationButton', options.controls.myLocationButton === true);
     }
     if (utils.isArray(options.styles)) {
       options.styles = JSON.stringify(options.styles);
@@ -251,9 +243,19 @@ Map.prototype.getMap = function(mapId, div, options) {
 Map.prototype.setOptions = function(options) {
   options = options || {};
 
-  if (options.control) {
-    this.set("myLocation", options.controls.myLocation === true);
-    this.set("myLocationButton", options.controls.myLocationButton === true);
+  if (options.controls) {
+    var myLocation = this.get("myLocation");
+    if ("myLocation" in options.controls) {
+      myLocation = options.controls.myLocation === true;
+    }
+    var myLocationButton = this.get("myLocationButton");
+    if ("myLocationButton" in options.controls) {
+      myLocationButton = options.controls.myLocationButton === true;
+    }
+    this.set("myLocation", myLocation);
+    this.set("myLocationButton", myLocationButton);
+    options.controls.myLocation = myLocation;
+    options.controls.myLocationButton = myLocation;
   }
   if (options.camera) {
     if (options.camera.latLng) {
@@ -541,7 +543,7 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   this.set("myLocationButton", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
-    myLocation: self.get("myLocation")
+    myLocation: self.get("myLocation") === true
   }], {
     sync: true
   });
@@ -553,7 +555,7 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
-    myLocationButton: self.get("myLocationButton"),
+    myLocationButton: self.get("myLocationButton") === true,
     myLocation: enabled
   }], {
     sync: true
