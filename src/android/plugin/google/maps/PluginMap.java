@@ -2770,8 +2770,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 if (markerTag.contains("-marker_")) {
                   onClusterEvent("info_close", activeMarker);
                 }
-              } else {
-                onInfoWindowClose(activeMarker);
+//              } else {
+//                boolean useHtmlInfoWnd = activeMarker.getTitle() == null &&
+//                    activeMarker.getSnippet() == null;
+//                if (useHtmlInfoWnd || activeMarker.isInfoWindowShown()) {
+//                  onInfoWindowClose(activeMarker);
+//                }
               }
               activeMarker = null;
             }
