@@ -77,11 +77,12 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Fix: Conflict with `cordova-plugin-geolocation`
 
 - **v2.2.6**
-  - Add: support languages (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, `Hindi`)
+  - Add: support languages
+    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, `Hindi`)
   - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
   - Fix: Cannot build with Java 1.7
-  - Fix: map stops if you execute `map.setOptions({controls: {myLocationButton: false})` very after soon `map.getMap(div, {myLocationButton: false})`
-  - Fix: The `INFO_CLOSE` event is triggered twice.
+  - Fix: `INFO_CLOSE` event is triggered twice
+  - Fix: `map.setOptions()` does not work very after soon from the `MAP_READY` event.
 
 
 ---

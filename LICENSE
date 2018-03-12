@@ -200,3 +200,7 @@ Apache License
    See the License for the specific language governing permissions and
    limitations under the License.
 
+Additional conditions:
+   As of the cordova-plugin-googlemaps version 2.2.5, following user is prohibited to use this plugin (additional fork, copy the code from this repo, anything).
+   - the member of `Bemyeye Holdings limited (https://github.com/BeMyEye)`
+   
