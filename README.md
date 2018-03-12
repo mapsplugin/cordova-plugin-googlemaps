@@ -81,6 +81,8 @@ $> cordova plugin add cordova-plugin-googlemaps \
     (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, `Hindi`)
   - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
   - Fix: Cannot build with Java 1.7
+  - Fix: `INFO_CLOSE` event is triggered twice
+  - Fix: `map.setOptions()` does not work very after soon from the `MAP_READY` event.
 
 
 ---
