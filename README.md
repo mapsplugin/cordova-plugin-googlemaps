@@ -84,6 +84,10 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Fix: `INFO_CLOSE` event is triggered twice
   - Fix: `map.setOptions()` does not work very after soon from the `MAP_READY` event.
 
+- **v2.2.7**
+  - Add: support languages
+    (`Arabic`)
+  - Fix: Can not build on iOS.
 
 ---
 
