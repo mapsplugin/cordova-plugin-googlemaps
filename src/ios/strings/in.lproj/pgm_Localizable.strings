@@ -7,7 +7,7 @@
  * CordovaGoogleMaps.m
  */
 "APIKEY_IS_UNDEFINED_TITLE" = "API key Anda Salah";
-"APIKEY_IS_UNDEFINED_MESSAGE" = "variable \'API_KEY_FOR_IOS\' tidak terdaftar.";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "variable \"API_KEY_FOR_IOS\" tidak terdaftar.";
 
 "APP_NAME_ERROR_TITLE" = "anda perlu merubah file config.xml ";
 "APP_NAME_ERROR_MESSAGE" = "Google Maps SDK untuk iOS cras jika CFBundleExecutable ber isi  karakter non English.\nLebih detail, silahkan lihat komentar dalam file CordovaGoogleMaps.m";
@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "tidak terdapat Service Lokasi";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Applikasi ini membutuhkan akses lokasi anda. Silahkan aktifkan \'Pengaturan > Privaci > Lokasi\'";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Applikasi ini membutuhkan akses lokasi anda. Silahkan aktifkan \"Pengaturan > Privaci > Lokasi\"";
 
 "LOCATION_IS_DENIED_MESSAGE" = "Applikasi ini tidak dapat menggunakan service Lokasi.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Tidak dapat menemukan lokasi anda.";

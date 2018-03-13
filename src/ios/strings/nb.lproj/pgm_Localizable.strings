@@ -7,7 +7,7 @@
  * CordovaGoogleMaps.m
  */
 "APIKEY_IS_UNDEFINED_TITLE" = "API-nøkkel feil";
-"APIKEY_IS_UNDEFINED_MESSAGE" = "Variabelen \'API_KEY_FOR_IOS\' er ikke registrert.";
+"APIKEY_IS_UNDEFINED_MESSAGE" = "Variabelen \"API_KEY_FOR_IOS\" er ikke registrert.";
 
 "APP_NAME_ERROR_TITLE" = "Du må endre config.xml filen";
 "APP_NAME_ERROR_MESSAGE" = "Google Maps SDK til iOS ødelegges hvis CFBundleExecutable inneholder ikke-engelske simboler.\nFlere detaljer, Skjekk ut kommentar i CordovaGoogleMaps.m filen.";
@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "Stedtjenester er ikke tilgjengelig";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Denne applikasjon trenger tilghengelighet til din lokasjon. Vennlighst slå på \'Innstellinger > Personvern > Stedtjenester\'";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Denne applikasjon trenger tilghengelighet til din lokasjon. Vennlighst slå på \"Innstellinger > Personvern > Stedtjenester\"";
 
 "LOCATION_IS_DENIED_MESSAGE" = "Denne applikasjon avviser bruk av Stedtjenester.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Kan ikke få din lokasjon.";
