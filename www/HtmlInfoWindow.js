@@ -195,9 +195,9 @@ var HTMLInfoWindow = function() {
     eraseBorder.classList.add('pgm-html-info-tail-erase-border');
     tailFrame.appendChild(eraseBorder);
 
-    var calculate = function() {
+    var calculate = function(marker) {
 
-      var marker = self.get("marker");
+      //var marker = self.get("marker");
       var map = marker.getMap();
 
       var div = map.getDiv();
@@ -403,7 +403,7 @@ HTMLInfoWindow.prototype.setContent = function(content, cssOptions) {
     self.set("cssOptions", cssOptions);
     var marker = self.get("marker");
     if (content !== prevContent && marker && marker.isInfoWindowShown()) {
-      self.trigger("infoWindowAnchor_changed");
+      self.trigger("infoWindowAnchor_changed", marker);
     }
 };
 
@@ -423,7 +423,7 @@ HTMLInfoWindow.prototype.open = function(marker) {
     marker.set("infoWindow", self);
     marker.set("isInfoWindowVisible", true);
     self._hook.on(marker, "icon_changed", function() {
-      self.trigger.call(self, "infoWindowAnchor_changed");
+      self.trigger.call(self, "infoWindowAnchor_changed", marker);
     });
     self.set("isInfoWindowVisible", true);
     self._hook.on(marker, "isInfoWindowVisible_changed", function(prevValue, newValue) {
@@ -442,7 +442,7 @@ HTMLInfoWindow.prototype.open = function(marker) {
         self._hook.one(marker, event.INFO_CLOSE, self.close.bind(self));
         self.set("marker", marker);
         map.set("active_marker_id", marker.getId());
-        self.trigger.call(self, "infoWindowAnchor_changed");
+        self.trigger.call(self, "infoWindowAnchor_changed", marker);
     });
 };
 
