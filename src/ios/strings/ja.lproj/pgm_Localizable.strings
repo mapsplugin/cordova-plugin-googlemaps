@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "位置情報が有効になっていません";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "この端末の位置情報が無効になっています。\'設定 > プライバシー > 位置情報サービス\'を有効にしてください";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "この端末の位置情報が無効になっています。\"設定 > プライバシー > 位置情報サービス\"を有効にしてください";
 
 "LOCATION_IS_DENIED_MESSAGE" = "位置情報サービスの利用が拒否されました";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "現在位置を取得できませんでした";

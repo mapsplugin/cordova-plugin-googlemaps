@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.2.6" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.2.7" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -247,7 +247,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         Minimum required version of Android Support library v4 for this plugin.
         https://developers.google.com/android/guides/releases
         -->
-        <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.1.0" />
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="24.1.0" />
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
@@ -267,6 +267,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/android/res/values-fr/pgm_strings.xml" target="res/values-fr/pgm_strings.xml" />
         <!-- localized messages for Hindi -->
         <resource-file src="src/android/res/values-hi/pgm_strings.xml" target="res/values-hi/pgm_strings.xml" />
+        <!-- localized messages for Arabic -->
+        <resource-file src="src/android/res/values-ar/pgm_strings.xml" target="res/values-ar/pgm_strings.xml" />
+        <!-- localized messages for Dutch -->
+        <resource-file src="src/android/res/values-nl/pgm_strings.xml" target="res/values-nl/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -275,6 +279,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <preference name="API_KEY_FOR_IOS" />
         <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
         <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background." />
+        <preference name="CFBundleDevelopmentRegion" default="English" />
 
         <js-module name="CordovaGoogleMaps" src="www/googlemaps-cdv-plugin.js">
           <clobbers target="plugin.google.maps" />
@@ -381,7 +386,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
 
         <config-file target="*-Info.plist" parent="CFBundleDevelopmentRegion">
-          <string>English</string>
+          <string>$CFBundleDevelopmentRegion</string>
         </config-file>
         <config-file target="*-Info.plist" parent="CFBundleLocalizations">
           <array>
@@ -393,6 +398,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <string>de</string>
             <string>fr</string>
             <string>hi</string>
+            <string>ar</string>
           </array>
         </config-file>
 
@@ -412,6 +418,10 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/ios/strings/fr.lproj/pgm_Localizable.strings" target="fr.lproj/pgm_Localizable.strings" />
         <!-- localized messages for Hindi -->
         <resource-file src="src/ios/strings/hi.lproj/pgm_Localizable.strings" target="hi.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Arabic -->
+        <resource-file src="src/ios/strings/ar.lproj/pgm_Localizable.strings" target="ar.lproj/pgm_Localizable.strings" />
+        <!-- localized messages for Dutch -->
+        <resource-file src="src/ios/strings/nl.lproj/pgm_Localizable.strings" target="nl.lproj/pgm_Localizable.strings" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>

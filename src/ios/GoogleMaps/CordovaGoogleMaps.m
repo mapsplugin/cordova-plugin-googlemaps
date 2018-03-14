@@ -413,7 +413,7 @@
 - (void)resume:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
-    dispatch_semaphore_signal(self.pluginLayer.semaphore);
+    [self.pluginLayer startRedrawTimer];
   }
   CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -422,6 +422,9 @@
 - (void)pause:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = true;
+
+    // cancel tht timer
+    [self.pluginLayer stopRedrawTimer];
   }
   CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -454,7 +457,7 @@
       }
 
       self.pluginLayer.isSuspended = false;
-      dispatch_semaphore_signal(self.pluginLayer.semaphore);
+      [self.pluginLayer startRedrawTimer];
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self.pluginLayer resizeTask:nil];
       }];

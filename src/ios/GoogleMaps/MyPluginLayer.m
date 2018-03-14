@@ -49,21 +49,31 @@
 
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
-
     dispatch_queue_t q_background = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
 
     dispatch_async(q_background, ^{
-      self.semaphore = dispatch_semaphore_create(0);
-      self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                  target:self
-                                  selector:@selector(resizeTask:)
-                                  userInfo:nil
-                                  repeats:YES];
+      [self startRedrawTimer];
     });
 
     return self;
 }
 
+- (void)startRedrawTimer {
+  if (!self.redrawTimer) {
+
+    self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                target:self
+                                selector:@selector(resizeTask:)
+                                userInfo:nil
+                                repeats:YES];
+  }
+}
+- (void)stopRedrawTimer {
+  if (self.redrawTimer) {
+    [self.redrawTimer invalidate];
+    self.redrawTimer = nil;
+  }
+}
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
   CGPoint offset = self.webView.scrollView.contentOffset;
@@ -191,13 +201,7 @@
 }
 
 - (void)resizeTask:(NSTimer *)timer {
-    if (self.isSuspended) {
-      @synchronized (self.semaphore) {
-        dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-      }
-      //return;
-    }
-    if (self.stopFlag) {
+    if (self.isSuspended || self.stopFlag) {
         return;
     }
     self.stopFlag = YES;
