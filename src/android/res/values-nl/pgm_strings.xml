@@ -13,8 +13,8 @@
   <string name="pgm_google_play_service_missing">Google Play services ontbreekt op dit apparaat. Installeer Google Play Services.</string>
   <string name="pgm_google_play_service_update_required">De geinstalleerde Google Play services is niet langer geldig. Update Google Play Services van de Google Play Store.</string>
   <string name="pgm_google_play_sign_in_required">Je probeert te verbinden met de service maar je bent niet ingelogd. Controleer de Google Play Services configuratie</string>
-  <string name="pgm_no_location_providers">Omdat dit apparaat geen lokatie provider heeft kan de app je locatie niet bepalen.</string>
-  <string name="pgm_no_location_service_is_disabled">Lokatie service staat uit.</string>
+  <string name="pgm_no_location_providers">Omdat dit apparaat geen locatie provider heeft kan de app je locatie niet bepalen.</string>
+  <string name="pgm_no_location_service_is_disabled">Locatie service staat uit.</string>
   <string name="pgm_location_rejected_by_user">Locatie service is afgewezen door de gebruiker.</string>
   <string name="pgm_can_not_get_location">Kan je locatie niet bepalen. Probeer opnieuw.</string>
 </resources>
