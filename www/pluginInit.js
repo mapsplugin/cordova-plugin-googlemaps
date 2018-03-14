@@ -102,10 +102,12 @@ function pluginInit() {
   // Set transparent mandatory for older browser
   // http://stackoverflow.com/a/3485654/697856
   //----------------------------------------------
-  document.body.style.backgroundColor = "rgba(0,0,0,0)";
-  //document.body.style.display='none';
-  document.body.offsetHeight;
-  //document.body.style.display='';
+  if(document.body){
+    document.body.style.backgroundColor = "rgba(0,0,0,0)";
+    //document.body.style.display='none';
+    document.body.offsetHeight;
+    //document.body.style.display='';
+  }
 }
 
 module.exports = pluginInit;
