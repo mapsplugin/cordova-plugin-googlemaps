@@ -16,7 +16,7 @@
  * PluginLocationService.m
  */
 "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" = "De locatievoorziening is niet beschikbaar";
-"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Deze app wil jou locatie kunnen bepalen. Zet dit aan via \"Instellingen > Privacy > Locatievoorzieningen\"";
+"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" = "Deze app wil jouw locatie kunnen bepalen. Zet dit aan via \"Instellingen > Privacy > Locatievoorzieningen\"";
 
 "LOCATION_IS_DENIED_MESSAGE" = "Deze app heeft de locatievoorziening afgewezen.";
 "CAN_NOT_GET_LOCATION_MESSAGE" = "Kan je locatie niet bepalen.";

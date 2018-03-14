@@ -399,6 +399,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <string>fr</string>
             <string>hi</string>
             <string>ar</string>
+            <string>nl</string>
           </array>
         </config-file>
 
