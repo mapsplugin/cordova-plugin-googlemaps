@@ -29,14 +29,14 @@
     //-------------------------------
     NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
     if (APIKey == nil) {
-      NSString *errorTitle = PGM_LOCALIZATION(@"APIKEY_IS_UNDEFINED_TITLE", nil);
-      NSString *errorMsg = PGM_LOCALIZATION(@"APIKEY_IS_UNDEFINED_MESSAGE", nil);
+      NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
+      NSString *errorMsg = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_MESSAGE"];
 
       UIAlertController* alert = [UIAlertController alertControllerWithTitle:errorTitle
                                                                      message:errorMsg
                                                               preferredStyle:UIAlertControllerStyleAlert];
 
-      NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
+      NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
       UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
                                                    style:UIAlertActionStyleDefault
                                                  handler:^(UIAlertAction* action)
@@ -210,14 +210,14 @@
   NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
   if ([regex numberOfMatchesInString:CFBundleExecutable options:0 range:NSMakeRange(0, CFBundleExecutable.length)] == 0) {
 
-    NSString *APP_NAME_ERROR_TITLE = PGM_LOCALIZATION(@"APP_NAME_ERROR_TITLE", nil);
-    NSString *APP_NAME_ERROR_MESSAGE = PGM_LOCALIZATION(@"APP_NAME_ERROR_MESSAGE", nil);
+    NSString *APP_NAME_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_TITLE"];
+    NSString *APP_NAME_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_MESSAGE"];
 
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:APP_NAME_ERROR_TITLE
                                                                    message:APP_NAME_ERROR_MESSAGE
                                                             preferredStyle:UIAlertControllerStyleAlert];
 
-    NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
+    NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
     UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
                                                  style:UIAlertActionStyleDefault
                                                handler:^(UIAlertAction* action)

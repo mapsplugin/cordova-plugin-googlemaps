@@ -1,0 +1,12 @@
+{
+  "CLOSE_BUTTON" : "أغلق",
+  "APIKEY_IS_UNDEFINED_TITLE" : "خطأ مفتاح API",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "لم يتم تسجيل المتغير API_KEY_FOR_IOS",
+  "APP_NAME_ERROR_TITLE" : "يجب عليك تغيير ملف config.xml",
+  "APP_NAME_ERROR_MESSAGE" : "CordovaGoogleMaps.m لمزيد من المعلومات ، انظر التعليق في \n. عندما تكون الأحرف غير الإنجليزية قيد الاستخدام Google Maps SDK في CFBundleExecutable  في حالة تعطل",
+  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "خدمة الموقع غير متوفرة",
+  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Settings> Privacy> Location Services يحتاج هذا التطبيق إلى موقعك. يرجى تشغيل",
+  "LOCATION_IS_DENIED_MESSAGE" : ". رفض هذا التطبيق استخدام خدمة الموقع",
+  "CAN_NOT_GET_LOCATION_MESSAGE" : ". موقعك غير متاح",
+  "LOCATION_REJECTED_BY_USER_MESSAGE" : ". رفض المستخدم خدمة الموقع"
+}

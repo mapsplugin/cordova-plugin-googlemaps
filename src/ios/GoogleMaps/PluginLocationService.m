@@ -21,6 +21,7 @@
  */
 -(void)getMyLocation:(CDVInvokedUrlCommand *)command
 {
+  dispatch_async(dispatch_get_main_queue(), ^{
     // Obtain the authorizationStatus
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
     if (status == kCLAuthorizationStatusDenied ||
@@ -29,19 +30,19 @@
         // kCLAuthorizationStatusDenied
         // kCLAuthorizationStatusRestricted
         //----------------------------------------------------
-        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = PGM_LOCALIZATION(@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE", nil);
-        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = PGM_LOCALIZATION(@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE", nil);
+        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE"];
+        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE"];
         UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCATION_IS_UNAVAILABLE_ERROR_TITLE
                                                                        message:LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE
                                                                 preferredStyle:UIAlertControllerStyleAlert];
 
-        NSString *closeBtnLabel = PGM_LOCALIZATION(@"CLOSE_BUTTON", nil);
+        NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
         UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
                                                      style:UIAlertActionStyleDefault
                                                    handler:^(UIAlertAction* action)
             {
                 NSString *error_code = @"service_denied";
-                NSString *error_message = PGM_LOCALIZATION(@"LOCATION_IS_DENIED_MESSAGE", nil);
+                NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
 
                 NSMutableDictionary *json = [NSMutableDictionary dictionary];
                 [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
@@ -120,7 +121,7 @@
             NSMutableDictionary *json = [NSMutableDictionary dictionary];
             [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
             NSString *error_code = @"error";
-            NSString *error_message = PGM_LOCALIZATION(@"CAN_NOT_GET_LOCATION_MESSAGE", nil);
+            NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"CAN_NOT_GET_LOCATION_MESSAGE"];
             [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
             [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
 
@@ -138,6 +139,7 @@
         //[pluginResult setKeepCallbackAsBool:YES];
         //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
+  });
 }
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
@@ -177,10 +179,10 @@
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
     [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
     NSString *error_code = @"error";
-    NSString *error_message = PGM_LOCALIZATION(@"CAN_NOT_GET_LOCATION_MESSAGE", nil);
+    NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"CAN_NOT_GET_LOCATION_MESSAGE"];
     if (error.code == kCLErrorDenied) {
         error_code = @"service_denied";
-        error_message = PGM_LOCALIZATION(@"LOCATION_REJECTED_BY_USER_MESSAGE", nil);
+        error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_REJECTED_BY_USER_MESSAGE"];
     }
 
     [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
