@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.7)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.8)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -87,6 +87,11 @@ $> cordova plugin add cordova-plugin-googlemaps \
 - **v2.2.7**
   - Add: support languages (`Arabic` and `Dutch`)
   - Fix: Can not build on iOS.
+
+- **v2.2.8**
+  - Add: support languages (`Polish`)
+  - Fix: Can not build on iOS.
+  - Fix: Localize function is incorrect.
 
 ---
 
