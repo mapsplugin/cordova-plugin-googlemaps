@@ -46,7 +46,7 @@
 - (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
 
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});",
                         self.mapId, @"poi_click", placeID, name, location.latitude, location.longitude];
   [self execJS:jsString];
 }
@@ -61,7 +61,7 @@
 - (BOOL)didTapMyLocationButtonForMapView:(GMSMapView *)mapView {
 
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});",
                         self.mapId, @"my_location_button_click"];
   [self execJS:jsString];
   return NO;
@@ -89,7 +89,7 @@
     NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
     NSString* jsString = [NSString
-                          stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [%@]});",
+                          stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: [%@]});",
                           self.mapId, @"my_location_click", sourceArrayString];
     [self execJS:jsString];
 }
@@ -415,7 +415,7 @@
   CGPoint point = [self.map.projection
                    pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});",
                         self.mapId, point.x, point.y ];
   [self execJS:jsString];
 }
@@ -532,7 +532,7 @@
 {
 
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: []});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});",
                         self.mapId, eventName];
   [self execJS:jsString];
 }
@@ -544,7 +544,7 @@
 {
 
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});",
                         self.mapId, eventName, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
@@ -604,7 +604,7 @@
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onCameraEvent', args: [%@]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onCameraEvent', args: [%@]});",
                         self.mapId, eventName, sourceArrayString];
   [self execJS:jsString];
 
@@ -641,7 +641,7 @@
 
   // Get the marker plugin
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});",
                         self.mapId, eventName, clusterId, markerId,
                         marker.position.latitude,
                         marker.position.longitude];
@@ -659,7 +659,7 @@
   NSString *markerId = [tmp objectAtIndex:([tmp count] - 1)];
 
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
                         self.mapId, eventName, markerId,
                         marker.position.latitude,
                         marker.position.longitude];
@@ -672,7 +672,7 @@
 - (void)triggerOverlayEvent: (NSString *)eventName overlayId:(NSString*)overlayId coordinate:(CLLocationCoordinate2D)coordinate
 {
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});",
                         self.mapId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
@@ -1056,7 +1056,7 @@
   }
   //Notify to the JS
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_building_focused', callback: '_onMapEvent'});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: 'indoor_building_focused', callback: '_onMapEvent'});",
                         self.mapId];
   [self execJS:jsString];
 }
@@ -1095,7 +1095,7 @@
 
   //Notify to the JS
   NSString* jsString = [NSString
-                        stringWithFormat:@"javascript:cordova.fireDocumentEvent('%@', {evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});",
+                        stringWithFormat:@"javascript:plugin.google.maps['%@']({evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});",
                         self.mapId, JSONstring];
 
   [self execJS:jsString];

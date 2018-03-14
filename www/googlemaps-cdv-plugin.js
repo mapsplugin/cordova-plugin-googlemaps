@@ -102,25 +102,18 @@ if (!cordova) {
     }
 
     document.body.addEventListener("transitionend", function(e) {
-      setTimeout(function() {
-        common.nextTick(function() {
-          if (e.target.hasAttribute("__pluginDomId")) {
-            //console.log("transitionend", e.target.getAttribute("__pluginDomId"));
-            var isMapChild = false;
-            var ele = e.target;
-            while(!isMapChild && ele && ele.nodeType === Node.ELEMENT_NODE) {
-              isMapChild = ele.hasAttribute("__pluginMapId");
-              ele = ele.parentNode;
-            }
-            traceDomTree(e.target, e.target.getAttribute("__pluginDomId"), isMapChild);
-
-            isSuspended = true;
-            isThereAnyChange = true;
-            isChecking = false;
-            resetTimer({force: true});
-          }
-        });
-      }, 100);
+      if (!e.target.hasAttribute("__pluginDomId")) {
+        return;
+      }
+      var cnt = 5;
+      var timer = setInterval(function() {
+        cnt--;
+        if (cnt > 0) {
+          resetTimer({force: true});
+        } else {
+          clearInterval(timer);
+        }
+      }, 50);
     }, true);
 
     document.body.addEventListener("scroll", function(e) {
@@ -265,7 +258,7 @@ if (!cordova) {
       checkRequested = false;
       if (!isThereAnyChange) {
         if (!isSuspended) {
-          //console.log("-->pause(320)");
+          //console.log("-->pause(269)");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
         }
 
@@ -294,7 +287,7 @@ if (!cordova) {
       if (touchableMapList.length === 0) {
 //console.log("--->touchableMapList.length = 0");
         if (!isSuspended) {
-//        console.log("-->pause, isSuspended = true");
+          //console.log("-->(298)pause, isSuspended = true");
           cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
           isSuspended = true;
           isThereAnyChange = false;
@@ -390,7 +383,7 @@ if (!cordova) {
       // Pass information to native
       //-----------------------------------------------------------------
       if (isSuspended) {
-        //console.log("-->resume(470)");
+        //console.log("-->resume(394)");
         cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
         isSuspended = false;
       }
@@ -407,6 +400,7 @@ if (!cordova) {
         isChecking = false;
         isThereAnyChange = false;
         isSuspended = true;
+        //console.log("---->pause(411)");
         cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
       }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
       child = null;
@@ -589,7 +583,10 @@ if (!cordova) {
               var map = new Map(mapId, execCmd);
 
               // Catch all events for this map instance, then pass to the instance.
-              document.addEventListener(mapId, nativeCallback.bind(map));
+              //document.addEventListener(mapId, nativeCallback.bind(map));
+              plugin.google.maps[mapId] = nativeCallback.bind(map);
+
+
               map.on('div_changed', function(oldDiv, newDiv) {
                 if (common.isDom(oldDiv)) {
                   oldDiv.removeAttribute('__pluginMapId');
@@ -654,7 +651,7 @@ if (!cordova) {
               });
 
               map.one('remove', function() {
-                  document.removeEventListener(mapId, nativeCallback);
+                  delete plugin.google.maps[mapId];
                   var div = map.getDiv();
                   if (!div) {
                     div = document.querySelector("[__pluginMapId='" + mapId + "']");
@@ -682,6 +679,7 @@ if (!cordova) {
                     common._clearInternalCache();
 
                     isSuspended = true;
+                    //console.log("---->pause(688)");
                     cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
                   }
               });
@@ -731,6 +729,7 @@ if (!cordova) {
                   cordova_exec(function() {
                     map.getMap.apply(map, args);
                   }, null, 'CordovaGoogleMaps', 'putHtmlElements', [domPositions]);
+                    //console.log("-->resume(737)");
                 }, null, 'CordovaGoogleMaps', 'resume', []);
                 //resetTimer({force: true});
               } else {

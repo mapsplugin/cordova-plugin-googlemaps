@@ -20,11 +20,10 @@
 
 @property (nonatomic) UIView *webView;
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
-@property (nonatomic) NSTimer *redrawTimer;
+@property (atomic) NSTimer *redrawTimer;
 @property (nonatomic) BOOL isSuspended;
 @property (nonatomic) BOOL stopFlag;
 @property (nonatomic) NSOperationQueue *executeQueue;
-@property (nonatomic) dispatch_semaphore_t semaphore;
 @property (atomic, strong) NSObject *_lockObject;
 
 - (id)initWithWebView:(UIView *)webView;
@@ -34,4 +33,6 @@
 - (void)addMapView:(GoogleMapsViewController *)mapCtrl;
 - (void)removeMapView:(GoogleMapsViewController *)mapCtrl;
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
+- (void)startRedrawTimer;
+- (void)stopRedrawTimer;
 @end
