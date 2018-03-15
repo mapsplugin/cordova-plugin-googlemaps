@@ -149,7 +149,7 @@ const int GEOCELL_GRID_SIZE = 4;
   NSString *clusterId = [NSString stringWithFormat:@"markercluster_%lu%d", command.hash, arc4random() % 100000];
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:geocellList forKey:@"geocellList"];
-  [result setObject:clusterId forKey:@"__pgmId"];
+  [result setObject:clusterId forKey:@"id"];
   [result setObject:[NSNumber numberWithFloat:[[UIScreen mainScreen] scale]] forKey:@"scale"];
 
   [self.debugFlags setObject:[NSNumber numberWithBool:[[params objectForKey:@"debug"] boolValue]] forKey:clusterId];
@@ -187,7 +187,7 @@ const int GEOCELL_GRID_SIZE = 4;
     NSMutableDictionary *properties;
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = [new_or_update objectAtIndex:i];
-      markerId = [clusterData objectForKey:@"id"];
+      markerId = [clusterData objectForKey:@"__pgmId"];
       clusterId_markerId = [NSString stringWithFormat:@"%@-%@", clusterId, markerId];
 
       // Save the marker properties
