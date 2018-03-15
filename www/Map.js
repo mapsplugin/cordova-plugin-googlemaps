@@ -226,14 +226,25 @@ Map.prototype.getMap = function(mapId, div, options) {
     //------------------------------------------------------------------------
     // In order to work map.getVisibleRegion() correctly, wait a little.
     //------------------------------------------------------------------------
-    setTimeout(function() {
+    var waitCnt = 0;
+    var waitCameraSync = function() {
+      if (!self.getVisibleRegion() && (waitCnt++ < 10)) {
+        setTimeout(function() {
+          common.nextTick(waitCameraSync);
+        }, 100);
+        return;
+      }
+
       Object.defineProperty(self, "_isReady", {
         value: true,
         writable: false
       });
       self.refreshLayout();
       self.trigger(event.MAP_READY, self);
-    }, 250);
+    };
+    setTimeout(function() {
+      common.nextTick(waitCameraSync);
+    }, 100);
   }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {
     sync: true
   });
@@ -793,7 +804,7 @@ Map.prototype.setDiv = function(div) {
 Map.prototype.getVisibleRegion = function(callback) {
   var self = this;
   var cameraPosition = self.get("camera");
-  if (!cameraPosition) {
+  if (!cameraPosition || !cameraPosition.southwest || !cameraPosition.northeast) {
     return null;
   }
 
