@@ -7,7 +7,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -20,14 +19,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PluginMarkerCluster extends PluginMarker {
 
-  private final static ConcurrentHashMap<String, STATUS> pluginMarkers = new ConcurrentHashMap<String, STATUS>();
-  private final static ConcurrentHashMap<String, Integer> waitCntManager = new ConcurrentHashMap<String, Integer>();
-  private final static ConcurrentHashMap<String, Boolean> debugFlags = new ConcurrentHashMap<String, Boolean>();
+  private final static Map<String, STATUS> pluginMarkers = new ConcurrentHashMap<String, STATUS>();
+  private final static Map<String, Integer> waitCntManager = new ConcurrentHashMap<String, Integer>();
+  private final static Map<String, Boolean> debugFlags = new ConcurrentHashMap<String, Boolean>();
   private final static ArrayList<String> deleteMarkers = new ArrayList<String>();
 
   private final Object semaphore = new Object();
@@ -265,7 +264,7 @@ public class PluginMarkerCluster extends PluginMarker {
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = new_or_update.getJSONObject(i);
       positionJSON = clusterData.getJSONObject("position");
-      markerId = clusterData.getString("id");
+      markerId = clusterData.getString("__pgmId");
       clusterId_markerId =  clusterId + "-" + markerId;
 
       // Save the marker properties

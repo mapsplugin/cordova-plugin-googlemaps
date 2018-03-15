@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">أغلق</string>
+  <string name="pgm_api_key_error">مع مفتاح API الخاص بك \"API_KEY_FOR_ANDROID\" يرجى استبدال platforms/android/app/src/AndroidManifest.xml في منصات </string>
+  <string name="pgm_google_play_error">غير متوفر لسبب ما على هذا الجهاز Google Maps Android API v2 </string>
+  <string name="pgm_google_play_developer_error">تم تكوين التطبيق بشكل خاطئ. هذا الخطأ غير قابل للاسترداد وسيتم التعامل معه على أنه مميت. يجب على مطور البرامج النظر في السجلات بعد ذلك لتحديد مزيد من المعلومات القابلة للتنفيذ</string>
+  <string name="pgm_google_play_internal_error">يرجى إعادة المحاولة ، ويجب أن تحل المشكلة ، Google Play حدث خطأ داخلي في خدمات </string>
+  <string name="pgm_google_play_invalid_account">لقد حاولت الاتصال بالخدمة باسم حساب غير صالح</string>
+  <string name="pgm_google_play_lincense_check_failed">.التطبيق غير مرخص للمستخدم. هذا الخطأ غير قابل للاسترداد وسيتم التعامل معه على أنه مميت</string>
+  <string name="pgm_google_play_network_error">.حدث خطأ في الشبكة. الرجاء المحاولة مرة أخرى ، ويجب أن تحل المشكلة</string>
+  <string name="pgm_google_play_service_disabled"> Google Play على هذا الجهاز. الرجاء تشغيل خدمات Google Play تم تعطيل الإصدار المثبت من خدمات</string>
+  <string name="pgm_google_play_service_invalid">Google play من متجر Google Play المثبتة على هذا الجهاز غير أصلي. يرجى تحديث خدمات Google Play إصدار خدمات</string>
+  <string name="pgm_google_play_service_missing">Google Play مفقودة على هذا الجهاز. الرجاء تثبيت خدمات Google Play خدمات </string>
+  <string name="pgm_google_play_service_update_required">Google Play من متجر Google Play قديم. يرجى تحديث خدمات Google Play الإصدار المثبت من خدمات </string>
+  <string name="pgm_google_play_sign_in_required"> Google Play لقد حاولت الاتصال بالخدمة ولكنك لم تسجل الدخول. يرجى التحقق من تكوين خدمات </string>
+  <string name="pgm_no_location_providers">. نظرًا لأن هذا الجهاز لا يحتوي على أي موفر للموقع ، لا يمكن لهذا التطبيق اكتشاف موقعك</string>
+  <string name="pgm_no_location_service_is_disabled">تم تعطيل خدمة الموقع</string>
+  <string name="pgm_location_rejected_by_user">خدمة الموقع مرفوضة من قبل المستخدم</string>
+  <string name="pgm_can_not_get_location"> .لا يمكن الكشف عن موقعك. حاول ثانية </string>
+</resources>

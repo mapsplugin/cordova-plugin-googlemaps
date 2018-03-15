@@ -56,8 +56,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
   private float zoomScale;
-  public final Object timerLock = new Object();
   public boolean isWaiting = false;
+  private final Object timerLock = new Object();
 
   public Timer redrawTimer;
 
@@ -78,14 +78,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     public void run() {
       if (isSuspended) {
         //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
-        synchronized (timerLock) {
-          isWaiting = true;
-          try {
-            timerLock.wait();
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
+        stopTimer();
         return;
       }
       isWaiting = false;
@@ -240,27 +233,30 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     startTimer();
   }
 
-  public void stopTimer() {
-    try {
-      redrawTimer.cancel();
-      redrawTimer.purge();
-      timerLock.notify();
-    } catch (Exception e) {}
-    redrawTimer = null;
+  public synchronized void stopTimer() {
+    synchronized (timerLock) {
+      try {
+        if (redrawTimer != null) {
+          redrawTimer.cancel();
+          redrawTimer.purge();
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      redrawTimer = null;
+    }
   }
 
-  public void startTimer() {
-    if (redrawTimer != null) {
-      return;
+  public synchronized void startTimer() {
+    synchronized (timerLock) {
+      if (redrawTimer != null) {
+        return;
+      }
+
+      redrawTimer = new Timer();
+      redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
+      mActivity.getWindow().getDecorView().requestFocus();
     }
-    try {
-      timerLock.notify();
-    } catch (Exception e) {}
-
-
-    redrawTimer = new Timer();
-    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
-    mActivity.getWindow().getDecorView().requestFocus();
   }
 
 
@@ -517,11 +513,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild, Overflow overflow) {
-      //Log.d(TAG, "----domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
+      //Log.d(TAG, "-(findClickedDom)domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
       RectF rect;
       Bundle domInfo = HTMLNodes.get(domId);
+      Bundle zIndexProp;
       int containMapCnt = 0;
       if (domInfo.containsKey("containMapIDs")) {
         Set<String> keys = domInfo.getBundle("containMapIDs").keySet();
@@ -542,11 +539,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         overflow.rect = HTMLNodeRectFs.get(domId);
       }
 
-      //Log.d(TAG, "----domId = " + domId + ", domInfo = " + domInfo);
+      //Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo);
+      zIndexProp = domInfo.getBundle("zIndex");
       ArrayList<String> children = domInfo.getStringArrayList("children");
-      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents)) && children != null && children.size() > 0) {
+      if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents) || zIndexProp.getBoolean("isInherit")) && children != null && children.size() > 0) {
         int maxZindex = (int) Double.NEGATIVE_INFINITY;
-        int zIndex;
+        int zIndexValue;
         String childId, grandChildId;
         ArrayList<String> grandChildren;
         for (int i = children.size() - 1; i >= 0; i--) {
@@ -556,8 +554,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          zIndex = domInfo.getInt("zIndex");
-          if (maxZindex < zIndex) {
+          zIndexProp = domInfo.getBundle("zIndex");
+          zIndexValue = zIndexProp.getInt("z");
+          if (maxZindex < zIndexValue || zIndexProp.getBoolean("isInherit")) {
             grandChildren = domInfo.getStringArrayList("children");
             if (grandChildren == null || grandChildren.size() == 0) {
               rect = HTMLNodeRectFs.get(childId);
@@ -575,16 +574,22 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 continue;
               }
 
-              //Log.d(TAG, "----childId = " + childId + ", domInfo = " + domInfo);
+              //Log.d(TAG, "---childId = " + childId + ", domInfo = " + domInfo);
               if ("none".equals(domInfo.getString("pointerEvents"))) {
                 continue;
               }
-              maxDomId = childId;
+              //Log.d(TAG, "----childId = " + childId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
+              if (maxZindex < zIndexValue) {
+                maxZindex = zIndexValue;
+                maxDomId = childId;
+              }
             } else {
               grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
-              //Log.d(TAG, "----findClickedDom("+ childId + ") -> " + grandChildId);
+              //Log.d(TAG, "---findClickedDom("+ childId + ") -> " + grandChildId);
               if (grandChildId == null) {
                 grandChildId = childId;
+              } else {
+                zIndexValue = HTMLNodes.get(grandChildId).getBundle("zIndex").getInt("z");
               }
               rect = HTMLNodeRectFs.get(grandChildId);
               if (overflow != null ) {
@@ -606,9 +611,12 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               if ("none".equals(domInfo.getString("pointerEvents"))) {
                 continue;
               }
-              maxDomId = grandChildId;
+              //Log.d(TAG, "----grandChildId = " + grandChildId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
+              if (maxZindex < zIndexValue) {
+                maxZindex = zIndexValue;
+                maxDomId = grandChildId;
+              }
             }
-            maxZindex = zIndex;
           }
         }
       }

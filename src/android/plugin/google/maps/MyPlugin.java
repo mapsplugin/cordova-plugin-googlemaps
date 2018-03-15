@@ -23,13 +23,14 @@ import org.json.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
   public MyPlugin self = null;
-  public final ConcurrentHashMap<String, Method> methods = new ConcurrentHashMap<String, Method>();
+  public final Map<String, Method> methods = new ConcurrentHashMap<String, Method>();
   protected static ExecutorService executorService = null;
 
   public CordovaGoogleMaps mapCtrl = null;

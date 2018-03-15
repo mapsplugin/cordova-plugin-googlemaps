@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.2.4-exp" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.2.8-ext-20180315-1112" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -88,6 +88,12 @@
     <js-module name="geomodel" src="www/geomodel.js">
       <runs />
     </js-module>
+    <js-module name="commandQueueExecutor" src="www/commandQueueExecutor.js">
+      <runs />
+    </js-module>
+    <js-module name="pluginInit" src="www/pluginInit.js">
+      <runs />
+    </js-module>
 
     <description>Google Maps native SDK for Android and iOS.
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
@@ -107,8 +113,28 @@ The native map view is faster, use less network usage, display 3D views, and eve
       <engine name="cordova-ios" version=">=4.0.0" />
       <engine name="apple-xcode" version=">=9.0.0" />
       <engine name="apple-ios" version=">=10.0.0" />
-      <engine name="android-sdk" version=">=19" />
     </engines>
+
+    <hook type="before_plugin_rm" src="src/before_plugin_rm.js" />
+
+    <!-- browser -->
+    <platform name="browser">
+      <preference name="API_KEY_FOR_BROWSER" />
+
+      <hook type="after_prepare" src="src/browser/after_prepare.js" />
+      <feature name="CordovaGoogleMaps">
+          <param name="browser-package" value="CordovaGoogleMaps" />
+      </feature>
+      <js-module src="src/browser/googlemaps-cdv-plugin.js">
+        <clobbers target="plugin.google.maps" />
+      </js-module>
+      <js-module src="src/browser/CordovaGoogleMaps.js">
+        <runs />
+      </js-module>
+      <js-module name="PluginMap" src="src/browser/PluginMap.js">
+        <runs />
+      </js-module>
+    </platform>
 
     <!-- android -->
     <platform name="android">
@@ -199,7 +225,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
 
-        <framework src="src/android/frameworks/build-extras.gradle"  custom="true" type="gradleReference" />
         <framework src="src/android/frameworks/tbxml-android.gradle"  custom="true" type="gradleReference" />
         <resource-file src="src/android/frameworks/tbxml-android.aar"  target="libs/tbxml-android.aar" />
         <resource-file src="src/android/frameworks/tbxml-android.aar"  target="app/src/libs/tbxml-android.aar" />
@@ -223,8 +248,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <!-- OpenGL ES version 2 -->
             <uses-feature android:glEsVersion="0x00020000" android:required="true" />
             <!-- GPS -->
-            <uses-feature android:name="android.hardware.location" android:required="false" />
-            <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+            <uses-feature android:name="android.hardware.location" />
+            <uses-feature android:name="android.hardware.location.gps" />
         </config-file>
 
         <resource-file src="src/android/res/layout/dummy_infowindow.xml" target="res/layout/dummy_infowindow.xml"/>
@@ -247,24 +272,28 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
+        <!-- Base messages -->
         <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml" />
+        <!-- localized messages for Japanese -->
         <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml" />
-    <platform name="browser">
-      <preference name="API_KEY_FOR_BROWSER" />
-
-      <hook type="after_prepare" src="src/browser/after_prepare.js" />
-      <feature name="CordovaGoogleMaps">
-          <param name="browser-package" value="CordovaGoogleMaps" />
-      </feature>
-      <js-module src="src/browser/googlemaps-cdv-plugin.js">
-        <clobbers target="plugin.google.maps" />
-      </js-module>
-      <js-module src="src/browser/CordovaGoogleMaps.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginMap" src="src/browser/PluginMap.js">
-        <runs />
-      </js-module>
+        <!-- localized messages for Russian -->
+        <resource-file src="src/android/res/values-ru/pgm_strings.xml" target="res/values-ru/pgm_strings.xml" />
+        <!-- localized messages for Ukrainian -->
+        <resource-file src="src/android/res/values-uk/pgm_strings.xml" target="res/values-uk/pgm_strings.xml" />
+        <!-- localized messages for Portuguese -->
+        <resource-file src="src/android/res/values-pt-rPT/pgm_strings.xml" target="res/values-pt-rPT/pgm_strings.xml" />
+        <!-- localized messages for German -->
+        <resource-file src="src/android/res/values-de/pgm_strings.xml" target="res/values-de/pgm_strings.xml" />
+        <!-- localized messages for French -->
+        <resource-file src="src/android/res/values-fr/pgm_strings.xml" target="res/values-fr/pgm_strings.xml" />
+        <!-- localized messages for Hindi -->
+        <resource-file src="src/android/res/values-hi/pgm_strings.xml" target="res/values-hi/pgm_strings.xml" />
+        <!-- localized messages for Arabic -->
+        <resource-file src="src/android/res/values-ar/pgm_strings.xml" target="res/values-ar/pgm_strings.xml" />
+        <!-- localized messages for Dutch -->
+        <resource-file src="src/android/res/values-nl/pgm_strings.xml" target="res/values-nl/pgm_strings.xml" />
+        <!-- localized messages for Polish -->
+        <resource-file src="src/android/res/values-pl/pgm_strings.xml" target="res/values-pl/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -378,18 +407,28 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
 
-        <config-file target="*-Info.plist" parent="CFBundleDevelopmentRegion">
-          <array>
-            <string>Japanese</string>
-          </array>
-        </config-file>
-        <config-file target="*-Info.plist" parent="CFBundleLocalizations">
-            <array>
-                <string>ja</string>
-            </array>
-        </config-file>
-        <resource-file src="src/ios/strings/Base.lproj/pgm_Localizable.strings" target="Base.lproj/pgm_Localizable.strings" />
-        <resource-file src="src/ios/strings/ja.lproj/pgm_Localizable.strings" target="ja.lproj/pgm_Localizable.strings" />
+        <!-- Base messages -->
+        <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />
+        <!-- localized messages for Japanese -->
+        <resource-file src="src/ios/strings/pgm_Localizable_ja.json" target="pgm_Localizable_ja.json" />
+        <!-- localized messages for Russian -->
+        <resource-file src="src/ios/strings/pgm_Localizable_ru.json" target="pgm_Localizable_ru.json" />
+        <!-- localized messages for Ukrainian -->
+        <resource-file src="src/ios/strings/pgm_Localizable_uk.json" target="pgm_Localizable_uk.json" />
+        <!-- localized messages for Brazilian Portuguese -->
+        <resource-file src="src/ios/strings/pgm_Localizable_pt-BR.json" target="pgm_Localizable_pt-BR.json" />
+        <!-- localized messages for German -->
+        <resource-file src="src/ios/strings/pgm_Localizable_de.json" target="pgm_Localizable_de.json" />
+        <!-- localized messages for French -->
+        <resource-file src="src/ios/strings/pgm_Localizable_fr.json" target="pgm_Localizable_fr.json" />
+        <!-- localized messages for Hindi -->
+        <resource-file src="src/ios/strings/pgm_Localizable_hi.json" target="pgm_Localizable_hi.json" />
+        <!-- localized messages for Arabic -->
+        <resource-file src="src/ios/strings/pgm_Localizable_ar.json" target="pgm_Localizable_ar.json" />
+        <!-- localized messages for Dutch -->
+        <resource-file src="src/ios/strings/pgm_Localizable_nl.json" target="pgm_Localizable_nl.json" />
+        <!-- localized messages for Polish -->
+        <resource-file src="src/ios/strings/pgm_Localizable_pl.json" target="pgm_Localizable_pl.json" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>

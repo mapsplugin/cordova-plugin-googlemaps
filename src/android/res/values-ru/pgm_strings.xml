@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">Закрыть</string>
+  <string name="pgm_api_key_error">Пожалуйста, замените \'API_KEY_FOR_ANDROID\' в platforms/android/app/src/AndroidManifest.xml на Ваш API ключ!</string>
+  <string name="pgm_google_play_error">По какой то причине Google Maps Android API v2 не доступен на этом устройстве.</string>
+  <string name="pgm_google_play_developer_error">Приложение неправильно настроено. Произошла фатальная ошибка. Разработчик приложения должен посмотреть в логи, чтобы исправить ошибку.</string>
+  <string name="pgm_google_play_internal_error">Произошла внутренняя ошибка Google Play Services. Пожалуйста, повторите попытку для решения проблемы.</string>
+  <string name="pgm_google_play_invalid_account">Вы попытались подключиться к сервису с недопустимым именем учетной записи.</string>
+  <string name="pgm_google_play_lincense_check_failed">Произошла фатальная ошибка. Приложение не лицензировано для этого пользователя.</string>
+  <string name="pgm_google_play_network_error">Произошла сетевая ошибка. Пожалуйста, повторите попытку для решения проблемы.</string>
+  <string name="pgm_google_play_service_disabled">Установленная версия Google Play Services отключена на этом устройстве. Пожалуйста, включите Google Play Services.</string>
+  <string name="pgm_google_play_service_invalid">Версия Google Play Services установлена на этом уствройстве не подлинная. Пожалуйста, обновите Google Play Services из Google Play Store.</string>
+  <string name="pgm_google_play_service_missing">Google Play Services отсутствует на этом устройстве. Пожалуйста, установите Google Play Services.</string>
+  <string name="pgm_google_play_service_update_required">Установленная версия Google Play Services устаревшая. Пожалуйста, обновите Google Play Services из Google Play Store.</string>
+  <string name="pgm_google_play_sign_in_required">Вы попытались подключиться к сервису, но вы не вошли в систему. Пожалуйста, проверьте конфигурацию Google Play Services.</string>
+  <string name="pgm_no_location_providers">Поскольку это устройство не поддерживает поиск местоположения, это приложение не может определить Ваше расположение.</string>
+  <string name="pgm_no_location_service_is_disabled">Сервис определения местоположения отключен.</string>
+  <string name="pgm_location_rejected_by_user">Определение местоположения отклонено пользователем.</string>
+  <string name="pgm_can_not_get_location">Не удается определить Ваше местоположение. Попробуй еще раз.</string>
+</resources>

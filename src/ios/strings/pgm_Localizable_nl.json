@@ -1,0 +1,12 @@
+{
+  "CLOSE_BUTTON" : "SLUITEN",
+  "APIKEY_IS_UNDEFINED_TITLE" : "API key fout",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "De variabele \"API_KEY_FOR_IOS\" is niet geregistreerd.",
+  "APP_NAME_ERROR_TITLE" : "Je moet het config.xml bestand aanpassen.",
+  "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK for iOS faalt indien CFBundleExecutable niet-Engelse karakters bevat.\nVoor meer informatie bekijk het commentaar in het CordovaGoogleMaps.m bestand.",
+  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "De locatievoorziening is niet beschikbaar",
+  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Deze app wil jouw locatie kunnen bepalen. Zet dit aan via \"Instellingen > Privacy > Locatievoorzieningen\"",
+  "LOCATION_IS_DENIED_MESSAGE" : "Deze app heeft de locatievoorziening afgewezen.",
+  "CAN_NOT_GET_LOCATION_MESSAGE" : "Kan je locatie niet bepalen.",
+  "LOCATION_REJECTED_BY_USER_MESSAGE" : "De locatievoorziening is afgewezen door de gebruiker."
+}

@@ -87,7 +87,6 @@ Map.prototype.refreshLayout = function(event) {
 };
 
 Map.prototype.getMap = function(mapId, div, options) {
-
   var self = this,
     args = [mapId];
   options = options || {};
@@ -95,9 +94,9 @@ Map.prototype.getMap = function(mapId, div, options) {
   self.set("clickable", options.clickable === false ? false : true);
   self.set("visible", options.visible === false ? false : true);
 
-  if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+  if (options.controls) {
+    this.set("myLocation", options.controls.myLocation === true);
+    this.set("myLocationButton", options.controls.myLocationButton === true);
   }
 
   if (!common.isDom(div)) {
@@ -227,14 +226,25 @@ Map.prototype.getMap = function(mapId, div, options) {
     //------------------------------------------------------------------------
     // In order to work map.getVisibleRegion() correctly, wait a little.
     //------------------------------------------------------------------------
-    setTimeout(function() {
+    var waitCnt = 0;
+    var waitCameraSync = function() {
+      if (!self.getVisibleRegion() && (waitCnt++ < 10)) {
+        setTimeout(function() {
+          common.nextTick(waitCameraSync);
+        }, 100);
+        return;
+      }
+
       Object.defineProperty(self, "_isReady", {
         value: true,
         writable: false
       });
       self.refreshLayout();
       self.trigger(event.MAP_READY, self);
-    }, 250);
+    };
+    setTimeout(function() {
+      common.nextTick(waitCameraSync);
+    }, 100);
   }, self.errorHandler, 'CordovaGoogleMaps', 'getMap', args, {
     sync: true
   });
@@ -243,9 +253,19 @@ Map.prototype.getMap = function(mapId, div, options) {
 Map.prototype.setOptions = function(options) {
   options = options || {};
 
-  if (options.control) {
-    this.set("myLocation", options.control.myLocation === true);
-    this.set("myLocationButton", options.control.myLocationButton === true);
+  if (options.controls) {
+    var myLocation = this.get("myLocation");
+    if ("myLocation" in options.controls) {
+      myLocation = options.controls.myLocation === true;
+    }
+    var myLocationButton = this.get("myLocationButton");
+    if ("myLocationButton" in options.controls) {
+      myLocationButton = options.controls.myLocationButton === true;
+    }
+    this.set("myLocation", myLocation);
+    this.set("myLocationButton", myLocationButton);
+    options.controls.myLocation = myLocation;
+    options.controls.myLocationButton = myLocation;
   }
   if (options.camera) {
     if (options.camera.latLng) {
@@ -528,11 +548,12 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
 };
 
 Map.prototype.setMyLocationButtonEnabled = function(enabled) {
+  var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocationButton", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
-    myLocation: this.get("myLocation")
+    myLocation: self.get("myLocation") === true
   }], {
     sync: true
   });
@@ -540,10 +561,11 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
 };
 
 Map.prototype.setMyLocationEnabled = function(enabled) {
+  var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
   exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
-    myLocationButton: this.get("myLocationButton"),
+    myLocationButton: self.get("myLocationButton") === true,
     myLocation: enabled
   }], {
     sync: true
@@ -782,7 +804,7 @@ Map.prototype.setDiv = function(div) {
 Map.prototype.getVisibleRegion = function(callback) {
   var self = this;
   var cameraPosition = self.get("camera");
-  if (!cameraPosition) {
+  if (!cameraPosition || !cameraPosition.southwest || !cameraPosition.northeast) {
     return null;
   }
 
@@ -1186,7 +1208,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
       var markerId = markerOptions.id || "marker_" + idx;
       //markerId = result.id + "-" + markerId;
-      markerOptions.id = markerId;
+      markerOptions.__pgmId = markerId;
       markerOptions._cluster = {
         isRemoved: false,
         isAdded: false,

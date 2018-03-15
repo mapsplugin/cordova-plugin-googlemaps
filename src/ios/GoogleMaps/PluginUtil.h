@@ -21,9 +21,6 @@
 #import <Cordova/CDVCommandDelegate.h>
 #import <Cordova/CDVCommandDelegateImpl.h>
 
-#define PGM_LOCALIZATION(key, comment) \
-  [[NSBundle mainBundle] localizedStringForKey:(key) value:(comment) table:@"pgm_Localizable"]
-
 typedef void (^MYCompletionHandler)(NSError *error);
 
 // Switch statement in Objective-C
@@ -83,6 +80,7 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 + (BOOL)isInDebugMode;
 + (GMSMutablePath *)getMutablePathFromCircle:(CLLocationCoordinate2D)center radius:(double)radius;
 + (NSString *)getAbsolutePathFromCDVFilePath:(UIView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
++ (NSString *)PGM_LOCALIZATION:(NSString *)key;
 @end
 
 

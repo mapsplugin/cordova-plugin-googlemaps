@@ -1,0 +1,12 @@
+{
+  "CLOSE_BUTTON" : "ZAMKNIJ",
+  "APIKEY_IS_UNDEFINED_TITLE" : "Błąd klucza API",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Zmienna \"API_KEY_FOR_IOS\" nie została zarejestrowana.",
+  "APP_NAME_ERROR_TITLE" : "Proszę zmienić plik config.xml",
+  "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK dla iOS powoduje błędy, jeżeli CFBundleExecutable zawiera nie angielskie znaki.\nWięcej szczegółów dostępnych w komentarzu w pliku CordovaGoogleMaps.m.",
+  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Usługi lokalizacji są niedostępne",
+  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Aplikacja wymaga dostępu do usług lokalizacji. Proszę włączyć  \"Ustawienia > Prywatność > Usługi lokalizacji\"",
+  "LOCATION_IS_DENIED_MESSAGE" : "Aplikacja nie posiada zezwolenia na używanie usług lokalizacji.",
+  "CAN_NOT_GET_LOCATION_MESSAGE" : "Nie można określić położenia.",
+  "LOCATION_REJECTED_BY_USER_MESSAGE" : "Usługi lokalizacji zostały odrzucone przez użytkownika."
+}

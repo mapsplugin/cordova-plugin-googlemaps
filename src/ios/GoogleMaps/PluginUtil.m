@@ -331,4 +331,45 @@ static char CAAnimationGroupBlockKey;
   return filePath;
 }
 
++ (NSString *)PGM_LOCALIZATION:(NSString *)key {
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSArray<NSString *> *preferredLanguages = [NSLocale preferredLanguages];
+  NSString *localeCode, *languageCode, *path, *filename, *fileContents, *foundFilePath = nil;
+  NSBundle *mainBundle = [NSBundle mainBundle];
+
+  for (int i = 0; i < [preferredLanguages count]; i++) {
+    localeCode = [preferredLanguages objectAtIndex:i];
+
+    // Find json file for pgm_Localizable_(localeCode).json  // pgm_Localizable_en-US.json
+    filename = [NSString stringWithFormat:@"pgm_Localizable_%@", localeCode];
+    path = [mainBundle pathForResource:filename ofType:@"json"];
+    if ([fileManager fileExistsAtPath:path]) {
+      foundFilePath = path;
+      break;
+    }
+
+    languageCode = [[localeCode componentsSeparatedByString:@"-"] firstObject];
+    // Find json file for pgm_Localizable_(languageCode).json  // pgm_Localizable_en.json
+    filename = [NSString stringWithFormat:@"pgm_Localizable_%@", languageCode];
+    path = [mainBundle pathForResource:filename ofType:@"json"];
+    if ([fileManager fileExistsAtPath:path]) {
+      foundFilePath = path;
+      break;
+    }
+  }
+
+  if (!foundFilePath) {
+    foundFilePath  = [mainBundle pathForResource:@"pgm_Localizable-en" ofType:@"json"];
+  }
+
+  fileContents = [NSString stringWithContentsOfFile:foundFilePath encoding:NSUTF8StringEncoding error:nil];
+  NSData *data = [fileContents dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+  NSString *result = [json objectForKey:key];
+  if (!result) {
+    result = key;
+  }
+  return result;
+}
+
 @end

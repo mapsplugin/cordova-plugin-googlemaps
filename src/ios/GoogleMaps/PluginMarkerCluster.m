@@ -187,7 +187,7 @@ const int GEOCELL_GRID_SIZE = 4;
     NSMutableDictionary *properties;
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = [new_or_update objectAtIndex:i];
-      markerId = [clusterData objectForKey:@"id"];
+      markerId = [clusterData objectForKey:@"__pgmId"];
       clusterId_markerId = [NSString stringWithFormat:@"%@-%@", clusterId, markerId];
 
       // Save the marker properties
@@ -291,7 +291,7 @@ const int GEOCELL_GRID_SIZE = 4;
       for (int i = 0; i < [updateClusterIDs count]; i++) {
         clusterId_markerId = [updateClusterIDs objectAtIndex:i];
         @synchronized(self.pluginMarkers) {
-            [self.pluginMarkers setObject:@"WORKING" forKey:clusterId_markerId];
+          [self.pluginMarkers setObject:@"WORKING" forKey:clusterId_markerId];
         }
 
         // Get the marker properties
@@ -303,8 +303,8 @@ const int GEOCELL_GRID_SIZE = 4;
         //--------------------------
         if ([clusterId_markerId containsString:@"-marker_"]) {
           if (isNew) {
-              markerProperties = [self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
-              [super _create:clusterId_markerId markerOptions:markerProperties callbackBlock:^(BOOL successed, id resultObj) {
+            markerProperties = [self.mapCtrl.objects objectForKey:[NSString stringWithFormat:@"marker_property_%@", clusterId_markerId]];
+            [super _create:clusterId_markerId markerOptions:markerProperties callbackBlock:^(BOOL successed, id resultObj) {
 
               @synchronized (self.pluginMarkers) {
                 if (successed) {
@@ -425,8 +425,8 @@ const int GEOCELL_GRID_SIZE = 4;
 
 - (void) endRedraw:(CDVInvokedUrlCommand*)command {
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void) deleteProcess:(NSDictionary *) params  clusterId:(NSString *)clusterId{
@@ -478,10 +478,10 @@ const int GEOCELL_GRID_SIZE = 4;
       GMSMarker *marker = resultObj;
       @synchronized (self_.pluginMarkers) {
         if ([[self_.pluginMarkers objectForKey:markerId] isEqualToString:@"DELETED"]) {
-            [self_ _removeMarker:marker];
-            [self_.pluginMarkers removeObjectForKey:markerId];
-            callbackBlock(YES, nil);
-            return;
+          [self_ _removeMarker:marker];
+          [self_.pluginMarkers removeObjectForKey:markerId];
+          callbackBlock(YES, nil);
+          return;
         }
 
         [self_.pluginMarkers setObject:@"CREATED" forKey:markerId];
@@ -543,10 +543,10 @@ const int GEOCELL_GRID_SIZE = 4;
 
 - (char) _subdiv_char:(int) posX y:(int)posY {
   return [GEOCELL_ALPHABET characterAtIndex:(
-          (posY & 2) << 2 |
-          (posX & 2) << 1 |
-          (posY & 1) << 1 |
-          (posX & 1))];
+                                             (posY & 2) << 2 |
+                                             (posX & 2) << 1 |
+                                             (posY & 1) << 1 |
+                                             (posX & 1))];
 }
 
 

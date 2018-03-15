@@ -1,0 +1,12 @@
+{
+  "CLOSE_BUTTON" : "ЗАКРЫТЬ",
+  "APIKEY_IS_UNDEFINED_TITLE" : "Неверный API ключ.",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Переменная \"API_KEY_FOR_IOS\" не зарегистрирована.",
+  "APP_NAME_ERROR_TITLE" : "Вам нужно изменить файл config.xml",
+  "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK for iOS не работает, если CFBundleExecutable содержит неанглийские символы.\nБолее подробно, в коментариях к файлу CordovaGoogleMaps.m.",
+  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Определение местоположения недоступно.",
+  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Это приложение должно получить доступ к вашему местоположению. Пожалуйста, перейдите \"Settings > Privacy > Location Services\"",
+  "LOCATION_IS_DENIED_MESSAGE" : "Приложение отклонило запрос на получение местоположения.",
+  "CAN_NOT_GET_LOCATION_MESSAGE" : "Не удается получить Ваше местоположение.",
+  "LOCATION_REJECTED_BY_USER_MESSAGE" : "Определение местоположения отклонено пользователем."
+}
