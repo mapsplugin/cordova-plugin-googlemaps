@@ -170,6 +170,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView, activity);
         mPluginLayout.isSuspended = true;
+        mPluginLayout.stopTimer();
 
 
         // Check the API key
@@ -221,6 +222,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public boolean onOverrideUrlLoading(String url) {
     mPluginLayout.isSuspended = true;
+    mPluginLayout.stopTimer();
     /*
     this.activity.runOnUiThread(new Runnable() {
       @Override
@@ -305,9 +307,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     if (mPluginLayout.isSuspended) {
       mPluginLayout.isSuspended = false;
-      synchronized (mPluginLayout.timerLock) {
-        mPluginLayout.timerLock.notify();
-      }
+      mPluginLayout.startTimer();
     }
     callbackContext.success();
   }
@@ -331,6 +331,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       return;
     }
     mPluginLayout.isSuspended = true;
+    mPluginLayout.stopTimer();
     callbackContext.success();
   }
   public void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -340,9 +341,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
     if (mPluginLayout.isSuspended) {
       mPluginLayout.isSuspended = false;
-      synchronized (mPluginLayout.timerLock) {
-        mPluginLayout.timerLock.notify();
-      }
+      mPluginLayout.startTimer();
     }
     callbackContext.success();
   }
@@ -356,20 +355,18 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   }
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-      final JSONObject elements = args.getJSONObject(0);
-      if (mPluginLayout == null) {
-          callbackContext.success();
-          return;
-      }
-
-      //Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
-      if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
-          mPluginLayout.putHTMLElements(elements);
-      }
-
-    synchronized (mPluginLayout.timerLock) {
-      mPluginLayout.timerLock.notify();
+    final JSONObject elements = args.getJSONObject(0);
+    if (mPluginLayout == null) {
+        callbackContext.success();
+        return;
     }
+
+    //Log.d(TAG, "--->stopFlag = " + mPluginLayout.stopFlag + ", mPluginLayout.needUpdatePosition = " + mPluginLayout.needUpdatePosition);
+    if (!mPluginLayout.stopFlag || mPluginLayout.needUpdatePosition) {
+        mPluginLayout.putHTMLElements(elements);
+    }
+
+    mPluginLayout.startTimer();
     callbackContext.success();
   }
 
