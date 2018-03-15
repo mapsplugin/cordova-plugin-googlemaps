@@ -59,19 +59,23 @@
 }
 
 - (void)startRedrawTimer {
-  if (!self.redrawTimer) {
+  @synchronized(self._lockObject) {
+    if (!self.redrawTimer) {
 
-    self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                target:self
-                                selector:@selector(resizeTask:)
-                                userInfo:nil
-                                repeats:YES];
+      self.redrawTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                  target:self
+                                  selector:@selector(resizeTask:)
+                                  userInfo:nil
+                                  repeats:YES];
+    }
   }
 }
 - (void)stopRedrawTimer {
-  if (self.redrawTimer) {
-    [self.redrawTimer invalidate];
-    self.redrawTimer = nil;
+  @synchronized(self._lockObject) {
+    if (self.redrawTimer) {
+      [self.redrawTimer invalidate];
+      self.redrawTimer = nil;
+    }
   }
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -202,6 +206,8 @@
 
 - (void)resizeTask:(NSTimer *)timer {
     if (self.isSuspended || self.stopFlag) {
+      NSLog(@"---->suspend");
+        //[self stopRedrawTimer];
         return;
     }
     self.stopFlag = YES;

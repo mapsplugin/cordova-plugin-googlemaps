@@ -191,6 +191,7 @@
 - (void)getMap:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
+    [self.pluginLayer startRedrawTimer];
   }
 
   /*---------------------------------------------------------------------------------------
