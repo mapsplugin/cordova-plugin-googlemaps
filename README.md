@@ -90,10 +90,12 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 - **v2.2.8**
   - Add: support languages (`Polish`)
-  - Fix: Can not build on iOS completely.
-  - Fix: Localize function is incorrect.
-  - Fix: can not use backbutton event.
   - Add: plugin remove helper script.
+  - Fix: can not build on iOS completely.
+  - Fix: localize function is incorrect.
+  - Fix: can not use backbutton event.
+  - Fix: marker cluster does not work correctly if position data contains `id` field.
+  - Update: Wait MAP_READY until map.getVisibleRegion() is ready.
 
 ---
 
