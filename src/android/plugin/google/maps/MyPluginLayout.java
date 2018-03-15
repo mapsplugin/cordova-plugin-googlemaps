@@ -56,8 +56,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
   private float zoomScale;
-  public final Object timerLock = new Object();
   public boolean isWaiting = false;
+  private final Object timerLock = new Object();
 
   public Timer redrawTimer;
 
@@ -78,14 +78,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     public void run() {
       if (isSuspended) {
         //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
-        synchronized (timerLock) {
-          isWaiting = true;
-          try {
-            timerLock.wait();
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
+        stopTimer();
         return;
       }
       isWaiting = false;
@@ -240,27 +233,30 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     startTimer();
   }
 
-  public void stopTimer() {
-    try {
-      redrawTimer.cancel();
-      redrawTimer.purge();
-      timerLock.notify();
-    } catch (Exception e) {}
-    redrawTimer = null;
+  public synchronized void stopTimer() {
+    synchronized (timerLock) {
+      try {
+        if (redrawTimer != null) {
+          redrawTimer.cancel();
+          redrawTimer.purge();
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      redrawTimer = null;
+    }
   }
 
-  public void startTimer() {
-    if (redrawTimer != null) {
-      return;
+  public synchronized void startTimer() {
+    synchronized (timerLock) {
+      if (redrawTimer != null) {
+        return;
+      }
+
+      redrawTimer = new Timer();
+      redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
+      mActivity.getWindow().getDecorView().requestFocus();
     }
-    try {
-      timerLock.notify();
-    } catch (Exception e) {}
-
-
-    redrawTimer = new Timer();
-    redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
-    mActivity.getWindow().getDecorView().requestFocus();
   }
 
 
