@@ -87,7 +87,6 @@ Map.prototype.refreshLayout = function(event) {
 };
 
 Map.prototype.getMap = function(mapId, div, options) {
-
   var self = this,
     args = [mapId];
   options = options || {};
@@ -1198,7 +1197,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
       var markerId = markerOptions.id || "marker_" + idx;
       //markerId = result.id + "-" + markerId;
-      markerOptions.id = markerId;
+      markerOptions.__pgmId = markerId;
       markerOptions._cluster = {
         isRemoved: false,
         isAdded: false,

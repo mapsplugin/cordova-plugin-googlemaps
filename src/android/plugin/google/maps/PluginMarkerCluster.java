@@ -264,7 +264,7 @@ public class PluginMarkerCluster extends PluginMarker {
     for (int i = 0; i < new_or_updateCnt; i++) {
       clusterData = new_or_update.getJSONObject(i);
       positionJSON = clusterData.getJSONObject("position");
-      markerId = clusterData.getString("id");
+      markerId = clusterData.getString("__pgmId");
       clusterId_markerId =  clusterId + "-" + markerId;
 
       // Save the marker properties
