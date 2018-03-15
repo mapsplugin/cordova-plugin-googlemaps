@@ -115,6 +115,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
       <engine name="apple-ios" version=">=10.0.0" />
     </engines>
 
+    <hook type="before_plugin_rm" src="src/before_plugin_rm.js" />
+
     <!-- android -->
     <platform name="android">
         <preference name="API_KEY_FOR_ANDROID" />

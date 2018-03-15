@@ -9,6 +9,9 @@
       "ios"
     ]
   },
+  "dependencies": {
+    "xml2js": "~0.4.19"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mapsplugin/cordova-plugin-googlemaps.git"

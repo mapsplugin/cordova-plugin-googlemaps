@@ -43,3 +43,4 @@ platforms/
 hooks/
 
 out/
+node_modules/
