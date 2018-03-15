@@ -487,46 +487,6 @@ if (!cordova) {
       }, 50);
     });
 
-    //--------------------------------------------
-    // Hook the backbutton of Android action
-    //--------------------------------------------
-    var anotherBackbuttonHandler = null;
-    function onBackButton(e) {
-      common.nextTick(putHtmlElements);  // <-- super important!
-      if (anotherBackbuttonHandler) {
-        // anotherBackbuttonHandler must handle the page moving transaction.
-        // The plugin does not take care anymore if another callback is registered.
-        anotherBackbuttonHandler(e);
-      } else {
-        cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
-      }
-    }
-    document.addEventListener("backbutton", onBackButton);
-
-    var _org_addEventListener = document.addEventListener;
-    var _org_removeEventListener = document.removeEventListener;
-    document.addEventListener = function(eventName, callback) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      if (eventName.toLowerCase() !== "backbutton") {
-        _org_addEventListener.apply(this, args);
-        return;
-      }
-      if (!anotherBackbuttonHandler) {
-        anotherBackbuttonHandler = callback;
-      }
-    };
-    document.removeEventListener = function(eventName, callback) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      if (eventName.toLowerCase() !== "backbutton") {
-        _org_removeEventListener.apply(this, args);
-        return;
-      }
-      if (anotherBackbuttonHandler === callback) {
-        anotherBackbuttonHandler = null;
-      }
-    };
-
-
 
     /*****************************************************************************
      * Name space
