@@ -1,7 +1,5 @@
 module.exports = function(ctx) {
 
-  var PluginInfoProvider = ctx.requireCordovaModule('cordova-common').PluginInfoProvider;
-
   var fs = ctx.requireCordovaModule('fs'),
       path = ctx.requireCordovaModule('path'),
       Q = ctx.requireCordovaModule('q');
