@@ -25,7 +25,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.2.6">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.2.8">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -90,8 +90,10 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 - **v2.2.8**
   - Add: support languages (`Polish`)
-  - Fix: Can not build on iOS.
+  - Fix: Can not build on iOS completely.
   - Fix: Localize function is incorrect.
+  - Fix: can not use backbutton event.
+  - Add: plugin remove helper script.
 
 ---
 
