@@ -82,9 +82,9 @@ function pluginInit() {
   /*****************************************************************************
    * Prevent background, background-color, background-image properties
    *****************************************************************************/
-  var navDecorBlocker = document.createElement("style");
-  navDecorBlocker.setAttribute("type", "text/css");
-  navDecorBlocker.innerText = [
+  var cssAdjuster = document.createElement("style");
+  cssAdjuster.setAttribute("type", "text/css");
+  cssAdjuster.innerText = [
     "html, body, ._gmaps_cdv_ {",
     "   background-image: url() !important;",
     "   background: rgba(0,0,0,0) url() !important;",
@@ -94,9 +94,12 @@ function pluginInit() {
     "   background-color: rgba(0,0,0,0) !important;",
     "   background: rgba(0,0,0,0) !important;",
     "   display:none !important;",
+    "}",
+    ".framework7-root .page-previous {",
+    "   display:none !important;",
     "}"
   ].join("");
-  document.head.appendChild(navDecorBlocker);
+  document.head.appendChild(cssAdjuster);
 
 
   // I guess no longer necessary this code at 2018/March
