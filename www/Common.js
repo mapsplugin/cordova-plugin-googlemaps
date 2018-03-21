@@ -331,7 +331,7 @@ function getZIndex(dom) {
     } else {
       z = parseInt(z);
     }
-    dom.setAttribute("__ZIndex", z);
+    //dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
     return {
       isInherit: isInherit,
@@ -683,7 +683,7 @@ function quickfilter(domPositions, mapElemIDs) {
 
 function getPluginDomId(element) {
   // Generates a __pluginDomId
-  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+  if (!element || !shouldWatchByNative(element)) {
     return;
   }
   var elemId = element.getAttribute("__pluginDomId");
