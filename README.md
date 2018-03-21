@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.8)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.2.9)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -25,7 +25,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.2.8">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.2.9">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -96,6 +96,11 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Fix: can not use backbutton event.
   - Fix: marker cluster does not work correctly if position data contains `id` field.
   - Update: Wait MAP_READY until map.getVisibleRegion() is ready.
+
+- **v2.2.9**
+  - Add: support languages (`Denmark`)
+  - Internal code refactoring
+  - Fix: Cannot find module '../node_modules/xml2js' error.
 
 ---
 
@@ -248,12 +253,15 @@ map.addPolygon({
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/GroundOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/groundoverlay.png?raw=true"><br>GroundOverlay</a></td>
   <td><pre>
-map.addPolygon({
-  'points': GORYOKAKU_POINTS,
-  'strokeColor' : '#AA00FF',
-  'strokeWidth': 5,
-  'fillColor' : '#880000'
-}, function(polygon) { ... });</pre></td>
+map.addGroundOverlay({
+  'url': "./newark_nj_1922.jpg",
+  'bounds': [
+    {"lat": 40.712216, "lng": -74.22655},
+    {"lat": 40.773941, "lng": -74.12544}
+  ],
+  'opacity': 0.5
+}, function(groundOverlay) { ... });
+</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/tileoverlay.png?raw=true"><br>TileOverlay</a></td>
