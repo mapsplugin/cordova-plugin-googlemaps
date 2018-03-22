@@ -112,7 +112,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
               errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_invalid_account");
               break;
             case ConnectionResult.LICENSE_CHECK_FAILED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_lincense_check_failed");
+              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_license_check_failed");
               break;
             case ConnectionResult.NETWORK_ERROR:
               errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_network_error");
