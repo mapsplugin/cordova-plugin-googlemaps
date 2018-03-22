@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">Die Anwendung ist falsch konfiguriert und kann nicht fortgefahren werden. Der Entwickler muss die Protokolle inspezieren, um weitere Informationen zu erhalten.</string>
   <string name="pgm_google_play_internal_error">Ein interner Fehler der Google Play-Dienste ist aufgetreten. Bitte versuchen Sie es erneut.</string>
   <string name="pgm_google_play_invalid_account">Sie haben versucht, eine Verbindung zum Dienst mit einem ungültigen Kontonamen herzustellen.</string>
-  <string name="pgm_google_play_lincense_check_failed">Die Anwendung ist für den Benutzer nicht lizenziert. Dieser Fehler ist nicht wiederherstellbar und wird als fatal behandelt.</string>
+  <string name="pgm_google_play_license_check_failed">Die Anwendung ist für den Benutzer nicht lizenziert. Dieser Fehler ist nicht wiederherstellbar und wird als fatal behandelt.</string>
   <string name="pgm_google_play_network_error">Ein Netzwerkfehler ist aufgetreten. Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.</string>
   <string name="pgm_google_play_service_disabled">Die installierte Version der Google Play-Dienste wurde auf diesem Gerät deaktiviert. Bitte schalten Sie die Google Play-Dienste ein.</string>
   <string name="pgm_google_play_service_invalid">Die Version der auf diesem Gerät installierten Google Play-Dienste konnte nicht authentifiziert werden. Bitte Aktualisieren Sie die Google Play-Dienste im Google Play Store.</string>

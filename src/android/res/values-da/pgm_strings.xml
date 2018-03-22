@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">Aplikacja posiada niepoprawną konfigurację. Tego błędu nie można odtworzyć i będzie on traktowany jako krytyczny. W celu uzyskania bardziej szczegółowych informacji programista powinien przejrzeć pliki z logami.</string>
   <string name="pgm_google_play_internal_error">Wystąpił błąd wewnątrz usług Google Play. Ponowne uruchomienie powinno rozwiązać problem.</string>
   <string name="pgm_google_play_invalid_account">Próbę nawiązania połączenia z usługą nie powiodła się, z powodu nieprawidłowej nazwy konta.</string>
-  <string name="pgm_google_play_lincense_check_failed">Aplikacja nie jest licencjonowana dla użytkownika. Tego błędu nie można odtworzyć i będzie on traktowany jako krytyczny.</string>
+  <string name="pgm_google_play_license_check_failed">Aplikacja nie jest licencjonowana dla użytkownika. Tego błędu nie można odtworzyć i będzie on traktowany jako krytyczny.</string>
   <string name="pgm_google_play_network_error">Wystąpił błąd połączenia internetowego. Proszę spróbować ponownie.</string>
   <string name="pgm_google_play_service_disabled">Zainstalowana wersja usług Google Play została wyłączona na urządzeniu. Proszę włączyć  usługi Google Play.</string>
   <string name="pgm_google_play_service_invalid">Zainstalowana na urządzeniu wersja usług Google Play jest fałszywa. Proszę zaktualizować usługi Google Play ze sklepu Google Play.</string>

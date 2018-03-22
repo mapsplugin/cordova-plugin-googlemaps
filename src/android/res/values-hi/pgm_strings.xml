@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">यह एप्लिकेशन गलत तरीके से कॉन्फ़िगर किया गया है. इस त्रुटि को ठीक किया नहीं जासकता इसे घातक माना जायेगा. डेवलपर को चाहिए वे लोग में देखकर कार्रवाई योग्य प्राप्त करे.</string>
   <string name="pgm_google_play_internal_error">Google Play सेवाओं की एक आंतरिक त्रुटि हुई. कृप्या फिरसे प्रयास करें, इस से समस्या हल होनी चाहिए.</string>
   <string name="pgm_google_play_invalid_account">आप ने एक अमान्य खाता नाम के साथ सेवा से जुड़ने का प्रयास है.</string>
-  <string name="pgm_google_play_lincense_check_failed">इस उपयोगकर्ता के पास इस एप्लीकेशन लाइसेंस नहीं है. इस त्रुटि को ठीक किया नहीं जासकता इसे घातक माना जायेग.</string>
+  <string name="pgm_google_play_license_check_failed">इस उपयोगकर्ता के पास इस एप्लीकेशन लाइसेंस नहीं है. इस त्रुटि को ठीक किया नहीं जासकता इसे घातक माना जायेग.</string>
   <string name="pgm_google_play_network_error">एक नेटवर्क त्रुटि हुई. कृप्या फिरसे प्रयास करें, इस से समस्या हल होनी चाहिए.</string>
   <string name="pgm_google_play_service_disabled">इस डिवाइस पर Google Play सेवाओं का स्थापित संस्करण अक्षम है. कृपया Google Play सेवाएं चालू करें.</string>
   <string name="pgm_google_play_service_invalid">इस डिवाइस पर स्थापित Google Play सेवाओं का संस्करण प्रामाणिक नहीं है. कृपया Google Play Store से Google Play सेवाएं अपडेट करें.</string>

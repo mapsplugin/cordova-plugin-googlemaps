@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">Приложение неправильно настроено. Произошла фатальная ошибка. Разработчик приложения должен посмотреть в логи, чтобы исправить ошибку.</string>
   <string name="pgm_google_play_internal_error">Произошла внутренняя ошибка Google Play Services. Пожалуйста, повторите попытку для решения проблемы.</string>
   <string name="pgm_google_play_invalid_account">Вы попытались подключиться к сервису с недопустимым именем учетной записи.</string>
-  <string name="pgm_google_play_lincense_check_failed">Произошла фатальная ошибка. Приложение не лицензировано для этого пользователя.</string>
+  <string name="pgm_google_play_license_check_failed">Произошла фатальная ошибка. Приложение не лицензировано для этого пользователя.</string>
   <string name="pgm_google_play_network_error">Произошла сетевая ошибка. Пожалуйста, повторите попытку для решения проблемы.</string>
   <string name="pgm_google_play_service_disabled">Установленная версия Google Play Services отключена на этом устройстве. Пожалуйста, включите Google Play Services.</string>
   <string name="pgm_google_play_service_invalid">Версия Google Play Services установлена на этом уствройстве не подлинная. Пожалуйста, обновите Google Play Services из Google Play Store.</string>
