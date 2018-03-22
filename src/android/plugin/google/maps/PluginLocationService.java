@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.PermissionChecker;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -20,6 +18,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -274,6 +274,7 @@ public class PluginLocationService extends CordovaPlugin {
   }
 
   private void requestLocation() {
+    Log.d(TAG, "--->regularAccuracyRequestList.size = " + regularAccuracyRequestList.size());
 
     if (regularAccuracyRequestList.size() > 0) {
       PluginLocationService.this._requestLocationUpdate(false, false, new CallbackContext("regular-callback", webView) {
@@ -294,6 +295,7 @@ public class PluginLocationService extends CordovaPlugin {
         }
       });
     }
+    Log.d(TAG, "--->highAccuracyRequestList.size = " + highAccuracyRequestList.size());
     if (highAccuracyRequestList.size() > 0) {
       PluginLocationService.this._requestLocationUpdate(false, true, new CallbackContext("regular-callback", webView) {
         @Override
@@ -435,9 +437,58 @@ public class PluginLocationService extends CordovaPlugin {
   @SuppressWarnings("MissingPermission")
   private void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
+    Log.d(TAG, "---->_requestLocationUpdate");
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     if (enableHighAccuracy) {
       priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
+    }
+
+    if (!isRetry) {
+      LocationServices.getFusedLocationProviderClient(cordova.getActivity())
+        .getLastLocation()
+        .addOnSuccessListener(new OnSuccessListener<Location>() {
+          @Override
+          public void onSuccess(Location location) {
+            lastLocation = location;
+            if (Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
+              //---------------------------------------------------------------------
+              // If the user requests the location in two seconds from the last time,
+              // return the last result in order to save battery usage.
+              // (Don't request the device location too much! Save battery usage!)
+              //---------------------------------------------------------------------
+              JSONObject result;
+              try {
+                result = PluginUtil.location2Json(lastLocation);
+                result.put("status", true);
+
+                PluginResult successResult = new PluginResult(PluginResult.Status.OK, result);
+                synchronized (semaphore) {
+                  for (CallbackContext callback : regularAccuracyRequestList) {
+                    callback.sendPluginResult(successResult);
+                  }
+                  for (CallbackContext callback: highAccuracyRequestList) {
+                    callback.sendPluginResult(successResult);
+                  }
+                  regularAccuracyRequestList.clear();
+                  highAccuracyRequestList.clear();
+                }
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+
+              googleApiClient.disconnect();
+            } else {
+              _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
+            }
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+            _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
+          }
+        });
+      return;
     }
 
     LocationRequest locationRequest= LocationRequest.create()
@@ -447,11 +498,10 @@ public class PluginLocationService extends CordovaPlugin {
         .setExpirationDuration(12000)
         .setMaxWaitTime(6000);
 
-
-    LocationServices.getFusedLocationProviderClient(cordova.getActivity())
-        .requestLocationUpdates(locationRequest, new LocationCallback() {
+    LocationServices.getFusedLocationProviderClient(cordova.getActivity()).requestLocationUpdates(locationRequest, new LocationCallback() {
           @Override
           public void onLocationResult(LocationResult locationResult) {
+            Log.d(TAG, "---->onLocationResult");
             Location location = null;
             if (locationResult.getLocations().size() > 0) {
               location = locationResult.getLocations().get(0);
@@ -472,31 +522,16 @@ public class PluginLocationService extends CordovaPlugin {
                 e.printStackTrace();
               }
             } else {
-              if (!isRetry) {
-                Toast.makeText(activity, "Waiting for location...", Toast.LENGTH_SHORT).show();
-
-                //PluginLocationService.this.sendNoResult(callbackContext);
-
-                // Retry
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                  @Override
-                  public void run() {
-                    _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
-                  }
-                }, 3000);
-              } else {
-                // Send back the error result
-                JSONObject result = new JSONObject();
-                try {
-                  result.put("status", false);
-                  result.put("error_code", "cannot_detect");
-                  result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_can_not_get_location"));
-                } catch (JSONException e) {
-                  e.printStackTrace();
-                }
-                callbackContext.error(result);
+              // Send back the error result
+              JSONObject result = new JSONObject();
+              try {
+                result.put("status", false);
+                result.put("error_code", "cannot_detect");
+                result.put("error_message", PluginUtil.getPgmStrings(activity,"pgm_can_not_get_location"));
+              } catch (JSONException e) {
+                e.printStackTrace();
               }
+              callbackContext.error(result);
             }
 
             googleApiClient.disconnect();
