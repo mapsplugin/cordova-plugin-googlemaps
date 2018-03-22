@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -439,7 +440,7 @@ public class PluginLocationService extends CordovaPlugin {
 
     Log.d(TAG, "---->_requestLocationUpdate");
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-    if (enableHighAccuracy) {
+    if (enableHighAccuracy || "Genymotion".equals(Build.MANUFACTURER)) {
       priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
     }
 
