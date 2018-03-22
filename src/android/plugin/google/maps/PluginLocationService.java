@@ -438,7 +438,7 @@ public class PluginLocationService extends CordovaPlugin {
   @SuppressWarnings("MissingPermission")
   private void _requestLocationUpdate(final boolean isRetry, final boolean enableHighAccuracy, final CallbackContext callbackContext) {
 
-    Log.d(TAG, "---->_requestLocationUpdate");
+    Log.d(TAG, "---->_requestLocationUpdate (isRetry = " + isRetry + ")");
     int priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     if (enableHighAccuracy || "Genymotion".equals(Build.MANUFACTURER)) {
       priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
@@ -452,6 +452,7 @@ public class PluginLocationService extends CordovaPlugin {
           public void onSuccess(Location location) {
             lastLocation = location;
             if (Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
+              Log.d(TAG, "---->The last location is obtained in 2 sec.");
               //---------------------------------------------------------------------
               // If the user requests the location in two seconds from the last time,
               // return the last result in order to save battery usage.
@@ -479,6 +480,7 @@ public class PluginLocationService extends CordovaPlugin {
 
               googleApiClient.disconnect();
             } else {
+              Log.d(TAG, "---->The last location is expired. Let's get the latest location...");
               _requestLocationUpdate(true, enableHighAccuracy, callbackContext);
             }
           }
