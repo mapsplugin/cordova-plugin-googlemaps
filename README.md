@@ -102,6 +102,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Internal code refactoring
   - Fix: Cannot find module '../node_modules/xml2js' error.
   - Fix: getMyLocation() does not work on Genymotion.
+  - Add: hook scripts to prevent `unknown property ‘GOOGLE_PLAY_SERVICES_VERSION’` problem with older version Cordova.
 
 ---
 

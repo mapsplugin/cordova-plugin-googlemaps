@@ -97,7 +97,7 @@ if (!cordova) {
       LatLngBounds: require('./LatLngBounds'),
       MapTypeId: require('./MapTypeId'),
       environment: require('./Environment'),
-      Geocoder: require('./Geocoder'),
+      Geocoder: require('./Geocoder')(execCmd),
       LocationService: require('./LocationService')(execCmd),
       geometry: {
           encoding: require('./encoding'),
