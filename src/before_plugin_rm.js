@@ -51,6 +51,7 @@ module.exports = function(ctx) {
     //------------------------------------------------------------------------------
     return Q.Promise(function(resolve, reject, notify) {
       var hasPluginGoogleMaps = false;
+      data.widget.plugin = data.widget.plugin || [];
       data.widget.plugin = data.widget.plugin.map(function(plugin) {
         if (plugin.$.name !== "cordova-plugin-googlemaps") {
           return plugin;

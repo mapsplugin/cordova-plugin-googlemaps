@@ -64,6 +64,7 @@ module.exports = function(ctx) {
     //------------------------------------------------------------------------------
     return Q.Promise(function(resolve, reject, notify) {
       var hasPluginGoogleMaps = false;
+      configXmlData.widget.plugin = configXmlData.widget.plugin || [];
       configXmlData.widget.plugin = configXmlData.widget.plugin.map(function(plugin) {
         if (plugin.$.name !== "cordova-plugin-googlemaps") {
           return plugin;
@@ -159,6 +160,7 @@ module.exports = function(ctx) {
         variables[variable.$.name] = variable.$.value;
       });
 
+
       //------------------------------
       // Read default preferences
       //------------------------------
@@ -201,6 +203,19 @@ module.exports = function(ctx) {
       };
       var pluginDefaults = findPreference(params.pluginXmlData);
       variables = Object.assign(pluginDefaults, variables);
+
+      //----------------------------------
+      // Parse the command line variables
+      //----------------------------------
+      if (ctx.cmdLine.includes("cordova plugin add")) {
+        var phrses = require(path.join(NODE_MODULES_DIR, 'minimist'))(ctx.cmdLine.split(' '));
+        if (Array.isArray(phrses.variable)) {
+          phrses.variable.forEach(function(line) {
+            var tmp = line.split("=");
+            variables[tmp[0]] = tmp[1];
+          });
+        }
+      }
 
       //--------------------------------
       // Override the plugin.xml itself
