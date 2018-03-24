@@ -15,8 +15,23 @@ $> cordova plugin add cordova-plugin-googlemaps \
     --variable API_KEY_FOR_IOS="..."
 
 (Optional variables)
+  // [Android]
+  //    The Google Play Services SDK version
+  //    You need to specify the same version number with all other plugins.
+  //    Check out the latest version is here.
+  //    https://developers.google.com/android/guides/releases
   PLAY_SERVICES_VERSION="11.8.0" (for Android)
+
+  // [Android]
+  //    This plugin requires the Android support library v4.
+  //    The minimum version is 24.1.0
+  //    Check out the latest version is here.
+  //    https://developer.android.com/topic/libraries/support-library/revisions.html
   ANDROID_SUPPORT_V4_VERSION="24.1.0" (for Android)
+
+  // [iOS]
+  //    These variable messages are displayed when application requests
+  //    end-user location.
   LOCATION_WHEN_IN_USE_DESCRIPTION="(your custom message)"  (for iOS)
   LOCATION_ALWAYS_USAGE_DESCRIPTION="(your custom message)"  (for iOS)
 ```
@@ -40,7 +55,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
     You need to specify cli-7.1.0 or greater version.
     https://build.phonegap.com/current-support
   -->
-  <preference name="phonegap-version" value="cli-7.1.0" />
+  <preference name="phonegap-version" value="cli-8.0.0" />
 </widget>
 ```
 
@@ -102,7 +117,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Internal code refactoring
   - Fix: Cannot find module '../node_modules/xml2js' error.
   - Fix: getMyLocation() does not work on Genymotion.
-  - Add: hook scripts to prevent `unknown property ‘GOOGLE_PLAY_SERVICES_VERSION’` problem with older version Cordova.
+  - Add: hook scripts to prevent `unknown property GOOGLE_PLAY_SERVICES_VERSION` problem with older version Cordova.
 
 ---
 
