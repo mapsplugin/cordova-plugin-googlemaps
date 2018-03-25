@@ -413,7 +413,7 @@
 
 - (void)resume:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
-    self.pluginLayer.isSuspended = false;
+    self.pluginLayer.isSuspended = NO;
     [self.pluginLayer startRedrawTimer];
   }
   CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -423,8 +423,7 @@
 - (void)pause:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
     if (!self.pluginLayer.isSuspended) {
-      self.pluginLayer.isSuspended = true;
-
+      self.pluginLayer.isSuspended = YES;
       // cancel the timer
       [self.pluginLayer stopRedrawTimer];
 

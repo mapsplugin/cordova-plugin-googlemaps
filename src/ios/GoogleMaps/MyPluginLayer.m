@@ -233,12 +233,14 @@
     [self.pluginScrollView setContentOffset:offset];
 
     if (!mapCtrl.mapDivId) {
-        return;
+      //NSLog(@"--->no mapDivId");
+      return;
     }
 
     NSDictionary *domInfo = nil;
     @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
       domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+      //NSLog(@"--->domInfo = %@", domInfo);
       if (domInfo == nil) {
           return;
       }
@@ -256,7 +258,7 @@
     rect.size.height *= zoomScale;
     rect.origin.x += offset.x;
     rect.origin.y += offset.y;
-  //NSLog(@"---->updateViewPos: %@, (%f, %f) - (%f, %f)", mapCtrl.mapId, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+  //NSLog(@"---->updateViewPos: %@, (%f, %f) - (%f, %f), %@", mapCtrl.mapId, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, rectStr);
 
     float webviewWidth = self.webView.frame.size.width;
     float webviewHeight = self.webView.frame.size.height;

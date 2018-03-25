@@ -316,6 +316,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
       }, 50);
       return;
     }
+    self.isChecking = false;
     self.pause();
   }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
 };
