@@ -22,7 +22,6 @@
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 @property (atomic) NSTimer *redrawTimer;
 @property (nonatomic) BOOL isSuspended;
-@property (nonatomic) BOOL stopFlag;
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (atomic, strong) NSObject *_lockObject;
 

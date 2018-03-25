@@ -205,12 +205,6 @@
 }
 
 - (void)resizeTask:(NSTimer *)timer {
-    if (self.isSuspended || self.stopFlag) {
-      NSLog(@"---->suspend");
-        //[self stopRedrawTimer];
-        return;
-    }
-    self.stopFlag = YES;
     NSArray *keys=[self.pluginScrollView.debugView.mapCtrls allKeys];
     NSString *mapId;
     GoogleMapsViewController *mapCtrl;
@@ -227,7 +221,6 @@
             [self.pluginScrollView.debugView setNeedsDisplay];
         });
     }
-    self.stopFlag = NO;
 }
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {

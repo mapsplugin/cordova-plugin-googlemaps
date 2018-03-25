@@ -52,7 +52,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
-  public boolean stopFlag = false;
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
   private float zoomScale;
@@ -76,11 +75,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
-      if (isSuspended) {
-        //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
-        stopTimer();
-        return;
-      }
       isWaiting = false;
       //final PluginMap pluginMap = pluginMaps.get(mapId);
       //if (pluginMap.mapDivId == null) {
@@ -239,6 +233,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         if (redrawTimer != null) {
           redrawTimer.cancel();
           redrawTimer.purge();
+          ResizeTask task = new ResizeTask();
+          task.run();
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -649,7 +645,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       if (pluginMaps == null || pluginMaps.size() == 0) {
         return false;
       }
-      MyPluginLayout.this.stopFlag = true;
 
       int action = event.getAction();
       //Log.d("FrontLayerLayout", "----> action = " + action + ", isScrolling = " + isScrolling);
@@ -657,7 +652,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       // The scroll action that started in the browser region is end.
       isScrolling = action != MotionEvent.ACTION_UP && isScrolling;
       if (isScrolling) {
-        MyPluginLayout.this.stopFlag = false;
         return false;
       }
 
