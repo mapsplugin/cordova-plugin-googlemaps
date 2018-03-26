@@ -76,6 +76,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
+      if (isSuspended) {
+        //Log.d(TAG, "--->ResizeTask : isSuspended = " +isSuspended);
+        stopTimer();
+        return;
+      }
       isWaiting = false;
       //final PluginMap pluginMap = pluginMaps.get(mapId);
       //if (pluginMap.mapDivId == null) {
@@ -105,7 +110,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               continue;
             }
             drawRect = HTMLNodeRectFs.get(pluginMap.mapDivId);
-            if (drawRect == null) {
+            if (drawRect == null || drawRect.left == 0 && drawRect.top == 0 && drawRect.width() == 0 && drawRect.height() == 0) {
               continue;
             }
 
@@ -234,8 +239,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         if (redrawTimer != null) {
           redrawTimer.cancel();
           redrawTimer.purge();
-          ResizeTask task = new ResizeTask();
-          task.run();
         }
       } catch (Exception e) {
         e.printStackTrace();

@@ -640,6 +640,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
 
+  public void attachMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    mapCtrl.mPluginLayout.addPluginMap(this);
+    callbackContext.success();
+  }
+  public void detachMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    mapCtrl.mPluginLayout.removePluginMap(this.mapId);
+    callbackContext.success();
+  }
+
   public void resizeMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mapCtrl.mPluginLayout == null || mapDivId == null) {
       //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");

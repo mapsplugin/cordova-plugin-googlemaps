@@ -217,11 +217,18 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
   var mapIDs = Object.keys(self.MAPS);
   var touchableMapList = mapIDs.filter(function(mapId) {
     var map = self.MAPS[mapId];
-    return (map &&
+    var isTouchable = (map &&
       map.getVisible() &&
       map.getClickable() &&
       map.getDiv() &&
       common.shouldWatchByNative(map.getDiv()));
+    if (isTouchable) {
+      var elemId = common.getPluginDomId(map.getDiv());
+      var domInfo = self.domPositions[elemId];
+      isTouchable = domInfo.size.width * domInfo.size.height > 0;
+    }
+    map.set("__isAttached", isTouchable);
+    return isTouchable;
   });
   if (touchableMapList.length === 0) {
     self.pause();
@@ -462,12 +469,14 @@ CordovaGoogleMaps.prototype.invalidateN = function(cnt) {
   }
   self.cnt = cnt;
   var timer = setInterval(function() {
-    self.followMapDivPositionOnly.call(self);
-    self.cnt--;
-    if (self.cnt === 0) {
-      clearInterval(timer);
-      self.invalidate.call(self, {force: true});
-    }
+    common.nextTick(function() {
+      self.followMapDivPositionOnly.call(self);
+      self.cnt--;
+      if (self.cnt === 0) {
+        clearInterval(timer);
+        self.invalidate.call(self, {force: true});
+      }
+    });
   }, 50);
 };
 
@@ -535,6 +544,14 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   // Catch all events for this map instance, then pass to the instance.
   // (Don't execute this native callback from your code)
   plugin.google.maps[mapId] = nativeCallback.bind(map);
+
+  map.on('__isAttached_changed', function(oldValue, newValue) {
+    if (newValue) {
+      cordova_exec(null, null, map.id, 'attachMap', []);
+    } else {
+      cordova_exec(null, null, map.id, 'detachMap', []);
+    }
+  });
 
   // If the mapDiv is changed, clean up the information for old map div,
   // then add new information for new map div.

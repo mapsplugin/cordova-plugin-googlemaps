@@ -252,6 +252,12 @@
     }
 
     __block CGRect rect = CGRectFromString(rectStr);
+    if (rect.origin.x == 0 &&
+        rect.origin.y == 0 &&
+        rect.size.width == 0 &&
+        rect.size.height == 0) {
+      return;
+    }
     rect.origin.x *= zoomScale;
     rect.origin.y *= zoomScale;
     rect.size.width *= zoomScale;

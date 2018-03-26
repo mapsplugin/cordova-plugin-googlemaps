@@ -789,7 +789,8 @@ Map.prototype.setDiv = function(div) {
   }
   exec.call(this, function() {
     cordova.fireDocumentEvent('plugin_touch', {
-      force: true
+      force: true,
+      action: "setDiv"
     });
     self.refreshLayout();
   }, self.errorHandler, self.id, 'setDiv', args, {

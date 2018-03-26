@@ -169,6 +169,35 @@
   }];
 }
 
+- (void)attachMap:(CDVInvokedUrlCommand*)command {
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+    [googlemaps.pluginLayer addMapView:self.mapCtrl];
+    self.mapCtrl.attached = YES;
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+}
+
+- (void)detachMap:(CDVInvokedUrlCommand*)command {
+
+  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+    [googlemaps.pluginLayer removeMapView:self.mapCtrl];
+    self.mapCtrl.attached = NO;
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
+}
 
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
@@ -459,34 +488,6 @@
   [self updateCameraPosition:@"moveCamera" command:command];
 }
 
-/*
--(void)getCameraPosition:(CDVInvokedUrlCommand *)command
-{
-
-  [self.mapCtrl.executeQueue addOperationWithBlock:^{
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      GMSCameraPosition *camera = self.mapCtrl.map.camera;
-      [self.executeQueue addOperationWithBlock:^{
-        NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-        [latLng setObject:[NSNumber numberWithFloat:camera.target.latitude] forKey:@"lat"];
-        [latLng setObject:[NSNumber numberWithFloat:camera.target.longitude] forKey:@"lng"];
-
-        NSMutableDictionary *json = [NSMutableDictionary dictionary];
-        [json setObject:[NSNumber numberWithFloat:camera.zoom] forKey:@"zoom"];
-        [json setObject:[NSNumber numberWithDouble:camera.viewingAngle] forKey:@"tilt"];
-        [json setObject:latLng forKey:@"target"];
-        [json setObject:[NSNumber numberWithFloat:camera.bearing] forKey:@"bearing"];
-        [json setObject:[NSNumber numberWithInt:(int)camera.hash] forKey:@"hashCode"];
-
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-      }];
-    }];
-  }];
-
-
-}
-*/
 
 -(void)_changeCameraPosition: (NSString*)action requestMethod:(NSString *)requestMethod params:(NSDictionary *)json command:(CDVInvokedUrlCommand *)command {
 

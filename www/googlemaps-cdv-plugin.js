@@ -37,7 +37,9 @@ if (!cordova) {
       if (scrollEndTimer) {
         clearTimeout(scrollEndTimer);
       }
-      scrollEndTimer = setTimeout(onScrollEnd, 100);
+      scrollEndTimer = setTimeout(function() {
+        common.nextTick(onScrollEnd);
+      }, 100);
       cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
     }, true);
 
