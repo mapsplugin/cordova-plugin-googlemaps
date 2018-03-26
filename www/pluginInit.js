@@ -122,10 +122,10 @@ function pluginInit() {
   var anotherBackbuttonHandler = null;
   function onBackButton(e) {
 
+    // Check DOM tree for new page
     cordova.fireDocumentEvent("plugin_touch", {
       force: true
     });
-    //common.nextTick(putHtmlElements);  // <-- super important!
 
     if (anotherBackbuttonHandler) {
       // anotherBackbuttonHandler must handle the page moving transaction.
