@@ -27,15 +27,7 @@ if (!cordova) {
       if (!e.target.hasAttribute("__pluginDomId")) {
         return;
       }
-      var cnt = 5;
-      var timer = setInterval(function() {
-        cnt--;
-        if (cnt > 0) {
-          cordovaGoogleMaps.invalidate({force: true});
-        } else {
-          clearInterval(timer);
-        }
-      }, 50);
+      cordovaGoogleMaps.invalidateN(5);
     }, true);
 
     // If the `scroll` event is ocurred on the observed element,
@@ -65,15 +57,7 @@ if (!cordova) {
 
     // Repositioning 30 times when the device orientaion is changed.
     window.addEventListener("orientationchange", function() {
-      var cnt = 30;
-      var timer = setInterval(function() {
-        cnt--;
-        if (cnt > 0) {
-          onScrollEnd();
-        } else {
-          clearInterval(timer);
-        }
-      }, 50);
+      cordovaGoogleMaps.invalidateN(30);
     });
 
 

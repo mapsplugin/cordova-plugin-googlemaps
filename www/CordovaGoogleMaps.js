@@ -390,14 +390,17 @@ CordovaGoogleMaps.prototype.invalidate = function(opts) {
   // Recheck the DOM positions
   //-------------------------------
   var self = this;
+  //console.log("-->invalidate", JSON.parse(JSON.stringify(opts)));
 
   opts = opts || {};
   if (opts.force) {
     self.isThereAnyChange = true;
     self.isSuspended = false;
+    self.resume();
   }
 
   common.nextTick(function() {
+    self.resume.call(self);
     self.putHtmlElements.call(self);
     if (opts.force) {
       self.followMapDivPositionOnly.call(self, opts);
@@ -450,6 +453,22 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
   if (changed || opts.force) {
     cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
   }
+};
+
+CordovaGoogleMaps.prototype.invalidateN = function(cnt) {
+  var self = this;
+  if (self.cnt > 0) {
+    return;
+  }
+  self.cnt = cnt;
+  var timer = setInterval(function() {
+    self.followMapDivPositionOnly.call(self);
+    self.cnt--;
+    if (self.cnt === 0) {
+      clearInterval(timer);
+      self.invalidate.call(self, {force: true});
+    }
+  }, 50);
 };
 
 
