@@ -194,8 +194,8 @@
       [mapCtrl removeFromParentViewController];
       [self.pluginScrollView detachView:mapCtrl.view];
 
-      [mapCtrl.view setFrame:CGRectMake(0, -mapCtrl.view.frame.size.height, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
-      [mapCtrl.view setNeedsDisplay];
+      //[mapCtrl.view setFrame:CGRectMake(0, -mapCtrl.view.frame.size.height, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
+      //[mapCtrl.view setNeedsDisplay];
 
       if (self.pluginScrollView.debugView.debuggable) {
           [self.pluginScrollView.debugView setNeedsDisplay];
