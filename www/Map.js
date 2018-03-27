@@ -646,23 +646,24 @@ Map.prototype.remove = function(callback) {
     value: true,
     writable: false
   });
-  var div = self.get('div');
-  if (div) {
-    while (div) {
-      if (div.style) {
-        div.style.backgroundColor = '';
-      }
-      if (div.classList) {
-        div.classList.remove('_gmaps_cdv_');
-      } else if (div.className) {
-        div.className = div.className.replace(/_gmaps_cdv_/g, "");
-        div.className = div.className.replace(/\s+/g, " ");
-      }
-      div = div.parentNode;
-    }
-  }
-  self.set('div', undefined);
+
   self.trigger("remove");
+// var div = self.get('div');
+// if (div) {
+//   while (div) {
+//     if (div.style) {
+//       div.style.backgroundColor = '';
+//     }
+//     if (div.classList) {
+//       div.classList.remove('_gmaps_cdv_');
+//     } else if (div.className) {
+//       div.className = div.className.replace(/_gmaps_cdv_/g, "");
+//       div.className = div.className.replace(/\s+/g, " ");
+//     }
+//     div = div.parentNode;
+//   }
+// }
+// self.set('div', undefined);
 
 
   // Close the active infoWindow
