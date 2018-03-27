@@ -208,7 +208,7 @@
   NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
   NSString *CFBundleExecutable = [info objectForKey:@"CFBundleExecutable"];
 
-  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^\\-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
   if ([regex numberOfMatchesInString:CFBundleExecutable options:0 range:NSMakeRange(0, CFBundleExecutable.length)] == 0) {
 
     NSString *APP_NAME_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_TITLE"];
