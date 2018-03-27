@@ -4,16 +4,15 @@ module.exports = function(ctx) {
       path = ctx.requireCordovaModule('path'),
       Q = ctx.requireCordovaModule('q');
   var projectRoot = ctx.opts.projectRoot,
-    configXmlPath = path.join(projectRoot, 'config.xml'),
-    NODE_MODULES_DIR;
+    configXmlPath = path.join(projectRoot, 'config.xml');
 
   var versions = ctx.opts.cordova.version.split(/\./g);
-  NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
-  if (!fs.existsSync(NODE_MODULES_DIR)) {
-    NODE_MODULES_DIR = path.join(projectRoot, "node_modules");
+  var NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
+  if (fs.existsSync(NODE_MODULES_DIR)) {
+    module.paths.push(NODE_MODULES_DIR);
   }
 
-  var xml2js = require(path.join(NODE_MODULES_DIR, 'xml2js'));
+  var xml2js = require('xml2js');
 
   return Q.Promise(function(resolve, reject, notify) {
     //---------------------------
