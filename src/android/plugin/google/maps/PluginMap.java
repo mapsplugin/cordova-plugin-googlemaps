@@ -83,23 +83,24 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     OnMyLocationButtonClickListener, OnIndoorStateChangeListener, InfoWindowAdapter,
     GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveCanceledListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
-    GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener, GoogleMap.OnMyLocationClickListener, GoogleMap.OnPoiClickListener {
+    GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener,
+    GoogleMap.OnMyLocationClickListener, GoogleMap.OnPoiClickListener,
+    IPluginOverlay{
 
   private LatLngBounds initCameraBounds;
   private Activity activity;
   public GoogleMap map;
-  public MapView mapView;
-  public String mapId;
-  public boolean isVisible = true;
-  public boolean isClickable = true;
-  public final String TAG = mapId;
-  public String mapDivId;
+  private MapView mapView;
+  private String mapId;
+  private boolean isVisible = true;
+  private boolean isClickable = true;
+  private final String TAG = mapId;
+  private String mapDivId;
   public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
   private final float DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   public Marker activeMarker = null;
   private boolean isDragging = false;
-  //public final ConcurrentHashMap<String, Object> objects = new ConcurrentHashMap<String, Object>();
   public final ObjectCache objects = new ObjectCache();
   private ImageView dummyMyLocationButton;
   public static final Object semaphore = new Object();
@@ -128,6 +129,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     double cameraPadding;
     String styles;
   }
+
+  public String getDivId() {
+    return this.mapDivId;
+  }
+  public String getOverlayId() {
+    return this.mapId;
+  }
+  public ViewGroup getView() {
+    return this.mapView;
+  }
+  public boolean getVisible() {
+    return isVisible;
+  }
+  public boolean getClickable() {
+    return isClickable;
+  }
+
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -401,7 +419,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               if (args.length() == 3) {
                 mapDivId = args.getString(2);
 
-                mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
+                mapCtrl.mPluginLayout.addPluginOverlay(PluginMap.this);
                 PluginMap.this.resizeMap(args, new PluginUtil.MyCallbackContext("dummy-" + map.hashCode(), webView) {
                   @Override
                   public void onResult(PluginResult pluginResult) {
@@ -480,7 +498,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
     mapCtrl.mPluginLayout.stopTimer();
 
-    mapCtrl.mPluginLayout.removePluginMap(this.mapId);
+    mapCtrl.mPluginLayout.removePluginOverlay(this.mapId);
 
   }
   @Override
@@ -489,7 +507,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     if (mapView != null && mapView.isActivated()) {
       mapView.onResume();
     }
-    mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
+    mapCtrl.mPluginLayout.addPluginOverlay(PluginMap.this);
     mapCtrl.mPluginLayout.startTimer();
   }
 
@@ -641,11 +659,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
 
   public void attachMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    mapCtrl.mPluginLayout.addPluginMap(this);
+    mapCtrl.mPluginLayout.addPluginOverlay(this);
     callbackContext.success();
   }
   public void detachMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    mapCtrl.mPluginLayout.removePluginMap(this.mapId);
+    mapCtrl.mPluginLayout.removePluginOverlay(this.mapId);
     callbackContext.success();
   }
 
@@ -715,12 +733,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
     if (args.length() == 0) {
       PluginMap.this.mapDivId = null;
-      mapCtrl.mPluginLayout.removePluginMap(mapId);
+      mapCtrl.mPluginLayout.removePluginOverlay(mapId);
       callbackContext.success();
       return;
     }
     PluginMap.this.mapDivId = args.getString(0);
-    mapCtrl.mPluginLayout.addPluginMap(PluginMap.this);
+    mapCtrl.mPluginLayout.addPluginOverlay(PluginMap.this);
     this.resizeMap(args, callbackContext);
   }
 
@@ -762,7 +780,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   @Override
   public void onDestroy() {
     super.onDestroy();
-    //this.remove(null, null);
+    this.objects.clear();
+    this.objects.destroy();
   }
 
   /**
@@ -782,7 +801,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              mapCtrl.mPluginLayout.removePluginMap(mapId);
+              mapCtrl.mPluginLayout.removePluginOverlay(mapId);
 
               //Log.d("pluginMap", "--> map = " + map);
               if (map != null) {

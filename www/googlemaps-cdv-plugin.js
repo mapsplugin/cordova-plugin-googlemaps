@@ -59,7 +59,7 @@ if (!cordova) {
 
     // Repositioning 30 times when the device orientaion is changed.
     window.addEventListener("orientationchange", function() {
-      cordovaGoogleMaps.invalidateN(30);
+      cordovaGoogleMaps.invalidateN(50);
     });
 
 
@@ -77,6 +77,9 @@ if (!cordova) {
       BaseArrayClass: require('./BaseArrayClass'),
       Map: {
         getMap: cordovaGoogleMaps.getMap.bind(cordovaGoogleMaps)
+      },
+      StreetView: {
+        getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps)
       },
       HtmlInfoWindow: require('./HtmlInfoWindow'),
       LatLng: require('./LatLng'),

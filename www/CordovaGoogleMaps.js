@@ -1,7 +1,8 @@
 var utils = require('cordova/utils'),
   common = require('./Common'),
   cordova_exec = require('cordova/exec'),
-  Map = require('./Map');
+  Map = require('./Map'),
+  StreetViewPanorama = require('./StreetViewPanorama');
 
 function CordovaGoogleMaps(execCmd) {
   var self = this;
@@ -686,6 +687,57 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
 
   return map;
+};
+
+CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
+  var self = this;
+  var mapId = "map_" + self.MAP_CNT + "_" + self.saltHash;
+
+  // Create a panorama instance.
+  var panorama = new StreetViewPanorama(mapId, self.execCmd);
+
+  self.MAP_CNT++;
+  self.MAPS[mapId] = panorama;
+  self.isThereAnyChange = true;
+
+  // If the mapDiv is specified,
+  // the native side needs to know the map div position
+  // before creating the map view.
+  div.setAttribute("__pluginMapId", mapId);
+  elemId = common.getPluginDomId(div);
+
+  elem = div;
+  var isCached;
+  while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+    elemId = common.getPluginDomId(elem);
+    isCached = elemId in self.domPositions;
+    self.domPositions[elemId] = {
+      pointerEvents: common.getStyle(elem, 'pointer-events'),
+      isMap: false,
+      size: common.getDivRect(elem),
+      zIndex: common.getZIndex(elem),
+      children: [],
+      overflowX: common.getStyle(elem, "overflow-x"),
+      overflowY: common.getStyle(elem, "overflow-y"),
+      containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
+    };
+    self.domPositions[elemId].containMapIDs[mapId] = 1;
+    elem = elem.parentNode;
+  }
+
+  elemId = common.getPluginDomId(div);
+  self.domPositions[elemId].isMap = true;
+
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.unshift(mapId);
+
+  cordova_exec(function() {
+    cordova_exec(function() {
+      panorama.getPanorama.apply(panorama, args);
+    }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
+  }, null, 'CordovaGoogleMaps', 'resume', []);
+
+  return panorama;
 };
 
 function nativeCallback(params) {

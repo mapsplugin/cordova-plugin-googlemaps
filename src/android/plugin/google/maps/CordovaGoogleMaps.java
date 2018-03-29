@@ -265,6 +265,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
             CordovaGoogleMaps.this.resume(args, callbackContext);
           } else if ("getMap".equals(action)) {
             CordovaGoogleMaps.this.getMap(args, callbackContext);
+          } else if ("getPanorama".equals(action)) {
+            CordovaGoogleMaps.this.getPanorama(args, callbackContext);
           } else if ("removeMap".equals(action)) {
             CordovaGoogleMaps.this.removeMap(args, callbackContext);
           } else if ("backHistory".equals(action)) {
@@ -373,7 +375,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public void onReset() {
     super.onReset();
-    if (mPluginLayout == null || mPluginLayout.pluginMaps == null) {
+    if (mPluginLayout == null || mPluginLayout.pluginOverlays == null) {
       return;
     }
 
@@ -384,21 +386,21 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
         mPluginLayout.setBackgroundColor(Color.WHITE);
 
-        Set<String> mapIds = mPluginLayout.pluginMaps.keySet();
-        PluginMap pluginMap;
+        Set<String> mapIds = mPluginLayout.pluginOverlays.keySet();
+        IPluginOverlay pluginOverlay;
 
         // prevent the ConcurrentModificationException error.
         String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
         for (String mapId : mapIdArray) {
-          if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-            pluginMap = mPluginLayout.removePluginMap(mapId);
-            pluginMap.remove(null, null);
-            pluginMap.onDestroy();
+          if (mPluginLayout.pluginOverlays.containsKey(mapId)) {
+            pluginOverlay = mPluginLayout.removePluginOverlay(mapId);
+            pluginOverlay.remove(null, null);
+            pluginOverlay.onDestroy();
             mPluginLayout.HTMLNodes.remove(mapId);
           }
         }
         mPluginLayout.HTMLNodes.clear();
-        mPluginLayout.pluginMaps.clear();
+        mPluginLayout.pluginOverlays.clear();
 
         System.gc();
         Runtime.getRuntime().gc();
@@ -409,15 +411,13 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   public void removeMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String mapId = args.getString(0);
-    if (mPluginLayout.pluginMaps.containsKey(mapId)) {
-      PluginMap pluginMap = mPluginLayout.removePluginMap(mapId);
-      if (pluginMap != null) {
-        pluginMap.remove(null, null);
-        pluginMap.onDestroy();
-        pluginMap.objects.clear();
-        pluginMap.objects.destroy();
+    if (mPluginLayout.pluginOverlays.containsKey(mapId)) {
+      IPluginOverlay pluginOverlay = mPluginLayout.removePluginOverlay(mapId);
+      if (pluginOverlay != null) {
+        pluginOverlay.remove(null, null);
+        pluginOverlay.onDestroy();
         mPluginLayout.HTMLNodes.remove(mapId);
-        pluginMap = null;
+        pluginOverlay = null;
       }
 
       try {
@@ -462,6 +462,25 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     pluginMap.getMap(args, callbackContext);
   }
 
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    //------------------------------------------
+    // Create an instance of PluginStreetView class.
+    //------------------------------------------
+    String mapId = args.getString(0);
+    PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
+    pluginStreetView.privateInitialize(mapId, cordova, webView, null);
+    pluginStreetView.initialize(cordova, webView);
+    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
+    pluginStreetView.self = pluginStreetView;
+    ((MyPlugin)pluginStreetView).CURRENT_PAGE_URL = CURRENT_URL;
+
+    PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
+    pluginManager.addService(pluginEntry);
+
+    pluginStreetView.getPanorama(args, callbackContext);
+  }
 
   @Override
   public void onStart() {

@@ -86,7 +86,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         String currentPageUrl = webView.getUrl();
 
         AssetManager assetManager = cordova.getActivity().getAssets();
-        final PluginTileProvider tileProvider = new PluginTileProvider(pluginMap.mapId, id, webView, assetManager, currentPageUrl, userAgent, tileSize, _isDebug);
+        final PluginTileProvider tileProvider = new PluginTileProvider(pluginMap.getOverlayId(), id, webView, assetManager, currentPageUrl, userAgent, tileSize, _isDebug);
         tileProvider.setOnCacheClear(new PluginTileProvider.OnCacheClear() {
           @Override
           public void onCacheClear(int hashCode) {
