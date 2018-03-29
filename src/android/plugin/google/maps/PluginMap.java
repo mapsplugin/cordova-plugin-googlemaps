@@ -658,11 +658,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
 
 
-  public void attachToWebView(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void attachToWebView(JSONArray args, final CallbackContext callbackContext) {
     mapCtrl.mPluginLayout.addPluginOverlay(this);
     callbackContext.success();
   }
-  public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void detachFromWebView(JSONArray args, final CallbackContext callbackContext)  {
     mapCtrl.mPluginLayout.removePluginOverlay(this.mapId);
     callbackContext.success();
   }

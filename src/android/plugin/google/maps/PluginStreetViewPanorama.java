@@ -114,11 +114,11 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginOverlay
     mapCtrl.mPluginLayout.startTimer();
   }
 
-  public void attachToWebView(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void attachToWebView(JSONArray args, final CallbackContext callbackContext) {
     mapCtrl.mPluginLayout.addPluginOverlay(this);
     callbackContext.success();
   }
-  public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+  public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) {
     mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
     callbackContext.success();
   }
