@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.3.0-beta-20180327-1638" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.3.0-beta-20180327-2303" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -351,6 +351,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <feature name="MarkerCluster">
                 <param name="ios-package" value="PluginMarkerCluster" />
             </feature>
+            <feature name="StreetViewPanorama">
+                <param name="ios-package" value="PluginStreetViewPanorama" />
+            </feature>
         </config-file>
 
         <header-file src="src/ios/GoogleMaps/PluginObjects.h" />
@@ -403,6 +406,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/PluginMarkerCluster.m" />
         <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
+        <header-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.h" />
+        <source-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.m" />
 
         <!-- Base messages -->
         <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />

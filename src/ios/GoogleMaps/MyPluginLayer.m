@@ -167,7 +167,7 @@
     }];
 
 }
-- (void)addMapView:(GoogleMapsViewController *)mapCtrl {
+- (void)addPluginOverlay:(GoogleMapsViewController *)mapCtrl {
 
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       // Hold the mapCtrl instance with mapId.
@@ -181,7 +181,7 @@
   }];
 }
 
-- (void)removeMapView:(GoogleMapsViewController *)mapCtrl {
+- (void)removePluginOverlay:(GoogleMapsViewController *)mapCtrl {
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       mapCtrl.attached = NO;
 

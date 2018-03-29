@@ -158,7 +158,7 @@
   [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
   [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
 
-  [self.pluginLayer removeMapView:pluginMap.mapCtrl];
+  [self.pluginLayer removePluginOverlay:pluginMap.mapCtrl];
 
   pluginMap.mapCtrl.view = nil;
   [pluginMap.mapCtrl.plugins removeAllObjects];
@@ -249,7 +249,7 @@
     mapCtrl.webView = self.webView;
     mapCtrl.isFullScreen = YES;
     mapCtrl.mapId = mapId;
-    mapCtrl.mapDivId = nil;
+    mapCtrl.divId = nil;
     [mapCtrl.view setHidden:YES];
 
     // Create an instance of the Map class everytime.
@@ -275,9 +275,9 @@
     CGRect rect = CGRectZero;
     // Sets the map div id.
     if ([command.arguments count] == 3) {
-      pluginMap.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
-      if (pluginMap.mapCtrl.mapDivId != nil) {
-        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginMap.mapCtrl.mapDivId];
+      pluginMap.mapCtrl.divId = [command.arguments objectAtIndex:2];
+      if (pluginMap.mapCtrl.divId != nil) {
+        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginMap.mapCtrl.divId];
         if (domInfo != nil) {
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
         }
@@ -390,11 +390,121 @@
     //indoor display
     pluginMap.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
     [mapCtrl.view addSubview:mapCtrl.map];
-    [self.pluginLayer addMapView:mapCtrl];
+    [self.pluginLayer addPluginOverlay:mapCtrl];
 
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [pluginMap getMap:command];
+    });
+
+  });
+}
+
+/**
+ * Intialize the panorama
+ */
+- (void)getPanorama:(CDVInvokedUrlCommand *)command {
+  if (self.pluginLayer != nil) {
+    self.pluginLayer.isSuspended = false;
+    [self.pluginLayer startRedrawTimer];
+  }
+
+  /*---------------------------------------------------------------------------------------
+   * If CFBundleExecutable is not English, the Google Maps SDK for iOS will crash.
+   * So must be English.
+   *
+   * If you want to use non-english name for your app, you need to change your config.xml like this.
+   *
+   * <?xml version='1.0' encoding='utf-8'?>
+   * <widget id="(package name)" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+   *   <name short="(non-english app name)">(english app name)</name>
+   *---------------------------------------------------------------------------------------*/
+
+  NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+  NSString *CFBundleExecutable = [info objectForKey:@"CFBundleExecutable"];
+
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^\\-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
+  if ([regex numberOfMatchesInString:CFBundleExecutable options:0 range:NSMakeRange(0, CFBundleExecutable.length)] == 0) {
+
+    NSString *APP_NAME_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_TITLE"];
+    NSString *APP_NAME_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_MESSAGE"];
+
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:APP_NAME_ERROR_TITLE
+                                                                   message:APP_NAME_ERROR_MESSAGE
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
+    UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
+                                                 style:UIAlertActionStyleDefault
+                                               handler:^(UIAlertAction* action)
+                         {
+                           [alert dismissViewControllerAnimated:YES completion:nil];
+
+                           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Can not use '%@' for CFBundleExecutable", CFBundleExecutable]];
+                           [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+                         }];
+
+    [alert addAction:ok];
+
+    [self.viewController presentViewController:alert
+                                      animated:YES
+                                    completion:nil];
+    return;
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    NSString *panoramaId = [command.arguments objectAtIndex:0];
+    NSDictionary *initOptions = [command.arguments objectAtIndex:1];
+
+    // Wrapper view
+    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
+    mapCtrl.webView = self.webView;
+    mapCtrl.isFullScreen = YES;
+    mapCtrl.mapId = panoramaId;
+    mapCtrl.divId = nil;
+    [mapCtrl.view setHidden:YES];
+
+    // Create an instance of the PluginStreetViewPanorama class everytime.
+    PluginStreetViewPanorama *pluginStreetView = [[PluginStreetViewPanorama alloc] init];
+    [pluginStreetView pluginInitialize];
+    pluginStreetView.mapCtrl = mapCtrl;
+
+    // Hack:
+    // In order to load the plugin instance of the same class but different names,
+    // register the street view plugin instance into the pluginObjects directly.
+    if ([pluginStreetView respondsToSelector:@selector(setViewController:)]) {
+      [pluginStreetView setViewController:cdvViewController];
+    }
+    if ([pluginStreetView respondsToSelector:@selector(setCommandDelegate:)]) {
+      [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];
+    }
+    [cdvViewController.pluginObjects setObject:pluginStreetView forKey:panoramaId];
+    [cdvViewController.pluginsMap setValue:panoramaId forKey:panoramaId];
+    [pluginStreetView pluginInitialize];
+
+    [self.pluginMaps setObject:pluginStreetView forKey:panoramaId];
+
+    CGRect rect = CGRectZero;
+    // Sets the panorama div id.
+    pluginStreetView.mapCtrl.divId = [command.arguments objectAtIndex:2];
+    if (pluginStreetView.mapCtrl.divId != nil) {
+      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginStreetView.mapCtrl.divId];
+      if (domInfo != nil) {
+        rect = CGRectFromString([domInfo objectForKey:@"size"]);
+      }
+    }
+
+    mapCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate:CLLocationCoordinate2DMake(0, 0)];
+    pluginStreetView.mapCtrl.panorama.delegate = mapCtrl;
+    pluginStreetView.mapCtrl.panorama.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [mapCtrl.view addSubview:mapCtrl.panorama];
+    [self.pluginLayer addPluginOverlay:mapCtrl];
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [pluginStreetView getPanorama:command];
     });
 
   });

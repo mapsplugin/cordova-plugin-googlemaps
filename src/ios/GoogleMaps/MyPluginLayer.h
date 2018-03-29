@@ -29,8 +29,8 @@
 - (void)resizeTask:(NSTimer *)timer;
 - (void)clearHTMLElements;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
-- (void)addMapView:(GoogleMapsViewController *)mapCtrl;
-- (void)removeMapView:(GoogleMapsViewController *)mapCtrl;
+- (void)addPluginOverlay:(GoogleMapsViewController *)mapCtrl;
+- (void)removePluginOverlay:(GoogleMapsViewController *)mapCtrl;
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
 - (void)startRedrawTimer;
 - (void)stopRedrawTimer;

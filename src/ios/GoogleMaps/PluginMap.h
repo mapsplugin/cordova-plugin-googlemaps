@@ -9,8 +9,9 @@
 #import "CordovaGoogleMaps.h"
 #import "MyPlgunProtocol.h"
 #import "NSData+Base64.h"
+#import "IPluginOverlay.h"
 
-@interface PluginMap : CDVPlugin<MyPlgunProtocol>
+@interface PluginMap : CDVPlugin<MyPlgunProtocol, IPluginOverlay>
 @property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
 @property (nonatomic) BOOL isRemoved;
 @property (nonatomic) BOOL initialized;

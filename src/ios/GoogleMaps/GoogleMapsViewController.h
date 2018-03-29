@@ -15,7 +15,7 @@
 #import "PluginObjects.h"
 #import <GoogleMaps/GoogleMaps.h>
 
-@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate>
+@interface GoogleMapsViewController : UIViewController<GMSMapViewDelegate, GMSIndoorDisplayDelegate, GMSPanoramaViewDelegate>
 
 @property (nonatomic, strong) UIView* webView;
 @property (nonatomic) NSMutableDictionary* plugins;
@@ -27,10 +27,11 @@
 @property (nonatomic) BOOL debuggable;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic, strong) GMSMapView* map;
+@property (nonatomic, strong) GMSPanoramaView* panorama;
 @property (nonatomic) BOOL clickable;
 @property (nonatomic) BOOL isRenderedAtOnce;
 @property (nonatomic) GMSMarker* activeMarker;
-@property (nonatomic, readwrite, strong) NSString *mapDivId;
+@property (nonatomic, readwrite, strong) NSString *divId;
 @property (nonatomic, strong) PluginObjects *objects;
 @property (atomic, strong) NSOperationQueue *executeQueue;
 

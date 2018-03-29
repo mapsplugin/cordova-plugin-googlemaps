@@ -11,6 +11,7 @@
 #import "GoogleMapsViewController.h"
 #import "PluginUtil.h"
 #import "PluginMap.h"
+#import "PluginStreetViewPanorama.h"
 #import "MyPluginLayer.h"
 #import "MyPlgunProtocol.h"
 
@@ -21,6 +22,7 @@
 @property (nonatomic) NSOperationQueue *executeQueue;
 
 - (void)getMap:(CDVInvokedUrlCommand*)command;
+- (void)getPanorama:(CDVInvokedUrlCommand*)command;
 - (void)clearHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)putHtmlElements:(CDVInvokedUrlCommand *)command;
 - (void)removeMap:(CDVInvokedUrlCommand *)command;
