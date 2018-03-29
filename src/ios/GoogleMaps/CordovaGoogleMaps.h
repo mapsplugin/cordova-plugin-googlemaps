@@ -8,12 +8,13 @@
 
 #import <Cordova/CDV.h>
 #import <GoogleMaps/GoogleMaps.h>
-#import "GoogleMapsViewController.h"
+#import "PluginMapViewController.h"
+#import "PluginStreetViewPanoramaController.h"
 #import "PluginUtil.h"
 #import "PluginMap.h"
 #import "PluginStreetViewPanorama.h"
 #import "MyPluginLayer.h"
-#import "MyPlgunProtocol.h"
+#import "IPluginProtocol.h"
 
 @interface CordovaGoogleMaps : CDVPlugin
 

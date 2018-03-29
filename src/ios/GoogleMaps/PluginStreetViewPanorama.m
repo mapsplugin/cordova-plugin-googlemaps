@@ -13,7 +13,7 @@
 
 - (void)getPanorama:(CDVInvokedUrlCommand *)command {
   dispatch_async(dispatch_get_main_queue(), ^{
-    [self.mapCtrl.panorama moveNearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
+    [self.panoramaCtrl.panorama moveNearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
 
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -27,13 +27,13 @@
 }
 
 - (void)attachToWebView:(CDVInvokedUrlCommand*)command {
-  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
-    self.mapCtrl.attached = YES;
+    [googlemaps.pluginLayer addPluginOverlay:self.panoramaCtrl];
+    self.panoramaCtrl.attached = YES;
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -42,13 +42,13 @@
 
 - (void)detachFromWebView:(CDVInvokedUrlCommand*)command {
 
-  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
-    self.mapCtrl.attached = NO;
+    [googlemaps.pluginLayer removePluginOverlay:self.panoramaCtrl];
+    self.panoramaCtrl.attached = NO;
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

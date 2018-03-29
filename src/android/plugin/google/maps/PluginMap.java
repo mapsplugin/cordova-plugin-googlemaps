@@ -85,7 +85,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraMoveStartedListener,
     GoogleMap.OnInfoWindowLongClickListener, GoogleMap.OnInfoWindowCloseListener,
     GoogleMap.OnMyLocationClickListener, GoogleMap.OnPoiClickListener,
-    IPluginOverlay{
+    IPluginView{
 
   private LatLngBounds initCameraBounds;
   private Activity activity;

@@ -13,15 +13,19 @@ import com.google.android.gms.maps.StreetViewPanoramaOptions;
 import com.google.android.gms.maps.StreetViewPanoramaView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
+import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Locale;
 
 
-public class PluginStreetViewPanorama extends MyPlugin implements IPluginOverlay {
+public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, StreetViewPanorama.OnStreetViewPanoramaCameraChangeListener {
 
   private Activity mActivity;
   private Handler mainHandler;
@@ -61,6 +65,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginOverlay
     return isClickable;
   }
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    panoramaId = args.getString(0);
     divId = args.getString(2);
 
     StreetViewPanoramaOptions svOptions = new StreetViewPanoramaOptions();
@@ -78,6 +83,8 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginOverlay
           @Override
           public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
             panoramaView.onResume();
+
+            panorama.setOnStreetViewPanoramaCameraChangeListener(PluginStreetViewPanorama.this);
 
 
             mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
@@ -121,5 +128,41 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginOverlay
   public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) {
     mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
     callbackContext.success();
+  }
+
+  @Override
+  public void onStreetViewPanoramaCameraChange(StreetViewPanoramaCamera streetViewPanoramaCamera) {
+    try {
+      JSONObject camera = new JSONObject();
+      camera.put("bearing", streetViewPanoramaCamera.bearing);
+      camera.put("tilt", streetViewPanoramaCamera.tilt);
+      camera.put("zoom", streetViewPanoramaCamera.zoom);
+
+      StreetViewPanoramaOrientation svOrientation = streetViewPanoramaCamera.getOrientation();
+      JSONObject orientation = new JSONObject();
+      orientation.put("bearing", svOrientation.bearing);
+      orientation.put("tilt", svOrientation.tilt);
+      camera.put("orientation", orientation);
+
+      String jsonStr = camera.toString(0);
+      jsCallback(
+          String.format(
+              Locale.ENGLISH,
+              "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName:'%s', callback:'_onPanoramaCameraEvent', args: [%s]});}",
+              panoramaId, panoramaId, "panorama_camera_change", jsonStr));
+    } catch (Exception e) {
+      // ignore
+      e.printStackTrace();
+    }
+
+  }
+
+  private void jsCallback(final String js) {
+    this.mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        webView.loadUrl(js);
+      }
+    });
   }
 }

@@ -387,7 +387,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.setBackgroundColor(Color.WHITE);
 
         Set<String> mapIds = mPluginLayout.pluginOverlays.keySet();
-        IPluginOverlay pluginOverlay;
+        IPluginView pluginOverlay;
 
         // prevent the ConcurrentModificationException error.
         String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
@@ -412,7 +412,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public void removeMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String mapId = args.getString(0);
     if (mPluginLayout.pluginOverlays.containsKey(mapId)) {
-      IPluginOverlay pluginOverlay = mPluginLayout.removePluginOverlay(mapId);
+      IPluginView pluginOverlay = mPluginLayout.removePluginOverlay(mapId);
       if (pluginOverlay != null) {
         pluginOverlay.remove(null, null);
         pluginOverlay.onDestroy();

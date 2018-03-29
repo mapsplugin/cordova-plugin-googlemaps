@@ -92,9 +92,9 @@
     key = [keys objectAtIndex:i];
     if ([self.pluginMaps objectForKey:key]) {
       pluginMap = [self.pluginMaps objectForKey:key];
-      if (pluginMap.mapCtrl.map) {
+      if ([pluginMap.mapCtrl isKindOfClass:[PluginMapViewController class]]) {
         // Trigger the CAMERA_MOVE_END mandatory
-        [pluginMap.mapCtrl mapView:pluginMap.mapCtrl.map idleAtCameraPosition:pluginMap.mapCtrl.map.camera];
+        [pluginMap.mapCtrl mapView:((GMSMapView *)(pluginMap.mapCtrl.view)) idleAtCameraPosition:((GMSMapView *)(pluginMap.mapCtrl.view)).camera];
       }
     }
   }
@@ -163,8 +163,7 @@
   pluginMap.mapCtrl.view = nil;
   [pluginMap.mapCtrl.plugins removeAllObjects];
   pluginMap.mapCtrl.plugins = nil;
-  pluginMap.mapCtrl.map.delegate = nil;
-  pluginMap.mapCtrl.map = nil;
+  pluginMap.mapCtrl.view = nil;
   pluginMap.mapCtrl = nil;
   [self.pluginMaps removeObjectForKey:mapId];
   pluginMap = nil;
@@ -245,17 +244,17 @@
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
     // Wrapper view
-    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
-    mapCtrl.webView = self.webView;
-    mapCtrl.isFullScreen = YES;
-    mapCtrl.overlayId = mapId;
-    mapCtrl.divId = nil;
-    [mapCtrl.view setHidden:YES];
+    PluginMapViewController* viewCtrl = [[PluginMapViewController alloc] initWithOptions:nil];
+    viewCtrl.webView = self.webView;
+    viewCtrl.isFullScreen = YES;
+    viewCtrl.overlayId = mapId;
+    viewCtrl.divId = nil;
+    [viewCtrl.view setHidden:YES];
 
     // Create an instance of the Map class everytime.
     PluginMap *pluginMap = [[PluginMap alloc] init];
     [pluginMap pluginInitialize];
-    pluginMap.mapCtrl = mapCtrl;
+    pluginMap.mapCtrl = viewCtrl;
 
     // Hack:
     // In order to load the plugin instance of the same class but different names,
@@ -357,7 +356,8 @@
                                            bearing: bearing
                                       viewingAngle: angle];
 
-    mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+    viewCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+    viewCtrl.view = viewCtrl.map;
 
     //mapType
     NSString *typeStr = [initOptions valueForKey:@"mapType"];
@@ -379,19 +379,17 @@
         mapType = caseBlock();
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          pluginMap.mapCtrl.map.mapType = mapType;
+          ((GMSMapView *)(viewCtrl.view)).mapType = mapType;
         }];
       }
     }
-    pluginMap.mapCtrl.map.delegate = mapCtrl;
-    pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    viewCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
 
     //indoor display
-    pluginMap.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
-    [mapCtrl.view addSubview:mapCtrl.map];
-    [self.pluginLayer addPluginOverlay:mapCtrl];
-
+    ((GMSMapView *)(viewCtrl.view)).delegate = viewCtrl;
+    ((GMSMapView *)(viewCtrl.view)).indoorDisplay.delegate = viewCtrl;
+    [self.pluginLayer addPluginOverlay:viewCtrl];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [pluginMap getMap:command];
@@ -461,18 +459,17 @@
     NSString *divId = [command.arguments objectAtIndex:2];
 
     // Wrapper view
-    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
-    mapCtrl.webView = self.webView;
-    mapCtrl.isFullScreen = YES;
-    mapCtrl.overlayId = panoramaId;
-    mapCtrl.divId = divId;
-    mapCtrl.title = @"test";
+    PluginStreetViewPanoramaController* panoramaCtrl = [[PluginStreetViewPanoramaController alloc] initWithOptions:nil];
+    panoramaCtrl.webView = self.webView;
+    panoramaCtrl.isFullScreen = YES;
+    panoramaCtrl.overlayId = panoramaId;
+    panoramaCtrl.divId = divId;
+    panoramaCtrl.title = @"test";
     //[mapCtrl.view setHidden:YES];
 
     // Create an instance of the PluginStreetViewPanorama class everytime.
     PluginStreetViewPanorama *pluginStreetView = [[PluginStreetViewPanorama alloc] init];
     [pluginStreetView pluginInitialize];
-    pluginStreetView.mapCtrl = mapCtrl;
 
     // Hack:
     // In order to load the plugin instance of the same class but different names,
@@ -491,21 +488,21 @@
 
     CGRect rect = CGRectZero;
     // Sets the panorama div id.
-    pluginStreetView.mapCtrl.divId = divId;
-    if (pluginStreetView.mapCtrl.divId != nil) {
-      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginStreetView.mapCtrl.divId];
+    pluginStreetView.panoramaCtrl = panoramaCtrl;
+    pluginStreetView.panoramaCtrl.divId = divId;
+    if (pluginStreetView.panoramaCtrl.divId != nil) {
+      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginStreetView.panoramaCtrl.divId];
       if (domInfo != nil) {
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
       }
     }
 
 
-    mapCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
-    mapCtrl.panorama.delegate = mapCtrl;
-    mapCtrl.panorama.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [self.pluginLayer addPluginOverlay:mapCtrl];
-    [mapCtrl.view addSubview:mapCtrl.panorama];
-
+    panoramaCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
+    panoramaCtrl.view = panoramaCtrl.panorama;
+    panoramaCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    ((GMSPanoramaView *)(panoramaCtrl.view)).delegate = panoramaCtrl;
+    [self.pluginLayer addPluginOverlay:panoramaCtrl];
 
     [pluginStreetView getPanorama:command];
 

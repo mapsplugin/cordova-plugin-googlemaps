@@ -7,16 +7,16 @@
 //
 
 #import "CordovaGoogleMaps.h"
-#import "MyPlgunProtocol.h"
+#import "IPluginProtocol.h"
 #import "PluginUtil.h"
 #import "UIImageCache.h"
 #import "NSData+Base64.h"
 
-@interface PluginMarker : CDVPlugin<MyPlgunProtocol>
+@interface PluginMarker : CDVPlugin<IPluginProtocol>
 
 @property (nonatomic) BOOL initialized;
 
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic, strong) PluginMapViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)showInfoWindow:(CDVInvokedUrlCommand*)command;
 - (void)hideInfoWindow:(CDVInvokedUrlCommand*)command;

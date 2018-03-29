@@ -145,8 +145,17 @@ StreetViewPanorama.prototype.getDiv = function() {
 StreetViewPanorama.prototype.getMap = function() {
   // stub
 };
-StreetViewPanorama.prototype.refreshLayout = function() {
-  // stub
+
+StreetViewPanorama.prototype._onPanoramaCameraEvent = function(eventName, cameraPosition) {
+  this.set('camera', cameraPosition);
+  this.set('camera_zoom', cameraPosition.zoom);
+  this.set('camera_bearing', cameraPosition.bearing);
+  this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+  this.set('camera_orientation_bearing', cameraPosition.orientation.bearing);
+  this.set('camera_orientation_tilt', cameraPosition.orientation.tilt);
+  if (this._isReady) {
+    this.trigger(eventName, cameraPosition, this);
+  }
 };
 
 module.exports = StreetViewPanorama;

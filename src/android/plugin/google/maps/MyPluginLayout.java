@@ -40,7 +40,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView;
   public FrameLayout scrollFrameLayout;
-  public HashMap<String, IPluginOverlay> pluginOverlays = new HashMap<String, IPluginOverlay>();
+  public HashMap<String, IPluginView> pluginOverlays = new HashMap<String, IPluginView>();
   private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   public boolean isDebug = false;
@@ -87,7 +87,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           String[] toArrayBuf = new String[pluginOverlays.size()];
           String[] mapIds = keySet.toArray(toArrayBuf);
           String mapId;
-          IPluginOverlay pluginOverlay;
+          IPluginView pluginOverlay;
           RectF drawRect;
           for (int i = 0; i < mapIds.length; i++) {
             mapId = mapIds[i];
@@ -399,11 +399,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     });
   }
 
-  public IPluginOverlay removePluginOverlay(final String mapId) {
+  public IPluginView removePluginOverlay(final String mapId) {
     if (!pluginOverlays.containsKey(mapId)) {
       return null;
     }
-    final IPluginOverlay pluginOverlay = pluginOverlays.remove(mapId);
+    final IPluginView pluginOverlay = pluginOverlays.remove(mapId);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
@@ -425,7 +425,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     return pluginOverlay;
   }
 
-  public void addPluginOverlay(final IPluginOverlay pluginOverlay) {
+  public void addPluginOverlay(final IPluginView pluginOverlay) {
     if (pluginOverlay.getDivId() == null) {
       return;
     }
@@ -637,9 +637,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       }
 
 
-      IPluginOverlay pluginOverlay;
-      Iterator<Map.Entry<String, IPluginOverlay>> iterator =  pluginOverlays.entrySet().iterator();
-      Entry<String, IPluginOverlay> entry;
+      IPluginView pluginOverlay;
+      Iterator<Map.Entry<String, IPluginView>> iterator =  pluginOverlays.entrySet().iterator();
+      Entry<String, IPluginView> entry;
 
       PointF clickPoint = new PointF(event.getX(), event.getY());
 
@@ -695,9 +695,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         return;
       }
 
-      IPluginOverlay pluginOverlay;
-      Iterator<Map.Entry<String, IPluginOverlay>> iterator =  pluginOverlays.entrySet().iterator();
-      Entry<String, IPluginOverlay> entry;
+      IPluginView pluginOverlay;
+      Iterator<Map.Entry<String, IPluginView>> iterator =  pluginOverlays.entrySet().iterator();
+      Entry<String, IPluginView> entry;
       RectF mapRect;
       synchronized (_lockHtmlNodes) {
         while (iterator.hasNext()) {

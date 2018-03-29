@@ -1,47 +1,14 @@
 //
-//  GoogleMapsViewController.m
+//  PluginMapViewController.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.
 //
 //
 
-#import "GoogleMapsViewController.h"
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
-#import <Cordova/CDVJSON.h>
-#endif
+#import "PluginMapViewController.h"
 
-
-@implementation GoogleMapsViewController
-
-- (id)initWithOptions:(NSDictionary *) options {
-  self = [super init];
-  self.plugins = [NSMutableDictionary dictionary];
-  self.isFullScreen = NO;
-  self.screenSize = [[UIScreen mainScreen] bounds];
-  self.screenScale = [[UIScreen mainScreen] scale];
-  self.clickable = YES;
-  self.isRenderedAtOnce = NO;
-  self.divId = nil;
-  self.objects = [[PluginObjects alloc] init];
-  self.executeQueue =  [NSOperationQueue new];
-  self.executeQueue.maxConcurrentOperationCount = 10;
-
-
-  return self;
-}
-
-- (void)viewDidLoad
-{
-  [super viewDidLoad];
-
-}
-
-
-- (void)didReceiveMemoryWarning
-{
-  [super didReceiveMemoryWarning];
-}
+@implementation PluginMapViewController
 
 - (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
 
@@ -122,7 +89,7 @@
   //NSString *pluginName;
   NSString *key;
   NSDictionary *properties;
-  //CDVPlugin<MyPlgunProtocol> *plugin;
+  //CDVPlugin<IPluginProtocol> *plugin;
   GMSCoordinateBounds *bounds;
   GMSPath *path;
   NSArray *keys;
@@ -464,7 +431,7 @@
 
   // Get the marker plugin
   //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.overlayId, className];
-  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //CDVPlugin<IPluginProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", clusterId_markerId];
@@ -612,19 +579,6 @@
 }
 
 
-- (void)execJS: (NSString *)jsString {
-  // Insert setTimeout() in order to prevent the GDC and webView deadlock
-  // ( you can not click the ok button of Alert() )
-  // https://stackoverflow.com/a/23833841/697856
-  jsString = [NSString stringWithFormat:@"setTimeout(function(){%@}, 0);", jsString];
-
-  if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-    [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-  } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-    [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-  }
-}
-
 /**
  * cluster_*** events
  */
@@ -694,7 +648,7 @@
 
   // Get the marker plugin
   //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.overlayId];
-  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //CDVPlugin<IPluginProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];

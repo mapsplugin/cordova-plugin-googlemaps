@@ -10,7 +10,7 @@
 
 @implementation PluginPolyline
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
 }

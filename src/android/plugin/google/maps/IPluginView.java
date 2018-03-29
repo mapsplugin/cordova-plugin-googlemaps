@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 
-public interface IPluginOverlay {
+public interface IPluginView {
   boolean getVisible();
   boolean getClickable();
   String getDivId();

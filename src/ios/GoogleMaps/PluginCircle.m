@@ -45,7 +45,7 @@
     [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
     pluginId = nil;
 }
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
     self.mapCtrl = viewCtrl;
 }
@@ -86,7 +86,7 @@
           circle.map = nil;
         } else {
           // true or default
-          circle.map = self.mapCtrl.map;
+          circle.map = ((GMSMapView *)(self.mapCtrl.view));
         }
         BOOL isClickable = NO;
         if ([[json valueForKey:@"clickable"] boolValue]) {
@@ -281,7 +281,7 @@
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if (isVisible) {
-              circle.map = self.mapCtrl.map;
+              circle.map = ((GMSMapView *)(self.mapCtrl.view));
             } else {
               circle.map = nil;
             }

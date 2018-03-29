@@ -7,11 +7,12 @@
 //
 
 #import "CordovaGoogleMaps.h"
-#import "MyPlgunProtocol.h"
-#import "IPluginOverlay.h"
+#import "IPluginProtocol.h"
+#import "IPluginView.h"
+#import "PluginStreetViewPanoramaController.h"
 
-@interface PluginStreetViewPanorama : CDVPlugin<MyPlgunProtocol, IPluginOverlay>
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@interface PluginStreetViewPanorama : CDVPlugin<IPluginProtocol, IPluginView>
+@property (nonatomic, strong) PluginStreetViewPanoramaController* panoramaCtrl;
 @property (nonatomic) BOOL isRemoved;
 @property (nonatomic) BOOL initialized;
 

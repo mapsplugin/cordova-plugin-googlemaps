@@ -10,7 +10,7 @@
 
 @implementation PluginMap
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
   self.mapCtrl = viewCtrl;
 }
@@ -42,7 +42,7 @@
     [self.mapCtrl.view setNeedsDisplay];
 
     NSArray *keys = [self.mapCtrl.plugins allKeys];
-    CDVPlugin<MyPlgunProtocol> *plugin;
+    CDVPlugin<IPluginProtocol> *plugin;
     for (int i = 0; i < [keys count]; i++) {
       plugin = [self.mapCtrl.plugins objectForKey:[keys objectAtIndex:i]];
       [plugin pluginUnload];
@@ -64,7 +64,7 @@
   @synchronized (self.mapCtrl.plugins) {
 
     CDVPluginResult* pluginResult = nil;
-    CDVPlugin<MyPlgunProtocol> *plugin;
+    CDVPlugin<IPluginProtocol> *plugin;
     NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapCtrl.overlayId, [pluginName lowercaseString]];
 
     plugin = [self.mapCtrl.plugins objectForKey:pluginId];
@@ -99,7 +99,7 @@
 
       //NSLog(@"--->loadPlugin : %@ className : %@, plugin : %@", pluginId, className, plugin);
       [self.mapCtrl.plugins setObject:plugin forKey:pluginId];
-      [plugin setGoogleMapsViewController:self.mapCtrl];
+      [plugin setPluginViewController:self.mapCtrl];
 
     }
 
@@ -256,7 +256,7 @@
 
 
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  CDVPlugin<MyPlgunProtocol> *plugin;
+  CDVPlugin<IPluginProtocol> *plugin;
   NSString *pluginName;
   NSArray *keys = [self.mapCtrl.plugins allKeys];
   for (int j = 0; j < [keys count]; j++) {

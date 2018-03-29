@@ -47,7 +47,7 @@
     webviewHeight *= zoomScale;
   
     NSEnumerator *mapIDs = [self.mapCtrls keyEnumerator];
-    GoogleMapsViewController *mapCtrl;
+    PluginMapViewController *mapCtrl;
     id mapId;
   
     NSDictionary *domInfo;
