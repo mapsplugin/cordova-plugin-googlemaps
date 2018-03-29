@@ -39,7 +39,7 @@
     key = nil;
     keys = nil;
 
-    NSString *pluginId = [NSString stringWithFormat:@"%@-circle", self.mapCtrl.mapId];
+    NSString *pluginId = [NSString stringWithFormat:@"%@-circle", self.mapCtrl.overlayId];
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     [cdvViewController.pluginObjects removeObjectForKey:pluginId];
     [cdvViewController.pluginsMap setValue:nil forKey:pluginId];

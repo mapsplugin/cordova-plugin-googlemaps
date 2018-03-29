@@ -50,7 +50,7 @@
   keys = nil;
 
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   //[cdvViewController.pluginsMap setValue:nil forKey:pluginId];

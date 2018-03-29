@@ -420,7 +420,7 @@
 
       // Is the map clickable?
       if (mapCtrl.clickable == NO) {
-        //NSLog(@"--> map (%@) is not clickable.", mapCtrl.mapId);
+        //NSLog(@"--> map (%@) is not clickable.", mapCtrl.overlayId);
         continue;
       }
 
@@ -430,7 +430,7 @@
           rect.origin.y > offsetY + webviewHeight ||
           rect.origin.x > offsetX + webviewWidth ||
           mapCtrl.view.hidden == YES) {
-        //NSLog(@"--> map (%@) is not displayed.", mapCtrl.mapId);
+        //NSLog(@"--> map (%@) is not displayed.", mapCtrl.overlayId);
         continue;
       }
 

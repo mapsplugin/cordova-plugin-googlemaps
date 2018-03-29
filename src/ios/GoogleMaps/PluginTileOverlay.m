@@ -58,7 +58,7 @@
   key = nil;
   keys = nil;
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-tileoverlay", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-tileoverlay", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -93,7 +93,7 @@
           }
           NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
-          [options setObject:self.mapCtrl.mapId forKey:@"mapId"];
+          [options setObject:self.mapCtrl.overlayId forKey:@"mapId"];
           [options setObject:[json valueForKey:@"_id"] forKey:@"pluginId"];
 
           ///[options setObject:tileUrlFormat forKey:@"tileUrlFormat"];
