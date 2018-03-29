@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+
 @protocol IPluginOverlay <NSObject>
-- (NSString *)getOverlayType;
+- (void)attachToWebView:(CDVInvokedUrlCommand*)command;
+- (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
 @end

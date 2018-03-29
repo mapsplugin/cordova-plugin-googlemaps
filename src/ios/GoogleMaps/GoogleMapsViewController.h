@@ -25,7 +25,7 @@
 @property (nonatomic) CGRect screenSize;
 @property (nonatomic) CGFloat screenScale;
 @property (nonatomic) BOOL debuggable;
-@property (nonatomic) NSString *mapId;
+@property (nonatomic) NSString *overlayId;
 @property (nonatomic, strong) GMSMapView* map;
 @property (nonatomic, strong) GMSPanoramaView* panorama;
 @property (nonatomic) BOOL clickable;

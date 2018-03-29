@@ -34,8 +34,8 @@
 - (void)setIndoorEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setTrafficEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setCompassEnabled:(CDVInvokedUrlCommand*)command;
-- (void)attachMap:(CDVInvokedUrlCommand*)command;
-- (void)detachMap:(CDVInvokedUrlCommand*)command;
+- (void)attachToWebView:(CDVInvokedUrlCommand*)command;
+- (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
 - (void)toDataURL:(CDVInvokedUrlCommand*)command;
 - (void)setOptions:(CDVInvokedUrlCommand*)command;
 - (void)setAllGesturesEnabled:(CDVInvokedUrlCommand*)command;

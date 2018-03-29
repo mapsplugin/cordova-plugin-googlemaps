@@ -47,7 +47,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});}",
-                        self.mapId, self.mapId, @"poi_click", placeID, name, location.latitude, location.longitude];
+                        self.overlayId, self.overlayId, @"poi_click", placeID, name, location.latitude, location.longitude];
   [self execJS:jsString];
 }
 
@@ -62,7 +62,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});}",
-                        self.mapId, self.mapId, @"my_location_button_click"];
+                        self.overlayId, self.overlayId, @"my_location_button_click"];
   [self execJS:jsString];
   return NO;
 }
@@ -90,7 +90,7 @@
 
     NSString* jsString = [NSString
                           stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: [%@]});}",
-                          self.mapId, self.mapId, @"my_location_click", sourceArrayString];
+                          self.overlayId, self.overlayId, @"my_location_click", sourceArrayString];
     [self execJS:jsString];
 }
 
@@ -416,7 +416,7 @@
                    pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});}",
-                        self.mapId, self.mapId, point.x, point.y ];
+                        self.overlayId, self.overlayId, point.x, point.y ];
   [self execJS:jsString];
 }
 
@@ -463,7 +463,7 @@
   //NSString *className = [tmp objectAtIndex:0];
 
   // Get the marker plugin
-  //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.overlayId, className];
   //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
@@ -533,7 +533,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});}",
-                        self.mapId, self.mapId, eventName];
+                        self.overlayId, self.overlayId, eventName];
   [self execJS:jsString];
 }
 
@@ -545,7 +545,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});}",
-                        self.mapId, self.mapId, eventName, coordinate.latitude, coordinate.longitude];
+                        self.overlayId, self.overlayId, eventName, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -605,7 +605,7 @@
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onCameraEvent', args: [%@]});}",
-                        self.mapId, self.mapId, eventName, sourceArrayString];
+                        self.overlayId, self.overlayId, eventName, sourceArrayString];
   [self execJS:jsString];
 
   [self syncInfoWndPosition];
@@ -642,7 +642,7 @@
   // Get the marker plugin
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});}",
-                        self.mapId, self.mapId, eventName, clusterId, markerId,
+                        self.overlayId, self.overlayId, eventName, clusterId, markerId,
                         marker.position.latitude,
                         marker.position.longitude];
   [self execJS:jsString];
@@ -660,7 +660,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});}",
-                        self.mapId, self.mapId, eventName, markerId,
+                        self.overlayId, self.overlayId, eventName, markerId,
                         marker.position.latitude,
                         marker.position.longitude];
   [self execJS:jsString];
@@ -673,7 +673,7 @@
 {
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});}",
-                        self.mapId, self.mapId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
+                        self.overlayId, self.overlayId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -693,7 +693,7 @@
 
 
   // Get the marker plugin
-  //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.overlayId];
   //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
@@ -1057,7 +1057,7 @@
   //Notify to the JS
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: 'indoor_building_focused', callback: '_onMapEvent'});}",
-                        self.mapId, self.mapId];
+                        self.overlayId, self.overlayId];
   [self execJS:jsString];
 }
 
@@ -1096,7 +1096,7 @@
   //Notify to the JS
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});}",
-                        self.mapId, self.mapId, JSONstring];
+                        self.overlayId, self.overlayId, JSONstring];
 
   [self execJS:jsString];
 }

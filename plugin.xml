@@ -408,6 +408,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
         <header-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.h" />
         <source-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.m" />
+        <header-file src="src/ios/GoogleMaps/IPluginOverlay.h" />
 
         <!-- Base messages -->
         <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />

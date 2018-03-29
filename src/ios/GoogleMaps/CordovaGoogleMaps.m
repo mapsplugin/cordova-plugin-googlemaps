@@ -248,7 +248,7 @@
     GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
     mapCtrl.webView = self.webView;
     mapCtrl.isFullScreen = YES;
-    mapCtrl.mapId = mapId;
+    mapCtrl.overlayId = mapId;
     mapCtrl.divId = nil;
     [mapCtrl.view setHidden:YES];
 
@@ -458,14 +458,16 @@
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     NSString *panoramaId = [command.arguments objectAtIndex:0];
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
+    NSString *divId = [command.arguments objectAtIndex:2];
 
     // Wrapper view
     GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
     mapCtrl.webView = self.webView;
     mapCtrl.isFullScreen = YES;
-    mapCtrl.mapId = panoramaId;
-    mapCtrl.divId = nil;
-    [mapCtrl.view setHidden:YES];
+    mapCtrl.overlayId = panoramaId;
+    mapCtrl.divId = divId;
+    mapCtrl.title = @"test";
+    //[mapCtrl.view setHidden:YES];
 
     // Create an instance of the PluginStreetViewPanorama class everytime.
     PluginStreetViewPanorama *pluginStreetView = [[PluginStreetViewPanorama alloc] init];
@@ -489,7 +491,7 @@
 
     CGRect rect = CGRectZero;
     // Sets the panorama div id.
-    pluginStreetView.mapCtrl.divId = [command.arguments objectAtIndex:2];
+    pluginStreetView.mapCtrl.divId = divId;
     if (pluginStreetView.mapCtrl.divId != nil) {
       NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginStreetView.mapCtrl.divId];
       if (domInfo != nil) {
@@ -497,15 +499,15 @@
       }
     }
 
-    mapCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate:CLLocationCoordinate2DMake(0, 0)];
-    pluginStreetView.mapCtrl.panorama.delegate = mapCtrl;
-    pluginStreetView.mapCtrl.panorama.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [mapCtrl.view addSubview:mapCtrl.panorama];
-    [self.pluginLayer addPluginOverlay:mapCtrl];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [pluginStreetView getPanorama:command];
-    });
+    mapCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
+    mapCtrl.panorama.delegate = mapCtrl;
+    mapCtrl.panorama.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.pluginLayer addPluginOverlay:mapCtrl];
+    [mapCtrl.view addSubview:mapCtrl.panorama];
+
+
+    [pluginStreetView getPanorama:command];
 
   });
 }

@@ -548,9 +548,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   map.on('__isAttached_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, map.id, 'attachMap', []);
+      cordova_exec(null, null, map.id, 'attachToWebView', []);
     } else {
-      cordova_exec(null, null, map.id, 'detachMap', []);
+      cordova_exec(null, null, map.id, 'detachFromWebView', []);
     }
   });
 

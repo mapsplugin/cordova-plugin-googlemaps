@@ -171,7 +171,8 @@
 
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       // Hold the mapCtrl instance with mapId.
-      [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapCtrl.mapId];
+      NSLog(@"--->addPluginOverlay : %@", mapCtrl.overlayId);
+      [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapCtrl.overlayId];
 
       // Add the mapView under the scroll view.
       [self.pluginScrollView attachView:mapCtrl.view];
@@ -186,7 +187,7 @@
       mapCtrl.attached = NO;
 
       // Remove the mapCtrl instance with mapId.
-      [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl.mapId];
+      [self.pluginScrollView.debugView.mapCtrls removeObjectForKey:mapCtrl.overlayId];
 
       // Remove the mapView from the scroll view.
       [mapCtrl willMoveToParentViewController:nil];
@@ -224,107 +225,124 @@
 }
 
 - (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl {
-    CGFloat zoomScale = self.webView.scrollView.zoomScale;
-    [self.pluginScrollView setFrame:self.webView.frame];
+    [self.executeQueue addOperationWithBlock:^{
+        CGFloat zoomScale = self.webView.scrollView.zoomScale;
+        [self.pluginScrollView setFrame:self.webView.frame];
 
-    CGPoint offset = self.webView.scrollView.contentOffset;
-    offset.x *= zoomScale;
-    offset.y *= zoomScale;
-    [self.pluginScrollView setContentOffset:offset];
+        CGPoint offset = self.webView.scrollView.contentOffset;
+        offset.x *= zoomScale;
+        offset.y *= zoomScale;
+        [self.pluginScrollView setContentOffset:offset];
 
-    if (!mapCtrl.mapDivId) {
-      //NSLog(@"--->no mapDivId");
-      return;
-    }
-
-    NSDictionary *domInfo = nil;
-    @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
-      domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
-      //NSLog(@"--->domInfo = %@", domInfo);
-      if (domInfo == nil) {
+        if (!mapCtrl.divId) {
+          //NSLog(@"--->no mapDivId");
           return;
-      }
-
-    }
-    NSString *rectStr = [domInfo objectForKey:@"size"];
-    if (rectStr == nil || [rectStr  isEqual: @"null"]) {
-      return;
-    }
-
-    __block CGRect rect = CGRectFromString(rectStr);
-    if (rect.origin.x == 0 &&
-        rect.origin.y == 0 &&
-        rect.size.width == 0 &&
-        rect.size.height == 0) {
-      return;
-    }
-    rect.origin.x *= zoomScale;
-    rect.origin.y *= zoomScale;
-    rect.size.width *= zoomScale;
-    rect.size.height *= zoomScale;
-    rect.origin.x += offset.x;
-    rect.origin.y += offset.y;
-  //NSLog(@"---->updateViewPos: %@, (%f, %f) - (%f, %f), %@", mapCtrl.mapId, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, rectStr);
-
-    float webviewWidth = self.webView.frame.size.width;
-    float webviewHeight = self.webView.frame.size.height;
-
-
-    // Is the map is displayed?
-    if (rect.origin.y + rect.size.height >= offset.y &&
-        rect.origin.x + rect.size.width >= offset.x &&
-        rect.origin.y < offset.y + webviewHeight &&
-        rect.origin.x < offset.x + webviewWidth &&
-        mapCtrl.view.hidden == NO) {
-
-        // Attach the map view to the parent.
-        if (mapCtrl.isRenderedAtOnce == YES ||
-            (mapCtrl.map.mapType != kGMSTypeSatellite &&
-            mapCtrl.map.mapType != kGMSTypeHybrid)) {
-            [self.pluginScrollView attachView:mapCtrl.view];
         }
 
-    } else {
-        // Detach from the parent view
-        if (mapCtrl.isRenderedAtOnce == YES ||
-            (mapCtrl.map.mapType != kGMSTypeSatellite &&
-            mapCtrl.map.mapType != kGMSTypeHybrid)) {
-            [mapCtrl.view removeFromSuperview];
+        NSDictionary *domInfo = nil;
+        @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+          domInfo = [self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.divId];
+          //NSLog(@"--->domInfo = %@", domInfo);
+          if (domInfo == nil) {
+              return;
+          }
+
         }
-    }
-
-    if (mapCtrl.isRenderedAtOnce == YES &&
-        rect.origin.x == mapCtrl.view.frame.origin.x &&
-        rect.origin.y == mapCtrl.view.frame.origin.y &&
-        rect.size.width == mapCtrl.view.frame.size.width &&
-        rect.size.height == mapCtrl.view.frame.size.height) {
-        return;
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (mapCtrl.attached) {
-        if (mapCtrl.isRenderedAtOnce) {
-
-          [UIView animateWithDuration:0.075f animations:^{
-            [mapCtrl.view setFrame:rect];
-            rect.origin.x = 0;
-            rect.origin.y = 0;
-            [mapCtrl.map setFrame:rect];
-          }];
-        } else {
-          [mapCtrl.view setFrame:rect];
-          rect.origin.x = 0;
-          rect.origin.y = 0;
-          [mapCtrl.map setFrame:rect];
-          mapCtrl.isRenderedAtOnce = YES;
+        NSString *rectStr = [domInfo objectForKey:@"size"];
+        if (rectStr == nil || [rectStr  isEqual: @"null"]) {
+          return;
         }
-      } else {
-        [mapCtrl.view setFrame:CGRectMake(0, -mapCtrl.view.frame.size.height, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
-      }
+
+        __block CGRect rect = CGRectFromString(rectStr);
+        if (rect.origin.x == 0 &&
+            rect.origin.y == 0 &&
+            rect.size.width == 0 &&
+            rect.size.height == 0) {
+          return;
+        }
+        rect.origin.x *= zoomScale;
+        rect.origin.y *= zoomScale;
+        rect.size.width *= zoomScale;
+        rect.size.height *= zoomScale;
+        rect.origin.x += offset.x;
+        rect.origin.y += offset.y;
+
+        float webviewWidth = self.webView.frame.size.width;
+        float webviewHeight = self.webView.frame.size.height;
 
 
-    });
+        dispatch_async(dispatch_get_main_queue(), ^{
+          // Is the map is displayed?
+          if (rect.origin.y + rect.size.height >= offset.y &&
+              rect.origin.x + rect.size.width >= offset.x &&
+              rect.origin.y < offset.y + webviewHeight &&
+              rect.origin.x < offset.x + webviewWidth &&
+              mapCtrl.view.hidden == NO) {
 
+
+              // Attach the map view to the parent.
+              if (!mapCtrl.attached && (
+                  mapCtrl.isRenderedAtOnce == YES ||
+                  mapCtrl.panorama ||
+                  (mapCtrl.map && (
+                    (mapCtrl.map.mapType != kGMSTypeSatellite &&
+                    mapCtrl.map.mapType != kGMSTypeHybrid)
+                  )))) {
+                  [self.pluginScrollView attachView:mapCtrl.view];
+              }
+
+          } else {
+              // Detach from the parent view
+              if (mapCtrl.attached && (
+                  mapCtrl.isRenderedAtOnce == YES ||
+                  mapCtrl.panorama ||
+                  (mapCtrl.map && (
+                    (mapCtrl.map.mapType != kGMSTypeSatellite &&
+                    mapCtrl.map.mapType != kGMSTypeHybrid)
+                  )))) {
+                  [mapCtrl.view removeFromSuperview];
+              }
+          }
+
+          if (mapCtrl.isRenderedAtOnce == YES &&
+              rect.origin.x == mapCtrl.view.frame.origin.x &&
+              rect.origin.y == mapCtrl.view.frame.origin.y &&
+              rect.size.width == mapCtrl.view.frame.size.width &&
+              rect.size.height == mapCtrl.view.frame.size.height) {
+              return;
+          }
+
+          if (mapCtrl.attached) {
+            if (mapCtrl.isRenderedAtOnce) {
+
+              [UIView animateWithDuration:0.075f animations:^{
+                [mapCtrl.view setFrame:rect];
+                rect.origin.x = 0;
+                rect.origin.y = 0;
+                if (mapCtrl.map) {
+                  [mapCtrl.map setFrame:rect];
+                } else if (mapCtrl.panorama) {
+                  [mapCtrl.panorama setFrame:rect];
+                }
+              }];
+            } else {
+              [mapCtrl.view setFrame:rect];
+              rect.origin.x = 0;
+              rect.origin.y = 0;
+              if (mapCtrl.map) {
+                [mapCtrl.map setFrame:rect];
+              } else if (mapCtrl.panorama) {
+                [mapCtrl.panorama setFrame:rect];
+              }
+              mapCtrl.isRenderedAtOnce = YES;
+            }
+          } else {
+            [mapCtrl.view setFrame:CGRectMake(0, -mapCtrl.view.frame.size.height, mapCtrl.view.frame.size.width, mapCtrl.view.frame.size.height)];
+          }
+
+
+        });
+    }];
 }
 - (void)execJS: (NSString *)jsString {
     if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
@@ -393,10 +411,10 @@
   @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
     while(mapId = [mapIDs nextObject]) {
       mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
-      if (!mapCtrl.mapDivId) {
+      if (!mapCtrl.divId) {
         continue;
       }
-      domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.mapDivId];
+      domInfo =[self.pluginScrollView.debugView.HTMLNodes objectForKey:mapCtrl.divId];
 
       rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
@@ -422,7 +440,7 @@
 
         clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
         //NSLog(@"--->clickedDomId = %@", clickedDomId);
-        if ([mapCtrl.mapDivId isEqualToString:clickedDomId]) {
+        if ([mapCtrl.divId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
           CGPoint mapPoint = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
 

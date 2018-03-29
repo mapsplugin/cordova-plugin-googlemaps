@@ -16,5 +16,6 @@
 @property (nonatomic) BOOL initialized;
 
 - (void)getPanorama:(CDVInvokedUrlCommand*)command;
-
+- (void)attachToWebView:(CDVInvokedUrlCommand*)command;
+- (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
 @end
