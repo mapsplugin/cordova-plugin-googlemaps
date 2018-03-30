@@ -139,24 +139,37 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 
 
   public void moveCamera(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    JSONObject cameraPosition = args.getJSONObject(0);
-    Log.d(TAG, cameraPosition.toString(2));
-    if (cameraPosition.has("target")) {
-      JSONObject target = cameraPosition.getJSONObject("target");
-      LatLng latLng = new LatLng(target.getDouble("lat"), target.getDouble("lng"));
-      panorama.setPosition(latLng);
-    }
 
-    if (cameraPosition.has("bearing") || cameraPosition.has("tilt")) {
-      StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
-      float bearing = cameraPosition.has("bearing") ? (float)cameraPosition.getDouble("bearing") : currentCamera.bearing;
-      float tilt = cameraPosition.has("tilt") ? (float)cameraPosition.getDouble("tilt") : currentCamera.tilt;
-      float zoom = cameraPosition.has("zoom") ? (float)cameraPosition.getDouble("zoom") : currentCamera.zoom;
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+
+        try {
+          final JSONObject cameraPosition = args.getJSONObject(0);
+          Log.d(TAG, cameraPosition.toString(2));
+          if (cameraPosition.has("target")) {
+            JSONObject target = cameraPosition.getJSONObject("target");
+            LatLng latLng = new LatLng(target.getDouble("lat"), target.getDouble("lng"));
+            panorama.setPosition(latLng);
+          }
+
+          if (cameraPosition.has("bearing") || cameraPosition.has("tilt")) {
+            StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
+            float bearing = cameraPosition.has("bearing") ? (float) cameraPosition.getDouble("bearing") : currentCamera.bearing;
+            float tilt = cameraPosition.has("tilt") ? (float) cameraPosition.getDouble("tilt") : currentCamera.tilt;
+            float zoom = cameraPosition.has("zoom") ? (float) cameraPosition.getDouble("zoom") : currentCamera.zoom;
 
 
-      StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera(bearing, tilt, zoom);
-      panorama.animateTo(newCamera, 0);
-    }
+            StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera(bearing, tilt, zoom);
+            panorama.animateTo(newCamera, 0);
+            callbackContext.success();
+          }
+        } catch (JSONException e) {
+          e.printStackTrace();
+          callbackContext.error("" + e.getMessage());
+        }
+      }
+    });
   }
 
   @Override
