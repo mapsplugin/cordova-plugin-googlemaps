@@ -13,6 +13,8 @@ import com.google.android.gms.maps.StreetViewPanoramaOptions;
 import com.google.android.gms.maps.StreetViewPanoramaView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
+import com.google.android.gms.maps.model.StreetViewPanoramaLink;
+import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
 import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
 
 import org.apache.cordova.CallbackContext;
@@ -25,11 +27,16 @@ import org.json.JSONObject;
 import java.util.Locale;
 
 
-public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, StreetViewPanorama.OnStreetViewPanoramaCameraChangeListener {
+public class PluginStreetViewPanorama extends MyPlugin implements
+    IPluginView, StreetViewPanorama.OnStreetViewPanoramaCameraChangeListener,
+    StreetViewPanorama.OnStreetViewPanoramaChangeListener,
+    StreetViewPanorama.OnStreetViewPanoramaClickListener,
+    StreetViewPanorama.OnStreetViewPanoramaLongClickListener {
 
   private Activity mActivity;
   private Handler mainHandler;
   private StreetViewPanoramaView panoramaView;
+  private StreetViewPanorama panorama;
   private String panoramaId;
   private boolean isVisible = true;
   private boolean isClickable = true;
@@ -68,11 +75,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, S
     panoramaId = args.getString(0);
     divId = args.getString(2);
 
-    StreetViewPanoramaOptions svOptions = new StreetViewPanoramaOptions();
-    LatLng position = new LatLng(-33.87365, 151.20689);
-    svOptions.position(position);
-
-    panoramaView = new StreetViewPanoramaView(mActivity, svOptions);
+    panoramaView = new StreetViewPanoramaView(mActivity);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
@@ -81,10 +84,14 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, S
 
         panoramaView.getStreetViewPanoramaAsync(new OnStreetViewPanoramaReadyCallback() {
           @Override
-          public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
+          public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
             panoramaView.onResume();
+            panorama = streetViewPanorama;
 
             panorama.setOnStreetViewPanoramaCameraChangeListener(PluginStreetViewPanorama.this);
+            panorama.setOnStreetViewPanoramaChangeListener(PluginStreetViewPanorama.this);
+            panorama.setOnStreetViewPanoramaClickListener(PluginStreetViewPanorama.this);
+            panorama.setOnStreetViewPanoramaLongClickListener(PluginStreetViewPanorama.this);
 
 
             mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
@@ -130,6 +137,28 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, S
     callbackContext.success();
   }
 
+
+  public void moveCamera(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    JSONObject cameraPosition = args.getJSONObject(0);
+    Log.d(TAG, cameraPosition.toString(2));
+    if (cameraPosition.has("target")) {
+      JSONObject target = cameraPosition.getJSONObject("target");
+      LatLng latLng = new LatLng(target.getDouble("lat"), target.getDouble("lng"));
+      panorama.setPosition(latLng);
+    }
+
+    if (cameraPosition.has("bearing") || cameraPosition.has("tilt")) {
+      StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
+      float bearing = cameraPosition.has("bearing") ? (float)cameraPosition.getDouble("bearing") : currentCamera.bearing;
+      float tilt = cameraPosition.has("tilt") ? (float)cameraPosition.getDouble("tilt") : currentCamera.tilt;
+      float zoom = cameraPosition.has("zoom") ? (float)cameraPosition.getDouble("zoom") : currentCamera.zoom;
+
+
+      StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera(bearing, tilt, zoom);
+      panorama.animateTo(newCamera, 0);
+    }
+  }
+
   @Override
   public void onStreetViewPanoramaCameraChange(StreetViewPanoramaCamera streetViewPanoramaCamera) {
     try {
@@ -148,7 +177,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, S
       jsCallback(
           String.format(
               Locale.ENGLISH,
-              "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName:'%s', callback:'_onPanoramaCameraEvent', args: [%s]});}",
+              "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName:'%s', callback:'_onPanoramaCameraChange', args: [%s]});}",
               panoramaId, panoramaId, "panorama_camera_change", jsonStr));
     } catch (Exception e) {
       // ignore
@@ -164,5 +193,49 @@ public class PluginStreetViewPanorama extends MyPlugin implements IPluginView, S
         webView.loadUrl(js);
       }
     });
+  }
+
+  @Override
+  public void onStreetViewPanoramaChange(StreetViewPanoramaLocation streetViewPanoramaLocation) {
+
+    try {
+      JSONObject location = new JSONObject();
+      location.put("panoId", streetViewPanoramaLocation.panoId);
+
+      JSONObject position = new JSONObject();
+      position.put("lat", streetViewPanoramaLocation.position.latitude);
+      position.put("lng", streetViewPanoramaLocation.position.longitude);
+      location.put("position", position);
+
+      JSONArray links = new JSONArray();
+      for (StreetViewPanoramaLink stLink : streetViewPanoramaLocation.links) {
+        JSONObject link = new JSONObject();
+        link.put("panoId", stLink.panoId);
+        link.put("bearing", stLink.bearing);
+        links.put(link);
+      }
+      location.put("links", links);
+
+      String jsonStr = location.toString(0);
+      jsCallback(
+          String.format(
+              Locale.ENGLISH,
+              "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName:'%s', callback:'_onPanoramaLocationChange', args: [%s]});}",
+              panoramaId, panoramaId, "panorama_location_change", jsonStr));
+    } catch (Exception e) {
+      // ignore
+      e.printStackTrace();
+    }
+
+  }
+
+  @Override
+  public void onStreetViewPanoramaClick(StreetViewPanoramaOrientation streetViewPanoramaOrientation) {
+
+  }
+
+  @Override
+  public void onStreetViewPanoramaLongClick(StreetViewPanoramaOrientation streetViewPanoramaOrientation) {
+
   }
 }

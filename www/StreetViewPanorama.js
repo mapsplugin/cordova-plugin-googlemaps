@@ -146,7 +146,19 @@ StreetViewPanorama.prototype.getMap = function() {
   // stub
 };
 
-StreetViewPanorama.prototype._onPanoramaCameraEvent = function(eventName, cameraPosition) {
+StreetViewPanorama.prototype.moveCamera = function(cameraPosition) {
+  var self = this;
+  exec.call(self, function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
+    sync: true
+  });
+};
+
+
+StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
   this.set('camera', cameraPosition);
   this.set('camera_zoom', cameraPosition.zoom);
   this.set('camera_bearing', cameraPosition.bearing);
@@ -155,6 +167,15 @@ StreetViewPanorama.prototype._onPanoramaCameraEvent = function(eventName, camera
   this.set('camera_orientation_tilt', cameraPosition.orientation.tilt);
   if (this._isReady) {
     this.trigger(eventName, cameraPosition, this);
+  }
+};
+
+StreetViewPanorama.prototype._onPanoramaLocationChange = function(eventName, panoramaLocation) {
+  this.set('location', panoramaLocation);
+  this.set('location_panoId', panoramaLocation.panoId);
+  this.set('location_position', panoramaLocation.position);
+  if (this._isReady) {
+    this.trigger(eventName, panoramaLocation, this);
   }
 };
 
