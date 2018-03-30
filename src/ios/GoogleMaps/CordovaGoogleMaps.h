@@ -19,7 +19,7 @@
 @interface CordovaGoogleMaps : CDVPlugin
 
 @property (nonatomic) MyPluginLayer *pluginLayer;
-@property (nonatomic) NSMutableDictionary *pluginMaps;
+@property (nonatomic) NSMutableDictionary *viewPlugins;
 @property (nonatomic) NSOperationQueue *executeQueue;
 
 - (void)getMap:(CDVInvokedUrlCommand*)command;

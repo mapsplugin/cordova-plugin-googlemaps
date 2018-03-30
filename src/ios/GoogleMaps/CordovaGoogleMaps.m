@@ -64,7 +64,7 @@
   //-------------------------------
   // Plugin initialization
   //-------------------------------
-  self.pluginMaps = [[NSMutableDictionary alloc] init];
+  self.viewPlugins = [[NSMutableDictionary alloc] init];
 
   self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
   self.pluginLayer.backgroundColor = [UIColor whiteColor];
@@ -85,16 +85,18 @@
 - (void) didRotate:(id)sender
 {
 
-  NSArray *keys = [self.pluginMaps allKeys];
+  NSArray *keys = [self.viewPlugins allKeys];
   NSString *key;
+  CDVPlugin<IPluginProtocol, IPluginView> *viewPlugin;
   PluginMap *pluginMap;
   for (int i = 0; i < keys.count; i++) {
     key = [keys objectAtIndex:i];
-    if ([self.pluginMaps objectForKey:key]) {
-      pluginMap = [self.pluginMaps objectForKey:key];
-      if ([pluginMap.mapCtrl isKindOfClass:[PluginMapViewController class]]) {
+    if ([self.viewPlugins objectForKey:key]) {
+      viewPlugin = [self.viewPlugins objectForKey:key];
+      if ([viewPlugin isKindOfClass:[PluginMap class]]) {
+        pluginMap = (PluginMap *)viewPlugin;
         // Trigger the CAMERA_MOVE_END mandatory
-        [pluginMap.mapCtrl mapView:((GMSMapView *)(pluginMap.mapCtrl.view)) idleAtCameraPosition:((GMSMapView *)(pluginMap.mapCtrl.view)).camera];
+        [pluginMap.mapCtrl mapView:pluginMap.mapCtrl.map idleAtCameraPosition:pluginMap.mapCtrl.map.camera];
       }
     }
   }
@@ -121,12 +123,12 @@
 
     // Remove old plugins that are used in the previous html.
     NSString *mapId;
-    NSArray *keys=[self.pluginMaps allKeys];
+    NSArray *keys=[self.viewPlugins allKeys];
     for (int i = 0; i < [keys count]; i++) {
       mapId = [keys objectAtIndex:i];
       [self _destroyMap:mapId];
     }
-    [self.pluginMaps removeAllObjects];
+    [self.viewPlugins removeAllObjects];
 
     @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
       [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
@@ -144,7 +146,7 @@
 }
 
 - (void)_destroyMap:(NSString *)mapId {
-  PluginMap *pluginMap = [self.pluginMaps objectForKey:mapId];
+  PluginMap *pluginMap = [self.viewPlugins objectForKey:mapId];
   if (pluginMap == nil) {
     return;
   }
@@ -165,7 +167,7 @@
   pluginMap.mapCtrl.plugins = nil;
   pluginMap.mapCtrl.view = nil;
   pluginMap.mapCtrl = nil;
-  [self.pluginMaps removeObjectForKey:mapId];
+  [self.viewPlugins removeObjectForKey:mapId];
   pluginMap = nil;
 
   [cdvViewController.pluginObjects removeObjectForKey:mapId];
@@ -269,7 +271,7 @@
     [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
     [pluginMap pluginInitialize];
 
-    [self.pluginMaps setObject:pluginMap forKey:mapId];
+    [self.viewPlugins setObject:pluginMap forKey:mapId];
 
     CGRect rect = CGRectZero;
     // Sets the map div id.
@@ -484,7 +486,7 @@
     [cdvViewController.pluginsMap setValue:panoramaId forKey:panoramaId];
     [pluginStreetView pluginInitialize];
 
-    [self.pluginMaps setObject:pluginStreetView forKey:panoramaId];
+    [self.viewPlugins setObject:pluginStreetView forKey:panoramaId];
 
     CGRect rect = CGRectZero;
     // Sets the panorama div id.
@@ -591,13 +593,13 @@
     /*
      if (self.pluginLayer.needUpdatePosition) {
      self.pluginLayer.needUpdatePosition = NO;
-     NSArray *keys=[self.pluginMaps allKeys];
+     NSArray *keys=[self.viewPlugins allKeys];
      NSString *mapId;
      PluginMap *pluginMap;
 
      for (int i = 0; i < [keys count]; i++) {
      mapId = [keys objectAtIndex:i];
-     pluginMap = [self.pluginMaps objectForKey:mapId];
+     pluginMap = [self.viewPlugins objectForKey:mapId];
      [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
      }
      }
