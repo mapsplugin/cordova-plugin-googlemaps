@@ -327,7 +327,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   public synchronized void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     synchronized (timerLock) {
-      Log.i(TAG, "------------>pause, callbackId = " + callbackContext.getCallbackId());
       if (mPluginLayout == null) {
         callbackContext.success();
         return;
@@ -342,7 +341,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         callbackContext.success();
         return;
       }
-      Log.i(TAG, "------------>resume : isSuspended = " + mPluginLayout.isSuspended + ", callbackId = " + callbackContext.getCallbackId());
       if (mPluginLayout.isSuspended) {
         mPluginLayout.startTimer();
       }

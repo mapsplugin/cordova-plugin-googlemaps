@@ -11,6 +11,7 @@ var Polygon = function (map, polygonOptions, _exec) {
   Overlay.call(this, map, polygonOptions, 'Polygon', _exec);
 
   var self = this;
+  var polygonId = this.getId();
 
   //--------------------------
   // points property

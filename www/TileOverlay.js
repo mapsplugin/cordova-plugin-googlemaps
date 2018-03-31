@@ -32,7 +32,7 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
   });
 };
 
-utils.extend(TileOverlay, BaseClass);
+utils.extend(TileOverlay, Overlay);
 
 TileOverlay.prototype.getPluginName = function () {
   return this.map.getId() + "-tileoverlay";

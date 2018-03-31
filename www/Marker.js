@@ -148,13 +148,13 @@ Marker.prototype.setAnimation = function(animation, callback) {
   if (!animation) {
     return;
   }
-  this.set("animation", animation);
+  self.set("animation", animation);
   self.exec.call(self, function() {
     if (typeof callback === "function") {
       callback.call(self);
     }
-  }, this.errorHandler, self.getPluginName(), 'setAnimation', [this.getId(), animation]);
-  return this;
+  }, self.errorHandler, self.getPluginName(), 'setAnimation', [self.getId(), animation]);
+  return self;
 };
 
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {
@@ -247,29 +247,31 @@ Marker.prototype.getRotation = function() {
   return this.get('rotation');
 };
 Marker.prototype.showInfoWindow = function() {
-  //if (!this.get("title") && !this.get("snippet") ||
-  //    this.get("isInfoWindowVisible")) {
-  if (!this.get("title") && !this.get("snippet")) {
+  var self = this;
+  //if (!self.get("title") && !self.get("snippet") ||
+  //    self.get("isInfoWindowVisible")) {
+  if (!self.get("title") && !self.get("snippet")) {
     return;
   }
-  this.set("isInfoWindowVisible", true);
-  this.map.set("active_marker_id", this.id);
-  self.exec.call(this, null, this.errorHandler, this.getPluginName(), 'showInfoWindow', [this.getId()], {
+  self.set("isInfoWindowVisible", true);
+  self.map.set("active_marker_id", self.id);
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'showInfoWindow', [self.getId()], {
     sync: true
   });
-  return this;
+  return self;
 };
 Marker.prototype.hideInfoWindow = function() {
-  if (this.map.get("active_marker_id") === this.id) {
-    this.map.set("active_marker_id", null);
+  var self = this;
+  if (self.map.get("active_marker_id") === self.id) {
+    self.map.set("active_marker_id", null);
   }
-  if (this.get("isInfoWindowVisible")) {
-    this.set("isInfoWindowVisible", false);
-    self.exec.call(this, null, this.errorHandler, this.getPluginName(), 'hideInfoWindow', [this.getId()], {
+  if (self.get("isInfoWindowVisible")) {
+    self.set("isInfoWindowVisible", false);
+    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'hideInfoWindow', [self.getId()], {
       sync: true
     });
   }
-  return this;
+  return self;
 };
 Marker.prototype.isInfoWindowShown = function() {
   return this.get("isInfoWindowVisible") === true;

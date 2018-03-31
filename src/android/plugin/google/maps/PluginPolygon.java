@@ -20,6 +20,8 @@ import java.util.Set;
 
 public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
+    private String polygonHashCode;
+
     /**
      * Create polygon
      * @param args
@@ -40,6 +42,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
 
         JSONObject opts = args.getJSONObject(1);
         final String hashCode = args.getString(2);
+        polygonHashCode = hashCode;
         if (opts.has("points")) {
             JSONArray points = opts.getJSONArray("points");
             ArrayList<LatLng> path2 = PluginUtil.JSONArray2LatLngList(points);
@@ -234,11 +237,10 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         }
         pluginMap.objects.remove(id);
 
-        id = (String) polygon.getTag();
-        pluginMap.objects.remove("polygon_bounds_" + id);
-        pluginMap.objects.remove("polygon_property_" + id);
-        pluginMap.objects.remove("polygon_path_" + id);
-        pluginMap.objects.remove("polygon_holePaths_" + id);
+        pluginMap.objects.remove("polygon_bounds_" + polygonHashCode);
+        pluginMap.objects.remove("polygon_property_" + polygonHashCode);
+        pluginMap.objects.remove("polygon_path_" + polygonHashCode);
+        pluginMap.objects.remove("polygon_holePaths_" + polygonHashCode);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -264,7 +266,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_path_" + polygon.getTag();
+        String propertyId = "polygon_path_" + polygonHashCode;
         final ArrayList<LatLng> path = (ArrayList<LatLng>)pluginMap.objects.get(propertyId);
         if (path.size() > 0) {
             path.remove(index);
@@ -274,7 +276,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //-----------------------------------
         // Recalculate the polygon bounds
         //-----------------------------------
-        propertyId = "polygon_bounds_" + polygon.getTag();
+        propertyId = "polygon_bounds_" + polygonHashCode;
         if (path.size() > 0) {
             pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
         } else {
@@ -316,7 +318,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_path_" + polygon.getTag();
+        String propertyId = "polygon_path_" + polygonHashCode;
         final ArrayList<LatLng> path = (ArrayList<LatLng>)pluginMap.objects.get(propertyId);
         path.clear();
         JSONObject position;
@@ -329,7 +331,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //-----------------------------------
         // Recalculate the polygon bounds
         //-----------------------------------
-        propertyId = "polygon_bounds_" + polygon.getTag();
+        propertyId = "polygon_bounds_" + polygonHashCode;
         pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
         cordova.getActivity().runOnUiThread(new Runnable() {
@@ -365,10 +367,10 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         // Update the hole list
         //------------------------
         boolean shouldBeVisible = false;
-        String propertyId = "polygon_path_" + polygon.getTag();
+        String propertyId = "polygon_path_" + polygonHashCode;
         final ArrayList<LatLng> path = (ArrayList<LatLng>)pluginMap.objects.get(propertyId);
         if (path.size() == 0) {
-            JSONObject properties = (JSONObject)pluginMap.objects.get("polygon_property_" + polygon.getTag());
+            JSONObject properties = (JSONObject)pluginMap.objects.get("polygon_property_" + polygonHashCode);
             if (properties.getBoolean("isVisible")) {
                 shouldBeVisible = true;
             }
@@ -379,7 +381,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //-----------------------------------
         // Recalculate the polygon bounds
         //-----------------------------------
-        propertyId = "polygon_bounds_" + polygon.getTag();
+        propertyId = "polygon_bounds_" + polygonHashCode;
         pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
         final boolean changeToVisible = shouldBeVisible;
@@ -413,7 +415,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_path_" + polygon.getTag();
+        String propertyId = "polygon_path_" + polygonHashCode;
         final ArrayList<LatLng> path = (ArrayList<LatLng>)pluginMap.objects.get(propertyId);
         path.set(index, latLng);
         pluginMap.objects.put(propertyId, path);
@@ -421,7 +423,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //-----------------------------------
         // Recalculate the polygon bounds
         //-----------------------------------
-        propertyId = "polygon_bounds_" + polygon.getTag();
+        propertyId = "polygon_bounds_" + polygonHashCode;
         pluginMap.objects.put(propertyId, PluginUtil.getBoundsFromPath(path));
 
         cordova.getActivity().runOnUiThread(new Runnable() {
@@ -448,7 +450,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         for (int i = 0; i < holes.size(); i++) {
             holes.get(i).clear();
@@ -496,7 +498,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         ArrayList<LatLng> hole = null;
         if (holeIndex < holes.size()) {
@@ -539,7 +541,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         ArrayList<LatLng> hole = null;
         if (holeIndex < holes.size()) {
@@ -583,7 +585,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         ArrayList<LatLng> hole = null;
         if (holeIndex < holes.size()) {
@@ -623,7 +625,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         holes.add(holeIndex, newHole);
         pluginMap.objects.put(propertyId, holes);
@@ -661,7 +663,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         holes.set(holeIndex, newHole);
         pluginMap.objects.put(propertyId, holes);
@@ -692,7 +694,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         //------------------------
         // Update the hole list
         //------------------------
-        String propertyId = "polygon_holePaths_" + polygon.getTag();
+        String propertyId = "polygon_holePaths_" + polygonHashCode;
         final ArrayList<ArrayList<LatLng>> holes = (ArrayList<ArrayList<LatLng>>) pluginMap.objects.get(propertyId);
         holes.remove(holeIndex);
         pluginMap.objects.put(propertyId, holes);
@@ -724,7 +726,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
                 polygon.setVisible(isVisible);
             }
         });
-        String propertyId = "polygon_property_" + polygon.getTag();
+        String propertyId = "polygon_property_" + polygonHashCode;
         JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
         properties.put("isVisible", isVisible);
         pluginMap.objects.put(propertyId, properties);

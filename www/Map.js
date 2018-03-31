@@ -961,18 +961,20 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
   groundOverlayOptions.noCaching = true;
 
+  var groundOverlay = new GroundOverlay(self, groundOverlayOptions, exec);
+  var groundOverlayId = groundOverlay.getId();
+  self.OVERLAYS[groundOverlayId] = groundOverlay;
+  groundOverlay.one(groundOverlayId + "_remove", function() {
+    groundOverlay.off();
+    delete self.OVERLAYS[groundOverlayId];
+    groundOverlay = undefined;
+  });
+
   exec.call(this, function(result) {
-    var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions, exec);
-    self.OVERLAYS[result.id] = groundOverlay;
-    groundOverlay.one(result.id + "_remove", function() {
-      groundOverlay.off();
-      delete self.OVERLAYS[result.id];
-      groundOverlay = undefined;
-    });
     if (typeof callback === "function") {
       callback.call(self, groundOverlay);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions, groundOverlay.hashCode]);
 
 };
 
@@ -1247,6 +1249,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
 
   var markerCluster = new MarkerCluster(self, {
+    "idxCount": markerClusterOptions.markers.length,
     "icons": markerClusterOptions.icons,
     "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
     "debug": markerClusterOptions.debug === true,
@@ -1280,11 +1283,15 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markerMap[markerId] = markerOptions;
     });
 
-    marker._privateInitialize();
-    delete marker._privateInitialize;
-    Object.defineProperty(marker, "_markerMap", {
+    markerCluster._privateInitialize();
+    delete markerCluster._privateInitialize;
+    Object.defineProperty(markerCluster, "_markerMap", {
       value: markerMap,
       writable: false
+    });
+
+    markerCluster.redraw.call(markerCluster, {
+      force: true
     });
 
 

@@ -15,15 +15,11 @@ var argscheck = require('cordova/argscheck'),
  * MarkerCluster Class
  *****************************************************************************/
 var MarkerCluster = function(map, markerClusterOptions, _exec) {
-  Overlay.call(this, map, 'MarkerCluster', _exec);
+  Overlay.call(this, map, markerClusterOptions, 'MarkerCluster', _exec);
 
-  var idxCount = Object.keys(markerClusterOptions.markerMap).length + 1;
+  var idxCount = markerClusterOptions.idxCount + 1;
 
   var self = this;
-  Object.defineProperty(self, "maxZoomLevel", {
-    value: markerClusterOptions.maxZoomLevel,
-    writable: false
-  });
   Object.defineProperty(self, "_clusterBounds", {
     value: new BaseArrayClass(),
     writable: false
@@ -173,10 +169,6 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
       return;
     }
     sel.redraw.call(self);
-  });
-
-  self.redraw.call(self, {
-    force: true
   });
 
   if (self.debug) {

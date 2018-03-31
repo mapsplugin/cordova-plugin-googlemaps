@@ -8,9 +8,10 @@ var argscheck = require('cordova/argscheck'),
  * Polyline Class
  *****************************************************************************/
 var Polyline = function (map, polylineOptions, _exec) {
-  Overlay.call(this, map, polylineOptions, 'GroundOverlay', _exec);
+  Overlay.call(this, map, polylineOptions, 'Polyline', _exec);
 
   var self = this;
+  var polylineId = this.getId();
 
   var pointsProperty = common.createMvcArray(polylineOptions.points);
   pointsProperty.on('set_at', function (index) {
