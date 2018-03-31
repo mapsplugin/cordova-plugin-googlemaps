@@ -18,14 +18,14 @@ $> cordova plugin add cordova-plugin-googlemaps \
   // [Android]
   //    The Google Play Services SDK version
   //    You need to specify the same version number with all other plugins.
-  //    Check out the latest version is here.
+  //    Check out the latest version here.
   //    https://developers.google.com/android/guides/releases
   PLAY_SERVICES_VERSION="11.8.0" (for Android)
 
   // [Android]
   //    This plugin requires the Android support library v4.
   //    The minimum version is 24.1.0
-  //    Check out the latest version is here.
+  //    Check out the latest version here.
   //    https://developer.android.com/topic/libraries/support-library/revisions.html
   ANDROID_SUPPORT_V4_VERSION="24.1.0" (for Android)
 
@@ -64,8 +64,8 @@ $> cordova plugin add cordova-plugin-googlemaps \
 ## Release Notes
 
 - **v2.2.0**
-  - No longer supported for Android 4.3 or lower versions. At least Android 4.4 is required.
-  - Implement the CSS/HTML element hierarchy correctly.
+  - Android version 4.3 and lower are no longer supported. A minimum of Android 4.4 is now required
+  - Implement the CSS/HTML element hierarchy correctly
   - Implement map.addKmlOverlay()
   - [other updates](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/README.md)
 
@@ -76,49 +76,49 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Bug fix: the icon property of Marker class does not affect
 
 - **v2.2.3**
-  - Bug fix: the icon property of Marker class does not affect if the html is hosted on `file://android_assets/`.
-  - Update: `cordova-android@7` is finally supported.
+  - Bug fix: the icon property of Marker class does not affect if the html is hosted on `file://android_assets/`
+  - Update: `cordova-android@7` is now supported
   - Fix: can not build with PhoneGap Build (see the above settings)
 
 - **v2.2.4**
-  - Bug fix: can not click html element when you device is rotated.
+  - Bug fix: can not click html elements when the device is rotated
   - Add: Use `android-support-library-v4`
-  - Fix: `cordova-plugin-gooelmaps.CordovaGoogleMaps is already defined warning` message.
-  - Update: `com.googlemaps.ios@2.6.0` is required. Please reinstall the plugin.
-  - Add: This plugin messages are localized for English and Japanese.
+  - Fix: `cordova-plugin-gooelmaps.CordovaGoogleMaps is already defined warning` message
+  - Update: `com.googlemaps.ios@2.6.0` is required. Please reinstall the plugin
+  - Add: The plugin messages are localized for English and Japanese
 
 - **v2.2.5** (small update)
-  - Bug fix: setMyLocationEnabed(true) hide the MyLocationButton.
+  - Bug fix: setMyLocationEnabed(true) hides the MyLocationButton
   - Fix: Conflict with `cordova-plugin-geolocation`
 
 - **v2.2.6**
   - Add: support languages
-    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, `Hindi`)
+    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, and `Hindi`)
   - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
   - Fix: Cannot build with Java 1.7
   - Fix: `INFO_CLOSE` event is triggered twice
-  - Fix: `map.setOptions()` does not work very after soon from the `MAP_READY` event.
+  - Fix: `map.setOptions()` does not work when used right after the `MAP_READY` function call
 
 - **v2.2.7**
   - Add: support languages (`Arabic` and `Dutch`)
-  - Fix: Can not build on iOS.
+  - Fix: Can not build on iOS
 
 - **v2.2.8**
-  - Add: support languages (`Polish`)
-  - Add: plugin remove helper script.
-  - Fix: can not build on iOS completely.
-  - Fix: localize function is incorrect.
-  - Fix: can not use backbutton event.
-  - Fix: marker cluster does not work correctly if position data contains `id` field.
-  - Update: Wait MAP_READY until map.getVisibleRegion() is ready.
+  - Add: support language (`Polish`)
+  - Add: plugin remove helper script
+  - Fix: can not build on iOS completely
+  - Fix: localize function is incorrect
+  - Fix: can not use backbutton event
+  - Fix: marker cluster does not work correctly if position data contains an `id` field
+  - Update: Do not fire MAP_READY event until map.getVisibleRegion() is useable
 
 - **v2.2.9**
-  - Add: support languages (`Denmark`)
-  - Add: hook scripts to prevent `unknown property GOOGLE_PLAY_SERVICES_VERSION` problem with older version Cordova.
-  - Refactoring internal code
-  - Fix: Cannot find module '../node_modules/xml2js' error.
-  - Fix: getMyLocation() does not work on Genymotion.
-  - Fix: map disappears sometime on changing ionic tab.
+  - Add: support language (`Danish`).
+  - Add: hook scripts to prevent the `unknown property GOOGLE_PLAY_SERVICES_VERSION` problem with older versions of Cordova
+  - Refactoring of internal code
+  - Fix: Cannot find module '../node_modules/xml2js' error
+  - Fix: getMyLocation() does not work on Genymotion
+  - Fix: map disappears sometimes when changing ionic tabs
 
 ---
 
@@ -346,7 +346,7 @@ label.innerText = "heading : " + heading.toFixed(0) + "&deg;";
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/locationservice/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/locationService.png?raw=true"><br>Location service</a></td>
   <td><pre>
 plugin.google.maps.LocationService.getMyLocation(function(result) {
-  alert(["Current your location:\n",
+  alert(["Your current location:\n",
       "latitude:" + location.latLng.lat.toFixed(3),
       "longitude:" + location.latLng.lng.toFixed(3),
       "speed:" + location.speed,
@@ -360,27 +360,27 @@ plugin.google.maps.LocationService.getMyLocation(function(result) {
 
 -----
 
-### How different between Google Maps JavaScript API v3?
+### What is the difference between this plugin and Google Maps JavaScript API v3?
 
-This plugin displays the map view of native(Java and Objective-C) features, which is **faster** than Google Maps JavaScript API v3.
+This plugin displays the map view using the native API's via (Java and Objective-C), which is **faster** than Google Maps JavaScript API v3.
 
-And the native map view works even if the device is **offline**.
+The native map view even works if the device is **offline**.
 
 This plugin provides the features of the native map view to JS developers.
 
-You can write your code `similar like` the Google Maps JavaScript API v3.
+You can write your code `similar to` the Google Maps JavaScript API v3.
 
-**Features compare table**
+**Feature comparison table**
 
 |                | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
 |----------------|-----------------------------------|---------------------------------------|
-|Rendering system| JavaScript + HTML                 | JavaScript + Native APIs              |
-|Offline map     | Not possible                      | Possible (only you displayed area)    |
+|Rendering system| JavaScript + HTML                 | JavaScript + Native API's             |
+|Offline map     | Not possible                      | Possible (only your displayed area)   |
 |3D View         | Not possible                      | Possible                              |
-|Platform        | All browsers                      | Android and iOS app only              |
+|Platform        | All browsers                      | Android and iOS applications only     |
 |Tile image      | Bitmap                            | Vector                                |
 
-**Class compare table**
+**Class comparison table**
 
 | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
 |-----------------------------------|---------------------------------------|
@@ -413,22 +413,23 @@ You can write your code `similar like` the Google Maps JavaScript API v3.
 
 ### How does this plugin work?
 
-This plugin generates native map views, and put them **under the browser**.
+This plugin generates native map views, and puts them **under the browser**.
 
-The map views are not an HTML element. It means they are not kind of `<div>` or something.
-But you can specify the size, position of the map view using `<div>`.
+The map views are not HTML elements. This means that they are not a `<div>` or anything HTML related.
+But you can specify the size and position of the map view using its containing `<div>`.
 
-This plugin changes the background as `transparent` of your app.
-Then the plugin detects your finger tap position which is for: `native map` or `html element`.
+This plugin changes the background to `transparent` in your application.
+Then the plugin detects your touch position, which is either meant for the `native map` or an `html element`
+(which can be on top of your map, or anywhere else on the screen).
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/class/Map/mechanism.png)
 
-The benefit of this plugin is able to detect which HTML elements are over the map or not automatically.
+The benefit of this plugin is the ability to automatically detect which HTML elements are over the map or not.
 
-In the below image, you tap on the header div, which is over the map view.
-This plugin detects your tap is for the header div or the map view, then pass the mouse event.
+For instance, in the image below, say you tap on the header div (which is over the map view).
+The plugin will detect whether your tap is for the header div or for the map view and then pass the touch event appropriately.
 
-It means **you can use the native Google Maps views similar like HTML element**.
+This means **you can use the native Google Maps views similar to HTML elements**.
 
 ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/touch.png)
 
@@ -436,11 +437,11 @@ It means **you can use the native Google Maps views similar like HTML element**.
 
 ## Official Communities
 
-- Google+ : (manager by @wf9a5m75)
+- Google+ : (managed by @wf9a5m75)
 
   https://plus.google.com/communities/117427728522929652853
 
-- Gitter : (manager by @Hirbod)
+- Gitter : (managed by @Hirbod)
 
   https://gitter.im/nightstomp/cordova-plugin-googlemaps
 
@@ -452,11 +453,11 @@ Thank you for supporting our activities.
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
-The donated amount is used for buying testing machine (such as iPhone, Android) or new software.
+All donations are used for purchasing testing devices (both iOS and Android) and/or new software.
 
 
-## Buy us a beer (by bitcoin)
+## Buy us a beer (with bitcoin)
 
-Thank you for supporting us by bitcoin.
+Thank you for supporting us via bitcoin.
 
 3LyVAfANZwcitEEnFbsHup3mDJfuqp8QFb
