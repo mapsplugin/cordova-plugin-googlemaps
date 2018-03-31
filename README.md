@@ -113,7 +113,7 @@ $> cordova plugin add cordova-plugin-googlemaps \
   - Update: Do not fire MAP_READY event until map.getVisibleRegion() is useable
 
 - **v2.2.9**
-  - Add: support language (`Danish`).
+  - Add: support language (`Danish`)
   - Add: hook scripts to prevent the `unknown property GOOGLE_PLAY_SERVICES_VERSION` problem with older versions of Cordova
   - Refactoring of internal code
   - Fix: Cannot find module '../node_modules/xml2js' error
