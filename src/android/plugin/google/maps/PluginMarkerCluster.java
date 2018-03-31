@@ -211,6 +211,7 @@ public class PluginMarkerCluster extends PluginMarker {
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     JSONObject params = args.getJSONObject(1);
+    String hashCode = args.getString(2);
     JSONArray positionList = params.getJSONArray("positionList");
     JSONArray geocellList = new JSONArray();
     JSONObject position;
@@ -220,13 +221,13 @@ public class PluginMarkerCluster extends PluginMarker {
       geocellList.put(getGeocell(position.getDouble("lat"), position.getDouble("lng"), 12));
     }
 
-    String id = "markercluster_" + callbackContext.hashCode();
+    String id = "markercluster_" + hashCode;
     debugFlags.put(id, params.getBoolean("debug"));
 
     final JSONObject result = new JSONObject();
     try {
       result.put("geocellList", geocellList);
-      result.put("hashCode", callbackContext.hashCode());
+      result.put("hashCode", hashCode);
       result.put("id", id);
     } catch (JSONException e) {
       e.printStackTrace();

@@ -8,23 +8,14 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Marker Class
  *****************************************************************************/
-var Marker = function(map, id, markerOptions, className, _exec) {
-  Overlay.call(this, map, id, className, _exec);
+var Marker = function(map, markerOptions, _exec, extras) {
+  extras = extras || {};
+  Overlay.call(this, map, extras.className, 'Marker', _exec, extras);
 
   var self = this;
 
   if (markerOptions && markerOptions.position) {
     self.set('position', markerOptions.position);
-  }
-
-  //-----------------------------------------------
-  // Sets the initialize option to each property
-  //-----------------------------------------------
-  var ignores = ["map", "id", "hashCode", "type"];
-  for (var key in markerOptions) {
-    if (ignores.indexOf(key) === -1) {
-      self.set(key, markerOptions[key]);
-    }
   }
 
   //-----------------------------------------------
@@ -102,27 +93,6 @@ var Marker = function(map, id, markerOptions, className, _exec) {
 
 utils.extend(Marker, Overlay);
 
-Marker.prototype._privateInitialize = function(markerOptions) {
-  var self = this;
-  //-----------------------------------------------
-  // Sets the initialize option to each property
-  //-----------------------------------------------
-  var ignores = ["map", "id", "hashCode", "type"];
-  for (var key in markerOptions) {
-    if (ignores.indexOf(key) === -1) {
-      self.set(key, markerOptions[key], true);
-    }
-  }
-
-  //-----------------------------------------------
-  // Trigger internal command queue
-  //-----------------------------------------------
-  Object.defineProperty(self, "_isReady", {
-    value: true,
-    writable: false
-  });
-  self.exec("nop");
-};
 Marker.prototype.remove = function(callback) {
   var self = this;
   if (self._isRemoved) {
@@ -169,15 +139,6 @@ Marker.prototype.getPosition = function() {
     return new LatLng(position.lat, position.lng);
   }
   return position;
-};
-Marker.prototype.getId = function() {
-  return this.id;
-};
-Marker.prototype.getMap = function() {
-  return this.map;
-};
-Marker.prototype.getHashCode = function() {
-  return this.hashCode;
 };
 
 Marker.prototype.setAnimation = function(animation, callback) {

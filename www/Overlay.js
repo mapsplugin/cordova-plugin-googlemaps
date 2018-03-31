@@ -6,7 +6,8 @@ var BaseClass = require('./BaseClass'),
 /*****************************************************************************
  * Overlay Class
  *****************************************************************************/
-var Overlay = function(map, options, className, _exec) {
+var Overlay = function(map, options, className, _exec, extras) {
+  extras = extras || {};
   BaseClass.apply(this);
 
   var self = this;
@@ -57,7 +58,7 @@ var Overlay = function(map, options, className, _exec) {
     writable: false
   });
   Object.defineProperty(self, "id", {
-    value: className + "_" + this.hashCode,
+    value: extras.id || className + "_" + this.hashCode,
     writable: false
   });
   Object.defineProperty(self, "type", {

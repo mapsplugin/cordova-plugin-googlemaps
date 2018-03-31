@@ -8,24 +8,18 @@ var argscheck = require('cordova/argscheck'),
   Marker = require('./Marker'),
   Cluster = require('./Cluster'),
   spherical = require('./spherical'),
-  BaseClass = require('./BaseClass'),
+  Overlay = require('./Overlay'),
   BaseArrayClass = require('./BaseArrayClass');
 
 /*****************************************************************************
  * MarkerCluster Class
  *****************************************************************************/
-var exec;
-var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) {
-  exec = _exec;
-  BaseClass.call(this);
+var MarkerCluster = function(map, markerClusterOptions, _exec) {
+  Overlay.call(this, map, 'MarkerCluster', _exec);
 
   var idxCount = Object.keys(markerClusterOptions.markerMap).length + 1;
 
   var self = this;
-  Object.defineProperty(self, "_isReady", {
-      value: true,
-      writable: false
-  });
   Object.defineProperty(self, "maxZoomLevel", {
     value: markerClusterOptions.maxZoomLevel,
     writable: false
@@ -42,24 +36,9 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     value: {},
     writable: false
   });
-  Object.defineProperty(self, "_markerMap", {
-    value: markerClusterOptions.markerMap,
-    writable: false
-  });
+
   Object.defineProperty(self, "debug", {
     value: markerClusterOptions.debug === true,
-    writable: false
-  });
-  Object.defineProperty(self, "map", {
-    value: map,
-    writable: false
-  });
-  Object.defineProperty(self, "type", {
-    value: "MarkerCluster",
-    writable: false
-  });
-  Object.defineProperty(self, "id", {
-    value: markerClusterId,
     writable: false
   });
   Object.defineProperty(self, "MAX_RESOLUTION", {
@@ -209,20 +188,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
   return self;
 };
 
-utils.extend(MarkerCluster, BaseClass);
-
-MarkerCluster.prototype.getPluginName = function() {
-  return this.map.getId() + "-markercluster";
-};
-MarkerCluster.prototype.getId = function() {
-    return this.id;
-};
-MarkerCluster.prototype.getMap = function() {
-    return this.map;
-};
-MarkerCluster.prototype.getHashCode = function() {
-    return this.hashCode;
-};
+utils.extend(MarkerCluster, Overlay);
 
 MarkerCluster.prototype.onClusterClicked = function(cluster) {
   if (this._isRemoved) {
@@ -333,7 +299,7 @@ MarkerCluster.prototype.remove = function() {
       cluster.remove();
     });
   }
-  exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true, remove: true});
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true, remove: true});
 
   keys = Object.keys(self._markerMap);
   keys.forEach(function(markerId) {
@@ -382,7 +348,7 @@ MarkerCluster.prototype.removeMarkerById = function(markerId) {
   markerOpts._cluster.marker = undefined;
   //delete self._markerMap[markerId];
   if (isAdded) {
-    exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
+    self.exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
       "delete": [markerId]
     }], {sync: true});
   }
@@ -1052,7 +1018,7 @@ MarkerCluster.prototype._redraw = function(params) {
     return;
   }
 
-  exec.call(self, function() {
+  self.exec.call(self, function() {
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
@@ -1098,7 +1064,11 @@ MarkerCluster.prototype.getClusterIcon = function(cluster) {
 MarkerCluster.prototype._createMarker = function(markerOpts) {
   var markerId = markerOpts.__pgmId;
   var self = this;
-  var marker = new Marker(self.getMap(), self.id + "-" + markerId, markerOpts, "MarkerCluster", exec);
+  var marker = new Marker(self.getMap(), markerOpts, self.exec, {
+    class: 'MarkerCluster',
+    id: self.id + "-" + markerId,
+  });
+
   function updateProperty(prevValue, newValue, key) {
     self._markerMap[markerId][key] = newValue;
   }

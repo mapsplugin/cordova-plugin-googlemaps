@@ -1001,6 +1001,19 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   tilelayerOptions.debug = tilelayerOptions.debug === true;
   tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
 
+
+  var tileOverlay = new TileOverlay(self, tilelayerOptions, exec);
+  var tileOverlayId = tileOverlay.getId();
+  self.OVERLAYS[tileOverlayId] = tileOverlay;
+  var hashCode = tileOverlay.hashCode;
+
+  tileOverlay.one(tileOverlayId + "_remove", function() {
+    document.removeEventListener(tileOverlayId + "-" + hashCode + "-tileoverlay", onNativeCallback);
+    tileOverlay.off();
+    delete self.OVERLAYS[tileOverlayId];
+    tileOverlay = undefined;
+  });
+
   var options = {
     visible: tilelayerOptions.visible,
     zIndex: tilelayerOptions.zIndex,
@@ -1008,7 +1021,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     opacity: tilelayerOptions.opacity,
     userAgent: tilelayerOptions.userAgent,
     debug: tilelayerOptions.debug,
-    _id: Math.floor(Math.random() * Date.now())
+    _id: hashCode
   };
 
   var onNativeCallback = function(params) {
@@ -1016,23 +1029,20 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (!url || url === "(null)" || url === "undefined" || url === "null") {
       url = "(null)";
     }
-    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
+    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, url]);
   };
-  document.addEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
+  document.addEventListener(self.id + "-" + hashCode + "-tileoverlay", onNativeCallback);
 
   exec.call(this, function(result) {
-    var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions, exec);
-    self.OVERLAYS[result.id] = tileOverlay;
-    tileOverlay.one(result.id + "_remove", function() {
-      document.removeEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
-      tileOverlay.off();
-      delete self.OVERLAYS[result.id];
-      tileOverlay = undefined;
-    });
+    tileOverlay._privateInitialize();
+    delete tileOverlay._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, tileOverlay);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options, hashCode]);
+
+  return tileOverlay;
 };
 
 //-------------
@@ -1070,19 +1080,27 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
   polygonOptions.zIndex = polygonOptions.zIndex || 0;
   polygonOptions.geodesic = polygonOptions.geodesic === true;
 
+  var opts = JSON.parse(JSON.stringify(polygonOptions));
+  polygonOptions.points = _orgs;
+  var polygon = new Polygon(self, polygonOptions, exec);
+  var polygonId = polygon.getId();
+  self.OVERLAYS[polygonId] = polygon;
+  polygon.one(polygonId + "_remove", function() {
+    polygon.off();
+    delete self.OVERLAYS[polygonId];
+    polygon = undefined;
+  });
+
   exec.call(this, function(result) {
-    polygonOptions.points = _orgs;
-    var polygon = new Polygon(self, result.id, polygonOptions, exec);
-    self.OVERLAYS[result.id] = polygon;
-    polygon.one(result.id + "_remove", function() {
-      polygon.off();
-      delete self.OVERLAYS[result.id];
-      polygon = undefined;
-    });
+    polygon._privateInitialize();
+    delete polygon._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, polygon);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", polygonOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", opts, polygon.hashCode]);
+
+  return polygon;
 };
 
 //-------------
@@ -1099,19 +1117,29 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.clickable = polylineOptions.clickable === true;
   polylineOptions.zIndex = polylineOptions.zIndex || 0;
   polylineOptions.geodesic = polylineOptions.geodesic === true;
+
+  var opts = JSON.parse(JSON.stringify(polylineOptions));
+  polylineOptions.points = _orgs;
+  var polyline = new Polyline(self, polylineOptions, exec);
+  var polylineId = polyline.getId();
+  self.OVERLAYS[polylineId] = polyline;
+
+  polyline.one(polylineId + "_remove", function() {
+    polyline.off();
+    delete self.OVERLAYS[polylineId];
+    polyline = undefined;
+  });
+
   exec.call(this, function(result) {
-    polylineOptions.points = _orgs;
-    var polyline = new Polyline(self, result.id, polylineOptions, exec);
-    self.OVERLAYS[result.id] = polyline;
-    polyline.one(result.id + "_remove", function() {
-      polyline.off();
-      delete self.OVERLAYS[result.id];
-      polyline = undefined;
-    });
+    polyline._privateInitialize();
+    delete polyline._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, polyline);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', opts, polyline.hashCode]);
+
+  return polyline;
 };
 
 //-------------
@@ -1129,7 +1157,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.zIndex = circleOptions.zIndex || 0;
   circleOptions.radius = "radius" in circleOptions ? circleOptions.radius : 1;
 
-  var circle = new Circle(self, circleOptions, "Circle", exec);
+  var circle = new Circle(self, circleOptions, exec);
   var circleId = circle.getId();
   self.OVERLAYS[circleId] = circle;
   circle.one(circleId + "_remove", function() {
@@ -1169,7 +1197,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     };
   }
 
-  var marker = new Marker(self, markerOptions, "Marker", exec);
+  var marker = new Marker(self, markerOptions, exec);
   var markerId = marker.getId();
 
   self.MARKERS[markerId] = marker;
@@ -1217,6 +1245,22 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     return marker.position;
   });
 
+
+  var markerCluster = new MarkerCluster(self, {
+    "icons": markerClusterOptions.icons,
+    "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
+    "debug": markerClusterOptions.debug === true,
+    "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
+  }, exec);
+  var markerClusterId = markerCluster.getId();
+  self.OVERLAYS[markerClusterId] = markerCluster;
+
+  markerCluster.one("remove", function() {
+    delete self.OVERLAYS[markerClusterId];
+    markerCluster.destroy();
+  });
+
+
   exec.call(this, function(result) {
 
     var markerMap = {};
@@ -1233,46 +1277,16 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
         geocell: geocell,
         _marker: null
       };
-      /*
-            var marker = new Marker(self, markerId, markerOptions, "MarkerCluster", exec);
-            marker.set("isAdded", false, true);
-            marker.set("geocell", geocell, true);
-            marker.set("position", markerOptions.position, true);
-            marker.getId = function() {
-              return result.id + "-" + markerId;
-            };
-      */
       markerMap[markerId] = markerOptions;
-
-      //self.MARKERS[marker.getId()] = marker;
-      //self.OVERLAYS[marker.getId()] = marker;
     });
 
-    var markerCluster = new MarkerCluster(self, result.id, {
-      "icons": markerClusterOptions.icons,
-      "markerMap": markerMap,
-      "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
-      "debug": markerClusterOptions.debug === true,
-      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
-    }, exec);
-    markerCluster.one("remove", function() {
-      delete self.OVERLAYS[result.id];
-      /*
-            result.geocellList.forEach(function(geocell, idx) {
-              var markerOptions = markerClusterOptions.markers[idx];
-              var markerId = result.id + "-" + (markerOptions.id || "marker_" + idx);
-              var marker = self.MARKERS[markerId];
-              if (marker) {
-                marker.off();
-              }
-              //delete self.MARKERS[markerId];
-              delete self.OVERLAYS[markerId];
-            });
-      */
-      markerCluster.destroy();
+    marker._privateInitialize();
+    delete marker._privateInitialize;
+    Object.defineProperty(marker, "_markerMap", {
+      value: markerMap,
+      writable: false
     });
 
-    self.OVERLAYS[result.id] = markerCluster;
 
     if (typeof callback === "function") {
       callback.call(self, markerCluster);
@@ -1280,8 +1294,9 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', {
     "positionList": positionList,
     "debug": markerClusterOptions.debug === true
-  }]);
+  }, markerCluster.hashCode]);
 
+  return markerCluster;
 };
 
 /*****************************************************************************

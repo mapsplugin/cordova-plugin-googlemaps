@@ -64,6 +64,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       @Override
       public void run() {
         Circle circle = map.addCircle(circleOptions);
+        circle.setTag(hashCode);
         pluginMap.objects.put("circle_" + hashCode, circle);
 
         pluginMap.objects.put("circle_property_" + hashCode, properties);
@@ -103,7 +104,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       @Override
       public void run() {
         // Recalculate the circle bounds
-        String propertyId = "circle_bounds_" + circle.getId();
+        String propertyId = "circle_bounds_" + circle.getTag();
         LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
         pluginMap.objects.put(propertyId, bounds);
 
@@ -169,7 +170,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       public void run() {
 
         // Recalculate the circle bounds
-        String propertyId = "circle_bounds_" + circle.getId();
+        String propertyId = "circle_bounds_" + circle.getTag();
         LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
         pluginMap.objects.put(propertyId, bounds);
 
@@ -213,7 +214,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
         circle.setVisible(isVisible);
       }
     });
-    String propertyId = "circle_property_" + circle.getId();
+    String propertyId = "circle_property_" + circle.getTag();
     JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
     properties.put("isVisible", isVisible);
     pluginMap.objects.put(propertyId, properties);

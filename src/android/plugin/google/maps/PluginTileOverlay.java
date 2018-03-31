@@ -28,6 +28,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
 
     final JSONObject opts = args.getJSONObject(1);
+    final String id = args.getString(2);
     final int tileSize = opts.getInt("tileSize");
 
 
@@ -46,7 +47,6 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
     if (opts.has("debug")) {
       isDebug = opts.getBoolean("debug");
     }
-    final String id = opts.getString("_id");
     final boolean _isDebug = isDebug;
 
     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -108,7 +108,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
 
         try {
           JSONObject result = new JSONObject();
-          result.put("hashCode", tileOverlay.hashCode());
+          result.put("hashCode", id);
           result.put("id", "tileoverlay_" + id);
           callbackContext.success(result);
         } catch (JSONException e) {

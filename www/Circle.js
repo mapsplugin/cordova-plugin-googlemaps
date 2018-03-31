@@ -7,8 +7,8 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * Circle Class
  *****************************************************************************/
-var Circle = function(map, circleOptions, className, _exec) {
-	Overlay.call(this, map, circleOptions, className, _exec);
+var Circle = function(map, circleOptions, _exec) {
+	Overlay.call(this, map, circleOptions, 'Circle', _exec);
 
 	var self = this;
 
