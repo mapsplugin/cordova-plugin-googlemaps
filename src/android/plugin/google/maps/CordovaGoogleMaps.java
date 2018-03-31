@@ -53,6 +53,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public boolean initialized = false;
   public PluginManager pluginManager;
   public static String CURRENT_URL;
+  private static final Object timerLock = new Object();
 
   @SuppressLint("NewApi") @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
@@ -169,7 +170,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView, activity);
-        mPluginLayout.isSuspended = true;
         mPluginLayout.stopTimer();
 
 
@@ -221,7 +221,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   @Override
   public boolean onOverrideUrlLoading(String url) {
-    mPluginLayout.isSuspended = true;
     mPluginLayout.stopTimer();
     /*
     this.activity.runOnUiThread(new Runnable() {
@@ -308,7 +307,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
 
     if (mPluginLayout.isSuspended) {
-      mPluginLayout.isSuspended = false;
       mPluginLayout.startTimer();
     }
     callbackContext.success();
@@ -327,25 +325,29 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
 
 
-  public void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout == null) {
+  public synchronized void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    synchronized (timerLock) {
+      Log.i(TAG, "------------>pause, callbackId = " + callbackContext.getCallbackId());
+      if (mPluginLayout == null) {
+        callbackContext.success();
+        return;
+      }
+      mPluginLayout.stopTimer();
       callbackContext.success();
-      return;
     }
-    mPluginLayout.isSuspended = true;
-    mPluginLayout.stopTimer();
-    callbackContext.success();
   }
-  public void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if (mPluginLayout == null) {
+  public synchronized void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    synchronized (timerLock) {
+      if (mPluginLayout == null) {
+        callbackContext.success();
+        return;
+      }
+      Log.i(TAG, "------------>resume : isSuspended = " + mPluginLayout.isSuspended + ", callbackId = " + callbackContext.getCallbackId());
+      if (mPluginLayout.isSuspended) {
+        mPluginLayout.startTimer();
+      }
       callbackContext.success();
-      return;
     }
-    if (mPluginLayout.isSuspended) {
-      mPluginLayout.isSuspended = false;
-      mPluginLayout.startTimer();
-    }
-    callbackContext.success();
   }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {

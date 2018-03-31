@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class PluginMap extends MyPlugin implements OnMarkerClickListener,
@@ -96,7 +97,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private boolean isClickable = true;
   private final String TAG = mapId;
   private String mapDivId;
-  public HashMap<String, PluginEntry> plugins = new HashMap<String, PluginEntry>();
+  public Map<String, PluginEntry> plugins = new ConcurrentHashMap<String, PluginEntry>();
   private final float DEFAULT_CAMERA_PADDING = 20;
   private Projection projection = null;
   public Marker activeMarker = null;

@@ -24,13 +24,13 @@ import org.apache.cordova.CordovaWebView;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("deprecation")
 public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnScrollChangedListener, ViewTreeObserver.OnGlobalLayoutListener {
@@ -40,13 +40,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView;
   public FrameLayout scrollFrameLayout;
-  public HashMap<String, IPluginView> pluginOverlays = new HashMap<String, IPluginView>();
-  private HashMap<String, TouchableWrapper> touchableWrappers = new HashMap<String, TouchableWrapper>();
+  public static Map<String, IPluginView> pluginOverlays = new ConcurrentHashMap<String, IPluginView>();
+  private Map<String, TouchableWrapper> touchableWrappers = new ConcurrentHashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   public boolean isDebug = false;
   public final Object _lockHtmlNodes = new Object();
-  public HashMap<String, Bundle> HTMLNodes = new HashMap<String, Bundle>();
-  public HashMap<String, RectF> HTMLNodeRectFs = new HashMap<String, RectF>();
+  public Map<String, Bundle> HTMLNodes = new ConcurrentHashMap<String, Bundle>();
+  public Map<String, RectF> HTMLNodeRectFs = new ConcurrentHashMap<String, RectF>();
   private Activity mActivity = null;
   private Paint debugPaint = new Paint();
   public boolean stopFlag = false;
@@ -54,7 +54,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean isSuspended = false;
   private float zoomScale;
   public boolean isWaiting = false;
-  private final Object timerLock = new Object();
+  private static final Object timerLock = new Object();
 
   public Timer redrawTimer;
 
@@ -112,7 +112,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
               if (params.leftMargin == x && params.topMargin == y &&
                   params.width == width && params.height == height) {
-                return;
+                continue;
               }
               params.width = width;
               params.height = height;
@@ -124,7 +124,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
               if (params.x == x && params.y == y &&
                 params.width == width && params.height == height) {
-                return;
+                continue;
               }
               params.width = width;
               params.height = height;
@@ -136,7 +136,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
               if (params.leftMargin == x && params.topMargin == y &&
                 params.width == width && params.height == height) {
-                return;
+                continue;
               }
               params.width = width;
               params.height = height;
@@ -221,6 +221,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           redrawTimer.purge();
           ResizeTask task = new ResizeTask();
           task.run();
+          isSuspended = true;
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -238,6 +239,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       redrawTimer = new Timer();
       redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
       mActivity.getWindow().getDecorView().requestFocus();
+      isSuspended = false;
     }
   }
 
@@ -256,8 +258,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public void putHTMLElements(JSONObject elements)  {
 
 
-    HashMap<String, Bundle> newBuffer = new HashMap<String, Bundle>();
-    HashMap<String, RectF> newBufferRectFs = new HashMap<String, RectF>();
+    Map<String, Bundle> newBuffer = new ConcurrentHashMap<String, Bundle>();
+    Map<String, RectF> newBufferRectFs = new ConcurrentHashMap<String, RectF>();
 
     Bundle elementsBundle = PluginUtil.Json2Bundle(elements);
 
@@ -286,8 +288,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       newBuffer.put(domId, domInfo);
     }
 
-    HashMap<String, Bundle> oldBuffer = HTMLNodes;
-    HashMap<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
+    Map<String, Bundle> oldBuffer = HTMLNodes;
+    Map<String, RectF> oldBufferRectFs = HTMLNodeRectFs;
 
     synchronized (_lockHtmlNodes) {
       HTMLNodes = newBuffer;

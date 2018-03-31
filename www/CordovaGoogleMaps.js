@@ -1,11 +1,13 @@
 var utils = require('cordova/utils'),
   common = require('./Common'),
   cordova_exec = require('cordova/exec'),
+  BaseClass = require('./BaseClass'),
   Map = require('./Map'),
   StreetViewPanorama = require('./StreetViewPanorama');
 
 function CordovaGoogleMaps(execCmd) {
   var self = this;
+  BaseClass.apply(this);
 
   // Ignore checking for thse tags.
   self.doNotTraceTags = [
@@ -34,7 +36,7 @@ function CordovaGoogleMaps(execCmd) {
   self.isThereAnyChange = false;
 
   // Indicate the native timer is stopped or not.
-  self.isSuspended = false;
+  self.set("isSuspended", false);
 
   // Cache for updateMapPositionOnly
   self.prevMapRects = {};
@@ -96,9 +98,17 @@ function CordovaGoogleMaps(execCmd) {
     subtree: true,
     attributeFilter: ['style', 'class']
   });
+
+  self.on("isSuspended_changed", function(oldValue, newValue) {
+    if (newValue) {
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+    } else {
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+    }
+  });
 }
 
-
+utils.extend(CordovaGoogleMaps, BaseClass);
 
 CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild) {
   //------------------------------------------
@@ -307,10 +317,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
   //-----------------------------------------------------------------
   // Pass the DOM hierarchy tree graph to native side
   //-----------------------------------------------------------------
-  if (self.isSuspended) {
-    // start the native timer
-    self.resume();
-  }
+  self.resume();
 
   //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(self.domPositions)));
   cordova_exec(function() {
@@ -333,20 +340,14 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
 CordovaGoogleMaps.prototype.pause = function() {
   var self = this;
 
-  if (!self.isSuspended) {
-    // Stop the native timer
-    cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
-  }
-  self.isSuspended = true;
+  self.set("isSuspended", true);
   self.isThereAnyChange = false;
   self.isChecking = false;
 };
 
 CordovaGoogleMaps.prototype.resume = function() {
   var self = this;
-
-  cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
-  self.isSuspended = false;
+  self.set("isSuspended", false);
 };
 
 
@@ -403,8 +404,6 @@ CordovaGoogleMaps.prototype.invalidate = function(opts) {
   opts = opts || {};
   if (opts.force) {
     self.isThereAnyChange = true;
-    self.isSuspended = false;
-    self.resume();
   }
 
   common.nextTick(function() {
@@ -677,10 +676,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     self.domPositions[elemId].isMap = true;
 
     cordova_exec(function() {
-      cordova_exec(function() {
-        map.getMap.apply(map, args);
-      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
-    }, null, 'CordovaGoogleMaps', 'resume', []);
+      self.resume();
+      map.getMap.apply(map, args);
+    }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
   } else {
     map.getMap.apply(map, args);
   }
@@ -691,7 +689,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
 CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   var self = this;
-  var mapId = "map_" + self.MAP_CNT + "_" + self.saltHash;
+  var mapId = "streetview_" + self.MAP_CNT + "_" + self.saltHash;
 
   // Create a panorama instance.
   var panorama = new StreetViewPanorama(mapId, self.execCmd);
@@ -732,10 +730,9 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   args.unshift(mapId);
 
   cordova_exec(function() {
-    cordova_exec(function() {
-      panorama.getPanorama.apply(panorama, args);
-    }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
-  }, null, 'CordovaGoogleMaps', 'resume', []);
+    self.resume();
+    panorama.getPanorama.apply(panorama, args);
+  }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
 
   return panorama;
 };
