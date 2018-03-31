@@ -1151,14 +1151,31 @@ Map.prototype.addCircle = function(circleOptions, callback) {
 Map.prototype.addMarker = function(markerOptions, callback) {
   var self = this;
   markerOptions = common.markerOptionsFilter(markerOptions);
+
+  //------------------------------------
+  // Generate a makrer instance at once.
+  //------------------------------------
+  markerOptions.icon = markerOptions.icon || {};
+  if (typeof markerOptions.icon === 'string' || Array.isArray(markerOptions.icon)) {
+    markerOptions.icon = {
+      url: markerOptions.icon,
+      size: {}
+    };
+  }
+
+  var markerId = "marker_" + (Math.floor(Date.now() * Math.random()));
+  var marker = new Marker(self, markerId, markerOptions, "Marker", exec);
+  self.MARKERS[markerId] = marker;
+  self.OVERLAYS[markerId] = marker;
+  marker.one(markerId + "_remove", function() {
+    delete self.MARKERS[markerId];
+    delete self.OVERLAYS[markerId];
+    marker.destroy();
+    marker = undefined;
+  });
+
   exec.call(this, function(result) {
-    markerOptions.icon = markerOptions.icon || {};
-    if (typeof markerOptions.icon === 'string' || Array.isArray(markerOptions.icon)) {
-      markerOptions.icon = {
-        url: markerOptions.icon,
-        size: {}
-      };
-    }
+
     markerOptions.icon.size = markerOptions.icon.size || {};
     markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
     markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
@@ -1167,23 +1184,15 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     if (!markerOptions.infoWindowAnchor) {
       markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
     }
-
-    var marker = new Marker(self, result.id, markerOptions, "Marker", exec);
-
-    self.MARKERS[result.id] = marker;
-    self.OVERLAYS[result.id] = marker;
-
-    marker.one(result.id + "_remove", function() {
-      marker.off();
-      delete self.MARKERS[result.id];
-      delete self.OVERLAYS[result.id];
-      marker = undefined;
-    });
+    marker._privateInitialize(markerOptions);
+    delete marker._privateInitialize;
 
     if (typeof callback === "function") {
       callback.call(self, marker);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions, markerId]);
+
+  return marker;
 };
 
 

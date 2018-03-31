@@ -197,7 +197,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     // Create an instance of Marker class
 
     JSONObject opts = args.getJSONObject(1);
-    final String markerId = "marker_" + callbackContext.hashCode();
+    final String markerId = args.getString(2);
     final JSONObject result = new JSONObject();
     result.put("id", markerId);
 
@@ -593,6 +593,11 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     String markerId = args.getString(0);
     String animation = args.getString(1);
     final Marker marker = this.getMarker(markerId);
+    Log.d(TAG, "--->setAnimation: markerId = " + markerId + ", animation = " + animation);
+    if (marker == null) {
+      callbackContext.error("marker is null");
+      return;
+    }
 
     this.setMarkerAnimation_(marker, animation, new PluginAsyncInterface() {
 

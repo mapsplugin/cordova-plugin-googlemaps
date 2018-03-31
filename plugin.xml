@@ -100,6 +100,9 @@
     <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
       <runs />
     </js-module>
+    <js-module name="Overlay" src="www/Overlay.js">
+      <runs />
+    </js-module>
 
     <description>Google Maps native SDK for Android and iOS.
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.

@@ -694,6 +694,10 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   // Create a panorama instance.
   var panorama = new StreetViewPanorama(mapId, self.execCmd);
 
+  // Catch all events for this map instance, then pass to the instance.
+  // (Don't execute this native callback from your code)
+  plugin.google.maps[mapId] = nativeCallback.bind(panorama);
+
   self.MAP_CNT++;
   self.MAPS[mapId] = panorama;
   self.isThereAnyChange = true;
