@@ -6,10 +6,20 @@ var BaseClass = require('./BaseClass'),
 /*****************************************************************************
  * Overlay Class
  *****************************************************************************/
-var Overlay = function(map, id, className, _exec) {
+var Overlay = function(map, options, className, _exec) {
   BaseClass.apply(this);
 
   var self = this;
+
+  //-----------------------------------------------
+  // Sets the initialize option to each property
+  //-----------------------------------------------
+  var ignores = ["map", "id", "hashCode", "type"];
+  for (var key in options) {
+      if (ignores.indexOf(key) === -1) {
+          self.set(key, options[key]);
+      }
+  }
 
   //-------------------------------------------------------------------------------
   // If app code wants to execute some method before `_isReady = true`,
@@ -37,6 +47,7 @@ var Overlay = function(map, id, className, _exec) {
     writable: false
   });
 
+  className = className.toLowerCase();
   Object.defineProperty(self, "_isReady", {
     value: false,
     writable: true
@@ -46,7 +57,7 @@ var Overlay = function(map, id, className, _exec) {
     writable: false
   });
   Object.defineProperty(self, "id", {
-    value: id,
+    value: className + "_" + this.hashCode,
     writable: false
   });
   Object.defineProperty(self, "type", {
@@ -54,7 +65,6 @@ var Overlay = function(map, id, className, _exec) {
     writable: false
   });
 
-  className = className.toLowerCase();
   Object.defineProperty(self, "getPluginName", {
     writable: false,
     value: function() {
@@ -64,6 +74,30 @@ var Overlay = function(map, id, className, _exec) {
 };
 
 utils.extend(Overlay, BaseClass);
+
+Overlay.prototype._privateInitialize = function(options) {
+  var self = this;
+  //-----------------------------------------------
+  // Sets the initialize option to each property
+  //-----------------------------------------------
+  if (options) {
+    var ignores = ["map", "id", "hashCode", "type"];
+    for (var key in options) {
+      if (ignores.indexOf(key) === -1) {
+        self.set(key, options[key], true);
+      }
+    }
+  }
+
+  //-----------------------------------------------
+  // Trigger internal command queue
+  //-----------------------------------------------
+  Object.defineProperty(self, "_isReady", {
+    value: true,
+    writable: false
+  });
+  self.exec("nop");
+};
 
 
 Overlay.prototype.exec = function() {

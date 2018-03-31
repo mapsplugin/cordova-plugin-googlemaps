@@ -2,43 +2,17 @@ var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
     LatLngBounds = require('./LatLngBounds'),
-    BaseClass = require('./BaseClass');
+    Overlay = require('./Overlay');
 
 /*****************************************************************************
  * Circle Class
  *****************************************************************************/
 var exec;
-var Circle = function(map, circleId, circleOptions, _exec) {
+var Circle = function(map, circleOptions, _exec) {
     exec = _exec;
-    BaseClass.apply(this);
+    Overlay.call(this, map, circleOptions, _exec);
 
     var self = this;
-    Object.defineProperty(self, "_isReady", {
-        value: true,
-        writable: false
-    });
-    Object.defineProperty(self, "map", {
-        value: map,
-        writable: false
-    });
-    Object.defineProperty(self, "id", {
-        value: circleId,
-        writable: false
-    });
-    Object.defineProperty(self, "type", {
-        value: "Circle",
-        writable: false
-    });
-
-    //-----------------------------------------------
-    // Sets the initialize option to each property
-    //-----------------------------------------------
-    var ignores = ["map", "id", "hashCode", "type"];
-    for (var key in circleOptions) {
-        if (ignores.indexOf(key) === -1) {
-            self.set(key, circleOptions[key]);
-        }
-    }
 
     //-----------------------------------------------
     // Sets event listeners
@@ -78,22 +52,8 @@ var Circle = function(map, circleId, circleOptions, _exec) {
 
 };
 
-utils.extend(Circle, BaseClass);
+utils.extend(Circle, Overlay);
 
-Circle.prototype.getPluginName = function() {
-    return this.map.getId() + "-circle";
-};
-
-Circle.prototype.getHashCode = function() {
-    return this.hashCode;
-};
-
-Circle.prototype.getMap = function() {
-    return this.map;
-};
-Circle.prototype.getId = function() {
-    return this.id;
-};
 Circle.prototype.getCenter = function() {
     return this.get('center');
 };

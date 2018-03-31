@@ -197,7 +197,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     // Create an instance of Marker class
 
     JSONObject opts = args.getJSONObject(1);
-    final String markerId = args.getString(2);
+    final String markerId = "marker_" + args.getString(2);
     final JSONObject result = new JSONObject();
     result.put("id", markerId);
 

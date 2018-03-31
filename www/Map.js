@@ -1129,19 +1129,18 @@ Map.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.zIndex = circleOptions.zIndex || 0;
   circleOptions.radius = "radius" in circleOptions ? circleOptions.radius : 1;
 
-  exec.call(this, function(result) {
-    var circle = new Circle(self, result.id, circleOptions, exec);
-    self.OVERLAYS[result.id] = circle;
+  var circle = new Circle(self, circleOptions, "Circle", exec);
+  var circleId = circle.getId();
+  self.OVERLAYS[circleId] = circle;
+  circle.one(circleId + "_remove", function() {
+    circle.off();
+    delete self.OVERLAYS[circleId];
+    circle = undefined;
+  });
 
-    circle.one(result.id + "_remove", function() {
-      circle.off();
-      delete self.OVERLAYS[result.id];
-      circle = undefined;
-    });
-    if (typeof callback === "function") {
-      callback.call(self, circle);
-    }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions]);
+  exec.call(this, callback, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
+
+  return circle;
 };
 
 //-------------
@@ -1163,8 +1162,9 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     };
   }
 
-  var markerId = "marker_" + (Math.floor(Date.now() * Math.random()));
-  var marker = new Marker(self, markerId, markerOptions, "Marker", exec);
+  var marker = new Marker(self, markerOptions, "Marker", exec);
+  var markerId = marker.getId();
+
   self.MARKERS[markerId] = marker;
   self.OVERLAYS[markerId] = marker;
   marker.one(markerId + "_remove", function() {
@@ -1190,7 +1190,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     if (typeof callback === "function") {
       callback.call(self, marker);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions, markerId]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions, marker.hashCode]);
 
   return marker;
 };
