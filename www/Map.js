@@ -1138,7 +1138,14 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circle = undefined;
   });
 
-  exec.call(this, callback, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
+  exec.call(this, function(result) {
+    circle._privateInitialize();
+    delete circle._privateInitialize;
+
+    if (typeof callback === "function") {
+      callback.call(self, circle);
+    }
+  }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
 
   return circle;
 };
@@ -1299,6 +1306,7 @@ Map.prototype._onMapEvent = function(eventName) {
 Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
   var self = this;
   var marker = self.MARKERS[markerId] || null;
+
   if (marker) {
     marker.set('position', position);
     if (eventName === event.INFO_OPEN) {

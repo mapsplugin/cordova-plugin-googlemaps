@@ -3,136 +3,137 @@ var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() 
 
 
 function BaseClass() {
-  this[VARS_FIELD] = {};
-  this[SUBSCRIPTIONS_FIELD] = {};
-  this.errorHandler = this.errorHandler.bind(this);
+	this[VARS_FIELD] = {};
+	this[SUBSCRIPTIONS_FIELD] = {};
+	this.errorHandler = this.errorHandler.bind(this);
 
-  Object.defineProperty(this, 'hashCode', { value: Math.floor(Date.now() * Math.random()) });
+	Object.defineProperty(this, 'hashCode', {
+		value: Math.floor(Date.now() * Math.random())
+	});
 }
 
 BaseClass.prototype = {
-  empty: function() {
-    var vars = this[VARS_FIELD];
+	empty: function() {
+		var vars = this[VARS_FIELD];
 
-    Object.keys(vars).forEach(function(name) {
-      vars[name] = null;
-      delete vars[name];
-    });
-  },
+		Object.keys(vars).forEach(function(name) {
+			vars[name] = null;
+			delete vars[name];
+		});
+	},
 
-  get: function(key) {
-    return this[VARS_FIELD].hasOwnProperty(key) ? this[VARS_FIELD][key] : undefined;
-  },
+	get: function(key) {
+		return this[VARS_FIELD].hasOwnProperty(key) ? this[VARS_FIELD][key] : undefined;
+	},
 
-  set: function(key, value, noNotify) {
-    var prev = this.get(key);
+	set: function(key, value, noNotify) {
+		var prev = this.get(key);
 
-    this[VARS_FIELD][key] = value;
+		this[VARS_FIELD][key] = value;
 
-    if (!noNotify && prev !== value) {
-      this.trigger(key + '_changed', prev, value, key);
-    }
+		if (!noNotify && prev !== value) {
+			this.trigger(key + '_changed', prev, value, key);
+		}
 
-    return this;
-  },
+		return this;
+	},
 
-  bindTo: function(key, target, targetKey, noNotify) {
-    targetKey = targetKey || key;
+	bindTo: function(key, target, targetKey, noNotify) {
+		targetKey = targetKey || key;
 
-    // If `noNotify` is true, prevent `(targetKey)_changed` event occurrs,
-    // when bind the value for the first time only.
-    // (Same behaviour as Google Maps JavaScript v3)
-    target.set(targetKey, target.get(targetKey), noNotify);
+		// If `noNotify` is true, prevent `(targetKey)_changed` event occurrs,
+		// when bind the value for the first time only.
+		// (Same behaviour as Google Maps JavaScript v3)
+		target.set(targetKey, target.get(targetKey), noNotify);
 
-    this.on(key + '_changed', function(oldValue, value) {
-console.log(key, value);
-      target.set(targetKey, value);
-    });
-  },
+		this.on(key + '_changed', function(oldValue, value) {
+			target.set(targetKey, value);
+		});
+	},
 
-  trigger: function(eventName) {
-    if (!eventName) {
-      return this;
-    }
+	trigger: function(eventName) {
+		if (!eventName) {
+			return this;
+		}
 
-    if (!this[SUBSCRIPTIONS_FIELD][eventName]) {
-      return this;
-    }
+		if (!this[SUBSCRIPTIONS_FIELD][eventName]) {
+			return this;
+		}
 
-    var listeners = this[SUBSCRIPTIONS_FIELD][eventName];
-    var i = listeners.length;
-    var args = Array.prototype.slice.call(arguments, 1);
+		var listeners = this[SUBSCRIPTIONS_FIELD][eventName];
+		var i = listeners.length;
+		var args = Array.prototype.slice.call(arguments, 1);
 
-    while (i--) {
-      listeners[i].apply(this, args);
-    }
+		while (i--) {
+			listeners[i].apply(this, args);
+		}
 
-    return this;
-  },
+		return this;
+	},
 
-  on: function(eventName, listener) {
-    if (!listener || typeof listener !== "function") {
-      throw Error('Listener for on()/addEventListener() method is not a function');
-    }
-    var topic;
-    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
-    topic = this[SUBSCRIPTIONS_FIELD][eventName];
-    topic.push(listener);
-    return this;
-  },
+	on: function(eventName, listener) {
+		if (!listener || typeof listener !== "function") {
+			throw Error('Listener for on()/addEventListener() method is not a function');
+		}
+		var topic;
+		this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
+		topic = this[SUBSCRIPTIONS_FIELD][eventName];
+		topic.push(listener);
+		return this;
+	},
 
-  off: function(eventName, listener) {
-    if (!eventName && !listener) {
-      this[SUBSCRIPTIONS_FIELD] = {};
-      return this;
-    }
+	off: function(eventName, listener) {
+		if (!eventName && !listener) {
+			this[SUBSCRIPTIONS_FIELD] = {};
+			return this;
+		}
 
-    if (eventName && !listener) {
-      this[SUBSCRIPTIONS_FIELD][eventName] = null;
-    } else if (this[SUBSCRIPTIONS_FIELD][eventName]) {
-      var index = this[SUBSCRIPTIONS_FIELD][eventName].indexOf(listener);
+		if (eventName && !listener) {
+			this[SUBSCRIPTIONS_FIELD][eventName] = null;
+		} else if (this[SUBSCRIPTIONS_FIELD][eventName]) {
+			var index = this[SUBSCRIPTIONS_FIELD][eventName].indexOf(listener);
 
-      if (index !== -1) {
-        this[SUBSCRIPTIONS_FIELD][eventName].splice(index, 1);
-      }
-    }
+			if (index !== -1) {
+				this[SUBSCRIPTIONS_FIELD][eventName].splice(index, 1);
+			}
+		}
 
-    return this;
-  },
+		return this;
+	},
 
-  one: function(eventName, listener) {
-    if (!listener || typeof listener !== "function") {
-      throw Error('Listener for one()/addEventListenerOnce() method is not a function');
-    }
+	one: function(eventName, listener) {
+		if (!listener || typeof listener !== "function") {
+			throw Error('Listener for one()/addEventListenerOnce() method is not a function');
+		}
 
-    var self = this;
+		var self = this;
 
-    var callback = function() {
-      self.off(eventName, arguments.callee);
-      listener.apply(self, arguments);
-    };
-    this.on(eventName, callback);
+		var callback = function() {
+			self.off(eventName, arguments.callee);
+			listener.apply(self, arguments);
+		};
+		this.on(eventName, callback);
 
-    return this;
-  },
+		return this;
+	},
 
-  destroy: function() {
-    this.off();
-    this.empty();
-  },
+	destroy: function() {
+		this.off();
+		this.empty();
+	},
 
-  errorHandler: function(error) {
-    if (error) {
-      if (typeof console.error === "function") {
-        console.error(error);
-      } else {
-        console.log(error);
-      }
-      this.trigger('error', error instanceof Error ? error : createError(error));
-    }
+	errorHandler: function(error) {
+		if (error) {
+			if (typeof console.error === "function") {
+				console.error(error);
+			} else {
+				console.log(error);
+			}
+			this.trigger('error', error instanceof Error ? error : createError(error));
+		}
 
-    return false;
-  }
+		return false;
+	}
 };
 
 BaseClass.prototype.addEventListener = BaseClass.prototype.on;
@@ -140,17 +141,21 @@ BaseClass.prototype.addEventListenerOnce = BaseClass.prototype.one;
 BaseClass.prototype.removeEventListener = BaseClass.prototype.off;
 
 function createError(message, methodName, args) {
-  var error = new Error(methodName ? [
-    'Got error with message: "', message, '" ',
-    'after calling "', methodName, '"'
-  ].join('') : message);
+	var error = new Error(methodName ? [
+		'Got error with message: "', message, '" ',
+		'after calling "', methodName, '"'
+	].join('') : message);
 
-  Object.defineProperties(error, {
-    methodName: { value: methodName },
-    args: { value: args }
-  });
+	Object.defineProperties(error, {
+		methodName: {
+			value: methodName
+		},
+		args: {
+			value: args
+		}
+	});
 
-  return error;
+	return error;
 }
 
 module.exports = BaseClass;
