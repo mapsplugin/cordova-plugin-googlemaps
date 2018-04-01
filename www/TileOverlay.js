@@ -110,6 +110,18 @@ TileOverlay.prototype.getVisible = function() {
     return this.get('visible');
 };
 
+TileOverlay.prototype.invalidate = function(callback) {
+    var self = this;
+    if(self._isRemoved) {
+        return;
+    };
+    exec.call(self, function() {
+        if(typeof callback === 'function') {
+            callback.call(self);
+        }
+    }, self.errorHandler, self.getPluginName(), 'invalidate', [self.getId()]);
+};
+
 TileOverlay.prototype.remove = function(callback) {
     var self = this;
     if (self._isRemoved) {

@@ -218,7 +218,19 @@
   }];
 
 }
+-(void)invalidate:(CDVInvokedUrlCommand*)command 
+{
+    [self.executeQueue addOperationWithBlock:^{
+      NSString *tileLayerKey = [command.arguments objectAtIndex:0];
+      dispatch_async(dispatch_get_main_queue(), ^{
+          GMSTileLayer *layer = (GMSTileLayer *)[self.mapCtrl.objects objectForKey:tileLayerKey];
+          [layer clearTileCache];
+      });
 
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+}
 
 /**
  * Set z-index

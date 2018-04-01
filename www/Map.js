@@ -1012,11 +1012,20 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   };
 
   var onNativeCallback = function(params) {
-    var url = tilelayerOptions.getTile(params.x, params.y, params.zoom);
-    if (!url || url === "(null)" || url === "undefined" || url === "null") {
-      url = "(null)";
+    function handleResult(url) {
+      if (!url || url === "(null)" || url === "undefined" || url === "null") {
+        url = "(null)";
+      }
+      cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
     }
-    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
+    var result = tilelayerOptions.getTile(params.x, params.y, params.zoom);
+    // check if "thenable" (a Promise)
+    if(result && typeof result.then === 'function') {
+      result.then(handleResult);
+    } else {
+      // not a promise
+      handleResult(result);
+    }
   };
   document.addEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
 

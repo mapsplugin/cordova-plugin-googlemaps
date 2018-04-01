@@ -19,6 +19,7 @@
 -(void)create:(CDVInvokedUrlCommand*)command;
 -(void)setVisible:(CDVInvokedUrlCommand *)command;
 -(void)remove:(CDVInvokedUrlCommand *)command;
+-(void)invalidate:(CDVInvokedUrlCommand *)command;
 -(void)setZIndex:(CDVInvokedUrlCommand *)command;
 -(void)setFadeIn:(CDVInvokedUrlCommand *)command;
 -(void)setOpacity:(CDVInvokedUrlCommand *)command;

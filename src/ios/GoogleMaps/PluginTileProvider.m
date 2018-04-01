@@ -116,6 +116,15 @@ NSDictionary *debugAttributes;
      }
   }
 
+  if([urlStr hasPrefix:@"data:image"]) {
+    NSData *data = [[NSData alloc] initWithBase64EncodedString: string
+                                                       options: NSDataBase64DecodingIgnoreUnknownCharacters];
+
+    UIImage *image = [UIImage imageWithData:data];
+    [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+    return;
+  }
+
   NSRange range = [urlStr rangeOfString:@"http"];
   if (range.location == 0) {
       //-------------------------

@@ -199,6 +199,23 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
   }
 
   /**
+   * Clears the tile cache
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void invalidate(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+      String id = args.getString(0);
+      TileOverlay tileOverlay = (TileOverlay)pluginMap.objects.get(id);
+      if (tileOverlay == null) {
+          callbackContext.error("TileLayer(" + id + ") not found");
+      } else {
+          tileOverlay.clearTileCache();
+          callbackContext.success();
+      }
+  }
+
+  /**
    * Set fadeIn for the object
    * @param args
    * @param callbackContext
