@@ -176,7 +176,14 @@ public class PluginTileProvider implements TileProvider  {
 
     try {
       InputStream inputStream = null;
-      if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
+      if (urlStr.startsWith("data:image") {
+        //-------------------------------
+        // load image from base64 string
+        //-------------------------------
+        
+        // not yet supported
+        return null;
+      } else if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
         //-------------------------------
         // load image from the internet
         //-------------------------------
