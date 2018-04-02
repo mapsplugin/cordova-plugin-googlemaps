@@ -848,6 +848,12 @@ MarkerCluster.prototype._redraw = function(params) {
         var geocell = markerOpts._cluster.geocell.substr(0, resolution + 1);
         prepareClusters[geocell] = prepareClusters[geocell] || [];
         prepareClusters[geocell].push(markerOpts);
+
+        var marker = markerOpts._cluster.marker;
+        if (marker && marker.id === activeMarkerId) {
+          marker.trigger(event.INFO_CLOSE);
+          marker.hideInfoWindow();
+        }
       });
 
       if (self.debug) {
@@ -1003,16 +1009,22 @@ MarkerCluster.prototype._redraw = function(params) {
   exec.call(self, function(allResults) {
     var markerIDs = Object.keys(allResults);
     markerIDs.forEach(function(markerId) {
+      if (!self._markerMap[markerId]) {
+        return;
+      }
+      var size = allResults[markerId];
       if (typeof self._markerMap[markerId].icon === 'string') {
         self._markerMap[markerId].icon = {
           'url': self._markerMap[markerId].icon,
-          'size': allResults[markerId]
+          'size': size,
+          'anchor': [size.width / 2, size.height]
         };
       } else {
         self._markerMap[markerId].icon = self._markerMap[markerId].icon || {};
-        self._markerMap[markerId].icon.size = self._markerMap[markerId].icon.size || {};
-        self._markerMap[markerId].icon.size = Object.assign(self._markerMap[markerId].icon.size, allResults[markerId]);
+        self._markerMap[markerId].icon.size = self._markerMap[markerId].icon.size || size;
+        self._markerMap[markerId].icon.anchor = self._markerMap[markerId].icon.anchor || [size.width / 2, size.height];
       }
+      self._markerMap[markerId].infoWindowAnchor = self._markerMap[markerId].infoWindowAnchor || [self._markerMap[markerId].icon.size.width / 2, 0];
     });
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
