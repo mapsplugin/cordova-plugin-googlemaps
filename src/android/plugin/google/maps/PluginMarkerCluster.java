@@ -446,8 +446,8 @@ public class PluginMarkerCluster extends PluginMarker {
           if (isNew) {
             // If the requested id is new location, create a marker
             marker = map.addMarker(new MarkerOptions()
-                .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")))
-                .visible(false));
+                    .position(new LatLng(markerProperties.getDouble("lat"), markerProperties.getDouble("lng")))
+                    .visible(false));
             marker.setTag(clusterId_markerId);
 
             // Store the marker instance with markerId
@@ -669,17 +669,17 @@ public class PluginMarkerCluster extends PluginMarker {
   }
   private char _subdiv_char(int posX, int posY) {
     return GEOCELL_ALPHABET.charAt(
-        (posY & 2) << 2 |
-            (posX & 2) << 1 |
-            (posY & 1) << 1 |
-            (posX & 1) << 0);
+            (posY & 2) << 2 |
+                    (posX & 2) << 1 |
+                    (posY & 1) << 1 |
+                    (posX & 1) << 0);
   }
 
   private double[] _subdiv_xy(char cellChar) {
     int charI = GEOCELL_ALPHABET.indexOf(cellChar);
     return new double[]{
-        (double)((charI & 4) >> 1 | (charI & 1) >> 0) + 0.0f,
-        (double)((charI & 8) >> 2 | (charI & 2) >> 1) + 0.0f
+            (double)((charI & 4) >> 1 | (charI & 1) >> 0) + 0.0f,
+            (double)((charI & 8) >> 2 | (charI & 2) >> 1) + 0.0f
     };
   }
 
@@ -702,9 +702,9 @@ public class PluginMarkerCluster extends PluginMarker {
       y = xy[1];
 
       bbox = new BoundBox(bbox.getSouth() + subcell_lat_span * (y + 1.0f),
-          bbox.getWest() + subcell_lng_span * (double)(x + 1.0f),
-          bbox.getSouth() + subcell_lat_span * y,
-          bbox.getWest() + subcell_lng_span * x);
+              bbox.getWest() + subcell_lng_span * (double)(x + 1.0f),
+              bbox.getSouth() + subcell_lat_span * y,
+              bbox.getWest() + subcell_lng_span * x);
 
       geocell = geocell.substring(1);
     }

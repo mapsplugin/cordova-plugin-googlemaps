@@ -14,12 +14,18 @@ var argscheck = require('cordova/argscheck'),
 /*****************************************************************************
  * MarkerCluster Class
  *****************************************************************************/
+var exec;
 var MarkerCluster = function(map, markerClusterOptions, _exec) {
+  exec = _exec;
   Overlay.call(this, map, markerClusterOptions, 'MarkerCluster', _exec);
 
-  var idxCount = markerClusterOptions.idxCount + 1;
+  var idxCount = markerClusterOptions.idxCount;
 
   var self = this;
+  Object.defineProperty(self, "maxZoomLevel", {
+    value: markerClusterOptions.maxZoomLevel,
+    writable: false
+  });
   Object.defineProperty(self, "_clusterBounds", {
     value: new BaseArrayClass(),
     writable: false
@@ -32,7 +38,6 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
     value: {},
     writable: false
   });
-
   Object.defineProperty(self, "debug", {
     value: markerClusterOptions.debug === true,
     writable: false
@@ -67,25 +72,6 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
   self.taskQueue = [];
   self._stopRequest = false;
   self._isWorking = false;
-
-  //----------------------------------------------------
-  // If a marker has been removed,
-  // remove it from markerClusterOptions.markers also.
-  //----------------------------------------------------
-/*
-  var onRemoveMarker = function() {
-    var marker = this;
-    var idx = markerClusterOptions.markers.indexOf(marker);
-    if (idx > self.OUT_OF_RESOLUTION) {
-      markerClusterOptions.markers.removeAt(idx);
-    }
-  };
-  var keys = Object.keys(self._markerMap);
-  keys.forEach(function(markerId) {
-    var marker = self._markerMap[markerId];
-    marker.one(markerOpts.__pgmId + "_remove", onRemoveMarker);
-  });
-*/
 
   var icons = markerClusterOptions.icons;
   if (icons.length > 0 && !icons[0].min) {
@@ -170,6 +156,10 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
     }
     sel.redraw.call(self);
   });
+
+  // self.redraw.call(self, {
+  //   force: true
+  // });
 
   if (self.debug) {
     self.debugTimer = setInterval(function() {
@@ -291,7 +281,7 @@ MarkerCluster.prototype.remove = function() {
       cluster.remove();
     });
   }
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true, remove: true});
+  exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true, remove: true});
 
   keys = Object.keys(self._markerMap);
   keys.forEach(function(markerId) {
@@ -340,7 +330,7 @@ MarkerCluster.prototype.removeMarkerById = function(markerId) {
   markerOpts._cluster.marker = undefined;
   //delete self._markerMap[markerId];
   if (isAdded) {
-    self.exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
+    exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
       "delete": [markerId]
     }], {sync: true});
   }
@@ -1010,7 +1000,7 @@ MarkerCluster.prototype._redraw = function(params) {
     return;
   }
 
-  self.exec.call(self, function() {
+  exec.call(self, function() {
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
@@ -1056,11 +1046,7 @@ MarkerCluster.prototype.getClusterIcon = function(cluster) {
 MarkerCluster.prototype._createMarker = function(markerOpts) {
   var markerId = markerOpts.__pgmId;
   var self = this;
-  var marker = new Marker(self.getMap(), markerOpts, self.exec, {
-    class: 'MarkerCluster',
-    id: self.id + "-" + markerId,
-  });
-
+  var marker = new Marker(self.getMap(), self.id + "-" + markerId, markerOpts, "MarkerCluster", exec);
   function updateProperty(prevValue, newValue, key) {
     self._markerMap[markerId][key] = newValue;
   }

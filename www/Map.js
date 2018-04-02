@@ -1247,22 +1247,16 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     return marker.position;
   });
 
-
   var markerCluster = new MarkerCluster(self, {
-    "idxCount": markerClusterOptions.markers.length,
     "icons": markerClusterOptions.icons,
+    //"markerMap": markerMap,
+    "idxCount": positionList.length + 1,
     "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
     "debug": markerClusterOptions.debug === true,
     "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
   }, exec);
   var markerClusterId = markerCluster.getId();
   self.OVERLAYS[markerClusterId] = markerCluster;
-
-  markerCluster.one("remove", function() {
-    delete self.OVERLAYS[markerClusterId];
-    markerCluster.destroy();
-  });
-
 
   exec.call(this, function(result) {
 
@@ -1280,20 +1274,47 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
         geocell: geocell,
         _marker: null
       };
+      /*
+            var marker = new Marker(self, markerId, markerOptions, "MarkerCluster", exec);
+            marker.set("isAdded", false, true);
+            marker.set("geocell", geocell, true);
+            marker.set("position", markerOptions.position, true);
+            marker.getId = function() {
+              return result.id + "-" + markerId;
+            };
+      */
       markerMap[markerId] = markerOptions;
+
+      //self.MARKERS[marker.getId()] = marker;
+      //self.OVERLAYS[marker.getId()] = marker;
     });
 
-    markerCluster._privateInitialize();
-    delete markerCluster._privateInitialize;
     Object.defineProperty(markerCluster, "_markerMap", {
       value: markerMap,
       writable: false
     });
 
+    markerCluster.one("remove", function() {
+      delete self.OVERLAYS[result.id];
+      /*
+            result.geocellList.forEach(function(geocell, idx) {
+              var markerOptions = markerClusterOptions.markers[idx];
+              var markerId = result.id + "-" + (markerOptions.id || "marker_" + idx);
+              var marker = self.MARKERS[markerId];
+              if (marker) {
+                marker.off();
+              }
+              //delete self.MARKERS[markerId];
+              delete self.OVERLAYS[markerId];
+            });
+      */
+      markerCluster.destroy();
+    });
+
+    markerCluster._privateInitialize();
     markerCluster.redraw.call(markerCluster, {
       force: true
     });
-
 
     if (typeof callback === "function") {
       callback.call(self, markerCluster);
