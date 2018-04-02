@@ -1,5 +1,5 @@
-var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol.for('vars');
-var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol.for('subscriptions');
+var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol('vars');
+var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol('subscriptions');
 
 function BaseClass() {
   this[VARS_FIELD] = {};

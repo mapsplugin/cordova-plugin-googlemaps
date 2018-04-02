@@ -2360,22 +2360,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void onOverlayEvent(String eventName, String overlayId, LatLng point) {
     String js = String.format(Locale.ENGLISH, "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName: '%s', callback:'_onOverlayEvent', args:['%s', new plugin.google.maps.LatLng(%f, %f)]});}",
         mapId, mapId, eventName, overlayId, point.latitude, point.longitude);
+    Log.d(TAG, js);
     jsCallback(js);
   }
   public void onPolylineClick(Polyline polyline, LatLng point) {
-    String overlayId = "polyline_" + polyline.getId();
+    String overlayId = "polyline_" + polyline.getTag();
     this.onOverlayEvent("polyline_click", overlayId, point);
   }
   public void onPolygonClick(Polygon polygon, LatLng point) {
-    String overlayId = "polygon_" + polygon.getId();
+    String overlayId = "polygon_" + polygon.getTag();
     this.onOverlayEvent("polygon_click", overlayId, point);
   }
   public void onCircleClick(Circle circle, LatLng point) {
-    String overlayId = "circle_" + circle.getId();
+    String overlayId = "circle_" + circle.getTag();
     this.onOverlayEvent("circle_click", overlayId, point);
   }
   public void onGroundOverlayClick(GroundOverlay groundOverlay, LatLng point) {
-    String overlayId = groundOverlay.getTag() + "";
+    String overlayId = "groundoverlay_" + groundOverlay.getTag();
     this.onOverlayEvent("groundoverlay_click", overlayId, point);
   }
 
@@ -2917,7 +2918,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
             }
 
-            //Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
+            Log.d("PluginMap", "---> hitOverlay = " + hitOverlay);
             if (hitOverlay instanceof Polygon) {
               onPolygonClick((Polygon)hitOverlay, point);
             } else if (hitOverlay instanceof Polyline) {

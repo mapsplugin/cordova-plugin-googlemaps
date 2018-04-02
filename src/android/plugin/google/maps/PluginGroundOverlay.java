@@ -99,7 +99,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
         overlayImage.put("groundoverlay_" + idBase, result.image);
 
-        groundOverlay.setTag("groundoverlay_" + idBase);
+        groundOverlay.setTag(idBase);
 
         pluginMap.objects.put("groundoverlay_" + idBase, groundOverlay);
 

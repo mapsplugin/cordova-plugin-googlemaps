@@ -1312,6 +1312,8 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     });
 
     markerCluster._privateInitialize();
+    delete marker._privateInitialize;
+
     markerCluster.redraw.call(markerCluster, {
       force: true
     });
