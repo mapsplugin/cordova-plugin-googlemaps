@@ -1000,7 +1000,20 @@ MarkerCluster.prototype._redraw = function(params) {
     return;
   }
 
-  exec.call(self, function() {
+  exec.call(self, function(allResults) {
+    var markerIDs = Object.keys(allResults);
+    markerIDs.forEach(function(markerId) {
+      if (typeof self._markerMap[markerId].icon === 'string') {
+        self._markerMap[markerId].icon = {
+          'url': self._markerMap[markerId].icon,
+          'size': allResults[markerId]
+        };
+      } else {
+        self._markerMap[markerId].icon = self._markerMap[markerId].icon || {};
+        self._markerMap[markerId].icon.size = self._markerMap[markerId].icon.size || {};
+        self._markerMap[markerId].icon.size = Object.assign(self._markerMap[markerId].icon.size, allResults[markerId]);
+      }
+    });
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,

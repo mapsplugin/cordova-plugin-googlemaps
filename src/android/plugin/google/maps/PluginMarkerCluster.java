@@ -1,5 +1,6 @@
 package plugin.google.maps;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -351,6 +352,8 @@ public class PluginMarkerCluster extends PluginMarker {
     //---------------------------
     // mapping markers on the map
     //---------------------------
+    final JSONObject allResults = new JSONObject();
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -396,6 +399,30 @@ public class PluginMarkerCluster extends PluginMarker {
                         pluginMarkers.remove(fMarkerId);
                       } else {
                         pluginMarkers.put(fMarkerId, STATUS.CREATED);
+
+
+                        JSONObject result = new JSONObject();
+                        if (icons.containsKey(fMarkerId)) {
+                          Bitmap icon = icons.get(fMarkerId);
+                          try {
+                            result.put("width", icon.getWidth() / density);
+                            result.put("height", icon.getHeight() / density);
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        } else {
+                          try {
+                            result.put("width", 24);
+                            result.put("height", 42);
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }
+                        try {
+                          allResults.put(fMarkerId.split("-")[1], result);
+                        } catch (JSONException e) {
+                          e.printStackTrace();
+                        }
                       }
                     }
                     decreaseWaitCnt(clusterId);
@@ -531,7 +558,7 @@ public class PluginMarkerCluster extends PluginMarker {
         e.printStackTrace();
       }
     }
-    callbackContext.success();
+    callbackContext.success(allResults);
 
   }
   private void deleteProcess(final String clusterId, final JSONObject params) {
