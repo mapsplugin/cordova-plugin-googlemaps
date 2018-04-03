@@ -63,7 +63,7 @@
   NSDictionary *latLng;
   for (i = 0; i < points.count; i++) {
       latLng = [points objectAtIndex:i];
-      [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+      [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue])];
   }
 
   // Create paths of the hole property if specified.
@@ -79,7 +79,7 @@
           GMSMutablePath *holePath = [GMSMutablePath path];
           for (j = 0; j < latLngArray.count; j++) {
               latLng = [latLngArray objectAtIndex:j];
-              [holePath addLatitude:[[latLng objectForKey:@"lat"] floatValue] longitude:[[latLng objectForKey:@"lng"] floatValue]];
+              [holePath addLatitude:[[latLng objectForKey:@"lat"] doubleValue] longitude:[[latLng objectForKey:@"lng"] doubleValue]];
           }
           [holePaths addObject:holePath];
       }
@@ -200,7 +200,7 @@
       GMSMutablePath *path = [GMSMutablePath path];
       for (i = 0; i < [holes count]; i++) {
         latLng = [latLngArray objectAtIndex:i];
-        [path addLatitude:[[latLng objectForKey:@"lat"] floatValue] longitude:[[latLng objectForKey:@"lng"] floatValue]];
+        [path addLatitude:[[latLng objectForKey:@"lat"] doubleValue] longitude:[[latLng objectForKey:@"lng"] doubleValue]];
       }
       [holePaths insertObject:path atIndex:index];
 
@@ -272,7 +272,7 @@
 
       // Insert a point into the specified hole
       GMSMutablePath *path = [holePaths objectAtIndex:holeIndex];
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       [path replaceCoordinateAtIndex:pointIndex withCoordinate:position];
       [holePaths setObject:path atIndexedSubscript:holeIndex];
 
@@ -325,7 +325,7 @@
         holePositions = [holeList objectAtIndex:i];
         for (int j = 0; j < holePositions.count; j++) {
           latLng = [holePositions objectAtIndex:j];
-          [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+          [path addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue])];
         }
         [holePaths addObject:path];
       }
@@ -365,7 +365,7 @@
 
       // Insert a point into the specified hole
       GMSMutablePath *path = [holePaths objectAtIndex:holeIndex];
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       [path insertCoordinate:position atIndex:pointIndex];
       [holePaths setObject:path atIndexedSubscript:holeIndex];
 
@@ -439,7 +439,7 @@
       [mutablePath removeAllCoordinates];
       for (int i = 0; i < positionList.count; i++) {
         latLng = [positionList objectAtIndex:i];
-        [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+        [mutablePath addCoordinate:CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue])];
       }
 
       // update the property
@@ -475,7 +475,7 @@
 
       GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
 
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       [mutablePath insertCoordinate:position atIndex:index];
 
       // update the property
@@ -510,7 +510,7 @@
 
       GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
 
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       [mutablePath replaceCoordinateAtIndex:index withCoordinate:position];
 
       // update the property

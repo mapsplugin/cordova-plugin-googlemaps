@@ -109,8 +109,8 @@
   NSMutableDictionary *iconProperty = nil;
   NSString *animation = nil;
   NSDictionary *latLng = [json objectForKey:@"position"];
-  float latitude = [[latLng valueForKey:@"lat"] floatValue];
-  float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  double latitude = [[latLng valueForKey:@"lat"] doubleValue];
+  double longitude = [[latLng valueForKey:@"lng"] doubleValue];
 
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
 
@@ -567,8 +567,8 @@
     NSString *markerId = [command.arguments objectAtIndex:0];
     GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-    float latitude = [[command.arguments objectAtIndex:1] floatValue];
-    float longitude = [[command.arguments objectAtIndex:2] floatValue];
+    double latitude = [[command.arguments objectAtIndex:1] doubleValue];
+    double longitude = [[command.arguments objectAtIndex:2] doubleValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       [marker setPosition:position];
