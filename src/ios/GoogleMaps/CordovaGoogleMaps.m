@@ -146,29 +146,44 @@
 }
 
 - (void)_destroyMap:(NSString *)mapId {
-  PluginMap *pluginMap = [self.viewPlugins objectForKey:mapId];
-  if (pluginMap == nil) {
+  if (![self.viewPlugins objectForKey:mapId]) {
     return;
+  }
+  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+  
+  CDVPlugin<IPluginView> *pluginView = [self.viewPlugins objectForKey:mapId];
+  if ([mapId hasPrefix:@"streetview_"]) {
+    PluginStreetViewPanorama *pluginSV = (PluginStreetViewPanorama *)pluginView;
+    pluginSV.isRemoved = YES;
+    //[pluginSV clear:nil];
+    [pluginSV pluginUnload];
+    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
+    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+
+    [self.pluginLayer removePluginOverlay:pluginSV.panoramaCtrl];
+    pluginSV.panoramaCtrl.view = nil;
+    pluginSV = nil;
+  } else {
+    PluginMap *pluginMap = (PluginMap *)pluginView;
+    pluginMap.isRemoved = YES;
+    //[pluginMap clear:nil];
+    [pluginMap pluginUnload];
+    
+    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
+    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+
+    [self.pluginLayer removePluginOverlay:pluginMap.mapCtrl];
+    
+    pluginMap.mapCtrl.view = nil;
+    [pluginMap.mapCtrl.plugins removeAllObjects];
+    pluginMap.mapCtrl.plugins = nil;
+    pluginMap.mapCtrl.view = nil;
+    pluginMap.mapCtrl = nil;
+    pluginMap = nil;
   }
 
 
-  pluginMap.isRemoved = YES;
-  //[pluginMap clear:nil];
-  [pluginMap pluginUnload];
-
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
-  [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-
-  [self.pluginLayer removePluginOverlay:pluginMap.mapCtrl];
-
-  pluginMap.mapCtrl.view = nil;
-  [pluginMap.mapCtrl.plugins removeAllObjects];
-  pluginMap.mapCtrl.plugins = nil;
-  pluginMap.mapCtrl.view = nil;
-  pluginMap.mapCtrl = nil;
   [self.viewPlugins removeObjectForKey:mapId];
-  pluginMap = nil;
 
   [cdvViewController.pluginObjects removeObjectForKey:mapId];
 }
@@ -499,8 +514,17 @@
       }
     }
 
+    double latitude = 0, longitude = 0;
+    if ([initOptions objectForKey:@"camera"]) {
+      NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
+      if ([cameraOpts valueForKey:@"target"]) {
+        NSDictionary *latLng = [cameraOpts objectForKey:@"target"];
+        latitude = [[latLng valueForKey:@"lat"] doubleValue];
+        longitude = [[latLng valueForKey:@"lng"] doubleValue];
+      }
+    }
 
-    panoramaCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
+    panoramaCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(latitude, longitude)];
     panoramaCtrl.view = panoramaCtrl.panorama;
     panoramaCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     ((GMSPanoramaView *)(panoramaCtrl.view)).delegate = panoramaCtrl;

@@ -12,7 +12,7 @@
 
 -(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -57,6 +57,7 @@
 
 
   NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSString *idBase = [command.arguments objectAtIndex:2];
   GMSMutablePath *mutablePath = [GMSMutablePath path];
 
   NSArray *points = [json objectForKey:@"points"];
@@ -103,7 +104,6 @@
       // disable default clickable feature.
       polyline.tappable = NO;
 
-      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
       NSString *id = [NSString stringWithFormat:@"polyline_%@", idBase];
       [self.mapCtrl.objects setObject:polyline forKey: id];
       polyline.title = id;

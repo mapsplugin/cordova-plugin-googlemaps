@@ -19,4 +19,5 @@
 - (void)getPanorama:(CDVInvokedUrlCommand*)command;
 - (void)attachToWebView:(CDVInvokedUrlCommand*)command;
 - (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
+- (void)moveCamera:(CDVInvokedUrlCommand*)command;
 @end

@@ -10,7 +10,7 @@
 @implementation PluginMarker
 -(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -66,9 +66,10 @@
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSString *hashCode = [command.arguments objectAtIndex:2];
 
     __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
-    NSString *markerId = [NSString stringWithFormat:@"marker_%lu%d", command.hash, arc4random() % 100000];
+    NSString *markerId = [NSString stringWithFormat:@"marker_%@", hashCode];
     [createResult setObject:markerId forKey:@"id"];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{

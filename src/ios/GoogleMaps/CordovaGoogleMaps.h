@@ -15,6 +15,7 @@
 #import "PluginStreetViewPanorama.h"
 #import "MyPluginLayer.h"
 #import "IPluginProtocol.h"
+#import "IPluginView.h"
 
 @interface CordovaGoogleMaps : CDVPlugin
 

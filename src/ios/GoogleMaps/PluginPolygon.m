@@ -12,7 +12,7 @@
 
 -(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginUnload
@@ -56,6 +56,7 @@
 
   // Parse the polygonOptions
   NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSString *idBase = [command.arguments objectAtIndex:2];
 
   GMSMutablePath *mutablePath = [GMSMutablePath path];
   NSArray *points = [json objectForKey:@"points"];
@@ -128,7 +129,6 @@
       polygon.tappable = NO;
 
       // Register polygon to the overlayManager.
-      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
       NSString *id = [NSString stringWithFormat:@"polygon_%@", idBase];
       [self.mapCtrl.objects setObject:polygon forKey: id];
       polygon.title = id;

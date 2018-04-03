@@ -72,11 +72,12 @@
   dispatch_async(dispatch_get_main_queue(), ^{
 
       NSDictionary *json = [command.arguments objectAtIndex:1];
+      NSString *idBase = [command.arguments objectAtIndex:1];
       //NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
 
 
       GMSTileLayer *layer;
-      NSString *_id = [NSString stringWithFormat:@"tileoverlay_%@", [json valueForKey:@"_id"]];
+      NSString *_id = [NSString stringWithFormat:@"tileoverlay_%@", idBase];
 
       //NSRange range = [tileUrlFormat rangeOfString:@"http"];
       //if (range.location != 0) {
@@ -94,7 +95,7 @@
           NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
           [options setObject:self.mapCtrl.overlayId forKey:@"mapId"];
-          [options setObject:[json valueForKey:@"_id"] forKey:@"pluginId"];
+          [options setObject:idBase forKey:@"pluginId"];
 
           ///[options setObject:tileUrlFormat forKey:@"tileUrlFormat"];
           [options setObject:[json objectForKey:@"tileSize"] forKey:@"tileSize"];

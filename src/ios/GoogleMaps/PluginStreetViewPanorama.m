@@ -12,13 +12,55 @@
 
 
 - (void)getPanorama:(CDVInvokedUrlCommand *)command {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [self.panoramaCtrl.panorama moveNearCoordinate:CLLocationCoordinate2DMake(-33.87365, 151.20689)];
+  NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
+  if ([initOptions objectForKey:@"camera"]) {
+    [self movePanoramaCamera:[initOptions objectForKey:@"camera"]];
+  }
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  });
+}
+
+- (void)moveCamera:(CDVInvokedUrlCommand *)command {
+  NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
+  [self movePanoramaCamera:cameraOpts];
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+
+- (void)movePanoramaCamera:(NSDictionary *)cameraOpts {
+
+  if ([cameraOpts valueForKey:@"target"]) {
+    NSDictionary *latLng = [cameraOpts objectForKey:@"target"];
+    double latitude = [[latLng valueForKey:@"lat"] doubleValue];
+    double longitude = [[latLng valueForKey:@"lng"] doubleValue];
+    [self.panoramaCtrl.panorama moveNearCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+  }
+
+  double bearing = self.panoramaCtrl.panorama.camera.orientation.heading;
+  if ([cameraOpts valueForKey:@"bearing"]) {
+    bearing = [[cameraOpts valueForKey:@"bearing"] doubleValue];
+  }
+
+  double angle = self.panoramaCtrl.panorama.camera.orientation.pitch;
+  if ([cameraOpts valueForKey:@"tilt"]) {
+    angle = [[cameraOpts valueForKey:@"tilt"] doubleValue];
+  }
+  
+  float zoom = self.panoramaCtrl.panorama.camera.zoom;
+  if ([cameraOpts valueForKey:@"zoom"]) {
+    zoom = [[cameraOpts valueForKey:@"zoom"] floatValue];
+  }
+  
+  double fov = self.panoramaCtrl.panorama.camera.FOV;
+  if ([cameraOpts valueForKey:@"fov"]) {
+    fov = [[cameraOpts valueForKey:@"fov"] doubleValue];
+  }
+  
+  self.panoramaCtrl.panorama.camera = [GMSPanoramaCamera cameraWithHeading:bearing pitch:angle zoom:zoom FOV:fov];
 
 }
 
@@ -56,37 +98,5 @@
 
 }
 
-
-//
-//- (void)attachMap:(CDVInvokedUrlCommand*)command {
-//  [self.mapCtrl.executeQueue addOperationWithBlock:^{
-//
-//    // Load the GoogleMap.m
-//    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-//    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-//    [googlemaps.pluginLayer addMapView:self.mapCtrl];
-//    self.mapCtrl.attached = YES;
-//
-//    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-//    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-//  }];
-//}
-//
-//- (void)detachMap:(CDVInvokedUrlCommand*)command {
-//
-//  [self.mapCtrl.executeQueue addOperationWithBlock:^{
-//
-//    // Load the GoogleMap.m
-//    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-//    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-//    [googlemaps.pluginLayer removeMapView:self.mapCtrl];
-//    self.mapCtrl.attached = NO;
-//
-//    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-//    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-//  }];
-//
-//}
-//
 
 @end

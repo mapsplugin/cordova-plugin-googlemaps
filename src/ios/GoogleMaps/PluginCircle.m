@@ -47,12 +47,14 @@
 }
 -(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-    self.mapCtrl = viewCtrl;
+    self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 -(void)create:(CDVInvokedUrlCommand *)command
 {
 
     NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSString *idBase = [command.arguments objectAtIndex:2];
+  
     NSDictionary *latLng = [json objectForKey:@"center"];
     float latitude = [[latLng valueForKey:@"lat"] floatValue];
     float longitude = [[latLng valueForKey:@"lng"] floatValue];
@@ -99,7 +101,6 @@
         circle.tappable = NO;
 
         // Store the circle instance into self.objects
-        NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
         NSString *circleId = [NSString stringWithFormat:@"circle_%@", idBase];
         circle.title = circleId;
         [self.mapCtrl.objects setObject:circle forKey: circleId];
