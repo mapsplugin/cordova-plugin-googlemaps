@@ -146,7 +146,6 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 
         try {
           final JSONObject cameraPosition = args.getJSONObject(0);
-          Log.d(TAG, cameraPosition.toString(2));
           if (cameraPosition.has("target")) {
             JSONObject target = cameraPosition.getJSONObject("target");
             LatLng latLng = new LatLng(target.getDouble("lat"), target.getDouble("lng"));
@@ -162,8 +161,8 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 
             StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera(bearing, tilt, zoom);
             panorama.animateTo(newCamera, 0);
-            callbackContext.success();
           }
+          callbackContext.success();
         } catch (JSONException e) {
           e.printStackTrace();
           callbackContext.error("" + e.getMessage());
