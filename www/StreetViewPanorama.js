@@ -2,7 +2,7 @@ var argscheck = require('cordova/argscheck'),
   utils = require('cordova/utils'),
   common = require('./Common'),
   event = require('./event'),
-  BaseClass = require('./BaseClass');
+  Overlay = require('./Overlay');
 
 /*****************************************************************************
  * StreetViewPanorama Class
@@ -10,21 +10,11 @@ var argscheck = require('cordova/argscheck'),
 var exec;
 var StreetViewPanorama = function(streetViewId, _exec) {
   exec = _exec;
-  BaseClass.apply(this);
+  Overlay.call(this, this, {}, 'StreetViewPanorama', _exec, {
+    id: streetViewId
+  });
 
   var self = this;
-  Object.defineProperty(self, "id", {
-    value: streetViewId,
-    writable: false
-  });
-  Object.defineProperty(self, "type", {
-    value: "StreetViewPanorama",
-    writable: false
-  });
-  Object.defineProperty(self, "_isReady", {
-    value: true,
-    writable: false
-  });
   //-----------------------------------------------
   // Sets the initialize option to each property
   //-----------------------------------------------
@@ -57,7 +47,7 @@ var StreetViewPanorama = function(streetViewId, _exec) {
 };
 
 
-utils.extend(StreetViewPanorama, BaseClass);
+utils.extend(StreetViewPanorama, Overlay);
 
 StreetViewPanorama.prototype.getPluginName = function() {
   return this.map.getId() + "-streetview";
@@ -120,13 +110,9 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
     cordova.fireDocumentEvent("plugin_touch", {
       force: true
     });
+    self._privateInitialize();
+    delete self._privateInitialize;
 
-
-    Object.defineProperty(self, "_isReady", {
-      value: true,
-      writable: false
-    });
-    //self.refreshLayout();
     self.trigger(event.PANORAMA_READY, self);
   }, self.errorHandler, 'CordovaGoogleMaps', 'getPanorama', args, {
     sync: true
@@ -148,7 +134,7 @@ StreetViewPanorama.prototype.getMap = function() {
 
 StreetViewPanorama.prototype.moveCamera = function(cameraPosition) {
   var self = this;
-  exec.call(self, function() {
+  self.exec.call(self, function() {
     if (typeof callback === "function") {
       callback.call(self);
     }
