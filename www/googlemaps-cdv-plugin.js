@@ -12,31 +12,26 @@ if (!cordova) {
   require("./pluginInit")();
 
   cordova.addConstructor(function() {
-      if (!window.Cordova) {
-          window.Cordova = cordova;
-      }
-      window.plugin = window.plugin || {};
-      window.plugin.google = window.plugin.google || {};
-      window.plugin.google.maps = window.plugin.google.maps || module.exports;
-      document.addEventListener("deviceready", function() {
-          // workaround for issue on android-19: Cannot read property 'maps' of undefined
-          if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
-          if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
-          if (!window.plugin.google.maps) { console.warn('re-init window.plugin.google.maps'); window.plugin.google.maps = window.plugin.google.maps || module.exports; }
+    if (!window.Cordova) {
+        window.Cordova = cordova;
+    }
+    window.plugin = window.plugin || {};
+    window.plugin.google = window.plugin.google || {};
+    window.plugin.google.maps = window.plugin.google.maps || module.exports;
 
-          // Check the Google Maps Android API v2 if the device platform is Android.
-          if (/Android/i.test(window.navigator.userAgent)) {
-              //------------------------------------------------------------------------
-              // If Google Maps Android API v2 is not available,
-              // display the warning alert.
-              //------------------------------------------------------------------------
-              cordova.exec(null, function(message) {
-                  alert(message);
-              }, 'Environment', 'isAvailable', ['']);
-          }
-      }, {
-        once: true
-      });
+
+    document.addEventListener("deviceready", function() {
+      // workaround for issue on android-19: Cannot read property 'maps' of undefined
+      if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
+      if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
+      if (!window.plugin.google.maps) { console.warn('re-init window.plugin.google.maps'); window.plugin.google.maps = window.plugin.google.maps || module.exports; }
+
+      cordova.exec(null, function(message) {
+          alert(message);
+      }, 'Environment', 'isAvailable', ['']);
+    }, {
+      once: true
+    });
   });
 
   var execCmd = require("./commandQueueExecutor");
@@ -85,9 +80,10 @@ if (!cordova) {
         cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
       }, true);
 
-
-      onScrollEnd();
+      common.nextTick(onScrollEnd);
     });
+  }, {
+    once: true
   });
 
   /*****************************************************************************
