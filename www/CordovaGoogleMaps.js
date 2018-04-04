@@ -220,7 +220,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
     var map = self.MAPS[mapId];
     var isTouchable = (map &&
       map.getVisible() &&
-      map.getClickable() &&
+      // map.getClickable() && <-- don't consider this.
       map.getDiv() &&
       common.shouldWatchByNative(map.getDiv()));
     if (isTouchable) {
