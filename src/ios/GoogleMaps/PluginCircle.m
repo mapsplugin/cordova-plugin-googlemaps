@@ -56,8 +56,8 @@
     NSString *idBase = [command.arguments objectAtIndex:2];
   
     NSDictionary *latLng = [json objectForKey:@"center"];
-    float latitude = [[latLng valueForKey:@"lat"] floatValue];
-    float longitude = [[latLng valueForKey:@"lng"] floatValue];
+    double latitude = [[latLng valueForKey:@"lat"] doubleValue];
+    double longitude = [[latLng valueForKey:@"lng"] doubleValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
 
     float radius = [[json valueForKey:@"radius"] floatValue];
@@ -149,8 +149,8 @@
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.mapCtrl.objects objectForKey:circleId];
 
-        float latitude = [[command.arguments objectAtIndex:1] floatValue];
-        float longitude = [[command.arguments objectAtIndex:2] floatValue];
+        double latitude = [[command.arguments objectAtIndex:1] doubleValue];
+        double longitude = [[command.arguments objectAtIndex:2] doubleValue];
         CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
