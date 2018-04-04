@@ -100,6 +100,9 @@
     <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
       <runs />
     </js-module>
+    <js-module name="Overlay" src="www/Overlay.js">
+      <runs />
+    </js-module>
 
     <description>Google Maps native SDK for Android and iOS.
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
@@ -217,7 +220,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginStreetViewPanorama.java" target-dir="src/plugin/google/maps" />
-        <source-file src="src/android/plugin/google/maps/IPluginOverlay.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/IPluginView.java" target-dir="src/plugin/google/maps" />
 
         <framework src="src/android/frameworks/tbxml-android.gradle"  custom="true" type="gradleReference" />
         <resource-file src="src/android/frameworks/tbxml-android.aar"  target="libs/tbxml-android.aar" />
@@ -351,6 +354,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <feature name="MarkerCluster">
                 <param name="ios-package" value="PluginMarkerCluster" />
             </feature>
+            <feature name="StreetViewPanorama">
+                <param name="ios-package" value="PluginStreetViewPanorama" />
+            </feature>
         </config-file>
 
         <header-file src="src/ios/GoogleMaps/PluginObjects.h" />
@@ -365,8 +371,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/Environment.m" />
         <header-file src="src/ios/GoogleMaps/CordovaGoogleMaps.h" />
         <source-file src="src/ios/GoogleMaps/CordovaGoogleMaps.m" />
-        <header-file src="src/ios/GoogleMaps/GoogleMapsViewController.h" />
-        <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
+        <header-file src="src/ios/GoogleMaps/PluginMapViewController.h" />
+        <source-file src="src/ios/GoogleMaps/PluginMapViewController.m" />
         <header-file src="src/ios/GoogleMaps/PluginGroundOverlay.h" />
         <source-file src="src/ios/GoogleMaps/PluginGroundOverlay.m" />
         <header-file src="src/ios/GoogleMaps/PluginKmlOverlay.h" />
@@ -375,7 +381,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/PluginMap.m" />
         <header-file src="src/ios/GoogleMaps/PluginMarker.h" />
         <source-file src="src/ios/GoogleMaps/PluginMarker.m" />
-        <header-file src="src/ios/GoogleMaps/MyPlgunProtocol.h" />
         <header-file src="src/ios/GoogleMaps/PluginUtil.h" />
         <source-file src="src/ios/GoogleMaps/PluginUtil.m" />
         <header-file src="src/ios/GoogleMaps/PluginPolygon.h" />
@@ -403,6 +408,14 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/PluginMarkerCluster.m" />
         <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
+        <header-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.h" />
+        <source-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.m" />
+        <header-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.h" />
+        <source-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.m" />
+        <header-file src="src/ios/GoogleMaps/PluginViewController.h" />
+        <source-file src="src/ios/GoogleMaps/PluginViewController.m" />
+        <header-file src="src/ios/GoogleMaps/IPluginView.h" />
+        <header-file src="src/ios/GoogleMaps/IPluginProtocol.h" />
 
         <!-- Base messages -->
         <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />
