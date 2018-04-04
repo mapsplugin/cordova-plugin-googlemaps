@@ -38,8 +38,8 @@
 - (void)mapView:(GMSMapView *)mapView didTapMyLocation:(CLLocationCoordinate2D)location {
 
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-    [latLng setObject:[NSNumber numberWithFloat:location.latitude] forKey:@"lat"];
-    [latLng setObject:[NSNumber numberWithFloat:location.longitude] forKey:@"lng"];
+    [latLng setObject:[NSNumber numberWithDouble:location.latitude] forKey:@"lat"];
+    [latLng setObject:[NSNumber numberWithDouble:location.longitude] forKey:@"lng"];
 
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
 
@@ -539,33 +539,33 @@
   NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
   NSMutableDictionary *southwest = [NSMutableDictionary dictionary];
 
-  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.latitude] forKey:@"lat"];
-  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.longitude] forKey:@"lng"];
+  [northeast setObject:[NSNumber numberWithDouble:bounds.northEast.latitude] forKey:@"lat"];
+  [northeast setObject:[NSNumber numberWithDouble:bounds.northEast.longitude] forKey:@"lng"];
   [json setObject:northeast forKey:@"northeast"];
-  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.latitude] forKey:@"lat"];
-  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.longitude] forKey:@"lng"];
+  [southwest setObject:[NSNumber numberWithDouble:bounds.southWest.latitude] forKey:@"lat"];
+  [southwest setObject:[NSNumber numberWithDouble:bounds.southWest.longitude] forKey:@"lng"];
   [json setObject:southwest forKey:@"southwest"];
 
 
 
   NSMutableDictionary *farLeft = [NSMutableDictionary dictionary];
-  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.latitude] forKey:@"lat"];
-  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.longitude] forKey:@"lng"];
+  [farLeft setObject:[NSNumber numberWithDouble:visibleRegion.farLeft.latitude] forKey:@"lat"];
+  [farLeft setObject:[NSNumber numberWithDouble:visibleRegion.farLeft.longitude] forKey:@"lng"];
   [json setObject:farLeft forKey:@"farLeft"];
 
   NSMutableDictionary *farRight = [NSMutableDictionary dictionary];
-  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.latitude] forKey:@"lat"];
-  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.longitude] forKey:@"lng"];
+  [farRight setObject:[NSNumber numberWithDouble:visibleRegion.farRight.latitude] forKey:@"lat"];
+  [farRight setObject:[NSNumber numberWithDouble:visibleRegion.farRight.longitude] forKey:@"lng"];
   [json setObject:farRight forKey:@"farRight"];
 
   NSMutableDictionary *nearLeft = [NSMutableDictionary dictionary];
-  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.latitude] forKey:@"lat"];
-  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.longitude] forKey:@"lng"];
+  [nearLeft setObject:[NSNumber numberWithDouble:visibleRegion.nearLeft.latitude] forKey:@"lat"];
+  [nearLeft setObject:[NSNumber numberWithDouble:visibleRegion.nearLeft.longitude] forKey:@"lng"];
   [json setObject:nearLeft forKey:@"nearLeft"];
 
   NSMutableDictionary *nearRight = [NSMutableDictionary dictionary];
-  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.latitude] forKey:@"lat"];
-  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.longitude] forKey:@"lng"];
+  [nearRight setObject:[NSNumber numberWithDouble:visibleRegion.nearRight.latitude] forKey:@"lat"];
+  [nearRight setObject:[NSNumber numberWithDouble:visibleRegion.nearRight.longitude] forKey:@"lng"];
   [json setObject:nearRight forKey:@"nearRight"];
 
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];

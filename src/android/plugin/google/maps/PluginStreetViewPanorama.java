@@ -179,11 +179,11 @@ public class PluginStreetViewPanorama extends MyPlugin implements
       camera.put("tilt", streetViewPanoramaCamera.tilt);
       camera.put("zoom", streetViewPanoramaCamera.zoom);
 
-      StreetViewPanoramaOrientation svOrientation = streetViewPanoramaCamera.getOrientation();
-      JSONObject orientation = new JSONObject();
-      orientation.put("bearing", svOrientation.bearing);
-      orientation.put("tilt", svOrientation.tilt);
-      camera.put("orientation", orientation);
+//      StreetViewPanoramaOrientation svOrientation = streetViewPanoramaCamera.getOrientation();
+//      JSONObject orientation = new JSONObject();
+//      orientation.put("bearing", svOrientation.bearing);
+//      orientation.put("tilt", svOrientation.tilt);
+//      camera.put("orientation", orientation);
 
       String jsonStr = camera.toString(0);
       jsCallback(
@@ -217,7 +217,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
       JSONObject position = new JSONObject();
       position.put("lat", streetViewPanoramaLocation.position.latitude);
       position.put("lng", streetViewPanoramaLocation.position.longitude);
-      location.put("position", position);
+      location.put("target", position);
 
       JSONArray links = new JSONArray();
       for (StreetViewPanoramaLink stLink : streetViewPanoramaLocation.links) {

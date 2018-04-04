@@ -18,7 +18,7 @@
 
 @interface PluginStreetViewPanoramaController : PluginViewController<GMSPanoramaViewDelegate>
 
-@property (nonatomic) GMSPanoramaView* panorama;
+@property (nonatomic) GMSPanoramaView* panoramaView;
 
 //----------------------------------------------------
 // In order to keep the compatibility with Android,

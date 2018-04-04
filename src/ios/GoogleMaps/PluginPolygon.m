@@ -155,7 +155,7 @@
           // geodesic
           [properties setObject:[NSNumber numberWithBool:polygon.geodesic] forKey:@"geodesic"];
           // zIndex
-          [properties setObject:[NSNumber numberWithFloat:polygon.zIndex] forKey:@"zIndex"];;
+          [properties setObject:[NSNumber numberWithDouble:polygon.zIndex] forKey:@"zIndex"];;
           [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
 

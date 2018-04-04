@@ -524,8 +524,8 @@
       }
     }
 
-    panoramaCtrl.panorama = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(latitude, longitude)];
-    panoramaCtrl.view = panoramaCtrl.panorama;
+    panoramaCtrl.panoramaView = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(latitude, longitude)];
+    panoramaCtrl.view = panoramaCtrl.panoramaView;
     panoramaCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     ((GMSPanoramaView *)(panoramaCtrl.view)).delegate = panoramaCtrl;
     [self.pluginLayer addPluginOverlay:panoramaCtrl];

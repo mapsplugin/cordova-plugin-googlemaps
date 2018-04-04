@@ -37,30 +37,30 @@
     NSDictionary *latLng = [cameraOpts objectForKey:@"target"];
     double latitude = [[latLng valueForKey:@"lat"] doubleValue];
     double longitude = [[latLng valueForKey:@"lng"] doubleValue];
-    [self.panoramaCtrl.panorama moveNearCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+    [self.panoramaCtrl.panoramaView moveNearCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
   }
 
-  double bearing = self.panoramaCtrl.panorama.camera.orientation.heading;
+  double bearing = self.panoramaCtrl.panoramaView.camera.orientation.heading;
   if ([cameraOpts valueForKey:@"bearing"]) {
     bearing = [[cameraOpts valueForKey:@"bearing"] doubleValue];
   }
 
-  double angle = self.panoramaCtrl.panorama.camera.orientation.pitch;
+  double angle = self.panoramaCtrl.panoramaView.camera.orientation.pitch;
   if ([cameraOpts valueForKey:@"tilt"]) {
     angle = [[cameraOpts valueForKey:@"tilt"] doubleValue];
   }
   
-  float zoom = self.panoramaCtrl.panorama.camera.zoom;
+  float zoom = self.panoramaCtrl.panoramaView.camera.zoom;
   if ([cameraOpts valueForKey:@"zoom"]) {
     zoom = [[cameraOpts valueForKey:@"zoom"] floatValue];
   }
   
-  double fov = self.panoramaCtrl.panorama.camera.FOV;
+  double fov = self.panoramaCtrl.panoramaView.camera.FOV;
   if ([cameraOpts valueForKey:@"fov"]) {
     fov = [[cameraOpts valueForKey:@"fov"] doubleValue];
   }
   
-  self.panoramaCtrl.panorama.camera = [GMSPanoramaCamera cameraWithHeading:bearing pitch:angle zoom:zoom FOV:fov];
+  self.panoramaCtrl.panoramaView.camera = [GMSPanoramaCamera cameraWithHeading:bearing pitch:angle zoom:zoom FOV:fov];
 
 }
 
