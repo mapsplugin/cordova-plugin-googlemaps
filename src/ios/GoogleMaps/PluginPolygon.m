@@ -10,9 +10,9 @@
 
 @implementation PluginPolygon
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginUnload
@@ -34,7 +34,7 @@
   key = nil;
   keys = nil;
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-polygon", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-polygon", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -56,6 +56,7 @@
 
   // Parse the polygonOptions
   NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSString *idBase = [command.arguments objectAtIndex:2];
 
   GMSMutablePath *mutablePath = [GMSMutablePath path];
   NSArray *points = [json objectForKey:@"points"];
@@ -128,7 +129,6 @@
       polygon.tappable = NO;
 
       // Register polygon to the overlayManager.
-      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
       NSString *id = [NSString stringWithFormat:@"polygon_%@", idBase];
       [self.mapCtrl.objects setObject:polygon forKey: id];
       polygon.title = id;
@@ -155,7 +155,7 @@
           // geodesic
           [properties setObject:[NSNumber numberWithBool:polygon.geodesic] forKey:@"geodesic"];
           // zIndex
-          [properties setObject:[NSNumber numberWithFloat:polygon.zIndex] forKey:@"zIndex"];;
+          [properties setObject:[NSNumber numberWithDouble:polygon.zIndex] forKey:@"zIndex"];;
           [self.mapCtrl.objects setObject:properties forKey:propertyId];
 
 

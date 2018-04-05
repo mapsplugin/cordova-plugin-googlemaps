@@ -8,24 +8,20 @@ var argscheck = require('cordova/argscheck'),
   Marker = require('./Marker'),
   Cluster = require('./Cluster'),
   spherical = require('./spherical'),
-  BaseClass = require('./BaseClass'),
+  Overlay = require('./Overlay'),
   BaseArrayClass = require('./BaseArrayClass');
 
 /*****************************************************************************
  * MarkerCluster Class
  *****************************************************************************/
 var exec;
-var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) {
+var MarkerCluster = function(map, markerClusterOptions, _exec) {
   exec = _exec;
-  BaseClass.call(this);
+  Overlay.call(this, map, markerClusterOptions, 'MarkerCluster', _exec);
 
-  var idxCount = Object.keys(markerClusterOptions.markerMap).length + 1;
+  var idxCount = markerClusterOptions.idxCount;
 
   var self = this;
-  Object.defineProperty(self, "_isReady", {
-      value: true,
-      writable: false
-  });
   Object.defineProperty(self, "maxZoomLevel", {
     value: markerClusterOptions.maxZoomLevel,
     writable: false
@@ -42,24 +38,8 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     value: {},
     writable: false
   });
-  Object.defineProperty(self, "_markerMap", {
-    value: markerClusterOptions.markerMap,
-    writable: false
-  });
   Object.defineProperty(self, "debug", {
     value: markerClusterOptions.debug === true,
-    writable: false
-  });
-  Object.defineProperty(self, "map", {
-    value: map,
-    writable: false
-  });
-  Object.defineProperty(self, "type", {
-    value: "MarkerCluster",
-    writable: false
-  });
-  Object.defineProperty(self, "id", {
-    value: markerClusterId,
     writable: false
   });
   Object.defineProperty(self, "MAX_RESOLUTION", {
@@ -92,25 +72,6 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
   self.taskQueue = [];
   self._stopRequest = false;
   self._isWorking = false;
-
-  //----------------------------------------------------
-  // If a marker has been removed,
-  // remove it from markerClusterOptions.markers also.
-  //----------------------------------------------------
-/*
-  var onRemoveMarker = function() {
-    var marker = this;
-    var idx = markerClusterOptions.markers.indexOf(marker);
-    if (idx > self.OUT_OF_RESOLUTION) {
-      markerClusterOptions.markers.removeAt(idx);
-    }
-  };
-  var keys = Object.keys(self._markerMap);
-  keys.forEach(function(markerId) {
-    var marker = self._markerMap[markerId];
-    marker.one(markerOpts.__pgmId + "_remove", onRemoveMarker);
-  });
-*/
 
   var icons = markerClusterOptions.icons;
   if (icons.length > 0 && !icons[0].min) {
@@ -196,9 +157,9 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
     sel.redraw.call(self);
   });
 
-  self.redraw.call(self, {
-    force: true
-  });
+  // self.redraw.call(self, {
+  //   force: true
+  // });
 
   if (self.debug) {
     self.debugTimer = setInterval(function() {
@@ -209,20 +170,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
   return self;
 };
 
-utils.extend(MarkerCluster, BaseClass);
-
-MarkerCluster.prototype.getPluginName = function() {
-  return this.map.getId() + "-markercluster";
-};
-MarkerCluster.prototype.getId = function() {
-    return this.id;
-};
-MarkerCluster.prototype.getMap = function() {
-    return this.map;
-};
-MarkerCluster.prototype.getHashCode = function() {
-    return this.hashCode;
-};
+utils.extend(MarkerCluster, Overlay);
 
 MarkerCluster.prototype.onClusterClicked = function(cluster) {
   if (this._isRemoved) {
@@ -900,6 +848,12 @@ MarkerCluster.prototype._redraw = function(params) {
         var geocell = markerOpts._cluster.geocell.substr(0, resolution + 1);
         prepareClusters[geocell] = prepareClusters[geocell] || [];
         prepareClusters[geocell].push(markerOpts);
+
+        var marker = markerOpts._cluster.marker;
+        if (marker && marker.id === activeMarkerId) {
+          marker.trigger(event.INFO_CLOSE);
+          marker.hideInfoWindow();
+        }
       });
 
       if (self.debug) {
@@ -1052,7 +1006,26 @@ MarkerCluster.prototype._redraw = function(params) {
     return;
   }
 
-  exec.call(self, function() {
+  exec.call(self, function(allResults) {
+    var markerIDs = Object.keys(allResults);
+    markerIDs.forEach(function(markerId) {
+      if (!self._markerMap[markerId]) {
+        return;
+      }
+      var size = allResults[markerId];
+      if (typeof self._markerMap[markerId].icon === 'string') {
+        self._markerMap[markerId].icon = {
+          'url': self._markerMap[markerId].icon,
+          'size': size,
+          'anchor': [size.width / 2, size.height]
+        };
+      } else {
+        self._markerMap[markerId].icon = self._markerMap[markerId].icon || {};
+        self._markerMap[markerId].icon.size = self._markerMap[markerId].icon.size || size;
+        self._markerMap[markerId].icon.anchor = self._markerMap[markerId].icon.anchor || [size.width / 2, size.height];
+      }
+      self._markerMap[markerId].infoWindowAnchor = self._markerMap[markerId].infoWindowAnchor || [self._markerMap[markerId].icon.size.width / 2, 0];
+    });
     self.trigger("nextTask");
   }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
     "resolution": resolution,
@@ -1098,7 +1071,12 @@ MarkerCluster.prototype.getClusterIcon = function(cluster) {
 MarkerCluster.prototype._createMarker = function(markerOpts) {
   var markerId = markerOpts.__pgmId;
   var self = this;
-  var marker = new Marker(self.getMap(), self.id + "-" + markerId, markerOpts, "MarkerCluster", exec);
+  var marker = new Marker(self.getMap(), markerOpts, "MarkerCluster", exec, {
+    id: self.id + "-" + markerId
+  });
+  marker._privateInitialize(markerOpts);
+  delete marker._privateInitialize;
+
   function updateProperty(prevValue, newValue, key) {
     self._markerMap[markerId][key] = newValue;
   }

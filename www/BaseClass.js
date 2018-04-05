@@ -1,30 +1,31 @@
-var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol.for('vars');
-var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol.for('subscriptions');
-
+var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol('vars');
+var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol('subscriptions');
 
 function BaseClass() {
   this[VARS_FIELD] = {};
   this[SUBSCRIPTIONS_FIELD] = {};
   this.errorHandler = this.errorHandler.bind(this);
 
-  Object.defineProperty(this, 'hashCode', { value: Math.floor(Date.now() * Math.random()) });
+  Object.defineProperty(this, 'hashCode', {
+    value: Math.floor(Date.now() * Math.random())
+  });
 }
 
 BaseClass.prototype = {
-  empty: function() {
+  empty: function () {
     var vars = this[VARS_FIELD];
 
-    Object.keys(vars).forEach(function(name) {
+    Object.keys(vars).forEach(function (name) {
       vars[name] = null;
       delete vars[name];
     });
   },
 
-  get: function(key) {
+  get: function (key) {
     return this[VARS_FIELD].hasOwnProperty(key) ? this[VARS_FIELD][key] : undefined;
   },
 
-  set: function(key, value, noNotify) {
+  set: function (key, value, noNotify) {
     var prev = this.get(key);
 
     this[VARS_FIELD][key] = value;
@@ -36,20 +37,20 @@ BaseClass.prototype = {
     return this;
   },
 
-  bindTo: function(key, target, targetKey, noNotify) {
+  bindTo: function (key, target, targetKey, noNotify) {
     targetKey = targetKey || key;
 
     // If `noNotify` is true, prevent `(targetKey)_changed` event occurrs,
     // when bind the value for the first time only.
     // (Same behaviour as Google Maps JavaScript v3)
-    target.set(targetKey, value, noNotify);
+    target.set(targetKey, target.get(targetKey), noNotify);
 
-    this.on(key + '_changed', function(oldValue, value) {
+    this.on(key + '_changed', function (oldValue, value) {
       target.set(targetKey, value);
     });
   },
 
-  trigger: function(eventName) {
+  trigger: function (eventName) {
     if (!eventName) {
       return this;
     }
@@ -69,7 +70,7 @@ BaseClass.prototype = {
     return this;
   },
 
-  on: function(eventName, listener) {
+  on: function (eventName, listener) {
     if (!listener || typeof listener !== "function") {
       throw Error('Listener for on()/addEventListener() method is not a function');
     }
@@ -80,7 +81,7 @@ BaseClass.prototype = {
     return this;
   },
 
-  off: function(eventName, listener) {
+  off: function (eventName, listener) {
     if (!eventName && !listener) {
       this[SUBSCRIPTIONS_FIELD] = {};
       return this;
@@ -99,14 +100,14 @@ BaseClass.prototype = {
     return this;
   },
 
-  one: function(eventName, listener) {
+  one: function (eventName, listener) {
     if (!listener || typeof listener !== "function") {
       throw Error('Listener for one()/addEventListenerOnce() method is not a function');
     }
 
     var self = this;
 
-    var callback = function() {
+    var callback = function () {
       self.off(eventName, arguments.callee);
       listener.apply(self, arguments);
     };
@@ -115,12 +116,12 @@ BaseClass.prototype = {
     return this;
   },
 
-  destroy: function() {
+  destroy: function () {
     this.off();
     this.empty();
   },
 
-  errorHandler: function(error) {
+  errorHandler: function (error) {
     if (error) {
       if (typeof console.error === "function") {
         console.error(error);
@@ -145,8 +146,12 @@ function createError(message, methodName, args) {
   ].join('') : message);
 
   Object.defineProperties(error, {
-    methodName: { value: methodName },
-    args: { value: args }
+    methodName: {
+      value: methodName
+    },
+    args: {
+      value: args
+    }
   });
 
   return error;

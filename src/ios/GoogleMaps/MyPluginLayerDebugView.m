@@ -47,17 +47,17 @@
     webviewHeight *= zoomScale;
   
     NSEnumerator *mapIDs = [self.mapCtrls keyEnumerator];
-    GoogleMapsViewController *mapCtrl;
+    PluginMapViewController *mapCtrl;
     id mapId;
   
     NSDictionary *domInfo;
     //NSLog(@"--> point = %f, %f", point.x, point.y);
     while(mapId = [mapIDs nextObject]) {
         mapCtrl = [self.mapCtrls objectForKey:mapId];
-        if (!mapCtrl.mapDivId) {
+        if (!mapCtrl.divId) {
             continue;
         }
-        domInfo = [self.HTMLNodes objectForKey:mapCtrl.mapDivId];
+        domInfo = [self.HTMLNodes objectForKey:mapCtrl.divId];
         //NSLog(@"%@ = %@", mapId, rectStr);
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
         rect.origin.x *= zoomScale;

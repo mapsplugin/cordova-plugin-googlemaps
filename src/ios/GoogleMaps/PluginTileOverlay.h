@@ -7,11 +7,11 @@
 //
 
 #import "CordovaGoogleMaps.h"
-#import "MyPlgunProtocol.h"
+#import "IPluginProtocol.h"
 #import "PluginTileProvider.h"
 
-@interface PluginTileOverlay : CDVPlugin<MyPlgunProtocol>
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@interface PluginTileOverlay : CDVPlugin<IPluginProtocol>
+@property (nonatomic, strong) PluginMapViewController* mapCtrl;
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (nonatomic, strong) NSCache* imgCache;
 @property (nonatomic) BOOL initialized;

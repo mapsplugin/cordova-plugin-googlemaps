@@ -10,9 +10,9 @@
 
 @implementation PluginMap
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -42,7 +42,7 @@
     [self.mapCtrl.view setNeedsDisplay];
 
     NSArray *keys = [self.mapCtrl.plugins allKeys];
-    CDVPlugin<MyPlgunProtocol> *plugin;
+    CDVPlugin<IPluginProtocol> *plugin;
     for (int i = 0; i < [keys count]; i++) {
       plugin = [self.mapCtrl.plugins objectForKey:[keys objectAtIndex:i]];
       [plugin pluginUnload];
@@ -64,8 +64,8 @@
   @synchronized (self.mapCtrl.plugins) {
 
     CDVPluginResult* pluginResult = nil;
-    CDVPlugin<MyPlgunProtocol> *plugin;
-    NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapCtrl.mapId, [pluginName lowercaseString]];
+    CDVPlugin<IPluginProtocol> *plugin;
+    NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapCtrl.overlayId, [pluginName lowercaseString]];
 
     plugin = [self.mapCtrl.plugins objectForKey:pluginId];
     if (!plugin) {
@@ -99,7 +99,7 @@
 
       //NSLog(@"--->loadPlugin : %@ className : %@, plugin : %@", pluginId, className, plugin);
       [self.mapCtrl.plugins setObject:plugin forKey:pluginId];
-      [plugin setGoogleMapsViewController:self.mapCtrl];
+      [plugin setPluginViewController:self.mapCtrl];
 
     }
 
@@ -154,14 +154,14 @@
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
 
     // Detach the map view
-    if ([command.arguments count] == 0 && self.mapCtrl.mapDivId) {
-      [googlemaps.pluginLayer removeMapView:self.mapCtrl];
+    if ([command.arguments count] == 0 && self.mapCtrl.divId) {
+      [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
     }
 
     if ([command.arguments count] == 1) {
       NSString *mapDivId = [command.arguments objectAtIndex:0];
-      self.mapCtrl.mapDivId = mapDivId;
-      [googlemaps.pluginLayer addMapView:self.mapCtrl];
+      self.mapCtrl.divId = mapDivId;
+      [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
       [self resizeMap:command];
     }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -169,13 +169,13 @@
   }];
 }
 
-- (void)attachMap:(CDVInvokedUrlCommand*)command {
+- (void)attachToWebView:(CDVInvokedUrlCommand*)command {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer addMapView:self.mapCtrl];
+    [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
     self.mapCtrl.attached = YES;
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -183,14 +183,14 @@
   }];
 }
 
-- (void)detachMap:(CDVInvokedUrlCommand*)command {
+- (void)detachFromWebView:(CDVInvokedUrlCommand*)command {
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer removeMapView:self.mapCtrl];
+    [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
     self.mapCtrl.attached = NO;
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -202,7 +202,7 @@
 - (void)resizeMap:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-    NSString *mapDivId = self.mapCtrl.mapDivId;
+    NSString *mapDivId = self.mapCtrl.divId;
     if (!mapDivId) {
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -214,11 +214,11 @@
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
 
     // Save the map rectangle.
-    if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.mapDivId]) {
+    if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.divId]) {
       NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];;
       [dummyInfo setObject:@"{{0,-3000} - {50,50}}" forKey:@"size"];
       [dummyInfo setObject:[NSNumber numberWithDouble:-999] forKey:@"depth"];
-      [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.mapDivId];
+      [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.divId];
     }
 
 
@@ -256,7 +256,7 @@
 
 
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  CDVPlugin<MyPlgunProtocol> *plugin;
+  CDVPlugin<IPluginProtocol> *plugin;
   NSString *pluginName;
   NSArray *keys = [self.mapCtrl.plugins allKeys];
   for (int j = 0; j < [keys count]; j++) {

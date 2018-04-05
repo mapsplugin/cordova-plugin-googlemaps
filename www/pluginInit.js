@@ -43,6 +43,23 @@ function pluginInit() {
       };
     })();
   }
+  if (typeof Object.prototype.assign !== "function") {
+    (function() {
+      Object.prototype.assign = function() {
+        var args = [].slice.call(arguments),
+          target = args.shift();
+
+        return args.reduce(function(base, obj) {
+          Object.keys(obj).forEach(function(prop) {
+            if (obj.hasOwnProperty(prop)) {
+              base[prop] = obj[prop];
+            }
+          });
+          return base;
+        }, target);
+      };
+    })();
+  }
 
   /*****************************************************************************
    * To prevent strange things happen,

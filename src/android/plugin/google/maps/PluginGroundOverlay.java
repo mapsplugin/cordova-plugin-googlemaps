@@ -40,9 +40,8 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
    */
   public void create(JSONArray args, CallbackContext callbackContext) throws JSONException {
     JSONObject opts = args.getJSONObject(1);
-
-    final String idBase = "" + callbackContext.hashCode();
-    _createGroundOverlay(idBase, opts, callbackContext);
+    String hashCode = args.getString(2);
+    _createGroundOverlay(hashCode, opts, callbackContext);
   }
 
   public void _createGroundOverlay(final String idBase, final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
@@ -100,7 +99,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         GroundOverlay groundOverlay = self.map.addGroundOverlay(options);
         overlayImage.put("groundoverlay_" + idBase, result.image);
 
-        groundOverlay.setTag("groundoverlay_" + idBase);
+        groundOverlay.setTag(idBase);
 
         pluginMap.objects.put("groundoverlay_" + idBase, groundOverlay);
 
@@ -113,7 +112,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
 
         JSONObject resultJSON = new JSONObject();
         try {
-          resultJSON.put("hashCode", groundOverlay.hashCode());
+          resultJSON.put("hashCode", idBase);
           resultJSON.put("id", "groundoverlay_" + idBase);
         } catch (Exception e) {
           e.printStackTrace();

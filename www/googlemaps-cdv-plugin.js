@@ -1,7 +1,6 @@
 /* global cordova, plugin, CSSPrimitiveValue */
 if (!cordova) {
   document.addEventListener("deviceready", function() {
-    isSuspended = true;
     require('cordova/exec')(null, null, 'CordovaGoogleMaps', 'pause', []);
   }, {
     once: true

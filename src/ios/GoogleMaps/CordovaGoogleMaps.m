@@ -64,7 +64,7 @@
   //-------------------------------
   // Plugin initialization
   //-------------------------------
-  self.pluginMaps = [[NSMutableDictionary alloc] init];
+  self.viewPlugins = [[NSMutableDictionary alloc] init];
 
   self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
   self.pluginLayer.backgroundColor = [UIColor whiteColor];
@@ -85,14 +85,16 @@
 - (void) didRotate:(id)sender
 {
 
-  NSArray *keys = [self.pluginMaps allKeys];
+  NSArray *keys = [self.viewPlugins allKeys];
   NSString *key;
+  CDVPlugin<IPluginProtocol, IPluginView> *viewPlugin;
   PluginMap *pluginMap;
   for (int i = 0; i < keys.count; i++) {
     key = [keys objectAtIndex:i];
-    if ([self.pluginMaps objectForKey:key]) {
-      pluginMap = [self.pluginMaps objectForKey:key];
-      if (pluginMap.mapCtrl.map) {
+    if ([self.viewPlugins objectForKey:key]) {
+      viewPlugin = [self.viewPlugins objectForKey:key];
+      if ([viewPlugin isKindOfClass:[PluginMap class]]) {
+        pluginMap = (PluginMap *)viewPlugin;
         // Trigger the CAMERA_MOVE_END mandatory
         [pluginMap.mapCtrl mapView:pluginMap.mapCtrl.map idleAtCameraPosition:pluginMap.mapCtrl.map.camera];
       }
@@ -121,12 +123,12 @@
 
     // Remove old plugins that are used in the previous html.
     NSString *mapId;
-    NSArray *keys=[self.pluginMaps allKeys];
+    NSArray *keys=[self.viewPlugins allKeys];
     for (int i = 0; i < [keys count]; i++) {
       mapId = [keys objectAtIndex:i];
       [self _destroyMap:mapId];
     }
-    [self.pluginMaps removeAllObjects];
+    [self.viewPlugins removeAllObjects];
 
     @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
       [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
@@ -144,30 +146,44 @@
 }
 
 - (void)_destroyMap:(NSString *)mapId {
-  PluginMap *pluginMap = [self.pluginMaps objectForKey:mapId];
-  if (pluginMap == nil) {
+  if (![self.viewPlugins objectForKey:mapId]) {
     return;
+  }
+  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+  
+  CDVPlugin<IPluginView> *pluginView = [self.viewPlugins objectForKey:mapId];
+  if ([mapId hasPrefix:@"streetview_"]) {
+    PluginStreetViewPanorama *pluginSV = (PluginStreetViewPanorama *)pluginView;
+    pluginSV.isRemoved = YES;
+    //[pluginSV clear:nil];
+    [pluginSV pluginUnload];
+    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
+    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+
+    [self.pluginLayer removePluginOverlay:pluginSV.panoramaCtrl];
+    pluginSV.panoramaCtrl.view = nil;
+    pluginSV = nil;
+  } else {
+    PluginMap *pluginMap = (PluginMap *)pluginView;
+    pluginMap.isRemoved = YES;
+    //[pluginMap clear:nil];
+    [pluginMap pluginUnload];
+    
+    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
+    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+
+    [self.pluginLayer removePluginOverlay:pluginMap.mapCtrl];
+    
+    pluginMap.mapCtrl.view = nil;
+    [pluginMap.mapCtrl.plugins removeAllObjects];
+    pluginMap.mapCtrl.plugins = nil;
+    pluginMap.mapCtrl.view = nil;
+    pluginMap.mapCtrl = nil;
+    pluginMap = nil;
   }
 
 
-  pluginMap.isRemoved = YES;
-  //[pluginMap clear:nil];
-  [pluginMap pluginUnload];
-
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
-  [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-
-  [self.pluginLayer removeMapView:pluginMap.mapCtrl];
-
-  pluginMap.mapCtrl.view = nil;
-  [pluginMap.mapCtrl.plugins removeAllObjects];
-  pluginMap.mapCtrl.plugins = nil;
-  pluginMap.mapCtrl.map.delegate = nil;
-  pluginMap.mapCtrl.map = nil;
-  pluginMap.mapCtrl = nil;
-  [self.pluginMaps removeObjectForKey:mapId];
-  pluginMap = nil;
+  [self.viewPlugins removeObjectForKey:mapId];
 
   [cdvViewController.pluginObjects removeObjectForKey:mapId];
 }
@@ -245,17 +261,17 @@
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
     // Wrapper view
-    GoogleMapsViewController* mapCtrl = [[GoogleMapsViewController alloc] initWithOptions:nil];
-    mapCtrl.webView = self.webView;
-    mapCtrl.isFullScreen = YES;
-    mapCtrl.mapId = mapId;
-    mapCtrl.mapDivId = nil;
-    [mapCtrl.view setHidden:YES];
+    PluginMapViewController* viewCtrl = [[PluginMapViewController alloc] initWithOptions:nil];
+    viewCtrl.webView = self.webView;
+    viewCtrl.isFullScreen = YES;
+    viewCtrl.overlayId = mapId;
+    viewCtrl.divId = nil;
+    [viewCtrl.view setHidden:YES];
 
     // Create an instance of the Map class everytime.
     PluginMap *pluginMap = [[PluginMap alloc] init];
     [pluginMap pluginInitialize];
-    pluginMap.mapCtrl = mapCtrl;
+    pluginMap.mapCtrl = viewCtrl;
 
     // Hack:
     // In order to load the plugin instance of the same class but different names,
@@ -270,14 +286,14 @@
     [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
     [pluginMap pluginInitialize];
 
-    [self.pluginMaps setObject:pluginMap forKey:mapId];
+    [self.viewPlugins setObject:pluginMap forKey:mapId];
 
     CGRect rect = CGRectZero;
     // Sets the map div id.
     if ([command.arguments count] == 3) {
-      pluginMap.mapCtrl.mapDivId = [command.arguments objectAtIndex:2];
-      if (pluginMap.mapCtrl.mapDivId != nil) {
-        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginMap.mapCtrl.mapDivId];
+      pluginMap.mapCtrl.divId = [command.arguments objectAtIndex:2];
+      if (pluginMap.mapCtrl.divId != nil) {
+        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginMap.mapCtrl.divId];
         if (domInfo != nil) {
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
         }
@@ -357,7 +373,8 @@
                                            bearing: bearing
                                       viewingAngle: angle];
 
-    mapCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+    viewCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+    viewCtrl.view = viewCtrl.map;
 
     //mapType
     NSString *typeStr = [initOptions valueForKey:@"mapType"];
@@ -379,23 +396,130 @@
         mapType = caseBlock();
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          pluginMap.mapCtrl.map.mapType = mapType;
+          ((GMSMapView *)(viewCtrl.view)).mapType = mapType;
         }];
       }
     }
-    pluginMap.mapCtrl.map.delegate = mapCtrl;
-    pluginMap.mapCtrl.map.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    viewCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
 
     //indoor display
-    pluginMap.mapCtrl.map.indoorDisplay.delegate = mapCtrl;
-    [mapCtrl.view addSubview:mapCtrl.map];
-    [self.pluginLayer addMapView:mapCtrl];
-
+    ((GMSMapView *)(viewCtrl.view)).delegate = viewCtrl;
+    ((GMSMapView *)(viewCtrl.view)).indoorDisplay.delegate = viewCtrl;
+    [self.pluginLayer addPluginOverlay:viewCtrl];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [pluginMap getMap:command];
     });
+
+  });
+}
+
+/**
+ * Intialize the panorama
+ */
+- (void)getPanorama:(CDVInvokedUrlCommand *)command {
+  if (self.pluginLayer != nil) {
+    self.pluginLayer.isSuspended = false;
+    [self.pluginLayer startRedrawTimer];
+  }
+
+  /*---------------------------------------------------------------------------------------
+   * If CFBundleExecutable is not English, the Google Maps SDK for iOS will crash.
+   * So must be English.
+   *
+   * If you want to use non-english name for your app, you need to change your config.xml like this.
+   *
+   * <?xml version='1.0' encoding='utf-8'?>
+   * <widget id="(package name)" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+   *   <name short="(non-english app name)">(english app name)</name>
+   *---------------------------------------------------------------------------------------*/
+
+  NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+  NSString *CFBundleExecutable = [info objectForKey:@"CFBundleExecutable"];
+
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9$@$!%*?&#^\\-_.\\s+]+$" options:NSRegularExpressionCaseInsensitive error:nil];
+  if ([regex numberOfMatchesInString:CFBundleExecutable options:0 range:NSMakeRange(0, CFBundleExecutable.length)] == 0) {
+
+    NSString *APP_NAME_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_TITLE"];
+    NSString *APP_NAME_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"APP_NAME_ERROR_MESSAGE"];
+
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:APP_NAME_ERROR_TITLE
+                                                                   message:APP_NAME_ERROR_MESSAGE
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
+    UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
+                                                 style:UIAlertActionStyleDefault
+                                               handler:^(UIAlertAction* action)
+                         {
+                           [alert dismissViewControllerAnimated:YES completion:nil];
+
+                           CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Can not use '%@' for CFBundleExecutable", CFBundleExecutable]];
+                           [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+                         }];
+
+    [alert addAction:ok];
+
+    [self.viewController presentViewController:alert
+                                      animated:YES
+                                    completion:nil];
+    return;
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    NSString *panoramaId = [command.arguments objectAtIndex:0];
+    NSString *divId = [command.arguments objectAtIndex:2];
+
+    // Wrapper view
+    PluginStreetViewPanoramaController* panoramaCtrl = [[PluginStreetViewPanoramaController alloc] initWithOptions:nil];
+    panoramaCtrl.webView = self.webView;
+    panoramaCtrl.isFullScreen = YES;
+    panoramaCtrl.overlayId = panoramaId;
+    panoramaCtrl.divId = divId;
+    panoramaCtrl.title = @"test";
+    //[mapCtrl.view setHidden:YES];
+
+    // Create an instance of the PluginStreetViewPanorama class everytime.
+    PluginStreetViewPanorama *pluginStreetView = [[PluginStreetViewPanorama alloc] init];
+    [pluginStreetView pluginInitialize];
+
+    // Hack:
+    // In order to load the plugin instance of the same class but different names,
+    // register the street view plugin instance into the pluginObjects directly.
+    if ([pluginStreetView respondsToSelector:@selector(setViewController:)]) {
+      [pluginStreetView setViewController:cdvViewController];
+    }
+    if ([pluginStreetView respondsToSelector:@selector(setCommandDelegate:)]) {
+      [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];
+    }
+    [cdvViewController.pluginObjects setObject:pluginStreetView forKey:panoramaId];
+    [cdvViewController.pluginsMap setValue:panoramaId forKey:panoramaId];
+    [pluginStreetView pluginInitialize];
+
+    [self.viewPlugins setObject:pluginStreetView forKey:panoramaId];
+
+    CGRect rect = CGRectZero;
+    // Sets the panorama div id.
+    pluginStreetView.panoramaCtrl = panoramaCtrl;
+    pluginStreetView.panoramaCtrl.divId = divId;
+    if (pluginStreetView.panoramaCtrl.divId != nil) {
+      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginStreetView.panoramaCtrl.divId];
+      if (domInfo != nil) {
+        rect = CGRectFromString([domInfo objectForKey:@"size"]);
+      }
+    }
+
+    panoramaCtrl.panoramaView = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(0, 0)];
+    panoramaCtrl.view = panoramaCtrl.panoramaView;
+    panoramaCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    ((GMSPanoramaView *)(panoramaCtrl.view)).delegate = panoramaCtrl;
+    [self.pluginLayer addPluginOverlay:panoramaCtrl];
+
+    [pluginStreetView getPanorama:command];
 
   });
 }
@@ -482,13 +606,13 @@
     /*
      if (self.pluginLayer.needUpdatePosition) {
      self.pluginLayer.needUpdatePosition = NO;
-     NSArray *keys=[self.pluginMaps allKeys];
+     NSArray *keys=[self.viewPlugins allKeys];
      NSString *mapId;
      PluginMap *pluginMap;
 
      for (int i = 0; i < [keys count]; i++) {
      mapId = [keys objectAtIndex:i];
-     pluginMap = [self.pluginMaps objectForKey:mapId];
+     pluginMap = [self.viewPlugins objectForKey:mapId];
      [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
      }
      }

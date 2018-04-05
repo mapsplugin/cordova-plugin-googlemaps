@@ -7,9 +7,9 @@
 //
 
 #import "CordovaGoogleMaps.h"
-#import "MyPlgunProtocol.h"
-@interface PluginPolygon : CDVPlugin<MyPlgunProtocol>
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+#import "IPluginProtocol.h"
+@interface PluginPolygon : CDVPlugin<IPluginProtocol>
+@property (nonatomic, strong) PluginMapViewController* mapCtrl;
 @property (nonatomic) BOOL initialized;
 
 - (void)create:(CDVInvokedUrlCommand*)command;

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GoogleMapsViewController.h"
+#import "PluginMapViewController.h"
 
 @interface MyPluginLayerDebugView : UIView
 @property (nonatomic) UIView *webView;

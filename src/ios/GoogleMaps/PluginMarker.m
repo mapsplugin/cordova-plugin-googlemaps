@@ -8,9 +8,9 @@
 
 #import "PluginMarker.h"
 @implementation PluginMarker
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -50,7 +50,7 @@
   keys = nil;
 
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   //[cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -66,9 +66,10 @@
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSString *hashCode = [command.arguments objectAtIndex:2];
 
     __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
-    NSString *markerId = [NSString stringWithFormat:@"marker_%lu%d", command.hash, arc4random() % 100000];
+    NSString *markerId = [NSString stringWithFormat:@"marker_%@", hashCode];
     [createResult setObject:markerId forKey:@"id"];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
