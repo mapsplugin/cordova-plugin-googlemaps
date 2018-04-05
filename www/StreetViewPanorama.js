@@ -70,6 +70,37 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
   self.set("visible", options.visible === false ? false : true);
   args.push(options);
 
+  // Initial camera options
+  if ("camera" in options) {
+    self.set("camera", options.camera);
+    if ("zoom" in options.camera) {
+      self.set("camera_zoom", options.camera.zoom);
+    }
+    if ("bearing" in options.camera) {
+      self.set("camera_bearing", options.camera.bearing);
+    }
+    if ("tilt" in options.camera) {
+      self.set("camera_tilt", options.camera.tilt);
+    }
+    if ("target" in options.camera) {
+      self.set("position", options.camera.target);
+    }
+  }
+
+  // Gesture options
+  options.gestures = options.gestures || {};
+  options.gestures.panning = common.defaultTrueOption(options.gestures.panning);
+  options.gestures.zoom = common.defaultTrueOption(options.gestures.zoom);
+  self.set("gesture_panning", options.gestures.panning);
+  self.set("gesture_zoom", options.gestures.zoom);
+
+  // Controls options
+  options.controls = options.controls || {};
+  options.controls.panning = common.defaultTrueOption(options.controls.navigation);
+  options.controls.zoom = common.defaultTrueOption(options.controls.streetNames);
+  self.set("control_navigation", options.controls.navigation);
+  self.set("control_streetNames", options.controls.streetNames);
+
   // Gets the map div size.
   // The plugin needs to consider the viewport zoom ratio
   // for the case window.innerHTML > body.offsetWidth.
@@ -134,6 +165,18 @@ StreetViewPanorama.prototype.getMap = function() {
 
 StreetViewPanorama.prototype.moveCamera = function(cameraPosition) {
   var self = this;
+  if ("camera" in cameraPosition) {
+    self.set("camera", cameraPosition.camera);
+    if ("zoom" in cameraPosition.camera) {
+      self.set("camera_zoom", cameraPosition.camera.zoom);
+    }
+    if ("bearing" in cameraPosition.camera) {
+      self.set("camera_bearing", cameraPosition.camera.bearing);
+    }
+    if ("tilt" in cameraPosition.camera) {
+      self.set("camera_tilt", cameraPosition.camera.tilt);
+    }
+  }
   self.exec.call(self, function() {
     if (typeof callback === "function") {
       callback.call(self);
@@ -145,21 +188,28 @@ StreetViewPanorama.prototype.moveCamera = function(cameraPosition) {
 
 
 StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
-  this.set('camera', cameraPosition);
+  this.set('camera', Object.assign(self.get("camera"), cameraPosition));
   this.set('camera_zoom', cameraPosition.zoom);
   this.set('camera_bearing', cameraPosition.bearing);
   this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
   if (this._isReady) {
-    this.trigger(eventName, cameraPosition, this);
+    this._onPanoramaEvent(eventName, cameraPosition);
   }
 };
 
 StreetViewPanorama.prototype._onPanoramaLocationChange = function(eventName, panoramaLocation) {
   this.set('location', panoramaLocation);
-  this.set('location_panoId', panoramaLocation.panoId);
-  this.set('location_position', panoramaLocation.position);
+  this.set('panoId', panoramaLocation.panoId);
+  this.set('position', panoramaLocation.position);
   if (this._isReady) {
-    this.trigger(eventName, panoramaLocation, this);
+    this._onPanoramaEvent(eventName, panoramaLocation);
+  }
+};
+StreetViewPanorama.prototype._onPanoramaEvent = function(eventName) {
+  if (this._isReady) {
+    var args = Array.prototype.slice.call(arguments, 0);
+    args.push(this);
+    this.trigger.apply(this, args);
   }
 };
 

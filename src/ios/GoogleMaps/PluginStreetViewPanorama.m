@@ -17,6 +17,24 @@
   if ([initOptions objectForKey:@"camera"]) {
     [self movePanoramaCamera:[initOptions objectForKey:@"camera"]];
   }
+  if ([initOptions objectForKey:@"gestures"]) {
+    NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
+    if ([gestures objectForKey:@"panning"]) {
+      self.panoramaCtrl.panoramaView.orientationGestures = [[gestures objectForKey:@"panning"] boolValue];
+    }
+    if ([gestures objectForKey:@"zoom"]) {
+      self.panoramaCtrl.panoramaView.zoomGestures = [[gestures objectForKey:@"zoom"] boolValue];
+    }
+  }
+  if ([initOptions objectForKey:@"controls"]) {
+    NSDictionary *controls = [initOptions objectForKey:@"controls"];
+    if ([controls objectForKey:@"navigation"]) {
+      self.panoramaCtrl.panoramaView.navigationLinksHidden = ![[controls objectForKey:@"navigation"] boolValue];
+    }
+    if ([controls objectForKey:@"streetNames"]) {
+      self.panoramaCtrl.panoramaView.streetNamesHidden = ![[controls objectForKey:@"streetNames"] boolValue];
+    }
+  }
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
@@ -34,11 +52,35 @@
 - (void)movePanoramaCamera:(NSDictionary *)cameraOpts {
 
   if ([cameraOpts valueForKey:@"target"]) {
-    NSDictionary *latLng = [cameraOpts objectForKey:@"target"];
-    double latitude = [[latLng valueForKey:@"lat"] doubleValue];
-    double longitude = [[latLng valueForKey:@"lng"] doubleValue];
-    [self.panoramaCtrl.panoramaView moveNearCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+    NSObject *target = [cameraOpts objectForKey:@"target"];
+    if ([target isKindOfClass:NSString.class]) {
+      [self.panoramaCtrl.panoramaView moveToPanoramaID:(NSString *)target];
+    } else if ([target isKindOfClass:NSDictionary.class]) {
+      NSDictionary *latLng = (NSDictionary *)target;
+      double latitude = [[latLng valueForKey:@"lat"] doubleValue];
+      double longitude = [[latLng valueForKey:@"lng"] doubleValue];
+      CLLocationCoordinate2D location = CLLocationCoordinate2DMake(latitude, longitude);
+      
+      if ([cameraOpts objectForKey:@"source"]) {
+        GMSPanoramaSource source = [@"OUTDOOR" isEqualToString:[cameraOpts objectForKey:@"source"]] ?
+          kGMSPanoramaSourceOutside : kGMSPanoramaSourceDefault;
+        if ([cameraOpts objectForKey:@"radius"]) {
+          int radius = [[cameraOpts objectForKey:@"radius"] intValue];
+          [self.panoramaCtrl.panoramaView moveNearCoordinate:location radius:radius source:source];
+        } else {
+          [self.panoramaCtrl.panoramaView moveNearCoordinate:location source:source];
+        }
+      } else {
+        if ([cameraOpts objectForKey:@"radius"]) {
+          int radius = [[cameraOpts objectForKey:@"radius"] intValue];
+          [self.panoramaCtrl.panoramaView moveNearCoordinate:location radius:radius];
+        } else {
+          [self.panoramaCtrl.panoramaView moveNearCoordinate:location];
+        }
+      }
+    }
   }
+
 
   double bearing = self.panoramaCtrl.panoramaView.camera.orientation.heading;
   if ([cameraOpts valueForKey:@"bearing"]) {
@@ -52,15 +94,10 @@
   
   float zoom = self.panoramaCtrl.panoramaView.camera.zoom;
   if ([cameraOpts valueForKey:@"zoom"]) {
-    zoom = [[cameraOpts valueForKey:@"zoom"] floatValue];
+    zoom = [[cameraOpts valueForKey:@"zoom"] doubleValue];
   }
   
-  double fov = self.panoramaCtrl.panoramaView.camera.FOV;
-  if ([cameraOpts valueForKey:@"fov"]) {
-    fov = [[cameraOpts valueForKey:@"fov"] doubleValue];
-  }
-  
-  self.panoramaCtrl.panoramaView.camera = [GMSPanoramaCamera cameraWithHeading:bearing pitch:angle zoom:zoom FOV:fov];
+  self.panoramaCtrl.panoramaView.camera = [GMSPanoramaCamera cameraWithHeading:bearing pitch:angle zoom:zoom FOV:90];
 
 }
 

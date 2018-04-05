@@ -1,6 +1,7 @@
 package plugin.google.maps;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
 import com.google.android.gms.maps.model.StreetViewPanoramaLink;
 import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
 import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
+import com.google.android.gms.maps.model.StreetViewSource;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -30,8 +32,7 @@ import java.util.Locale;
 public class PluginStreetViewPanorama extends MyPlugin implements
     IPluginView, StreetViewPanorama.OnStreetViewPanoramaCameraChangeListener,
     StreetViewPanorama.OnStreetViewPanoramaChangeListener,
-    StreetViewPanorama.OnStreetViewPanoramaClickListener,
-    StreetViewPanorama.OnStreetViewPanoramaLongClickListener {
+    StreetViewPanorama.OnStreetViewPanoramaClickListener {
 
   private Activity mActivity;
   private Handler mainHandler;
@@ -73,9 +74,73 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   }
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     panoramaId = args.getString(0);
+    JSONObject jsOptions = args.getJSONObject(1);
     divId = args.getString(2);
 
-    panoramaView = new StreetViewPanoramaView(mActivity);
+    StreetViewPanoramaOptions svOptions = new StreetViewPanoramaOptions();
+    if (jsOptions.has("camera")) {
+      JSONObject cameraOpts = jsOptions.getJSONObject("camera");
+      Object target = cameraOpts.get("target");
+      if (target instanceof JSONObject) {
+        JSONObject targetJson = cameraOpts.getJSONObject("target");
+        LatLng position = new LatLng(targetJson.getDouble("lat"), targetJson.getDouble("lng"));
+
+        if (cameraOpts.has("source")) {
+          StreetViewSource source = "OUTDOOR".equals(cameraOpts.getString("source")) ?
+              StreetViewSource.OUTDOOR : StreetViewSource.DEFAULT;
+          if (cameraOpts.has("radius")) {
+            svOptions.position(position, cameraOpts.getInt("radius"), source);
+          } else {
+            svOptions.position(position, source);
+          }
+        } else {
+          if (cameraOpts.has("radius")) {
+            svOptions.position(position, cameraOpts.getInt("radius"));
+          } else {
+            svOptions.position(position);
+          }
+        }
+      } else if (target instanceof String) {
+        svOptions.panoramaId(cameraOpts.getString("target"));
+      }
+
+      if (cameraOpts.has("bearing") ||
+          cameraOpts.has("tilt") ||
+          cameraOpts.has("zoom")) {
+        StreetViewPanoramaCamera.Builder builder = StreetViewPanoramaCamera.builder();
+        if (cameraOpts.has("bearing")) {
+          builder.bearing = (float) cameraOpts.getDouble("bearing");
+        }
+        if (cameraOpts.has("tilt")) {
+          builder.tilt = (float) cameraOpts.getDouble("tilt");
+        }
+        if (cameraOpts.has("zoom")) {
+          builder.zoom = (float) cameraOpts.getDouble("zoom");
+        }
+        svOptions.panoramaCamera(builder.build());
+      }
+    }
+
+    if (jsOptions.has("gestures")) {
+      JSONObject gestures = jsOptions.getJSONObject("gestures");
+      if (gestures.has("panning")) {
+        svOptions.panningGesturesEnabled(gestures.getBoolean("panning"));
+      }
+      if (gestures.has("zoom")) {
+        svOptions.zoomGesturesEnabled(gestures.getBoolean("zoom"));
+      }
+    }
+
+    if (jsOptions.has("controls")) {
+      JSONObject controls = jsOptions.getJSONObject("controls");
+      if (controls.has("navigation")) {
+        svOptions.userNavigationEnabled(controls.getBoolean("navigation"));
+      }
+      if (controls.has("streetNames")) {
+        svOptions.streetNamesEnabled(controls.getBoolean("streetNames"));
+      }
+    }
+    panoramaView = new StreetViewPanoramaView(mActivity, svOptions);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
@@ -91,7 +156,9 @@ public class PluginStreetViewPanorama extends MyPlugin implements
             panorama.setOnStreetViewPanoramaCameraChangeListener(PluginStreetViewPanorama.this);
             panorama.setOnStreetViewPanoramaChangeListener(PluginStreetViewPanorama.this);
             panorama.setOnStreetViewPanoramaClickListener(PluginStreetViewPanorama.this);
-            panorama.setOnStreetViewPanoramaLongClickListener(PluginStreetViewPanorama.this);
+
+            // Don't support this because iOS does not support this feature.
+            //panorama.setOnStreetViewPanoramaLongClickListener(PluginStreetViewPanorama.this);
 
 
             mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
@@ -217,7 +284,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
       JSONObject position = new JSONObject();
       position.put("lat", streetViewPanoramaLocation.position.latitude);
       position.put("lng", streetViewPanoramaLocation.position.longitude);
-      location.put("target", position);
+      location.put("position", position);
 
       JSONArray links = new JSONArray();
       for (StreetViewPanoramaLink stLink : streetViewPanoramaLocation.links) {
@@ -244,10 +311,30 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   @Override
   public void onStreetViewPanoramaClick(StreetViewPanoramaOrientation streetViewPanoramaOrientation) {
 
+    try {
+      JSONObject clickInfo  = new JSONObject();
+      JSONObject orientation = new JSONObject();
+      orientation.put("bearing", streetViewPanoramaOrientation.bearing);
+      orientation.put("tilt", streetViewPanoramaOrientation.tilt);
+      clickInfo.put("orientation", orientation);
+
+      Point point = panorama.orientationToPoint(streetViewPanoramaOrientation);
+      JSONArray pointArray = new JSONArray();
+      pointArray.put((int)((double)point.x / (double)density));
+      pointArray.put((int)((double)point.y / (double)density));
+      clickInfo.put("point", pointArray);
+
+      String jsonStr = clickInfo.toString(0);
+      jsCallback(
+          String.format(
+              Locale.ENGLISH,
+              "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName:'%s', callback:'_onPanoramaEvent', args: [%s]});}",
+              panoramaId, panoramaId, "panorama_click", jsonStr));
+    } catch (Exception e) {
+      // ignore
+      e.printStackTrace();
+    }
+
   }
 
-  @Override
-  public void onStreetViewPanoramaLongClick(StreetViewPanoramaOrientation streetViewPanoramaOrientation) {
-
-  }
 }

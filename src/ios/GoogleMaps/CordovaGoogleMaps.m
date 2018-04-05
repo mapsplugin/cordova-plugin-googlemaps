@@ -472,7 +472,6 @@
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     NSString *panoramaId = [command.arguments objectAtIndex:0];
-    NSDictionary *initOptions = [command.arguments objectAtIndex:1];
     NSString *divId = [command.arguments objectAtIndex:2];
 
     // Wrapper view
@@ -514,17 +513,7 @@
       }
     }
 
-    double latitude = 0, longitude = 0;
-    if ([initOptions objectForKey:@"camera"]) {
-      NSDictionary *cameraOpts = [initOptions objectForKey:@"camera"];
-      if ([cameraOpts valueForKey:@"target"]) {
-        NSDictionary *latLng = [cameraOpts objectForKey:@"target"];
-        latitude = [[latLng valueForKey:@"lat"] doubleValue];
-        longitude = [[latLng valueForKey:@"lng"] doubleValue];
-      }
-    }
-
-    panoramaCtrl.panoramaView = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(latitude, longitude)];
+    panoramaCtrl.panoramaView = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(0, 0)];
     panoramaCtrl.view = panoramaCtrl.panoramaView;
     panoramaCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     ((GMSPanoramaView *)(panoramaCtrl.view)).delegate = panoramaCtrl;

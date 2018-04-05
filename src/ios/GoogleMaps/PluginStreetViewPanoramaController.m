@@ -50,6 +50,27 @@
 
 // Called when a user has tapped on the GMSPanoramaView, but this tap was not consumed (taps may be consumed by e.g., tapping on a navigation arrow).
 - (void)panoramaView:(GMSPanoramaView *)view didTap:(CGPoint)point {
+
+  GMSOrientation svOrientation = [self.panoramaView orientationForPoint:point];
+  
+  NSMutableDictionary *clickInfo = [NSMutableDictionary dictionary];
+  NSMutableDictionary *orientaion = [NSMutableDictionary dictionary];
+  [orientaion setObject:[NSNumber numberWithDouble:svOrientation.heading] forKey:@"bearing"];
+  [orientaion setObject:[NSNumber numberWithDouble:svOrientation.pitch] forKey:@"tilt"];
+  [clickInfo setObject:orientaion forKey:@"orientation"];
+  
+  NSMutableArray *pointArray = [NSMutableArray array];
+  [pointArray addObject:[NSNumber numberWithInt:point.x]];
+  [pointArray addObject:[NSNumber numberWithInt:point.y]];
+  [clickInfo setObject:pointArray forKey:@"point"];
+
+  NSData* jsonData = [NSJSONSerialization dataWithJSONObject:clickInfo options:0 error:nil];
+  NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+  NSString* jsString = [NSString
+                        stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onPanoramaEvent', args: [%@]});}",
+                        self.overlayId, self.overlayId, @"panorama_click", sourceArrayString];
+  [self execJS:jsString];
+  
 }
 
 - (void) locationChangeEvent:(CLLocationCoordinate2D)coordinate {
@@ -60,7 +81,7 @@
   NSMutableDictionary *target = [NSMutableDictionary dictionary];
   [target setObject:[NSNumber numberWithDouble:coordinate.latitude] forKey:@"lat"];
   [target setObject:[NSNumber numberWithDouble:coordinate.longitude] forKey:@"lng"];
-  [location setObject:target forKey:@"target"];
+  [location setObject:target forKey:@"position"];
   
   NSMutableArray *links = [NSMutableArray array];
   for (GMSPanoramaLink *linkRef in self.panoramaView.panorama.links) {

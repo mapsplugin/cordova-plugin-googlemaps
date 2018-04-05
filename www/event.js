@@ -29,5 +29,6 @@ module.exports = {
     KML_CLICK: 'kml_click',
     PANORAMA_READY: 'panorama_ready',
     PANORAMA_CAMERA_CHANGE: 'panorama_camera_change',
-    PANORAMA_LOCATION_CHANGE: 'panorama_location_change'
+    PANORAMA_LOCATION_CHANGE: 'panorama_location_change',
+    PANORAMA_CLICK: 'panorama_click'
 };
