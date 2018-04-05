@@ -15,7 +15,7 @@
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
   if ([initOptions objectForKey:@"camera"]) {
-    [self movePanoramaCamera:[initOptions objectForKey:@"camera"]];
+    [self _movePanoramaCamera:[initOptions objectForKey:@"camera"]];
   }
   if ([initOptions objectForKey:@"gestures"]) {
     NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
@@ -41,15 +41,18 @@
 }
 
 - (void)moveCamera:(CDVInvokedUrlCommand *)command {
-  NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
-  [self movePanoramaCamera:cameraOpts];
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
+      [self _movePanoramaCamera:cameraOpts];
 
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
 }
 
-- (void)movePanoramaCamera:(NSDictionary *)cameraOpts {
+- (void)_movePanoramaCamera:(NSDictionary *)cameraOpts {
 
   if ([cameraOpts valueForKey:@"target"]) {
     NSObject *target = [cameraOpts objectForKey:@"target"];
@@ -101,8 +104,76 @@
 
 }
 
-- (void)pluginUnload {
 
+- (void)setPanningGesturesEnabled:(CDVInvokedUrlCommand*)command{
+
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      Boolean boolValue = [[command.arguments objectAtIndex:0] boolValue];
+      [self.panoramaCtrl.panoramaView setOrientationGestures:boolValue];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
+}
+- (void)setZoomGesturesEnabled:(CDVInvokedUrlCommand*)command {
+
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      Boolean boolValue = [[command.arguments objectAtIndex:0] boolValue];
+      [self.panoramaCtrl.panoramaView setZoomGestures:boolValue];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
+}
+- (void)setNavigationEnabled:(CDVInvokedUrlCommand*)command {
+
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      Boolean boolValue = ![[command.arguments objectAtIndex:0] boolValue];
+      [self.panoramaCtrl.panoramaView setNavigationLinksHidden:boolValue];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
+}
+- (void)setStreetNamesEnabled:(CDVInvokedUrlCommand*)command {
+
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      Boolean boolValue = ![[command.arguments objectAtIndex:0] boolValue];
+      [self.panoramaCtrl.panoramaView setStreetNamesHidden:boolValue];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
+}
+- (void)setVisible:(CDVInvokedUrlCommand*)command {
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      Boolean boolValue = ![[command.arguments objectAtIndex:0] boolValue];
+      [self.panoramaCtrl.view setHidden:boolValue];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
+}
+
+- (void)pluginUnload {
+  
+  // Plugin destroy
+  self.isRemoved = YES;
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    self.panoramaCtrl.view = nil;
+    self.panoramaCtrl.panoramaView = nil;
+    self.panoramaCtrl = nil;
+  }];
 }
 
 - (void)attachToWebView:(CDVInvokedUrlCommand*)command {

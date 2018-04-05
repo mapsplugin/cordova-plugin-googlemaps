@@ -15,35 +15,35 @@ var StreetViewPanorama = function(streetViewId, _exec) {
   });
 
   var self = this;
-  //-----------------------------------------------
-  // Sets the initialize option to each property
-  //-----------------------------------------------
-  // var ignores = ["map", "id", "hashCode", "type"];
-  // for (var key in tileOverlayOptions) {
-  //   if (ignores.indexOf(key) === -1) {
-  //     self.set(key, tileOverlayOptions[key]);
-  //   }
-  // }
+  self.set("visible", true);
+  self.set("gesture_panning", true);
+  self.set("gesture_zoom", true);
+  self.set("control_navigation", true);
+  self.set("control_streetNames", true);
 
   //-----------------------------------------------
   // Sets event listeners
   //-----------------------------------------------
-  // self.on("fadeIn_changed", function() {
-  //     var fadeIn = self.get("fadeIn");
-  //     exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
-  // });
-  // self.on("opacity_changed", function() {
-  //     var opacity = self.get("opacity");
-  //     exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
-  // });
-  // self.on("zIndex_changed", function() {
-  //     var zIndex = self.get("zIndex");
-  //     exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
-  // });
-  // self.on("visible_changed", function() {
-  //     var visible = self.get("visible");
-  //     exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
-  // });
+  self.on("gesture_panning_changed", function() {
+      var booleanValue = self.get("gesture_panning");
+      exec.call(self, null, self.errorHandler, self.id, 'setPanningGesturesEnabled', [booleanValue]);
+  });
+  self.on("gesture_zoom_changed", function() {
+      var booleanValue = self.get("gesture_zoom");
+      exec.call(self, null, self.errorHandler, self.id, 'setZoomGesturesEnabled', [booleanValue]);
+  });
+  self.on("control_navigation_changed", function() {
+      var booleanValue = self.get("control_navigation");
+      exec.call(self, null, self.errorHandler, self.id, 'setNavigationEnabled', [booleanValue]);
+  });
+  self.on("control_streetNames_changed", function() {
+      var booleanValue = self.get("control_streetNames");
+      exec.call(self, null, self.errorHandler, self.id, 'setStreetNamesEnabled', [booleanValue]);
+  });
+  self.on("visible_changed", function() {
+      var booleanValue = self.get("visible");
+      exec.call(self, null, self.errorHandler, self.id, 'setVisible', [booleanValue]);
+  });
 };
 
 
@@ -66,7 +66,7 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
   options = options || {};
 
 
-  self.set("clickable", options.clickable === false ? false : true);
+  //self.set("clickable", options.clickable === false ? false : true);
   self.set("visible", options.visible === false ? false : true);
   args.push(options);
 
@@ -153,9 +153,7 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
 StreetViewPanorama.prototype.getVisible = function() {
   return this.get("visible");
 };
-StreetViewPanorama.prototype.getClickable = function() {
-  return this.get("clickable");
-};
+
 StreetViewPanorama.prototype.getDiv = function() {
   return this.get("div");
 };
@@ -163,19 +161,72 @@ StreetViewPanorama.prototype.getMap = function() {
   // stub
 };
 
-StreetViewPanorama.prototype.moveCamera = function(cameraPosition) {
+StreetViewPanorama.prototype.setPanningGesturesEnabled = function (boolValue) {
+  boolValue = common.parseBoolean(boolValue);
+  this.set('gesture_panning', boolValue);
+  return this;
+};
+StreetViewPanorama.prototype.getPanningGesturesEnabled = function () {
+  return this.get('gesture_panning');
+};
+StreetViewPanorama.prototype.setZoomGesturesEnabled = function (boolValue) {
+  boolValue = common.parseBoolean(boolValue);
+  this.set('gesture_zoom', boolValue);
+  return this;
+};
+StreetViewPanorama.prototype.getZoomGesturesEnabled = function () {
+  return this.get('gesture_zoom');
+};
+StreetViewPanorama.prototype.setNavigationEnabled = function (boolValue) {
+  boolValue = common.parseBoolean(boolValue);
+  this.set('control_navigation', boolValue);
+  return this;
+};
+StreetViewPanorama.prototype.getNavigationEnabled = function () {
+  return this.get('control_navigation');
+};
+StreetViewPanorama.prototype.setStreetNamesEnabled = function (boolValue) {
+  boolValue = common.parseBoolean(boolValue);
+  this.set('control_streetNames', boolValue);
+  return this;
+};
+StreetViewPanorama.prototype.getStreetNamesEnabled = function () {
+  return this.get('control_streetNames');
+};
+StreetViewPanorama.prototype.getLinks = function () {
+  return this.get('links');
+};
+StreetViewPanorama.prototype.getLocation = function () {
+  return this.get('location');
+};
+StreetViewPanorama.prototype.getPano = function () {
+  return this.get('pano');
+};
+StreetViewPanorama.prototype.getPosition = function () {
+  return this.get('position');
+};
+
+StreetViewPanorama.prototype.moveCamera = function(cameraPosition, callback) {
   var self = this;
-  if ("camera" in cameraPosition) {
-    self.set("camera", cameraPosition.camera);
-    if ("zoom" in cameraPosition.camera) {
-      self.set("camera_zoom", cameraPosition.camera.zoom);
-    }
-    if ("bearing" in cameraPosition.camera) {
-      self.set("camera_bearing", cameraPosition.camera.bearing);
-    }
-    if ("tilt" in cameraPosition.camera) {
-      self.set("camera_tilt", cameraPosition.camera.tilt);
-    }
+  cameraPosition = cameraPosition || {};
+  cameraPosition.duration = 0;
+  self.animateCamera.call(self, cameraPosition, callback);
+};
+
+StreetViewPanorama.prototype.animateCamera = function(cameraPosition, callback) {
+  var self = this;
+  cameraPosition = cameraPosition || {};
+  if (typeof cameraPosition.target === "object") {
+    self.set("position", cameraPosition.target);
+  }
+  if ("zoom" in cameraPosition) {
+    self.set("camera_zoom", cameraPosition.zoom);
+  }
+  if ("bearing" in cameraPosition) {
+    self.set("camera_bearing", cameraPosition.bearing);
+  }
+  if ("tilt" in cameraPosition) {
+    self.set("camera_tilt", cameraPosition.tilt);
   }
   self.exec.call(self, function() {
     if (typeof callback === "function") {
@@ -192,6 +243,7 @@ StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, camer
   this.set('camera_zoom', cameraPosition.zoom);
   this.set('camera_bearing', cameraPosition.bearing);
   this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+  this.set('links', cameraPosition.links || []);
   if (this._isReady) {
     this._onPanoramaEvent(eventName, cameraPosition);
   }
@@ -199,7 +251,7 @@ StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, camer
 
 StreetViewPanorama.prototype._onPanoramaLocationChange = function(eventName, panoramaLocation) {
   this.set('location', panoramaLocation);
-  this.set('panoId', panoramaLocation.panoId);
+  this.set('pano', panoramaLocation.panoId);
   this.set('position', panoramaLocation.position);
   if (this._isReady) {
     this._onPanoramaEvent(eventName, panoramaLocation);

@@ -20,4 +20,9 @@
 - (void)attachToWebView:(CDVInvokedUrlCommand*)command;
 - (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
 - (void)moveCamera:(CDVInvokedUrlCommand*)command;
+- (void)setPanningGesturesEnabled:(CDVInvokedUrlCommand*)command;
+- (void)setZoomGesturesEnabled:(CDVInvokedUrlCommand*)command;
+- (void)setNavigationEnabled:(CDVInvokedUrlCommand*)command;
+- (void)setStreetNamesEnabled:(CDVInvokedUrlCommand*)command;
+- (void)setVisible:(CDVInvokedUrlCommand*)command;
 @end

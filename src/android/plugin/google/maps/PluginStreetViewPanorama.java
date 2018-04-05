@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.maps.MapView;
@@ -204,6 +205,65 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     callbackContext.success();
   }
 
+  public void setPanningGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean boolValue = args.getBoolean(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        panorama.setPanningGesturesEnabled(boolValue);
+        callbackContext.success();
+      }
+    });
+  }
+
+  public void setZoomGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean boolValue = args.getBoolean(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        panorama.setZoomGesturesEnabled(boolValue);
+        callbackContext.success();
+      }
+    });
+  }
+
+  public void setNavigationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean boolValue = args.getBoolean(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        panorama.setUserNavigationEnabled(boolValue);
+        callbackContext.success();
+      }
+    });
+  }
+
+  public void setStreetNamesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean boolValue = args.getBoolean(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        panorama.setStreetNamesEnabled(boolValue);
+        callbackContext.success();
+      }
+    });
+  }
+  public void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    final boolean boolValue = args.getBoolean(0);
+
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        panoramaView.setVisibility(boolValue ? View.VISIBLE : View.INVISIBLE);
+        callbackContext.success();
+      }
+    });
+  }
+
 
   public void moveCamera(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
@@ -228,6 +288,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 
             StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera(bearing, tilt, zoom);
             panorama.animateTo(newCamera, 0);
+
           }
           callbackContext.success();
         } catch (JSONException e) {
