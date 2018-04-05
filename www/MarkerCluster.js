@@ -154,7 +154,7 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
         self._isRemoved || self.taskQueue.length === 0) {
       return;
     }
-    sel.redraw.call(self);
+    self.redraw.call(self);
   });
 
   // self.redraw.call(self, {
