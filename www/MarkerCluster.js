@@ -193,7 +193,7 @@ var MarkerCluster = function(map, markerClusterId, markerClusterOptions, _exec) 
         self._isRemoved || self.taskQueue.length === 0) {
       return;
     }
-    sel.redraw.call(self);
+    self.redraw.call(self);
   });
 
   self.redraw.call(self, {
