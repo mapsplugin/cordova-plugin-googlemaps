@@ -102,7 +102,11 @@ if (!cordova) {
       getMap: cordovaGoogleMaps.getMap.bind(cordovaGoogleMaps)
     },
     StreetView: {
-      getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps)
+      getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps),
+      Source: {
+        DEFAULT: 'DEFAULT',
+        OUTDOOR: 'OUTDOOR'
+      }
     },
     HtmlInfoWindow: require('./HtmlInfoWindow'),
     LatLng: require('./LatLng'),

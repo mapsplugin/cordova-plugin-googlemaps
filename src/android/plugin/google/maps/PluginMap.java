@@ -105,7 +105,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public final ObjectCache objects = new ObjectCache();
   private ImageView dummyMyLocationButton;
   public static final Object semaphore = new Object();
-
+  private int viewDepth = 0;
 
   private enum TEXT_STYLE_ALIGNMENTS {
     left, center, right
@@ -131,6 +131,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     String styles;
   }
 
+  public int getViewDepth() {
+    return viewDepth;
+  }
   public String getDivId() {
     return this.mapDivId;
   }
@@ -159,7 +162,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     GoogleMapOptions options = new GoogleMapOptions();
-    mapId = args.getString(0);
+    JSONObject meta = args.getJSONObject(0);
+    mapId = meta.getString("id");
+    viewDepth = meta.getInt("depth");
     final JSONObject params = args.getJSONObject(1);
 
     //controls
@@ -274,6 +279,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
         mapView.onCreate(null);
+        mapView.setTag(getViewDepth());
 
         mapView.getMapAsync(new OnMapReadyCallback() {
           @Override

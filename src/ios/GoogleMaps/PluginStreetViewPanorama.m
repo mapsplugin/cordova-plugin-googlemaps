@@ -12,6 +12,8 @@
 
 
 - (void)getPanorama:(CDVInvokedUrlCommand *)command {
+  NSDictionary *meta = [command.arguments objectAtIndex:0];
+  self.panoramaCtrl.viewDepth = [[meta objectForKey:@"depth"] integerValue];
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
   if ([initOptions objectForKey:@"camera"]) {
@@ -162,6 +164,22 @@
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
+  }];
+}
+- (void)remove:(CDVInvokedUrlCommand*)command {
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    
+    // Load the GoogleMap.m
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+    [googlemaps.pluginLayer removePluginOverlay:self.panoramaCtrl];
+    self.panoramaCtrl.attached = NO;
+    self.isRemoved = YES;
+    self.panoramaCtrl.view = nil;
+    self.panoramaCtrl = nil;
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 

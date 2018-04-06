@@ -12,6 +12,7 @@ public interface IPluginView {
   String getDivId();
   String getOverlayId();
   ViewGroup getView();
+  int getViewDepth();
   void onDestroy();
   void onStart();
   void onStop();

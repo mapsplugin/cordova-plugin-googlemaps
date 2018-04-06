@@ -257,7 +257,8 @@
   dispatch_async(dispatch_get_main_queue(), ^{
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    NSString *mapId = [command.arguments objectAtIndex:0];
+    NSDictionary *meta = [command.arguments objectAtIndex:0];
+    NSString *mapId = [meta objectForKey:@"id"];
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
     // Wrapper view
@@ -471,8 +472,9 @@
   dispatch_async(dispatch_get_main_queue(), ^{
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    NSString *panoramaId = [command.arguments objectAtIndex:0];
-    NSString *divId = [command.arguments objectAtIndex:2];
+    NSDictionary *meta = [command.arguments objectAtIndex:0];
+    NSString *panoramaId = [meta objectForKey:@"id"];
+    NSString *divId = [command.arguments objectAtIndex:1];
 
     // Wrapper view
     PluginStreetViewPanoramaController* panoramaCtrl = [[PluginStreetViewPanoramaController alloc] initWithOptions:nil];

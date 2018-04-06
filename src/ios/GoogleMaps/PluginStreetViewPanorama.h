@@ -25,4 +25,5 @@
 - (void)setNavigationEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setStreetNamesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
+- (void)remove:(CDVInvokedUrlCommand*)command;
 @end

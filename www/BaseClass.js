@@ -124,9 +124,17 @@ BaseClass.prototype = {
   errorHandler: function (error) {
     if (error) {
       if (typeof console.error === "function") {
-        console.error(error);
+        if (this.id) {
+          console.error(this.id, error);
+        } else {
+          console.error(error);
+        }
       } else {
-        console.log(error);
+        if (this.id) {
+          console.log(this.id, error);
+        } else {
+          console.log(error);
+        }
       }
       this.trigger('error', error instanceof Error ? error : createError(error));
     }

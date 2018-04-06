@@ -131,6 +131,8 @@
 
     return;
   }
+  NSDictionary *meta = [command.arguments objectAtIndex:0];
+  self.mapCtrl.viewDepth = [[meta objectForKey:@"depth"] integerValue];
 
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
   if ([initOptions valueForKey:@"camera"]) {

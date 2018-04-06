@@ -42,6 +42,9 @@
   [super didReceiveMemoryWarning];
 }
 
+- (int)getVideDepth {
+  return (int)self.viewDepth;
+}
 
 - (void)execJS: (NSString *)jsString {
   // Insert setTimeout() in order to prevent the GDC and webView deadlock

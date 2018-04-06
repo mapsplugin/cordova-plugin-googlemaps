@@ -31,6 +31,7 @@
 @property (nonatomic, readwrite, strong) NSString *divId;
 @property (nonatomic, strong) PluginObjects *objects;
 @property (atomic, strong) NSOperationQueue *executeQueue;
+@property (nonatomic) NSInteger viewDepth;
 
 - (id)initWithOptions:(NSDictionary *) options;
 - (void)execJS: (NSString *)jsString;

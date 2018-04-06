@@ -451,7 +451,22 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           TouchableWrapper wrapper = new TouchableWrapper(context);
           touchableWrappers.put(pluginOverlay.getOverlayId(), wrapper);
           pluginOverlay.getView().addView(wrapper);
-          scrollFrameLayout.addView(pluginOverlay.getView());
+          int depth = pluginOverlay.getViewDepth();
+          int childCnt = scrollFrameLayout.getChildCount();
+          View view;
+          int index = 0;
+          for (int i = childCnt - 1; i >= 0; i--) {
+            view = scrollFrameLayout.getChildAt(i);
+            if (view.getTag() == null) {
+              continue;
+            }
+            if ((int)view.getTag() < depth) {
+              index = i;
+              break;
+            }
+          }
+
+          scrollFrameLayout.addView(pluginOverlay.getView(), index + 1);
         }
 
         mActivity.getWindow().getDecorView().requestFocus();

@@ -67,23 +67,23 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
 
 
   //self.set("clickable", options.clickable === false ? false : true);
-  self.set("visible", options.visible === false ? false : true);
+  self.set("visible", options.visible === false ? false : true, true);
   args.push(options);
 
   // Initial camera options
   if ("camera" in options) {
-    self.set("camera", options.camera);
+    self.set("camera", options.camera, true);
     if ("zoom" in options.camera) {
-      self.set("camera_zoom", options.camera.zoom);
+      self.set("camera_zoom", options.camera.zoom, true);
     }
     if ("bearing" in options.camera) {
-      self.set("camera_bearing", options.camera.bearing);
+      self.set("camera_bearing", options.camera.bearing, true);
     }
     if ("tilt" in options.camera) {
-      self.set("camera_tilt", options.camera.tilt);
+      self.set("camera_tilt", options.camera.tilt, true);
     }
     if ("target" in options.camera) {
-      self.set("position", options.camera.target);
+      self.set("position", options.camera.target, true);
     }
   }
 
@@ -91,15 +91,16 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
   options.gestures = options.gestures || {};
   options.gestures.panning = common.defaultTrueOption(options.gestures.panning);
   options.gestures.zoom = common.defaultTrueOption(options.gestures.zoom);
-  self.set("gesture_panning", options.gestures.panning);
-  self.set("gesture_zoom", options.gestures.zoom);
+  self.set("gesture_panning", options.gestures.panning, true);
+  self.set("gesture_zoom", options.gestures.zoom, true);
 
   // Controls options
   options.controls = options.controls || {};
   options.controls.panning = common.defaultTrueOption(options.controls.navigation);
   options.controls.zoom = common.defaultTrueOption(options.controls.streetNames);
-  self.set("control_navigation", options.controls.navigation);
-  self.set("control_streetNames", options.controls.streetNames);
+  self.set("control_navigation", options.controls.navigation, true);
+  self.set("control_streetNames", options.controls.streetNames, true);
+  console.log(options);
 
   // Gets the map div size.
   // The plugin needs to consider the viewport zoom ratio
@@ -211,6 +212,7 @@ StreetViewPanorama.prototype.moveCamera = function(cameraPosition, callback) {
   cameraPosition = cameraPosition || {};
   cameraPosition.duration = 0;
   self.animateCamera.call(self, cameraPosition, callback);
+  return this;
 };
 
 StreetViewPanorama.prototype.animateCamera = function(cameraPosition, callback) {
@@ -235,33 +237,49 @@ StreetViewPanorama.prototype.animateCamera = function(cameraPosition, callback) 
   }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
     sync: true
   });
+  return this;
 };
 
 
+StreetViewPanorama.prototype.remove = function(callback) {
+  var self = this;
+  self.exec.call(this, function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {
+    sync: true,
+    remove: true
+  });
+  self.trigger("remove");
+};
 StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
-  this.set('camera', Object.assign(self.get("camera"), cameraPosition));
-  this.set('camera_zoom', cameraPosition.zoom);
-  this.set('camera_bearing', cameraPosition.bearing);
-  this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
-  this.set('links', cameraPosition.links || []);
-  if (this._isReady) {
-    this._onPanoramaEvent(eventName, cameraPosition);
+  var self = this;
+  self.set('camera', Object.assign(self.get("camera"), cameraPosition));
+  self.set('camera_zoom', cameraPosition.zoom);
+  self.set('camera_bearing', cameraPosition.bearing);
+  self.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+  self.set('links', cameraPosition.links || []);
+  if (self._isReady) {
+    self._onPanoramaEvent(eventName, cameraPosition);
   }
 };
 
 StreetViewPanorama.prototype._onPanoramaLocationChange = function(eventName, panoramaLocation) {
-  this.set('location', panoramaLocation);
-  this.set('pano', panoramaLocation.panoId);
-  this.set('position', panoramaLocation.position);
-  if (this._isReady) {
-    this._onPanoramaEvent(eventName, panoramaLocation);
+  var self = this;
+  self.set('location', panoramaLocation);
+  self.set('pano', panoramaLocation.panoId);
+  self.set('position', panoramaLocation.position);
+  if (self._isReady) {
+    self._onPanoramaEvent(eventName, panoramaLocation);
   }
 };
 StreetViewPanorama.prototype._onPanoramaEvent = function(eventName) {
-  if (this._isReady) {
+  var self = this;
+  if (self._isReady) {
     var args = Array.prototype.slice.call(arguments, 0);
-    args.push(this);
-    this.trigger.apply(this, args);
+    args.push(self);
+    self.trigger.apply(self, args);
   }
 };
 

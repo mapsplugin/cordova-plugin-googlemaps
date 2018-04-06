@@ -171,11 +171,12 @@
 
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       // Hold the mapCtrl instance with mapId.
-      NSLog(@"--->addPluginOverlay : %@", mapCtrl.overlayId);
       [self.pluginScrollView.debugView.mapCtrls setObject:mapCtrl forKey:mapCtrl.overlayId];
+    
 
       // Add the mapView under the scroll view.
-      [self.pluginScrollView attachView:mapCtrl.view];
+      [mapCtrl.view setTag:mapCtrl.viewDepth];
+      [self.pluginScrollView attachView:mapCtrl.view depth:mapCtrl.viewDepth];
       mapCtrl.attached = YES;
 
       [self updateViewPosition:mapCtrl];
@@ -288,7 +289,8 @@
 //                    mapCtrl.map.mapType != kGMSTypeHybrid)
 //                  )))) {
         if (!mapCtrl.attached && mapCtrl.isRenderedAtOnce == YES) {
-            [self.pluginScrollView attachView:mapCtrl.view];
+            [mapCtrl.view setTag:mapCtrl.viewDepth];
+            [self.pluginScrollView attachView:mapCtrl.view depth:mapCtrl.viewDepth];
         }
 
     } else {

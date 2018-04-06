@@ -13,6 +13,6 @@
 
 @property (nonatomic) MyPluginLayerDebugView *debugView;
 
-- (void)attachView:(UIView *)view;
+- (void)attachView:(UIView *)view depth:(NSInteger)depth;
 - (void)detachView:(UIView *)view;
 @end

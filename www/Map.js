@@ -77,9 +77,9 @@ Map.prototype.refreshLayout = function(event) {
   this.exec.call(this, null, null, this.id, 'resizeMap', []);
 };
 
-Map.prototype.getMap = function(mapId, div, options) {
+Map.prototype.getMap = function(meta, div, options) {
   var self = this,
-    args = [mapId];
+    args = [meta];
   options = options || {};
 
   self.set("clickable", options.clickable === false ? false : true);

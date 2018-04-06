@@ -44,6 +44,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   private boolean isClickable = true;
   private final String TAG = "StreetView";
   private String divId;
+  private int viewDepth = 0;
 
   @Override
   public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
@@ -52,6 +53,9 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     mainHandler = new Handler(Looper.getMainLooper());
   }
 
+  public int getViewDepth() {
+    return viewDepth;
+  }
   public String getDivId() {
     return this.divId;
   }
@@ -62,10 +66,6 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     return this.panoramaView;
   }
 
-  @Override
-  public void remove(JSONArray args, CallbackContext callbackContext) {
-
-  }
 
   public boolean getVisible() {
     return isVisible;
@@ -74,7 +74,10 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     return isClickable;
   }
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    panoramaId = args.getString(0);
+    JSONObject meta = args.getJSONObject(0);
+    panoramaId = meta.getString("id");
+    viewDepth = meta.getInt("depth");
+
     JSONObject jsOptions = args.getJSONObject(1);
     divId = args.getString(2);
 
@@ -147,6 +150,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
       @Override
       public void run() {
         panoramaView.onCreate(null);
+        panoramaView.setTag(getViewDepth());
 
         panoramaView.getStreetViewPanoramaAsync(new OnStreetViewPanoramaReadyCallback() {
           @Override
@@ -200,6 +204,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     mapCtrl.mPluginLayout.addPluginOverlay(this);
     callbackContext.success();
   }
+
   public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) {
     mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
     callbackContext.success();

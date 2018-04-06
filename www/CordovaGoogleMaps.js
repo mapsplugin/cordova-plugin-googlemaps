@@ -610,41 +610,12 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   });
 
   // If the map is removed, clean up the information.
-  map.one('remove', function() {
-      delete plugin.google.maps[mapId];
-      var div = map.getDiv();
-      if (!div) {
-        div = document.querySelector("[__pluginMapId='" + mapId + "']");
-      }
-      if (div) {
-        div.removeAttribute('__pluginMapId');
-      }
-
-      var keys = Object.keys(self.domPositions);
-      keys.forEach(function(elemId) {
-        self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
-        delete self.domPositions[elemId].containMapIDs[mapId];
-        if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
-          delete self.domPositions[elemId];
-        }
-      });
-
-      self.MAPS[mapId].destroy();
-      delete self.MAPS[mapId];
-      map = undefined;
-
-      // If the app have no map, stop the native timer.
-      if ((Object.keys(self.MAPS)).length === 0) {
-        common._clearInternalCache();
-        self.pause();
-      }
-  });
+  map.one('remove', self._remove.bind(self, mapId));
   self.MAP_CNT++;
   self.MAPS[mapId] = map;
   self.isThereAnyChange = true;
 
   var args = Array.prototype.slice.call(arguments, 0);
-  args.unshift(mapId);
 
   if (common.isDom(div)) {
     // If the mapDiv is specified,
@@ -655,6 +626,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
     elem = div;
     var isCached;
+    var zIndexList = [];
     while(elem && elem.nodeType === Node.ELEMENT_NODE) {
       elemId = common.getPluginDomId(elem);
       isCached = elemId in self.domPositions;
@@ -668,9 +640,24 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
         overflowY: common.getStyle(elem, "overflow-y"),
         containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
       };
+      zIndexList.unshift(self.domPositions[elemId].zIndex);
       self.domPositions[elemId].containMapIDs[mapId] = 1;
       elem = elem.parentNode;
     }
+
+    // Calculate the native view z-index
+    var depth = 0;
+    zIndexList.forEach(function(info, idx) {
+      if (!info.isInherit && info.z === 0) {
+        depth *= 10;
+      }
+      depth += (info.z + 1) / (1 << idx) + 0.01;
+    });
+    depth = Math.floor(depth * 10000);
+    args.unshift({
+      id: mapId,
+      depth: depth
+    });
 
     elemId = common.getPluginDomId(div);
     self.domPositions[elemId].isMap = true;
@@ -680,6 +667,10 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       map.getMap.apply(map, args);
     }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
   } else {
+    args.unshift({
+      id: mapId,
+      depth: 0
+    });
     map.getMap.apply(map, args);
   }
 
@@ -709,7 +700,7 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   elemId = common.getPluginDomId(div);
 
   elem = div;
-  var isCached;
+  var isCached, zIndexList = [];
   while(elem && elem.nodeType === Node.ELEMENT_NODE) {
     elemId = common.getPluginDomId(elem);
     isCached = elemId in self.domPositions;
@@ -723,22 +714,75 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
       overflowY: common.getStyle(elem, "overflow-y"),
       containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
     };
+    zIndexList.unshift(self.domPositions[elemId].zIndex);
     self.domPositions[elemId].containMapIDs[mapId] = 1;
     elem = elem.parentNode;
   }
+
+  // Calculate the native view z-index
+  var depth = 0;
+  zIndexList.forEach(function(info, idx) {
+    if (!info.isInherit && info.z === 0) {
+      depth *= 10;
+    }
+    depth += (info.z + 1) / (1 << idx) + 0.01;
+  });
+  depth = Math.floor(depth * 10000);
+  console.log(div.id, depth);
 
   elemId = common.getPluginDomId(div);
   self.domPositions[elemId].isMap = true;
 
   var args = Array.prototype.slice.call(arguments, 0);
-  args.unshift(mapId);
+  args.unshift({
+    id: mapId,
+    depth: depth
+  });
 
   cordova_exec(function() {
     self.resume();
     panorama.getPanorama.apply(panorama, args);
   }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
 
+
+  panorama.one('remove', self._remove.bind(self, mapId));
+
   return panorama;
+};
+
+CordovaGoogleMaps.prototype._remove = function(mapId) {
+  var self = this;
+  console.log(self, mapId);
+  delete plugin.google.maps[mapId];
+  console.log(self.MAPS);
+  var map = self.MAPS[mapId];
+
+  var div = map.getDiv();
+  if (!div) {
+    div = document.querySelector("[__pluginMapId='" + mapId + "']");
+  }
+  if (div) {
+    div.removeAttribute('__pluginMapId');
+  }
+
+  var keys = Object.keys(self.domPositions);
+  keys.forEach(function(elemId) {
+    self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
+    delete self.domPositions[elemId].containMapIDs[mapId];
+    if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
+      delete self.domPositions[elemId];
+    }
+  });
+
+  self.MAPS[mapId].destroy();
+  delete self.MAPS[mapId];
+  map = undefined;
+
+  // If the app have no map, stop the native timer.
+  if ((Object.keys(self.MAPS)).length === 0) {
+    common._clearInternalCache();
+    self.pause();
+  }
 };
 
 function nativeCallback(params) {
@@ -746,5 +790,6 @@ function nativeCallback(params) {
   args.unshift(params.evtName);
   this[params.callback].apply(this, args);
 }
+
 
 module.exports = CordovaGoogleMaps;

@@ -25,9 +25,27 @@
   return self;
 }
 
-- (void)attachView:(UIView *)view {
+- (void)attachView:(UIView *)view depth:(NSInteger)depth {
   [self.debugView removeFromSuperview];
-  [self addSubview:view];
+  NSArray *subviews = [self subviews];
+  UIView *subview;
+  NSInteger tag;
+  NSInteger index = ((int)[subviews count] - 1);
+  for (int i = ((int)[subviews count] - 1); i > 0; i--) {
+    subview = [subviews objectAtIndex: i];
+    tag = subview.tag;
+    if (tag == 0) {
+      continue;
+    }
+    NSLog(@"--->tag = %ld, depth = %ld", tag, depth);
+    if (tag < depth) {
+      index = i;
+      break;
+    }
+  }
+  NSLog(@"--->index = %ld", index - 1);
+  
+  [self insertSubview:view atIndex:index];
   [self addSubview:self.debugView];
 }
 - (void)detachView:(UIView *)view {

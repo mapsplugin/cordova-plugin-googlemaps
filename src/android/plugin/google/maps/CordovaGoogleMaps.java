@@ -448,7 +448,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     //------------------------------------------
     // Create an instance of PluginMap class.
     //------------------------------------------
-    String mapId = args.getString(0);
+    JSONObject meta = args.getJSONObject(0);
+    String mapId = meta.getString("id");
     PluginMap pluginMap = new PluginMap();
     pluginMap.privateInitialize(mapId, cordova, webView, null);
     pluginMap.initialize(cordova, webView);
@@ -468,7 +469,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     //------------------------------------------
     // Create an instance of PluginStreetView class.
     //------------------------------------------
-    String mapId = args.getString(0);
+    JSONObject meta = args.getJSONObject(0);
+    String mapId = meta.getString("id");
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
     pluginStreetView.privateInitialize(mapId, cordova, webView, null);
     pluginStreetView.initialize(cordova, webView);
