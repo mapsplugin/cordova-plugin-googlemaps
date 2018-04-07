@@ -1,0 +1,12 @@
+{
+    "CLOSE_BUTTON" : "ĐÓNG",
+    "APIKEY_IS_UNDEFINED_TITLE" : "Lỗi API Key",
+    "APIKEY_IS_UNDEFINED_MESSAGE" : "\"API_KEY_FOR_IOS\" chưa được đăng ký.",
+    "APP_NAME_ERROR_TITLE" : "Bạn cần cập nhật file config.xml.",
+    "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK cho iOS sẽ lỗi nếu CFBundleExecutable có chứa các ký tự không phải ký tự tiếng Anh..\nVui lòng kiểm tra bình luận trong file CordovaGoogleMaps.m để có thông tin.",
+    "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Dịch vụ xác định vị trí không được hỗ trợ",
+    "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Ứng dụng cần xác định vị trí của bạn. Vui lòng bật \"Cấu hình > Quyền riêng tư > Dịch vụ vị trí\"",
+    "LOCATION_IS_DENIED_MESSAGE" : "Ứng dụng không được cấp quyền sử dụng dịch vụ xác định vị trí.",
+    "CAN_NOT_GET_LOCATION_MESSAGE" : "Ứng dụng không thể xác định vị trí của bạn.",
+    "LOCATION_REJECTED_BY_USER_MESSAGE" : "Người dùng không cho phép sử dụng dịch vụ xác định vị trí."
+  }

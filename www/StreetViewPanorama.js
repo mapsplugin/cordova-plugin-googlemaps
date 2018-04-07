@@ -151,6 +151,11 @@ StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
   });
 };
 
+StreetViewPanorama.prototype.setVisible = function(isVisible) {
+  this.set("visible", common.parseBoolean(isVisible));
+  return this;
+};
+
 StreetViewPanorama.prototype.getVisible = function() {
   return this.get("visible");
 };

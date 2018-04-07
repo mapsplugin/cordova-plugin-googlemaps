@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.2.9)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.0)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -20,14 +20,14 @@ $> cordova plugin add cordova-plugin-googlemaps \
   //    You need to specify the same version number with all other plugins.
   //    Check out the latest version here.
   //    https://developers.google.com/android/guides/releases
-  PLAY_SERVICES_VERSION="11.8.0" (for Android)
+  PLAY_SERVICES_VERSION="12.1.0" (for Android)
 
   // [Android]
   //    This plugin requires the Android support library v4.
-  //    The minimum version is 24.1.0
+  //    The minimum version is 27.1.0
   //    Check out the latest version here.
   //    https://developer.android.com/topic/libraries/support-library/revisions.html
-  ANDROID_SUPPORT_V4_VERSION="24.1.0" (for Android)
+  ANDROID_SUPPORT_V4_VERSION="27.1.0" (for Android)
 
   // [iOS]
   //    These variable messages are displayed when application requests
@@ -40,13 +40,13 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.2.9">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.3.0">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
     <!-- these are optional settings -->
-    <variable name="PLAY_SERVICES_VERSION" value="11.8.0" />
-    <variable name="ANDROID_SUPPORT_V4_VERSION" value="24.1.0" />
+    <variable name="PLAY_SERVICES_VERSION" value="12.1.0" />
+    <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.1.0" />
     <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="(your custom message)" />
     <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="(your custom message)" />
   </plugin>
@@ -62,63 +62,6 @@ $> cordova plugin add cordova-plugin-googlemaps \
 ---
 
 ## Release Notes
-
-- **v2.2.0**
-  - Android version 4.3 and lower are no longer supported. A minimum of Android 4.4 is now required
-  - Implement the CSS/HTML element hierarchy correctly
-  - Implement map.addKmlOverlay()
-  - [other updates](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/ReleaseNotes/v2.2.0/README.md)
-
-- **v2.2.1**
-  - Bug fix: can not use Geocoder
-
-- **v2.2.2**
-  - Bug fix: the icon property of Marker class does not affect
-
-- **v2.2.3**
-  - Bug fix: the icon property of Marker class does not affect if the html is hosted on `file://android_assets/`
-  - Update: `cordova-android@7` is now supported
-  - Fix: can not build with PhoneGap Build (see the above settings)
-
-- **v2.2.4**
-  - Bug fix: can not click html elements when the device is rotated
-  - Add: Use `android-support-library-v4`
-  - Fix: `cordova-plugin-gooelmaps.CordovaGoogleMaps is already defined warning` message
-  - Update: `com.googlemaps.ios@2.6.0` is required. Please reinstall the plugin
-  - Add: The plugin messages are localized for English and Japanese
-
-- **v2.2.5** (small update)
-  - Bug fix: setMyLocationEnabed(true) hides the MyLocationButton
-  - Fix: Conflict with `cordova-plugin-geolocation`
-
-- **v2.2.6**
-  - Add: support languages
-    (`Russian`, `Ukrainian`, `Brazilian Portuguese`, `German`, `French`, and `Hindi`)
-  - Fix: [OK]button of &lt;select&gt;tag is displayed as Japanese
-  - Fix: Cannot build with Java 1.7
-  - Fix: `INFO_CLOSE` event is triggered twice
-  - Fix: `map.setOptions()` does not work when used right after the `MAP_READY` function call
-
-- **v2.2.7**
-  - Add: support languages (`Arabic` and `Dutch`)
-  - Fix: Can not build on iOS
-
-- **v2.2.8**
-  - Add: support language (`Polish`)
-  - Add: plugin remove helper script
-  - Fix: can not build on iOS completely
-  - Fix: localize function is incorrect
-  - Fix: can not use backbutton event
-  - Fix: marker cluster does not work correctly if position data contains an `id` field
-  - Update: Do not fire MAP_READY event until map.getVisibleRegion() is useable
-
-- **v2.2.9**
-  - Add: support language (`Danish`)
-  - Add: hook scripts to prevent the `unknown property GOOGLE_PLAY_SERVICES_VERSION` problem with older versions of Cordova
-  - Refactoring of internal code
-  - Fix: Cannot find module '../node_modules/xml2js' error
-  - Fix: getMyLocation() does not work on Genymotion
-  - Fix: map disappears sometimes when changing ionic tabs
 
 ---
 

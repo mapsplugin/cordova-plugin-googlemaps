@@ -664,7 +664,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       synchronized (_lockHtmlNodes) {
         String clickedDomId = findClickedDom("root", clickPoint, false, null);
-        Log.d(TAG, "----clickedDomId = " + clickedDomId);
+        //Log.d(TAG, "----clickedDomId = " + clickedDomId);
         while (iterator.hasNext()) {
           entry = iterator.next();
           pluginOverlay = entry.getValue();
