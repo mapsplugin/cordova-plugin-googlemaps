@@ -728,7 +728,6 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
     depth += (info.z + 1) / (1 << idx) + 0.01;
   });
   depth = Math.floor(depth * 10000);
-  console.log(div.id, depth);
 
   elemId = common.getPluginDomId(div);
   self.domPositions[elemId].isMap = true;

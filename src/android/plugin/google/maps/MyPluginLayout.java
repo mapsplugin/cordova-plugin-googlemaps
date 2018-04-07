@@ -661,10 +661,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       PointF clickPoint = new PointF(event.getX(), event.getY());
 
       RectF drawRect;
-      boolean isMapAction = false;
 
       synchronized (_lockHtmlNodes) {
         String clickedDomId = findClickedDom("root", clickPoint, false, null);
+        Log.d(TAG, "----clickedDomId = " + clickedDomId);
         while (iterator.hasNext()) {
           entry = iterator.next();
           pluginOverlay = entry.getValue();
@@ -688,20 +688,15 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          //Log.d(TAG, "----clickedDomId = " + clickedDomId);
-
-          return pluginOverlay.getDivId().equals(clickedDomId);
+          if (pluginOverlay.getDivId().equals(clickedDomId)) {
+            return true;
+          }
 
         }
       }
-      isScrolling = (!isMapAction && action == MotionEvent.ACTION_DOWN) || isScrolling;
-      isMapAction = !isScrolling && isMapAction;
+      isScrolling = (action == MotionEvent.ACTION_DOWN) || isScrolling;
 
-      if (!isMapAction) {
-        browserView.requestFocus(View.FOCUS_DOWN);
-      }
-
-
+      browserView.requestFocus(View.FOCUS_DOWN);
       return false;
     }
 
