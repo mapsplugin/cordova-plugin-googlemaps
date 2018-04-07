@@ -664,6 +664,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       boolean isMapAction = false;
 
       synchronized (_lockHtmlNodes) {
+        String clickedDomId = findClickedDom("root", clickPoint, false, null);
         while (iterator.hasNext()) {
           entry = iterator.next();
           pluginOverlay = entry.getValue();
@@ -687,7 +688,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             continue;
           }
 
-          String clickedDomId = findClickedDom("root", clickPoint, false, null);
           //Log.d(TAG, "----clickedDomId = " + clickedDomId);
 
           return pluginOverlay.getDivId().equals(clickedDomId);

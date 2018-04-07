@@ -304,6 +304,26 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     });
   }
 
+  public void remove(JSONArray args, final CallbackContext callbackContext) {
+    mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        panorama.setOnStreetViewPanoramaLongClickListener(null);
+        panorama.setOnStreetViewPanoramaClickListener(null);
+        panorama.setOnStreetViewPanoramaChangeListener(null);
+        panorama.setOnStreetViewPanoramaCameraChangeListener(null);
+
+        System.gc();
+        Runtime.getRuntime().gc();
+        if (callbackContext != null) {
+          callbackContext.success();
+        }
+        PluginStreetViewPanorama.this.onDestroy();
+      }
+    });
+  }
+
   @Override
   public void onStreetViewPanoramaCameraChange(StreetViewPanoramaCamera streetViewPanoramaCamera) {
     try {

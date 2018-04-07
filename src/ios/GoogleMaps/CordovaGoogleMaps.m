@@ -266,6 +266,7 @@
     viewCtrl.webView = self.webView;
     viewCtrl.isFullScreen = YES;
     viewCtrl.overlayId = mapId;
+    viewCtrl.title = mapId;
     viewCtrl.divId = nil;
     [viewCtrl.view setHidden:YES];
 
@@ -474,7 +475,7 @@
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     NSDictionary *meta = [command.arguments objectAtIndex:0];
     NSString *panoramaId = [meta objectForKey:@"id"];
-    NSString *divId = [command.arguments objectAtIndex:1];
+    NSString *divId = [command.arguments objectAtIndex:2];
 
     // Wrapper view
     PluginStreetViewPanoramaController* panoramaCtrl = [[PluginStreetViewPanoramaController alloc] initWithOptions:nil];
@@ -482,7 +483,7 @@
     panoramaCtrl.isFullScreen = YES;
     panoramaCtrl.overlayId = panoramaId;
     panoramaCtrl.divId = divId;
-    panoramaCtrl.title = @"test";
+    panoramaCtrl.title = panoramaId;
     //[mapCtrl.view setHidden:YES];
 
     // Create an instance of the PluginStreetViewPanorama class everytime.
@@ -514,6 +515,7 @@
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
       }
     }
+    NSLog(@"--->rect = %f x %f", rect.size.width, rect.size.height);
 
     panoramaCtrl.panoramaView = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(0, 0)];
     panoramaCtrl.view = panoramaCtrl.panoramaView;

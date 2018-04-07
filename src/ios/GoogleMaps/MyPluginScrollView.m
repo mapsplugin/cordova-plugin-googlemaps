@@ -30,20 +30,19 @@
   NSArray *subviews = [self subviews];
   UIView *subview;
   NSInteger tag;
-  NSInteger index = ((int)[subviews count] - 1);
-  for (int i = ((int)[subviews count] - 1); i > 0; i--) {
+  int viewCnt = (int)[subviews count];
+  int index = 0;
+  for (int i = 0; i < viewCnt; i++) {
     subview = [subviews objectAtIndex: i];
     tag = subview.tag;
     if (tag == 0) {
       continue;
     }
-    NSLog(@"--->tag = %ld, depth = %ld", tag, depth);
-    if (tag < depth) {
+    if (tag > depth) {
       index = i;
       break;
     }
   }
-  NSLog(@"--->index = %ld", index - 1);
   
   [self insertSubview:view atIndex:index];
   [self addSubview:self.debugView];

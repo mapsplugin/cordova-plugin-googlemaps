@@ -401,6 +401,8 @@
   NSDictionary *domInfo;
 
   @synchronized(self.pluginScrollView.debugView.HTMLNodes) {
+    clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
+    
     while(mapId = [mapIDs nextObject]) {
       mapCtrl = [self.pluginScrollView.debugView.mapCtrls objectForKey:mapId];
       if (!mapCtrl.divId) {
@@ -430,8 +432,7 @@
       if (CGRectContainsPoint(rect, browserClickPoint)) {
       //NSLog(@"--->in map");
 
-        clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
-        //NSLog(@"--->clickedDomId = %@", clickedDomId);
+        //NSLog(@"--->clickedDomId = %@, mapCtrl.divId = %@", clickedDomId, mapCtrl.divId);
         if ([mapCtrl.divId isEqualToString:clickedDomId]) {
           // If user click on the map, return the mapCtrl.view.
           CGPoint mapPoint = CGPointMake(point.x - mapCtrl.view.frame.origin.x - self.webView.frame.origin.x, point.y - mapCtrl.view.frame.origin.y - self.webView.frame.origin.y);
@@ -440,9 +441,6 @@
           //[mapCtrl mapView:mapCtrl.map didTapAtPoint:point2];
 
           return hitView;
-        } else {
-    //NSLog(@"--->in browser!");
-          return [self.webView hitTest:browserClickPoint withEvent:event];
         }
       }
 
@@ -450,10 +448,7 @@
   }
 
     //NSLog(@"--->in browser!");
-  UIView *hitView =[self.webView hitTest:browserClickPoint withEvent:event];
-  //NSLog(@"--> (hit test) hit = %@", hitView.class);
-  return hitView;
-
+    return [self.webView hitTest:browserClickPoint withEvent:event];
 }
 
 - (NSString *)findClickedDom:(NSString *)domId withPoint:(CGPoint)clickPoint isMapChild:(BOOL)isMapChild overflow:(OverflowCSS *)overflow {
