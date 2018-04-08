@@ -460,7 +460,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             if (view.getTag() == null) {
               continue;
             }
-            if ((int)view.getTag() < depth) {
+            if (Integer.parseInt(view.getTag() + "") < depth) {
               index = i;
               break;
             }

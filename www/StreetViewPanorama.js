@@ -274,7 +274,7 @@ StreetViewPanorama.prototype._onPanoramaLocationChange = function(eventName, pan
   var self = this;
   self.set('location', panoramaLocation);
   self.set('pano', panoramaLocation.panoId);
-  self.set('position', panoramaLocation.position);
+  self.set('position', panoramaLocation.latLng);
   if (self._isReady) {
     self._onPanoramaEvent(eventName, panoramaLocation);
   }

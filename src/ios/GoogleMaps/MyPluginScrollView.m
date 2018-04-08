@@ -31,7 +31,7 @@
   UIView *subview;
   NSInteger tag;
   int viewCnt = (int)[subviews count];
-  int index = 0;
+  int index = viewCnt;
   for (int i = 0; i < viewCnt; i++) {
     subview = [subviews objectAtIndex: i];
     tag = subview.tag;

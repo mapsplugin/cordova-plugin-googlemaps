@@ -370,7 +370,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
       JSONObject position = new JSONObject();
       position.put("lat", streetViewPanoramaLocation.position.latitude);
       position.put("lng", streetViewPanoramaLocation.position.longitude);
-      location.put("position", position);
+      location.put("latLng", position);
 
       JSONArray links = new JSONArray();
       for (StreetViewPanoramaLink stLink : streetViewPanoramaLocation.links) {

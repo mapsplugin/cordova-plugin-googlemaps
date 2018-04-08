@@ -81,7 +81,7 @@
   NSMutableDictionary *target = [NSMutableDictionary dictionary];
   [target setObject:[NSNumber numberWithDouble:coordinate.latitude] forKey:@"lat"];
   [target setObject:[NSNumber numberWithDouble:coordinate.longitude] forKey:@"lng"];
-  [location setObject:target forKey:@"position"];
+  [location setObject:target forKey:@"latLng"];
   
   NSMutableArray *links = [NSMutableArray array];
   for (GMSPanoramaLink *linkRef in self.panoramaView.panorama.links) {

@@ -515,7 +515,6 @@
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
       }
     }
-    NSLog(@"--->rect = %f x %f", rect.size.width, rect.size.height);
 
     panoramaCtrl.panoramaView = [GMSPanoramaView panoramaWithFrame:rect nearCoordinate: CLLocationCoordinate2DMake(0, 0)];
     panoramaCtrl.view = panoramaCtrl.panoramaView;
