@@ -540,6 +540,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   }
   // Create a map instance.
   var map = new Map(mapId, self.execCmd);
+  map.set('__isAttached', common.isDom(div));
 
   // Catch all events for this map instance, then pass to the instance.
   // (Don't execute this native callback from your code)
@@ -547,9 +548,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   map.on('__isAttached_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, map.id, 'attachToWebView', []);
+      map.exec(null, null, map.id, 'attachToWebView', []);
     } else {
-      cordova_exec(null, null, map.id, 'detachFromWebView', []);
+      map.exec(null, null, map.id, 'detachFromWebView', []);
     }
   });
 
@@ -663,7 +664,6 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     self.domPositions[elemId].isMap = true;
 
     cordova_exec(function() {
-      self.resume();
       map.getMap.apply(map, args);
     }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
   } else {
@@ -739,7 +739,6 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   });
 
   cordova_exec(function() {
-    self.resume();
     panorama.getPanorama.apply(panorama, args);
   }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
 
