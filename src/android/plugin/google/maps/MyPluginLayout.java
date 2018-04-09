@@ -56,7 +56,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean isWaiting = false;
   private static final Object timerLock = new Object();
 
-  public Timer redrawTimer;
+  private static Timer redrawTimer;
 
   @Override
   public void onGlobalLayout() {
@@ -238,7 +238,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
 
       redrawTimer = new Timer();
       redrawTimer.scheduleAtFixedRate(new ResizeTask(), 0, 25);
-      mActivity.getWindow().getDecorView().requestFocus();
+      //mActivity.getWindow().getDecorView().requestFocus();  <--- This changes thread number sometimes. Do not use this!
       isSuspended = false;
     }
   }
@@ -417,7 +417,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           //Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
 
 
-          mActivity.getWindow().getDecorView().requestFocus();
+          //mActivity.getWindow().getDecorView().requestFocus();
         } catch (Exception e) {
           // ignore
           //e.printStackTrace();
@@ -454,7 +454,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           int depth = pluginOverlay.getViewDepth();
           int childCnt = scrollFrameLayout.getChildCount();
           View view;
-          int index = 0;
+          int index = childCnt - 1;
           for (int i = childCnt - 1; i >= 0; i--) {
             view = scrollFrameLayout.getChildAt(i);
             if (view.getTag() == null) {
@@ -466,10 +466,11 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             }
           }
 
+          Log.d(TAG, "---->index = " + index);
           scrollFrameLayout.addView(pluginOverlay.getView(), index + 1);
         }
 
-        mActivity.getWindow().getDecorView().requestFocus();
+        //mActivity.getWindow().getDecorView().requestFocus();
 
         //updateViewPosition(pluginMap.mapId);
 
@@ -696,7 +697,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       }
       isScrolling = (action == MotionEvent.ACTION_DOWN) || isScrolling;
 
-      browserView.requestFocus(View.FOCUS_DOWN);
+      //browserView.requestFocus(View.FOCUS_DOWN);
       return false;
     }
 

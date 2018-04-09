@@ -60,9 +60,9 @@ StreetViewPanorama.prototype.getHashCode = function() {
 StreetViewPanorama.prototype.getId = function() {
   return this.id;
 };
-StreetViewPanorama.prototype.getPanorama = function(panoramaId, div, options) {
+StreetViewPanorama.prototype.getPanorama = function(meta, div, options) {
   var self = this,
-    args = [panoramaId];
+    args = [meta];
   options = options || {};
 
 
