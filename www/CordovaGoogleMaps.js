@@ -84,6 +84,10 @@ function CordovaGoogleMaps(execCmd) {
           }
           if (mutation.target.hasAttribute("__pluginDomId")) {
             self.traceDomTree.call(self, mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
+            var transformCSS = common.getStyle(mutation.target, "transform") || common.getStyle(mutation.target, "-webkit-transform");
+            if (transformCSS !== "none") {
+              cordova.fireDocumentEvent("transitionstart", mutation.target);
+            }
           }
         }
 
@@ -448,7 +452,7 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
         self.prevMapRects[divId].size.top !== mapRects[divId].size.top ||
         self.prevMapRects[divId].size.width !== mapRects[divId].size.width ||
         self.prevMapRects[divId].size.height !== mapRects[divId].size.height ||
-        self.prevMapRects[divId].zIndex !== mapRects[divId].zIndex)) {
+        self.prevMapRects[divId].zIndex.z !== mapRects[divId].zIndex.z)) {
         changed = true;
       }
     }
@@ -459,7 +463,9 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
   // If changed, move the map views.
   if (changed || opts.force) {
     cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+    return changed;
   }
+  return false;
 };
 
 CordovaGoogleMaps.prototype.invalidateN = function(cnt) {

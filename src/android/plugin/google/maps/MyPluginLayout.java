@@ -466,8 +466,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             }
           }
 
-          Log.d(TAG, "---->index = " + index);
-          scrollFrameLayout.addView(pluginOverlay.getView(), index + 1);
+          scrollFrameLayout.addView(pluginOverlay.getView(), (childCnt -  index));
         }
 
         //mActivity.getWindow().getDecorView().requestFocus();

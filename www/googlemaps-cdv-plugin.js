@@ -36,9 +36,9 @@ if (!cordova) {
   var execCmd = require("./commandQueueExecutor");
   var cordovaGoogleMaps = new (require('./CordovaGoogleMaps'))(execCmd);
 
-  function onScrollEnd() {
+  var onScrollEnd = function() {
     cordovaGoogleMaps.invalidate.call(cordovaGoogleMaps, {force: true});
-  }
+  };
 
   window.addEventListener("load", function() {
     common.nextTick(function() {
@@ -59,25 +59,30 @@ if (!cordova) {
 
       // If the `transitionend` event is ocurred on the observed element,
       // adjust the position and size of the map view
-      document.body.addEventListener("transitionend", function(e) {
-        if (!e.target.hasAttribute("__pluginDomId")) {
-          return;
+      var scrollEndTimer = null;
+      function followMaps() {
+        if (cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps)) {
+          if (scrollEndTimer) {
+            clearTimeout(scrollEndTimer);
+          }
+          scrollEndTimer = setTimeout(function() {
+            common.nextTick(followMaps);
+          }, 100);
         }
-        cordovaGoogleMaps.invalidateN(5);
-      }, true);
+      }
+
+      document.addEventListener("transitionstart", followMaps);
+      document.body.addEventListener("transitionend", followMaps);
+      // document.body.addEventListener("transitionend", function(e) {
+      //   if (!e.target.hasAttribute("__pluginDomId")) {
+      //     return;
+      //   }
+      //   cordovaGoogleMaps.invalidateN(5);
+      // }, true);
 
       // If the `scroll` event is ocurred on the observed element,
       // adjust the position and size of the map view
-      var scrollEndTimer = null;
-      document.body.addEventListener("scroll", function(e) {
-        if (scrollEndTimer) {
-          clearTimeout(scrollEndTimer);
-        }
-        scrollEndTimer = setTimeout(function() {
-          common.nextTick(onScrollEnd);
-        }, 100);
-        cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
-      }, true);
+      document.body.addEventListener("scroll", followMaps, true);
 
       common.nextTick(onScrollEnd);
     });

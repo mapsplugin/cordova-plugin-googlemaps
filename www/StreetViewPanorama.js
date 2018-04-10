@@ -100,7 +100,6 @@ StreetViewPanorama.prototype.getPanorama = function(meta, div, options) {
   options.controls.zoom = common.defaultTrueOption(options.controls.streetNames);
   self.set("control_navigation", options.controls.navigation, true);
   self.set("control_streetNames", options.controls.streetNames, true);
-  console.log(options);
 
   // Gets the map div size.
   // The plugin needs to consider the viewport zoom ratio
@@ -260,7 +259,7 @@ StreetViewPanorama.prototype.remove = function(callback) {
 };
 StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
   var self = this;
-  self.set('camera', Object.assign(self.get("camera"), cameraPosition));
+  self.set('camera', Object.assign(self.get("camera") || {}, cameraPosition));
   self.set('camera_zoom', cameraPosition.zoom);
   self.set('camera_bearing', cameraPosition.bearing);
   self.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
