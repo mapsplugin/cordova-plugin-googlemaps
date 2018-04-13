@@ -345,7 +345,7 @@ You can write your code `similar to` the Google Maps JavaScript API v3.
 | (not available)                   | MarkerCluster                         |
 | google.maps.KmlLayer              | KMLLayer                              |
 | (not available)                   | LocationService                       |
-| google.maps.StreetView            | (not available)                       |
+| google.maps.StreetView            | StreetView                            |
 | google.maps.Data                  | (not available)                       |
 | google.maps.DirectionsService     | (not available)                       |
 | google.maps.DistanceMatrixService | (not available)                       |
