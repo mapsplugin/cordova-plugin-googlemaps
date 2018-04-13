@@ -10,7 +10,7 @@ var argscheck = require('cordova/argscheck'),
  *****************************************************************************/
 var Marker = function(map, markerOptions, _exec, extras) {
   extras = extras || {};
-  Overlay.call(this, map, extras.className, 'Marker', _exec, extras);
+  Overlay.call(this, map, markerOptions, extras.className || 'Marker', _exec, extras);
 
   var self = this;
 
