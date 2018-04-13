@@ -255,7 +255,7 @@ Map.prototype.setOptions = function(options) {
     this.set("myLocation", myLocation);
     this.set("myLocationButton", myLocationButton);
     options.controls.myLocation = myLocation;
-    options.controls.myLocationButton = myLocation;
+    options.controls.myLocationButton = myLocationButton;
   }
   if (options.camera) {
     if (options.camera.latLng) {
