@@ -40,7 +40,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   private FrontLayerLayout frontLayer;
   private ScrollView scrollView;
   public FrameLayout scrollFrameLayout;
-  public static Map<String, IPluginView> pluginOverlays = new ConcurrentHashMap<String, IPluginView>();
+  public  Map<String, IPluginView> pluginOverlays = new ConcurrentHashMap<String, IPluginView>();
   private Map<String, TouchableWrapper> touchableWrappers = new ConcurrentHashMap<String, TouchableWrapper>();
   private boolean isScrolling = false;
   public boolean isDebug = false;
@@ -53,7 +53,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
   public boolean needUpdatePosition = false;
   public boolean isSuspended = false;
   private float zoomScale;
-  public boolean isWaiting = false;
   private static final Object timerLock = new Object();
 
   private static Timer redrawTimer;
@@ -65,90 +64,86 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     observer.addOnScrollChangedListener(this);
   }
 
+  private Runnable resizeWorker = new Runnable() {
+    @Override
+    public void run() {
+      final int scrollY = browserView.getScrollY();
+
+      Set<String> keySet = pluginOverlays.keySet();
+      String[] toArrayBuf = new String[pluginOverlays.size()];
+      String[] mapIds = keySet.toArray(toArrayBuf);
+      String mapId;
+      IPluginView pluginOverlay;
+      RectF drawRect;
+      for (int i = 0; i < mapIds.length; i++) {
+        mapId = mapIds[i];
+        pluginOverlay = pluginOverlays.get(mapId);
+        if (pluginOverlay == null || pluginOverlay.getDivId() == null) {
+          continue;
+        }
+        drawRect = HTMLNodeRectFs.get(pluginOverlay.getDivId());
+        if (drawRect == null || drawRect.left == 0 && drawRect.top == 0 && drawRect.width() == 0 && drawRect.height() == 0) {
+          continue;
+        }
+        Log.d("MyPluginLayout", "-->drawRect = " + drawRect);
+
+        int width = (int)drawRect.width();
+        int height = (int)drawRect.height();
+        int x = (int) drawRect.left;
+        int y = (int) drawRect.top + scrollY;
+        ViewGroup.LayoutParams lParams = pluginOverlay.getView().getLayoutParams();
+
+        if (lParams instanceof FrameLayout.LayoutParams) {
+          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+          Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + width + ", h = " + height);
+          if (params.leftMargin == x && params.topMargin == y &&
+              params.width == width && params.height == height) {
+            continue;
+          }
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
+          pluginOverlay.getView().setLayoutParams(params);
+
+        } else if (lParams instanceof AbsoluteLayout.LayoutParams) {
+          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
+          if (params.x == x && params.y == y &&
+              params.width == width && params.height == height) {
+            continue;
+          }
+          params.width = width;
+          params.height = height;
+          params.x = x;
+          params.y = y;
+          pluginOverlay.getView().setLayoutParams(params);
+        } else if (lParams instanceof LinearLayout.LayoutParams) {
+          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
+
+          if (params.leftMargin == x && params.topMargin == y &&
+              params.width == width && params.height == height) {
+            continue;
+          }
+          params.width = width;
+          params.height = height;
+          params.leftMargin = x;
+          params.topMargin = y;
+          pluginOverlay.getView().setLayoutParams(params);
+        }
+
+      }
+    }
+  };
+
+  public void updateMapPositions() {
+    mActivity.runOnUiThread(resizeWorker);
+  }
 
   private class ResizeTask extends TimerTask {
     @Override
     public void run() {
-      isWaiting = false;
-      //final PluginMap pluginMap = pluginOverlays.get(mapId);
-      //if (pluginOverlay.getDivId() == null) {
-      //  return;
-      //}
-      //int scrollX = browserView.getScrollX();
-      final int scrollY = browserView.getScrollY();
-      //final int webviewWidth = browserView.getWidth();
-      //final int webviewHeight = browserView.getHeight();
-
-      mActivity.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-
-          Set<String> keySet = pluginOverlays.keySet();
-          String[] toArrayBuf = new String[pluginOverlays.size()];
-          String[] mapIds = keySet.toArray(toArrayBuf);
-          String mapId;
-          IPluginView pluginOverlay;
-          RectF drawRect;
-          for (int i = 0; i < mapIds.length; i++) {
-            mapId = mapIds[i];
-            pluginOverlay = pluginOverlays.get(mapId);
-            if (pluginOverlay == null || pluginOverlay.getDivId() == null) {
-              continue;
-            }
-            drawRect = HTMLNodeRectFs.get(pluginOverlay.getDivId());
-            if (drawRect == null || drawRect.left == 0 && drawRect.top == 0 && drawRect.width() == 0 && drawRect.height() == 0) {
-              continue;
-            }
-
-            int width = (int)drawRect.width();
-            int height = (int)drawRect.height();
-            int x = (int) drawRect.left;
-            int y = (int) drawRect.top + scrollY;
-            ViewGroup.LayoutParams lParams = pluginOverlay.getView().getLayoutParams();
-
-            if (lParams instanceof FrameLayout.LayoutParams) {
-              FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-
-              //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + params.width + ", h = " + params.height);
-              if (params.leftMargin == x && params.topMargin == y &&
-                  params.width == width && params.height == height) {
-                continue;
-              }
-              params.width = width;
-              params.height = height;
-              params.leftMargin = x;
-              params.topMargin = y;
-              pluginOverlay.getView().setLayoutParams(params);
-
-            } else if (lParams instanceof AbsoluteLayout.LayoutParams) {
-              AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-              if (params.x == x && params.y == y &&
-                params.width == width && params.height == height) {
-                continue;
-              }
-              params.width = width;
-              params.height = height;
-              params.x = x;
-              params.y = y;
-              pluginOverlay.getView().setLayoutParams(params);
-            } else if (lParams instanceof LinearLayout.LayoutParams) {
-              LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-
-              if (params.leftMargin == x && params.topMargin == y &&
-                params.width == width && params.height == height) {
-                continue;
-              }
-              params.width = width;
-              params.height = height;
-              params.leftMargin = x;
-              params.topMargin = y;
-              pluginOverlay.getView().setLayoutParams(params);
-            }
-
-          }
-        }
-      });
-
+      mActivity.runOnUiThread(resizeWorker);
     }
   }
 

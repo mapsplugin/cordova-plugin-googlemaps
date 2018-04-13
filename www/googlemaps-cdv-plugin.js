@@ -64,10 +64,16 @@ if (!cordova) {
         if (cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps)) {
           if (scrollEndTimer) {
             clearTimeout(scrollEndTimer);
+            cordovaGoogleMaps.isThereAnyChange = true;
+            cordovaGoogleMaps.checkRequested = false;
+            cordovaGoogleMaps.putHtmlElements.call(cordovaGoogleMaps);
+            cordovaGoogleMaps.pause();
+
+          } else {
+            scrollEndTimer = setTimeout(function() {
+              common.nextTick(followMaps);
+            }, 100);
           }
-          scrollEndTimer = setTimeout(function() {
-            common.nextTick(followMaps);
-          }, 100);
         }
       }
 

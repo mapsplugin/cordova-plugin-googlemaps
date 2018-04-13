@@ -307,7 +307,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
 
     if (mPluginLayout.isSuspended) {
-      mPluginLayout.startTimer();
+      mPluginLayout.updateMapPositions();
     }
     callbackContext.success();
   }
@@ -368,7 +368,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.putHTMLElements(elements);
     }
 
-    mPluginLayout.startTimer();
+    //mPluginLayout.updateMapPositions();
+    //mPluginLayout.startTimer();
     callbackContext.success();
   }
 
@@ -455,7 +456,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     pluginMap.initialize(cordova, webView);
     pluginMap.mapCtrl = CordovaGoogleMaps.this;
     pluginMap.self = pluginMap;
-    ((MyPlugin)pluginMap).CURRENT_PAGE_URL = CURRENT_URL;
+    pluginMap.CURRENT_PAGE_URL = CURRENT_URL;
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
     pluginManager.addService(pluginEntry);
@@ -477,7 +478,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     pluginStreetView.initialize(cordova, webView);
     pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
     pluginStreetView.self = pluginStreetView;
-    ((MyPlugin)pluginStreetView).CURRENT_PAGE_URL = CURRENT_URL;
+    pluginStreetView.CURRENT_PAGE_URL = CURRENT_URL;
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
     pluginManager.addService(pluginEntry);
@@ -544,12 +545,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       }
     }
 
-  }
-
-  protected void sendNoResult(CallbackContext callbackContext) {
-    PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-    pluginResult.setKeepCallback(true);
-    callbackContext.sendPluginResult(pluginResult);
   }
 
  /**
