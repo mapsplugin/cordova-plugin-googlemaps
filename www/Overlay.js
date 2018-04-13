@@ -48,7 +48,6 @@ var Overlay = function(map, options, className, _exec, extras) {
     writable: false
   });
 
-  className = className.toLowerCase();
   Object.defineProperty(self, "_isReady", {
     value: false,
     writable: true
@@ -58,7 +57,7 @@ var Overlay = function(map, options, className, _exec, extras) {
     writable: false
   });
   Object.defineProperty(self, "id", {
-    value: extras.id || className + "_" + this.hashCode,
+    value: extras.id || (className.toLowerCase()) + "_" + this.hashCode,
     writable: false
   });
   Object.defineProperty(self, "type", {
