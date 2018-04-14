@@ -118,7 +118,7 @@ Circle.prototype.remove = function (callback) {
     writable: false
   });
   self.trigger(self.id + "_remove");
-  exec.call(self, function () {
+  self.exec.call(self, function () {
     self.destroy();
     if (typeof callback === "function") {
       callback.call(self);

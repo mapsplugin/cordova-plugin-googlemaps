@@ -25,24 +25,24 @@ var StreetViewPanorama = function(streetViewId, _exec) {
   // Sets event listeners
   //-----------------------------------------------
   self.on("gesture_panning_changed", function() {
-      var booleanValue = self.get("gesture_panning");
-      exec.call(self, null, self.errorHandler, self.id, 'setPanningGesturesEnabled', [booleanValue]);
+    var booleanValue = self.get("gesture_panning");
+    self.exec.call(self, null, self.errorHandler, self.id, 'setPanningGesturesEnabled', [booleanValue]);
   });
   self.on("gesture_zoom_changed", function() {
-      var booleanValue = self.get("gesture_zoom");
-      exec.call(self, null, self.errorHandler, self.id, 'setZoomGesturesEnabled', [booleanValue]);
+    var booleanValue = self.get("gesture_zoom");
+    self.exec.call(self, null, self.errorHandler, self.id, 'setZoomGesturesEnabled', [booleanValue]);
   });
   self.on("control_navigation_changed", function() {
-      var booleanValue = self.get("control_navigation");
-      exec.call(self, null, self.errorHandler, self.id, 'setNavigationEnabled', [booleanValue]);
+    var booleanValue = self.get("control_navigation");
+    self.exec.call(self, null, self.errorHandler, self.id, 'setNavigationEnabled', [booleanValue]);
   });
   self.on("control_streetNames_changed", function() {
-      var booleanValue = self.get("control_streetNames");
-      exec.call(self, null, self.errorHandler, self.id, 'setStreetNamesEnabled', [booleanValue]);
+    var booleanValue = self.get("control_streetNames");
+    self.exec.call(self, null, self.errorHandler, self.id, 'setStreetNamesEnabled', [booleanValue]);
   });
   self.on("visible_changed", function() {
-      var booleanValue = self.get("visible");
-      exec.call(self, null, self.errorHandler, self.id, 'setVisible', [booleanValue]);
+    var booleanValue = self.get("visible");
+    self.exec.call(self, null, self.errorHandler, self.id, 'setVisible', [booleanValue]);
   });
 };
 
