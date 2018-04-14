@@ -96,8 +96,8 @@ StreetViewPanorama.prototype.getPanorama = function(meta, div, options) {
 
   // Controls options
   options.controls = options.controls || {};
-  options.controls.panning = common.defaultTrueOption(options.controls.navigation);
-  options.controls.zoom = common.defaultTrueOption(options.controls.streetNames);
+  options.controls.navigation = common.defaultTrueOption(options.controls.navigation);
+  options.controls.streetNames = common.defaultTrueOption(options.controls.streetNames);
   self.set("control_navigation", options.controls.navigation, true);
   self.set("control_streetNames", options.controls.streetNames, true);
 
