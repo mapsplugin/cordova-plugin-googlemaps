@@ -198,9 +198,10 @@ function parseBoolean(boolValue) {
 }
 
 function isDom(element) {
-    return !!element &&
-        typeof element === "object" &&
-        "getBoundingClientRect" in element;
+    return element &&
+        element.nodeType === Node.ELEMENT_NODE &&
+        element instanceof SVGElement === false &&
+        typeof element.getBoundingClientRect === "function";
 }
 
 function getDivRect(div) {

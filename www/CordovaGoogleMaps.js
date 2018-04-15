@@ -626,7 +626,6 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   self.MAPS[mapId] = map;
   self.isThereAnyChange = true;
 
-
   if (div instanceof Promise) {
     // This hack code for @ionic-native/google-maps
     div.then(function(params) {
@@ -636,7 +635,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     });
   } else {
     // Normal code flow
-    postMapInit.call(self, map, args);
+    postMapInit.call(self, map, div, mapOptions);
   }
 
   return map;
