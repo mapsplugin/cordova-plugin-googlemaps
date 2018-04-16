@@ -914,16 +914,14 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   var invisible_dot = self.get("invisible_dot");
   if (!invisible_dot || invisible_dot._isRemoved) {
     // Create an invisible marker for kmlOverlay
-    self.addMarker({
+    self.set("invisible_dot", self.addMarkerSync({
       position: {
         lat: 0,
         lng: 0
       },
       icon: "skyblue",
       visible: false
-    }, function(marker) {
-      self.set("invisible_dot", marker);
-    });
+    }));
   }
 
   var loader = new KmlLoader(self, exec, kmlOverlayOptions);
@@ -1189,8 +1187,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
   markerOptions.icon = markerOptions.icon || {};
   if (typeof markerOptions.icon === 'string' || Array.isArray(markerOptions.icon)) {
     markerOptions.icon = {
-      url: markerOptions.icon,
-      size: {}
+      url: markerOptions.icon
     };
   }
 

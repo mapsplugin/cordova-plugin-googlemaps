@@ -172,6 +172,13 @@
   } else if ([icon isKindOfClass:[NSDictionary class]]) {
     iconProperty = [json valueForKey:@"icon"];
 
+    id url = [iconProperty objectForKey:@"url"];
+    if ([url isKindOfClass:[NSArray class]]) {
+      NSArray *rgbColor = url;
+      iconProperty = [[NSMutableDictionary alloc] init];
+      [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+    }
+
   } else if ([icon isKindOfClass:[NSArray class]]) {
     NSArray *rgbColor = [json valueForKey:@"icon"];
     iconProperty = [NSMutableDictionary dictionary];
@@ -625,6 +632,13 @@
       [iconProperty setObject:icon forKey:@"url"];
     } else if ([icon isKindOfClass:[NSDictionary class]]) {
       iconProperty = [command.arguments objectAtIndex:1];
+      
+      id url = [iconProperty objectForKey:@"url"];
+      if ([url isKindOfClass:[NSArray class]]) {
+        NSArray *rgbColor = url;
+        iconProperty = [[NSMutableDictionary alloc] init];
+        [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+      }
     } else if ([icon isKindOfClass:[NSArray class]]) {
       NSArray *rgbColor = icon;
       iconProperty = [[NSMutableDictionary alloc] init];
