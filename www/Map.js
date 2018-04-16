@@ -914,7 +914,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   var invisible_dot = self.get("invisible_dot");
   if (!invisible_dot || invisible_dot._isRemoved) {
     // Create an invisible marker for kmlOverlay
-    self.set("invisible_dot", self.addMarkerSync({
+    self.set("invisible_dot", self.addMarker({
       position: {
         lat: 0,
         lng: 0
