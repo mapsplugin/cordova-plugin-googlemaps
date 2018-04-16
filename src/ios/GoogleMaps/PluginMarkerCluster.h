@@ -16,6 +16,7 @@
 @property (atomic, strong) NSMutableDictionary *debugFlags;
 @property (atomic, strong) NSMutableDictionary *pluginMarkers;
 @property (atomic, strong) NSMutableDictionary *waitCntManager;
+@property (atomic, strong) NSMutableDictionary *allResults;
 @property (atomic, strong) NSMutableArray *deleteMarkers;
 @property (atomic, strong) dispatch_semaphore_t semaphore;
 @property (atomic, strong) dispatch_semaphore_t deleteThreadLock;
