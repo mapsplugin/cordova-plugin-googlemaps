@@ -623,18 +623,19 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   // If the map is removed, clean up the information.
   map.one('remove', self._remove.bind(self, mapId));
   self.MAP_CNT++;
-  self.MAPS[mapId] = map;
   self.isThereAnyChange = true;
 
   if (div instanceof Promise) {
     // This hack code for @ionic-native/google-maps
     div.then(function(params) {
+      self.MAPS[mapId] = map;
       params = params || [];
       params.unshift(map);
       postMapInit.apply(self, params);
     });
   } else {
     // Normal code flow
+    self.MAPS[mapId] = map;
     postMapInit.call(self, map, div, mapOptions);
   }
 
