@@ -141,6 +141,7 @@
 
 - (NSMutableDictionary *)loadKml:(NSString *)urlStr {
 
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
   NSError *error;
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
   if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
