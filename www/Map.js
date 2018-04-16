@@ -924,7 +924,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     }));
   }
 
-  var loader = new KmlLoader(self, exec, kmlOverlayOptions);
+  var loader = new KmlLoader(self, self.exec, kmlOverlayOptions);
   loader.parseKmlFile(function(camera, kmlData) {
     if (kmlData instanceof BaseClass) {
       kmlData = new BaseArrayClass([kmlData]);

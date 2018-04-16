@@ -57,7 +57,7 @@ utils.extend(KmlLoader, BaseClass);
 KmlLoader.prototype.parseKmlFile = function(callback) {
   var self = this;
 
-  self.exec.call(self, function(kmlData) {
+  self.exec.call(self.map, function(kmlData) {
     var rawKmlData = JSON.parse(JSON.stringify(kmlData));
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
