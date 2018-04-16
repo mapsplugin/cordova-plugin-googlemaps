@@ -2,7 +2,8 @@
  * Geocoder class
  *****************************************************************************/
 var common = require('./Common'),
-  BaseClass = require('./BaseClass');
+  BaseClass = require('./BaseClass'),
+  utils = require('cordova/utils');
 
 
 var Geocoder = function(exec) {

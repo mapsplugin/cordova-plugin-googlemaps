@@ -16,6 +16,9 @@ var Overlay = function(map, options, className, _exec, extras) {
   // Sets the initialize option to each property
   //-----------------------------------------------
   var ignores = ["map", "id", "hashCode", "type"];
+  if (extras.ignores) {
+    ignores = ignores.concat(extras.ignores);
+  }
   for (var key in options) {
       if (ignores.indexOf(key) === -1) {
           self.set(key, options[key]);

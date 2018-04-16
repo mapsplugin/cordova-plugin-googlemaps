@@ -8,21 +8,26 @@ var argscheck = require('cordova/argscheck'),
  * Polyline Class
  *****************************************************************************/
 var Polyline = function (map, polylineOptions, _exec) {
-  Overlay.call(this, map, polylineOptions, 'Polyline', _exec);
+  Overlay.call(this, map, polylineOptions, 'Polyline', _exec, {
+    "ignores": ["points"]
+  });
 
   var self = this;
   var polylineId = this.getId();
 
   var pointsProperty = common.createMvcArray(polylineOptions.points);
   pointsProperty.on('set_at', function (index) {
+    if (self._isRemoved) return;
     var value = common.getLatLng(pointsProperty.getAt(index));
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, value]);
   });
   pointsProperty.on('insert_at', function (index) {
+    if (self._isRemoved) return;
     var value = common.getLatLng(pointsProperty.getAt(index));
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, value]);
   });
   pointsProperty.on('remove_at', function (index) {
+    if (self._isRemoved) return;
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polylineId, index]);
   });
 
@@ -44,26 +49,32 @@ var Polyline = function (map, polylineOptions, _exec) {
   // Sets event listeners
   //-----------------------------------------------
   self.on("geodesic_changed", function () {
+    if (self._isRemoved) return;
     var geodesic = self.get("geodesic");
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
   });
   self.on("zIndex_changed", function () {
+    if (self._isRemoved) return;
     var zIndex = self.get("zIndex");
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
   self.on("clickable_changed", function () {
+    if (self._isRemoved) return;
     var clickable = self.get("clickable");
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
   });
   self.on("visible_changed", function () {
+    if (self._isRemoved) return;
     var visible = self.get("visible");
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
   self.on("strokeWidth_changed", function () {
+    if (self._isRemoved) return;
     var strokeWidth = self.get("strokeWidth");
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), strokeWidth]);
   });
   self.on("strokeColor_changed", function () {
+    if (self._isRemoved) return;
     var color = self.get("strokeColor");
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
@@ -155,10 +166,9 @@ Polyline.prototype.remove = function () {
   }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {
     remove: true
   });
-  self.trigger(self.id + "_remove");
-  var points = self.get("points");
-  if (points) {
-    points.clear();
+  if (self.points) {
+    self.points.empty();
   }
+  self.trigger(self.id + "_remove");
 };
 module.exports = Polyline;
