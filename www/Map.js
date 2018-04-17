@@ -1016,8 +1016,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     tileSize: tilelayerOptions.tileSize,
     opacity: tilelayerOptions.opacity,
     userAgent: tilelayerOptions.userAgent,
-    debug: tilelayerOptions.debug,
-    _id: hashCode
+    debug: tilelayerOptions.debug
   };
 
   var onNativeCallback = function(params) {

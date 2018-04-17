@@ -72,7 +72,7 @@
   dispatch_async(dispatch_get_main_queue(), ^{
 
       NSDictionary *json = [command.arguments objectAtIndex:1];
-      NSString *idBase = [command.arguments objectAtIndex:1];
+      NSString *idBase = [command.arguments objectAtIndex:2];
       //NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
 
 
