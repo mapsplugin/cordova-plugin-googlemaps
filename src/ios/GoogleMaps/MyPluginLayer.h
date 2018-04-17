@@ -29,9 +29,9 @@
 - (void)resizeTask:(NSTimer *)timer;
 - (void)clearHTMLElements;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
-- (void)addPluginOverlay:(PluginViewController *)mapCtrl;
-- (void)removePluginOverlay:(PluginViewController *)mapCtrl;
-- (void)updateViewPosition:(PluginViewController *)mapCtrl;
+- (void)addPluginOverlay:(PluginViewController *)pluginViewCtrl;
+- (void)removePluginOverlay:(PluginViewController *)pluginViewCtrl;
+- (void)updateViewPosition:(PluginViewController *)pluginViewCtrl;
 - (void)startRedrawTimer;
 - (void)stopRedrawTimer;
 @end
