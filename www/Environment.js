@@ -12,11 +12,6 @@ Environment.setBackgroundColor = function(color) {
     cordova.exec(null, null, 'Environment', 'setBackGroundColor', [common.HTMLColor2RGBA(color)]);
 };
 
-Environment.setDebuggable = function(debug) {
-    debug = common.parseBoolean(debug);
-    cordova.exec(null, null, 'Environment', 'setDebuggable', [debug]);
-};
-
 Environment.isAvailable = function(callback) {
     cordova.exec(function() {
         if (typeof callback === "function") {

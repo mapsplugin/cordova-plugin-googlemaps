@@ -231,7 +231,6 @@ public class PluginLocationService extends CordovaPlugin {
           @Override
           public void onConnected(Bundle connectionHint) {
             Log.d(TAG, "===> onConnected  " + callbackContext.getCallbackId());
-            //PluginLocationService.this.sendNoResult(callbackContext);
             requestLocation();
           }
 
