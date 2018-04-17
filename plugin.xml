@@ -402,8 +402,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
-        <header-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.h" />
-        <source-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m" />
         <header-file src="src/ios/GoogleMaps/PluginMarkerCluster.h" />
