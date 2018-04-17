@@ -14,7 +14,6 @@
 -  (id)initWithFrame:(CGRect)aRect
 {
   self = [super initWithFrame:aRect];
-  self.debugView = [[MyPluginLayerDebugView alloc] initWithFrame:CGRectMake(0, 0, aRect.size.width, 5000)];
   // Avoid the white bar that appears at the top of the map with iPhone iOS 11
   // See problem description here: https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/1909
   //
@@ -26,7 +25,6 @@
 }
 
 - (void)attachView:(UIView *)view depth:(NSInteger)depth {
-  [self.debugView removeFromSuperview];
   NSArray *subviews = [self subviews];
   UIView *subview;
   NSInteger tag;
@@ -45,10 +43,9 @@
   }
   
   [self insertSubview:view atIndex:index];
-  [self addSubview:self.debugView];
 }
 - (void)detachView:(UIView *)view {
-  [self.debugView removeFromSuperview];
   [view removeFromSuperview];
+  
 }
 @end

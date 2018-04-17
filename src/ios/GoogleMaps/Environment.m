@@ -91,18 +91,4 @@ dispatch_queue_t queue;
   });
 }
 
-- (void)setDebuggable:(CDVInvokedUrlCommand *)command {
-    Boolean isDebuggable = [[command.arguments objectAtIndex:0] boolValue];
-
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-
-    googlemaps.pluginLayer.pluginScrollView.debugView.debuggable = isDebuggable;
-    [googlemaps.pluginLayer.pluginScrollView.debugView setNeedsDisplay];
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
 @end

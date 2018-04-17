@@ -156,14 +156,14 @@
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
 
     // Detach the map view
-    if ([command.arguments count] == 0 && self.mapCtrl.divId) {
+    if ([command.arguments count] == 0) {
       [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
-    }
-
-    if ([command.arguments count] == 1) {
+      self.mapCtrl.attached = NO;
+    } else {
       NSString *mapDivId = [command.arguments objectAtIndex:0];
       self.mapCtrl.divId = mapDivId;
       [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
+      self.mapCtrl.attached = YES;
       [self resizeMap:command];
     }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

@@ -130,11 +130,11 @@
     }
     [self.viewPlugins removeAllObjects];
 
-    @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
-      [self.pluginLayer.pluginScrollView.debugView.HTMLNodes removeAllObjects];
-      self.pluginLayer.pluginScrollView.debugView.HTMLNodes = nil;
+    @synchronized(self.pluginLayer.pluginScrollView.HTMLNodes) {
+      [self.pluginLayer.pluginScrollView.HTMLNodes removeAllObjects];
+      self.pluginLayer.pluginScrollView.HTMLNodes = nil;
     }
-    [self.pluginLayer.pluginScrollView.debugView.mapCtrls removeAllObjects];
+    [self.pluginLayer.pluginScrollView.mapCtrls removeAllObjects];
 
   });
 
@@ -207,7 +207,6 @@
 - (void)getMap:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
-    [self.pluginLayer startRedrawTimer];
   }
 
 
@@ -252,7 +251,7 @@
     if ([command.arguments count] == 3) {
       pluginMap.mapCtrl.divId = [command.arguments objectAtIndex:2];
       if (pluginMap.mapCtrl.divId != nil) {
-        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginMap.mapCtrl.divId];
+        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.HTMLNodes objectForKey:pluginMap.mapCtrl.divId];
         if (domInfo != nil) {
           rect = CGRectFromString([domInfo objectForKey:@"size"]);
         }
@@ -380,7 +379,6 @@
 - (void)getPanorama:(CDVInvokedUrlCommand *)command {
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
-    [self.pluginLayer startRedrawTimer];
   }
 
   dispatch_async(dispatch_get_main_queue(), ^{
@@ -423,7 +421,7 @@
     pluginStreetView.panoramaCtrl = panoramaCtrl;
     pluginStreetView.panoramaCtrl.divId = divId;
     if (pluginStreetView.panoramaCtrl.divId != nil) {
-      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:pluginStreetView.panoramaCtrl.divId];
+      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.HTMLNodes objectForKey:pluginStreetView.panoramaCtrl.divId];
       if (domInfo != nil) {
         rect = CGRectFromString([domInfo objectForKey:@"size"]);
       }
@@ -481,7 +479,7 @@
       NSString *domId;
       CGRect rect = CGRectMake(0, 0, 0, 0);
       NSMutableDictionary *domInfo, *size, *currentDomInfo;
-      @synchronized(self.pluginLayer.pluginScrollView.debugView.HTMLNodes) {
+      @synchronized(self.pluginLayer.pluginScrollView.HTMLNodes) {
         for (domId in elementsDic) {
 
           domInfo = [elementsDic objectForKey:domId];
@@ -491,17 +489,16 @@
           rect.size.width = [[size objectForKey:@"width"] doubleValue];
           rect.size.height = [[size objectForKey:@"height"] doubleValue];
 
-          currentDomInfo = [self.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:domId];
+          currentDomInfo = [self.pluginLayer.pluginScrollView.HTMLNodes objectForKey:domId];
           if (currentDomInfo == nil) {
             currentDomInfo = domInfo;
           }
           [currentDomInfo setValue:NSStringFromCGRect(rect) forKey:@"size"];
-          [self.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:currentDomInfo forKey:domId];
+          [self.pluginLayer.pluginScrollView.HTMLNodes setObject:currentDomInfo forKey:domId];
         }
       }
 
       self.pluginLayer.isSuspended = false;
-      [self.pluginLayer startRedrawTimer];
       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self.pluginLayer resizeTask:nil];
       }];

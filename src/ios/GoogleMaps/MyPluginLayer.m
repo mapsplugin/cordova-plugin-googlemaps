@@ -49,11 +49,11 @@
 
     [self addSubview:self.pluginScrollView];
     [self addSubview:self.webView];
-    dispatch_queue_t q_background = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-
-    dispatch_async(q_background, ^{
-      [self startRedrawTimer];
-    });
+//    dispatch_queue_t q_background = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+//
+//    dispatch_async(q_background, ^{
+//      [self startRedrawTimer];
+//    });
 
     return self;
 }
@@ -284,6 +284,7 @@
             rect.origin.x + rect.size.width >= offset.x &&
             rect.origin.y < offset.y + webviewHeight &&
             rect.origin.x < offset.x + webviewWidth) {
+            NSLog(@"---->attachView");
           
           // Attach the map view to the parent.
           [pluginViewCtrl.view setTag:pluginViewCtrl.viewDepth];
@@ -291,6 +292,7 @@
           
         } else {
         
+            NSLog(@"---->removeFromSuperview");
           // Detach from the parent view
           [pluginViewCtrl.view removeFromSuperview];
         }
