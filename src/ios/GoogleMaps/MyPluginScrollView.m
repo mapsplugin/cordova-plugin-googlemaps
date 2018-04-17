@@ -21,6 +21,8 @@
   if (@available(iOS 11, *)) {
     self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
   }
+  self.HTMLNodes = [[NSMutableDictionary alloc] init];
+  self.mapCtrls = [[NSMutableDictionary alloc] init];
   return self;
 }
 
@@ -47,5 +49,9 @@
 - (void)detachView:(UIView *)view {
   [view removeFromSuperview];
   
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    return [super hitTest:point withEvent:event];
 }
 @end

@@ -220,14 +220,12 @@
     [self.pluginScrollView setContentOffset:offset];
 
     if (!pluginViewCtrl.divId) {
-      //NSLog(@"--->no mapDivId");
       return;
     }
 
     NSDictionary *domInfo = nil;
     @synchronized(self.pluginScrollView.HTMLNodes) {
       domInfo = [self.pluginScrollView.HTMLNodes objectForKey:pluginViewCtrl.divId];
-      //NSLog(@"--->domInfo = %@", domInfo);
       if (domInfo == nil) {
           return;
       }
@@ -268,7 +266,6 @@
             rect.origin.x + rect.size.width >= offset.x &&
             rect.origin.y < offset.y + webviewHeight &&
             rect.origin.x < offset.x + webviewWidth) {
-            NSLog(@"---->attachView");
           
           // Attach the map view to the parent.
           [pluginViewCtrl.view setTag:pluginViewCtrl.viewDepth];
@@ -276,7 +273,6 @@
           
         } else {
         
-            NSLog(@"---->removeFromSuperview");
           // Detach from the parent view
           [pluginViewCtrl.view removeFromSuperview];
         }
