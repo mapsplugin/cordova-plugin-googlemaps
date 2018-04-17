@@ -232,7 +232,7 @@ MarkerCluster.prototype.remove = function() {
 
   var keys;
   var resolution = self.get("resolution"),
-    activeMarkerId = self.map.get("active_marker_id"),
+    activeMarker = self.map.get("active_marker"),
     deleteClusters = [];
 
   self.taskQueue = [];
@@ -242,6 +242,7 @@ MarkerCluster.prototype.remove = function() {
   });
   self.trigger("remove");
 
+  var activeMarkerId = activeMarker ? activeMarker.getId() : null;
   if (resolution === self.OUT_OF_RESOLUTION) {
     while (self._clusters[resolution].length > 0) {
       markerOpts = self._clusters[resolution].shift();
@@ -508,7 +509,8 @@ MarkerCluster.prototype._redraw = function(params) {
   }
 
   //console.log("---->548");
-  var activeMarkerId = self.map.get("active_marker_id");
+  var activeMarker = self.map.get("active_marker");
+  var activeMarkerId = activeMarker ? activeMarker.getId() : null;
   if (prevResolution === self.OUT_OF_RESOLUTION) {
     if (resolution === self.OUT_OF_RESOLUTION) {
       //console.log("---->552");

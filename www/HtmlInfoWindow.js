@@ -64,8 +64,8 @@ var HTMLInfoWindow = function () {
   anchorDiv.style.overflow = "visible";
   anchorDiv.style.position = "absolute";
   anchorDiv.style["z-index"] = 0;
-  anchorDiv.style.width = 0;
-  anchorDiv.style.height = 0;
+  anchorDiv.style.width = "0 !important";
+  anchorDiv.style.height = "0 !important";
   //anchorDiv.style.border = "1px solid green";
   //anchorDiv.style.backgroundColor = "rgba(125, 125, 255, 0.5)";
 
@@ -233,7 +233,6 @@ var HTMLInfoWindow = function () {
 
     // Adjust the HTMLInfoWindow size
     var contentsWidth = contentBox.offsetWidth + 10; // padding 5px x 2
-    self.set("contentsWidth", contentsWidth);
     var contentsHeight = contentBox.offsetHeight;
     self.set("contentsHeight", contentsHeight);
     contentFrame.style.width = contentsWidth + "px";
@@ -244,6 +243,7 @@ var HTMLInfoWindow = function () {
     if (contentBox.offsetWidth > div.offsetWidth * 0.9) {
       contentBox.style.width = (div.offsetWidth * 0.9) + "px";
     }
+    self.set("contentsWidth", contentsWidth);
 
     var infoOffset = {
       x: 31,
@@ -265,15 +265,15 @@ var HTMLInfoWindow = function () {
     var icon = marker.get("icon");
 
     if (typeof icon === "object") {
-      if (typeof icon.size === "object") {
-        iconSize.width = icon.size.width;
-        iconSize.height = icon.size.height;
-      }
       if (typeof icon.url === "string" && icon.url.indexOf("data:image/") === 0) {
         var img = document.createElement("img");
         img.src = icon.url;
         iconSize.width = img.width;
         iconSize.height = img.height;
+      }
+      if (typeof icon.size === "object") {
+        iconSize.width = icon.size.width;
+        iconSize.height = icon.size.height;
       }
 
       if (Array.isArray(icon.anchor)) {
@@ -376,7 +376,7 @@ HTMLInfoWindow.prototype.close = function () {
   //self._hook.off(self, "infoWindowAnchor_changed");
   self._hook.off(marker, event.INFO_CLOSE); //This event listener is assigned in the open method. So detach it.
   self.trigger(event.INFO_CLOSE);
-  map.set("active_marker_id", null);
+  map.set("active_marker", null);
 
   //var div = map.getDiv();
   var anchorDiv = self.get("anchor");
@@ -397,6 +397,19 @@ HTMLInfoWindow.prototype.setContent = function (content, cssOptions) {
   self.set("cssOptions", cssOptions);
   var marker = self.get("marker");
   if (content !== prevContent && marker && marker.isInfoWindowShown()) {
+    var anchorDiv = self.get("anchor");
+    if (anchorDiv) {
+      anchorDiv.style.width = "0 !important";
+      anchorDiv.style.height = "0 !important";
+      if (anchorDiv.parentNode) {
+        anchorDiv.parentNode.removeChild(anchorDiv);
+
+        // Remove the contents from this HTMLInfoWindow
+        var contentFrame = anchorDiv.firstChild.firstChild;
+        var contentBox = contentFrame.firstChild;
+        contentBox.innerHTML = "";
+      }
+    }
     self.trigger("infoWindowAnchor_changed", marker);
   }
 };
@@ -438,7 +451,7 @@ HTMLInfoWindow.prototype.open = function (marker) {
     self._hook.one(marker.getMap(), "map_clear", self.close.bind(self));
     self._hook.one(marker, event.INFO_CLOSE, self.close.bind(self));
     self.set("marker", marker);
-    map.set("active_marker_id", marker.getId());
+    map.set("active_marker", marker);
     self.trigger.call(self, "infoWindowAnchor_changed", marker);
   });
 };

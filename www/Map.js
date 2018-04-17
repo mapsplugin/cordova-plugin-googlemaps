@@ -58,14 +58,15 @@ var Map = function(id, _exec) {
   });
 
   self.on(event.MAP_CLICK, function() {
-    self.set("active_marker_id", undefined);
+    self.set("active_marker", undefined);
   });
 
-  self.on("active_marker_id_changed", function(prevId, newId) {
-    if (prevId in self.MARKERS) {
-      self.MARKERS[prevId].hideInfoWindow.call(self.MARKERS[prevId]);
+  self.on("active_marker_changed", function(prevMarker, newMarker) {
+    var newMarkerId = newMarker ? newMarker.getId() : null;
+    if (prevMarker) {
+      prevMarker.hideInfoWindow.call(prevMarker);
     }
-    self.exec.call(self, null, null, self.id, 'setActiveMarkerId', [newId]);
+    self.exec.call(self, null, null, self.id, 'setActiveMarkerId', [newMarkerId]);
   });
 };
 
@@ -321,9 +322,9 @@ Map.prototype.clear = function(callback) {
   }
 
   // Close the active infoWindow
-  var active_marker_id = self.get("active_marker_id");
-  if (active_marker_id && active_marker_id in self.MARKERS) {
-    self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
+  var active_marker = self.get("active_marker");
+  if (active_marker) {
+    active_marker.trigger(event.INFO_CLOSE);
   }
 
   var clearObj = function(obj) {
@@ -659,9 +660,9 @@ Map.prototype.remove = function(callback) {
 
 
   // Close the active infoWindow
-  var active_marker_id = self.get("active_marker_id");
-  if (active_marker_id && active_marker_id in self.MARKERS) {
-    self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
+  var active_marker = self.get("active_marker");
+  if (active_marker) {
+    active_marker.trigger(event.INFO_CLOSE);
   }
 
   var clearObj = function(obj) {

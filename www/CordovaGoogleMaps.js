@@ -155,7 +155,13 @@ CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild)
     children: [],
 
     // Hold the list of map id.
-    containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
+    containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {}),
+
+    line: 161,
+
+    shouldWatchByNative: common.shouldWatchByNative(element),
+    display: common.getStyle(element, 'display'),
+    visibility: common.getStyle(element, 'visibility')
   };
 
   // Should this process continue to child elements?
@@ -180,6 +186,7 @@ CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild)
       child = element.children[i];
       if (self.doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
         !common.shouldWatchByNative(child)) {
+        self.removeDomTree.call(self, child);
         continue;
       }
 
@@ -600,18 +607,22 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       var isCached;
       while(elem && elem.nodeType === Node.ELEMENT_NODE) {
         elemId = common.getPluginDomId(elem);
-        isCached = elemId in self.domPositions;
-        self.domPositions[elemId] = {
-          pointerEvents: common.getStyle(elem, 'pointer-events'),
-          isMap: false,
-          size: common.getDivRect(elem),
-          zIndex: common.getZIndex(elem),
-          children: (elemId in self.domPositions ? self.domPositions[elemId].children : []),
-          overflowX: common.getStyle(elem, "overflow-x"),
-          overflowY: common.getStyle(elem, "overflow-y"),
-          containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
-        };
-        self.domPositions[elemId].containMapIDs[mapId] = 1;
+        if (common.shouldWatchByNative(elem)) {
+          isCached = elemId in self.domPositions;
+          self.domPositions[elemId] = {
+            pointerEvents: common.getStyle(elem, 'pointer-events'),
+            isMap: false,
+            size: common.getDivRect(elem),
+            zIndex: common.getZIndex(elem),
+            children: (elemId in self.domPositions ? self.domPositions[elemId].children : []),
+            overflowX: common.getStyle(elem, "overflow-x"),
+            overflowY: common.getStyle(elem, "overflow-y"),
+            containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
+          };
+          self.domPositions[elemId].containMapIDs[mapId] = 1;
+        } else {
+          self.removeDomTree.call(self, element);
+        }
         elem = elem.parentNode;
       }
 
@@ -667,19 +678,23 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   var isCached, zIndexList = [];
   while(elem && elem.nodeType === Node.ELEMENT_NODE) {
     elemId = common.getPluginDomId(elem);
-    isCached = elemId in self.domPositions;
-    self.domPositions[elemId] = {
-      pointerEvents: common.getStyle(elem, 'pointer-events'),
-      isMap: false,
-      size: common.getDivRect(elem),
-      zIndex: common.getZIndex(elem),
-      children: [],
-      overflowX: common.getStyle(elem, "overflow-x"),
-      overflowY: common.getStyle(elem, "overflow-y"),
-      containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
-    };
-    zIndexList.unshift(self.domPositions[elemId].zIndex);
-    self.domPositions[elemId].containMapIDs[mapId] = 1;
+    if (common.shouldWatchByNative(elem)) {
+      isCached = elemId in self.domPositions;
+      self.domPositions[elemId] = {
+        pointerEvents: common.getStyle(elem, 'pointer-events'),
+        isMap: false,
+        size: common.getDivRect(elem),
+        zIndex: common.getZIndex(elem),
+        children: [],
+        overflowX: common.getStyle(elem, "overflow-x"),
+        overflowY: common.getStyle(elem, "overflow-y"),
+        containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
+      };
+      zIndexList.unshift(self.domPositions[elemId].zIndex);
+      self.domPositions[elemId].containMapIDs[mapId] = 1;
+    } else {
+      self.removeDomTree.call(self, element);
+    }
     elem = elem.parentNode;
   }
 
@@ -768,19 +783,24 @@ function postMapInit(map, div, options) {
     var zIndexList = [];
     while(elem && elem.nodeType === Node.ELEMENT_NODE) {
       elemId = common.getPluginDomId(elem);
-      isCached = elemId in self.domPositions;
-      self.domPositions[elemId] = {
-        pointerEvents: common.getStyle(elem, 'pointer-events'),
-        isMap: false,
-        size: common.getDivRect(elem),
-        zIndex: common.getZIndex(elem),
-        children: [],
-        overflowX: common.getStyle(elem, "overflow-x"),
-        overflowY: common.getStyle(elem, "overflow-y"),
-        containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
-      };
-      zIndexList.unshift(self.domPositions[elemId].zIndex);
-      self.domPositions[elemId].containMapIDs[mapId] = 1;
+      if (common.shouldWatchByNative(elem)) {
+        isCached = elemId in self.domPositions;
+        self.domPositions[elemId] = {
+          pointerEvents: common.getStyle(elem, 'pointer-events'),
+          isMap: false,
+          size: common.getDivRect(elem),
+          zIndex: common.getZIndex(elem),
+          children: [],
+          overflowX: common.getStyle(elem, "overflow-x"),
+          overflowY: common.getStyle(elem, "overflow-y"),
+          containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {}),
+          line:792
+        };
+        zIndexList.unshift(self.domPositions[elemId].zIndex);
+        self.domPositions[elemId].containMapIDs[mapId] = 1;
+      } else {
+        self.removeDomTree.call(self, element);
+      }
       elem = elem.parentNode;
     }
 
