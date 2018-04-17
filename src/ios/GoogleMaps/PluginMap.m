@@ -216,11 +216,11 @@
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
 
     // Save the map rectangle.
-    if (![googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes objectForKey:self.mapCtrl.divId]) {
+    if (![googlemaps.pluginLayer.pluginScrollView.HTMLNodes objectForKey:self.mapCtrl.divId]) {
       NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];;
       [dummyInfo setObject:@"{{0,-3000} - {50,50}}" forKey:@"size"];
       [dummyInfo setObject:[NSNumber numberWithDouble:-999] forKey:@"depth"];
-      [googlemaps.pluginLayer.pluginScrollView.debugView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.divId];
+      [googlemaps.pluginLayer.pluginScrollView.HTMLNodes setObject:dummyInfo forKey:self.mapCtrl.divId];
     }
 
 
