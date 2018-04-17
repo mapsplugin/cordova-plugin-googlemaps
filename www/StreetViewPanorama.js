@@ -259,7 +259,7 @@ StreetViewPanorama.prototype.remove = function(callback) {
 };
 StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
   var self = this;
-  self.set('camera', Object.assign(self.get("camera") || {}, cameraPosition));
+  self.set('camera', common.assign(self.get("camera") || {}, cameraPosition));
   self.set('camera_zoom', cameraPosition.zoom);
   self.set('camera_bearing', cameraPosition.bearing);
   self.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);

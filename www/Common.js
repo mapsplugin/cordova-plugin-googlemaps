@@ -712,6 +712,20 @@ function hashCode(text) {
   return hash;
 }
 
+function assign() {
+  var args = [].slice.call(arguments),
+    target = args.shift();
+
+  return args.reduce(function(base, obj) {
+    Object.keys(obj).forEach(function(prop) {
+      if (obj.hasOwnProperty(prop)) {
+        base[prop] = obj[prop];
+      }
+    });
+    return base;
+  }, target);
+}
+
 module.exports = {
     _clearInternalCache: _clearInternalCache,
     _removeCacheById: _removeCacheById,
@@ -734,7 +748,8 @@ module.exports = {
     quickfilter: quickfilter,
     nextTick: nextTick,
     getPluginDomId: getPluginDomId,
-    hashCode: hashCode
+    hashCode: hashCode,
+    assign: assign
 };
 
 if (cordova && cordova.platformId === "browser") {
