@@ -665,7 +665,69 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   plugin.google.maps[mapId] = nativeCallback.bind(panorama);
 
   self.MAP_CNT++;
-  self.MAPS[mapId] = panorama;
+
+  panorama.one('remove', self._remove.bind(self, mapId));
+
+  if (div instanceof Promise) {
+    // This hack code for @ionic-native/google-maps
+    div.then(function(params) {
+      self.MAPS[mapId] = panorama;
+      params = params || [];
+      params.unshift(panorama);
+console.log(params);
+      postPanoramaInit.apply(self, params);
+    });
+  } else {
+    // Normal code flow
+    self.MAPS[mapId] = panorama;
+    postPanoramaInit.call(self, panorama, div, mapOptions);
+  }
+
+  return panorama;
+};
+
+CordovaGoogleMaps.prototype._remove = function(mapId) {
+  var self = this;
+  delete plugin.google.maps[mapId];
+  var map = self.MAPS[mapId];
+
+  var div = map.getDiv();
+  if (!div) {
+    div = document.querySelector("[__pluginMapId='" + mapId + "']");
+  }
+  if (div) {
+    div.removeAttribute('__pluginMapId');
+  }
+
+  var keys = Object.keys(self.domPositions);
+  keys.forEach(function(elemId) {
+    self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
+    delete self.domPositions[elemId].containMapIDs[mapId];
+    if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
+      delete self.domPositions[elemId];
+    }
+  });
+
+  self.MAPS[mapId].destroy();
+  delete self.MAPS[mapId];
+  map = undefined;
+
+  // If the app have no map, stop the native timer.
+  if ((Object.keys(self.MAPS)).length === 0) {
+    common._clearInternalCache();
+    self.pause();
+  }
+};
+
+function nativeCallback(params) {
+  var args = params.args || [];
+  args.unshift(params.evtName);
+  this[params.callback].apply(this, args);
+}
+function postPanoramaInit(panorama, div, options) {
+  var self = this;
+  var mapId = panorama.getId();
+  var args = [];
   self.isThereAnyChange = true;
 
   // If the mapDiv is specified,
@@ -722,48 +784,6 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
 
 
-  panorama.one('remove', self._remove.bind(self, mapId));
-
-  return panorama;
-};
-
-CordovaGoogleMaps.prototype._remove = function(mapId) {
-  var self = this;
-  delete plugin.google.maps[mapId];
-  var map = self.MAPS[mapId];
-
-  var div = map.getDiv();
-  if (!div) {
-    div = document.querySelector("[__pluginMapId='" + mapId + "']");
-  }
-  if (div) {
-    div.removeAttribute('__pluginMapId');
-  }
-
-  var keys = Object.keys(self.domPositions);
-  keys.forEach(function(elemId) {
-    self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
-    delete self.domPositions[elemId].containMapIDs[mapId];
-    if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
-      delete self.domPositions[elemId];
-    }
-  });
-
-  self.MAPS[mapId].destroy();
-  delete self.MAPS[mapId];
-  map = undefined;
-
-  // If the app have no map, stop the native timer.
-  if ((Object.keys(self.MAPS)).length === 0) {
-    common._clearInternalCache();
-    self.pause();
-  }
-};
-
-function nativeCallback(params) {
-  var args = params.args || [];
-  args.unshift(params.evtName);
-  this[params.callback].apply(this, args);
 }
 
 function postMapInit(map, div, options) {
