@@ -513,6 +513,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
+    mPluginLayout.stopTimer();
 
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {

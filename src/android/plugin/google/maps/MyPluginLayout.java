@@ -68,6 +68,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     @Override
     public void run() {
       final int scrollY = browserView.getScrollY();
+      final int scrollX = browserView.getScrollX();
+      final int webviewWidth = browserView.getWidth();
+      final int webviewHeight = browserView.getHeight();
 
       Set<String> keySet = pluginOverlays.keySet();
       String[] toArrayBuf = new String[pluginOverlays.size()];
@@ -83,54 +86,45 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
         drawRect = HTMLNodeRectFs.get(pluginOverlay.getDivId());
         if (drawRect == null || drawRect.left == 0 && drawRect.top == 0 && drawRect.width() == 0 && drawRect.height() == 0) {
+
           continue;
         }
-        Log.d("MyPluginLayout", "-->drawRect = " + drawRect);
 
         int width = (int)drawRect.width();
         int height = (int)drawRect.height();
         int x = (int) drawRect.left;
         int y = (int) drawRect.top + scrollY;
-        ViewGroup.LayoutParams lParams = pluginOverlay.getView().getLayoutParams();
 
-        if (lParams instanceof FrameLayout.LayoutParams) {
-          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
 
-          Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + width + ", h = " + height);
-          if (params.leftMargin == x && params.topMargin == y &&
-              params.width == width && params.height == height) {
-            continue;
+
+        if (pluginOverlay.getVisible()) {
+          if (pluginOverlay.getOverlayId().startsWith("streetview_")) {
+            if (y + height >= scrollY &&
+                    x + width >= scrollX &&
+                    y < scrollY + webviewHeight &&
+                    x < scrollX + webviewWidth) {
+              MyPluginLayout.this.addPluginOverlay(pluginOverlay);
+            } else {
+
+              scrollFrameLayout.removeView(pluginOverlay.getView());
+              pluginOverlay.getView().removeView(touchableWrappers.remove(pluginOverlay.getOverlayId()));
+            }
           }
-          params.width = width;
-          params.height = height;
-          params.leftMargin = x;
-          params.topMargin = y;
-          pluginOverlay.getView().setLayoutParams(params);
-
-        } else if (lParams instanceof AbsoluteLayout.LayoutParams) {
-          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-          if (params.x == x && params.y == y &&
-              params.width == width && params.height == height) {
-            continue;
-          }
-          params.width = width;
-          params.height = height;
-          params.x = x;
-          params.y = y;
-          pluginOverlay.getView().setLayoutParams(params);
-        } else if (lParams instanceof LinearLayout.LayoutParams) {
-          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-
-          if (params.leftMargin == x && params.topMargin == y &&
-              params.width == width && params.height == height) {
-            continue;
-          }
-          params.width = width;
-          params.height = height;
-          params.leftMargin = x;
-          params.topMargin = y;
-          pluginOverlay.getView().setLayoutParams(params);
         }
+
+        ViewGroup.LayoutParams lParams = pluginOverlay.getView().getLayoutParams();
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+        //Log.d("MyPluginLayout", "-->FrameLayout x = " + x + ", y = " + y + ", w = " + width + ", h = " + height);
+        if (params.leftMargin == x && params.topMargin == y &&
+                params.width == width && params.height == height) {
+          continue;
+        }
+        params.width = width;
+        params.height = height;
+        params.leftMargin = x;
+        params.topMargin = y;
+        pluginOverlay.getView().setLayoutParams(params);
+
 
       }
     }
@@ -298,92 +292,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
   }
 
-  /*
-  public void updateViewPosition(final String mapId) {
-    //Log.d("MyPluginLayout", "---> updateViewPosition / mapId = " + mapId);
-
-    if (!pluginOverlays.containsKey(mapId)) {
-      return;
-    }
-
-    final PluginMap pluginMap = pluginOverlays.get(mapId);
-        if (pluginOverlay.getDivId() == null) {
-          return;
-        }
-        final ViewGroup.LayoutParams lParams = pluginOverlay.getView().getLayoutParams();
-        //int scrollX = browserView.getScrollX();
-    final int scrollY = browserView.getScrollY();
-    final int webviewWidth = browserView.getWidth();
-    final int webviewHeight = browserView.getHeight();
-    final RectF drawRect = HTMLNodeRectFs.get(pluginOverlay.getDivId());
-
-    final int width = (int)drawRect.width();
-    final int height = (int)drawRect.height();
-    final int x = (int) drawRect.left;
-    final int y = (int) drawRect.top + scrollY;
-
-    mActivity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (lParams instanceof AbsoluteLayout.LayoutParams) {
-          AbsoluteLayout.LayoutParams params = (AbsoluteLayout.LayoutParams) lParams;
-          if (params.x == x && params.y == y &&
-              params.width == width && params.height == height) {
-            return;
-          }
-          params.width = width;
-          params.height = height;
-          params.x = x;
-          params.y = y;
-          Log.d("MyPluginLayout", "-->absolute " + params.x + ", " + params.y + " - " + params.width + ", " + params.height);
-          pluginOverlay.getView().setLayoutParams(params);
-        } else if (lParams instanceof LinearLayout.LayoutParams) {
-          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) lParams;
-
-          if (params.leftMargin == x && params.topMargin == y &&
-            params.width == width && params.height == height) {
-            return;
-          }
-          params.width = width;
-          params.height = height;
-          params.leftMargin = x;
-          params.topMargin = y;
-          Log.d("MyPluginLayout", "-->LinearLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
-          pluginOverlay.getView().setLayoutParams(params);
-
-        } else if (lParams instanceof FrameLayout.LayoutParams) {
-          FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
-
-          if (params.leftMargin == x && params.topMargin == y &&
-            params.width == width && params.height == height) {
-            return;
-          }
-          params.width = width;
-          params.height = height;
-          params.leftMargin = x;
-          params.topMargin = y;
-          params.gravity = Gravity.TOP;
-          Log.d("MyPluginLayout", "-->FrameLayout " + params.leftMargin + ", " + params.topMargin + " - " + params.width + ", " + params.height);
-          pluginOverlay.getView().setLayoutParams(params);
-        }
-        //Log.d("MyPluginLayout", "---> mapId : " + mapId + " drawRect = " + drawRect.left + ", " + drawRect.top + " - " + drawRect.width() + ", " + drawRect.height());
-/ *
-        if ((drawRect.top + drawRect.height() < 0) ||
-          (drawRect.top >  webviewHeight) ||
-          (drawRect.left + drawRect.width() < 0) ||
-          (drawRect.left > webviewWidth))  {
-
-          pluginOverlay.getView().setVisibility(View.INVISIBLE);
-        } else {
-          pluginOverlay.getView().setVisibility(View.VISIBLE);
-        }
-        frontLayer.invalidate();
-        * /
-      }
-    });
-  }
-*/
-
   public void setDebug(final boolean debug) {
     this.isDebug = debug;
     mActivity.runOnUiThread(new Runnable() {
@@ -396,20 +304,20 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     });
   }
 
-  public IPluginView removePluginOverlay(final String mapId) {
-    if (!pluginOverlays.containsKey(mapId)) {
+  public IPluginView removePluginOverlay(final String overlayId) {
+    if (pluginOverlays == null || !pluginOverlays.containsKey(overlayId)) {
       return null;
     }
-    final IPluginView pluginOverlay = pluginOverlays.remove(mapId);
+    final IPluginView pluginOverlay = pluginOverlays.remove(overlayId);
 
     mActivity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         try {
           scrollFrameLayout.removeView(pluginOverlay.getView());
-          pluginOverlay.getView().removeView(touchableWrappers.remove(mapId));
+          pluginOverlay.getView().removeView(touchableWrappers.remove(overlayId));
 
-          //Log.d("MyPluginLayout", "--> removePluginMap / mapId = " + mapId);
+          //Log.d("MyPluginLayout", "--> removePluginMap / overlayId = " + overlayId);
 
 
           //mActivity.getWindow().getDecorView().requestFocus();
@@ -449,7 +357,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           int depth = pluginOverlay.getViewDepth();
           int childCnt = scrollFrameLayout.getChildCount();
           View view;
-          int index = childCnt - 1;
+          int index = childCnt;
           for (int i = childCnt - 1; i >= 0; i--) {
             view = scrollFrameLayout.getChildAt(i);
             if (view.getTag() == null) {
@@ -460,7 +368,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               break;
             }
           }
-
+          
           scrollFrameLayout.addView(pluginOverlay.getView(), (childCnt -  index));
         }
 
@@ -519,7 +427,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       String overflowX = domInfo.getString("overflowX");
       String overflowY = domInfo.getString("overflowY");
       if ("hidden".equals(overflowX) || "scroll".equals(overflowX) ||
-          "hidden".equals(overflowY) || "scroll".equals(overflowY)) {
+              "hidden".equals(overflowY) || "scroll".equals(overflowY)) {
         overflow = new Overflow();
         overflow.cropX = "hidden".equals(overflowX) || "scroll".equals(overflowX);
         overflow.cropY = "hidden".equals(overflowY) || "scroll".equals(overflowY);

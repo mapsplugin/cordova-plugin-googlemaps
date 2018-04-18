@@ -185,9 +185,8 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     if (panoramaView != null && panoramaView.isActivated()) {
       panoramaView.onPause();
     }
-    mapCtrl.mPluginLayout.stopTimer();
 
-    mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
+    //mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
 
   }
   @Override
@@ -196,8 +195,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     if (panoramaView != null && panoramaView.isActivated()) {
       panoramaView.onResume();
     }
-    mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
-    mapCtrl.mPluginLayout.startTimer();
+    //mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
   }
 
   public void attachToWebView(JSONArray args, final CallbackContext callbackContext) {
