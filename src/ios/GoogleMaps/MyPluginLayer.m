@@ -258,7 +258,8 @@
     if (pluginViewCtrl.view.hidden == NO) {
       if (pluginViewCtrl.isRenderedAtOnce == YES ||
           ([pluginViewCtrl.overlayId hasPrefix:@"panorama_"] ||
-            (((GMSMapView *)pluginViewCtrl.view).mapType != kGMSTypeSatellite &&
+            ([pluginViewCtrl.overlayId hasPrefix:@"map_"] &&
+            ((GMSMapView *)pluginViewCtrl.view).mapType != kGMSTypeSatellite &&
             ((GMSMapView *)pluginViewCtrl.view).mapType != kGMSTypeHybrid)
           )) {
             
