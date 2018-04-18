@@ -674,7 +674,6 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
       self.MAPS[mapId] = panorama;
       params = params || [];
       params.unshift(panorama);
-console.log(params);
       postPanoramaInit.apply(self, params);
     });
   } else {
@@ -727,8 +726,17 @@ function nativeCallback(params) {
 function postPanoramaInit(panorama, div, options) {
   var self = this;
   var mapId = panorama.getId();
-  var args = [];
   self.isThereAnyChange = true;
+
+
+  if (!common.isDom(div)) {
+    console.error('[GoogleMaps] You need to specify a dom element(such as <div>) for this method', div);
+    return;
+  }
+  if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+    console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
+    return;
+  }
 
   // If the mapDiv is specified,
   // the native side needs to know the map div position
@@ -792,6 +800,10 @@ function postMapInit(map, div, options) {
   var args = [];
 
   if (common.isDom(div)) {
+    if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+      console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
+      return;
+    }
     // If the mapDiv is specified,
     // the native side needs to know the map div position
     // before creating the map view.
