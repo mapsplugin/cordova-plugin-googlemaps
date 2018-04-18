@@ -291,8 +291,10 @@
     if (pluginViewCtrl.attached) {
       if (pluginViewCtrl.isRenderedAtOnce) {
 
+        __block int zPosition = pluginViewCtrl.view.layer.zPosition;
         [UIView animateWithDuration:0.075f animations:^{
           [pluginViewCtrl.view setFrame:rect];
+          pluginViewCtrl.view.layer.zPosition = zPosition;
           //rect.origin.x = 0;
           //rect.origin.y = 0;
         }];
