@@ -60,7 +60,7 @@ StreetViewPanorama.prototype.getHashCode = function() {
 StreetViewPanorama.prototype.getId = function() {
   return this.id;
 };
-StreetViewPanorama.prototype.getPanorama = function(meta, div, options) {
+StreetViewPanorama.prototype.getPanorama = function(meta, panorama, div, options) {
   var self = this,
     args = [meta];
   options = options || {};
@@ -115,7 +115,6 @@ StreetViewPanorama.prototype.getPanorama = function(meta, div, options) {
     //------------------------------------------------------------------------
     // Clear background colors of map div parents after the map is created
     //------------------------------------------------------------------------
-
     var positionCSS;
     for (var i = 0; i < div.children.length; i++) {
       positionCSS = common.getStyle(div.children[i], "position");
