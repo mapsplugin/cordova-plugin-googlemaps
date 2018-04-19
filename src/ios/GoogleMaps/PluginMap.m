@@ -301,20 +301,11 @@
   }];
 }
 
-- (void)setMyLocationButtonEnabled:(CDVInvokedUrlCommand *)command {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-    NSDictionary *params =[command.arguments objectAtIndex:0];
-
-    self.mapCtrl.map.settings.myLocationButton = [[params valueForKey:@"myLocationButton"] boolValue];
-  }];
-
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
 - (void)setMyLocationEnabled:(CDVInvokedUrlCommand *)command {
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
     NSDictionary *params =[command.arguments objectAtIndex:0];
 
+    self.mapCtrl.map.settings.myLocationButton = [[params valueForKey:@"myLocationButton"] boolValue];
     self.mapCtrl.map.myLocationEnabled = [[params valueForKey:@"myLocation"] boolValue];
   }];
 
