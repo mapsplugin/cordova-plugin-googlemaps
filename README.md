@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.0)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.0-rc1)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -10,7 +10,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 *Stable version(npm)*
 ```
-$> cordova plugin add cordova-plugin-googlemaps \
+$> cordova plugin add cordova-plugin-googlemaps#2.3.0-rc1 \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
 
@@ -20,14 +20,14 @@ $> cordova plugin add cordova-plugin-googlemaps \
   //    You need to specify the same version number with all other plugins.
   //    Check out the latest version here.
   //    https://developers.google.com/android/guides/releases
-  PLAY_SERVICES_VERSION="12.1.0" (for Android)
+  PLAY_SERVICES_VERSION="15.0.0" (for Android)
 
   // [Android]
   //    This plugin requires the Android support library v4.
-  //    The minimum version is 27.1.0
+  //    The minimum version is 24.1.0
   //    Check out the latest version here.
   //    https://developer.android.com/topic/libraries/support-library/revisions.html
-  ANDROID_SUPPORT_V4_VERSION="27.1.0" (for Android)
+  ANDROID_SUPPORT_V4_VERSION="27.1.1" (for Android)
 
   // [iOS]
   //    These variable messages are displayed when application requests
@@ -40,13 +40,13 @@ $> cordova plugin add cordova-plugin-googlemaps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.3.0">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.3.0-rc1">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
     <!-- these are optional settings -->
-    <variable name="PLAY_SERVICES_VERSION" value="12.1.0" />
-    <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.1.0" />
+    <variable name="PLAY_SERVICES_VERSION" value="15.0.0" />
+    <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.1.1" />
     <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="(your custom message)" />
     <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="(your custom message)" />
   </plugin>
@@ -82,12 +82,8 @@ document.addEventListener("deviceready", function() {
   map.addEventListener(plugin.google.maps.event.MAP_READY, onMapReady);
 }, false);
 
-function onMapReady() {
-  var button = document.getElementById("button");
-  button.addEventListener("click", onButtonClick);
-}
-
-function onButtonClick() {
+var button = document.getElementById("button");
+button.addEventListener("click", function() {
 
   // Move to the position with animation
   map.animateCamera({
@@ -99,24 +95,23 @@ function onButtonClick() {
   }, function() {
 
     // Add a maker
-    map.addMarker({
+    var marker = map.addMarker({
       position: {lat: 37.422359, lng: -122.084344},
       title: "Welecome to \n" +
              "Cordova GoogleMaps plugin for iOS and Android",
       snippet: "This plugin is awesome!",
       animation: plugin.google.maps.Animation.BOUNCE
-    }, function(marker) {
+    });
 
-      // Show the info window
-      marker.showInfoWindow();
+    // Show the info window
+    marker.showInfoWindow();
 
-      // Catch the click event
-      marker.on(plugin.google.maps.event.INFO_CLICK, function() {
+    // Catch the click event
+    marker.on(plugin.google.maps.event.INFO_CLICK, function() {
 
-        // To do something...
-        alert("Hello world!");
+      // To do something...
+      alert("Hello world!");
 
-      });
     });
   });
 }
@@ -149,16 +144,16 @@ var map = plugin.google.maps.Map.getMap(mapDiv, options)</pre></td>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Marker/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/marker.png?raw=true"><br>Marker</a></td>
   <td><pre>
-map.addMarker({
+var marker = map.addMarker({
   position: {lat: ..., lng: ...},
   title: "Hello Cordova Google Maps for iOS and Android",
   snippet: "This plugin is awesome!"
-}, function(marker) { ... })</pre></td>
+})</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/MarkerCluster/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/markercluster.png?raw=true"><br>MarkerCluster</a></td>
   <td><pre>
-map.addMarkerCluster({
+var markerCluster = map.addMarkerCluster({
   //maxZoomLevel: 5,
   boundsDraw: true,
   markers: dummyData(),
@@ -168,7 +163,7 @@ map.addMarkerCluster({
       {min: 1000, max: 2000, url: "./img/purple.png", anchor: {x: 24, y: 24}},
       {min: 2000, url: "./img/red.png",anchor: {x: 32,y: 32}}
   ]
-}, function(markerCluster) { ... });</pre></td>
+});</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/HtmlInfoWindow/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/htmlInfoWindow.png?raw=true"><br>HtmlInfoWindow</a></td>
@@ -183,57 +178,57 @@ htmlInfoWindow.open(marker);
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Circle/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/circle.png?raw=true"><br>Circle</a></td>
   <td><pre>
-map.addCircle({
+var circle = map.addCircle({
   'center': {lat: ..., lng: ...},
   'radius': 300,
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
-}, function(circle) { ... });</pre></td>
+});</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polyline/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/polyline.png?raw=true"><br>Polyline</a></td>
   <td><pre>
-map.addPolyline({
+var polyline = map.addPolyline({
   points: AIR_PORTS,
   'color' : '#AA00FF',
   'width': 10,
   'geodesic': true
-}, function(polyline) { ... });</pre></td>
+});</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Polygon/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/polygon.png?raw=true"><br>Polygon</a></td>
   <td><pre>
-map.addPolygon({
+var polygon = map.addPolygon({
   'points': GORYOKAKU_POINTS,
   'strokeColor' : '#AA00FF',
   'strokeWidth': 5,
   'fillColor' : '#880000'
-}, function(polygon) { ... });</pre></td>
+});</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/GroundOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/groundoverlay.png?raw=true"><br>GroundOverlay</a></td>
   <td><pre>
-map.addGroundOverlay({
+var groundOverlay = map.addGroundOverlay({
   'url': "./newark_nj_1922.jpg",
   'bounds': [
     {"lat": 40.712216, "lng": -74.22655},
     {"lat": 40.773941, "lng": -74.12544}
   ],
   'opacity': 0.5
-}, function(groundOverlay) { ... });
+});
 </pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/TileOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/tileoverlay.png?raw=true"><br>TileOverlay</a></td>
   <td><pre>
-map.addTileOverlay({
+var tileOverlay = map.addTileOverlay({
   debug: true,
   opacity: 0.75,
   getTile: function(x, y, zoom) {
     return "../images/map-for-free/" + zoom + "_" + x + "-" + y + ".gif"
   }
-}, function(tileOverlay) { ... });</pre></td>
+});</pre></td>
 </tr>
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/KmlOverlay/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/multiple_maps/images/kmloverlay.png?raw=true"><br>KmlOverlay</a></td>
@@ -297,6 +292,27 @@ plugin.google.maps.LocationService.getMyLocation(function(result) {
       "bearing:" + location.bearing].join("\n"));
 });
 </pre></td>
+</tr>
+
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Map/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/raw/master/images/map.png?raw=true"><br>Map</a></td>
+  <td><pre>
+var options = {
+  camera: {
+    target: {lat: ..., lng: ...},
+    zoom: 19
+  }
+};
+var map = plugin.google.maps.Map.getMap(mapDiv, options)</pre></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/class/Marker/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/images/marker.png?raw=true"><br>Marker</a></td>
+  <td><pre>
+var marker = map.addMarker({
+  position: {lat: ..., lng: ...},
+  title: "Hello Cordova Google Maps for iOS and Android",
+  snippet: "This plugin is awesome!"
+})</pre></td>
 </tr>
 </table>
 
