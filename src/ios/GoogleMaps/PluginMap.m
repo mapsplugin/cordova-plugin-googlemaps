@@ -149,7 +149,7 @@
 
 
 - (void)setDiv:(CDVInvokedUrlCommand *)command {
-  [self.mapCtrl.executeQueue addOperationWithBlock:^{
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
 
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
@@ -159,12 +159,15 @@
     if ([command.arguments count] == 0) {
       [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
       self.mapCtrl.attached = NO;
+      self.mapCtrl.view = nil;
     } else {
+      self.mapCtrl.view = self.mapCtrl.map;
+      [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
       NSString *mapDivId = [command.arguments objectAtIndex:0];
       self.mapCtrl.divId = mapDivId;
-      [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
       self.mapCtrl.attached = YES;
-      [self resizeMap:command];
+      self.mapCtrl.isRenderedAtOnce = NO; //prevent unexpected animation
+      [googlemaps.pluginLayer updateViewPosition:self.mapCtrl];
     }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

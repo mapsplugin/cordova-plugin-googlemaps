@@ -155,13 +155,7 @@ CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild)
     children: [],
 
     // Hold the list of map id.
-    containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {}),
-
-    line: 161,
-
-    shouldWatchByNative: common.shouldWatchByNative(element),
-    display: common.getStyle(element, 'display'),
-    visibility: common.getStyle(element, 'visibility')
+    containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
   };
 
   // Should this process continue to child elements?
@@ -518,12 +512,6 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   if (common.isDom(div)) {
     mapId = div.getAttribute("__pluginMapId");
 
-    // If the specified div does not have any map,
-    // add gray background-color until the map is displayed.
-    if (!mapId && (!mapOptions || mapOptions.visible !== false)) {
-      div.style.backgroundColor = "rgba(200, 200, 200, 0.5)";
-    }
-
     // Wow, the app specifies the map div that has already another map,
     // but the app try to create new map.
     // In this case, remove the old map instance automatically.
@@ -825,8 +813,7 @@ function postMapInit(map, div, options) {
           children: [],
           overflowX: common.getStyle(elem, "overflow-x"),
           overflowY: common.getStyle(elem, "overflow-y"),
-          containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {}),
-          line:792
+          containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
         };
         zIndexList.unshift(self.domPositions[elemId].zIndex);
         self.domPositions[elemId].containMapIDs[mapId] = 1;

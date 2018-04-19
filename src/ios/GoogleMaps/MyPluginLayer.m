@@ -198,19 +198,21 @@
 }
 
 - (void)resizeTask:(NSTimer *)timer {
+  dispatch_async(dispatch_get_main_queue(), ^{
     NSArray *keys=[self.pluginScrollView.mapCtrls allKeys];
     NSString *mapId;
     PluginMapViewController *mapCtrl;
+
 
     for (int i = 0; i < [keys count]; i++) {
         mapId = [keys objectAtIndex:i];
         mapCtrl = [self.pluginScrollView.mapCtrls objectForKey:mapId];
         [self updateViewPosition:mapCtrl];
     }
+  });
 }
 
 - (void)updateViewPosition:(PluginViewController *)pluginViewCtrl {
-  dispatch_async(dispatch_get_main_queue(), ^{
     CGFloat zoomScale = self.webView.scrollView.zoomScale;
     [self.pluginScrollView setFrame:self.webView.frame];
 
@@ -309,8 +311,6 @@
       [pluginViewCtrl.view setFrame:CGRectMake(0, -pluginViewCtrl.view.frame.size.height, pluginViewCtrl.view.frame.size.width, pluginViewCtrl.view.frame.size.height)];
     }
 
-
-  });
 }
 - (void)execJS: (NSString *)jsString {
     if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
