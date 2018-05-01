@@ -313,7 +313,6 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
               final JSONObject result = new JSONObject();
               result.put("id", markerId);
 
-
               // Load icon
               if (opts.has("icon")) {
                 //------------------------------
@@ -323,48 +322,58 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 Object value = opts.get("icon");
                 if (JSONObject.class.isInstance(value)) {
                   JSONObject iconProperty = (JSONObject) value;
-                  if (iconProperty.has("label")) {
-                    JSONObject label = iconProperty.getJSONObject("label");
-                    if (label != null && label.get("color") instanceof JSONArray) {
-                      label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
-                      iconProperty.put("label", label);
-                    }
-                  }
-                  bundle = PluginUtil.Json2Bundle(iconProperty);
+                  if (JSONArray.class.isInstance(iconProperty.get("url"))) {
 
-                  // The `anchor` of the `icon` property
-                  if (iconProperty.has("anchor")) {
-                    value = iconProperty.get("anchor");
-                    if (JSONArray.class.isInstance(value)) {
-                      JSONArray points = (JSONArray) value;
-                      double[] anchorPoints = new double[points.length()];
-                      for (int i = 0; i < points.length(); i++) {
-                        anchorPoints[i] = points.getDouble(i);
-                      }
-                      bundle.putDoubleArray("anchor", anchorPoints);
-                    } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
-                      double[] anchorPoints = new double[2];
-                      anchorPoints[0] = ((JSONObject) value).getDouble("x");
-                      anchorPoints[1] = ((JSONObject) value).getDouble("y");
-                      bundle.putDoubleArray("anchor", anchorPoints);
-                    }
-                  }
+                    float[] hsv = new float[3];
+                    JSONArray arrayRGBA = iconProperty.getJSONArray("url");
+                    Color.RGBToHSV(arrayRGBA.getInt(0), arrayRGBA.getInt(1), arrayRGBA.getInt(2), hsv);
+                    bundle = new Bundle();
+                    bundle.putFloat("iconHue", hsv[0]);
 
-                  // The `infoWindowAnchor` property for infowindow
-                  if (opts.has("infoWindowAnchor")) {
-                    value = opts.get("infoWindowAnchor");
-                    if (JSONArray.class.isInstance(value)) {
-                      JSONArray points = (JSONArray) value;
-                      double[] anchorPoints = new double[points.length()];
-                      for (int i = 0; i < points.length(); i++) {
-                        anchorPoints[i] = points.getDouble(i);
+                  } else {
+                    if (iconProperty.has("label")) {
+                      JSONObject label = iconProperty.getJSONObject("label");
+                      if (label != null && label.get("color") instanceof JSONArray) {
+                        label.put("color", PluginUtil.parsePluginColor(label.getJSONArray("color")));
+                        iconProperty.put("label", label);
                       }
-                      bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
-                    } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
-                      double[] anchorPoints = new double[2];
-                      anchorPoints[0] = ((JSONObject) value).getDouble("x");
-                      anchorPoints[1] = ((JSONObject) value).getDouble("y");
-                      bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
+                    }
+                    bundle = PluginUtil.Json2Bundle(iconProperty);
+
+                    // The `anchor` of the `icon` property
+                    if (iconProperty.has("anchor")) {
+                      value = iconProperty.get("anchor");
+                      if (JSONArray.class.isInstance(value)) {
+                        JSONArray points = (JSONArray) value;
+                        double[] anchorPoints = new double[points.length()];
+                        for (int i = 0; i < points.length(); i++) {
+                          anchorPoints[i] = points.getDouble(i);
+                        }
+                        bundle.putDoubleArray("anchor", anchorPoints);
+                      } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
+                        double[] anchorPoints = new double[2];
+                        anchorPoints[0] = ((JSONObject) value).getDouble("x");
+                        anchorPoints[1] = ((JSONObject) value).getDouble("y");
+                        bundle.putDoubleArray("anchor", anchorPoints);
+                      }
+                    }
+
+                    // The `infoWindowAnchor` property for infowindow
+                    if (opts.has("infoWindowAnchor")) {
+                      value = opts.get("infoWindowAnchor");
+                      if (JSONArray.class.isInstance(value)) {
+                        JSONArray points = (JSONArray) value;
+                        double[] anchorPoints = new double[points.length()];
+                        for (int i = 0; i < points.length(); i++) {
+                          anchorPoints[i] = points.getDouble(i);
+                        }
+                        bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
+                      } else if (value instanceof JSONObject && ((JSONObject) value).has("x") && ((JSONObject) value).has("y")) {
+                        double[] anchorPoints = new double[2];
+                        anchorPoints[0] = ((JSONObject) value).getDouble("x");
+                        anchorPoints[1] = ((JSONObject) value).getDouble("y");
+                        bundle.putDoubleArray("infoWindowAnchor", anchorPoints);
+                      }
                     }
                   }
 
