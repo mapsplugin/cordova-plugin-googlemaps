@@ -258,7 +258,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         You need to specify this version number for all other plugins that use google play services sdk.
         https://developers.google.com/android/guides/releases
         -->
-        <preference name="PLAY_SERVICES_VERSION" default="15.0.0" />
+        <preference name="PLAY_SERVICES_VERSION" default="12.0.1" />
         <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
         <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
 
@@ -266,7 +266,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         Minimum required version of Android Support library v4 for this plugin.
         https://developers.google.com/android/guides/releases
         -->
-        <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.1.1" />
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="26.1.0" />
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
