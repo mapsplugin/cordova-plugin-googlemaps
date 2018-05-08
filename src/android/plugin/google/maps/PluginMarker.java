@@ -322,7 +322,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 Object value = opts.get("icon");
                 if (JSONObject.class.isInstance(value)) {
                   JSONObject iconProperty = (JSONObject) value;
-                  if (JSONArray.class.isInstance(iconProperty.get("url"))) {
+                  if (iconProperty.has("url") && JSONArray.class.isInstance(iconProperty.get("url"))) {
 
                     float[] hsv = new float[3];
                     JSONArray arrayRGBA = iconProperty.getJSONArray("url");
