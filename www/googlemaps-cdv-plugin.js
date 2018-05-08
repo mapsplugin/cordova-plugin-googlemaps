@@ -60,25 +60,33 @@ if (!cordova) {
       // If the `transitionend` event is ocurred on the observed element,
       // adjust the position and size of the map view
       var scrollEndTimer = null;
-      function followMaps() {
-        if (cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps)) {
-          if (scrollEndTimer) {
-            clearTimeout(scrollEndTimer);
-            cordovaGoogleMaps.isThereAnyChange = true;
-            cordovaGoogleMaps.checkRequested = false;
-            cordovaGoogleMaps.putHtmlElements.call(cordovaGoogleMaps);
-            cordovaGoogleMaps.pause();
-
-          } else {
-            scrollEndTimer = setTimeout(function() {
-              common.nextTick(followMaps);
-            }, 100);
-          }
+      function followMaps(evt) {
+        var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
+        if (scrollEndTimer) {
+          clearTimeout(scrollEndTimer);
+          scrollEndTimer = null;
+        }
+        if (changes) {
+          scrollEndTimer = setTimeout(followMaps.bind(this, evt), 100);
+        } else if (evt && evt.type === "scroll") {
+          common.nextTick(onTransitionEnd);
+        }
+      }
+      function onTransitionEnd() {
+        var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
+        if (changes) {
+          scrollEndTimer = setTimeout(onTransitionEnd, 100);
+        } else {
+          cordovaGoogleMaps.isThereAnyChange = true;
+          cordovaGoogleMaps.checkRequested = false;
+          cordovaGoogleMaps.putHtmlElements.call(cordovaGoogleMaps);
+          cordovaGoogleMaps.pause();
+          scrollEndTimer = null;
         }
       }
 
       document.addEventListener("transitionstart", followMaps);
-      document.body.addEventListener("transitionend", followMaps);
+      document.body.addEventListener("transitionend", onTransitionEnd);
       // document.body.addEventListener("transitionend", function(e) {
       //   if (!e.target.hasAttribute("__pluginDomId")) {
       //     return;

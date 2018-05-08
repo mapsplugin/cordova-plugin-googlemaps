@@ -450,13 +450,27 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
       };
 
       // Is the map moved?
-      if (!changed && self.prevMapRects && (divId in self.prevMapRects) && (
-        self.prevMapRects[divId].size.left !== mapRects[divId].size.left ||
-        self.prevMapRects[divId].size.top !== mapRects[divId].size.top ||
-        self.prevMapRects[divId].size.width !== mapRects[divId].size.width ||
-        self.prevMapRects[divId].size.height !== mapRects[divId].size.height ||
-        self.prevMapRects[divId].zIndex.z !== mapRects[divId].zIndex.z)) {
-        changed = true;
+      if (!changed && self.prevMapRects && divId in self.prevMapRects) {
+        if (self.prevMapRects[divId].size.left !== mapRects[divId].size.left) {
+          //console.log("changed(left)", divId, self.prevMapRects[divId].size.left, mapRects[divId].size.left);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].size.top !== mapRects[divId].size.top) {
+          //console.log("changed(top)", divId, self.prevMapRects[divId].size.top, mapRects[divId].size.top);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].size.width !== mapRects[divId].size.width) {
+          //console.log("changed(width)", divId, self.prevMapRects[divId].size.width, mapRects[divId].size.width);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].size.height !== mapRects[divId].size.height) {
+          //console.log("changed(height)", divId, self.prevMapRects[divId].size.height, mapRects[divId].size.height);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].zIndex.z !== mapRects[divId].zIndex.z) {
+          //console.log("changed(zIndex.z)", divId, self.prevMapRects[divId].zIndex.z, mapRects[divId].zIndex.z);
+          changed = true;
+        }
       }
     }
 
