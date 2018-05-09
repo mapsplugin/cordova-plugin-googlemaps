@@ -681,7 +681,7 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   } else {
     // Normal code flow
     self.MAPS[mapId] = panorama;
-    postPanoramaInit.call(self, panorama, div, mapOptions);
+    postPanoramaInit.call(self, panorama, div, streetViewOptions);
   }
 
   return panorama;
