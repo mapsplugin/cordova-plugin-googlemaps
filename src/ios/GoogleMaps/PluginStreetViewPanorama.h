@@ -19,7 +19,8 @@
 - (void)getPanorama:(CDVInvokedUrlCommand*)command;
 - (void)attachToWebView:(CDVInvokedUrlCommand*)command;
 - (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
-- (void)moveCamera:(CDVInvokedUrlCommand*)command;
+- (void)setPov:(CDVInvokedUrlCommand*)command;
+- (void)setPosition:(CDVInvokedUrlCommand*)command;
 - (void)setPanningGesturesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setZoomGesturesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setNavigationEnabled:(CDVInvokedUrlCommand*)command;

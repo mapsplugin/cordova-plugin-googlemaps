@@ -17,7 +17,8 @@
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
   if ([initOptions objectForKey:@"camera"]) {
-    [self _movePanoramaCamera:[initOptions objectForKey:@"camera"]];
+    [self _setPosition:[initOptions objectForKey:@"camera"]];
+    [self _setPov:[initOptions objectForKey:@"camera"]];
   }
   if ([initOptions objectForKey:@"gestures"]) {
     NSDictionary *gestures = [initOptions objectForKey:@"gestures"];
@@ -42,11 +43,11 @@
 
 }
 
-- (void)moveCamera:(CDVInvokedUrlCommand *)command {
+- (void)setPov:(CDVInvokedUrlCommand *)command {
   [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
-      [self _movePanoramaCamera:cameraOpts];
+      [self _setPov:cameraOpts];
 
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -54,7 +55,18 @@
   }];
 }
 
-- (void)_movePanoramaCamera:(NSDictionary *)cameraOpts {
+- (void)setPosition:(CDVInvokedUrlCommand *)command {
+  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+      NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
+      [self _setPosition:cameraOpts];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }];
+}
+- (void)_setPosition:(NSDictionary *)cameraOpts {
 
   if ([cameraOpts valueForKey:@"target"]) {
     NSObject *target = [cameraOpts objectForKey:@"target"];
@@ -65,7 +77,7 @@
       double latitude = [[latLng valueForKey:@"lat"] doubleValue];
       double longitude = [[latLng valueForKey:@"lng"] doubleValue];
       CLLocationCoordinate2D location = CLLocationCoordinate2DMake(latitude, longitude);
-      
+
       if ([cameraOpts objectForKey:@"source"]) {
         GMSPanoramaSource source = [@"OUTDOOR" isEqualToString:[cameraOpts objectForKey:@"source"]] ?
           kGMSPanoramaSourceOutside : kGMSPanoramaSourceDefault;
@@ -87,6 +99,11 @@
   }
 
 
+}
+
+- (void)_setPov:(NSDictionary *)cameraOpts {
+
+
   double bearing = self.panoramaCtrl.panoramaView.camera.orientation.heading;
   if ([cameraOpts valueForKey:@"bearing"]) {
     bearing = [[cameraOpts valueForKey:@"bearing"] doubleValue];
@@ -96,12 +113,12 @@
   if ([cameraOpts valueForKey:@"tilt"]) {
     angle = [[cameraOpts valueForKey:@"tilt"] doubleValue];
   }
-  
+
   float zoom = self.panoramaCtrl.panoramaView.camera.zoom;
   if ([cameraOpts valueForKey:@"zoom"]) {
     zoom = [[cameraOpts valueForKey:@"zoom"] doubleValue];
   }
-  
+
   self.panoramaCtrl.panoramaView.camera = [GMSPanoramaCamera cameraWithHeading:bearing pitch:angle zoom:zoom FOV:90];
 
 }
@@ -168,7 +185,7 @@
 }
 - (void)remove:(CDVInvokedUrlCommand*)command {
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-    
+
     // Load the GoogleMap.m
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
@@ -184,7 +201,7 @@
 }
 
 - (void)pluginUnload {
-  
+
   // Plugin destroy
   self.isRemoved = YES;
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{

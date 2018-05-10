@@ -203,41 +203,52 @@ StreetViewPanorama.prototype.getLinks = function () {
 StreetViewPanorama.prototype.getLocation = function () {
   return this.get('location');
 };
-StreetViewPanorama.prototype.getPano = function () {
+StreetViewPanorama.prototype.getPanoId = function () {
   return this.get('pano');
 };
 StreetViewPanorama.prototype.getPosition = function () {
   return this.get('position');
 };
 
-StreetViewPanorama.prototype.moveCamera = function(cameraPosition, callback) {
-  var self = this;
-  cameraPosition = cameraPosition || {};
-  cameraPosition.duration = 0;
-  self.animateCamera.call(self, cameraPosition, callback);
-  return this;
-};
-
-StreetViewPanorama.prototype.animateCamera = function(cameraPosition, callback) {
+StreetViewPanorama.prototype.setPosition = function(cameraPosition, callback) {
   var self = this;
   cameraPosition = cameraPosition || {};
   if (typeof cameraPosition.target === "object") {
     self.set("position", cameraPosition.target);
   }
+  self.exec.call(self, function() {
+    if (typeof callback === "function") {
+      callback.call(self);
+    }
+  }, self.errorHandler, self.id, 'setPosition', [cameraPosition], {
+    sync: true
+  });
+  return this;
+};
+
+StreetViewPanorama.prototype.setPov = function(pov, callback) {
+  var self = this;
+  pov = pov || {};
   if ("zoom" in cameraPosition) {
     self.set("camera_zoom", cameraPosition.zoom);
+  } else {
+    pov.zoom = self.get("camera_zoom");
   }
   if ("bearing" in cameraPosition) {
     self.set("camera_bearing", cameraPosition.bearing);
+  } else {
+    pov.bearing = self.get("camera_bearing");
   }
   if ("tilt" in cameraPosition) {
     self.set("camera_tilt", cameraPosition.tilt);
+  } else {
+    pov.tilt = self.get("camera_tilt");
   }
   self.exec.call(self, function() {
     if (typeof callback === "function") {
       callback.call(self);
     }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
+  }, self.errorHandler, self.id, 'setPov', [cameraPosition], {
     sync: true
   });
   return this;

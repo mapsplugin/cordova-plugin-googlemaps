@@ -68,7 +68,7 @@ if (!cordova) {
         }
         if (changes) {
           scrollEndTimer = setTimeout(followMaps.bind(this, evt), 100);
-        } else if (evt && evt.type === "scroll") {
+        } else {
           common.nextTick(onTransitionEnd);
         }
       }
