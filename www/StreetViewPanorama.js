@@ -20,6 +20,9 @@ var StreetViewPanorama = function(streetViewId, _exec) {
   self.set("gesture_zoom", true);
   self.set("control_navigation", true);
   self.set("control_streetNames", true);
+  self.set("camera_zoom", 0);
+  self.set("camera_tilt", 0);
+  self.set("camera_bearing", 0);
 
   //-----------------------------------------------
   // Sets event listeners
@@ -229,26 +232,20 @@ StreetViewPanorama.prototype.setPosition = function(cameraPosition, callback) {
 StreetViewPanorama.prototype.setPov = function(pov, callback) {
   var self = this;
   pov = pov || {};
-  if ("zoom" in cameraPosition) {
-    self.set("camera_zoom", cameraPosition.zoom);
-  } else {
-    pov.zoom = self.get("camera_zoom");
+  if ("zoom" in pov) {
+    self.set("camera_zoom", pov.zoom);
   }
-  if ("bearing" in cameraPosition) {
-    self.set("camera_bearing", cameraPosition.bearing);
-  } else {
-    pov.bearing = self.get("camera_bearing");
+  if ("bearing" in pov) {
+    self.set("camera_bearing", pov.bearing);
   }
-  if ("tilt" in cameraPosition) {
-    self.set("camera_tilt", cameraPosition.tilt);
-  } else {
-    pov.tilt = self.get("camera_tilt");
+  if ("tilt" in pov) {
+    self.set("camera_tilt", pov.tilt);
   }
   self.exec.call(self, function() {
     if (typeof callback === "function") {
       callback.call(self);
     }
-  }, self.errorHandler, self.id, 'setPov', [cameraPosition], {
+  }, self.errorHandler, self.id, 'setPov', [pov], {
     sync: true
   });
   return this;

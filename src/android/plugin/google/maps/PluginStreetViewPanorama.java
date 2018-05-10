@@ -313,19 +313,21 @@ public class PluginStreetViewPanorama extends MyPlugin implements
         try {
           final JSONObject cameraPosition = args.getJSONObject(0);
 
-          if (cameraPosition.has("bearing") || cameraPosition.has("tilt")) {
-            StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
-            float bearing = cameraPosition.has("bearing") ? (float) cameraPosition.getDouble("bearing") : currentCamera.bearing;
-            float tilt = cameraPosition.has("tilt") ? (float) cameraPosition.getDouble("tilt") : currentCamera.tilt;
-            float zoom = cameraPosition.has("zoom") ? (float) cameraPosition.getDouble("zoom") : currentCamera.zoom;
-            long duration = cameraPosition.has("duration") ? (long) cameraPosition.getDouble("duration") : 0;
+          StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
+          float bearing = cameraPosition.has("bearing") ? (float) cameraPosition.getDouble("bearing") : currentCamera.bearing;
+          float tilt = cameraPosition.has("tilt") ? (float) cameraPosition.getDouble("tilt") : currentCamera.tilt;
+          float zoom = cameraPosition.has("zoom") ? (float) cameraPosition.getDouble("zoom") : currentCamera.zoom;
+          long duration = cameraPosition.has("duration") ? (long) cameraPosition.getDouble("duration") : 1000;
 
-            StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera(bearing, tilt, zoom);
-            panorama.animateTo(newCamera, duration);
+          StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera.Builder()
+                                                    .bearing(bearing)
+                                                        .zoom(zoom)
+                                                        .tilt(tilt)
+                                                        .build();
+          panorama.animateTo(newCamera, duration);
 
-          }
           callbackContext.success();
-        } catch (JSONException e) {
+        } catch (Exception e) {
           e.printStackTrace();
           callbackContext.error("" + e.getMessage());
         }
