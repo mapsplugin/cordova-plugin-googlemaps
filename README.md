@@ -45,7 +45,7 @@ $> cordova plugin add cordova-plugin-googlemaps#2.3.0 \
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
     <!-- these are optional settings -->
-    <variable name="PLAY_SERVICES_VERSION" value="15.0.0" />
+    <variable name="PLAY_SERVICES_VERSION" value="15.0.1" />
     <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.1.1" />
     <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="(your custom message)" />
     <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="(your custom message)" />
