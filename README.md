@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.0-rc1)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.0)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -71,28 +71,24 @@ $> cordova plugin add cordova-plugin-googlemaps#2.3.0-rc1 \
 
 ```html
 <script type="text/javascript">
-var map;
 document.addEventListener("deviceready", function() {
   var div = document.getElementById("map_canvas");
 
   // Initialize the map view
-  map = plugin.google.maps.Map.getMap(div);
+  var map = plugin.google.maps.Map.getMap(div);
 
-  // Wait until the map is ready status.
-  map.addEventListener(plugin.google.maps.event.MAP_READY, onMapReady);
-}, false);
 
-var button = document.getElementById("button");
-button.addEventListener("click", function() {
+  var button = document.getElementById("button");
+  button.addEventListener("click", function() {
 
-  // Move to the position with animation
-  map.animateCamera({
-    target: {lat: 37.422359, lng: -122.084344},
-    zoom: 17,
-    tilt: 60,
-    bearing: 140,
-    duration: 5000
-  }, function() {
+    // Move to the position with animation
+    map.animateCamera({
+      target: {lat: 37.422359, lng: -122.084344},
+      zoom: 17,
+      tilt: 60,
+      bearing: 140,
+      duration: 5000
+    });
 
     // Add a maker
     var marker = map.addMarker({
@@ -113,8 +109,8 @@ button.addEventListener("click", function() {
       alert("Hello world!");
 
     });
-  });
-}
+  }
+}, false);
 </script>
 ```
 
