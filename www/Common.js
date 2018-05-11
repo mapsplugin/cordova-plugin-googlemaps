@@ -1,8 +1,7 @@
 var BaseArrayClass = require('./BaseArrayClass');
 var utils = require("cordova/utils");
 
-var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
-var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
+var nextTick = Promise.then;
 
 //---------------------------
 // Convert HTML color to RGB
@@ -24,21 +23,6 @@ function isHTMLColorString(inputValue) {
     return inputValue in HTML_COLORS;
 }
 
-function deleteFromObject(object, type) {
-    if (object === null) return object;
-    if (typeof object !== "object") {
-      return object;
-    }
-    for(var index in Object.keys(object)) {
-        var key = Object.keys(object)[index];
-        if (typeof object[key] === 'object') {
-           object[key] = deleteFromObject(object[key], type);
-        } else if (typeof object[key] === type) {
-           delete object[key];
-        }
-    }
-    return object;
-}
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
     if (colorValue instanceof Array) {
@@ -198,9 +182,10 @@ function parseBoolean(boolValue) {
 }
 
 function isDom(element) {
-    return !!element &&
-        typeof element === "object" &&
-        "getBoundingClientRect" in element;
+    return element &&
+        element.nodeType === Node.ELEMENT_NODE &&
+        element instanceof SVGElement === false &&
+        typeof element.getBoundingClientRect === "function";
 }
 
 function getDivRect(div) {
@@ -711,11 +696,11 @@ function hashCode(text) {
   return hash;
 }
 
+
 module.exports = {
     _clearInternalCache: _clearInternalCache,
     _removeCacheById: _removeCacheById,
     getZIndex: getZIndex,
-    deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
     isDom: isDom,

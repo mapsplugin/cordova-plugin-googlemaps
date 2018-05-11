@@ -34,7 +34,7 @@ function execCmd(success, error, pluginName, methodName, args, execOptions) {
 
   // If the overlay is not ready in native side,
   // do not execute any methods except remove on it.
-  // This code works for map class especially.  
+  // This code works for map class especially.
   if (!this._isReady && methodName !== "remove") {
     console.error("[ignore]" + pluginName + "." + methodName + ", because it's not ready.");
     return true;

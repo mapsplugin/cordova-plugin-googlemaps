@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.2.9" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.3.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -97,6 +97,12 @@
     <js-module name="CordovaGoogleMaps" src="www/CordovaGoogleMaps.js">
       <runs />
     </js-module>
+    <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
+      <runs />
+    </js-module>
+    <js-module name="Overlay" src="www/Overlay.js">
+      <runs />
+    </js-module>
 
     <description>Google Maps native SDK for Android and iOS.
 This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
@@ -117,8 +123,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
       <engine name="apple-ios" version=">=10.0.0" />
     </engines>
 
+    <hook type="before_plugin_add" src="src/before_plugin_install.js" />
     <hook type="before_plugin_install" src="src/before_plugin_install.js" />
-    <hook type="after_plugin_install" src="src/after_plugin_install.js" />
+    <!--<hook type="after_plugin_install" src="src/after_plugin_install.js" />-->
     <hook type="before_plugin_rm" src="src/before_plugin_rm.js" />
 
     <!-- android -->
@@ -184,6 +191,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <feature name="MarkerCluster">
                 <param name="android-package" value="plugin.google.maps.PluginMarkerCluster" />
             </feature>
+            <feature name="StreetViewPanorama">
+                <param name="android-package" value="plugin.google.maps.PluginStreetViewPanorama" />
+            </feature>
         </config-file>
 
         <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
@@ -209,6 +219,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
         <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/PluginStreetViewPanorama.java" target-dir="src/plugin/google/maps" />
+        <source-file src="src/android/plugin/google/maps/IPluginView.java" target-dir="src/plugin/google/maps" />
 
         <framework src="src/android/frameworks/tbxml-android.gradle"  custom="true" type="gradleReference" />
         <resource-file src="src/android/frameworks/tbxml-android.aar"  target="libs/tbxml-android.aar" />
@@ -242,11 +254,11 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/android/res/drawable/dummy_mylocation_button_shadow.xml" target="res/drawable/dummy_mylocation_button_shadow.xml"/>
 
         <!--
-        Minimum required version of Google Play Services SDK for this plugin is 11.8.0.
+        Minimum required version of Google Play Services SDK for this plugin is 12.0.1.
         You need to specify this version number for all other plugins that use google play services sdk.
         https://developers.google.com/android/guides/releases
         -->
-        <preference name="PLAY_SERVICES_VERSION" default="12.0.0" />
+        <preference name="PLAY_SERVICES_VERSION" default="15.0.1" />
         <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
         <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
 
@@ -254,7 +266,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         Minimum required version of Android Support library v4 for this plugin.
         https://developers.google.com/android/guides/releases
         -->
-        <preference name="ANDROID_SUPPORT_V4_VERSION" default="24.1.0" />
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="26.1.0" />
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
@@ -282,6 +294,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/android/res/values-pl/pgm_strings.xml" target="res/values-pl/pgm_strings.xml" />
         <!-- localized messages for Denmark -->
         <resource-file src="src/android/res/values-da/pgm_strings.xml" target="res/values-da/pgm_strings.xml" />
+        <!-- localized messages for Vietnamese -->
+        <resource-file src="src/android/res/values-vi/pgm_strings.xml" target="res/values-vi/pgm_strings.xml" />
     </platform>
 
     <!-- ios -->
@@ -342,6 +356,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
             <feature name="MarkerCluster">
                 <param name="ios-package" value="PluginMarkerCluster" />
             </feature>
+            <feature name="StreetViewPanorama">
+                <param name="ios-package" value="PluginStreetViewPanorama" />
+            </feature>
         </config-file>
 
         <header-file src="src/ios/GoogleMaps/PluginObjects.h" />
@@ -356,8 +373,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/Environment.m" />
         <header-file src="src/ios/GoogleMaps/CordovaGoogleMaps.h" />
         <source-file src="src/ios/GoogleMaps/CordovaGoogleMaps.m" />
-        <header-file src="src/ios/GoogleMaps/GoogleMapsViewController.h" />
-        <source-file src="src/ios/GoogleMaps/GoogleMapsViewController.m" />
+        <header-file src="src/ios/GoogleMaps/PluginMapViewController.h" />
+        <source-file src="src/ios/GoogleMaps/PluginMapViewController.m" />
         <header-file src="src/ios/GoogleMaps/PluginGroundOverlay.h" />
         <source-file src="src/ios/GoogleMaps/PluginGroundOverlay.m" />
         <header-file src="src/ios/GoogleMaps/PluginKmlOverlay.h" />
@@ -366,7 +383,6 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/PluginMap.m" />
         <header-file src="src/ios/GoogleMaps/PluginMarker.h" />
         <source-file src="src/ios/GoogleMaps/PluginMarker.m" />
-        <header-file src="src/ios/GoogleMaps/MyPlgunProtocol.h" />
         <header-file src="src/ios/GoogleMaps/PluginUtil.h" />
         <source-file src="src/ios/GoogleMaps/PluginUtil.m" />
         <header-file src="src/ios/GoogleMaps/PluginPolygon.h" />
@@ -386,14 +402,20 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <source-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
-        <header-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.h" />
-        <source-file src="src/ios/GoogleMaps/MyPluginLayerDebugView.m" />
         <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h" />
         <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m" />
         <header-file src="src/ios/GoogleMaps/PluginMarkerCluster.h" />
         <source-file src="src/ios/GoogleMaps/PluginMarkerCluster.m" />
         <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
         <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
+        <header-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.h" />
+        <source-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.m" />
+        <header-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.h" />
+        <source-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.m" />
+        <header-file src="src/ios/GoogleMaps/PluginViewController.h" />
+        <source-file src="src/ios/GoogleMaps/PluginViewController.m" />
+        <header-file src="src/ios/GoogleMaps/IPluginView.h" />
+        <header-file src="src/ios/GoogleMaps/IPluginProtocol.h" />
 
         <!-- Base messages -->
         <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />
@@ -419,6 +441,8 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <resource-file src="src/ios/strings/pgm_Localizable_pl.json" target="pgm_Localizable_pl.json" />
         <!-- localized messages for Denmark -->
         <resource-file src="src/ios/strings/pgm_Localizable_da.json" target="pgm_Localizable_da.json" />
+        <!-- localized messages for Vietnamese -->
+        <resource-file src="src/ios/strings/pgm_Localizable_vi.json" target="pgm_Localizable_vi.json" />
 
         <config-file target="*-Info.plist" parent="Google Maps API Key">
             <string>$API_KEY_FOR_IOS</string>

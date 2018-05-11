@@ -231,7 +231,6 @@ public class PluginLocationService extends CordovaPlugin {
           @Override
           public void onConnected(Bundle connectionHint) {
             Log.d(TAG, "===> onConnected  " + callbackContext.getCallbackId());
-            //PluginLocationService.this.sendNoResult(callbackContext);
             requestLocation();
           }
 
@@ -451,7 +450,7 @@ public class PluginLocationService extends CordovaPlugin {
           @Override
           public void onSuccess(Location location) {
             lastLocation = location;
-            if (Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
+            if (lastLocation != null && Calendar.getInstance().getTimeInMillis() - lastLocation.getTime() <= 2000) {
               Log.d(TAG, "---->The last location is obtained in 2 sec.");
               //---------------------------------------------------------------------
               // If the user requests the location in two seconds from the last time,

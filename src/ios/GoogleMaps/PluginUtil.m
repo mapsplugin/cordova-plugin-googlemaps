@@ -119,7 +119,7 @@
   } else {
     NSArray *tmp = [callbackId componentsSeparatedByString:@"://"];
     NSString *pluginName = [tmp objectAtIndex:0];
-    CDVPlugin<MyPlgunProtocol> *plugin = [self getCommandInstance:pluginName];
+    CDVPlugin<IPluginProtocol> *plugin = [self getCommandInstance:pluginName];
     [plugin onHookedPluginResult:result callbackId:callbackId];
   }
 

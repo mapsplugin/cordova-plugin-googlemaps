@@ -7,15 +7,16 @@
 //
 
 #import "CordovaGoogleMaps.h"
-#import "MyPlgunProtocol.h"
+#import "IPluginProtocol.h"
 #import "PluginUtil.h"
 #import "PluginMarker.h"
 #import "NSData+Base64.h"
 
-@interface PluginMarkerCluster : PluginMarker<MyPlgunProtocol>
+@interface PluginMarkerCluster : PluginMarker<IPluginProtocol>
 @property (atomic, strong) NSMutableDictionary *debugFlags;
 @property (atomic, strong) NSMutableDictionary *pluginMarkers;
 @property (atomic, strong) NSMutableDictionary *waitCntManager;
+@property (atomic, strong) NSMutableDictionary *allResults;
 @property (atomic, strong) NSMutableArray *deleteMarkers;
 @property (atomic, strong) dispatch_semaphore_t semaphore;
 @property (atomic, strong) dispatch_semaphore_t deleteThreadLock;

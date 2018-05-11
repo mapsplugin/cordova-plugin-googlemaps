@@ -1,10 +1,13 @@
 var utils = require('cordova/utils'),
   common = require('./Common'),
   cordova_exec = require('cordova/exec'),
-  Map = require('./Map');
+  BaseClass = require('./BaseClass'),
+  Map = require('./Map'),
+  StreetViewPanorama = require('./StreetViewPanorama');
 
 function CordovaGoogleMaps(execCmd) {
   var self = this;
+  BaseClass.apply(this);
 
   // Ignore checking for thse tags.
   self.doNotTraceTags = [
@@ -33,7 +36,7 @@ function CordovaGoogleMaps(execCmd) {
   self.isThereAnyChange = false;
 
   // Indicate the native timer is stopped or not.
-  self.isSuspended = false;
+  self.set("isSuspended", false);
 
   // Cache for updateMapPositionOnly
   self.prevMapRects = {};
@@ -81,6 +84,10 @@ function CordovaGoogleMaps(execCmd) {
           }
           if (mutation.target.hasAttribute("__pluginDomId")) {
             self.traceDomTree.call(self, mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
+            var transformCSS = common.getStyle(mutation.target, "transform") || common.getStyle(mutation.target, "-webkit-transform");
+            if (transformCSS !== "none") {
+              cordova.fireDocumentEvent("transitionstart", mutation.target);
+            }
           }
         }
 
@@ -95,9 +102,17 @@ function CordovaGoogleMaps(execCmd) {
     subtree: true,
     attributeFilter: ['style', 'class']
   });
+
+  self.on("isSuspended_changed", function(oldValue, newValue) {
+    if (newValue) {
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+    } else {
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+    }
+  });
 }
 
-
+utils.extend(CordovaGoogleMaps, BaseClass);
 
 CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild) {
   //------------------------------------------
@@ -165,6 +180,7 @@ CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild)
       child = element.children[i];
       if (self.doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
         !common.shouldWatchByNative(child)) {
+        self.removeDomTree.call(self, child);
         continue;
       }
 
@@ -217,17 +233,20 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
   var mapIDs = Object.keys(self.MAPS);
   var touchableMapList = mapIDs.filter(function(mapId) {
     var map = self.MAPS[mapId];
-    var isTouchable = (map &&
-      map.getVisible() &&
-      map.getClickable() &&
-      map.getDiv() &&
-      common.shouldWatchByNative(map.getDiv()));
-    if (isTouchable) {
-      var elemId = common.getPluginDomId(map.getDiv());
-      var domInfo = self.domPositions[elemId];
-      isTouchable = domInfo.size.width * domInfo.size.height > 0;
+    var isTouchable = false;
+    if (map) {
+      isTouchable = (
+        map.getVisible() &&
+        // map.getClickable() && <-- don't consider this.
+        map.getDiv() &&
+        common.shouldWatchByNative(map.getDiv()));
+      if (isTouchable) {
+        var elemId = common.getPluginDomId(map.getDiv());
+        var domInfo = self.domPositions[elemId];
+        isTouchable = domInfo.size.width * domInfo.size.height > 0;
+      }
+      map.set("__isAttached", isTouchable);
     }
-    map.set("__isAttached", isTouchable);
     return isTouchable;
   });
   if (touchableMapList.length === 0) {
@@ -306,10 +325,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
   //-----------------------------------------------------------------
   // Pass the DOM hierarchy tree graph to native side
   //-----------------------------------------------------------------
-  if (self.isSuspended) {
-    // start the native timer
-    self.resume();
-  }
+  self.resume();
 
   //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(self.domPositions)));
   cordova_exec(function() {
@@ -332,20 +348,14 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
 CordovaGoogleMaps.prototype.pause = function() {
   var self = this;
 
-  if (!self.isSuspended) {
-    // Stop the native timer
-    cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
-  }
-  self.isSuspended = true;
+  self.set("isSuspended", true);
   self.isThereAnyChange = false;
   self.isChecking = false;
 };
 
 CordovaGoogleMaps.prototype.resume = function() {
   var self = this;
-
-  cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
-  self.isSuspended = false;
+  self.set("isSuspended", false);
 };
 
 
@@ -397,13 +407,10 @@ CordovaGoogleMaps.prototype.invalidate = function(opts) {
   // Recheck the DOM positions
   //-------------------------------
   var self = this;
-  //console.log("-->invalidate", JSON.parse(JSON.stringify(opts)));
 
   opts = opts || {};
   if (opts.force) {
     self.isThereAnyChange = true;
-    self.isSuspended = false;
-    self.resume();
   }
 
   common.nextTick(function() {
@@ -443,13 +450,27 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
       };
 
       // Is the map moved?
-      if (!changed && self.prevMapRects && (divId in self.prevMapRects) && (
-        self.prevMapRects[divId].size.left !== mapRects[divId].size.left ||
-        self.prevMapRects[divId].size.top !== mapRects[divId].size.top ||
-        self.prevMapRects[divId].size.width !== mapRects[divId].size.width ||
-        self.prevMapRects[divId].size.height !== mapRects[divId].size.height ||
-        self.prevMapRects[divId].zIndex !== mapRects[divId].zIndex)) {
-        changed = true;
+      if (!changed && self.prevMapRects && divId in self.prevMapRects) {
+        if (self.prevMapRects[divId].size.left !== mapRects[divId].size.left) {
+          //console.log("changed(left)", divId, self.prevMapRects[divId].size.left, mapRects[divId].size.left);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].size.top !== mapRects[divId].size.top) {
+          //console.log("changed(top)", divId, self.prevMapRects[divId].size.top, mapRects[divId].size.top);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].size.width !== mapRects[divId].size.width) {
+          //console.log("changed(width)", divId, self.prevMapRects[divId].size.width, mapRects[divId].size.width);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].size.height !== mapRects[divId].size.height) {
+          //console.log("changed(height)", divId, self.prevMapRects[divId].size.height, mapRects[divId].size.height);
+          changed = true;
+        }
+        if (!changed && self.prevMapRects[divId].zIndex.z !== mapRects[divId].zIndex.z) {
+          //console.log("changed(zIndex.z)", divId, self.prevMapRects[divId].zIndex.z, mapRects[divId].zIndex.z);
+          changed = true;
+        }
       }
     }
 
@@ -459,7 +480,9 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
   // If changed, move the map views.
   if (changed || opts.force) {
     cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+    return changed;
   }
+  return false;
 };
 
 CordovaGoogleMaps.prototype.invalidateN = function(cnt) {
@@ -482,6 +505,9 @@ CordovaGoogleMaps.prototype.invalidateN = function(cnt) {
 
 
 CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
+  var self = this;
+  var args = Array.prototype.slice.call(arguments, 0);
+
   //----------------------------------------------------------------------------
   // This procedure return a map instance.
   //   - usage 1
@@ -495,17 +521,10 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   //       In order to keep the backward compatibility for v1,
   //       if the mapDiv has already a map, returns the map instance for the map div.
   //----------------------------------------------------------------------------
-  var self = this;
   var mapId, elem, elemId;
 
   if (common.isDom(div)) {
     mapId = div.getAttribute("__pluginMapId");
-
-    // If the specified div does not have any map,
-    // add gray background-color until the map is displayed.
-    if (!mapId && (!mapOptions || mapOptions.visible !== false)) {
-      div.style.backgroundColor = "rgba(200, 200, 200, 0.5)";
-    }
 
     // Wow, the app specifies the map div that has already another map,
     // but the app try to create new map.
@@ -540,6 +559,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   }
   // Create a map instance.
   var map = new Map(mapId, self.execCmd);
+  map.set('__isAttached', common.isDom(div));
 
   // Catch all events for this map instance, then pass to the instance.
   // (Don't execute this native callback from your code)
@@ -547,9 +567,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   map.on('__isAttached_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, map.id, 'attachMap', []);
+      map.exec(null, null, map.id, 'attachToWebView', []);
     } else {
-      cordova_exec(null, null, map.id, 'detachMap', []);
+      map.exec(null, null, map.id, 'detachFromWebView', []);
     }
   });
 
@@ -589,18 +609,22 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       var isCached;
       while(elem && elem.nodeType === Node.ELEMENT_NODE) {
         elemId = common.getPluginDomId(elem);
-        isCached = elemId in self.domPositions;
-        self.domPositions[elemId] = {
-          pointerEvents: common.getStyle(elem, 'pointer-events'),
-          isMap: false,
-          size: common.getDivRect(elem),
-          zIndex: common.getZIndex(elem),
-          children: (elemId in self.domPositions ? self.domPositions[elemId].children : []),
-          overflowX: common.getStyle(elem, "overflow-x"),
-          overflowY: common.getStyle(elem, "overflow-y"),
-          containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
-        };
-        self.domPositions[elemId].containMapIDs[mapId] = 1;
+        if (common.shouldWatchByNative(elem)) {
+          isCached = elemId in self.domPositions;
+          self.domPositions[elemId] = {
+            pointerEvents: common.getStyle(elem, 'pointer-events'),
+            isMap: false,
+            size: common.getDivRect(elem),
+            zIndex: common.getZIndex(elem),
+            children: (elemId in self.domPositions ? self.domPositions[elemId].children : []),
+            overflowX: common.getStyle(elem, "overflow-x"),
+            overflowY: common.getStyle(elem, "overflow-y"),
+            containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
+          };
+          self.domPositions[elemId].containMapIDs[mapId] = 1;
+        } else {
+          self.removeDomTree.call(self, element);
+        }
         elem = elem.parentNode;
       }
 
@@ -610,53 +634,123 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   });
 
   // If the map is removed, clean up the information.
-  map.one('remove', function() {
-      delete plugin.google.maps[mapId];
-      var div = map.getDiv();
-      if (!div) {
-        div = document.querySelector("[__pluginMapId='" + mapId + "']");
-      }
-      if (div) {
-        div.removeAttribute('__pluginMapId');
-      }
-
-      var keys = Object.keys(self.domPositions);
-      keys.forEach(function(elemId) {
-        self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
-        delete self.domPositions[elemId].containMapIDs[mapId];
-        if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
-          delete self.domPositions[elemId];
-        }
-      });
-
-      self.MAPS[mapId].destroy();
-      delete self.MAPS[mapId];
-      map = undefined;
-
-      // If the app have no map, stop the native timer.
-      if ((Object.keys(self.MAPS)).length === 0) {
-        common._clearInternalCache();
-        self.pause();
-      }
-  });
+  map.one('remove', self._remove.bind(self, mapId));
   self.MAP_CNT++;
-  self.MAPS[mapId] = map;
   self.isThereAnyChange = true;
 
-  var args = Array.prototype.slice.call(arguments, 0);
-  args.unshift(mapId);
+  if (div instanceof Promise) {
+    // This hack code for @ionic-native/google-maps
+    div.then(function(params) {
+      self.MAPS[mapId] = map;
+      params = params || [];
+      params.unshift(map);
+      postMapInit.apply(self, params);
+    });
+  } else {
+    // Normal code flow
+    self.MAPS[mapId] = map;
+    postMapInit.call(self, map, div, mapOptions);
+  }
 
-  if (common.isDom(div)) {
-    // If the mapDiv is specified,
-    // the native side needs to know the map div position
-    // before creating the map view.
-    div.setAttribute("__pluginMapId", mapId);
-    elemId = common.getPluginDomId(div);
+  return map;
+};
 
-    elem = div;
-    var isCached;
-    while(elem && elem.nodeType === Node.ELEMENT_NODE) {
-      elemId = common.getPluginDomId(elem);
+CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
+  var self = this;
+  var mapId = "streetview_" + self.MAP_CNT + "_" + self.saltHash;
+
+  // Create a panorama instance.
+  var panorama = new StreetViewPanorama(mapId, self.execCmd);
+
+  // Catch all events for this map instance, then pass to the instance.
+  // (Don't execute this native callback from your code)
+  plugin.google.maps[mapId] = nativeCallback.bind(panorama);
+
+  self.MAP_CNT++;
+
+  panorama.one('remove', self._remove.bind(self, mapId));
+
+  if (div instanceof Promise) {
+    // This hack code for @ionic-native/google-maps
+    div.then(function(params) {
+      self.MAPS[mapId] = panorama;
+      params = params || [];
+      params.unshift(panorama);
+      postPanoramaInit.apply(self, params);
+    });
+  } else {
+    // Normal code flow
+    self.MAPS[mapId] = panorama;
+    postPanoramaInit.call(self, panorama, div, streetViewOptions);
+  }
+
+  return panorama;
+};
+
+CordovaGoogleMaps.prototype._remove = function(mapId) {
+  var self = this;
+  delete plugin.google.maps[mapId];
+  var map = self.MAPS[mapId];
+
+  var div = map.getDiv();
+  if (!div) {
+    div = document.querySelector("[__pluginMapId='" + mapId + "']");
+  }
+  if (div) {
+    div.removeAttribute('__pluginMapId');
+  }
+
+  var keys = Object.keys(self.domPositions);
+  keys.forEach(function(elemId) {
+    self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
+    delete self.domPositions[elemId].containMapIDs[mapId];
+    if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
+      delete self.domPositions[elemId];
+    }
+  });
+
+  self.MAPS[mapId].destroy();
+  delete self.MAPS[mapId];
+  map = undefined;
+
+  // If the app have no map, stop the native timer.
+  if ((Object.keys(self.MAPS)).length === 0) {
+    common._clearInternalCache();
+    self.pause();
+  }
+};
+
+function nativeCallback(params) {
+  var args = params.args || [];
+  args.unshift(params.evtName);
+  this[params.callback].apply(this, args);
+}
+function postPanoramaInit(panorama, div, options) {
+  var self = this;
+  var mapId = panorama.getId();
+  self.isThereAnyChange = true;
+
+
+  if (!common.isDom(div)) {
+    console.error('[GoogleMaps] You need to specify a dom element(such as <div>) for this method', div);
+    return;
+  }
+  if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+    console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
+    return;
+  }
+
+  // If the mapDiv is specified,
+  // the native side needs to know the map div position
+  // before creating the map view.
+  div.setAttribute("__pluginMapId", mapId);
+  elemId = common.getPluginDomId(div);
+
+  elem = div;
+  var isCached, zIndexList = [];
+  while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+    elemId = common.getPluginDomId(elem);
+    if (common.shouldWatchByNative(elem)) {
       isCached = elemId in self.domPositions;
       self.domPositions[elemId] = {
         pointerEvents: common.getStyle(elem, 'pointer-events'),
@@ -668,30 +762,117 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
         overflowY: common.getStyle(elem, "overflow-y"),
         containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
       };
+      zIndexList.unshift(self.domPositions[elemId].zIndex);
       self.domPositions[elemId].containMapIDs[mapId] = 1;
+    } else {
+      self.removeDomTree.call(self, element);
+    }
+    elem = elem.parentNode;
+  }
+
+  // Calculate the native view z-index
+  var depth = 0;
+  zIndexList.forEach(function(info, idx) {
+    if (!info.isInherit && info.z === 0) {
+      depth *= 10;
+    }
+    depth += (info.z + 1) / (1 << idx) + 0.01;
+  });
+  depth = Math.floor(depth * 10000);
+
+  elemId = common.getPluginDomId(div);
+  self.domPositions[elemId].isMap = true;
+
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.unshift({
+    id: mapId,
+    depth: depth
+  });
+
+  cordova_exec(function() {
+    panorama.getPanorama.apply(panorama, args);
+  }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
+
+
+}
+
+function postMapInit(map, div, options) {
+  var self = this;
+  var mapId = map.getId();
+  var args = [];
+
+  if (common.isDom(div)) {
+    if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+      console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
+      return;
+    }
+    // If the mapDiv is specified,
+    // the native side needs to know the map div position
+    // before creating the map view.
+    div.setAttribute("__pluginMapId", mapId);
+    var elemId = common.getPluginDomId(div);
+
+    var elem = div;
+    var isCached;
+    var zIndexList = [];
+    while(elem && elem.nodeType === Node.ELEMENT_NODE) {
+      elemId = common.getPluginDomId(elem);
+      if (common.shouldWatchByNative(elem)) {
+        isCached = elemId in self.domPositions;
+        self.domPositions[elemId] = {
+          pointerEvents: common.getStyle(elem, 'pointer-events'),
+          isMap: false,
+          size: common.getDivRect(elem),
+          zIndex: common.getZIndex(elem),
+          children: [],
+          overflowX: common.getStyle(elem, "overflow-x"),
+          overflowY: common.getStyle(elem, "overflow-y"),
+          containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
+        };
+        zIndexList.unshift(self.domPositions[elemId].zIndex);
+        self.domPositions[elemId].containMapIDs[mapId] = 1;
+      } else {
+        self.removeDomTree.call(self, element);
+      }
       elem = elem.parentNode;
+    }
+
+    // Calculate the native view z-index
+    var depth = 0;
+    zIndexList.forEach(function(info, idx) {
+      if (!info.isInherit && info.z === 0) {
+        depth *= 10;
+      }
+      depth += (info.z + 1) / (1 << idx) + 0.01;
+    });
+    depth = Math.floor(depth * 10000);
+    args.push({
+      id: mapId,
+      depth: depth
+    });
+    args.push(div);
+    if (options) {
+      args.push(options);
     }
 
     elemId = common.getPluginDomId(div);
     self.domPositions[elemId].isMap = true;
 
     cordova_exec(function() {
-      cordova_exec(function() {
-        map.getMap.apply(map, args);
-      }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
-    }, null, 'CordovaGoogleMaps', 'resume', []);
+      map.getMap.apply(map, args);
+    }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
   } else {
+    args.push({
+      id: mapId,
+      depth: 0
+    });
+    args.push(null);
+    if (options) {
+      args.push(options);
+    }
     map.getMap.apply(map, args);
   }
-
-
-  return map;
-};
-
-function nativeCallback(params) {
-  var args = params.args || [];
-  args.unshift(params.evtName);
-  this[params.callback].apply(this, args);
 }
+
 
 module.exports = CordovaGoogleMaps;

@@ -5,16 +5,25 @@ module.exports = function(ctx) {
       Q = ctx.requireCordovaModule('q');
   var projectRoot = ctx.opts.projectRoot,
     configXmlPath = path.join(projectRoot, 'config.xml'),
-    pluginXmlPath = path.join(__dirname, '..', 'plugin.xml'),
-    NODE_MODULES_DIR;
+    pluginXmlPath = path.join(__dirname, '..', 'plugin.xml');
 
   var versions = ctx.opts.cordova.version.split(/\./g);
-  NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
-  if (!fs.existsSync(NODE_MODULES_DIR)) {
-    NODE_MODULES_DIR = path.join(projectRoot, "node_modules");
+
+  var Module = require('module').Module;
+  var NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
+  if (fs.existsSync(NODE_MODULES_DIR)) {
+    var old_nodeModulePaths = Module._nodeModulePaths;
+    var oldPaths = Module._nodeModulePaths(projectRoot);
+    if (oldPaths.indexOf(NODE_MODULES_DIR) === -1) {
+      Module._nodeModulePaths = function(from) {
+          var paths = old_nodeModulePaths.call(this, from);
+          paths.push(NODE_MODULES_DIR);
+          return paths;
+      };
+    }
   }
 
-  var xml2js = require(path.join(NODE_MODULES_DIR, 'xml2js'));
+  var xml2js = require('xml2js');
 
   return Q.Promise(function(resolve, reject, notify) {
     if (fs.existsSync(pluginXmlPath + '.original')) {
@@ -208,7 +217,7 @@ module.exports = function(ctx) {
       // Parse the command line variables
       //----------------------------------
       if (ctx.cmdLine.includes("cordova plugin add")) {
-        var phrses = require(path.join(NODE_MODULES_DIR, 'minimist'))(ctx.cmdLine.split(' '));
+        var phrses = require('minimist')(ctx.cmdLine.split(' '));
         if (Array.isArray(phrses.variable)) {
           phrses.variable.forEach(function(line) {
             var tmp = line.split("=");

@@ -39,23 +39,25 @@
     key = nil;
     keys = nil;
 
-    NSString *pluginId = [NSString stringWithFormat:@"%@-circle", self.mapCtrl.mapId];
+    NSString *pluginId = [NSString stringWithFormat:@"%@-circle", self.mapCtrl.overlayId];
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     [cdvViewController.pluginObjects removeObjectForKey:pluginId];
     [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
     pluginId = nil;
 }
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-    self.mapCtrl = viewCtrl;
+    self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 -(void)create:(CDVInvokedUrlCommand *)command
 {
 
     NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSString *idBase = [command.arguments objectAtIndex:2];
+  
     NSDictionary *latLng = [json objectForKey:@"center"];
-    float latitude = [[latLng valueForKey:@"lat"] floatValue];
-    float longitude = [[latLng valueForKey:@"lng"] floatValue];
+    double latitude = [[latLng valueForKey:@"lat"] doubleValue];
+    double longitude = [[latLng valueForKey:@"lng"] doubleValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
 
     float radius = [[json valueForKey:@"radius"] floatValue];
@@ -86,7 +88,7 @@
           circle.map = nil;
         } else {
           // true or default
-          circle.map = self.mapCtrl.map;
+          circle.map = ((GMSMapView *)(self.mapCtrl.view));
         }
         BOOL isClickable = NO;
         if ([[json valueForKey:@"clickable"] boolValue]) {
@@ -99,7 +101,6 @@
         circle.tappable = NO;
 
         // Store the circle instance into self.objects
-        NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
         NSString *circleId = [NSString stringWithFormat:@"circle_%@", idBase];
         circle.title = circleId;
         [self.mapCtrl.objects setObject:circle forKey: circleId];
@@ -148,8 +149,8 @@
         NSString *circleId = [command.arguments objectAtIndex:0];
         GMSCircle *circle = [self.mapCtrl.objects objectForKey:circleId];
 
-        float latitude = [[command.arguments objectAtIndex:1] floatValue];
-        float longitude = [[command.arguments objectAtIndex:2] floatValue];
+        double latitude = [[command.arguments objectAtIndex:1] doubleValue];
+        double longitude = [[command.arguments objectAtIndex:2] doubleValue];
         CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -281,7 +282,7 @@
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if (isVisible) {
-              circle.map = self.mapCtrl.map;
+              circle.map = ((GMSMapView *)(self.mapCtrl.view));
             } else {
               circle.map = nil;
             }

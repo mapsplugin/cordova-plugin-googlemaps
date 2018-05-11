@@ -44,16 +44,16 @@
   key = nil;
   keys = nil;
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-groundoverlay", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-groundoverlay", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
   pluginId = nil;
 }
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-    self.mapCtrl = viewCtrl;
+    self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 -(void)create:(CDVInvokedUrlCommand *)command
@@ -61,6 +61,7 @@
     PluginGroundOverlay *self_ = self;
 
     NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSString *idBase = [command.arguments objectAtIndex:2];
     NSArray *points = [json objectForKey:@"bounds"];
 
     GMSMutablePath *path = [GMSMutablePath path];
@@ -80,7 +81,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         GMSGroundOverlay *groundOverlay = [GMSGroundOverlay groundOverlayWithBounds:bounds icon:nil];
 
-        NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
         NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%@", idBase];
         [self.mapCtrl.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;

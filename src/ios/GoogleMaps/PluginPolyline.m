@@ -10,9 +10,9 @@
 
 @implementation PluginPolyline
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -45,7 +45,7 @@
   key = nil;
   keys = nil;
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-polyline", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-polyline", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -57,6 +57,7 @@
 
 
   NSDictionary *json = [command.arguments objectAtIndex:1];
+  NSString *idBase = [command.arguments objectAtIndex:2];
   GMSMutablePath *mutablePath = [GMSMutablePath path];
 
   NSArray *points = [json objectForKey:@"points"];
@@ -66,7 +67,7 @@
       latLng = [points objectAtIndex:i];
       [mutablePath
         addCoordinate:
-          CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue])];
+          CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue])];
   }
 
   dispatch_async(dispatch_get_main_queue(), ^{
@@ -103,7 +104,6 @@
       // disable default clickable feature.
       polyline.tappable = NO;
 
-      NSString *idBase = [NSString stringWithFormat:@"%lu%d", command.hash, arc4random() % 100000];
       NSString *id = [NSString stringWithFormat:@"polyline_%@", idBase];
       [self.mapCtrl.objects setObject:polyline forKey: id];
       polyline.title = id;
@@ -199,7 +199,7 @@
       NSDictionary *latLng;
       for (int i = 0; i < positionList.count; i++) {
           latLng = [positionList objectAtIndex:i];
-          position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+          position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       }
 
       // update the property
@@ -234,7 +234,7 @@
 
       GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
 
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       [mutablePath insertCoordinate:position atIndex:index];
 
       // update the property
@@ -269,7 +269,7 @@
 
       GMSMutablePath *mutablePath = (GMSMutablePath *)[properties objectForKey:@"mutablePath"];
 
-      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] floatValue], [[latLng objectForKey:@"lng"] floatValue]);
+      CLLocationCoordinate2D position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
       [mutablePath replaceCoordinateAtIndex:index withCoordinate:position];
 
       // update the property

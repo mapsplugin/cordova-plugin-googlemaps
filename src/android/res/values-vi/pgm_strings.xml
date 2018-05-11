@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">Đóng</string>
+  <string name="pgm_api_key_error">Vui lòng thay \'API_KEY_FOR_ANDROID\' trong platforms/android/app/src/AndroidManifest.xml với API Key của bạn!</string>
+  <string name="pgm_google_play_error">Google Maps Android API v2 vì một lý do nào đó không hoạt động trên thiết bị của bạn.</string>
+  <string name="pgm_google_play_developer_error">Ứng dụng chưa được cấu hình. Lỗi này là nghiêm trọng và làm cho hệ thống ngừng hoạt động. Nhà phát triển cần kiểm tra hệ thống Logs để có hướng khắc phục cụ thể..</string>
+  <string name="pgm_google_play_internal_error">Lỗi xảy ra với dịch vụ Google Play. Vui lòng khởi động lại để hệ thống hoạt động bình thường..</string>
+  <string name="pgm_google_play_invalid_account">Bạn sử dụng tài khoản không hợp lệ để kết nối với dịch vụ.</string>
+  <string name="pgm_google_play_license_check_failed">Người sử dụng không được cấp phép sử dụng ứng dụng. Lỗi này là nghiêm trọng và làm cho hệ thống ngừng hoạt động.</string>
+  <string name="pgm_google_play_network_error">Đường truyền mạng có lỗi. Vui lòng thử lại, và hệ thống sẽ hoạt động bình thường.</string>
+  <string name="pgm_google_play_service_disabled">Dịch vụ Google Play không hoạt động trên thiết bị của bạn. Vui lòng bật dịch vụ Google Play để hệ thống hoạt động.</string>
+  <string name="pgm_google_play_service_invalid">Dịch vụ Google Play cài đặt trên máy của bạn không hợp lệ. Vui lòng cập nhật dịch vụ Google Play trên Kho ứng dụng Google Play.</string>
+  <string name="pgm_google_play_service_missing">Dịch vụ Google PLay chưa được cài đặt trên thiết bị của bạn. Vui lòng cài đặt dịch vụ Google Play.</string>
+  <string name="pgm_google_play_service_update_required">Dịch vụ Google Play của bạn đã lỗi thời. Vui lòng cập nhật dịch vụ Google Play trên Kho ứng dụng Google Play.</string>
+  <string name="pgm_google_play_sign_in_required">Bạn chưa thực hiện đăng nhập để kết nối với dịch vụ. Vui lòng xem lại cấu hình dịch vụ Google Play.</string>
+  <string name="pgm_no_location_providers">Thiết bị không hỗ trợ xác định vị trí vì vậy ứng dụng không thể xác định vị trí của bạn.</string>
+  <string name="pgm_no_location_service_is_disabled">Dịch vụ xác định vị trí không được kích hoạt.</string>
+  <string name="pgm_location_rejected_by_user">Người dùng không cho phép sử dụng dịch vụ xác định vị trí.</string>
+  <string name="pgm_can_not_get_location">Không thể xác định vị trí của bạn. Vui lòng thử lại..</string>
+</resources>

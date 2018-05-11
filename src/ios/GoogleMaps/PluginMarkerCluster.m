@@ -23,6 +23,7 @@ const int GEOCELL_GRID_SIZE = 4;
 
   // Initialize this plugin
   self.waitCntManager = [NSMutableDictionary dictionary];
+  self.allResults = [NSMutableDictionary dictionary];
   self.pluginMarkers = [NSMutableDictionary dictionary];
   self.debugFlags = [NSMutableDictionary dictionary];
   self.deleteMarkers = [NSMutableArray array];
@@ -165,6 +166,7 @@ const int GEOCELL_GRID_SIZE = 4;
   __block NSString *clusterId = [command.arguments objectAtIndex: 0];
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
+    [self.allResults removeAllObjects];
     BOOL isDebug = [[self.debugFlags objectForKey:clusterId] boolValue];
 
     __block NSDictionary *params = [command.arguments objectAtIndex:1];
@@ -310,6 +312,21 @@ const int GEOCELL_GRID_SIZE = 4;
                 if (successed) {
                   //((GMSMarker *)resultObj).map = self.mapCtrl.map;
                   [self.pluginMarkers setObject:@"CREATED" forKey:clusterId_markerId];
+
+                  NSArray *tmp = [clusterId_markerId componentsSeparatedByString:@"-"];
+                  NSString *markerId = [tmp objectAtIndex:1];
+                  NSMutableDictionary *createResult = [NSMutableDictionary dictionary];
+                  GMSMarker *marker = resultObj;
+                  NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+                  UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
+                  if (image != nil) {
+                    [createResult setObject:[NSNumber numberWithInt: (int)image.size.width] forKey:@"width"];
+                    [createResult setObject:[NSNumber numberWithInt: (int)image.size.height] forKey:@"height"];
+                  } else {
+                    [createResult setObject:[NSNumber numberWithInt: 24] forKey:@"width"];
+                    [createResult setObject:[NSNumber numberWithInt: 40] forKey:@"height"];
+                  }
+                  [self.allResults setObject:createResult forKey:markerId];
                 } else {
                   //--------------------------------------
                   // Could not read icon for some reason
@@ -424,8 +441,8 @@ const int GEOCELL_GRID_SIZE = 4;
 }
 
 - (void) endRedraw:(CDVInvokedUrlCommand*)command {
-
-  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  NSLog(@"--->allResults = %@", self.allResults);
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:self.allResults];
   [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -501,7 +518,7 @@ const int GEOCELL_GRID_SIZE = 4;
   }];
 }
 
-- (void) decreaseWaitWithClusterId:(NSString *) clusterId command:(CDVInvokedUrlCommand*)command{
+- (void) decreaseWaitWithClusterId:(NSString *) clusterId command:(CDVInvokedUrlCommand*)command {
 
   @synchronized (_waitCntManager) {
     int waitCnt = [[_waitCntManager objectForKey:clusterId] intValue];

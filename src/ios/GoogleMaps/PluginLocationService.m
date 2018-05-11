@@ -146,8 +146,8 @@
     self.lastLocation = self.locationManager.location;
 
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-    [latLng setObject:[NSNumber numberWithFloat:self.locationManager.location.coordinate.latitude] forKey:@"lat"];
-    [latLng setObject:[NSNumber numberWithFloat:self.locationManager.location.coordinate.longitude] forKey:@"lng"];
+    [latLng setObject:[NSNumber numberWithDouble:self.locationManager.location.coordinate.latitude] forKey:@"lat"];
+    [latLng setObject:[NSNumber numberWithDouble:self.locationManager.location.coordinate.longitude] forKey:@"lng"];
 
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
     [json setObject:[NSNumber numberWithBool:YES] forKey:@"status"];

@@ -2,48 +2,14 @@
  * Geocoder class
  *****************************************************************************/
 var common = require('./Common'),
-  BaseClass = require('./BaseClass');
+  BaseClass = require('./BaseClass'),
+  utils = require('cordova/utils');
 
 
 var Geocoder = function(exec) {
 
   return {
     geocode: function(geocoderRequest, callback) {
-      var mvcResults = null;
-      var requestCnt = 0;
-      if (typeof callback !== "function") {
-        return;
-      }
-
-      var requests = common.createMvcArray();
-      requests.on('insert_at', function(idx) {
-        var request = requests.getAt(idx);
-        request.idx = idx;
-        exec.call({
-          _isReady: true
-        }, function(result) {
-          if (!mvcResults) {
-            callback(result.results);
-          } else {
-            mvcResults.insertAt(result.idx, result.results);
-            if (mvcResults.getLength() === requestCnt) {
-              var tmp = mvcResults.getArray();
-              var tmp2 = tmp.filter(function(ele) {
-                return ele === -1;
-              });
-              if (tmp2.length === 0) {
-                mvcResults.trigger("finish");
-              }
-            }
-          }
-        }, function(error) {
-          if (!mvcResults) {
-            callback([], error);
-          } else {
-            mvcResults.trigger("error", error);
-          }
-        }, "Geocoder", 'geocode', [request]);
-      });
 
       geocoderRequest = geocoderRequest || {};
       var requestProperty = null;
@@ -53,9 +19,15 @@ var Geocoder = function(exec) {
         requestProperty = "address";
       }
       if (!requestProperty) {
-        callback([], new Error("Invalid request"));
-        return;
+        var error = new Error("Invalid request");
+        if (typeof callback === "function") {
+          callback([], error);
+        } else {
+          return Promise.reject(error);
+        }
       }
+
+
       if (geocoderRequest[requestProperty] instanceof Array || Array.isArray(geocoderRequest[requestProperty])) {
         //-------------------------
         // Geocoder.geocode({
@@ -65,15 +37,43 @@ var Geocoder = function(exec) {
         //   ]
         // })
         //-------------------------
-        requestCnt = geocoderRequest[requestProperty].length;
-        mvcResults = common.createMvcArray();
+
+        var mvcResults = common.createMvcArray();
         for (i = 0; i < requestCnt; i++) {
           mvcResults.push(-1, true);
         }
+
+        // Execute geocoder.geocode() when a new request is instearted.
+        var requestCnt = geocoderRequest[requestProperty].length;
+        var requests = common.createMvcArray();
+        requests.on('insert_at', function(idx) {
+          var request = requests.getAt(idx);
+          request.idx = idx;
+          exec.call({
+            _isReady: true
+          }, function(result) {
+
+            mvcResults.insertAt(result.idx, result.results);
+            if (mvcResults.getLength() === requestCnt) {
+              var tmp = mvcResults.getArray();
+              var tmp2 = tmp.filter(function(ele) {
+                return ele === -1;
+              });
+              if (tmp2.length === 0) {
+                // Notifies `finish` event when all results are received.
+                mvcResults.trigger("finish");
+              }
+            }
+
+          }, function(error) {
+            mvcResults.trigger("error", error);
+          }, "Geocoder", 'geocode', [request]);
+        });
+
+
         var request;
         var baseRequest = utils.clone(geocoderRequest);
         delete baseRequest[requestProperty];
-
         for (i = 0; i < requestCnt; i++) {
           request = utils.clone(baseRequest);
           request[requestProperty] = geocoderRequest[requestProperty][i];
@@ -84,7 +84,11 @@ var Geocoder = function(exec) {
           }
           requests.push(request);
         }
-        callback(mvcResults);
+        if (typeof callback === "function") {
+          callback(mvcResults);
+        } else {
+          return Promise.resolve(mvcResults);
+        }
       } else {
         //-------------------------
         // Geocoder.geocode({
@@ -96,7 +100,19 @@ var Geocoder = function(exec) {
           geocoderRequest.position.lng = geocoderRequest.position.lng || 0.0;
         }
         geocoderRequest.idx = -1;
-        requests.push(geocoderRequest);
+
+        var resolver1 = function(resolve, reject) {
+          exec.call({_isReady: true}, resolve, reject, "Geocoder", 'geocode', [geocoderRequest]);
+        };
+
+        if (typeof callback === "function") {
+          resolver(callback, function(error) {
+            callback([], error);
+          });
+        } else {
+          return new Promise(resolver);
+        }
+
       }
     }
 

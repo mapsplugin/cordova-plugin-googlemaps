@@ -258,8 +258,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             if (!"".equals(lines[i])) {
               tmpArry = lines[i].split(",");
               latLng = new Bundle();
-              latLng.putFloat("lat", Float.parseFloat(tmpArry[1]));
-              latLng.putFloat("lng", Float.parseFloat(tmpArry[0]));
+              latLng.putDouble("lat", Double.parseDouble(tmpArry[1]));
+              latLng.putDouble("lng", Double.parseDouble(tmpArry[0]));
               latLngList.add(latLng);
             }
           }

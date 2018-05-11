@@ -8,9 +8,9 @@
 
 #import "PluginMarker.h"
 @implementation PluginMarker
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 
 - (void)pluginInitialize
@@ -50,7 +50,7 @@
   keys = nil;
 
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   //[cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -66,9 +66,10 @@
 
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
     NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSString *hashCode = [command.arguments objectAtIndex:2];
 
     __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
-    NSString *markerId = [NSString stringWithFormat:@"marker_%lu%d", command.hash, arc4random() % 100000];
+    NSString *markerId = [NSString stringWithFormat:@"marker_%@", hashCode];
     [createResult setObject:markerId forKey:@"id"];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -109,8 +110,8 @@
   NSMutableDictionary *iconProperty = nil;
   NSString *animation = nil;
   NSDictionary *latLng = [json objectForKey:@"position"];
-  float latitude = [[latLng valueForKey:@"lat"] floatValue];
-  float longitude = [[latLng valueForKey:@"lng"] floatValue];
+  double latitude = [[latLng valueForKey:@"lat"] doubleValue];
+  double longitude = [[latLng valueForKey:@"lng"] doubleValue];
 
   CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
 
@@ -170,6 +171,13 @@
 
   } else if ([icon isKindOfClass:[NSDictionary class]]) {
     iconProperty = [json valueForKey:@"icon"];
+
+    id url = [iconProperty objectForKey:@"url"];
+    if ([url isKindOfClass:[NSArray class]]) {
+      NSArray *rgbColor = url;
+      iconProperty = [[NSMutableDictionary alloc] init];
+      [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+    }
 
   } else if ([icon isKindOfClass:[NSArray class]]) {
     NSArray *rgbColor = [json valueForKey:@"icon"];
@@ -567,8 +575,8 @@
     NSString *markerId = [command.arguments objectAtIndex:0];
     GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
 
-    float latitude = [[command.arguments objectAtIndex:1] floatValue];
-    float longitude = [[command.arguments objectAtIndex:2] floatValue];
+    double latitude = [[command.arguments objectAtIndex:1] doubleValue];
+    double longitude = [[command.arguments objectAtIndex:2] doubleValue];
     CLLocationCoordinate2D position = CLLocationCoordinate2DMake(latitude, longitude);
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       [marker setPosition:position];
@@ -624,6 +632,13 @@
       [iconProperty setObject:icon forKey:@"url"];
     } else if ([icon isKindOfClass:[NSDictionary class]]) {
       iconProperty = [command.arguments objectAtIndex:1];
+      
+      id url = [iconProperty objectForKey:@"url"];
+      if ([url isKindOfClass:[NSArray class]]) {
+        NSArray *rgbColor = url;
+        iconProperty = [[NSMutableDictionary alloc] init];
+        [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+      }
     } else if ([icon isKindOfClass:[NSArray class]]) {
       NSArray *rgbColor = icon;
       iconProperty = [[NSMutableDictionary alloc] init];
