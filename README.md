@@ -10,7 +10,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 *Stable version(npm)*
 ```
-$> cordova plugin add cordova-plugin-googlemaps#2.3.0 \
+$> cordova plugin add cordova-plugin-googlemaps@2.3.0 \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
 
@@ -62,6 +62,11 @@ $> cordova plugin add cordova-plugin-googlemaps#2.3.0 \
 ---
 
 ## Release Notes
+
+  - [v2.3.0 is released](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/ReleaseNotes/v2.3.0/README.md)
+    - New feature: `StreetView`
+    - A callback is no longer required for the most part.
+    - `Promise` is supported instead of `callback`
 
 ---
 
