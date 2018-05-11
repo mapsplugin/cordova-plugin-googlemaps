@@ -69,7 +69,7 @@ $> cordova plugin add cordova-plugin-googlemaps#2.3.0 \
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
 
-```html
+```js
 document.addEventListener("deviceready", function() {
   var div = document.getElementById("map_canvas");
 
