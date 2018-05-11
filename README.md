@@ -70,7 +70,6 @@ $> cordova plugin add cordova-plugin-googlemaps#2.3.0 \
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
 
 ```html
-<script type="text/javascript">
 document.addEventListener("deviceready", function() {
   var div = document.getElementById("map_canvas");
 
@@ -111,7 +110,6 @@ document.addEventListener("deviceready", function() {
     });
   }
 }, false);
-</script>
 ```
 
 -----
@@ -293,13 +291,12 @@ plugin.google.maps.LocationService.getMyLocation(function(result) {
 <tr>
   <td><a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/class/StreetView/README.md"><img src="https://github.com/mapsplugin/cordova-plugin-googlemaps/raw/master/images/streetview.png?raw=true"><br>StreetView</a></td>
   <td><pre>
-var options = {
+var div = document.getElementById("pano_canvas1");
+var panorama = plugin.google.maps.StreetView.getPanorama(div, {
   camera: {
-    target: {lat: ..., lng: ...},
-    zoom: 19
+    target: {lat: 42.345573, lng: -71.098326}
   }
-};
-var map = plugin.google.maps.Map.getMap(mapDiv, options)</pre></td>
+});</pre></td>
 </tr>
 </table>
 
