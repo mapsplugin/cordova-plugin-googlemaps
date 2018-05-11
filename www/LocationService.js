@@ -16,21 +16,33 @@ var LocationService = function(exec) {
       success_callback = args[1];
       error_callback = args[2];
 
+
+      var resolver = function(resolve, reject) {
+        exec.call({
+          _isReady: true
+        },
+        function(location) {
+          location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
+          resolve.call(self, location);
+        },
+        reject.bind(self), 'LocationService', 'getMyLocation', [params], {sync: true});
+      };
+
       params.enableHighAccuracy = params.enableHighAccuracy === true;
-      var successHandler = function(location) {
-          if (typeof success_callback === "function") {
-              location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
-              success_callback.call(self, location);
-          }
-      };
       var errorHandler = function(result) {
-          if (typeof error_callback === "function") {
-              error_callback.call(self, result);
-          }
+        if (typeof error_callback === "function") {
+          error_callback.call(self, result);
+        } else {
+          self.errorHandler.call(self, result);
+        }
       };
-      exec.call({
-        _isReady: true
-      }, successHandler, errorHandler, 'LocationService', 'getMyLocation', [params], {sync: true});
+
+      if (typeof callback === "function") {
+        resolver(callback, errorHandler);
+        return self;
+      } else {
+        return new Promise(resolver);
+      }
     }
   };
 };

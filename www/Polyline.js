@@ -152,23 +152,41 @@ Polyline.prototype.getZIndex = function () {
 Polyline.prototype.remove = function () {
   var self = this;
   if (self._isRemoved) {
-    return;
+    if (typeof callback === "function") {
+      return;
+    } else {
+      return Promise.resolve();
+    }
   }
   Object.defineProperty(self, "_isRemoved", {
     value: true,
     writable: false
   });
-  self.exec.call(self, function () {
-    self.destroy();
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {
-    remove: true
-  });
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      function() {
+        self.destroy();
+        resolve.call(self);
+      },
+      reject.bind(self),
+      self.getPluginName(), 'remove', [self.getId()], {
+        remove: true
+      });
+  };
+
+  var result;
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    result = new Promise(resolver);
+  }
+
   if (self.points) {
     self.points.empty();
   }
   self.trigger(self.id + "_remove");
+
+  return result;
 };
 module.exports = Polyline;

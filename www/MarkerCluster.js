@@ -213,11 +213,15 @@ MarkerCluster.prototype._onCameraMoved = function() {
 
 };
 
-MarkerCluster.prototype.remove = function() {
+MarkerCluster.prototype.remove = function(callback) {
   var self = this;
   self._stopRequest = self.hashCode;
   if (self._isRemoved) {
-    return;
+    if (typeof callback === "function") {
+      return;
+    } else {
+      return Promise.resolve();
+    }
   }
   if (self.debug) {
     clearInterval(self.debugTimer);
@@ -282,7 +286,22 @@ MarkerCluster.prototype.remove = function() {
       cluster.remove();
     });
   }
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {sync: true, remove: true});
+
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.getPluginName(), 'remove', [self.getId()],
+      {sync: true, remove: true});
+  };
+
+  var answer;
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    result = new Promise(resolver);
+  }
 
   keys = Object.keys(self._markerMap);
   keys.forEach(function(markerId) {
@@ -293,6 +312,7 @@ MarkerCluster.prototype.remove = function() {
   }
   self.off();
 
+  return answer;
 };
 MarkerCluster.prototype.removeMarkerById = function(markerId) {
   var self = this;

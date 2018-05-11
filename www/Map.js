@@ -1,5 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
   Overlay = require('./Overlay'),
@@ -286,7 +285,7 @@ Map.prototype.setOptions = function(options) {
 };
 
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
-  plugin.google.maps.LocationService.getMyLocation.call(this, params, success_callback, error_callback);
+  return plugin.google.maps.LocationService.getMyLocation.call(this, params, success_callback, error_callback);
 };
 
 Map.prototype.setCameraTarget = function(latLng) {
@@ -318,7 +317,8 @@ Map.prototype.panBy = function(x, y) {
 Map.prototype.clear = function(callback) {
   var self = this;
   if (self._isRemoved) {
-    return;
+    // Simply ignore because this map is already removed.
+    return Promise.resolve();
   }
 
   // Close the active infoWindow
@@ -348,13 +348,21 @@ Map.prototype.clear = function(callback) {
   clearObj(self.MARKERS);
   self.trigger("map_clear");
 
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, this.id, 'clear', [], {
-    sync: true
-  });
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'clear', [], {
+        sync: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
+
 };
 
 /**
@@ -405,13 +413,7 @@ Map.prototype.moveCameraZoomIn = function(callback) {
   cameraPosition.zoom++;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
 
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
-    sync: true
-  });
+  return self.moveCamera(cameraPosition, callback);
 
 };
 Map.prototype.moveCameraZoomOut = function(callback) {
@@ -420,14 +422,7 @@ Map.prototype.moveCameraZoomOut = function(callback) {
   cameraPosition.zoom--;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
 
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
-    sync: true
-  });
-
+  return self.moveCamera(cameraPosition, callback);
 };
 Map.prototype.animateCameraZoomIn = function(callback) {
   var self = this;
@@ -435,15 +430,7 @@ Map.prototype.animateCameraZoomIn = function(callback) {
   cameraPosition.zoom++;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
   cameraPosition.duration = 500;
-
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {
-    sync: true
-  });
-
+  return self.animateCamera(cameraPosition, callback);
 };
 Map.prototype.animateCameraZoomOut = function(callback) {
   var self = this;
@@ -451,15 +438,7 @@ Map.prototype.animateCameraZoomOut = function(callback) {
   cameraPosition.zoom--;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
   cameraPosition.duration = 500;
-
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {
-    sync: true
-  });
-
+  return self.animateCamera(cameraPosition, callback);
 };
 /**
  * @desc   Move the map camera with animation
@@ -468,12 +447,13 @@ Map.prototype.animateCameraZoomOut = function(callback) {
  */
 Map.prototype.animateCamera = function(cameraPosition, callback) {
   var self = this;
+
   var target = cameraPosition.target;
   if (!target && "position" in cameraPosition) {
     target = cameraPosition.position;
   }
   if (!target) {
-    return;
+    return Promise.reject("No target field is specified.");
   }
   if (!("padding" in cameraPosition)) {
     cameraPosition.padding = 20;
@@ -485,20 +465,29 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
       // skip if no point is specified
       if (typeof callback === "function") {
         callback.call(self);
+        return;
+      } else {
+        return Promise.reject("No point is specified.");
       }
-      return;
     }
   }
   cameraPosition.target = target;
 
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {
-    sync: true
-  });
+  var resolver = function(resolve, reject) {
 
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'animateCamera', [cameraPosition], {
+        sync: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 /**
  * @desc   Move the map camera without animation
@@ -512,7 +501,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     target = cameraPosition.position;
   }
   if (!target) {
-    return;
+    return Promise.reject("No target field is specified.");
   }
 
   if (!("padding" in cameraPosition)) {
@@ -524,19 +513,29 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
       // skip if no point is specified
       if (typeof callback === "function") {
         callback.call(self);
+        return;
+      } else {
+        return Promise.reject("No point is specified.");
       }
-      return;
     }
   }
   cameraPosition.target = target;
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
-    sync: true
-  });
 
+  var resolver = function(resolve, reject) {
+
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'moveCamera', [cameraPosition], {
+        sync: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 Map.prototype.setMyLocationButtonEnabled = function(enabled) {
@@ -582,7 +581,19 @@ Map.prototype.setCompassEnabled = function(enabled) {
   return this;
 };
 Map.prototype.getFocusedBuilding = function(callback) {
-  this.exec.call(this, callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
+  var self = this;
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'getFocusedBuilding', []);
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 Map.prototype.getVisible = function() {
   return this.get("visible");
@@ -685,14 +696,23 @@ Map.prototype.remove = function(callback) {
   clearObj(self.OVERLAYS);
   clearObj(self.MARKERS);
 
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {
-    sync: true,
-    remove: true
-  });
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(this,
+      resolve.bind(self),
+      reject.bind(self),
+      'CordovaGoogleMaps', 'removeMap', [self.id],
+      {
+        sync: true,
+        remove: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 
@@ -707,11 +727,19 @@ Map.prototype.toDataURL = function(params, callback) {
 
   params.uncompress = params.uncompress === true;
   var self = this;
-  self.exec.call(this, function(image) {
-    if (typeof callback === "function") {
-      callback.call(self, image);
-    }
-  }, self.errorHandler, self.id, 'toDataURL', [params]);
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(this,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'toDataURL', [params]);
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 /**
@@ -824,15 +852,30 @@ Map.prototype.getVisibleRegion = function(callback) {
  */
 Map.prototype.fromLatLngToPoint = function(latLng, callback) {
   var self = this;
+
   if ("lat" in latLng && "lng" in latLng) {
-    self.exec.call(this, function(result) {
-      if (typeof callback === "function") {
-        callback.call(self, result);
-      }
-    }, self.errorHandler, self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
-  } else {
+
+    var resolver = function(resolve, reject) {
+      self.exec.call(this,
+        resolve.bind(self),
+        reject.bind(self),
+        self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
+    };
+
     if (typeof callback === "function") {
-      callback.call(self, [undefined, undefined]);
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
+  } else {
+    var rejector = function(resolve, reject) {
+      reject("The latLng is invalid");
+    };
+
+    if (typeof callback === "function") {
+      rejector(callback, self.errorHandler);
+    } else {
+      return new Promise(rejector);
     }
   }
 
@@ -842,16 +885,35 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
  */
 Map.prototype.fromPointToLatLng = function(pixel, callback) {
   var self = this;
+  if (typeof pixel === "object" && "x" in pixel && "y" in pixel) {
+    pixel = [pixel.x, pixel.y];
+  }
   if (pixel.length == 2 && utils.isArray(pixel)) {
-    self.exec.call(this, function(result) {
-      if (typeof callback === "function") {
-        var latLng = new LatLng(result[0] || 0, result[1] || 0);
-        callback.call(self, latLng);
-      }
-    }, self.errorHandler, self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
-  } else {
+
+    var resolver = function(resolve, reject) {
+      self.exec.call(this,
+        function(result) {
+          var latLng = new LatLng(result[0] || 0, result[1] || 0);
+          resolve.call(self, latLng);
+        },
+        reject.bind(self),
+        self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
+    };
+
     if (typeof callback === "function") {
-      callback.call(self, undefined);
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
+  } else {
+    var rejector = function(resolve, reject) {
+      reject("The pixel[] argument is invalid");
+    };
+
+    if (typeof callback === "function") {
+      rejector(callback, self.errorHandler);
+    } else {
+      return new Promise(rejector);
     }
   }
 
@@ -925,16 +987,26 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     }));
   }
 
-  var loader = new KmlLoader(self, self.exec, kmlOverlayOptions);
-  loader.parseKmlFile(function(camera, kmlData) {
-    if (kmlData instanceof BaseClass) {
-      kmlData = new BaseArrayClass([kmlData]);
-    }
-    var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
-    var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
-    self.OVERLAYS[kmlId] = kmlOverlay;
-    callback(kmlOverlay);
-  });
+  var resolver = function(resolve, reject) {
+
+    var loader = new KmlLoader(self, self.exec, kmlOverlayOptions);
+    loader.parseKmlFile(function(camera, kmlData) {
+      if (kmlData instanceof BaseClass) {
+        kmlData = new BaseArrayClass([kmlData]);
+      }
+      var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
+      var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
+      self.OVERLAYS[kmlId] = kmlOverlay;
+      resolve.call(self, kmlOverlay);
+    });
+
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 

@@ -96,7 +96,11 @@ utils.extend(Marker, Overlay);
 Marker.prototype.remove = function(callback) {
   var self = this;
   if (self._isRemoved) {
-    return;
+    if (typeof callback === "function") {
+      return;
+    } else {
+      return Promise.resolve();
+    }
   }
   Object.defineProperty(self, "_isRemoved", {
     value: true,
@@ -104,14 +108,25 @@ Marker.prototype.remove = function(callback) {
   });
   self.trigger(event.INFO_CLOSE); // close open infowindow, otherwise it will stay
   self.trigger(self.id + "_remove");
-  self.exec.call(self, function() {
-    self.destroy();
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.getPluginName(), 'remove', [self.getId()], {
-    remove: true
-  });
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      function() {
+        self.destroy();
+        resolve.call(self);
+      },
+      reject.bind(self),
+      self.getPluginName(), 'remove', [self.getId()], {
+        remove: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
+
 
 };
 
@@ -146,15 +161,32 @@ Marker.prototype.setAnimation = function(animation, callback) {
 
   animation = animation || null;
   if (!animation) {
-    return;
+    // just ignore
+    if (typeof callback === "function") {
+      return self;
+    } else {
+      return Promise.resolve();
+    }
   }
   self.set("animation", animation);
-  self.exec.call(self, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.getPluginName(), 'setAnimation', [self.getId(), animation]);
-  return self;
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      function() {
+        self.destroy();
+        resolve.call(self);
+      },
+      reject.bind(self),
+      self.getPluginName(), 'setAnimation', [self.getId(), animation]);
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+    return self;
+  } else {
+    return new Promise(resolver);
+  }
+
 };
 
 Marker.prototype.setDisableAutoPan = function(disableAutoPan) {

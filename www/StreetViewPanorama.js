@@ -216,7 +216,16 @@ StreetViewPanorama.prototype.getPosition = function () {
 StreetViewPanorama.prototype.setPosition = function(cameraPosition, callback) {
   var self = this;
   cameraPosition = cameraPosition || {};
+  if (typeof cameraPosition === "string") {
+    // case: panorama.setPosition(panoId);
+    cameraPosition = {
+      target : cameraPosition
+    };
+  }
   if (typeof cameraPosition.target === "object") {
+    // case: panorama.setPosition({
+    //         target: {lat: ..., lng: ...}
+    //       });
     self.set("position", cameraPosition.target);
   }
   self.exec.call(self, function() {
@@ -266,7 +275,7 @@ StreetViewPanorama.prototype.remove = function(callback) {
 };
 StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
   var self = this;
-  self.set('camera', common.assign(self.get("camera") || {}, cameraPosition));
+  self.set('camera', utils.clone(self.get("camera") || {}, cameraPosition));
   self.set('camera_zoom', cameraPosition.zoom);
   self.set('camera_bearing', cameraPosition.bearing);
   self.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
