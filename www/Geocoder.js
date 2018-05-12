@@ -102,15 +102,17 @@ var Geocoder = function(exec) {
         geocoderRequest.idx = -1;
 
         var resolver1 = function(resolve, reject) {
-          exec.call({_isReady: true}, resolve, reject, "Geocoder", 'geocode', [geocoderRequest]);
+          exec.call({_isReady: true}, function(_results) {
+            resolve(_results.results);
+          }, reject, "Geocoder", 'geocode', [geocoderRequest]);
         };
 
         if (typeof callback === "function") {
-          resolver(callback, function(error) {
+          resolver1(callback, function(error) {
             callback([], error);
           });
         } else {
-          return new Promise(resolver);
+          return new Promise(resolver1);
         }
 
       }

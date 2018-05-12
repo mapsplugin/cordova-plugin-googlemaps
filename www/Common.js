@@ -1,7 +1,8 @@
 var BaseArrayClass = require('./BaseArrayClass');
 var utils = require("cordova/utils");
 
-var nextTick = Promise.then;
+var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
+var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
 
 //---------------------------
 // Convert HTML color to RGB

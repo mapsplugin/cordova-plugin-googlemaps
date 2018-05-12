@@ -172,10 +172,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
-      function() {
-        self.destroy();
-        resolve.call(self);
-      },
+      resolve.bind(self),
       reject.bind(self),
       self.getPluginName(), 'setAnimation', [self.getId(), animation]);
   };

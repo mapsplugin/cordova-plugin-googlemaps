@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.0)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.1)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -10,7 +10,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 *Stable version(npm)*
 ```
-$> cordova plugin add cordova-plugin-googlemaps@2.3.0 \
+$> cordova plugin add cordova-plugin-googlemaps@2.3.1 \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
 
@@ -40,7 +40,7 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.0 \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.3.0">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.3.1">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -63,7 +63,10 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.0 \
 
 ## Release Notes
 
-  - [v2.3.0 is released](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/ReleaseNotes/v2.3.0/README.md)
+  - **v2.3.1**
+    - Fix: incompatible with `@ionic-native/google-maps`
+
+  - [v2.3.0](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/ReleaseNotes/v2.3.0/README.md)
     - New feature: `StreetView`
     - A callback is no longer required for the most part.
     - `Promise` is supported instead of `callback`

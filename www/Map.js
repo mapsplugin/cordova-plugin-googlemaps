@@ -542,7 +542,7 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocationButton", enabled);
-  self.exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+  self.exec.call(self, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
     myLocation: self.get("myLocation") === true
   }], {
@@ -555,7 +555,7 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
-  self.exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+  self.exec.call(self, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: self.get("myLocationButton") === true,
     myLocation: enabled
   }], {
@@ -577,7 +577,7 @@ Map.prototype.setTrafficEnabled = function(enabled) {
 Map.prototype.setCompassEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  self.exec.call(this, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
   return this;
 };
 Map.prototype.getFocusedBuilding = function(callback) {
@@ -603,7 +603,7 @@ Map.prototype.setVisible = function(isVisible) {
   var self = this;
   isVisible = common.parseBoolean(isVisible);
   self.set("visible", isVisible);
-  self.exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
   return this;
 };
 
@@ -612,7 +612,7 @@ Map.prototype.setClickable = function(isClickable) {
   var self = this;
   isClickable = common.parseBoolean(isClickable);
   self.set("clickable", isClickable);
-  self.exec.call(this, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
   return this;
 };
 Map.prototype.getClickable = function() {
@@ -626,7 +626,7 @@ Map.prototype.getClickable = function() {
 Map.prototype.setAllGesturesEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  self.exec.call(this, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
   return this;
 };
 
@@ -698,7 +698,7 @@ Map.prototype.remove = function(callback) {
 
 
   var resolver = function(resolve, reject) {
-    self.exec.call(this,
+    self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
       'CordovaGoogleMaps', 'removeMap', [self.id],
@@ -729,7 +729,7 @@ Map.prototype.toDataURL = function(params, callback) {
   var self = this;
 
   var resolver = function(resolve, reject) {
-    self.exec.call(this,
+    self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
       self.id, 'toDataURL', [params]);
@@ -809,7 +809,7 @@ Map.prototype.setDiv = function(div) {
       div = div.parentNode;
     }
   }
-  self.exec.call(this, function() {
+  self.exec.call(self, function() {
     cordova.fireDocumentEvent('plugin_touch', {
       force: true,
       action: "setDiv"
@@ -856,7 +856,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
   if ("lat" in latLng && "lng" in latLng) {
 
     var resolver = function(resolve, reject) {
-      self.exec.call(this,
+      self.exec.call(self,
         resolve.bind(self),
         reject.bind(self),
         self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
@@ -891,7 +891,7 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
   if (pixel.length == 2 && utils.isArray(pixel)) {
 
     var resolver = function(resolve, reject) {
-      self.exec.call(this,
+      self.exec.call(self,
         function(result) {
           var latLng = new LatLng(result[0] || 0, result[1] || 0);
           resolve.call(self, latLng);
@@ -1033,7 +1033,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlay = undefined;
   });
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
     groundOverlay._privateInitialize();
     delete groundOverlay._privateInitialize;
     if (typeof callback === "function") {
@@ -1100,7 +1100,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   };
   document.addEventListener(self.id + "-" + hashCode + "-tileoverlay", onNativeCallback);
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
     tileOverlay._privateInitialize();
     delete tileOverlay._privateInitialize;
 
@@ -1158,7 +1158,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     polygon = undefined;
   });
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
     polygon._privateInitialize();
     delete polygon._privateInitialize;
 
@@ -1197,7 +1197,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polyline = undefined;
   });
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
     polyline._privateInitialize();
     delete polyline._privateInitialize;
 
@@ -1233,7 +1233,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circle = undefined;
   });
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
     circle._privateInitialize();
     delete circle._privateInitialize;
 
@@ -1275,7 +1275,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     marker = undefined;
   });
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
 
     markerOptions.icon.size = markerOptions.icon.size || {};
     markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
@@ -1322,7 +1322,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   var markerClusterId = markerCluster.getId();
   self.OVERLAYS[markerClusterId] = markerCluster;
 
-  self.exec.call(this, function(result) {
+  self.exec.call(self, function(result) {
 
     var markerMap = {};
     result.geocellList.forEach(function(geocell, idx) {

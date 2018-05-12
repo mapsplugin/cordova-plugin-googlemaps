@@ -243,7 +243,11 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
       if (isTouchable) {
         var elemId = common.getPluginDomId(map.getDiv());
         var domInfo = self.domPositions[elemId];
-        isTouchable = domInfo.size.width * domInfo.size.height > 0;
+        if (domInfo && domInfo.size) {
+          isTouchable = domInfo.size.width * domInfo.size.height > 0;
+        } else {
+          isTouchable = false;
+        }
       }
       map.set("__isAttached", isTouchable);
     }

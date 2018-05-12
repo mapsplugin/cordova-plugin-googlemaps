@@ -162,7 +162,7 @@ Polygon.prototype.setPoints = function (points) {
   for (i = 0; i < points.length; i++) {
     mvcArray.push(common.getLatLng(points[i]), true);
   }
-  self.exec.call(this, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
   return self;
 };
 Polygon.prototype.getPoints = function () {
@@ -189,7 +189,7 @@ Polygon.prototype.setHoles = function (holes) {
       mvcArray.push(newHole, true);
     }
   });
-  self.exec.call(this, null, self.errorHandler, self.getPluginName(), 'setHoles', [self.id, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setHoles', [self.id, mvcArray.getArray()]);
   return this;
 };
 Polygon.prototype.getHoles = function () {

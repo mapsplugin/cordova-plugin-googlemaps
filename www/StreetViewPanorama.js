@@ -263,14 +263,33 @@ StreetViewPanorama.prototype.setPov = function(pov, callback) {
 
 StreetViewPanorama.prototype.remove = function(callback) {
   var self = this;
-  self.exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {
-    sync: true,
-    remove: true
-  });
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      function() {
+        self.destroy();
+        resolve.call(self);
+      },
+      reject.bind(self),
+      'CordovaGoogleMaps', 'removeMap', [self.id], {
+        sync: true,
+        remove: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
+
+
+
+
+
+
+
+
   self.trigger("remove");
 };
 StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, cameraPosition) {
