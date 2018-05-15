@@ -65,6 +65,7 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.2 \
 
   - **v2.3.2**
     - Fix: `map.getMyLocation()` and `LocationService.getMyLocation()` do not work.
+    - Fix: can not execute any methods of the marker obtained from `MARKER_CLICK` event of marker cluster 
 
   - **v2.3.1**
     - Fix: incompatible with `@ionic-native/google-maps`

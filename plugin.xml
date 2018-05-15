@@ -133,7 +133,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <preference name="API_KEY_FOR_ANDROID" />
         <info>
             Official document
-            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
+            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md
         </info>
 
         <js-module name="googlemaps-cdv-plugin" src="www/googlemaps-cdv-plugin.js">
@@ -311,7 +311,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <info>
             Official document
-            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.0.0/README.md
+            https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md
         </info>
 
         <config-file target="config.xml" parent="/*">
@@ -478,7 +478,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
           </array>
         </config-file>
 
-        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.6.0"  />
+        <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.7.0"  />
 
         <hook type="before_platform_add" src="src/ios/check_sdk_version.js" />
         <hook type="before_plugin_install" src="src/ios/check_sdk_version.js" />
