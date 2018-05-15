@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.1)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.2)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -10,7 +10,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 *Stable version(npm)*
 ```
-$> cordova plugin add cordova-plugin-googlemaps@2.3.1 \
+$> cordova plugin add cordova-plugin-googlemaps@2.3.2 \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
 
@@ -40,7 +40,7 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.1 \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="^2.3.1">
+  <plugin name="cordova-plugin-googlemaps" spec="^2.3.2">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -62,6 +62,9 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.1 \
 ---
 
 ## Release Notes
+
+  - **v2.3.2**
+    - Fix: `map.getMyLocation()` and `LocationService.getMyLocation()` do not work.
 
   - **v2.3.1**
     - Fix: incompatible with `@ionic-native/google-maps`

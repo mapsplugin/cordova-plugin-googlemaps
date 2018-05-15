@@ -37,8 +37,8 @@ var LocationService = function(exec) {
         }
       };
 
-      if (typeof callback === "function") {
-        resolver(callback, errorHandler);
+      if (typeof success_callback === "function") {
+        resolver(success_callback, errorHandler);
         return self;
       } else {
         return new Promise(resolver);
