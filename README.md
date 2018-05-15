@@ -103,7 +103,7 @@ document.addEventListener("deviceready", function() {
     // Add a maker
     var marker = map.addMarker({
       position: {lat: 37.422359, lng: -122.084344},
-      title: "Welecome to \n" +
+      title: "Welcome to \n" +
              "Cordova GoogleMaps plugin for iOS and Android",
       snippet: "This plugin is awesome!",
       animation: plugin.google.maps.Animation.BOUNCE
