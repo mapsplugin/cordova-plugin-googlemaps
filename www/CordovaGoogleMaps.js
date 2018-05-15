@@ -80,10 +80,17 @@ function CordovaGoogleMaps(execCmd) {
           // Some attributes are changed.
           // If the element has __pluginDomId, check it.
           if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
-            return;
+            continue;
           }
           if (mutation.target.hasAttribute("__pluginDomId")) {
-            self.traceDomTree.call(self, mutation.target, mutation.target.getAttribute("__pluginDomId"), false);
+            elemId = mutation.target.getAttribute("__pluginDomId");
+            if (elemId in self.domPositions) {
+              var domInfo = self.domPositions[elemId];
+              if (Object.keys(domInfo.containMapIDs).length === 0 && !domInfo.isMap) {
+                continue;
+              }
+            }
+            self.traceDomTree.call(self, mutation.target, elemId, false);
             var transformCSS = common.getStyle(mutation.target, "transform") || common.getStyle(mutation.target, "-webkit-transform");
             if (transformCSS !== "none") {
               cordova.fireDocumentEvent("transitionstart", mutation.target);

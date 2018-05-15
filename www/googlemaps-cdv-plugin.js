@@ -60,19 +60,47 @@ if (!cordova) {
       // If the `transitionend` event is ocurred on the observed element,
       // adjust the position and size of the map view
       var scrollEndTimer = null;
+      var transitionEndFlag = false;
+      var checking = false;
       function followMaps(evt) {
+        if (checking) {
+          checking = true;
+          return;
+        }
+        transitionEndFlag = false;
+        checking = true;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (scrollEndTimer) {
           clearTimeout(scrollEndTimer);
           scrollEndTimer = null;
         }
         if (changes) {
-          scrollEndTimer = setTimeout(followMaps.bind(this, evt), 100);
+          transitionEndFlag = false;
+          if (evt && evt.type === "scroll") {
+            scrollEndTimer = setTimeout(function() {
+              followMaps(evt);
+              checking = false;
+            }, 100);
+          } else {
+            checking = false;
+          }
         } else {
-          common.nextTick(onTransitionEnd);
+          if (evt && evt.type === "scroll") {
+            setTimeout(function() {
+              checking = false;
+              onTransitionEnd();
+            }, 100);
+          } else {
+            checking = false;
+          }
         }
       }
       function onTransitionEnd() {
+        if (transitionEndFlag) {
+          return;
+        }
+        transitionEndFlag = true;
+        checking = false;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (changes) {
           scrollEndTimer = setTimeout(onTransitionEnd, 100);
