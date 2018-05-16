@@ -36,10 +36,6 @@ if (!cordova) {
   var execCmd = require("./commandQueueExecutor");
   var cordovaGoogleMaps = new (require('./CordovaGoogleMaps'))(execCmd);
 
-  var onScrollEnd = function() {
-    cordovaGoogleMaps.invalidate.call(cordovaGoogleMaps, {force: true});
-  };
-
   window.addEventListener("load", function() {
     common.nextTick(function() {
       // If the developer needs to recalculate the DOM tree graph,
@@ -47,9 +43,7 @@ if (!cordova) {
       document.addEventListener("plugin_touch", cordovaGoogleMaps.invalidate.bind(cordovaGoogleMaps));
 
       // Repositioning 30 times when the device orientaion is changed.
-      window.addEventListener("orientationchange", function() {
-        cordovaGoogleMaps.invalidateN(30);
-      });
+      window.addEventListener("orientationchange", followMaps);
 
       // If <body> is not ready yet, wait 25ms, then execute this function again.
       // if (!document.body || !document.body.firstChild) {
@@ -60,61 +54,94 @@ if (!cordova) {
       // If the `transitionend` event is ocurred on the observed element,
       // adjust the position and size of the map view
       var scrollEndTimer = null;
-      var transitionEndFlag = false;
-      var checking = false;
+      var transitionEndTimer = null;
+      var transformTargets = {};
       function followMaps(evt) {
-        if (checking) {
-          checking = true;
-          return;
-        }
-        transitionEndFlag = false;
-        checking = true;
+        cordovaGoogleMaps.transforming = true;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (scrollEndTimer) {
           clearTimeout(scrollEndTimer);
           scrollEndTimer = null;
         }
         if (changes) {
-          transitionEndFlag = false;
-          if (evt && evt.type === "scroll") {
-            scrollEndTimer = setTimeout(function() {
-              followMaps(evt);
-              checking = false;
-            }, 100);
-          } else {
-            checking = false;
-          }
+          scrollEndTimer = setTimeout(followMaps.bind(this, evt), 100);
         } else {
-          if (evt && evt.type === "scroll") {
-            setTimeout(function() {
-              checking = false;
-              onTransitionEnd();
-            }, 100);
-          } else {
-            checking = false;
-          }
+          setTimeout(onTransitionEnd.bind(this, evt), 100);
         }
       }
-      function onTransitionEnd() {
-        if (transitionEndFlag) {
+
+      // CSS event `transitionend` is fired even the target dom element is still moving.
+      // In order to detect "correct demention after the transform", wait until stable.
+      function onTransitionEnd(evt) {
+        if (!evt || !evt.target || !evt.target.hasAttribute ||!evt.target.hasAttribute("__pluginDomId")) {
           return;
         }
-        transitionEndFlag = true;
-        checking = false;
+        var elemId = evt.target.getAttribute("__pluginDomId");
+        transformTargets[elemId] = {left: -1, top: -1, right: -1, bottom: -1, finish: false, target: evt.target};
+        if (!transitionEndTimer) {
+          transitionEndTimer = setTimeout(detectTransitionFinish, 100);
+        }
+      }
+      function detectTransitionFinish() {
+        var keys = Object.keys(transformTargets);
+        var onFilter = function(elemId) {
+          if (transformTargets[elemId].finish) {
+            return false;
+          }
+
+          var target = transformTargets[elemId].target;
+          var divRect = common.getDivRect(target);
+          var prevRect = transformTargets[elemId];
+          if (divRect.left === prevRect.left &&
+              divRect.top === prevRect.top &&
+              divRect.right === prevRect.right &&
+              divRect.bottom === prevRect.bottom) {
+            transformTargets[elemId].finish = true;
+          }
+          transformTargets[elemId].left = divRect.left;
+          transformTargets[elemId].top = divRect.top;
+          transformTargets[elemId].right = divRect.right;
+          transformTargets[elemId].bottom = divRect.bottom;
+          return !transformTargets[elemId].finish;
+        };
+        var notYetTargets = keys.filter(onFilter);
+        onFilter = null;
+
+        if (transitionEndTimer) {
+          clearTimeout(transitionEndTimer);
+        }
+        if (notYetTargets.length === 0) {
+          clearTimeout(transitionEndTimer);
+          transitionEndTimer = null;
+          onTransitionFinish();
+        } else {
+          transitionEndTimer = setTimeout(detectTransitionFinish, 100);
+        }
+      }
+
+      function onTransitionFinish() {
+        if (!cordovaGoogleMaps.transforming) {
+          return;
+        }
+        cordovaGoogleMaps.transforming = false;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (changes) {
-          scrollEndTimer = setTimeout(onTransitionEnd, 100);
+          scrollEndTimer = setTimeout(onTransitionFinish, 100);
         } else {
+          transformTargets = undefined;
+          transformTargets = {};
           cordovaGoogleMaps.isThereAnyChange = true;
           cordovaGoogleMaps.checkRequested = false;
           cordovaGoogleMaps.putHtmlElements.call(cordovaGoogleMaps);
-          cordovaGoogleMaps.pause();
+          //cordovaGoogleMaps.pause();
           scrollEndTimer = null;
         }
       }
 
       document.addEventListener("transitionstart", followMaps);
-      document.body.addEventListener("transitionend", onTransitionEnd);
+      document.body.addEventListener("transitionend", onTransitionEnd.bind({
+        target: document.body
+      }));
       // document.body.addEventListener("transitionend", function(e) {
       //   if (!e.target.hasAttribute("__pluginDomId")) {
       //     return;
@@ -126,7 +153,6 @@ if (!cordova) {
       // adjust the position and size of the map view
       document.body.addEventListener("scroll", followMaps, true);
 
-      common.nextTick(onScrollEnd);
     });
   }, {
     once: true
