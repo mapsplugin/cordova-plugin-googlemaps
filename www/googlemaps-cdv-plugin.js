@@ -115,7 +115,7 @@ if (!cordova) {
         if (notYetTargets.length === 0) {
           clearTimeout(transitionEndTimer);
           transitionEndTimer = null;
-          onTransitionFinish();
+          setTimeout(onTransitionFinish, 100);
         } else {
           transitionEndTimer = setTimeout(detectTransitionFinish, 100);
         }
@@ -140,8 +140,8 @@ if (!cordova) {
         }
       }
 
-      document.addEventListener("transitionstart", followMaps);
-      document.body.addEventListener("transitionend", onTransitionEnd);
+      document.addEventListener("transitionstart", followMaps, {capture: true});
+      document.body.addEventListener("transitionend", onTransitionEnd, {capture: true});
       // document.body.addEventListener("transitionend", function(e) {
       //   if (!e.target.hasAttribute("__pluginDomId")) {
       //     return;
