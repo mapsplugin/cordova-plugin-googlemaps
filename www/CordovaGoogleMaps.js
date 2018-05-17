@@ -338,7 +338,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
   //-----------------------------------------------------------------
   self.resume();
 
-  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(self.domPositions)));
+  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(self.domPositions)));
   cordova_exec(function() {
     //console.log("--->putHtmlElements to native (done)");
 
