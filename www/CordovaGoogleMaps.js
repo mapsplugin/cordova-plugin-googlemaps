@@ -242,15 +242,17 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
     var map = self.MAPS[mapId];
     var isTouchable = false;
     if (map) {
+      var mapDiv = map.getDiv();
       isTouchable = (
         map.getVisible() &&
         // map.getClickable() && <-- don't consider this.
-        map.getDiv() &&
-        common.shouldWatchByNative(map.getDiv()));
+        mapDiv &&
+        common.shouldWatchByNative(mapDiv));
       if (isTouchable) {
-        var elemId = common.getPluginDomId(map.getDiv());
+        var elemId = common.getPluginDomId(mapDiv);
         var domInfo = self.domPositions[elemId];
-        if (domInfo && domInfo.size) {
+        if (domInfo) {
+          self.domPositions[elemId].size = common.getDivRect(mapDiv);
           isTouchable = domInfo.size.width * domInfo.size.height > 0;
         } else {
           isTouchable = false;
