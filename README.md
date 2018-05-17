@@ -64,8 +64,11 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.2 \
 ## Release Notes
 
   - **v2.3.2**
+    - Update: reduce the number of times of DOM tree parse process. (= improve performance.)
     - Fix: `map.getMyLocation()` and `LocationService.getMyLocation()` do not work.
-    - Fix: can not execute any methods of the marker obtained from `MARKER_CLICK` event of marker cluster 
+    - Fix: can not execute any methods of the marker obtained from `MARKER_CLICK` event of marker cluster
+    - Fix: can not touch Div element which is moved with `css transition` over map view.
+    - Fix: internal event does not work well with ionic 1 project.
 
   - **v2.3.1**
     - Fix: incompatible with `@ionic-native/google-maps`
@@ -357,7 +360,7 @@ You can write your code `similar to` the Google Maps JavaScript API v3.
 | (not available)                   | MarkerCluster                         |
 | google.maps.KmlLayer              | KMLLayer                              |
 | (not available)                   | LocationService                       |
-| google.maps.StreetView            | StreetView                            |
+| google.maps.StreetView            | StreetView :sparkles:                 |
 | google.maps.Data                  | (not available)                       |
 | google.maps.DirectionsService     | (not available)                       |
 | google.maps.DistanceMatrixService | (not available)                       |
