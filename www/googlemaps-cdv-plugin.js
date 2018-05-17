@@ -43,7 +43,9 @@ if (!cordova) {
       document.addEventListener("plugin_touch", cordovaGoogleMaps.invalidate.bind(cordovaGoogleMaps));
 
       // Repositioning 30 times when the device orientaion is changed.
-      window.addEventListener("orientationchange", followMaps);
+      window.addEventListener("orientationchange", followMaps.bind({
+        target: document.body
+      }));
 
       // If <body> is not ready yet, wait 25ms, then execute this function again.
       // if (!document.body || !document.body.firstChild) {
@@ -73,7 +75,7 @@ if (!cordova) {
       // CSS event `transitionend` is fired even the target dom element is still moving.
       // In order to detect "correct demention after the transform", wait until stable.
       function onTransitionEnd(evt) {
-        if (!evt || !evt.target || !evt.target.hasAttribute ||!evt.target.hasAttribute("__pluginDomId")) {
+        if (!evt || !evt.target ||!evt.target.hasAttribute("__pluginDomId")) {
           return;
         }
         var elemId = evt.target.getAttribute("__pluginDomId");
@@ -139,9 +141,7 @@ if (!cordova) {
       }
 
       document.addEventListener("transitionstart", followMaps);
-      document.body.addEventListener("transitionend", onTransitionEnd.bind({
-        target: document.body
-      }));
+      document.body.addEventListener("transitionend", onTransitionEnd);
       // document.body.addEventListener("transitionend", function(e) {
       //   if (!e.target.hasAttribute("__pluginDomId")) {
       //     return;
