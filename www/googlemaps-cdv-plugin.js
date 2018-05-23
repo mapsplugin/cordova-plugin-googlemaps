@@ -58,7 +58,9 @@ if (!cordova) {
       var scrollEndTimer = null;
       var transitionEndTimer = null;
       var transformTargets = {};
+      var transitionCnt = 0;
       function followMaps(evt) {
+        transitionCnt++;
         cordovaGoogleMaps.transforming = true;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (scrollEndTimer) {
@@ -112,12 +114,13 @@ if (!cordova) {
         if (transitionEndTimer) {
           clearTimeout(transitionEndTimer);
         }
-        if (notYetTargets.length === 0) {
+        transitionCnt -= notYetTargets.length > 1 ? 1 : 0;
+        if (notYetTargets.length > 0 && transitionCnt == 0) {
+          transitionEndTimer = setTimeout(detectTransitionFinish, 100);
+        } else {
           clearTimeout(transitionEndTimer);
           transitionEndTimer = null;
           setTimeout(onTransitionFinish, 100);
-        } else {
-          transitionEndTimer = setTimeout(detectTransitionFinish, 100);
         }
       }
 
@@ -152,6 +155,10 @@ if (!cordova) {
       // If the `scroll` event is ocurred on the observed element,
       // adjust the position and size of the map view
       document.body.addEventListener("scroll", followMaps, true);
+      window.addEventListener("resize", function() {
+        cordovaGoogleMaps.transforming = true;
+        onTransitionFinish();
+      }, true);
 
     });
   }, {
