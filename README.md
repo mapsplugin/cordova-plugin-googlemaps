@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.4-beta)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.4)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -10,7 +10,7 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 *Stable version(npm)*
 ```
-$> cordova plugin add cordova-plugin-googlemaps#multiple_maps \
+$> cordova plugin add cordova-plugin-googlemaps@2.3.4 \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
 
@@ -40,7 +40,7 @@ $> cordova plugin add cordova-plugin-googlemaps#multiple_maps \
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.4">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
 
@@ -65,6 +65,7 @@ $> cordova plugin add cordova-plugin-googlemaps#multiple_maps \
   - **v2.3.4**
     - Fix: plugin does not recognize HTML elements correctly after moving HTML elements with animations
     - Fix: map did not attach after coming back from stacked another page
+    - Fix: map does not resize when keyboard is hiding.
 
   - **v2.3.3**
     - Comment out debug code (only this)
