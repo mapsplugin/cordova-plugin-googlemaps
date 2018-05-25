@@ -48,27 +48,27 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 <table>
 <tr>
-  <th><img src="./images/icon-android.png"><br>PLAY_SERVICES_VERSION = (15.0.1)</th>
-  <td>The Google Play Services SDK version.
+  <th>PLAY_SERVICES_VERSION = (15.0.1)</th>
+  <td><img src="./images/icon-android.png"><br>The Google Play Services SDK version.
 <b>You need to specify the same version number with all other plugins.<b>
 Check out the latest version <a href="https://developers.google.com/android/guides/releases">here</a>.
   </td>
 </tr>
 <tr>
-  <th><img src="./images/icon-android.png"><br>ANDROID_SUPPORT_V4_VERSION = (27.1.1)</th>
-  <td>This plugin requires the Android support library v4.
+  <th>ANDROID_SUPPORT_V4_VERSION = (27.1.1)</th>
+  <td><img src="./images/icon-android.png"><br>This plugin requires the Android support library v4.
 The minimum version is 24.1.0.
 Check out the latest version <a href="https://developer.android.com/topic/libraries/support-library/revisions.html">here</a>.
   </td>
 </tr>
 <tr>
-  <th><img src="./images/icon-ios.png"><br>LOCATION_WHEN_IN_USE_DESCRIPTION</th>
-  <td>This message is displayed when your application requests <b>LOCATION PERMISSION for only necessary times</b>.
+  <th>LOCATION_WHEN_IN_USE_DESCRIPTION</th>
+  <td><img src="./images/icon-ios.png"><br>This message is displayed when your application requests <b>LOCATION PERMISSION for only necessary times</b>.
   </td>
 </tr>
 <tr>
-  <th><img src="./images/icon-ios.png"><br>LOCATION_ALWAYS_USAGE_DESCRIPTION</th>
-  <td>This message is displayed when your application requests <b>LOCATION PERMISSION for always</b>.
+  <th>LOCATION_ALWAYS_USAGE_DESCRIPTION</th>
+  <td><img src="./images/icon-ios.png"><br>This message is displayed when your application requests <b>LOCATION PERMISSION for always</b>.
   </td>
 </tr>
 </table>
