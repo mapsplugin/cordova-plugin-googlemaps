@@ -425,7 +425,6 @@ CordovaGoogleMaps.prototype.invalidate = function(opts) {
   if (opts.force) {
     self.isThereAnyChange = true;
   }
-  self.transforming = true;
 
   common.nextTick(function() {
     self.resume.call(self);
