@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.4)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.5-beta)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -6,34 +6,25 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 -----
 
+## Guides
+
+- [How to generate API keys?](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/api_key/README.md)
+- [Hello, World](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/hello-world/README.md)
+
 ## Quick install
 
 *Stable version(npm)*
 ```
-$> cordova plugin add cordova-plugin-googlemaps@2.3.4 \
+$> cordova plugin add cordova-plugin-googlemaps \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
+```
 
-(Optional variables)
-  // [Android]
-  //    The Google Play Services SDK version
-  //    You need to specify the same version number with all other plugins.
-  //    Check out the latest version here.
-  //    https://developers.google.com/android/guides/releases
-  PLAY_SERVICES_VERSION="15.0.1" (for Android)
-
-  // [Android]
-  //    This plugin requires the Android support library v4.
-  //    The minimum version is 24.1.0
-  //    Check out the latest version here.
-  //    https://developer.android.com/topic/libraries/support-library/revisions.html
-  ANDROID_SUPPORT_V4_VERSION="27.1.1" (for Android)
-
-  // [iOS]
-  //    These variable messages are displayed when application requests
-  //    end-user location.
-  LOCATION_WHEN_IN_USE_DESCRIPTION="(your custom message)"  (for iOS)
-  LOCATION_ALWAYS_USAGE_DESCRIPTION="(your custom message)"  (for iOS)
+*Development version(beta version)*
+```
+$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
+    --variable API_KEY_FOR_ANDROID="..." \
+    --variable API_KEY_FOR_IOS="..."
 ```
 
 ## PhoneGap Build settings
@@ -43,12 +34,6 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.4 \
   <plugin name="cordova-plugin-googlemaps" spec="2.3.4">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
-
-    <!-- these are optional settings -->
-    <variable name="PLAY_SERVICES_VERSION" value="15.0.1" />
-    <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.1.1" />
-    <variable name="LOCATION_WHEN_IN_USE_DESCRIPTION" value="(your custom message)" />
-    <variable name="LOCATION_ALWAYS_USAGE_DESCRIPTION" value="(your custom message)" />
   </plugin>
 
   <!--
@@ -59,9 +44,41 @@ $> cordova plugin add cordova-plugin-googlemaps@2.3.4 \
 </widget>
 ```
 
+## Install optional variables
+
+<table>
+<tr>
+  <th><img src="./images/icon-android.png"><br>PLAY_SERVICES_VERSION = (15.0.1)</th>
+  <td>The Google Play Services SDK version.
+<b>You need to specify the same version number with all other plugins.<b>
+Check out the latest version <a href="https://developers.google.com/android/guides/releases">here</a>.
+  </td>
+</tr>
+<tr>
+  <th><img src="./images/icon-android.png"><br>ANDROID_SUPPORT_V4_VERSION = (27.1.1)</th>
+  <td>This plugin requires the Android support library v4.
+The minimum version is 24.1.0.
+Check out the latest version <a href="https://developer.android.com/topic/libraries/support-library/revisions.html">here</a>.
+  </td>
+</tr>
+<tr>
+  <th><img src="./images/icon-ios.png"><br>LOCATION_WHEN_IN_USE_DESCRIPTION</th>
+  <td>This message is displayed when your application requests <b>LOCATION PERMISSION for only necessary times</b>.
+  </td>
+</tr>
+<tr>
+  <th><img src="./images/icon-ios.png"><br>LOCATION_ALWAYS_USAGE_DESCRIPTION</th>
+  <td>This message is displayed when your application requests <b>LOCATION PERMISSION for always</b>.
+  </td>
+</tr>
+</table>
+
 ---
 
 ## Release Notes
+  - **v2.3.5**
+    - Fix: `cordova.fireDocumentEvent('plugin_touch', {})` blocks HTML DOM tree parsing process.
+
   - **v2.3.4**
     - Fix: plugin does not recognize HTML elements correctly after moving HTML elements with animations
     - Fix: map did not attach after coming back from stacked another page
