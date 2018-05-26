@@ -103,12 +103,16 @@ function CordovaGoogleMaps(execCmd) {
       }
     });
   });
-  observer.observe(document.body.parentElement, {
-    attributes : true,
-    childList: true,
-    subtree: true,
-    attributeFilter: ['style', 'class']
-  });
+  
+  if(document.body != null)
+  {
+    observer.observe(document.body.parentElement, {
+      attributes : true,
+      childList: true,
+     subtree: true,
+     attributeFilter: ['style', 'class']
+    });
+  }
 
   self.on("isSuspended_changed", function(oldValue, newValue) {
     if (newValue) {
