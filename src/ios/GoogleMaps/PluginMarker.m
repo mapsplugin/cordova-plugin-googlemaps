@@ -311,7 +311,7 @@
       GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
       marker.title = [command.arguments objectAtIndex:1];
 
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", markerId];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [self.mapCtrl.objects setObject:properties forKey:propertyId];
@@ -523,11 +523,12 @@
     GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
     BOOL disableAutoPan = [[command.arguments objectAtIndex:1] boolValue];
 
-    NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+    NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@",markerId];
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                        [self.mapCtrl.objects objectForKey:propertyId]];
     [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
     [self.mapCtrl.objects setObject:properties forKey:propertyId];
+    NSLog(@"--->propertyId = %@", propertyId);
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -553,7 +554,7 @@
         marker.map = nil;
       }
 
-      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%lu", (unsigned long)marker.userData];
+      NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", markerId];
       NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:
                                          [self.mapCtrl.objects objectForKey:propertyId]];
       [properties setObject:[NSNumber numberWithBool:isVisible] forKey:@"visible"];
@@ -632,7 +633,7 @@
       [iconProperty setObject:icon forKey:@"url"];
     } else if ([icon isKindOfClass:[NSDictionary class]]) {
       iconProperty = [command.arguments objectAtIndex:1];
-      
+
       id url = [iconProperty objectForKey:@"url"];
       if ([url isKindOfClass:[NSArray class]]) {
         NSArray *rgbColor = url;
