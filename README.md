@@ -13,14 +13,14 @@ Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache
 
 ## Quick install
 
-*Stable version(npm)*
+- *Stable version(npm)*
 ```
 $> cordova plugin add cordova-plugin-googlemaps \
     --variable API_KEY_FOR_ANDROID="..." \
     --variable API_KEY_FOR_IOS="..."
 ```
 
-*Development version(beta version)*
+- *Development version(beta version)*
 ```
 $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
     --variable API_KEY_FOR_ANDROID="..." \
