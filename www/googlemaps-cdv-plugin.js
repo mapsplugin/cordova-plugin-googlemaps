@@ -60,6 +60,9 @@ if (!cordova) {
       var transformTargets = {};
       var transitionCnt = 0;
       function followMaps(evt) {
+        if (cordovaGoogleMaps.MAP_CNT === 0) {
+          return;
+        }
         transitionCnt++;
         cordovaGoogleMaps.transforming = true;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
@@ -77,11 +80,12 @@ if (!cordova) {
       // CSS event `transitionend` is fired even the target dom element is still moving.
       // In order to detect "correct demention after the transform", wait until stable.
       function onTransitionEnd(evt) {
-        if (!evt || !evt.target ||!evt.target.hasAttribute("__pluginDomId")) {
+        if (cordovaGoogleMaps.MAP_CNT === 0 || !evt) {
           return;
         }
-        var elemId = evt.target.getAttribute("__pluginDomId");
-        transformTargets[elemId] = {left: -1, top: -1, right: -1, bottom: -1, finish: false, target: evt.target};
+        var target = evt.target.getAttribute === "function" ? evt.target : document.body;
+        var elemId = target.getAttribute("__pluginDomId");
+        transformTargets[elemId] = {left: -1, top: -1, right: -1, bottom: -1, finish: false, target: target};
         if (!transitionEndTimer) {
           transitionEndTimer = setTimeout(detectTransitionFinish, 100);
         }
@@ -125,7 +129,7 @@ if (!cordova) {
       }
 
       function onTransitionFinish() {
-        if (!cordovaGoogleMaps.transforming) {
+        if (cordovaGoogleMaps.MAP_CNT === 0 || !cordovaGoogleMaps.transforming) {
           return;
         }
         cordovaGoogleMaps.transforming = false;
