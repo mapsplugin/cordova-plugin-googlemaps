@@ -36,7 +36,18 @@ if (!cordova) {
   var execCmd = require("./commandQueueExecutor");
   var cordovaGoogleMaps = new (require('./CordovaGoogleMaps'))(execCmd);
 
-  window.addEventListener("load", function() {
+  (new Promise(function(resolve) {
+    var wait = function() {
+      if (document.body) {
+        wait = undefined;
+        resolve();
+      } else {
+        setTimeout(wait, 50);
+      }
+    };
+    wait();
+
+  })).then(function() {
     common.nextTick(function() {
       // If the developer needs to recalculate the DOM tree graph,
       // use `cordova.fireDocumentEvent('plugin_touch')`
@@ -165,8 +176,6 @@ if (!cordova) {
       }, true);
 
     });
-  }, {
-    once: true
   });
 
   /*****************************************************************************
