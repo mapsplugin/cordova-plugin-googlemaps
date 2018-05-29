@@ -23,9 +23,18 @@ module.exports = function(ctx) {
     }
   }
 
-  var xml2js = require('xml2js');
 
   return Q.Promise(function(resolve, reject, notify) {
+    var exec = require('child_process').exec;
+    exec('npm install xml2js minimist --save', function(err, stdout, stderr) {
+      if (err || stderr) {
+        reject(err || stderr);
+      } else {
+        resolve(data);
+      }     
+    });
+  })
+  .then(function(resolve, reject, notify) {
     if (fs.existsSync(pluginXmlPath + '.original')) {
       // Copy the original plugin.xml to the current plugin.xml
       return fs.createReadStream(pluginXmlPath + '.original')
@@ -53,6 +62,7 @@ module.exports = function(ctx) {
           //---------------------------
           // Parse the xml data
           //---------------------------
+          var xml2js = require('xml2js');
           var xmlParser = new xml2js.Parser();
           xmlParser.parseString(data + "", function(error, configXmlData) {
             if (error) {
@@ -140,6 +150,7 @@ module.exports = function(ctx) {
           //---------------------------
           // Parse the xml data
           //---------------------------
+          var xml2js = require('xml2js');
           var xmlParser = new xml2js.Parser();
           xmlParser.parseString(data + "", function(error, pluginXmlData) {
             if (error) {
