@@ -26,28 +26,31 @@ module.exports = function(ctx) {
 
   return Q.Promise(function(resolve, reject, notify) {
     var exec = require('child_process').exec;
-    exec('npm install xml2js minimist --save', function(err, stdout, stderr) {
-      if (err || stderr) {
-        reject(err || stderr);
+    exec('npm install xml2js minimist --save 2>&1', function(err, stdout) {
+      if (err) {
+        reject(err);
       } else {
-        resolve(data);
-      }     
+        console.log(stdout);
+        resolve();
+      }
     });
   })
-  .then(function(resolve, reject, notify) {
-    if (fs.existsSync(pluginXmlPath + '.original')) {
-      // Copy the original plugin.xml to the current plugin.xml
-      return fs.createReadStream(pluginXmlPath + '.original')
-          .pipe(fs.createWriteStream(pluginXmlPath))
-          .on("error", reject)
-          .on("close", resolve);
-    } else {
-      // Backup the original plugin.xml file
-      return fs.createReadStream(pluginXmlPath)
-          .pipe(fs.createWriteStream(pluginXmlPath + '.original'))
-          .on("error", reject)
-          .on("close", resolve);
-    }
+  .then(function() {
+    return Q.Promise(function(resolve, reject, notify) {
+      if (fs.existsSync(pluginXmlPath + '.original')) {
+        // Copy the original plugin.xml to the current plugin.xml
+        return fs.createReadStream(pluginXmlPath + '.original')
+            .pipe(fs.createWriteStream(pluginXmlPath))
+            .on("error", reject)
+            .on("close", resolve);
+      } else {
+        // Backup the original plugin.xml file
+        return fs.createReadStream(pluginXmlPath)
+            .pipe(fs.createWriteStream(pluginXmlPath + '.original'))
+            .on("error", reject)
+            .on("close", resolve);
+      }
+    });
   })
   .then(function() {
     return Q.Promise(function(resolve, reject, notify) {
