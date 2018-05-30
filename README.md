@@ -79,6 +79,8 @@ Check out the latest version <a href="https://developer.android.com/topic/librar
   - **v2.3.5**
     - Fix: `cordova.fireDocumentEvent('plugin_touch', {})` blocks HTML DOM tree parsing process.
     - Fix: `Uncaught TypeError: evt.target.hasAttribute is not a function` when device is rotated.
+    - Fix: `marker.setDisableAutoPan()` does not work on iOS.
+    - Fix: `before_plugin_install.js` does not work very if Cordova blows off dependency package installation.
 
   - **v2.3.4**
     - Fix: plugin does not recognize HTML elements correctly after moving HTML elements with animations
