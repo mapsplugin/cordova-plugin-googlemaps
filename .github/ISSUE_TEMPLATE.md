@@ -2,7 +2,23 @@
 Thank you for supporting the plugin activity ($5 usd).
 https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
 
-If you desire the support by e-mail in private, please contact to wf9a5m75@gmail.com (private support: $100 USD)
+#--------------------
+# public support
+#--------------------
+Since this plugin project is open source, I give you free public support.
+I almost all cases ask you to share your project files on Github or other git repository services.
+I don't matter if it is public or private repo.
+However screen captures or screen records are posted in public issue thread.
+(Code are not discovered as much as possible)
+
+#--------------------
+# private support
+#--------------------
+Even if you don't want to discover anything including screen captures or screen records,
+please ask me to private support.
+I ask you to donate $100 USD to the maps plugin project,
+then I make a private space, then support it.
+
 --->
 
 **I'm submitting a ...**  (check one with "x")
