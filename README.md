@@ -56,10 +56,10 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
   _The minimum version is 24.1.0._
   Check out the latest version [here](https://developer.android.com/topic/libraries/support-library/revisions.html).
 
-- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_WHEN_IN_USE_DESCRIPTION = (This app wants to get your location while this app runs only.)**<br>
+- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_WHEN_IN_USE_DESCRIPTION**<br>
   This message is displayed when your application requests **LOCATION PERMISSION for only necessary times**.
 
-- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_ALWAYS_USAGE_DESCRIPTION = (This app wants to get your location always, even this app runs in background.)**<br>
+- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_ALWAYS_USAGE_DESCRIPTION**<br>
   This message is displayed when your application requests **LOCATION PERMISSION for always**.
 
 ---------------------------------------------------------------------------------------------------------
