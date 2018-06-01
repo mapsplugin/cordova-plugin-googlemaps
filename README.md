@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.5)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.6-beta)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -46,36 +46,37 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ## Install optional variables
 
-<table>
-<tr>
-  <td>PLAY_SERVICES_VERSION = (15.0.1)</td>
-  <td><img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png"><br>The Google Play Services SDK version.
-<b>You need to specify the same version number with all other plugins.</b>
-Check out the latest version <a href="https://developers.google.com/android/guides/releases">here</a>.
-  </td>
-</tr>
-<tr>
-  <td>ANDROID_SUPPORT_V4_VERSION = (27.1.1)</td>
-  <td><img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png"><br>This plugin requires the Android support library v4.
-The minimum version is 24.1.0.
-Check out the latest version <a href="https://developer.android.com/topic/libraries/support-library/revisions.html">here</a>.
-  </td>
-</tr>
-<tr>
-  <td>LOCATION_WHEN_IN_USE_DESCRIPTION</td>
-  <td><img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png"><br>This message is displayed when your application requests <b>LOCATION PERMISSION for only necessary times</b>.
-  </td>
-</tr>
-<tr>
-  <td>LOCATION_ALWAYS_USAGE_DESCRIPTION</td>
-  <td><img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png"><br>This message is displayed when your application requests <b>LOCATION PERMISSION for always</b>.
-  </td>
-</tr>
-</table>
+- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **PLAY_SERVICES_VERSION = (15.0.1)**<br>
+  The Google Play Services SDK version.
+  _You need to specify the same version number with all other plugins._
+  Check out the latest version [here](https://developers.google.com/android/guides/releases).
 
----
+- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **ANDROID_SUPPORT_V4_VERSION = (27.1.1)**<br>
+  This plugin requires the Android support library v4.
+  _The minimum version is 24.1.0._
+  Check out the latest version [here](https://developer.android.com/topic/libraries/support-library/revisions.html).
+
+- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_WHEN_IN_USE_DESCRIPTION = (This app wants to get your location while this app runs only.)**<br>
+  This message is displayed when your application requests **LOCATION PERMISSION for only necessary times**.
+
+- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_ALWAYS_USAGE_DESCRIPTION = (This app wants to get your location always, even this app runs in background.)**<br>
+  This message is displayed when your application requests **LOCATION PERMISSION for always**.
+
+---------------------------------------------------------------------------------------------------------
+
+## Please support this plugin activity.
+
+In order to keep this plugin as free, please consider to donate little amount for this project.
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
+
+---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.3.6**
+    - Fix: onPause causes app crashes on Android
+    - Fix: Can't find variable: element (v2.3.5)
+
   - **v2.3.5**
     - Fix: `cordova.fireDocumentEvent('plugin_touch', {})` blocks HTML DOM tree parsing process.
     - Fix: `Uncaught TypeError: evt.target.hasAttribute is not a function` when device is rotated.
@@ -105,7 +106,7 @@ Check out the latest version <a href="https://developer.android.com/topic/librar
     - A callback is no longer required for the most part.
     - `Promise` is supported instead of `callback`
 
----
+---------------------------------------------------------------------------------------------------------
 
 ## Quick demo
 
@@ -154,7 +155,7 @@ document.addEventListener("deviceready", function() {
 }, false);
 ```
 
------
+---------------------------------------------------------------------------------------------------------
 
 ## Documentation
 
@@ -343,7 +344,7 @@ var panorama = plugin.google.maps.StreetView.getPanorama(div, {
 </table>
 
 
------
+---------------------------------------------------------------------------------------------------------
 
 ### What is the difference between this plugin and Google Maps JavaScript API v3?
 
@@ -418,7 +419,7 @@ This means **you can use the native Google Maps views similar to HTML elements**
 
 ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/touch.png)
 
----
+---------------------------------------------------------------------------------------------------------
 
 ## Official Communities
 
@@ -429,20 +430,3 @@ This means **you can use the native Google Maps views similar to HTML elements**
 - Gitter : (managed by @Hirbod)
 
   https://gitter.im/nightstomp/cordova-plugin-googlemaps
-
----
-
-## Buy us a beer
-
-Thank you for supporting our activities.
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
-
-All donations are used for purchasing testing devices (both iOS and Android) and/or new software.
-
-
-## Buy us a beer (with bitcoin)
-
-Thank you for supporting us via bitcoin.
-
-3LyVAfANZwcitEEnFbsHup3mDJfuqp8QFb
