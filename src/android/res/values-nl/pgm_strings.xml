@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">De applicatie is onjuist geconfigureerd. Deze foutmelding kan niet hesteld worden. De ontwikkelaar moet de logboek informatie bekijken om dit probleem op te lossen.</string>
   <string name="pgm_google_play_internal_error">Er heeft een interne fout van Google Play Services plaatsgevonden. Probeer het opnieuw.</string>
   <string name="pgm_google_play_invalid_account">Je hebt geprobeerd om te verbinden met de service met een ongeldig gebruikersnaam.</string>
-  <string name="pgm_google_play_lincense_check_failed">Er is geen licentie voor de gebruiker. Deze foutmelding kan niet hersteld worden.</string>
+  <string name="pgm_google_play_license_check_failed">Er is geen licentie voor de gebruiker. Deze foutmelding kan niet hersteld worden.</string>
   <string name="pgm_google_play_network_error">Er heeft een netwerkfout plaatsgevonden. Probeer het opnieuw.</string>
   <string name="pgm_google_play_service_disabled">De geinstalleerde versie van Google Play services staat uit op dit apparaat. Zet Google Play Services aan.</string>
   <string name="pgm_google_play_service_invalid">De geinstaleerde versie van Google Play services is niet autentiek. Update Google Play Services van de Google Play Store.</string>

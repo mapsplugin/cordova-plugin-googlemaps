@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">تم تكوين التطبيق بشكل خاطئ. هذا الخطأ غير قابل للاسترداد وسيتم التعامل معه على أنه مميت. يجب على مطور البرامج النظر في السجلات بعد ذلك لتحديد مزيد من المعلومات القابلة للتنفيذ</string>
   <string name="pgm_google_play_internal_error">يرجى إعادة المحاولة ، ويجب أن تحل المشكلة ، Google Play حدث خطأ داخلي في خدمات </string>
   <string name="pgm_google_play_invalid_account">لقد حاولت الاتصال بالخدمة باسم حساب غير صالح</string>
-  <string name="pgm_google_play_lincense_check_failed">.التطبيق غير مرخص للمستخدم. هذا الخطأ غير قابل للاسترداد وسيتم التعامل معه على أنه مميت</string>
+  <string name="pgm_google_play_license_check_failed">.التطبيق غير مرخص للمستخدم. هذا الخطأ غير قابل للاسترداد وسيتم التعامل معه على أنه مميت</string>
   <string name="pgm_google_play_network_error">.حدث خطأ في الشبكة. الرجاء المحاولة مرة أخرى ، ويجب أن تحل المشكلة</string>
   <string name="pgm_google_play_service_disabled"> Google Play على هذا الجهاز. الرجاء تشغيل خدمات Google Play تم تعطيل الإصدار المثبت من خدمات</string>
   <string name="pgm_google_play_service_invalid">Google play من متجر Google Play المثبتة على هذا الجهاز غير أصلي. يرجى تحديث خدمات Google Play إصدار خدمات</string>

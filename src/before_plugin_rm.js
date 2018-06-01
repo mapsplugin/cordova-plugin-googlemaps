@@ -3,11 +3,25 @@ module.exports = function(ctx) {
   var fs = ctx.requireCordovaModule('fs'),
       path = ctx.requireCordovaModule('path'),
       Q = ctx.requireCordovaModule('q');
-
-  var xml2js = require('../node_modules/xml2js');
-
   var projectRoot = ctx.opts.projectRoot,
-    configXmlPath = path.join(projectRoot, "config.xml");
+    configXmlPath = path.join(projectRoot, 'config.xml');
+  var versions = ctx.opts.cordova.version.split(/\./g);
+
+  var Module = require('module').Module;
+  var NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
+  if (fs.existsSync(NODE_MODULES_DIR)) {
+    var old_nodeModulePaths = Module._nodeModulePaths;
+    var oldPaths = Module._nodeModulePaths(projectRoot);
+    if (oldPaths.indexOf(NODE_MODULES_DIR) === -1) {
+      Module._nodeModulePaths = function(from) {
+          var paths = old_nodeModulePaths.call(this, from);
+          paths.push(NODE_MODULES_DIR);
+          return paths;
+      };
+    }
+  }
+
+  var xml2js = require('xml2js');
 
   return Q.Promise(function(resolve, reject, notify) {
     //---------------------------
@@ -45,6 +59,7 @@ module.exports = function(ctx) {
     //------------------------------------------------------------------------------
     return Q.Promise(function(resolve, reject, notify) {
       var hasPluginGoogleMaps = false;
+      data.widget.plugin = data.widget.plugin || [];
       data.widget.plugin = data.widget.plugin.map(function(plugin) {
         if (plugin.$.name !== "cordova-plugin-googlemaps") {
           return plugin;

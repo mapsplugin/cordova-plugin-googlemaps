@@ -1,53 +1,20 @@
 //
-//  GoogleMapsViewController.m
+//  PluginMapViewController.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.
 //
 //
 
-#import "GoogleMapsViewController.h"
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
-#import <Cordova/CDVJSON.h>
-#endif
+#import "PluginMapViewController.h"
 
-
-@implementation GoogleMapsViewController
-
-- (id)initWithOptions:(NSDictionary *) options {
-  self = [super init];
-  self.plugins = [NSMutableDictionary dictionary];
-  self.isFullScreen = NO;
-  self.screenSize = [[UIScreen mainScreen] bounds];
-  self.screenScale = [[UIScreen mainScreen] scale];
-  self.clickable = YES;
-  self.isRenderedAtOnce = NO;
-  self.mapDivId = nil;
-  self.objects = [[PluginObjects alloc] init];
-  self.executeQueue =  [NSOperationQueue new];
-  self.executeQueue.maxConcurrentOperationCount = 10;
-
-
-  return self;
-}
-
-- (void)viewDidLoad
-{
-  [super viewDidLoad];
-
-}
-
-
-- (void)didReceiveMemoryWarning
-{
-  [super didReceiveMemoryWarning];
-}
+@implementation PluginMapViewController
 
 - (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});}",
-                        self.mapId, self.mapId, @"poi_click", placeID, name, location.latitude, location.longitude];
+                        self.overlayId, self.overlayId, @"poi_click", placeID, name, location.latitude, location.longitude];
   [self execJS:jsString];
 }
 
@@ -62,7 +29,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});}",
-                        self.mapId, self.mapId, @"my_location_button_click"];
+                        self.overlayId, self.overlayId, @"my_location_button_click"];
   [self execJS:jsString];
   return NO;
 }
@@ -71,8 +38,8 @@
 - (void)mapView:(GMSMapView *)mapView didTapMyLocation:(CLLocationCoordinate2D)location {
 
     NSMutableDictionary *latLng = [NSMutableDictionary dictionary];
-    [latLng setObject:[NSNumber numberWithFloat:location.latitude] forKey:@"lat"];
-    [latLng setObject:[NSNumber numberWithFloat:location.longitude] forKey:@"lng"];
+    [latLng setObject:[NSNumber numberWithDouble:location.latitude] forKey:@"lat"];
+    [latLng setObject:[NSNumber numberWithDouble:location.longitude] forKey:@"lng"];
 
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
 
@@ -90,7 +57,7 @@
 
     NSString* jsString = [NSString
                           stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: [%@]});}",
-                          self.mapId, self.mapId, @"my_location_click", sourceArrayString];
+                          self.overlayId, self.overlayId, @"my_location_click", sourceArrayString];
     [self execJS:jsString];
 }
 
@@ -122,7 +89,7 @@
   //NSString *pluginName;
   NSString *key;
   NSDictionary *properties;
-  //CDVPlugin<MyPlgunProtocol> *plugin;
+  //CDVPlugin<IPluginProtocol> *plugin;
   GMSCoordinateBounds *bounds;
   GMSPath *path;
   NSArray *keys;
@@ -416,7 +383,7 @@
                    pointForCoordinate:CLLocationCoordinate2DMake(position.latitude, position.longitude)];
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: 'syncPosition', callback: '_onSyncInfoWndPosition', args: [{x: %f, y: %f}]});}",
-                        self.mapId, self.mapId, point.x, point.y ];
+                        self.overlayId, self.overlayId, point.x, point.y ];
   [self execJS:jsString];
 }
 
@@ -463,8 +430,8 @@
   //NSString *className = [tmp objectAtIndex:0];
 
   // Get the marker plugin
-  //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.mapId, className];
-  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-%@", self.overlayId, className];
+  //CDVPlugin<IPluginProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", clusterId_markerId];
@@ -533,7 +500,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});}",
-                        self.mapId, self.mapId, eventName];
+                        self.overlayId, self.overlayId, eventName];
   [self execJS:jsString];
 }
 
@@ -545,7 +512,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: [new plugin.google.maps.LatLng(%f,%f)]});}",
-                        self.mapId, self.mapId, eventName, coordinate.latitude, coordinate.longitude];
+                        self.overlayId, self.overlayId, eventName, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -572,58 +539,45 @@
   NSMutableDictionary *northeast = [NSMutableDictionary dictionary];
   NSMutableDictionary *southwest = [NSMutableDictionary dictionary];
 
-  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.latitude] forKey:@"lat"];
-  [northeast setObject:[NSNumber numberWithFloat:bounds.northEast.longitude] forKey:@"lng"];
+  [northeast setObject:[NSNumber numberWithDouble:bounds.northEast.latitude] forKey:@"lat"];
+  [northeast setObject:[NSNumber numberWithDouble:bounds.northEast.longitude] forKey:@"lng"];
   [json setObject:northeast forKey:@"northeast"];
-  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.latitude] forKey:@"lat"];
-  [southwest setObject:[NSNumber numberWithFloat:bounds.southWest.longitude] forKey:@"lng"];
+  [southwest setObject:[NSNumber numberWithDouble:bounds.southWest.latitude] forKey:@"lat"];
+  [southwest setObject:[NSNumber numberWithDouble:bounds.southWest.longitude] forKey:@"lng"];
   [json setObject:southwest forKey:@"southwest"];
 
 
 
   NSMutableDictionary *farLeft = [NSMutableDictionary dictionary];
-  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.latitude] forKey:@"lat"];
-  [farLeft setObject:[NSNumber numberWithFloat:visibleRegion.farLeft.longitude] forKey:@"lng"];
+  [farLeft setObject:[NSNumber numberWithDouble:visibleRegion.farLeft.latitude] forKey:@"lat"];
+  [farLeft setObject:[NSNumber numberWithDouble:visibleRegion.farLeft.longitude] forKey:@"lng"];
   [json setObject:farLeft forKey:@"farLeft"];
 
   NSMutableDictionary *farRight = [NSMutableDictionary dictionary];
-  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.latitude] forKey:@"lat"];
-  [farRight setObject:[NSNumber numberWithFloat:visibleRegion.farRight.longitude] forKey:@"lng"];
+  [farRight setObject:[NSNumber numberWithDouble:visibleRegion.farRight.latitude] forKey:@"lat"];
+  [farRight setObject:[NSNumber numberWithDouble:visibleRegion.farRight.longitude] forKey:@"lng"];
   [json setObject:farRight forKey:@"farRight"];
 
   NSMutableDictionary *nearLeft = [NSMutableDictionary dictionary];
-  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.latitude] forKey:@"lat"];
-  [nearLeft setObject:[NSNumber numberWithFloat:visibleRegion.nearLeft.longitude] forKey:@"lng"];
+  [nearLeft setObject:[NSNumber numberWithDouble:visibleRegion.nearLeft.latitude] forKey:@"lat"];
+  [nearLeft setObject:[NSNumber numberWithDouble:visibleRegion.nearLeft.longitude] forKey:@"lng"];
   [json setObject:nearLeft forKey:@"nearLeft"];
 
   NSMutableDictionary *nearRight = [NSMutableDictionary dictionary];
-  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.latitude] forKey:@"lat"];
-  [nearRight setObject:[NSNumber numberWithFloat:visibleRegion.nearRight.longitude] forKey:@"lng"];
+  [nearRight setObject:[NSNumber numberWithDouble:visibleRegion.nearRight.latitude] forKey:@"lat"];
+  [nearRight setObject:[NSNumber numberWithDouble:visibleRegion.nearRight.longitude] forKey:@"lng"];
   [json setObject:nearRight forKey:@"nearRight"];
 
   NSData* jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:nil];
   NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onCameraEvent', args: [%@]});}",
-                        self.mapId, self.mapId, eventName, sourceArrayString];
+                        self.overlayId, self.overlayId, eventName, sourceArrayString];
   [self execJS:jsString];
 
   [self syncInfoWndPosition];
 }
 
-
-- (void)execJS: (NSString *)jsString {
-  // Insert setTimeout() in order to prevent the GDC and webView deadlock
-  // ( you can not click the ok button of Alert() )
-  // https://stackoverflow.com/a/23833841/697856
-  jsString = [NSString stringWithFormat:@"setTimeout(function(){%@}, 0);", jsString];
-
-  if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-    [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
-  } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
-    [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
-  }
-}
 
 /**
  * cluster_*** events
@@ -642,7 +596,7 @@
   // Get the marker plugin
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onClusterEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f, %f)]});}",
-                        self.mapId, self.mapId, eventName, clusterId, markerId,
+                        self.overlayId, self.overlayId, eventName, clusterId, markerId,
                         marker.position.latitude,
                         marker.position.longitude];
   [self execJS:jsString];
@@ -660,7 +614,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMarkerEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});}",
-                        self.mapId, self.mapId, eventName, markerId,
+                        self.overlayId, self.overlayId, eventName, markerId,
                         marker.position.latitude,
                         marker.position.longitude];
   [self execJS:jsString];
@@ -673,7 +627,7 @@
 {
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onOverlayEvent', args: ['%@', new plugin.google.maps.LatLng(%f, %f)]});}",
-                        self.mapId, self.mapId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
+                        self.overlayId, self.overlayId, eventName, overlayId, coordinate.latitude, coordinate.longitude];
   [self execJS:jsString];
 }
 
@@ -693,8 +647,8 @@
 
 
   // Get the marker plugin
-  //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapId];
-  //CDVPlugin<MyPlgunProtocol> *plugin = [self.plugins objectForKey:pluginId];
+  //NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.overlayId];
+  //CDVPlugin<IPluginProtocol> *plugin = [self.plugins objectForKey:pluginId];
 
   // Get the marker properties
   NSString *markerPropertyId = [NSString stringWithFormat:@"marker_property_%@", marker.userData];
@@ -1057,7 +1011,7 @@
   //Notify to the JS
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: 'indoor_building_focused', callback: '_onMapEvent'});}",
-                        self.mapId, self.mapId];
+                        self.overlayId, self.overlayId];
   [self execJS:jsString];
 }
 
@@ -1096,7 +1050,7 @@
   //Notify to the JS
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: 'indoor_level_activated', callback: '_onMapEvent', args: [%@]});}",
-                        self.mapId, self.mapId, JSONstring];
+                        self.overlayId, self.overlayId, JSONstring];
 
   [self execJS:jsString];
 }

@@ -7,15 +7,15 @@
 //
 
 #import "CordovaGoogleMaps.h"
-#import "MyPlgunProtocol.h"
+#import "IPluginProtocol.h"
 #import "PluginUtil.h"
 #import "TBXML.h"
-#import "MyPlgunProtocol.h"
+#import "IPluginProtocol.h"
 
-@interface PluginKmlOverlay : CDVPlugin<MyPlgunProtocol>
+@interface PluginKmlOverlay : CDVPlugin<IPluginProtocol>
 
 @property (nonatomic) BOOL initialized;
-@property (nonatomic, strong) GoogleMapsViewController* mapCtrl;
+@property (nonatomic, strong) PluginMapViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
 @end
 

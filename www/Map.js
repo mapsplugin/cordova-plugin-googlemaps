@@ -1,7 +1,7 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
+  Overlay = require('./Overlay'),
   BaseClass = require('./BaseClass'),
   BaseArrayClass = require('./BaseArrayClass'),
   LatLng = require('./LatLng'),
@@ -25,9 +25,13 @@ var argscheck = require('cordova/argscheck'),
  */
 var exec;
 var Map = function(id, _exec) {
-  exec = _exec;
   var self = this;
-  BaseClass.apply(self);
+  exec = _exec;
+  Overlay.call(self, self, {}, 'Map', _exec, {
+    id: id
+  });
+  delete self.map;
+
 
   self.set("myLocation", false);
   self.set("myLocationButton", false);
@@ -48,47 +52,35 @@ var Map = function(id, _exec) {
     value: {
       info: infoWindowLayer
     },
-    writable: false
-  });
-
-  Object.defineProperty(self, "type", {
-    value: "Map",
-    writable: false
-  });
-
-  Object.defineProperty(self, "id", {
-    value: id,
+    enumerable: false,
     writable: false
   });
 
   self.on(event.MAP_CLICK, function() {
-    self.set("active_marker_id", undefined);
+    self.set("active_marker", undefined);
   });
 
-  self.on("active_marker_id_changed", function(prevId, newId) {
-    if (prevId in self.MARKERS) {
-      self.MARKERS[prevId].hideInfoWindow.call(self.MARKERS[prevId]);
+  self.on("active_marker_changed", function(prevMarker, newMarker) {
+    var newMarkerId = newMarker ? newMarker.getId() : null;
+    if (prevMarker) {
+      prevMarker.hideInfoWindow.call(prevMarker);
     }
-    exec.call(self, null, null, self.id, 'setActiveMarkerId', [newId]);
+    self.exec.call(self, null, null, self.id, 'setActiveMarkerId', [newMarkerId]);
   });
 };
 
-utils.extend(Map, BaseClass);
-
-Map.prototype.getId = function() {
-  return this.id;
-};
+utils.extend(Map, Overlay);
 
 /**
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function(event) {
-  exec.call(this, null, null, this.id, 'resizeMap', []);
+  this.exec.call(this, null, null, this.id, 'resizeMap', []);
 };
 
-Map.prototype.getMap = function(mapId, div, options) {
+Map.prototype.getMap = function(meta, div, options) {
   var self = this,
-    args = [mapId];
+    args = [meta];
   options = options || {};
 
   self.set("clickable", options.clickable === false ? false : true);
@@ -158,11 +150,11 @@ Map.prototype.getMap = function(mapId, div, options) {
     div.style.overflow = "hidden";
     self.set("div", div);
 
-    if (div.offsetWidth < 200 || div.offsetHeight < 200) {
+    if (div.offsetWidth < 100 || div.offsetHeight < 100) {
       // If the map Div is too small, wait a little.
       var callee = arguments.callee;
       setTimeout(function() {
-        callee.call(self, mapId, div, options);
+        callee.call(self, meta, div, options);
       }, 250 + Math.random() * 100);
       return;
     }
@@ -219,9 +211,9 @@ Map.prototype.getMap = function(mapId, div, options) {
         div = div.parentNode;
       }
     }
-    cordova.fireDocumentEvent("plugin_touch", {
-      force: true
-    });
+    // cordova.fireDocumentEvent("plugin_touch", {
+    //   force: true
+    // });
 
     //------------------------------------------------------------------------
     // In order to work map.getVisibleRegion() correctly, wait a little.
@@ -235,10 +227,9 @@ Map.prototype.getMap = function(mapId, div, options) {
         return;
       }
 
-      Object.defineProperty(self, "_isReady", {
-        value: true,
-        writable: false
-      });
+
+      self._privateInitialize();
+      delete self._privateInitialize;
       self.refreshLayout();
       self.trigger(event.MAP_READY, self);
     };
@@ -265,7 +256,7 @@ Map.prototype.setOptions = function(options) {
     this.set("myLocation", myLocation);
     this.set("myLocationButton", myLocationButton);
     options.controls.myLocation = myLocation;
-    options.controls.myLocationButton = myLocation;
+    options.controls.myLocationButton = myLocationButton;
   }
   if (options.camera) {
     if (options.camera.latLng) {
@@ -289,23 +280,23 @@ Map.prototype.setOptions = function(options) {
   if (utils.isArray(options.styles)) {
     options.styles = JSON.stringify(options.styles);
   }
-  exec.call(this, null, this.errorHandler, this.id, 'setOptions', [options]);
+  this.exec.call(this, null, this.errorHandler, this.id, 'setOptions', [options]);
   return this;
 };
 
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
-  plugin.google.maps.LocationService.getMyLocation(params, success_callback, error_callback);
+  return plugin.google.maps.LocationService.getMyLocation.call(this, params, success_callback, error_callback);
 };
 
 Map.prototype.setCameraTarget = function(latLng) {
   this.set('camera_target', latLng);
-  exec.call(this, null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
+  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
   return this;
 };
 
 Map.prototype.setCameraZoom = function(zoom) {
   this.set('camera_zoom', zoom);
-  exec.call(this, null, this.errorHandler, this.id, 'setCameraZoom', [zoom], {
+  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraZoom', [zoom], {
     sync: true
   });
   return this;
@@ -313,7 +304,7 @@ Map.prototype.setCameraZoom = function(zoom) {
 Map.prototype.panBy = function(x, y) {
   x = parseInt(x, 10);
   y = parseInt(y, 10);
-  exec.call(this, null, this.errorHandler, this.id, 'panBy', [x, y], {
+  this.exec.call(this, null, this.errorHandler, this.id, 'panBy', [x, y], {
     sync: true
   });
   return this;
@@ -326,13 +317,14 @@ Map.prototype.panBy = function(x, y) {
 Map.prototype.clear = function(callback) {
   var self = this;
   if (self._isRemoved) {
-    return;
+    // Simply ignore because this map is already removed.
+    return Promise.resolve();
   }
 
   // Close the active infoWindow
-  var active_marker_id = self.get("active_marker_id");
-  if (active_marker_id && active_marker_id in self.MARKERS) {
-    self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
+  var active_marker = self.get("active_marker");
+  if (active_marker) {
+    active_marker.trigger(event.INFO_CLOSE);
   }
 
   var clearObj = function(obj) {
@@ -356,13 +348,21 @@ Map.prototype.clear = function(callback) {
   clearObj(self.MARKERS);
   self.trigger("map_clear");
 
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, this.id, 'clear', [], {
-    sync: true
-  });
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'clear', [], {
+        sync: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
+
 };
 
 /**
@@ -379,7 +379,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
     return this.errorHandler("Invalid MapTypeId was specified.");
   }
   this.set('mapTypeId', mapTypeId);
-  exec.call(this, null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
+  this.exec.call(this, null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
   return this;
 };
 
@@ -389,7 +389,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setCameraTilt = function(tilt) {
   this.set('camera_tilt', tilt);
-  exec.call(this, null, this.errorHandler, this.id, 'setCameraTilt', [tilt], {
+  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraTilt', [tilt], {
     sync: true
   });
   return this;
@@ -401,7 +401,7 @@ Map.prototype.setCameraTilt = function(tilt) {
  */
 Map.prototype.setCameraBearing = function(bearing) {
   this.set('camera_bearing', bearing);
-  exec.call(this, null, this.errorHandler, this.id, 'setCameraBearing', [bearing], {
+  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraBearing', [bearing], {
     sync: true
   });
   return this;
@@ -413,13 +413,7 @@ Map.prototype.moveCameraZoomIn = function(callback) {
   cameraPosition.zoom++;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
 
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
-    sync: true
-  });
+  return self.moveCamera(cameraPosition, callback);
 
 };
 Map.prototype.moveCameraZoomOut = function(callback) {
@@ -428,14 +422,7 @@ Map.prototype.moveCameraZoomOut = function(callback) {
   cameraPosition.zoom--;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
 
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
-    sync: true
-  });
-
+  return self.moveCamera(cameraPosition, callback);
 };
 Map.prototype.animateCameraZoomIn = function(callback) {
   var self = this;
@@ -443,15 +430,7 @@ Map.prototype.animateCameraZoomIn = function(callback) {
   cameraPosition.zoom++;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
   cameraPosition.duration = 500;
-
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {
-    sync: true
-  });
-
+  return self.animateCamera(cameraPosition, callback);
 };
 Map.prototype.animateCameraZoomOut = function(callback) {
   var self = this;
@@ -459,15 +438,7 @@ Map.prototype.animateCameraZoomOut = function(callback) {
   cameraPosition.zoom--;
   cameraPosition.zoom = cameraPosition.zoom < 0 ? 0 : cameraPosition.zoom;
   cameraPosition.duration = 500;
-
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {
-    sync: true
-  });
-
+  return self.animateCamera(cameraPosition, callback);
 };
 /**
  * @desc   Move the map camera with animation
@@ -476,12 +447,13 @@ Map.prototype.animateCameraZoomOut = function(callback) {
  */
 Map.prototype.animateCamera = function(cameraPosition, callback) {
   var self = this;
+
   var target = cameraPosition.target;
   if (!target && "position" in cameraPosition) {
     target = cameraPosition.position;
   }
   if (!target) {
-    return;
+    return Promise.reject("No target field is specified.");
   }
   if (!("padding" in cameraPosition)) {
     cameraPosition.padding = 20;
@@ -493,20 +465,29 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
       // skip if no point is specified
       if (typeof callback === "function") {
         callback.call(self);
+        return;
+      } else {
+        return Promise.reject("No point is specified.");
       }
-      return;
     }
   }
   cameraPosition.target = target;
 
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'animateCamera', [cameraPosition], {
-    sync: true
-  });
+  var resolver = function(resolve, reject) {
 
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'animateCamera', [cameraPosition], {
+        sync: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 /**
  * @desc   Move the map camera without animation
@@ -520,7 +501,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     target = cameraPosition.position;
   }
   if (!target) {
-    return;
+    return Promise.reject("No target field is specified.");
   }
 
   if (!("padding" in cameraPosition)) {
@@ -532,26 +513,36 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
       // skip if no point is specified
       if (typeof callback === "function") {
         callback.call(self);
+        return;
+      } else {
+        return Promise.reject("No point is specified.");
       }
-      return;
     }
   }
   cameraPosition.target = target;
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, self.id, 'moveCamera', [cameraPosition], {
-    sync: true
-  });
 
+  var resolver = function(resolve, reject) {
+
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'moveCamera', [cameraPosition], {
+        sync: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocationButton", enabled);
-  exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+  self.exec.call(self, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
     myLocation: self.get("myLocation") === true
   }], {
@@ -564,7 +555,7 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set("myLocation", enabled);
-  exec.call(this, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+  self.exec.call(self, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
     myLocationButton: self.get("myLocationButton") === true,
     myLocation: enabled
   }], {
@@ -575,22 +566,34 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
 
 Map.prototype.setIndoorEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
+  this.exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
   return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  exec.call(this, null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
+  this.exec.call(this, null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
   return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  exec.call(this, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
   return this;
 };
 Map.prototype.getFocusedBuilding = function(callback) {
-  exec.call(this, callback, this.errorHandler, this.id, 'getFocusedBuilding', []);
+  var self = this;
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'getFocusedBuilding', []);
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 Map.prototype.getVisible = function() {
   return this.get("visible");
@@ -600,7 +603,7 @@ Map.prototype.setVisible = function(isVisible) {
   var self = this;
   isVisible = common.parseBoolean(isVisible);
   self.set("visible", isVisible);
-  exec.call(this, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
   return this;
 };
 
@@ -609,7 +612,7 @@ Map.prototype.setClickable = function(isClickable) {
   var self = this;
   isClickable = common.parseBoolean(isClickable);
   self.set("clickable", isClickable);
-  exec.call(this, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
   return this;
 };
 Map.prototype.getClickable = function() {
@@ -621,8 +624,9 @@ Map.prototype.getClickable = function() {
  * Sets the preference for whether all gestures should be enabled or disabled.
  */
 Map.prototype.setAllGesturesEnabled = function(enabled) {
+  var self = this;
   enabled = common.parseBoolean(enabled);
-  exec.call(this, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
+  self.exec.call(self, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
   return this;
 };
 
@@ -646,29 +650,30 @@ Map.prototype.remove = function(callback) {
     value: true,
     writable: false
   });
-  var div = self.get('div');
-  if (div) {
-    while (div) {
-      if (div.style) {
-        div.style.backgroundColor = '';
-      }
-      if (div.classList) {
-        div.classList.remove('_gmaps_cdv_');
-      } else if (div.className) {
-        div.className = div.className.replace(/_gmaps_cdv_/g, "");
-        div.className = div.className.replace(/\s+/g, " ");
-      }
-      div = div.parentNode;
-    }
-  }
-  self.set('div', undefined);
+
   self.trigger("remove");
+// var div = self.get('div');
+// if (div) {
+//   while (div) {
+//     if (div.style) {
+//       div.style.backgroundColor = '';
+//     }
+//     if (div.classList) {
+//       div.classList.remove('_gmaps_cdv_');
+//     } else if (div.className) {
+//       div.className = div.className.replace(/_gmaps_cdv_/g, "");
+//       div.className = div.className.replace(/\s+/g, " ");
+//     }
+//     div = div.parentNode;
+//   }
+// }
+// self.set('div', undefined);
 
 
   // Close the active infoWindow
-  var active_marker_id = self.get("active_marker_id");
-  if (active_marker_id && active_marker_id in self.MARKERS) {
-    self.MARKERS[active_marker_id].trigger(event.INFO_CLOSE);
+  var active_marker = self.get("active_marker");
+  if (active_marker) {
+    active_marker.trigger(event.INFO_CLOSE);
   }
 
   var clearObj = function(obj) {
@@ -691,14 +696,23 @@ Map.prototype.remove = function(callback) {
   clearObj(self.OVERLAYS);
   clearObj(self.MARKERS);
 
-  exec.call(this, function() {
-    if (typeof callback === "function") {
-      callback.call(self);
-    }
-  }, self.errorHandler, 'CordovaGoogleMaps', 'removeMap', [self.id], {
-    sync: true,
-    remove: true
-  });
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      'CordovaGoogleMaps', 'removeMap', [self.id],
+      {
+        sync: true,
+        remove: true
+      });
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 
@@ -713,11 +727,19 @@ Map.prototype.toDataURL = function(params, callback) {
 
   params.uncompress = params.uncompress === true;
   var self = this;
-  exec.call(this, function(image) {
-    if (typeof callback === "function") {
-      callback.call(self, image);
-    }
-  }, self.errorHandler, self.id, 'toDataURL', [params]);
+
+  var resolver = function(resolve, reject) {
+    self.exec.call(self,
+      resolve.bind(self),
+      reject.bind(self),
+      self.id, 'toDataURL', [params]);
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 /**
@@ -787,9 +809,10 @@ Map.prototype.setDiv = function(div) {
       div = div.parentNode;
     }
   }
-  exec.call(this, function() {
+  self.exec.call(self, function() {
     cordova.fireDocumentEvent('plugin_touch', {
-      force: true
+      force: true,
+      action: "setDiv"
     });
     self.refreshLayout();
   }, self.errorHandler, self.id, 'setDiv', args, {
@@ -829,15 +852,30 @@ Map.prototype.getVisibleRegion = function(callback) {
  */
 Map.prototype.fromLatLngToPoint = function(latLng, callback) {
   var self = this;
+
   if ("lat" in latLng && "lng" in latLng) {
-    exec.call(this, function(result) {
-      if (typeof callback === "function") {
-        callback.call(self, result);
-      }
-    }, self.errorHandler, self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
-  } else {
+
+    var resolver = function(resolve, reject) {
+      self.exec.call(self,
+        resolve.bind(self),
+        reject.bind(self),
+        self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
+    };
+
     if (typeof callback === "function") {
-      callback.call(self, [undefined, undefined]);
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
+  } else {
+    var rejector = function(resolve, reject) {
+      reject("The latLng is invalid");
+    };
+
+    if (typeof callback === "function") {
+      rejector(callback, self.errorHandler);
+    } else {
+      return new Promise(rejector);
     }
   }
 
@@ -847,16 +885,35 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
  */
 Map.prototype.fromPointToLatLng = function(pixel, callback) {
   var self = this;
+  if (typeof pixel === "object" && "x" in pixel && "y" in pixel) {
+    pixel = [pixel.x, pixel.y];
+  }
   if (pixel.length == 2 && utils.isArray(pixel)) {
-    exec.call(this, function(result) {
-      if (typeof callback === "function") {
-        var latLng = new LatLng(result[0] || 0, result[1] || 0);
-        callback.call(self, latLng);
-      }
-    }, self.errorHandler, self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
-  } else {
+
+    var resolver = function(resolve, reject) {
+      self.exec.call(self,
+        function(result) {
+          var latLng = new LatLng(result[0] || 0, result[1] || 0);
+          resolve.call(self, latLng);
+        },
+        reject.bind(self),
+        self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
+    };
+
     if (typeof callback === "function") {
-      callback.call(self, undefined);
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
+  } else {
+    var rejector = function(resolve, reject) {
+      reject("The pixel[] argument is invalid");
+    };
+
+    if (typeof callback === "function") {
+      rejector(callback, self.errorHandler);
+    } else {
+      return new Promise(rejector);
     }
   }
 
@@ -897,7 +954,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
       padding.left = padding.top;
       break;
   }
-  exec.call(this, function(result) {
+  this.exec.call(this, function(result) {
     if (typeof callback === "function") {
       var latLng = new LatLng(result[0] || 0, result[1] || 0);
       callback.call(self, result);
@@ -920,28 +977,36 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   var invisible_dot = self.get("invisible_dot");
   if (!invisible_dot || invisible_dot._isRemoved) {
     // Create an invisible marker for kmlOverlay
-    self.addMarker({
+    self.set("invisible_dot", self.addMarker({
       position: {
         lat: 0,
         lng: 0
       },
       icon: "skyblue",
       visible: false
-    }, function(marker) {
-      self.set("invisible_dot", marker);
-    });
+    }));
   }
 
-  var loader = new KmlLoader(self, exec, kmlOverlayOptions);
-  loader.parseKmlFile(function(camera, kmlData) {
-    if (kmlData instanceof BaseClass) {
-      kmlData = new BaseArrayClass([kmlData]);
-    }
-    var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
-    var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
-    self.OVERLAYS[kmlId] = kmlOverlay;
-    callback(kmlOverlay);
-  });
+  var resolver = function(resolve, reject) {
+
+    var loader = new KmlLoader(self, self.exec, kmlOverlayOptions);
+    loader.parseKmlFile(function(camera, kmlData) {
+      if (kmlData instanceof BaseClass) {
+        kmlData = new BaseArrayClass([kmlData]);
+      }
+      var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
+      var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
+      self.OVERLAYS[kmlId] = kmlOverlay;
+      resolve.call(self, kmlOverlay);
+    });
+
+  };
+
+  if (typeof callback === "function") {
+    resolver(callback, self.errorHandler);
+  } else {
+    return new Promise(resolver);
+  }
 };
 
 
@@ -959,19 +1024,24 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   groundOverlayOptions.bounds = common.convertToPositionArray(groundOverlayOptions.bounds);
   groundOverlayOptions.noCaching = true;
 
-  exec.call(this, function(result) {
-    var groundOverlay = new GroundOverlay(self, result.id, groundOverlayOptions, exec);
-    self.OVERLAYS[result.id] = groundOverlay;
-    groundOverlay.one(result.id + "_remove", function() {
-      groundOverlay.off();
-      delete self.OVERLAYS[result.id];
-      groundOverlay = undefined;
-    });
+  var groundOverlay = new GroundOverlay(self, groundOverlayOptions, exec);
+  var groundOverlayId = groundOverlay.getId();
+  self.OVERLAYS[groundOverlayId] = groundOverlay;
+  groundOverlay.one(groundOverlayId + "_remove", function() {
+    groundOverlay.off();
+    delete self.OVERLAYS[groundOverlayId];
+    groundOverlay = undefined;
+  });
+
+  self.exec.call(self, function(result) {
+    groundOverlay._privateInitialize();
+    delete groundOverlay._privateInitialize;
     if (typeof callback === "function") {
       callback.call(self, groundOverlay);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions, groundOverlay.hashCode]);
 
+  return groundOverlay;
 };
 
 //-------------
@@ -999,14 +1069,26 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
   tilelayerOptions.debug = tilelayerOptions.debug === true;
   tilelayerOptions.userAgent = tilelayerOptions.userAgent || navigator.userAgent;
 
+
+  var tileOverlay = new TileOverlay(self, tilelayerOptions, exec);
+  var tileOverlayId = tileOverlay.getId();
+  self.OVERLAYS[tileOverlayId] = tileOverlay;
+  var hashCode = tileOverlay.hashCode;
+
+  tileOverlay.one(tileOverlayId + "_remove", function() {
+    document.removeEventListener(tileOverlayId + "-" + hashCode + "-tileoverlay", onNativeCallback);
+    tileOverlay.off();
+    delete self.OVERLAYS[tileOverlayId];
+    tileOverlay = undefined;
+  });
+
   var options = {
     visible: tilelayerOptions.visible,
     zIndex: tilelayerOptions.zIndex,
     tileSize: tilelayerOptions.tileSize,
     opacity: tilelayerOptions.opacity,
     userAgent: tilelayerOptions.userAgent,
-    debug: tilelayerOptions.debug,
-    _id: Math.floor(Math.random() * Date.now())
+    debug: tilelayerOptions.debug
   };
 
   var onNativeCallback = function(params) {
@@ -1014,23 +1096,20 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (!url || url === "(null)" || url === "undefined" || url === "null") {
       url = "(null)";
     }
-    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [options._id, params.key, url]);
+    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, url]);
   };
-  document.addEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
+  document.addEventListener(self.id + "-" + hashCode + "-tileoverlay", onNativeCallback);
 
-  exec.call(this, function(result) {
-    var tileOverlay = new TileOverlay(self, result.id, tilelayerOptions, exec);
-    self.OVERLAYS[result.id] = tileOverlay;
-    tileOverlay.one(result.id + "_remove", function() {
-      document.removeEventListener(self.id + "-" + options._id + "-tileoverlay", onNativeCallback);
-      tileOverlay.off();
-      delete self.OVERLAYS[result.id];
-      tileOverlay = undefined;
-    });
+  self.exec.call(self, function(result) {
+    tileOverlay._privateInitialize();
+    delete tileOverlay._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, tileOverlay);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options, hashCode]);
+
+  return tileOverlay;
 };
 
 //-------------
@@ -1068,19 +1147,27 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
   polygonOptions.zIndex = polygonOptions.zIndex || 0;
   polygonOptions.geodesic = polygonOptions.geodesic === true;
 
-  exec.call(this, function(result) {
-    polygonOptions.points = _orgs;
-    var polygon = new Polygon(self, result.id, polygonOptions, exec);
-    self.OVERLAYS[result.id] = polygon;
-    polygon.one(result.id + "_remove", function() {
-      polygon.off();
-      delete self.OVERLAYS[result.id];
-      polygon = undefined;
-    });
+  var opts = JSON.parse(JSON.stringify(polygonOptions));
+  polygonOptions.points = _orgs;
+  var polygon = new Polygon(self, polygonOptions, exec);
+  var polygonId = polygon.getId();
+  self.OVERLAYS[polygonId] = polygon;
+  polygon.one(polygonId + "_remove", function() {
+    polygon.off();
+    delete self.OVERLAYS[polygonId];
+    polygon = undefined;
+  });
+
+  self.exec.call(self, function(result) {
+    polygon._privateInitialize();
+    delete polygon._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, polygon);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", polygonOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ["Polygon", opts, polygon.hashCode]);
+
+  return polygon;
 };
 
 //-------------
@@ -1097,19 +1184,29 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
   polylineOptions.clickable = polylineOptions.clickable === true;
   polylineOptions.zIndex = polylineOptions.zIndex || 0;
   polylineOptions.geodesic = polylineOptions.geodesic === true;
-  exec.call(this, function(result) {
-    polylineOptions.points = _orgs;
-    var polyline = new Polyline(self, result.id, polylineOptions, exec);
-    self.OVERLAYS[result.id] = polyline;
-    polyline.one(result.id + "_remove", function() {
-      polyline.off();
-      delete self.OVERLAYS[result.id];
-      polyline = undefined;
-    });
+
+  var opts = JSON.parse(JSON.stringify(polylineOptions));
+  polylineOptions.points = _orgs;
+  var polyline = new Polyline(self, polylineOptions, exec);
+  var polylineId = polyline.getId();
+  self.OVERLAYS[polylineId] = polyline;
+
+  polyline.one(polylineId + "_remove", function() {
+    polyline.off();
+    delete self.OVERLAYS[polylineId];
+    polyline = undefined;
+  });
+
+  self.exec.call(self, function(result) {
+    polyline._privateInitialize();
+    delete polyline._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, polyline);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', polylineOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', opts, polyline.hashCode]);
+
+  return polyline;
 };
 
 //-------------
@@ -1127,19 +1224,25 @@ Map.prototype.addCircle = function(circleOptions, callback) {
   circleOptions.zIndex = circleOptions.zIndex || 0;
   circleOptions.radius = "radius" in circleOptions ? circleOptions.radius : 1;
 
-  exec.call(this, function(result) {
-    var circle = new Circle(self, result.id, circleOptions, exec);
-    self.OVERLAYS[result.id] = circle;
+  var circle = new Circle(self, circleOptions, exec);
+  var circleId = circle.getId();
+  self.OVERLAYS[circleId] = circle;
+  circle.one(circleId + "_remove", function() {
+    circle.off();
+    delete self.OVERLAYS[circleId];
+    circle = undefined;
+  });
 
-    circle.one(result.id + "_remove", function() {
-      circle.off();
-      delete self.OVERLAYS[result.id];
-      circle = undefined;
-    });
+  self.exec.call(self, function(result) {
+    circle._privateInitialize();
+    delete circle._privateInitialize;
+
     if (typeof callback === "function") {
       callback.call(self, circle);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
+
+  return circle;
 };
 
 //-------------
@@ -1149,14 +1252,31 @@ Map.prototype.addCircle = function(circleOptions, callback) {
 Map.prototype.addMarker = function(markerOptions, callback) {
   var self = this;
   markerOptions = common.markerOptionsFilter(markerOptions);
-  exec.call(this, function(result) {
-    markerOptions.icon = markerOptions.icon || {};
-    if (typeof markerOptions.icon === 'string' || Array.isArray(markerOptions.icon)) {
-      markerOptions.icon = {
-        url: markerOptions.icon,
-        size: {}
-      };
-    }
+
+  //------------------------------------
+  // Generate a makrer instance at once.
+  //------------------------------------
+  markerOptions.icon = markerOptions.icon || {};
+  if (typeof markerOptions.icon === 'string' || Array.isArray(markerOptions.icon)) {
+    markerOptions.icon = {
+      url: markerOptions.icon
+    };
+  }
+
+  var marker = new Marker(self, markerOptions, exec);
+  var markerId = marker.getId();
+
+  self.MARKERS[markerId] = marker;
+  self.OVERLAYS[markerId] = marker;
+  marker.one(markerId + "_remove", function() {
+    delete self.MARKERS[markerId];
+    delete self.OVERLAYS[markerId];
+    marker.destroy();
+    marker = undefined;
+  });
+
+  self.exec.call(self, function(result) {
+
     markerOptions.icon.size = markerOptions.icon.size || {};
     markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
     markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
@@ -1165,23 +1285,15 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     if (!markerOptions.infoWindowAnchor) {
       markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
     }
-
-    var marker = new Marker(self, result.id, markerOptions, "Marker", exec);
-
-    self.MARKERS[result.id] = marker;
-    self.OVERLAYS[result.id] = marker;
-
-    marker.one(result.id + "_remove", function() {
-      marker.off();
-      delete self.MARKERS[result.id];
-      delete self.OVERLAYS[result.id];
-      marker = undefined;
-    });
+    marker._privateInitialize(markerOptions);
+    delete marker._privateInitialize;
 
     if (typeof callback === "function") {
       callback.call(self, marker);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions]);
+  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions, marker.hashCode]);
+
+  return marker;
 };
 
 
@@ -1199,7 +1311,18 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     return marker.position;
   });
 
-  exec.call(this, function(result) {
+  var markerCluster = new MarkerCluster(self, {
+    "icons": markerClusterOptions.icons,
+    //"markerMap": markerMap,
+    "idxCount": positionList.length + 1,
+    "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
+    "debug": markerClusterOptions.debug === true,
+    "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
+  }, exec);
+  var markerClusterId = markerCluster.getId();
+  self.OVERLAYS[markerClusterId] = markerCluster;
+
+  self.exec.call(self, function(result) {
 
     var markerMap = {};
     result.geocellList.forEach(function(geocell, idx) {
@@ -1230,13 +1353,11 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       //self.OVERLAYS[marker.getId()] = marker;
     });
 
-    var markerCluster = new MarkerCluster(self, result.id, {
-      "icons": markerClusterOptions.icons,
-      "markerMap": markerMap,
-      "maxZoomLevel": Math.min(markerClusterOptions.maxZoomLevel || 15, 18),
-      "debug": markerClusterOptions.debug === true,
-      "boundsDraw": common.defaultTrueOption(markerClusterOptions.boundsDraw)
-    }, exec);
+    Object.defineProperty(markerCluster, "_markerMap", {
+      value: markerMap,
+      writable: false
+    });
+
     markerCluster.one("remove", function() {
       delete self.OVERLAYS[result.id];
       /*
@@ -1254,7 +1375,12 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
       markerCluster.destroy();
     });
 
-    self.OVERLAYS[result.id] = markerCluster;
+    markerCluster._privateInitialize();
+    delete markerCluster._privateInitialize;
+
+    markerCluster.redraw.call(markerCluster, {
+      force: true
+    });
 
     if (typeof callback === "function") {
       callback.call(self, markerCluster);
@@ -1262,8 +1388,9 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', {
     "positionList": positionList,
     "debug": markerClusterOptions.debug === true
-  }]);
+  }, markerCluster.hashCode]);
 
+  return markerCluster;
 };
 
 /*****************************************************************************
@@ -1288,6 +1415,7 @@ Map.prototype._onMapEvent = function(eventName) {
 Map.prototype._onMarkerEvent = function(eventName, markerId, position) {
   var self = this;
   var marker = self.MARKERS[markerId] || null;
+
   if (marker) {
     marker.set('position', position);
     if (eventName === event.INFO_OPEN) {

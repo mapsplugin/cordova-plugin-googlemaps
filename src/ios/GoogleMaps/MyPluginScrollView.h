@@ -7,12 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MyPluginLayerDebugView.h"
 
 @interface MyPluginScrollView : UIScrollView
 
-@property (nonatomic) MyPluginLayerDebugView *debugView;
-
-- (void)attachView:(UIView *)view;
+@property (nonatomic) NSMutableDictionary *mapCtrls;
+@property (nonatomic) NSMutableDictionary *HTMLNodes;
+- (void)attachView:(UIView *)view depth:(NSInteger)depth;
 - (void)detachView:(UIView *)view;
 @end

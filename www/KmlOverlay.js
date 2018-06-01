@@ -302,37 +302,48 @@ KmlOverlay.prototype.setVisible = function(visible) {
 };
 
 KmlOverlay.prototype.remove = function(callback) {
-    var self = this;
-    if (self._isRemoved) {
+  var self = this;
+  if (self._isRemoved) {
+    if (typeof callback === "function") {
       return;
+    } else {
+      return Promise.resolve();
     }
-    Object.defineProperty(self, "_isRemoved", {
-        value: true,
-        writable: false
-    });
+  }
+  Object.defineProperty(self, "_isRemoved", {
+      value: true,
+      writable: false
+  });
 
 
-    var removeChildren = function(children, cb) {
-      children.forEach(function(child, next) {
-        if ('remove' in child &&
-          typeof child.remove === 'function') {
-          child.remove(next);
-          return;
-        }
-        if (child instanceof BaseArrayClass) {
-          removeChildren(child, next);
-          return;
-        }
-        next();
-      }, cb);
-    };
+  var removeChildren = function(children, cb) {
+    children.forEach(function(child, next) {
+      if ('remove' in child &&
+        typeof child.remove === 'function') {
+        child.remove(next);
+        return;
+      }
+      if (child instanceof BaseArrayClass) {
+        removeChildren(child, next);
+        return;
+      }
+      next();
+    }, cb);
+  };
 
+  var resolver = function(resolve, reject) {
     removeChildren(self.kmlData, function() {
       self.destroy();
-      if (typeof callback === "function") {
-          callback.call(self);
-      }
+      resolve.call(self);
     });
+  };
+
+  if (typeof callback === "function") {
+    resolver.call(self, callback, null);
+    return;
+  } else {
+    return Promise.resolve();
+  }
 };
 
 

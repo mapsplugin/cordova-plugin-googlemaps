@@ -24,21 +24,6 @@ function isHTMLColorString(inputValue) {
     return inputValue in HTML_COLORS;
 }
 
-function deleteFromObject(object, type) {
-    if (object === null) return object;
-    if (typeof object !== "object") {
-      return object;
-    }
-    for(var index in Object.keys(object)) {
-        var key = Object.keys(object)[index];
-        if (typeof object[key] === 'object') {
-           object[key] = deleteFromObject(object[key], type);
-        } else if (typeof object[key] === type) {
-           delete object[key];
-        }
-    }
-    return object;
-}
 function HTMLColor2RGBA(colorValue, defaultOpacity) {
     defaultOpacity = !defaultOpacity ? 1.0 : defaultOpacity;
     if (colorValue instanceof Array) {
@@ -198,9 +183,10 @@ function parseBoolean(boolValue) {
 }
 
 function isDom(element) {
-    return !!element &&
-        typeof element === "object" &&
-        "getBoundingClientRect" in element;
+    return element &&
+        element.nodeType === Node.ELEMENT_NODE &&
+        element instanceof SVGElement === false &&
+        typeof element.getBoundingClientRect === "function";
 }
 
 function getDivRect(div) {
@@ -331,7 +317,7 @@ function getZIndex(dom) {
     } else {
       z = parseInt(z);
     }
-    dom.setAttribute("__ZIndex", z);
+    //dom.setAttribute("__ZIndex", z);
     internalCache[elemId] = z + parentZIndex;
     return {
       isInherit: isInherit,
@@ -683,7 +669,7 @@ function quickfilter(domPositions, mapElemIDs) {
 
 function getPluginDomId(element) {
   // Generates a __pluginDomId
-  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+  if (!element || !shouldWatchByNative(element)) {
     return;
   }
   var elemId = element.getAttribute("__pluginDomId");
@@ -711,11 +697,29 @@ function hashCode(text) {
   return hash;
 }
 
+function createEvent(eventName, properties) {
+  var evt;
+  if (typeof CustomEvent === 'function') {
+    evt = new CustomEvent(eventName, {
+      bubbles: true,
+      detail: properties || null
+    });
+  } else {
+    evt = document.createEvent('Event');
+    evt.initEvent(eventName, true, false);
+    Object.keys(properties).forEach(function(key) {
+      if (!(key in properties)) {
+        evt[key] = properties[key];
+      }
+    });
+  }
+  return evt;
+}
+
 module.exports = {
     _clearInternalCache: _clearInternalCache,
     _removeCacheById: _removeCacheById,
     getZIndex: getZIndex,
-    deleteFromObject: deleteFromObject,
     getDivRect: getDivRect,
     getDomInfo: getDomInfo,
     isDom: isDom,
@@ -733,7 +737,8 @@ module.exports = {
     quickfilter: quickfilter,
     nextTick: nextTick,
     getPluginDomId: getPluginDomId,
-    hashCode: hashCode
+    hashCode: hashCode,
+    createEvent: createEvent
 };
 
 if (cordova && cordova.platformId === "browser") {

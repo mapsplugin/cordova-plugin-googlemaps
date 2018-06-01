@@ -11,9 +11,9 @@
 
 @implementation PluginKmlOverlay
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-    self.mapCtrl = viewCtrl;
+    self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 - (void)pluginUnload
 {
@@ -94,7 +94,6 @@
           NSLog(@"urlStr = %@", urlStr);
         }
       }
-
       range = [urlStr rangeOfString:@"cdvfile://"];
       if (range.location != NSNotFound) {
           urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
@@ -121,47 +120,69 @@
     }
 
     [self.mapCtrl.executeQueue addOperationWithBlock:^{
-      NSMutableDictionary *result = [self loadKml:urlStr];
+      [self loadKml:urlStr  completionBlock:^(BOOL succeeded, id result) {
+        CDVPluginResult* pluginResult;
+        if (succeeded) {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:(NSDictionary *)result];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } else {
+          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
+      }];
 
-      // If there is an error, return
-      CDVPluginResult* pluginResult;
-      if (error) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
-      }
-
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 
   }];
 
 }
 
-- (NSMutableDictionary *)loadKml:(NSString *)urlStr {
-
+- (void)loadKml:(NSString *)urlStr completionBlock:(void (^)(BOOL succeeded, id result))completionBlock {
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
   NSError *error;
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
   if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
       NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
       bool valid = [NSURLConnection canHandleRequest:req];
       if (valid) {
-          NSError *error;
-          NSData *xmlData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:urlStr]];
-          tbxml = [tbxml initWithXMLData:xmlData error:&error];
+          NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+          NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+          NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                                                     completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                                       [session finishTasksAndInvalidate];
+                                                       
+                                                       if (error) {
+                                                          NSMutableDictionary* details = [NSMutableDictionary dictionary];
+                                                          [details setValue:[NSString stringWithFormat:@"Cannot load KML data from %@", urlStr] forKey:NSLocalizedDescriptionKey];
+                                                          error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+                                                          completionBlock(NO, error);
+                                                          return;
+                                                       }
+                                                       
+                                                        TBXML *tbxml = [TBXML alloc];
+                                                        tbxml = [tbxml initWithXMLData:data error:&error];
+                                                        NSDictionary *result = [self parseXmlWithTbXml:tbxml];
+                                                        completionBlock(YES, result);
+
+                                                     }];
+          [getTask resume];
       } else {
 
           NSMutableDictionary* details = [NSMutableDictionary dictionary];
           [details setValue:[NSString stringWithFormat:@"Cannot load KML data from %@", urlStr] forKey:NSLocalizedDescriptionKey];
           error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+          completionBlock(NO, error);
       }
   } else {
-
       tbxml = [tbxml initWithXMLFile:urlStr error:&error];
-
+      NSDictionary *result = [self parseXmlWithTbXml:tbxml];
+      completionBlock(YES, result);
   }
 
+
+}
+- (NSDictionary *)parseXmlWithTbXml:(TBXML *)tbxml {
+  
   KmlParseClass *parser = [[KmlParseClass alloc] init];
   NSMutableDictionary *root = [parser parseXml:tbxml rootElement:tbxml.rootXMLElement];
 
@@ -170,7 +191,6 @@
   [result setObject:parser.schemaHolder forKey:@"schemas"];
   [result setObject:parser.styleHolder forKey:@"styles"];
   return result;
-
 }
 @end
 

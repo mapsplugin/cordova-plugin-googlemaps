@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GoogleMapsViewController.h"
+#import "PluginMapViewController.h"
 #import "MyPluginScrollView.h"
 
 @interface OverflowCSS : NSObject
@@ -22,7 +22,6 @@
 @property (nonatomic) MyPluginScrollView *pluginScrollView;
 @property (atomic) NSTimer *redrawTimer;
 @property (nonatomic) BOOL isSuspended;
-@property (nonatomic) BOOL stopFlag;
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (atomic, strong) NSObject *_lockObject;
 
@@ -30,9 +29,9 @@
 - (void)resizeTask:(NSTimer *)timer;
 - (void)clearHTMLElements;
 - (void)putHTMLElements:(NSDictionary *)elementsDic;
-- (void)addMapView:(GoogleMapsViewController *)mapCtrl;
-- (void)removeMapView:(GoogleMapsViewController *)mapCtrl;
-- (void)updateViewPosition:(GoogleMapsViewController *)mapCtrl;
+- (void)addPluginOverlay:(PluginViewController *)pluginViewCtrl;
+- (void)removePluginOverlay:(PluginViewController *)pluginViewCtrl;
+- (void)updateViewPosition:(PluginViewController *)pluginViewCtrl;
 - (void)startRedrawTimer;
 - (void)stopRedrawTimer;
 @end

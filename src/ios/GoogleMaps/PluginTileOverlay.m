@@ -10,9 +10,9 @@
 
 @implementation PluginTileOverlay
 
--(void)setGoogleMapsViewController:(GoogleMapsViewController *)viewCtrl
+-(void)setPluginViewController:(PluginViewController *)viewCtrl
 {
-  self.mapCtrl = viewCtrl;
+  self.mapCtrl = (PluginMapViewController *)viewCtrl;
 }
 - (void)pluginInitialize
 {
@@ -58,7 +58,7 @@
   key = nil;
   keys = nil;
 
-  NSString *pluginId = [NSString stringWithFormat:@"%@-tileoverlay", self.mapCtrl.mapId];
+  NSString *pluginId = [NSString stringWithFormat:@"%@-tileoverlay", self.mapCtrl.overlayId];
   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   [cdvViewController.pluginObjects removeObjectForKey:pluginId];
   [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
@@ -72,11 +72,12 @@
   dispatch_async(dispatch_get_main_queue(), ^{
 
       NSDictionary *json = [command.arguments objectAtIndex:1];
+      NSString *idBase = [command.arguments objectAtIndex:2];
       //NSString *tileUrlFormat = [json objectForKey:@"tileUrlFormat"];
 
 
       GMSTileLayer *layer;
-      NSString *_id = [NSString stringWithFormat:@"tileoverlay_%@", [json valueForKey:@"_id"]];
+      NSString *_id = [NSString stringWithFormat:@"tileoverlay_%@", idBase];
 
       //NSRange range = [tileUrlFormat rangeOfString:@"http"];
       //if (range.location != 0) {
@@ -93,8 +94,8 @@
           }
           NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
-          [options setObject:self.mapCtrl.mapId forKey:@"mapId"];
-          [options setObject:[json valueForKey:@"_id"] forKey:@"pluginId"];
+          [options setObject:self.mapCtrl.overlayId forKey:@"mapId"];
+          [options setObject:idBase forKey:@"pluginId"];
 
           ///[options setObject:tileUrlFormat forKey:@"tileUrlFormat"];
           [options setObject:[json objectForKey:@"tileSize"] forKey:@"tileSize"];

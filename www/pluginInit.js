@@ -1,3 +1,4 @@
+var cordova_exec = require('cordova/exec');
 function pluginInit() {
   //-------------------------------------------------------------
   // In some older browsers do not implement these methods.
@@ -42,7 +43,6 @@ function pluginInit() {
       };
     })();
   }
-
   /*****************************************************************************
    * To prevent strange things happen,
    * disable the changing of viewport zoom level by double clicking.
@@ -81,9 +81,9 @@ function pluginInit() {
   /*****************************************************************************
    * Prevent background, background-color, background-image properties
    *****************************************************************************/
-  var navDecorBlocker = document.createElement("style");
-  navDecorBlocker.setAttribute("type", "text/css");
-  navDecorBlocker.innerText = [
+  var cssAdjuster = document.createElement("style");
+  cssAdjuster.setAttribute("type", "text/css");
+  cssAdjuster.innerText = [
     "html, body, ._gmaps_cdv_ {",
     "   background-image: url() !important;",
     "   background: rgba(0,0,0,0) url() !important;",
@@ -93,21 +93,73 @@ function pluginInit() {
     "   background-color: rgba(0,0,0,0) !important;",
     "   background: rgba(0,0,0,0) !important;",
     "   display:none !important;",
+    "}",
+    ".framework7-root .page-previous {",
+    "   display:none !important;",
     "}"
   ].join("");
-  document.head.appendChild(navDecorBlocker);
+  document.head.appendChild(cssAdjuster);
 
 
-  //----------------------------------------------
-  // Set transparent mandatory for older browser
-  // http://stackoverflow.com/a/3485654/697856
-  //----------------------------------------------
-  if(document.body){
-    document.body.style.backgroundColor = "rgba(0,0,0,0)";
-    //document.body.style.display='none';
-    document.body.offsetHeight;
-    //document.body.style.display='';
+  // I guess no longer necessary this code at 2018/March
+  // //----------------------------------------------
+  // // Set transparent mandatory for older browser
+  // // http://stackoverflow.com/a/3485654/697856
+  // //----------------------------------------------
+  // if(document.body){
+  //   document.body.style.backgroundColor = "rgba(0,0,0,0)";
+  //   //document.body.style.display='none';
+  //   document.body.offsetHeight;
+  //   //document.body.style.display='';
+  // }
+
+
+
+  //--------------------------------------------
+  // Hook the backbutton of Android action
+  //--------------------------------------------
+  var anotherBackbuttonHandler = null;
+  function onBackButton(e) {
+
+    // Check DOM tree for new page
+    cordova.fireDocumentEvent("plugin_touch", {
+      force: true
+    });
+
+    if (anotherBackbuttonHandler) {
+      // anotherBackbuttonHandler must handle the page moving transaction.
+      // The plugin does not take care anymore if another callback is registered.
+      anotherBackbuttonHandler(e);
+    } else {
+      cordova_exec(null, null, 'CordovaGoogleMaps', 'backHistory', []);
+    }
   }
+
+  document.addEventListener("backbutton", onBackButton);
+
+  var _org_addEventListener = document.addEventListener;
+  var _org_removeEventListener = document.removeEventListener;
+  document.addEventListener = function(eventName, callback) {
+    var args = Array.prototype.slice.call(arguments, 0);
+    if (eventName.toLowerCase() !== "backbutton") {
+      _org_addEventListener.apply(this, args);
+      return;
+    }
+    if (!anotherBackbuttonHandler) {
+      anotherBackbuttonHandler = callback;
+    }
+  };
+  document.removeEventListener = function(eventName, callback) {
+    var args = Array.prototype.slice.call(arguments, 0);
+    if (eventName.toLowerCase() !== "backbutton") {
+      _org_removeEventListener.apply(this, args);
+      return;
+    }
+    if (anotherBackbuttonHandler === callback) {
+      anotherBackbuttonHandler = null;
+    }
+  };
+
 }
 
 module.exports = pluginInit;

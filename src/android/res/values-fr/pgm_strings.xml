@@ -6,7 +6,7 @@
   <string name="pgm_google_play_developer_error">L\'application a mal été configurée. Cette erreur n\'est pas récupérable et sera traitée comme étant fatale. Le développeur devrait inspecter le journal d\'erreur afin de trouver des informations plus précises.</string>
   <string name="pgm_google_play_internal_error">Une erreur interne est intervenue au niveau du Google Play Services. Veuillez réessayer, cela devrait résoudre le problème.</string>
   <string name="pgm_google_play_invalid_account">Vous avez tenté de vous connecter au service avec un nom de compte invalide.</string>
-  <string name="pgm_google_play_lincense_check_failed">L\'application ne contient pas de licence pour cet utilisateur. Cette erreur n\'est pas récupérable et sera traitée comme étant fatale.</string>
+  <string name="pgm_google_play_license_check_failed">L\'application ne contient pas de licence pour cet utilisateur. Cette erreur n\'est pas récupérable et sera traitée comme étant fatale.</string>
   <string name="pgm_google_play_network_error">Un problème de réseau est intervenu. Veuillez réessayer, cela devrait résoudre le problème.</string>
   <string name="pgm_google_play_service_disabled">La version du Google Play Services installée sur cet appareil a été désactivée. Veuillez activer le Google Play Services.</string>
   <string name="pgm_google_play_service_invalid">La version du Google Play Services installée sur cet appareil n\'est pas authentique. Merci de mettre à jour le Google Play Services à partir du Google Play Store.</string>
