@@ -1,3 +1,5 @@
+
+
 var utils = require('cordova/utils');
 var event = require('cordova-plugin-googlemaps.event');
 var BaseClass = require('cordova-plugin-googlemaps.BaseClass');
@@ -32,7 +34,7 @@ PluginMap.prototype.resizeMap = function() {
   var self = this;
 console.log(self);
   var map = self.get("map");
-console.log(arguments);
+console.log(map);
 
   google.maps.event.trigger(map, "resize");
 };

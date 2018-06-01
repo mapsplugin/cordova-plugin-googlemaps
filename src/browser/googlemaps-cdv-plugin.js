@@ -1,10 +1,13 @@
+
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     event = require('cordova-plugin-googlemaps.event'),
     common = require('cordova-plugin-googlemaps.Common');
 
 var Map = require('cordova-plugin-googlemaps.Map'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+  BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass');
 
 var cordova_exec = require('cordova/exec');
 
@@ -136,6 +139,7 @@ function _exec() {
 module.exports = {
   event: event,
   BaseClass: BaseClass,
+  BaseArrayClass: BaseArrayClass,
   Map: {
     getMap: function(div, mapOptions) {
       var mapId, elem, elemId;

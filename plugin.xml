@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.3.6-ext-20180531-1731" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.3.6-ext-20180531-1914" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -91,9 +91,6 @@
     <js-module name="pluginInit" src="www/pluginInit.js">
       <runs />
     </js-module>
-    <js-module name="CordovaGoogleMaps" src="www/CordovaGoogleMaps.js">
-      <runs />
-    </js-module>
     <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
       <runs />
     </js-module>
@@ -126,11 +123,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
     <hook type="before_plugin_rm" src="src/before_plugin_rm.js" />
 
-    <preference name="API_KEY_FOR_ALL" value="" />
-
     <!-- browser -->
     <platform name="browser">
-      <preference name="API_KEY_FOR_BROWSER" value="$API_KEY_FOR_ALL" />
+      <preference name="API_KEY_FOR_BROWSER" value="" />
 
       <hook type="after_prepare" src="src/browser/after_prepare.js" />
       <feature name="CordovaGoogleMaps">
@@ -149,7 +144,7 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
   <!-- android -->
   <platform name="android">
-      <preference name="API_KEY_FOR_ANDROID" value="$API_KEY_FOR_ALL" />
+      <preference name="API_KEY_FOR_ANDROID" />
       <info>
           Official document
           https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md
@@ -162,6 +157,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
         <clobbers target="plugin.google.maps" />
       </js-module>
 
+      <js-module name="CordovaGoogleMaps" src="www/CordovaGoogleMaps.js">
+        <runs />
+      </js-module>
       <config-file target="config.xml" parent="/*">
         <!-- for Crosswalk -->
         <preference name="xwalkZOrderOnTop" value="true" />
@@ -323,12 +321,15 @@ The native map view is faster, use less network usage, display 3D views, and eve
   <!-- ios -->
   <platform name="ios">
 
-      <preference name="API_KEY_FOR_IOS"  value="$API_KEY_FOR_ALL" />
+      <preference name="API_KEY_FOR_IOS" />
       <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
       <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background." />
 
       <js-module name="googlemaps-cdv-plugin" src="www/googlemaps-cdv-plugin.js">
         <clobbers target="plugin.google.maps" />
+      </js-module>
+      <js-module name="CordovaGoogleMaps" src="www/CordovaGoogleMaps.js">
+        <runs />
       </js-module>
 
       <info>
