@@ -17,6 +17,8 @@ var Circle = function (map, circleOptions, _exec) {
   //-----------------------------------------------
   self.on("center_changed", function () {
     var center = self.get("center");
+    center.lat = parseFloat(center.lat, 10);
+    center.lng = parseFloat(center.lng, 10);
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
   });
   self.on("fillColor_changed", function () {
@@ -74,6 +76,8 @@ Circle.prototype.getClickable = function () {
   return this.get('clickable');
 };
 Circle.prototype.setCenter = function (center) {
+  center.lat = parseFloat(center.lat, 10);
+  center.lng = parseFloat(center.lng, 10);
   this.set('center', center);
   return this;
 };

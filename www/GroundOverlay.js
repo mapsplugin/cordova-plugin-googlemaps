@@ -70,8 +70,8 @@ GroundOverlay.prototype.setBounds = function (points) {
     bounds = [];
   for (i = 0; i < points.length; i++) {
     bounds.push({
-      "lat": points[i].lat,
-      "lng": points[i].lng
+      "lat": parseFloat(points[i].lat, 10),
+      "lng": parseFloat(points[i].lng, 10)
     });
   }
   this.set('bounds', bounds);
