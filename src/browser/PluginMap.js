@@ -1,5 +1,6 @@
 
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass');
@@ -28,26 +29,68 @@ function PluginMap(mapId, options, mapDivId) {
 
     var mapInitOptions = {
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      noClear: true
+      noClear: true,
+      zoom: 2,
+      disableDefaultUI: true
     };
 
     if (options) {
-      if (options.camera) {
-        if (options.camera.target) {
-          mapInitOptions.center = options.camera.target;
+      if (options.mapType) {
+        mapInitOptions.mapTypeId = options.mapType.toLowerCase().replace("map_type_", "");
+      }
+
+      if (options.controls) {
+        if (options.controls.zoom !== undefined) {
+          mapInitOptions.zoomControl = options.controls.zoom == true;
         }
-        if (options.camera.target) {
-          mapInitOptions.zoom = options.camera.zoom;
+      }
+      if (options.preferences) {
+        if (options.preferences.zoom) {
+          mapInitOptions.minZoom = Math.max(options.preferences.zoom || 2, 2);
+          if (options.preferences.zoom.maxZoom) {
+            mapInitOptions.maxZoom = options.preferences.zoom.maxZoom;
+          }
         }
       }
     }
 
     var map = new google.maps.Map(mapDiv, mapInitOptions);
-    self.set("map", map);
 
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       self.trigger(event.MAP_READY);
     });
+
+    if (options) {
+      if (options.camera) {
+        if (options.camera.target) {
+
+          if (Array.isArray(options.camera.target)) {
+            var bounds = new google.maps.LatLngBounds();
+            options.camera.target.forEach(function(pos) {
+              bounds.extend(pos);
+            });
+            map.fitBounds(bounds, 20);
+          } else {
+            map.setCenter(options.camera.target);
+          }
+          if (typeof options.camera.tilt === 'number') {
+            map.setTilt(options.camera.tilt);
+          }
+          if (typeof options.camera.bearing === 'number') {
+            map.setHeading(options.camera.bearing);
+          }
+          if (typeof options.camera.zoom === 'number') {
+            map.setZoom(options.camera.zoom);
+          }
+        }
+      } else {
+        map.setCenter({lat: 0, lng: 0});
+      }
+    } else {
+      map.setCenter({lat: 0, lng: 0});
+    }
+    self.set("map", map);
+
   });
 
 }
@@ -75,6 +118,9 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
     });
     map.panToBounds(bounds, padding);
   } else {
+    if (typeof options.zoom === 'number') {
+      map.setZoom(options.zoom);
+    }
     map.panTo(options.target);
   }
   if (typeof options.tilt === 'number') {
@@ -100,6 +146,9 @@ PluginMap.prototype.moveCamera = function(onSuccess, onError, args) {
     });
     map.fitBounds(bounds, padding);
   } else {
+    if (typeof options.zoom === 'number') {
+      map.setZoom(options.zoom);
+    }
     map.setCenter(options.target);
   }
   if (typeof options.tilt === 'number') {

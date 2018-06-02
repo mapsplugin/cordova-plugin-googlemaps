@@ -15,10 +15,26 @@ var cordovaGoogleMaps = new (require('cordova-plugin-googlemaps.js_CordovaGoogle
 
 module.exports = {
   event: event,
+  Animation: {
+      BOUNCE: 'BOUNCE',
+      DROP: 'DROP'
+  },
   BaseClass: BaseClass,
   BaseArrayClass: BaseArrayClass,
   Map: {
     getMap: cordovaGoogleMaps.getMap.bind(cordovaGoogleMaps)
+  },
+  HtmlInfoWindow: require('cordova-plugin-googlemaps.HtmlInfoWindow'),
+  LatLng: require('cordova-plugin-googlemaps.LatLng'),
+  LatLngBounds: require('cordova-plugin-googlemaps.LatLngBounds'),
+  MapTypeId: require('cordova-plugin-googlemaps.MapTypeId'),
+  environment: require('cordova-plugin-googlemaps.Environment'),
+  // Geocoder: require('cordova-plugin-googlemaps.Geocoder')(execCmd),
+  // LocationService: require('cordova-plugin-googlemaps.LocationService')(execCmd),
+  geometry: {
+      encoding: require('cordova-plugin-googlemaps.encoding'),
+      spherical: require('cordova-plugin-googlemaps.spherical'),
+      poly: require('cordova-plugin-googlemaps.poly')
   }
 };
 
