@@ -1,5 +1,4 @@
 
-
 var utils = require('cordova/utils');
 var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
     event = require('cordova-plugin-googlemaps.event');
@@ -31,7 +30,6 @@ document.addEventListener("load_googlemaps", function() {
     secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
     secureStripeScript.addEventListener("load", function() {
       API_LOADED = true;
-      console.log("google maps api is loaded");
 
       var maps = Object.values(MAPS);
       maps.forEach(function(map) {
@@ -56,10 +54,17 @@ document.addEventListener("load_googlemaps", function() {
   once: true
 });
 
+var stub = function(onSuccess) {
+  onSuccess();
+};
 
 var CordovaGoogleMaps = {
+  resume: stub,
+  pause: stub,
   getMap: function(onSuccess, onError, args) {
-    var mapId = args[0];
+    var meta = args[0],
+      mapId = meta.id;
+    args[0] = mapId;
     args.unshift(this);
 
     var pluginMap = new (PluginMap.bind.apply(PluginMap, args));

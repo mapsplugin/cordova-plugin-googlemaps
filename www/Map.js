@@ -790,6 +790,11 @@ Map.prototype.setDiv = function(div) {
 
     self.set("div", div);
 
+    if (cordova.platform === "browser") {
+      return;
+    }
+
+
     positionCSS = common.getStyle(div, "position");
     if (!positionCSS || positionCSS === "static") {
       div.style.position = "relative";

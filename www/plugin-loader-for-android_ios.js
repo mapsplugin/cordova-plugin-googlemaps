@@ -34,7 +34,7 @@ if (!cordova) {
   });
 
   var execCmd = require("./commandQueueExecutor");
-  var cordovaGoogleMaps = new (require('./CordovaGoogleMaps'))(execCmd);
+  var cordovaGoogleMaps = new (require('./js_CordovaGoogleMaps'))(execCmd);
 
   (new Promise(function(resolve) {
     var wait = function() {
