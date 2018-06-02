@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils');
 var event = require('cordova-plugin-googlemaps.event');
 var BaseClass = require('cordova-plugin-googlemaps.BaseClass');
@@ -36,42 +37,46 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     if (typeof pluginOptions.icon === 'string') {
       // Specifies path or url to icon image
       markerOpts.icon = pluginOptions.icon;
-    } else if (Array.isArray(markerOpts.icon)) {
-      // Specifies color name or rule
-      markerOpts.icon = {
-        path: 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
-        fillColor: 'rgb(' + pluginOptions.icon[0] + ',' + pluginOptions.icon[1] + ',' + pluginOptions.icon[2] + ')',
-        fillOpacity: pluginOptions.icon[3] / 256,
-        scale: 1.5,
-        strokeWeight: 0
-      };
-      iconSize = {
-        width: 20,
-        height: 42
-      };
     } else if (typeof pluginOptions.icon === 'object') {
-      markerOpts.icon.url = pluginOptions.icon.url;
-      if (pluginOptions.icon.size) {
-        markerOpts.icon.scaledSize = new google.maps.Size(icon.size.width, icon.size.height);
-        iconSize = icon.size;
+      if (Array.isArray(pluginOptions.icon.url)) {
+        // Specifies color name or rule
+        markerOpts.icon = {
+          'path': 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
+          'fillColor': 'rgb(' + pluginOptions.icon.url[0] + ',' + pluginOptions.icon.url[1] + ',' + pluginOptions.icon.url[2] + ')',
+          'fillOpacity': pluginOptions.icon.url[3] / 256,
+          'scale': 1.5,
+          'strokeWeight': 0
+        };
+        iconSize = {
+          'width': 20,
+          'height': 42
+        };
+      } else {
+        markerOpts.icon.url = pluginOptions.icon.url;
+        if (pluginOptions.icon.size) {
+          markerOpts.icon.scaledSize = new google.maps.Size(icon.size.width, icon.size.height);
+          iconSize = icon.size;
+        }
       }
     }
 
     if (icon.anchor) {
       markerOpts.icon.anchor = new google.maps.Point(icon.anchor[0], icon.anchor[1]);
     }
-  } else {
+  }
+  if (!markerOpts.icon ||
+      !markerOpts.icon.url && !markerOpts.icon.path) {
     // default marker
     markerOpts.icon = {
-      path: 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
-      fillColor: 'rgb(255, 0, 0)',
-      fillOpacity: 1,
-      scale: 1.5,
-      strokeWeight: 0
+      'path': 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
+      'fillColor': 'rgb(255, 0, 0)',
+      'fillOpacity': 1,
+      'scale': 1.5,
+      'strokeWeight': 0
     };
     iconSize = {
-      width: 20,
-      height: 42
+      'width': 20,
+      'height': 42
     };
   }
   var marker = new google.maps.Marker(markerOpts);
@@ -114,9 +119,9 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
       });
     };
     if (typeof markerOpts.icon === "string") {
-      img.src = markerOptions.icon;
+      img.src = markerOpts.icon;
     } else {
-      img.src = markerOptions.icon.url;
+      img.src = markerOpts.icon.url;
     }
   }
 };

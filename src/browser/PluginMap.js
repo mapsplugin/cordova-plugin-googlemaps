@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass');
@@ -53,11 +54,62 @@ function PluginMap(mapId, options, mapDivId) {
 
 utils.extend(PluginMap, BaseClass);
 
-PluginMap.prototype.resizeMap = function() {
+PluginMap.prototype.resizeMap = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
 
   google.maps.event.trigger(map, "resize");
+  onSuccess();
+};
+
+PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+
+  var options = args[0];
+  var padding = 20 || options.padding;
+  if (Array.isArray(options.target)) {
+    var bounds = new google.maps.LatLngBounds();
+    options.forEach(function(pos) {
+      bounds.extend(pos);
+    });
+    map.panToBounds(bounds, padding);
+  } else {
+    map.panTo(options.target);
+  }
+  if (typeof options.tilt === 'number') {
+    map.setTilt(options.tilt);
+  }
+  if (typeof options.bearing === 'number') {
+    map.setHeading(options.bearing);
+  }
+  onSuccess();
+
+};
+
+PluginMap.prototype.moveCamera = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+
+  var options = args[0];
+  var padding = 20 || options.padding;
+  if (Array.isArray(options.target)) {
+    var bounds = new google.maps.LatLngBounds();
+    options.forEach(function(pos) {
+      bounds.extend(pos);
+    });
+    map.fitBounds(bounds, padding);
+  } else {
+    map.setCenter(options.target);
+  }
+  if (typeof options.tilt === 'number') {
+    map.setTilt(options.tilt);
+  }
+  if (typeof options.bearing === 'number') {
+    map.setHeading(options.bearing);
+  }
+  onSuccess();
+
 };
 
 PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
