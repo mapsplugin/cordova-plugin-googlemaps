@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.6-beta)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.6)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -31,7 +31,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.5">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.6">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -75,7 +75,8 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ## Release Notes
   - **v2.3.6**
     - Fix: onPause causes app crashes on Android
-    - Fix: Can't find variable: element (v2.3.5)
+    - Fix: Can't find variable: element
+    - Fix: Can't interact with map on tutorial code
 
   - **v2.3.5**
     - Fix: `cordova.fireDocumentEvent('plugin_touch', {})` blocks HTML DOM tree parsing process.
