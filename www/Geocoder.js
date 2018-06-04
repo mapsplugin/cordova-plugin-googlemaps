@@ -1,4 +1,4 @@
-/*****************************************************************************
+ /*****************************************************************************
  * Geocoder class
  *****************************************************************************/
 var common = require('./Common'),
@@ -67,7 +67,7 @@ var Geocoder = function(exec) {
 
           }, function(error) {
             mvcResults.trigger("error", error);
-          }, "Geocoder", 'geocode', [request]);
+          }, "PluginGeocoder", 'geocode', [request]);
         });
 
 
@@ -104,7 +104,7 @@ var Geocoder = function(exec) {
         var resolver1 = function(resolve, reject) {
           exec.call({_isReady: true}, function(_results) {
             resolve(_results.results);
-          }, reject, "Geocoder", 'geocode', [geocoderRequest]);
+          }, reject, "PluginGeocoder", 'geocode', [geocoderRequest]);
         };
 
         if (typeof callback === "function") {

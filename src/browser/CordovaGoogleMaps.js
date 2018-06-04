@@ -39,7 +39,7 @@ class MercatorProjection {
 
   fromLatLngToPoint(coord) {
 console.log(coord);
-    let siny = Math.sin(coord.lat * Math.PI / 180);
+    var siny = Math.sin(coord.lat * Math.PI / 180);
 
     // Truncating to 0.9999 effectively limits latitude to 89.189. This is
     // about a third of a tile past the edge of the world tile.
@@ -52,7 +52,7 @@ console.log(coord);
   }
 
   fromPointToLatLng(point) {
-    let n = Math.PI * (1 - 2 * point.y / GOOGLE_BASE_TILE_SIZE);
+    var n = Math.PI * (1 - 2 * point.y / GOOGLE_BASE_TILE_SIZE);
 
     return new StaticLatLng(
       Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) * (180 / Math.PI),
@@ -71,7 +71,7 @@ function StaticMap(mapDiv, options) {
   var img = new Image();
   mapDiv.appendChild(img);
 
-  self.key = "AIzaSyDoGU-q2R8gI3C2YdOheaCLTKl8rHshV9A";
+  self.key = options.key;
 
   self.projection = new MercatorProjection();
 
@@ -277,12 +277,12 @@ document.addEventListener("load_googlemaps", function() {
       return;
     }
 
-    API_LOADED = true;
-    var maps = Object.values(MAPS);
-    maps.forEach(function(map) {
-      map.trigger("googleready");
-    });
-    return;
+    // API_LOADED = true;
+    // var maps = Object.values(MAPS);
+    // maps.forEach(function(map) {
+    //   map.trigger("googleready");
+    // });
+    // return;
 
     var secureStripeScript = document.createElement('script');
     secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);

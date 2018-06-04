@@ -4,9 +4,9 @@
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+  LatLng = require('cordova-plugin-googlemaps.LatLng'),
   MapTypeId = require('cordova-plugin-googlemaps.MapTypeId');
 
-var PLUGINS = {};
 var MAP_TYPES = {};
 MAP_TYPES[MapTypeId.NORMAL] = "roadmap";
 MAP_TYPES[MapTypeId.ROADMAP] = "roadmap";
@@ -46,6 +46,7 @@ function PluginMap(mapId, options, mapDivId) {
 
   self.set("isGoogleReady", false);
   self.set("container", container);
+  self.PLUGINS = {};
 
   Object.defineProperty(self, "id", {
     value: mapId,
@@ -56,6 +57,7 @@ function PluginMap(mapId, options, mapDivId) {
     enumerable: false,
     writable: false
   });
+  self.set('clickable', true);
 
 
   self.one("googleready", function() {
@@ -109,19 +111,27 @@ function PluginMap(mapId, options, mapDivId) {
 
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       self.trigger(event.MAP_READY);
-      map.addListener("idle", function() {
-        console.log("--->idle");
-      });
       map.addListener("idle", self._onCameraEvent.bind(self, 'camera_move_end'));
-      map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));
-      // map.addListener("zoom_changed", self._onCameraEvent.bind(self, 'camera_move_end'));
-      map.addListener("drag", self._onCameraEvent.bind(self, 'map_drag'));
-      map.addListener("dragend", self._onCameraEvent.bind(self, 'map_drag_end'));
-      map.addListener("dragstart", self._onCameraEvent.bind(self, 'map_drag_start'));
+      //map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));
       map.addListener("drag", self._onCameraEvent.bind(self, 'camera_move'));
       map.addListener("dragend", self._onCameraEvent.bind(self, 'camera_move_end'));
       map.addListener("dragstart", self._onCameraEvent.bind(self, 'camera_move_start'));
-      //self._onCameraEvent.call(self, 'camera_move_end');
+
+      map.addListener("click", function(evt) {
+        self._onMapEvent.call(self, evt, 'map_click');
+      });
+      map.addListener("rightclick", function(evt) {
+        self._onMapEvent.call(self, evt, 'map_long_click');
+      });
+      map.addListener("drag", function(evt) {
+        self._onMapEvent.call(self, evt, 'map_drag');
+      });
+      map.addListener("dragend", function(evt) {
+        self._onMapEvent.call(self, evt, 'map_drag_end');
+      });
+      map.addListener("dragstart", function(evt) {
+        self._onMapEvent.call(self, evt, 'map_drag_start');
+      });
     });
 
     if (options) {
@@ -159,6 +169,9 @@ function PluginMap(mapId, options, mapDivId) {
 }
 
 utils.extend(PluginMap, BaseClass);
+
+PluginMap.prototype.clear = function(onSuccess, onError, args) {
+};
 
 PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
   var self = this,
@@ -296,41 +309,39 @@ PluginMap.prototype.setMapTypeId = function(onSuccess, onError, args) {
   map.setMapTypeId(MAP_TYPES[mapTypeId]);
   onSuccess();
 };
-PluginMap.prototype.getMyLocation = function(onSuccess, onError, args) {
+PluginMap.prototype.setClickable = function(onSuccess, onError, args) {
   var self = this;
+  var map = self.get("map");
+  var clickable = args[0];
+  self.set('clickable', clickable);
+  onSuccess();
+};
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      onSuccess({
-        'latLng': {
-          'lat': position.latitude,
-          'lng': position.longitude
-        },
-        'elapsedRealtimeNanos': 0,
-        'time': position.timestamp,
-        'accuracy': position.accuracy,
-        'altitude': position.altitude,
-        'speed': position.speed,
-        'bearing': position.heading,
-        'provider': 'geolocationapi',
-        'hashCode': 'dummy',
-        'status': true
-      });
-    }, function(error) {
-      onError({
-        'status': false,
-        'error_code': LOCATION_ERROR[error.code],
-        'error_message': LOCATION_ERROR_MSG[error.code]
-      });
+PluginMap.prototype._onMapEvent = function(evt, evtName) {
+  var self = this,
+    map = self.get("map");
+
+  if (self.get('clickable') === false &&
+    (evtName === 'map_click' || evtName === 'map_long_click')) {
+    evt.stop();
+    return;
+  }
+  if (evt) {
+    plugin.google.maps[self.id]({
+      'evtName': evtName,
+      'callback': '_onMapEvent',
+      'args': [new LatLng(evt.latLng.lat(), evt.latLng.lng())]
     });
   } else {
-    onError({
-      'status': false,
-      'error_code': 'not_available',
-      'error_message': 'Since this device does not have any location provider, this app can not detect your location.'
+    plugin.google.maps[self.id]({
+      'evtName': evtName,
+      'callback': '_onMapEvent',
+      'args': []
     });
   }
+
 };
+
 PluginMap.prototype._onCameraEvent = function(evtName) {
   var self = this,
     map = self.get("map"),
@@ -365,12 +376,12 @@ PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
   var className = args[0];
 
   var plugin;
-  if (className in PLUGINS) {
-    plugin = PLUGINS[className];
+  if (className in self.PLUGINS) {
+    plugin = self.PLUGINS[className];
   } else {
     var OverlayClass = require('cordova-plugin-googlemaps.Plugin' + className);
     plugin = new OverlayClass(this);
-    PLUGINS[className] = plugin;
+    self.PLUGINS[className] = plugin;
 
     // Since Cordova involes methods as Window,
     // the `this` keyword of involved method is Window, not overlay itself.

@@ -17,12 +17,8 @@ function CordovaGoogleMaps(execCmd) {
 
   self.execCmd = execCmd;
 
-  // random unique number
-  self.saltHash = Math.floor(Math.random() * Date.now());
-
   // Hold map instances.
   self.MAPS = {};
-  self.MAP_CNT = 0;
 
   // Hold the DOM hierarchy graph.
   self.domPositions = {};
@@ -574,7 +570,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   }
   if (!mapId) {
-    mapId = "map_" + self.MAP_CNT + "_" + self.saltHash;
+    mapId = "map_" + Math.floor(Math.random() * Date.now());
   }
   // Create a map instance.
   var map = new Map(mapId, self.execCmd);
@@ -654,7 +650,6 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   // If the map is removed, clean up the information.
   map.one('remove', self._remove.bind(self, mapId));
-  self.MAP_CNT++;
   self.isThereAnyChange = true;
 
   if (div instanceof Promise) {
@@ -676,7 +671,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
 CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   var self = this;
-  var mapId = "streetview_" + self.MAP_CNT + "_" + self.saltHash;
+  var mapId = "streetview_" + Math.floor(Math.random() * Date.now());
 
   // Create a panorama instance.
   var panorama = new StreetViewPanorama(mapId, self.execCmd);
@@ -684,8 +679,6 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   // Catch all events for this map instance, then pass to the instance.
   // (Don't execute this native callback from your code)
   plugin.google.maps[mapId] = nativeCallback.bind(panorama);
-
-  self.MAP_CNT++;
 
   panorama.one('remove', self._remove.bind(self, mapId));
 

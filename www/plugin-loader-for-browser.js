@@ -29,8 +29,8 @@ module.exports = {
   LatLngBounds: require('cordova-plugin-googlemaps.LatLngBounds'),
   MapTypeId: require('cordova-plugin-googlemaps.MapTypeId'),
   environment: require('cordova-plugin-googlemaps.Environment'),
-  // Geocoder: require('cordova-plugin-googlemaps.Geocoder')(execCmd),
-  // LocationService: require('cordova-plugin-googlemaps.LocationService')(execCmd),
+  Geocoder: require('cordova-plugin-googlemaps.Geocoder')(execCmd),
+  LocationService: require('cordova-plugin-googlemaps.LocationService')(execCmd),
   geometry: {
       encoding: require('cordova-plugin-googlemaps.encoding'),
       spherical: require('cordova-plugin-googlemaps.spherical'),
