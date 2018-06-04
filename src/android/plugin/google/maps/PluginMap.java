@@ -444,7 +444,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       });
                     } else {
                       mapView.setVisibility(View.VISIBLE);
-                      PluginMap.this.onCameraEvent("camera_end");
+                      PluginMap.this.onCameraEvent("camera_move_end");
                       callbackContext.success();
                     }
                   }
@@ -463,7 +463,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   });
                 } else {
                   mapView.setVisibility(View.VISIBLE);
-                  PluginMap.this.onCameraEvent("camera_end");
+                  PluginMap.this.onCameraEvent("camera_move_end");
                   callbackContext.success();
                   //if (map.getMapType() == GoogleMap.MAP_TYPE_NONE) {
                     PluginMap.this.onMapLoaded();
@@ -2316,7 +2316,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
   @Override
   public void onMapLoaded() {
-    this.onCameraEvent("camera_end");
+    this.onCameraEvent("camera_move_end");
   }
 
 

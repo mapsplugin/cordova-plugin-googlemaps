@@ -1,11 +1,19 @@
 
 
+
 var utils = require('cordova/utils'),
   common = require('cordova-plugin-googlemaps.Common'),
   cordova_exec = require('cordova/exec'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
   Map = require('cordova-plugin-googlemaps.Map'),
   StreetViewPanorama = require('cordova-plugin-googlemaps.StreetViewPanorama');
+
+
+function nativeCallback(params) {
+  var args = params.args || [];
+  args.unshift(params.evtName);
+  this[params.callback].apply(this, args);
+}
 
 function CordovaGoogleMaps(execCmd) {
   var self = this;
@@ -73,6 +81,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   }
   // Create a map instance.
   var map = new Map(mapId, self.execCmd);
+  plugin.google.maps[mapId] = nativeCallback.bind(map);
 
   // If the map is removed, clean up the information.
   map.one('remove', self._remove.bind(self, mapId));

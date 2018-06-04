@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils');
 var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
     event = require('cordova-plugin-googlemaps.event');
@@ -26,8 +27,8 @@ document.addEventListener("load_googlemaps", function() {
     }
 
     var secureStripeScript = document.createElement('script');
-    //secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
-    secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
+    secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
+    //secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
     secureStripeScript.addEventListener("load", function() {
       API_LOADED = true;
 

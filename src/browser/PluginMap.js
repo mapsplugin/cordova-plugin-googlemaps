@@ -21,21 +21,22 @@ function PluginMap(mapId, options, mapDivId) {
   var self = this;
   BaseClass.apply(this);
   var mapDiv = document.querySelector("[__pluginMapId='" + mapId + "']");
-  var dummyDiv = document.createElement("div");
-  dummyDiv.style.userSelect="none";
-  dummyDiv.style["-webkit-user-select"]="none";
-  dummyDiv.style["-moz-user-select"]="none";
-  dummyDiv.style["-ms-user-select"]="none";
+  var container = document.createElement("div");
+  container.style.userSelect="none";
+  container.style["-webkit-user-select"]="none";
+  container.style["-moz-user-select"]="none";
+  container.style["-ms-user-select"]="none";
   mapDiv.style.position = "relative";
-  dummyDiv.style.position = "absolute";
-  dummyDiv.style.top = 0;
-  dummyDiv.style.bottom = 0;
-  dummyDiv.style.right = 0;
-  dummyDiv.style.left = 0;
-  mapDiv.insertBefore(dummyDiv, mapDiv.firstElementChild);
+  container.style.position = "absolute";
+  container.style.top = 0;
+  container.style.bottom = 0;
+  container.style.right = 0;
+  container.style.left = 0;
+  mapDiv.insertBefore(container, mapDiv.firstElementChild);
 
 
   self.set("isGoogleReady", false);
+  self.set("container", container);
 
   Object.defineProperty(self, "id", {
     value: mapId,
@@ -93,11 +94,22 @@ function PluginMap(mapId, options, mapDivId) {
       }
     }
 
-    var map = new google.maps.Map(dummyDiv, mapInitOptions);
+    var map = new google.maps.Map(container, mapInitOptions);
     map.mapTypes = mapTypeReg;
+    self.set('map', map);
 
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       self.trigger(event.MAP_READY);
+      map.addListener("idle", self._onCameraEvent.bind(self, 'camera_move_end'));
+      map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));
+      // map.addListener("zoom_changed", self._onCameraEvent.bind(self, 'camera_move_end'));
+      map.addListener("drag", self._onCameraEvent.bind(self, 'map_drag'));
+      map.addListener("dragend", self._onCameraEvent.bind(self, 'map_drag_end'));
+      map.addListener("dragstart", self._onCameraEvent.bind(self, 'map_drag_start'));
+      map.addListener("drag", self._onCameraEvent.bind(self, 'camera_move'));
+      map.addListener("dragend", self._onCameraEvent.bind(self, 'camera_move_end'));
+      map.addListener("dragstart", self._onCameraEvent.bind(self, 'camera_move_start'));
+      //self._onCameraEvent.call(self, 'camera_move_end');
     });
 
     if (options) {
@@ -129,7 +141,6 @@ function PluginMap(mapId, options, mapDivId) {
     } else {
       map.setCenter({lat: 0, lng: 0});
     }
-    self.set("map", map);
 
   });
 
@@ -137,6 +148,27 @@ function PluginMap(mapId, options, mapDivId) {
 
 utils.extend(PluginMap, BaseClass);
 
+PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
+  var self = this,
+    map = self.get('map'),
+    container = self.get('container');
+
+  if (args.length === 0) {
+    if (container && container.parentNode) {
+      container.parentNode.removeAttribute("__pluginMapId");
+      container.parentNode.removeChild(container);
+    }
+  } else {
+    var domId = args[0];
+    var mapDiv = document.querySelector("[__pluginDomId='" + domId + "']");
+    mapDiv.style.position = "relative";
+    mapDiv.insertBefore(container, mapDiv.firstElementChild);
+    mapDiv.setAttribute("__pluginMapId", self.id);
+  }
+
+  google.maps.event.trigger(map, "resize");
+  onSuccess();
+};
 PluginMap.prototype.resizeMap = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
@@ -206,6 +238,34 @@ PluginMap.prototype.setMapTypeId = function(onSuccess, onError, args) {
   var mapTypeId = args[0];
   map.setMapTypeId(MAP_TYPES[mapTypeId]);
   onSuccess();
+};
+PluginMap.prototype._onCameraEvent = function(evtName) {
+console.log(evtName);
+  var self = this,
+    map = self.get("map"),
+    center = map.getCenter(),
+    bounds = map.getBounds(),
+    ne = bounds.getNorthEast(),
+    sw = bounds.getSouthWest();
+
+
+  var cameraInfo = {
+    'target': {'lat': center.lat, 'lng': center.lng},
+    'zoom': map.getZoom(),
+    'tilt': map.getTilt(),
+    'bearing': map.getHeading(),
+    'northeast': {'lat': ne.lat, 'lng': ne.lng},
+    'southwest': {'lat': sw.lat, 'lng': sw.lng},
+    'farLeft': {'lat': ne.lat, 'lng': sw.lng},
+    'farRight': {'lat': ne.lat, 'lng': ne.lng}, // = northEast
+    'nearLeft': {'lat': sw.lat, 'lng': sw.lng}, // = southWest
+    'nearRight': {'lat': sw.lat, 'lng': ne.lng}
+  };
+  plugin.google.maps[self.id]({
+    'evtName': evtName,
+    'callback': '_onCameraEvent',
+    'args': [cameraInfo]
+  });
 };
 
 PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
