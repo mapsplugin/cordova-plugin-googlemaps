@@ -3,15 +3,38 @@
 
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+  MapTypeId = require('cordova-plugin-googlemaps.MapTypeId');
 
 var PLUGINS = {};
+var MAP_TYPES = {};
+MAP_TYPES[MapTypeId.NORMAL] = "roadmap";
+MAP_TYPES[MapTypeId.ROADMAP] = "roadmap";
+MAP_TYPES[MapTypeId.SATELLITE] = "satellite";
+MAP_TYPES[MapTypeId.HYBRID] = "hybrid";
+MAP_TYPES[MapTypeId.TERRAIN] = "terrain";
+MAP_TYPES[MapTypeId.NONE] = "none";
+
+var mapTypeReg = null;
 
 function PluginMap(mapId, options, mapDivId) {
+  var self = this;
   BaseClass.apply(this);
   var mapDiv = document.querySelector("[__pluginMapId='" + mapId + "']");
+  var dummyDiv = document.createElement("div");
+  dummyDiv.style.userSelect="none";
+  dummyDiv.style["-webkit-user-select"]="none";
+  dummyDiv.style["-moz-user-select"]="none";
+  dummyDiv.style["-ms-user-select"]="none";
+  mapDiv.style.position = "relative";
+  dummyDiv.style.position = "absolute";
+  dummyDiv.style.top = 0;
+  dummyDiv.style.bottom = 0;
+  dummyDiv.style.right = 0;
+  dummyDiv.style.left = 0;
+  mapDiv.insertBefore(dummyDiv, mapDiv.firstElementChild);
 
-  var self = this;
+
   self.set("isGoogleReady", false);
 
   Object.defineProperty(self, "id", {
@@ -24,19 +47,35 @@ function PluginMap(mapId, options, mapDivId) {
     writable: false
   });
 
+
   self.one("googleready", function() {
     self.set("isGoogleReady", true);
 
+    if (!mapTypeReg) {
+      var mapTypeReg = new google.maps.MapTypeRegistry();
+      mapTypeReg.set('none', new google.maps.ImageMapType({
+        'getTileUrl': function(point, zoom) { return null; },
+        'name': 'none_type',
+        'tileSize': new google.maps.Size(256, 256),
+        'minZoom': 0,
+        'maxZoom': 25
+      }));
+    }
+
     var mapInitOptions = {
+      mapTypes: mapTypeReg,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       noClear: true,
       zoom: 2,
-      disableDefaultUI: true
+      minZoom: 2,
+      disableDefaultUI: true,
+      zoomControl: true,
+      center: {lat: 0, lng: 0}
     };
 
     if (options) {
       if (options.mapType) {
-        mapInitOptions.mapTypeId = options.mapType.toLowerCase().replace("map_type_", "");
+        mapInitOptions.mapTypeId = MAP_TYPES[options.mapType];
       }
 
       if (options.controls) {
@@ -54,7 +93,8 @@ function PluginMap(mapId, options, mapDivId) {
       }
     }
 
-    var map = new google.maps.Map(mapDiv, mapInitOptions);
+    var map = new google.maps.Map(dummyDiv, mapInitOptions);
+    map.mapTypes = mapTypeReg;
 
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       self.trigger(event.MAP_READY);
@@ -159,6 +199,13 @@ PluginMap.prototype.moveCamera = function(onSuccess, onError, args) {
   }
   onSuccess();
 
+};
+PluginMap.prototype.setMapTypeId = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var mapTypeId = args[0];
+  map.setMapTypeId(MAP_TYPES[mapTypeId]);
+  onSuccess();
 };
 
 PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
