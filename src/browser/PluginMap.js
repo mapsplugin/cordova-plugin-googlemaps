@@ -15,6 +15,15 @@ MAP_TYPES[MapTypeId.HYBRID] = "hybrid";
 MAP_TYPES[MapTypeId.TERRAIN] = "terrain";
 MAP_TYPES[MapTypeId.NONE] = "none";
 
+var LOCATION_ERROR = {};
+LOCATION_ERROR[1] = 'service_denied';
+LOCATION_ERROR[2] = 'not_available';
+LOCATION_ERROR[3] = 'cannot_detect';
+var LOCATION_ERROR_MSG = {};
+LOCATION_ERROR_MSG[1] = 'Location service is rejected by user.';
+LOCATION_ERROR_MSG[2] = 'Since this device does not have any location provider, this app can not detect your location.';
+LOCATION_ERROR_MSG[3] = 'Can not detect your location. Try again.';
+
 var mapTypeReg = null;
 
 function PluginMap(mapId, options, mapDivId) {
@@ -52,19 +61,19 @@ function PluginMap(mapId, options, mapDivId) {
   self.one("googleready", function() {
     self.set("isGoogleReady", true);
 
-    if (!mapTypeReg) {
-      var mapTypeReg = new google.maps.MapTypeRegistry();
-      mapTypeReg.set('none', new google.maps.ImageMapType({
-        'getTileUrl': function(point, zoom) { return null; },
-        'name': 'none_type',
-        'tileSize': new google.maps.Size(256, 256),
-        'minZoom': 0,
-        'maxZoom': 25
-      }));
-    }
+    // if (!mapTypeReg) {
+    //   var mapTypeReg = new google.maps.MapTypeRegistry();
+    //   mapTypeReg.set('none', new google.maps.ImageMapType({
+    //     'getTileUrl': function(point, zoom) { return null; },
+    //     'name': 'none_type',
+    //     'tileSize': new google.maps.Size(256, 256),
+    //     'minZoom': 0,
+    //     'maxZoom': 25
+    //   }));
+    // }
 
     var mapInitOptions = {
-      mapTypes: mapTypeReg,
+//      mapTypes: mapTypeReg,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       noClear: true,
       zoom: 2,
@@ -95,11 +104,14 @@ function PluginMap(mapId, options, mapDivId) {
     }
 
     var map = new google.maps.Map(container, mapInitOptions);
-    map.mapTypes = mapTypeReg;
+//    map.mapTypes = mapTypeReg;
     self.set('map', map);
 
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       self.trigger(event.MAP_READY);
+      map.addListener("idle", function() {
+        console.log("--->idle");
+      });
       map.addListener("idle", self._onCameraEvent.bind(self, 'camera_move_end'));
       map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));
       // map.addListener("zoom_changed", self._onCameraEvent.bind(self, 'camera_move_end'));
@@ -177,6 +189,49 @@ PluginMap.prototype.resizeMap = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginMap.prototype.panBy = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  map.panBy.apply(map, args);
+  onSuccess();
+};
+
+PluginMap.prototype.setCameraBearing = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var heading = args[0];
+
+  map.setHeading(heading);
+  onSuccess();
+};
+
+PluginMap.prototype.setCameraZoom = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var zoom = args[0];
+
+  map.setZoom(zoom);
+  onSuccess();
+};
+
+PluginMap.prototype.setCameraTarget = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var center = args[0];
+
+  map.setCenter(center);
+  onSuccess();
+};
+
+PluginMap.prototype.setCameraTilt = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var tilt = args[0];
+
+  map.setTilt();
+  onSuccess();
+};
+
 PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
@@ -193,7 +248,9 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
     if (typeof options.zoom === 'number') {
       map.setZoom(options.zoom);
     }
-    map.panTo(options.target);
+    if (options.target) {
+      map.panTo(options.target);
+    }
   }
   if (typeof options.tilt === 'number') {
     map.setTilt(options.tilt);
@@ -239,8 +296,42 @@ PluginMap.prototype.setMapTypeId = function(onSuccess, onError, args) {
   map.setMapTypeId(MAP_TYPES[mapTypeId]);
   onSuccess();
 };
+PluginMap.prototype.getMyLocation = function(onSuccess, onError, args) {
+  var self = this;
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      onSuccess({
+        'latLng': {
+          'lat': position.latitude,
+          'lng': position.longitude
+        },
+        'elapsedRealtimeNanos': 0,
+        'time': position.timestamp,
+        'accuracy': position.accuracy,
+        'altitude': position.altitude,
+        'speed': position.speed,
+        'bearing': position.heading,
+        'provider': 'geolocationapi',
+        'hashCode': 'dummy',
+        'status': true
+      });
+    }, function(error) {
+      onError({
+        'status': false,
+        'error_code': LOCATION_ERROR[error.code],
+        'error_message': LOCATION_ERROR_MSG[error.code]
+      });
+    });
+  } else {
+    onError({
+      'status': false,
+      'error_code': 'not_available',
+      'error_message': 'Since this device does not have any location provider, this app can not detect your location.'
+    });
+  }
+};
 PluginMap.prototype._onCameraEvent = function(evtName) {
-console.log(evtName);
   var self = this,
     map = self.get("map"),
     center = map.getCenter(),
