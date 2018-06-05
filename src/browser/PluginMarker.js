@@ -49,11 +49,11 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
           'fillOpacity': pluginOptions.icon.url[3] / 256,
           'scale': 1.3,
           'strokeWeight': 0,
-          'anchor': new google.maps.Point(8, 24)
+          'anchor': new google.maps.Point(12, 27)
         };
         iconSize = {
-          'width': 16,
-          'height': 24
+          'width': 22,
+          'height': 28
         };
       } else {
         markerOpts.icon.url = pluginOptions.icon.url;
@@ -77,11 +77,11 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
       'fillOpacity': 1,
       'scale': 1.3,
       'strokeWeight': 0,
-      'anchor': new google.maps.Point(8, 24)
+      'anchor': new google.maps.Point(12, 27)
     };
     iconSize = {
-      'width': 16,
-      'height': 24
+      'width': 22,
+      'height': 28
     };
   }
   var marker = new google.maps.Marker(markerOpts);

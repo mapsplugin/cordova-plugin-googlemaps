@@ -120,8 +120,13 @@ function PluginMap(mapId, options, mapDivId) {
       map.addListener("click", function(evt) {
         self._onMapEvent.call(self, event.MAP_CLICK, evt);
       });
-      map.addListener("rightclick", function(evt) {
-        self._onMapEvent.call(self, event.MAP_LONG_CLICK, evt);
+      map.addListener("mousedown", function(evt) {
+        map.set('mousedown_time', Date.now());
+      });
+      map.addListener("mouseup", function(evt) {
+        if (Date.now() - (map.get('mousedown_time') || Date.now()) > 500) {
+          self._onMapEvent.call(self, event.MAP_LONG_CLICK, evt);
+        }
       });
       map.addListener("drag", function(evt) {
         self._onMapEvent.call(self, event.MAP_DRAG, evt);
@@ -130,6 +135,7 @@ function PluginMap(mapId, options, mapDivId) {
         self._onMapEvent.call(self, event.MAP_DRAG_END, evt);
       });
       map.addListener("dragstart", function(evt) {
+        map.set('mousedown_time', undefined);
         self._onMapEvent.call(self, event.MAP_DRAG_START, evt);
       });
     });
@@ -380,15 +386,59 @@ PluginMap.prototype.setVisible = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
   var visibility = args[0];
-  if (map && map.getDiv()) {
-    map.getDiv().style.visibility = visibility === true ? 'visible' : 'invisible';
+  var mapDiv = map.getDiv();
+  if (mapDiv) {
+    mapDiv.style.visibility = visibility === true ? 'visible' : 'hidden';
   }
   onSuccess();
 };
 
 PluginMap.prototype.setPadding = function(onSuccess, onError, args) {
-  console.warn('map.setPadding() is not available for this platform');
+  console.warn('map.setPadding() is not available for this platform.');
   onSuccess();
+};
+PluginMap.prototype.setAllGesturesEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var enabled = args[0];
+  map.setOptions({
+    gestureHandling: enabled === true ? 'auto': 'none'
+  });
+
+  onSuccess();
+};
+PluginMap.prototype.setCompassEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var enabled = args[0];
+  map.setOptions({
+    rotateControl: enabled === true
+  });
+  var mapTypeId = map.getMapTypeId();
+  if (mapTypeId !== google.maps.MapTypeId.SATELLITE &&
+    mapTypeId !== google.maps.MapTypeId.HYBRID) {
+    console.warn('map.setCompassEnabled() works only HYBRID or SATELLITE for this platform.');
+  }
+  onSuccess();
+};
+PluginMap.prototype.setTrafficEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var enabled = args[0];
+
+  var trafficLayer = map.get('trafficLayer');
+  if (!trafficLayer) {
+    trafficLayer = new google.maps.TrafficLayer();
+    map.set('trafficLayer', trafficLayer);
+  }
+  if (enabled) {
+    trafficLayer.setMap(map);
+  } else {
+    trafficLayer.setMap(null);
+  }
+
+  onSuccess();
+
 };
 
 PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
@@ -414,17 +464,36 @@ PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
 
 };
 
+PluginMap.prototype.setIndoorEnabled = function(onSuccess, onError, args) {
+  onError('map.setIndoorEnabled() is not available for this platform.');
+};
+
+PluginMap.prototype.toDataURL = function(onSuccess, onError, args) {
+  onError('map.toDataURL() is not available for this platform.');
+};
+
 PluginMap.prototype._onMapEvent = function(evtName, evt) {
   var self = this,
     map = self.get("map");
 
   if (self.get('clickable') === false &&
-    (evtName === 'map_click' || evtName === 'map_long_click')) {
+    (evtName === event.MAP_CLICK || evtName === event.MAP_LONG_CLICK)) {
     evt.stop();
     return;
   }
   if (self.id in plugin.google.maps) {
     if (evt) {
+      if (evtName === event.MAP_CLICK) {
+        if (evt.placeId) {
+          evt.stop();
+          plugin.google.maps[self.id]({
+            'evtName': event.POI_CLICK,
+            'callback': '_onMapEvent',
+            'args': [evt.placeId, undefined, new LatLng(evt.latLng.lat(), evt.latLng.lng())]
+          });
+          return;
+        }
+      }
       plugin.google.maps[self.id]({
         'evtName': evtName,
         'callback': '_onMapEvent',
