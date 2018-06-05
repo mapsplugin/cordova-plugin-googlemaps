@@ -1,8 +1,9 @@
 
 
-var utils = require('cordova/utils');
-var event = require('cordova-plugin-googlemaps.event');
-var BaseClass = require('cordova-plugin-googlemaps.BaseClass');
+var utils = require('cordova/utils'),
+  event = require('cordova-plugin-googlemaps.event'),
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+  LatLng = require('cordova-plugin-googlemaps.LatLng');
 
 function PluginMarker(pluginMap) {
   var self = this;
@@ -23,9 +24,11 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     pluginOptions = args[1];
 
   var markerOpts = {
+    'overlayId': markerId,
     'position': pluginOptions.position,
     'map': map,
-    'disableAutoPan': pluginOptions.disableAutoPan === true
+    'disableAutoPan': pluginOptions.disableAutoPan === true,
+    'draggable': pluginOptions.draggable === true
   };
   var iconSize = null;
   if (pluginOptions.animation) {
@@ -82,6 +85,11 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     };
   }
   var marker = new google.maps.Marker(markerOpts);
+  marker.addListener('click', self._onMarkerEvent.bind(self, marker, event.MARKER_CLICK));
+  marker.addListener('dragstart', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_START));
+  marker.addListener('drag', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG));
+  marker.addListener('dragend', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_END));
+
   if (pluginOptions.title || pluginOptions.snippet) {
     var html = [];
     if (pluginOptions.title) {
@@ -145,7 +153,44 @@ PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
   }
   onSuccess();
 };
+PluginMarker.prototype.setPosition = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setPosition({'lat': args[1], 'lng': args[2]});
+  }
+  onSuccess();
+};
 
+PluginMarker.prototype.remove = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    google.maps.event.clearInstanceListeners(marker);
+    marker.setMap(null);
+    marker = undefined;
+    self.pluginMap.objects[overlayId] = undefined;
+    delete self.pluginMap.objects[overlayId];
+  }
+  onSuccess();
+};
+
+PluginMarker.prototype._onMarkerEvent = function(marker, evtName) {
+  var self = this,
+    mapId = self.pluginMap.id;
+console.log(mapId, evtName);
+  if (mapId in plugin.google.maps) {
+    var latLng = marker.getPosition();
+    plugin.google.maps[mapId]({
+      'evtName': evtName,
+      'callback': '_onMarkerEvent',
+      'args': [marker.overlayId, new LatLng(latLng.lat(), latLng.lng())]
+    });
+  }
+
+};
 module.exports = PluginMarker;
 
 var infoWnd = null;

@@ -344,6 +344,26 @@ var CordovaGoogleMaps = {
     } else {
       cordova.fireDocumentEvent('load_googlemaps', []);
     }
+  },
+  removeMap: function(onSuccess, onError, args) {
+    var mapId = args[0];
+    var pluginMap = MAPS[mapId];
+    if (pluginMap) {
+      var map = pluginMap.get('map');
+      google.maps.event.clearInstanceListeners(map);
+      var mapDiv = map.getDiv();
+      if (mapDiv) {
+        var container = mapDiv.parentNode.removeChild(mapDiv);
+        container = null;
+        mapDiv = null;
+        pluginMap.set('map', undefined);
+      }
+      map = null;
+    }
+    pluginMap.destroy();
+    pluginMap = null;
+    MAPS[mapId] = undefined;
+    delete MAPS[mapId];
   }
 };
 

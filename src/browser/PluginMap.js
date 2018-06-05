@@ -63,19 +63,19 @@ function PluginMap(mapId, options, mapDivId) {
   self.one("googleready", function() {
     self.set("isGoogleReady", true);
 
-    // if (!mapTypeReg) {
-    //   var mapTypeReg = new google.maps.MapTypeRegistry();
-    //   mapTypeReg.set('none', new google.maps.ImageMapType({
-    //     'getTileUrl': function(point, zoom) { return null; },
-    //     'name': 'none_type',
-    //     'tileSize': new google.maps.Size(256, 256),
-    //     'minZoom': 0,
-    //     'maxZoom': 25
-    //   }));
-    // }
+    if (!mapTypeReg) {
+      mapTypeReg = new google.maps.MapTypeRegistry();
+      mapTypeReg.set('none', new google.maps.ImageMapType({
+        'getTileUrl': function(point, zoom) { return null; },
+        'name': 'none_type',
+        'tileSize': new google.maps.Size(256, 256),
+        'minZoom': 0,
+        'maxZoom': 25
+      }));
+    }
 
     var mapInitOptions = {
-//      mapTypes: mapTypeReg,
+      mapTypes: mapTypeReg,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       noClear: true,
       zoom: 2,
@@ -106,31 +106,31 @@ function PluginMap(mapId, options, mapDivId) {
     }
 
     var map = new google.maps.Map(container, mapInitOptions);
-//    map.mapTypes = mapTypeReg;
+    map.mapTypes = mapTypeReg;
     self.set('map', map);
 
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       self.trigger(event.MAP_READY);
       map.addListener("idle", self._onCameraEvent.bind(self, 'camera_move_end'));
       //map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));
-      map.addListener("drag", self._onCameraEvent.bind(self, 'camera_move'));
-      map.addListener("dragend", self._onCameraEvent.bind(self, 'camera_move_end'));
-      map.addListener("dragstart", self._onCameraEvent.bind(self, 'camera_move_start'));
+      map.addListener("drag", self._onCameraEvent.bind(self, event.CAMERA_MOVE));
+      map.addListener("dragend", self._onCameraEvent.bind(self, event.CAMERA_MOVE_END));
+      map.addListener("dragstart", self._onCameraEvent.bind(self, event.CAMERA_MOVE_START));
 
       map.addListener("click", function(evt) {
-        self._onMapEvent.call(self, evt, 'map_click');
+        self._onMapEvent.call(self, event.MAP_CLICK, evt);
       });
       map.addListener("rightclick", function(evt) {
-        self._onMapEvent.call(self, evt, 'map_long_click');
+        self._onMapEvent.call(self, event.MAP_LONG_CLICK, evt);
       });
       map.addListener("drag", function(evt) {
-        self._onMapEvent.call(self, evt, 'map_drag');
+        self._onMapEvent.call(self, event.MAP_DRAG, evt);
       });
       map.addListener("dragend", function(evt) {
-        self._onMapEvent.call(self, evt, 'map_drag_end');
+        self._onMapEvent.call(self, event.MAP_DRAG_END, evt);
       });
       map.addListener("dragstart", function(evt) {
-        self._onMapEvent.call(self, evt, 'map_drag_start');
+        self._onMapEvent.call(self, event.MAP_DRAG_START, evt);
       });
     });
 
@@ -169,6 +169,66 @@ function PluginMap(mapId, options, mapDivId) {
 }
 
 utils.extend(PluginMap, BaseClass);
+
+PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+
+  var mapInitOptions = {};
+
+  if (options) {
+    if (options.mapType) {
+      mapInitOptions.mapTypeId = MAP_TYPES[options.mapType];
+    }
+
+    if (options.controls) {
+      if (options.controls.zoom !== undefined) {
+        mapInitOptions.zoomControl = options.controls.zoom == true;
+      }
+    }
+    if (options.preferences) {
+      if (options.preferences.zoom) {
+        mapInitOptions.minZoom = Math.max(options.preferences.zoom || 2, 2);
+        if (options.preferences.zoom.maxZoom) {
+          mapInitOptions.maxZoom = options.preferences.zoom.maxZoom;
+        }
+      }
+    }
+  }
+  map.setOptions(mapInitOptions);
+
+  if (options) {
+    if (options.camera) {
+      if (options.camera.target) {
+
+        if (Array.isArray(options.camera.target)) {
+          var bounds = new google.maps.LatLngBounds();
+          options.camera.target.forEach(function(pos) {
+            bounds.extend(pos);
+          });
+          map.fitBounds(bounds, 20);
+        } else {
+          map.setCenter(options.camera.target);
+        }
+        if (typeof options.camera.tilt === 'number') {
+          map.setTilt(options.camera.tilt);
+        }
+        if (typeof options.camera.bearing === 'number') {
+          map.setHeading(options.camera.bearing);
+        }
+        if (typeof options.camera.zoom === 'number') {
+          map.setZoom(options.camera.zoom);
+        }
+      }
+    } else {
+      map.setCenter({lat: 0, lng: 0});
+    }
+  } else {
+    map.setCenter({lat: 0, lng: 0});
+  }
+
+  onSuccess();
+};
 
 PluginMap.prototype.clear = function(onSuccess, onError, args) {
 };
@@ -316,8 +376,45 @@ PluginMap.prototype.setClickable = function(onSuccess, onError, args) {
   self.set('clickable', clickable);
   onSuccess();
 };
+PluginMap.prototype.setVisible = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var visibility = args[0];
+  if (map && map.getDiv()) {
+    map.getDiv().style.visibility = visibility === true ? 'visible' : 'invisible';
+  }
+  onSuccess();
+};
 
-PluginMap.prototype._onMapEvent = function(evt, evtName) {
+PluginMap.prototype.setPadding = function(onSuccess, onError, args) {
+  console.warn('map.setPadding() is not available for this platform');
+  onSuccess();
+};
+
+PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var lat = args[0],
+    lng = args[1];
+
+  var projection = map.getProjection();
+  var point = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng));
+  onSuccess([point.x, point.y]);
+
+};
+PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
+  var self = this;
+  var map = self.get("map");
+  var x = args[0],
+    y = args[1];
+
+  var projection = map.getProjection();
+  var latLng = projection.fromPointToLatLng(new google.maps.Point(x, y));
+  onSuccess([latLng.lat(), latLng.lng()]);
+
+};
+
+PluginMap.prototype._onMapEvent = function(evtName, evt) {
   var self = this,
     map = self.get("map");
 
@@ -326,18 +423,20 @@ PluginMap.prototype._onMapEvent = function(evt, evtName) {
     evt.stop();
     return;
   }
-  if (evt) {
-    plugin.google.maps[self.id]({
-      'evtName': evtName,
-      'callback': '_onMapEvent',
-      'args': [new LatLng(evt.latLng.lat(), evt.latLng.lng())]
-    });
-  } else {
-    plugin.google.maps[self.id]({
-      'evtName': evtName,
-      'callback': '_onMapEvent',
-      'args': []
-    });
+  if (self.id in plugin.google.maps) {
+    if (evt) {
+      plugin.google.maps[self.id]({
+        'evtName': evtName,
+        'callback': '_onMapEvent',
+        'args': [new LatLng(evt.latLng.lat(), evt.latLng.lng())]
+      });
+    } else {
+      plugin.google.maps[self.id]({
+        'evtName': evtName,
+        'callback': '_onMapEvent',
+        'args': []
+      });
+    }
   }
 
 };
@@ -352,22 +451,24 @@ PluginMap.prototype._onCameraEvent = function(evtName) {
 
 
   var cameraInfo = {
-    'target': {'lat': center.lat, 'lng': center.lng},
+    'target': {'lat': center.lat(), 'lng': center.lng()},
     'zoom': map.getZoom(),
-    'tilt': map.getTilt(),
-    'bearing': map.getHeading(),
-    'northeast': {'lat': ne.lat, 'lng': ne.lng},
-    'southwest': {'lat': sw.lat, 'lng': sw.lng},
-    'farLeft': {'lat': ne.lat, 'lng': sw.lng},
-    'farRight': {'lat': ne.lat, 'lng': ne.lng}, // = northEast
-    'nearLeft': {'lat': sw.lat, 'lng': sw.lng}, // = southWest
-    'nearRight': {'lat': sw.lat, 'lng': ne.lng}
+    'tilt': map.getTilt() || 0,
+    'bearing': map.getHeading() || 0,
+    'northeast': {'lat': ne.lat(), 'lng': ne.lng()},
+    'southwest': {'lat': sw.lat(), 'lng': sw.lng()},
+    'farLeft': {'lat': ne.lat(), 'lng': sw.lng()},
+    'farRight': {'lat': ne.lat(), 'lng': ne.lng()}, // = northEast
+    'nearLeft': {'lat': sw.lat(), 'lng': sw.lng()}, // = southWest
+    'nearRight': {'lat': sw.lat(), 'lng': ne.lng()}
   };
-  plugin.google.maps[self.id]({
-    'evtName': evtName,
-    'callback': '_onCameraEvent',
-    'args': [cameraInfo]
-  });
+  if (self.id in plugin.google.maps) {
+    plugin.google.maps[self.id]({
+      'evtName': evtName,
+      'callback': '_onCameraEvent',
+      'args': [cameraInfo]
+    });
+  }
 };
 
 PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
