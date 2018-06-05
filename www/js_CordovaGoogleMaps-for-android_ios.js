@@ -638,7 +638,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
           };
           self.domPositions[elemId].containMapIDs[mapId] = 1;
         } else {
-          self.removeDomTree.call(self, element);
+          self.removeDomTree.call(self, elem);
         }
         elem = elem.parentNode;
       }
@@ -777,7 +777,7 @@ function postPanoramaInit(panorama, div, options) {
       zIndexList.unshift(self.domPositions[elemId].zIndex);
       self.domPositions[elemId].containMapIDs[mapId] = 1;
     } else {
-      self.removeDomTree.call(self, element);
+      self.removeDomTree.call(self, elem);
     }
     elem = elem.parentNode;
   }
