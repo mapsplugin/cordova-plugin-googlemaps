@@ -236,7 +236,11 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginMap.prototype.setActiveMarkerId = function(onSuccess, onError, args) {
+  onSuccess();
+};
 PluginMap.prototype.clear = function(onSuccess, onError, args) {
+  onSuccess();
 };
 
 PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
@@ -319,7 +323,7 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
   var padding = 20 || options.padding;
   if (Array.isArray(options.target)) {
     var bounds = new google.maps.LatLngBounds();
-    options.forEach(function(pos) {
+    options.target.forEach(function(pos) {
       bounds.extend(pos);
     });
     map.panToBounds(bounds, padding);
@@ -349,7 +353,7 @@ PluginMap.prototype.moveCamera = function(onSuccess, onError, args) {
   var padding = 20 || options.padding;
   if (Array.isArray(options.target)) {
     var bounds = new google.maps.LatLngBounds();
-    options.forEach(function(pos) {
+    options.target.forEach(function(pos) {
       bounds.extend(pos);
     });
     map.fitBounds(bounds, padding);

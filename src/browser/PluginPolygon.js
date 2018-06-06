@@ -5,7 +5,7 @@ var utils = require('cordova/utils'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
   LatLng = require('cordova-plugin-googlemaps.LatLng');
 
-function PluginMarker(pluginMap) {
+function PluginPolygon(pluginMap) {
   var self = this;
   BaseClass.apply(self);
   Object.defineProperty(self, "pluginMap", {
@@ -15,9 +15,9 @@ function PluginMarker(pluginMap) {
   });
 }
 
-utils.extend(PluginMarker, BaseClass);
+utils.extend(PluginPolygon, BaseClass);
 
-PluginMarker.prototype._create = function(onSuccess, onError, args) {
+PluginPolygon.prototype._create = function(onSuccess, onError, args) {
   var self = this,
     map = self.pluginMap.get('map'),
     markerId = 'marker_' + args[2],
@@ -85,7 +85,7 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     };
   }
   var marker = new google.maps.Marker(markerOpts);
-  marker.addListener('click', self._onMarkerEvent.bind(self, marker, event.MARKER_CLICK), {passive: true});
+  marker.addListener('click', self._onMarkerEvent.bind(self, marker, event.MARKER_CLICK));
   marker.addListener('dragstart', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_START));
   marker.addListener('drag', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG));
   marker.addListener('dragend', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_END));
@@ -99,6 +99,7 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
       html.push('<small>' + pluginOptions.snippet + '</small>');
     }
     marker.set('content', html.join('<br>'));
+    marker.addListener('click', onMarkerClick);
   }
 
   self.pluginMap.objects[markerId] = marker;
@@ -134,7 +135,7 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     }
   }
 };
-PluginMarker.prototype.setTitle = function(onSuccess, onError, args) {
+PluginPolygon.prototype.setTitle = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var title = args[1];
@@ -143,7 +144,7 @@ PluginMarker.prototype.setTitle = function(onSuccess, onError, args) {
   onSuccess();
 };
 
-PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
+PluginPolygon.prototype.showInfoWindow = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var marker = self.pluginMap.objects[overlayId];
@@ -152,12 +153,7 @@ PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
   }
   onSuccess();
 };
-PluginMarker.prototype.hideInfoWindow = function(onSuccess, onError, args) {
-  var self = this;
-  infoWnd.close();
-  onSuccess();
-};
-PluginMarker.prototype.setPosition = function(onSuccess, onError, args) {
+PluginPolygon.prototype.setPosition = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var marker = self.pluginMap.objects[overlayId];
@@ -167,7 +163,7 @@ PluginMarker.prototype.setPosition = function(onSuccess, onError, args) {
   onSuccess();
 };
 
-PluginMarker.prototype.remove = function(onSuccess, onError, args) {
+PluginPolygon.prototype.remove = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var marker = self.pluginMap.objects[overlayId];
@@ -181,9 +177,10 @@ PluginMarker.prototype.remove = function(onSuccess, onError, args) {
   onSuccess();
 };
 
-PluginMarker.prototype._onMarkerEvent = function(marker, evtName) {
+PluginPolygon.prototype._onMarkerEvent = function(marker, evtName) {
   var self = this,
     mapId = self.pluginMap.id;
+console.log(mapId, evtName);
   if (mapId in plugin.google.maps) {
     var latLng = marker.getPosition();
     plugin.google.maps[mapId]({
@@ -194,7 +191,7 @@ PluginMarker.prototype._onMarkerEvent = function(marker, evtName) {
   }
 
 };
-module.exports = PluginMarker;
+module.exports = PluginPolygon;
 
 var infoWnd = null;
 function onMarkerClick() {
