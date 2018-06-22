@@ -322,6 +322,9 @@ const int GEOCELL_GRID_SIZE = 4;
                   if (image != nil) {
                     [createResult setObject:[NSNumber numberWithInt: (int)image.size.width] forKey:@"width"];
                     [createResult setObject:[NSNumber numberWithInt: (int)image.size.height] forKey:@"height"];
+                  } else if (marker.icon != nil) {
+                    [createResult setObject:[NSNumber numberWithInt: (int)marker.icon.size.width] forKey:@"width"];
+                    [createResult setObject:[NSNumber numberWithInt: (int)marker.icon.size.height] forKey:@"height"];
                   } else {
                     [createResult setObject:[NSNumber numberWithInt: 24] forKey:@"width"];
                     [createResult setObject:[NSNumber numberWithInt: 40] forKey:@"height"];
