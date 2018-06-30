@@ -317,8 +317,18 @@ const int GEOCELL_GRID_SIZE = 4;
                   NSString *markerId = [tmp objectAtIndex:1];
                   NSMutableDictionary *createResult = [NSMutableDictionary dictionary];
                   GMSMarker *marker = resultObj;
-                  NSString *iconCacheKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
-                  UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
+                  UIImage *image;
+                  NSString *iconKey = [NSString stringWithFormat:@"marker_icon_%@", marker.userData];
+                  // retrieve key mapping set by the PluginMarker.setIcon_
+                  NSString *iconCacheKey = [self.mapCtrl.objects objectForKey:iconKey];
+                  if (iconCacheKey != nil) {
+                      // use it to retrieve cached icon
+                      image = [[UIImageCache sharedInstance] getCachedImageForKey:iconCacheKey];
+                  }
+                  if (image == nil) {
+                      // fallback to old behaviour
+                      image = [[UIImageCache sharedInstance] getCachedImageForKey:iconKey];
+                  }
                   if (image != nil) {
                     [createResult setObject:[NSNumber numberWithInt: (int)image.size.width] forKey:@"width"];
                     [createResult setObject:[NSNumber numberWithInt: (int)image.size.height] forKey:@"height"];
