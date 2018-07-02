@@ -266,11 +266,14 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       if (size == null) {
         continue;
       }
+
       RectF rectF = new RectF();
       rectF.left = (float)(Double.parseDouble(size.get("left") + "") * zoomScale);
       rectF.top = (float)(Double.parseDouble(size.get("top") + "") * zoomScale);
       rectF.right = (float)(Double.parseDouble(size.get("right") + "") * zoomScale);
       rectF.bottom =  (float)(Double.parseDouble(size.get("bottom") + "") * zoomScale);
+
+
       newBufferRectFs.put(domId, rectF);
 
       domInfo.remove("size");
@@ -408,10 +411,17 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
     }
 
     private String findClickedDom(String domId, PointF clickPoint, boolean isMapChild, Overflow overflow) {
-      //Log.d(TAG, "-(findClickedDom)domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
+      Overflow overflow1 = null;
+      if (overflow != null) {
+        overflow1 = new Overflow();
+        overflow1.cropX = overflow.cropX;
+        overflow1.cropY = overflow.cropY;
+        overflow1.rect = new RectF(overflow.rect.left, overflow.rect.top, overflow.rect.right, overflow.rect.bottom);
+      }
+      Log.d(TAG, "-(findClickedDom)domId = " + domId + ", clickPoint = " + clickPoint.x + ", " + clickPoint.y);
 
       String maxDomId = null;
-      RectF rect;
+      RectF rect, rect2, rect3;
       Bundle domInfo = HTMLNodes.get(domId);
       Bundle zIndexProp;
       int containMapCnt = 0;
@@ -422,19 +432,24 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
       }
       isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
+      Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo);
 
       String pointerEvents = domInfo.getString("pointerEvents");
       String overflowX = domInfo.getString("overflowX");
       String overflowY = domInfo.getString("overflowY");
       if ("hidden".equals(overflowX) || "scroll".equals(overflowX) ||
               "hidden".equals(overflowY) || "scroll".equals(overflowY)) {
-        overflow = new Overflow();
-        overflow.cropX = "hidden".equals(overflowX) || "scroll".equals(overflowX);
-        overflow.cropY = "hidden".equals(overflowY) || "scroll".equals(overflowY);
-        overflow.rect = HTMLNodeRectFs.get(domId);
+        overflow1 = new Overflow();
+        overflow1.cropX = "hidden".equals(overflowX) || "scroll".equals(overflowX);
+        overflow1.cropY = "hidden".equals(overflowY) || "scroll".equals(overflowY);
+        rect3 = HTMLNodeRectFs.get(domId);
+        overflow1.rect = new RectF(rect3.left, rect3.top, rect3.right, rect3.bottom);
       }
 
-      //Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo);
+      if (overflow1 != null) {
+        Log.d(TAG, "--overflow1 cropX= " + overflow1.cropX + ", cropY = " + overflow1.cropY + ", rect = " + overflow1.rect.toShortString());
+      }
+
       zIndexProp = domInfo.getBundle("zIndex");
       ArrayList<String> children = domInfo.getStringArrayList("children");
       if ((containMapCnt > 0 || isMapChild || "none".equals(pointerEvents) || zIndexProp.getBoolean("isInherit")) && children != null && children.size() > 0) {
@@ -455,61 +470,68 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
             grandChildren = domInfo.getStringArrayList("children");
             if (grandChildren == null || grandChildren.size() == 0) {
               rect = HTMLNodeRectFs.get(childId);
-              if (overflow != null ) {
-                if (overflow.cropX) {
-                  rect.left = Math.max(rect.left, overflow.rect.left);
-                  rect.right = Math.min(rect.right, overflow.rect.right);
+              rect2 = new RectF(rect.left, rect.top, rect.right, rect.bottom);
+              if (overflow1 != null ) {
+                if (overflow1.cropX) {
+                  rect2.left = Math.max(rect2.left, overflow1.rect.left);
+                  rect2.right = Math.min(rect2.right, overflow1.rect.right);
                 }
-                if (overflow.cropY) {
-                  rect.top = Math.max(rect.top, overflow.rect.top);
-                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+                if (overflow1.cropY) {
+                  rect2.top = Math.max(rect2.top, overflow1.rect.top);
+                  rect2.bottom = Math.min(rect2.bottom, overflow1.rect.bottom);
                 }
               }
-              if (!rect.contains(clickPoint.x, clickPoint.y)) {
+              if (!rect2.contains(clickPoint.x, clickPoint.y)) {
                 continue;
               }
 
-              //Log.d(TAG, "---childId = " + childId + ", domInfo = " + domInfo);
+              Log.d(TAG, "---childId = " + childId + ", domInfo = " + domInfo);
               if ("none".equals(domInfo.getString("pointerEvents"))) {
                 continue;
               }
-              //Log.d(TAG, "----childId = " + childId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
+              Log.d(TAG, "----childId = " + childId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
               if (maxZindex < zIndexValue) {
                 maxZindex = zIndexValue;
                 maxDomId = childId;
+                Log.i(TAG, "-----current = " + childId);
               }
             } else {
-              grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow);
-              //Log.d(TAG, "---findClickedDom("+ childId + ") -> " + grandChildId);
+              grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow1);
               if (grandChildId == null) {
                 grandChildId = childId;
               } else {
                 zIndexValue = HTMLNodes.get(grandChildId).getBundle("zIndex").getInt("z");
               }
               rect = HTMLNodeRectFs.get(grandChildId);
-              if (overflow != null ) {
-                if (overflow.cropX) {
-                  rect.left = Math.max(rect.left, overflow.rect.left);
-                  rect.right = Math.min(rect.right, overflow.rect.right);
+              rect2 = new RectF(rect.left, rect.top, rect.right, rect.bottom);
+              Log.d(TAG, "---findClickedDom("+ childId + ") -> " + grandChildId + ",rect = " + rect2.toShortString());
+              if (overflow1 != null ) {
+                if (overflow1.cropX) {
+                  rect2.left = Math.max(rect2.left, overflow1.rect.left);
+                  rect2.right = Math.min(rect2.right, overflow1.rect.right);
                 }
-                if (overflow.cropY) {
-                  rect.top = Math.max(rect.top, overflow.rect.top);
-                  rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+                if (overflow1.cropY) {
+                  rect2.top = Math.max(rect2.top, overflow1.rect.top);
+                  rect2.bottom = Math.min(rect2.bottom, overflow1.rect.bottom);
                 }
+                Log.d(TAG, "---overflow -> " + overflow1.rect.toShortString());
               }
-              if (!rect.contains(clickPoint.x, clickPoint.y)) {
+              if (!rect2.contains(clickPoint.x, clickPoint.y)) {
+                Log.e(TAG, "----the click point is not in this element(" +grandChildId + "), rect = " + rect2.toShortString() + ", click = " + clickPoint.x + "," + clickPoint.y );
                 continue;
               }
 
               domInfo = HTMLNodes.get(grandChildId);
-              //Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
+              Log.d(TAG, "----grandChildId = " + grandChildId + ", domInfo = " + domInfo);
               if ("none".equals(domInfo.getString("pointerEvents"))) {
+                Log.e(TAG, "-----grandChildId(" + grandChildId + ") is " + domInfo.getString("pointerEvents"));
                 continue;
               }
-              //Log.d(TAG, "----grandChildId = " + grandChildId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
+              Log.d(TAG, "----grandChildId = " + grandChildId + ", maxZindex = " + maxZindex + ", zIndexValue = " + zIndexValue);
               if (maxZindex < zIndexValue) {
                 maxZindex = zIndexValue;
                 maxDomId = grandChildId;
+                Log.i(TAG, "-----current = " + grandChildId);
               }
             }
           }
@@ -520,17 +542,18 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
           return null;
         }
         rect = HTMLNodeRectFs.get(domId);
-        if (overflow != null ) {
-          if (overflow.cropX) {
-            rect.left = Math.max(rect.left, overflow.rect.left);
-            rect.right = Math.min(rect.right, overflow.rect.right);
+        rect2 = new RectF(rect.left, rect.top, rect.right, rect.bottom);
+        if (overflow1 != null ) {
+          if (overflow1.cropX) {
+            rect2.left = Math.max(rect2.left, overflow1.rect.left);
+            rect2.right = Math.min(rect2.right, overflow1.rect.right);
           }
-          if (overflow.cropY) {
-            rect.top = Math.max(rect.top, overflow.rect.top);
-            rect.bottom = Math.min(rect.bottom, overflow.rect.bottom);
+          if (overflow1.cropY) {
+            rect2.top = Math.max(rect2.top, overflow1.rect.top);
+            rect2.bottom = Math.min(rect2.bottom, overflow1.rect.bottom);
           }
         }
-        if (!rect.contains(clickPoint.x, clickPoint.y)) {
+        if (!rect2.contains(clickPoint.x, clickPoint.y)) {
           return null;
         }
         maxDomId = domId;
@@ -566,8 +589,13 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       RectF drawRect;
 
       synchronized (_lockHtmlNodes) {
+        for (String key: HTMLNodeRectFs.keySet()) {
+          Log.d(TAG, "onInterceptTouchEvent: " + key + " = " + HTMLNodeRectFs.get(key).toShortString());
+        }
+
+
         String clickedDomId = findClickedDom("root", clickPoint, false, null);
-        //Log.d(TAG, "----clickedDomId = " + clickedDomId);
+        Log.d(TAG, "----clickedDomId = " + clickedDomId);
         while (iterator.hasNext()) {
           entry = iterator.next();
           pluginOverlay = entry.getValue();
