@@ -203,7 +203,7 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
 MarkerCluster.prototype._onCameraMoved = function() {
   var self = this;
 
-  if (self._isRemoved || self._stopRequest) {
+  if (self._isRemoved || self._stopRequest || !self._markerMap) {
     return null;
   }
 
