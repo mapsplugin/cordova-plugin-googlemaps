@@ -93,9 +93,7 @@
         //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
         [self.locationManager requestWhenInUseAuthorization];
 
-        NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
-
-        if (self.lastLocation && timeStamp - self.lastLocation.timestamp.timeIntervalSince1970 < 2000) {
+        if (self.lastLocation && -[self.lastLocation.timestamp timeIntervalSinceNow] < 2) {
           //---------------------------------------------------------------------
           // If the user requests the location in two seconds from the last time,
           // return the last result in order to save battery usage.
