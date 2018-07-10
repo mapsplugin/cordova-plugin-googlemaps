@@ -40,6 +40,7 @@ if (!cordova) {
     var wait = function() {
       if (document.body) {
         wait = undefined;
+        cordovaGoogleMaps.trigger('start');
         resolve();
       } else {
         setTimeout(wait, 50);
