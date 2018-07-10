@@ -167,7 +167,7 @@
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       // Hold the mapCtrl instance with mapId.
       [self.pluginScrollView.mapCtrls setObject:pluginViewCtrl forKey:pluginViewCtrl.overlayId];
-    
+
 
       // Add the mapView under the scroll view.
       [pluginViewCtrl.view setTag:pluginViewCtrl.viewDepth];
@@ -264,18 +264,18 @@
             ((GMSMapView *)pluginViewCtrl.view).mapType != kGMSTypeSatellite &&
             ((GMSMapView *)pluginViewCtrl.view).mapType != kGMSTypeHybrid)
           )) {
-            
+
         if (rect.origin.y + rect.size.height >= offset.y &&
             rect.origin.x + rect.size.width >= offset.x &&
             rect.origin.y < offset.y + webviewHeight &&
             rect.origin.x < offset.x + webviewWidth) {
-          
+
           // Attach the map view to the parent.
           [pluginViewCtrl.view setTag:pluginViewCtrl.viewDepth];
           [self.pluginScrollView attachView:pluginViewCtrl.view depth:pluginViewCtrl.viewDepth];
-          
+
         } else {
-        
+
           // Detach from the parent view
           [pluginViewCtrl.view removeFromSuperview];
         }
@@ -378,7 +378,7 @@
 
   @synchronized(self.pluginScrollView.HTMLNodes) {
     clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
-    
+
     while(mapId = [mapIDs nextObject]) {
       mapCtrl = [self.pluginScrollView.mapCtrls objectForKey:mapId];
       if (!mapCtrl.divId) {
@@ -452,6 +452,11 @@
     overflow.cropX = [@"hidden" isEqualToString:overflowX] || [@"scroll" isEqualToString:overflowX];
     overflow.cropY = [@"hidden" isEqualToString:overflowY] || [@"scroll" isEqualToString:overflowY];
     overflow.rect = CGRectFromString([domInfo objectForKey:@"size"]);
+  } else if ([@"visible" isEqualToString:overflowX] || [@"visible" isEqualToString:overflowX]) {
+    if (overflow != nil) {
+      overflow.cropX = ![@"visible" isEqualToString:overflowX];
+      overflow.cropY = ![@"visible" isEqualToString:overflowY];
+    }
   }
 
   zIndexProp = [domInfo objectForKey:@"zIndex"];
@@ -501,6 +506,10 @@
             maxDomId = childId;
           }
         } else {
+          if (zIndexValue < maxZIndex) {
+            // NSLog(@"-----skip because %d is %d < %d ", childId, zIndexValue, maxZindex);
+            continue;
+          }
           grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild overflow:overflow];
           if (grandChildId == nil) {
             domInfo = [self.pluginScrollView.HTMLNodes objectForKey:grandChildId];
