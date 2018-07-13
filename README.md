@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.6)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.7 beta)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -75,6 +75,14 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.3.7 beta**
+    - Update: Regenerate tbxml-android.aar with `android:minSdkVersion="19"` for the developers who use older cordova verions
+    - Fix: Can't interact with map on Android 4.4.2 if body uses ResetCSS rule
+    - Fix: Fixed bug in "getMyLocation" with last location result
+    - Fix: HtmlInfo window content not clickable if HTML structure is very simple
+    - Fix: MarkerCluster does not work with error "evaluating 'Object.keys(self._markerMap)'"
+    - Fix: Conflicting with Kendo UI framework.
+
   - **v2.3.6**
     - Fix: onPause causes app crashes on Android
     - Fix: Can't find variable: element
