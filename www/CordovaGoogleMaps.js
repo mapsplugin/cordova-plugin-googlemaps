@@ -50,7 +50,6 @@ function CordovaGoogleMaps(execCmd) {
       // Since Android 4.4 passes mutations as "Object", not "Array",
       // use "for" statement instead of "forEach" method.
 
-console.log(mutations);
       var i, mutation, node, j, elemId, doTraceTree = true;
       for (j = 0; j < mutations.length; j++) {
         mutation = mutations[j];
@@ -344,7 +343,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
   //-----------------------------------------------------------------
   self.resume();
 
-  console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(self.domPositions)));
+  //console.log("--->putHtmlElements to native (start)", JSON.parse(JSON.stringify(self.domPositions)));
   cordova_exec(function() {
     //console.log("--->putHtmlElements to native (done)");
 
