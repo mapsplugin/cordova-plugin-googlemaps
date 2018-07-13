@@ -126,7 +126,7 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
     //marker.set("geocell", geocell, true);
     //marker.set("position", markerOptions.position, true);
     self._markerMap[markerId] = markerOptions;
-    if (skipRedraw) {
+    if (skipRedraw || !self._isReady) {
       return;
     }
     self.redraw({
@@ -137,6 +137,9 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
     if (utils.isArray(markers) || Array.isArray(markers)) {
       for (var i = 0; i < markers.length; i++) {
         self.addMarker(markers[i], true);
+      }
+      if (!self._isReady) {
+        return;
       }
       self.redraw({
         force: true
@@ -150,8 +153,8 @@ var MarkerCluster = function(map, markerClusterOptions, _exec) {
   self.on("cluster_click", self.onClusterClicked);
   self.on("nextTask", function(){
     self._isWorking = false;
-    if (self._stopRequest ||
-        self._isRemoved || self.taskQueue.length === 0) {
+    if (self._stopRequest || self._isRemoved ||
+        self.taskQueue.length === 0 || !self._isReady) {
       return;
     }
     self.redraw.call(self);
@@ -203,7 +206,7 @@ MarkerCluster.prototype.onClusterClicked = function(cluster) {
 MarkerCluster.prototype._onCameraMoved = function() {
   var self = this;
 
-  if (self._isRemoved || self._stopRequest) {
+  if (self._isRemoved || self._stopRequest || !self._isReady) {
     return null;
   }
 
@@ -395,7 +398,7 @@ MarkerCluster.prototype.getClusterByClusterId = function(clusterId) {
 
 MarkerCluster.prototype.redraw = function(params) {
   var self = this;
-  if (self._isRemoved || self._stopRequest) {
+  if (self._isRemoved || self._stopRequest || !self._isReady) {
     return null;
   }
 
@@ -434,7 +437,7 @@ MarkerCluster.prototype.redraw = function(params) {
 MarkerCluster.prototype._redraw = function(params) {
   var self = this;
 
-  if (self._isRemoved || self._stopRequest || self._isWorking) {
+  if (self._isRemoved || self._stopRequest || self._isWorking || !self._isReady) {
     return null;
   }
   self._isWorking = true;
@@ -533,7 +536,6 @@ MarkerCluster.prototype._redraw = function(params) {
   var activeMarkerId = activeMarker ? activeMarker.getId() : null;
   if (prevResolution === self.OUT_OF_RESOLUTION) {
     if (resolution === self.OUT_OF_RESOLUTION) {
-      //console.log("---->552");
       //--------------------------------------
       // Just camera move, no zoom changed
       //--------------------------------------
