@@ -29,7 +29,7 @@
     }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:result];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  
+
 }
 /**
  * Return the current position based on GPS
@@ -45,36 +45,48 @@
         // kCLAuthorizationStatusDenied
         // kCLAuthorizationStatusRestricted
         //----------------------------------------------------
-        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE"];
-        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE"];
-        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCATION_IS_UNAVAILABLE_ERROR_TITLE
-                                                                       message:LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE
-                                                                preferredStyle:UIAlertControllerStyleAlert];
 
-        NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
-        UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^(UIAlertAction* action)
-            {
-                NSString *error_code = @"service_denied";
-                NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
+        NSString *error_code = @"service_denied";
+        NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
 
-                NSMutableDictionary *json = [NSMutableDictionary dictionary];
-                [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
-                [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
-                [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
+        NSMutableDictionary *json = [NSMutableDictionary dictionary];
+        [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+        [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
+        [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
 
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                [alert dismissViewControllerAnimated:YES completion:nil];
-            }];
-
-        [alert addAction:ok];
-
-
-        [self.viewController presentViewController:alert
-                                          animated:YES
-                                        completion:nil];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//
+//        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE"];
+//        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE"];
+//        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCATION_IS_UNAVAILABLE_ERROR_TITLE
+//                                                                       message:LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE
+//                                                                preferredStyle:UIAlertControllerStyleAlert];
+//
+//        NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
+//        UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
+//                                                     style:UIAlertActionStyleDefault
+//                                                   handler:^(UIAlertAction* action)
+//            {
+//                NSString *error_code = @"service_denied";
+//                NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
+//
+//                NSMutableDictionary *json = [NSMutableDictionary dictionary];
+//                [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+//                [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
+//                [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
+//
+//                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+//                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//                [alert dismissViewControllerAnimated:YES completion:nil];
+//            }];
+//
+//        [alert addAction:ok];
+//
+//
+//        [self.viewController presentViewController:alert
+//                                          animated:YES
+//                                        completion:nil];
 
     } else {
 
