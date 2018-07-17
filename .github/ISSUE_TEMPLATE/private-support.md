@@ -4,7 +4,7 @@ about: How to request private support?
 
 ---
 
-<---
+<!---
 Since this plugin is open source project, this project asks to make conversation in open space as much as possible.
 However some people, some companies can not do that because of their NDA or privacy policy.
 Yes, we understand your situation.
