@@ -82,6 +82,7 @@ In order to keep this plugin as free, please consider to donate little amount fo
     - Fix: HtmlInfo window content not clickable if HTML structure is very simple
     - Fix: MarkerCluster does not work with error "evaluating 'Object.keys(self._markerMap)'"
     - Fix: Conflicting with Kendo UI framework.
+    - Update: `NSTimer scheduledTimerWithTimeInterval` code 
 
   - **v2.3.6**
     - Fix: onPause causes app crashes on Android
