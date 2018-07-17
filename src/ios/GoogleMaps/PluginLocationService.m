@@ -17,6 +17,21 @@
 }
 
 /**
+ * Return 1 if the app has geolocation permission
+ */
+- (void)hasPermission:(CDVInvokedUrlCommand*)command {
+
+    int result = 1;
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    if (status == kCLAuthorizationStatusDenied ||
+        status == kCLAuthorizationStatusRestricted) {
+        result = 0;
+    }
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+}
+/**
  * Return the current position based on GPS
  */
 -(void)getMyLocation:(CDVInvokedUrlCommand *)command
