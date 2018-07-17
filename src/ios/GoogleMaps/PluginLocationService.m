@@ -123,27 +123,13 @@
           // Executes getMyLocation() first time
 
           [self.locationManager stopUpdatingLocation];
-          [NSTimer scheduledTimerWithTimeInterval:6000 repeats:NO block:^(NSTimer *timer) {
-            if (self.lastLocation != nil) {
-              return;
-            }
 
-            // Timeout
-            [self.locationManager stopUpdatingLocation];
-
-            NSMutableDictionary *json = [NSMutableDictionary dictionary];
-            [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
-            NSString *error_code = @"error";
-            NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"CAN_NOT_GET_LOCATION_MESSAGE"];
-            [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
-            [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
-
-            for (CDVInvokedUrlCommand *command in self.locationCommandQueue) {
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-            }
-            [self.locationCommandQueue removeAllObjects];
-          }];
+          // Why do I have to still support iOS9?
+          [NSTimer scheduledTimerWithTimeInterval:6000
+                                             target:self
+                                             selector:@selector(locationFailed)
+                                             userInfo:nil
+                                             repeats:NO];
           [self.locationManager startUpdatingLocation];
         }
         [self.locationCommandQueue addObject:command];
@@ -153,6 +139,29 @@
         //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
   });
+}
+
+-(void)locationFailed
+{
+    if (self.lastLocation != nil) {
+        return;
+    }
+
+    // Timeout
+    [self.locationManager stopUpdatingLocation];
+
+    NSMutableDictionary *json = [NSMutableDictionary dictionary];
+    [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+    NSString *error_code = @"error";
+    NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"CAN_NOT_GET_LOCATION_MESSAGE"];
+    [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
+    [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
+
+    for (CDVInvokedUrlCommand *command in self.locationCommandQueue) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+    [self.locationCommandQueue removeAllObjects];
 }
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
