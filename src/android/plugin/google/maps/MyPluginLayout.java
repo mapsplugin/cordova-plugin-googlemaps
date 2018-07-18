@@ -372,7 +372,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
               break;
             }
           }
-          
+
           scrollFrameLayout.addView(pluginOverlay.getView(), (childCnt -  index));
         }
 
@@ -441,7 +441,6 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
       }
       isMapChild = isMapChild || domInfo.getBoolean("isMap", false);
-      //Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo);
 
       String pointerEvents = domInfo.getString("pointerEvents");
       String overflowX = domInfo.getString("overflowX");
@@ -453,10 +452,19 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         overflow1.cropY = "hidden".equals(overflowY) || "scroll".equals(overflowY);
         rect3 = HTMLNodeRectFs.get(domId);
         overflow1.rect = new RectF(rect3.left, rect3.top, rect3.right, rect3.bottom);
+      } else if ("visible".equals(overflowX) || "visible".equals(overflowY)) {
+        if (overflow1 != null) {
+          overflow1.cropX = !"visible".equals(overflowX);
+          overflow1.cropY = !"visible".equals(overflowY);
+        }
       }
 
       //if (overflow1 != null) {
-      //  Log.d(TAG, "--overflow1 cropX= " + overflow1.cropX + ", cropY = " + overflow1.cropY + ", rect = " + overflow1.rect.toShortString());
+      //  Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo + "\n" +
+      //                   "  overflow1 cropX= " + overflow1.cropX + ", cropY = " + overflow1.cropY + ",\n" +
+      //                   "  rect = " + overflow1.rect.toShortString());
+      //} else {
+      //  Log.d(TAG, "--domId = " + domId + ", domInfo = " + domInfo);
       //}
 
       zIndexProp = domInfo.getBundle("zIndex");
@@ -506,6 +514,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 //Log.i(TAG, "-----current = " + childId);
               }
             } else {
+              if (zIndexValue < maxZindex) {
+                //Log.i(TAG, "-----skip because " + childId + " is " + zIndexValue + " < " + maxZindex);
+                continue;
+              }
               grandChildId = findClickedDom(childId, clickPoint, isMapChild, overflow1);
               if (grandChildId == null) {
                 grandChildId = childId;
@@ -513,7 +525,7 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 zIndexValue = HTMLNodes.get(grandChildId).getBundle("zIndex").getInt("z");
               }
               rect = HTMLNodeRectFs.get(grandChildId);
-              rect2 = new RectF(rect.left, rect.top, rect.right, rect.bottom);
+              rect2 = new RectF(rect);
               //Log.d(TAG, "---findClickedDom("+ childId + ") -> " + grandChildId + ",rect = " + rect2.toShortString());
               if (overflow1 != null && !"root".equals(domId) ) {
                 overflow1.rect = new RectF(HTMLNodeRectFs.get(domId));
@@ -525,7 +537,10 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                   rect2.top = Math.max(rect2.top, overflow1.rect.top);
                   rect2.bottom = Math.min(rect2.bottom, overflow1.rect.bottom);
                 }
-                //Log.d(TAG, "---overflow(" + domId + ") -> " + overflow1.rect.toShortString() + ", str=" + HTMLNodeRectFs.get(domId));
+                //Log.d(TAG, "---overflow(" + domId + ") -> " + overflow1.rect.toShortString() + ", \n"+
+                //          "   str=" + HTMLNodeRectFs.get(domId) + ",\n" +
+                //        "   overflowX = " + overflowX + ", overflowY = " + overflowY +
+                //        "   cropX = " + overflow1.cropX + ", cropY = " + overflow1.cropY);
               }
               if (!rect2.contains(clickPoint.x, clickPoint.y)) {
                 //Log.e(TAG, "----the click point is not in this element(" +grandChildId + "), rect = " + rect2.toShortString() + ", click = " + clickPoint.x + "," + clickPoint.y );

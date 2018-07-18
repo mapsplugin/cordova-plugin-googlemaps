@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.6)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.7)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -33,7 +33,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.6">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.7">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -75,6 +75,17 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.3.7**
+    - Update: Regenerate tbxml-android.aar with `android:minSdkVersion="19"` for the developers who use older cordova verions
+    - Fix: Can't interact with map on Android 4.4.2 if body uses ResetCSS rule
+    - Fix: Fixed bug in "getMyLocation" with last location result
+    - Fix: HtmlInfo window content not clickable if HTML structure is very simple
+    - Fix: MarkerCluster does not work with error "evaluating 'Object.keys(self._markerMap)'"
+    - Fix: Conflicting with Kendo UI framework.
+    - Fix: Clustered marker icons with specified dimensions reverting to default ones when redrawn [iOS]
+    - Update: `NSTimer scheduledTimerWithTimeInterval` code
+    - Fix: Map does not resize when map div is resized.
+
   - **v2.3.6**
     - Fix: onPause causes app crashes on Android
     - Fix: Can't find variable: element

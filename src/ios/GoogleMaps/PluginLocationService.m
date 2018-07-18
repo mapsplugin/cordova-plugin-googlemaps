@@ -17,6 +17,21 @@
 }
 
 /**
+ * Return 1 if the app has geolocation permission
+ */
+- (void)hasPermission:(CDVInvokedUrlCommand*)command {
+
+    int result = 1;
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    if (status == kCLAuthorizationStatusDenied ||
+        status == kCLAuthorizationStatusRestricted) {
+        result = 0;
+    }
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:result];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+/**
  * Return the current position based on GPS
  */
 -(void)getMyLocation:(CDVInvokedUrlCommand *)command
@@ -30,36 +45,48 @@
         // kCLAuthorizationStatusDenied
         // kCLAuthorizationStatusRestricted
         //----------------------------------------------------
-        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE"];
-        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE"];
-        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCATION_IS_UNAVAILABLE_ERROR_TITLE
-                                                                       message:LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE
-                                                                preferredStyle:UIAlertControllerStyleAlert];
 
-        NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
-        UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^(UIAlertAction* action)
-            {
-                NSString *error_code = @"service_denied";
-                NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
+        NSString *error_code = @"service_denied";
+        NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
 
-                NSMutableDictionary *json = [NSMutableDictionary dictionary];
-                [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
-                [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
-                [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
+        NSMutableDictionary *json = [NSMutableDictionary dictionary];
+        [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+        [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
+        [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
 
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                [alert dismissViewControllerAnimated:YES completion:nil];
-            }];
-
-        [alert addAction:ok];
-
-
-        [self.viewController presentViewController:alert
-                                          animated:YES
-                                        completion:nil];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//
+//        NSString *LOCATION_IS_UNAVAILABLE_ERROR_TITLE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_TITLE"];
+//        NSString *LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE"];
+//        UIAlertController* alert = [UIAlertController alertControllerWithTitle:LOCATION_IS_UNAVAILABLE_ERROR_TITLE
+//                                                                       message:LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE
+//                                                                preferredStyle:UIAlertControllerStyleAlert];
+//
+//        NSString *closeBtnLabel = [PluginUtil PGM_LOCALIZATION:@"CLOSE_BUTTON"];
+//        UIAlertAction* ok = [UIAlertAction actionWithTitle:closeBtnLabel
+//                                                     style:UIAlertActionStyleDefault
+//                                                   handler:^(UIAlertAction* action)
+//            {
+//                NSString *error_code = @"service_denied";
+//                NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"LOCATION_IS_DENIED_MESSAGE"];
+//
+//                NSMutableDictionary *json = [NSMutableDictionary dictionary];
+//                [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+//                [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
+//                [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
+//
+//                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+//                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//                [alert dismissViewControllerAnimated:YES completion:nil];
+//            }];
+//
+//        [alert addAction:ok];
+//
+//
+//        [self.viewController presentViewController:alert
+//                                          animated:YES
+//                                        completion:nil];
 
     } else {
 
@@ -93,9 +120,7 @@
         //http://stackoverflow.com/questions/24268070/ignore-ios8-code-in-xcode-5-compilation
         [self.locationManager requestWhenInUseAuthorization];
 
-        NSTimeInterval timeStamp = [[NSDate date] timeIntervalSince1970];
-
-        if (self.lastLocation && timeStamp - self.lastLocation.timestamp.timeIntervalSince1970 < 2000) {
+        if (self.lastLocation && -[self.lastLocation.timestamp timeIntervalSinceNow] < 2) {
           //---------------------------------------------------------------------
           // If the user requests the location in two seconds from the last time,
           // return the last result in order to save battery usage.
@@ -110,27 +135,13 @@
           // Executes getMyLocation() first time
 
           [self.locationManager stopUpdatingLocation];
-          [NSTimer scheduledTimerWithTimeInterval:6000 repeats:NO block:^(NSTimer *timer) {
-            if (self.lastLocation != nil) {
-              return;
-            }
 
-            // Timeout
-            [self.locationManager stopUpdatingLocation];
-
-            NSMutableDictionary *json = [NSMutableDictionary dictionary];
-            [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
-            NSString *error_code = @"error";
-            NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"CAN_NOT_GET_LOCATION_MESSAGE"];
-            [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
-            [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
-
-            for (CDVInvokedUrlCommand *command in self.locationCommandQueue) {
-                CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-            }
-            [self.locationCommandQueue removeAllObjects];
-          }];
+          // Why do I have to still support iOS9?
+          [NSTimer scheduledTimerWithTimeInterval:6000
+                                             target:self
+                                             selector:@selector(locationFailed)
+                                             userInfo:nil
+                                             repeats:NO];
           [self.locationManager startUpdatingLocation];
         }
         [self.locationCommandQueue addObject:command];
@@ -140,6 +151,29 @@
         //[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
   });
+}
+
+-(void)locationFailed
+{
+    if (self.lastLocation != nil) {
+        return;
+    }
+
+    // Timeout
+    [self.locationManager stopUpdatingLocation];
+
+    NSMutableDictionary *json = [NSMutableDictionary dictionary];
+    [json setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+    NSString *error_code = @"error";
+    NSString *error_message = [PluginUtil PGM_LOCALIZATION:@"CAN_NOT_GET_LOCATION_MESSAGE"];
+    [json setObject:[NSString stringWithString:error_message] forKey:@"error_message"];
+    [json setObject:[NSString stringWithString:error_code] forKey:@"error_code"];
+
+    for (CDVInvokedUrlCommand *command in self.locationCommandQueue) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:json];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+    [self.locationCommandQueue removeAllObjects];
 }
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
