@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.7 beta)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.7)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -33,7 +33,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.6">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.7">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -75,7 +75,7 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
-  - **v2.3.7 beta**
+  - **v2.3.7**
     - Update: Regenerate tbxml-android.aar with `android:minSdkVersion="19"` for the developers who use older cordova verions
     - Fix: Can't interact with map on Android 4.4.2 if body uses ResetCSS rule
     - Fix: Fixed bug in "getMyLocation" with last location result
