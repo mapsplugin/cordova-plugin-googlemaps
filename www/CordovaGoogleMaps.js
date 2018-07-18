@@ -355,6 +355,11 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
       }, 50);
       return;
     }
+    setTimeout(function() {
+      if (!self.isChecking && !self.transforming) {
+        common.nextTick(self.followMapDivPositionOnly.bind(self));
+      }
+    }, 50);
     self.isChecking = false;
     self.pause();
   }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
@@ -428,13 +433,11 @@ CordovaGoogleMaps.prototype.invalidate = function(opts) {
   if (opts.force) {
     self.isThereAnyChange = true;
   }
+  self.followMapDivPositionOnly.call(self, opts);
 
   common.nextTick(function() {
     self.resume.call(self);
     self.putHtmlElements.call(self);
-    if (opts.force) {
-      self.followMapDivPositionOnly.call(self, opts);
-    }
   });
 };
 
@@ -653,6 +656,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   map.one('remove', self._remove.bind(self, mapId));
   self.MAP_CNT++;
   self.isThereAnyChange = true;
+  console.log("--->isThereAnyChange = true");
 
   if (div instanceof Promise) {
     // This hack code for @ionic-native/google-maps
