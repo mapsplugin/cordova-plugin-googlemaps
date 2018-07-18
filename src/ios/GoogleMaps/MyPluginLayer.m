@@ -292,21 +292,21 @@
     }
 
     if (pluginViewCtrl.attached) {
-      if (pluginViewCtrl.isRenderedAtOnce) {
-
-        __block int zPosition = pluginViewCtrl.view.layer.zPosition;
-        [UIView animateWithDuration:0.075f animations:^{
-          [pluginViewCtrl.view setFrame:rect];
-          pluginViewCtrl.view.layer.zPosition = zPosition;
-          //rect.origin.x = 0;
-          //rect.origin.y = 0;
-        }];
-      } else {
+//      if (pluginViewCtrl.isRenderedAtOnce) {
+//
+//        __block int zPosition = pluginViewCtrl.view.layer.zPosition;
+//        [UIView animateWithDuration:0.075f animations:^{
+//          [pluginViewCtrl.view setFrame:rect];
+//          pluginViewCtrl.view.layer.zPosition = zPosition;
+//          //rect.origin.x = 0;
+//          //rect.origin.y = 0;
+//        }];
+//      } else {
         [pluginViewCtrl.view setFrame:rect];
         //rect.origin.x = 0;
         //rect.origin.y = 0;
         pluginViewCtrl.isRenderedAtOnce = YES;
-      }
+//      }
     } else {
       [pluginViewCtrl.view setFrame:CGRectMake(0, -pluginViewCtrl.view.frame.size.height, pluginViewCtrl.view.frame.size.width, pluginViewCtrl.view.frame.size.height)];
     }
