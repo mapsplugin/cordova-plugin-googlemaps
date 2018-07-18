@@ -83,7 +83,8 @@ In order to keep this plugin as free, please consider to donate little amount fo
     - Fix: MarkerCluster does not work with error "evaluating 'Object.keys(self._markerMap)'"
     - Fix: Conflicting with Kendo UI framework.
     - Fix: Clustered marker icons with specified dimensions reverting to default ones when redrawn [iOS]
-    - Update: `NSTimer scheduledTimerWithTimeInterval` code 
+    - Update: `NSTimer scheduledTimerWithTimeInterval` code
+    - Fix: Map does not resize when map div is resized.
 
   - **v2.3.6**
     - Fix: onPause causes app crashes on Android
