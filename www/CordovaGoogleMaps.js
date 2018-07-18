@@ -656,7 +656,6 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   map.one('remove', self._remove.bind(self, mapId));
   self.MAP_CNT++;
   self.isThereAnyChange = true;
-  console.log("--->isThereAnyChange = true");
 
   if (div instanceof Promise) {
     // This hack code for @ionic-native/google-maps
