@@ -40,6 +40,7 @@ if (!cordova) {
     var wait = function() {
       if (document.body) {
         wait = undefined;
+        cordovaGoogleMaps.trigger('start');
         resolve();
       } else {
         setTimeout(wait, 50);
@@ -159,7 +160,7 @@ if (!cordova) {
       }
 
       document.addEventListener("transitionstart", followMaps, {capture: true});
-      document.body.addEventListener("transitionend", onTransitionEnd, {capture: true});
+      document.body.parentNode.addEventListener("transitionend", onTransitionEnd, {capture: true});
       // document.body.addEventListener("transitionend", function(e) {
       //   if (!e.target.hasAttribute("__pluginDomId")) {
       //     return;
