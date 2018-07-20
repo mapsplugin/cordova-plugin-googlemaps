@@ -200,6 +200,7 @@
       for (int i = 0; i < positionList.count; i++) {
           latLng = [positionList objectAtIndex:i];
           position = CLLocationCoordinate2DMake([[latLng objectForKey:@"lat"] doubleValue], [[latLng objectForKey:@"lng"] doubleValue]);
+          [mutablePath addCoordinate:position];
       }
 
       // update the property
