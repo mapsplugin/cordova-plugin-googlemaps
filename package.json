@@ -13,12 +13,15 @@
     "xml2js": "~0.4.19",
     "minimist": "~1.2.0"
   },
+  "devDependencies": {
+    "shell": "~0.5.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mapsplugin/cordova-plugin-googlemaps.git"
   },
   "bin": {
-    "gmaps_cli": "gmaps_cli.js"
+    "gmaps": "cli/index.js"
   },
   "keywords": [
     "google",

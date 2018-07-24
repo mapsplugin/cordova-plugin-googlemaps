@@ -267,9 +267,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <!--
         Minimum required version of Android Support library v4 for this plugin.
-        https://developers.google.com/android/guides/releases
+        https://developer.android.com/topic/libraries/support-library/revisions
         -->
-        <preference name="ANDROID_SUPPORT_V4_VERSION" default="26.1.0" />
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="latest.release" />
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
