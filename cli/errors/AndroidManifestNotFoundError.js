@@ -16,7 +16,8 @@ class AndroidManifestNotFoundError extends Error {
         definedMessage.push("  Please execute '$> npx cap sync' before this command.");
         break;
 
-      case values.PLATFORM_CAPACITOR:
+      case values.PLATFORM_CORDOVA:
+      case values.PLATFORM_CORDOVA_OLD:
         definedMessage.push("  Please reinstall the maps plugin:");
         definedMessage.push("    $> cordova platform rm android");
         definedMessage.push("    $> cordova platform add android");
