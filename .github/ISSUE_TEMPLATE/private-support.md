@@ -12,16 +12,26 @@ In that case, please consider to choose **"private support"**.
 If you choose "**private support**", we will make a private chat room for you, then we can discuss your issues.
 We don't discover your code or your application screen captures into public spaces.
 
-**Fee**
+### Fee
 
-Please donate $100 USD or higher.
-https://github.com/mapsplugin/cordova-plugin-googlemaps#please-support-this-plugin-activity
+You can choose one of following options:
 
-**Support terms**
+- only one time, ask only one issue.
+  Please donate $10 USD.
+  
+- 3 months private support, up to 20 issues.
+  Please donate $100 USD.
+  
+- one year private support, no cap.
+  Please donate $1,000 USD.
 
-3 months private support, up to 20 issues.
 
-**How to apply it?**
+  
+### How to apply it?
 
-Please make an issue with this template, then donate the fee amount. You don't need to discover your information at here.
+Please make an issue with this template, then donate the fee amount.
+ 
+  https://github.com/mapsplugin/cordova-plugin-googlemaps#please-support-this-plugin-activity
+
+You don't need to discover your information at this issue thread.
 After donation, we will contact the email address which is used for paypal payment.
