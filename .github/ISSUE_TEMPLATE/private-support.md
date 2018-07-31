@@ -6,7 +6,7 @@ about: How to request private support?
 
 This plugin is open source project, thus you can use this plugin as free!
 
-In order to share the issue knowledges with other people, we would like to ask make converstations in open issue threads as much as possible.
+In order to share the issue knowledges with other people, we would like to ask you to make converstations in open issue threads as much as possible.
 
 However some people, some companies do not allow to do that, because of their NDAs or privacy policies.
 
