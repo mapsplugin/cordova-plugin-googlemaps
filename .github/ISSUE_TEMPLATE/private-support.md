@@ -18,6 +18,8 @@ We don't discover your code or your application screen captures into public spac
 However we also ask minimum donation $100 USD to the project.
 https://github.com/mapsplugin/cordova-plugin-googlemaps#please-support-this-plugin-activity
 
+We can provide 3 months private support.
+
 This helps this plugin project activity is more active.
 
 In order to make a ticket for private support, please make a donation first, then please describe your issue briefly here.
