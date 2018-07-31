@@ -85,7 +85,10 @@ function CordovaGoogleMaps(execCmd) {
           }
           if (mutation.target.hasAttribute("__pluginDomId")) {
             elemId = mutation.target.getAttribute("__pluginDomId");
-            var transformCSS = common.getStyle(mutation.target, "transform") || common.getStyle(mutation.target, "-webkit-transform");
+            var transformCSS = common.getStyle(mutation.target, "transform") ||
+                  common.getStyle(mutation.target, "-webkit-transform") ||
+                  common.getStyle(mutation.target, "transition") ||
+                  common.getStyle(mutation.target, "-webkit-transition");
             if (transformCSS !== "none") {
               mutation.target.dispatchEvent(common.createEvent("transitionstart"));
 

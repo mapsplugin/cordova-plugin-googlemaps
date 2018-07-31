@@ -145,9 +145,11 @@ if (!cordova) {
           cordovaGoogleMaps.transforming = false;
           return;
         }
-        if (!cordovaGoogleMaps.transforming) {
-          return;
-        }
+        // Don't block by transform flag
+        // because some ionic CSS technique can not trigger `transitionstart` event. 
+        // if (!cordovaGoogleMaps.transforming) {
+        //   return;
+        // }
         cordovaGoogleMaps.transforming = false;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (changes) {
