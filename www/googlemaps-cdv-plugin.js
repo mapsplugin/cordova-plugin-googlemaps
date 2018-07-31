@@ -141,7 +141,11 @@ if (!cordova) {
       }
 
       function onTransitionFinish() {
-        if (cordovaGoogleMaps.MAP_CNT === 0 || !cordovaGoogleMaps.transforming) {
+        if (cordovaGoogleMaps.MAP_CNT === 0) {
+          cordovaGoogleMaps.transforming = false;
+          return;
+        }
+        if (!cordovaGoogleMaps.transforming) {
           return;
         }
         cordovaGoogleMaps.transforming = false;
