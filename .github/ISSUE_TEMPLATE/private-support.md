@@ -5,25 +5,20 @@ about: How to request private support?
 ---
 
 Since this plugin is open source project, this project asks to make conversation in open space as much as possible.
-However some people, some companies can not do that because of their NDA or privacy policy.
-Yes, we understand your situation.
+However some people, some companies can not do that because of their NDAs or privacy policies.
+Yes, we understand thier situations.
 
 In that case, please consider to choose **"private support"**.
-If we accept the "**private support**", we make a private chat room, then we can discuss your issue.
-We don't discover your code or your application screen captures into public space.
+If you choose "**private support**", we will make a private chat room for you, then we can discuss your issues.
+We don't discover your code or your application screen captures into public spaces.
 
-However we also ask minimum donation $100 USD to the project.
+**Fee**
+Please donate $100 USD or higher.
 https://github.com/mapsplugin/cordova-plugin-googlemaps#please-support-this-plugin-activity
 
-We can provide 3 months private support.
+**Support terms**
+3 months private support, up to 20 issues.
 
-This helps this plugin project activity is more active.
-
-In order to make a ticket for private support, please make a donation first, then please describe your issue briefly here.
-We will contact to you by e-mail or here.
-
-------------------
-
-**Please describe your issue briefly (you don't need to include screen shots if you don't want to)**
-
-**Need NDA signup?**
+**How to apply it?**
+Please make an issue with this template, then donate the fee amount. You don't need to discover your information at here.
+After donation, we will contact the email address which is used for paypal payment.
