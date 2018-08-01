@@ -88,16 +88,19 @@
     <js-module name="geomodel" src="www/geomodel.js">
       <runs />
     </js-module>
+    <js-module name="commandQueueExecutor" src="www/commandQueueExecutor.js">
+      <runs />
+    </js-module>
     <js-module name="pluginInit" src="www/pluginInit.js">
+      <runs />
+    </js-module>
+    <js-module name="CordovaGoogleMaps" src="www/CordovaGoogleMaps.js">
       <runs />
     </js-module>
     <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
       <runs />
     </js-module>
     <js-module name="Overlay" src="www/Overlay.js">
-      <runs />
-    </js-module>
-    <js-module name="commandQueueExecutor" src="www/commandQueueExecutor.js">
       <runs />
     </js-module>
 
@@ -114,13 +117,15 @@ The native map view is faster, use less network usage, display 3D views, and eve
     <keywords>google,maps,geo</keywords>
 
     <engines>
-      <engine name="cordova" version=">=7.1.0" />
       <engine name="cordova-android" version=">=5.1.0" />
       <engine name="cordova-ios" version=">=4.0.0" />
       <engine name="apple-xcode" version=">=9.0.0" />
       <engine name="apple-ios" version=">=10.0.0" />
     </engines>
 
+    <hook type="before_plugin_add" src="src/before_plugin_install.js" />
+    <hook type="before_plugin_install" src="src/before_plugin_install.js" />
+    <!--<hook type="after_plugin_install" src="src/after_plugin_install.js" />-->
     <hook type="before_plugin_rm" src="src/before_plugin_rm.js" />
 
     <!-- browser -->
