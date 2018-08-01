@@ -7,10 +7,11 @@ const fs = require('fs'),
 
 module.exports = (req, res, next) => {
 
-  let API_KEY = req.params.api_key;
 
-
-  require('./AndroidManifest')(req, res, next)
+  require('./prepare')(req, res, next)
+  .then(() => {
+    return require('./AndroidManifest')(req, res, next);
+  })
   .then(() => {
     if (req.shell.settings.PROJECT_PLATFORM === values.PLATFORM_CORDOVA ||
       req.shell.settings.PROJECT_PLATFORM === values.PLATFORM_CORDOVA_OLD) {

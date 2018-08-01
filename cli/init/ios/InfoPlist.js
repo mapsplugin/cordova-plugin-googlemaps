@@ -7,24 +7,24 @@ const fs = require('fs'),
 module.exports = (req, res, next) => {
 
   let API_KEY = req.params.api_key;
-  let manifestPath = path.join(req.shell.settings.ANDROID_ROOT, 'AndroidManifest.xml');
+  let infoPlistPath = path.join(req.shell.settings.IOS_ROOT, 'Info.plist');
 
   return new Promise((resolve, reject) => {
 
     //--------------------------------
-    // Is Android platform available?
+    // Is iOS platform available?
     //--------------------------------
-    let exists = fs.existsSync(manifestPath);
+    let exists = fs.existsSync(infoPlistPath);
 
     if (!exists) {
-      reject(new errors.AndroidManifestNotFoundError(manifestPath));
+      reject(new errors.InfoPlistNotFoundError(infoPlistPath));
       return;
     }
 
     //---------------------------------
-    // Read AndroidManifest.xml file
+    // Read Info.plist file
     //---------------------------------
-    fs.readFile(manifestPath, 'utf8', (error, data) => {
+    fs.readFile(infoPlistPath, 'utf8', (error, data) => {
       if (error) {
         reject(error);
       } else {
@@ -34,7 +34,7 @@ module.exports = (req, res, next) => {
   })
   .then(data => {
     //---------------------------------
-    // Parse AndroidManifest.xml file
+    // Parse Info.plist file
     //---------------------------------
     return new Promise((resolve, reject) => {
       let xmlParser = new xml2js.Parser();
