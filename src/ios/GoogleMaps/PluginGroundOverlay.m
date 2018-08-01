@@ -562,8 +562,10 @@
     NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
     if (cachedResponse != nil) {
       UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
-      completionBlock(YES, image);
-      return;
+      if (image) {
+        completionBlock(YES, image);
+        return;
+      }
     }
 
 
