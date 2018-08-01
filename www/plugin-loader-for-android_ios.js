@@ -34,12 +34,13 @@ if (!cordova) {
   });
 
   var execCmd = require("./commandQueueExecutor");
-  var cordovaGoogleMaps = new (require('./js_CordovaGoogleMaps'))(execCmd);
+  var cordovaGoogleMaps = new (require('./CordovaGoogleMaps'))(execCmd);
 
   (new Promise(function(resolve) {
     var wait = function() {
       if (document.body) {
         wait = undefined;
+        cordovaGoogleMaps.trigger('start');
         resolve();
       } else {
         setTimeout(wait, 50);
@@ -71,7 +72,7 @@ if (!cordova) {
       var transformTargets = {};
       var transitionCnt = 0;
       function followMaps(evt) {
-        if (Object.keys(cordovaGoogleMaps.MAPS).length === 0) {
+        if (cordovaGoogleMaps.MAP_CNT === 0) {
           return;
         }
         transitionCnt++;
@@ -91,7 +92,7 @@ if (!cordova) {
       // CSS event `transitionend` is fired even the target dom element is still moving.
       // In order to detect "correct demention after the transform", wait until stable.
       function onTransitionEnd(evt) {
-        if (Object.keys(cordovaGoogleMaps.MAPS).length === 0 || !evt) {
+        if (cordovaGoogleMaps.MAP_CNT === 0 || !evt) {
           return;
         }
         var target = evt.target.getAttribute === "function" ? evt.target : document.body;
@@ -140,9 +141,15 @@ if (!cordova) {
       }
 
       function onTransitionFinish() {
-        if (Object.keys(cordovaGoogleMaps.MAPS).length === 0 || !cordovaGoogleMaps.transforming) {
+        if (cordovaGoogleMaps.MAP_CNT === 0) {
+          cordovaGoogleMaps.transforming = false;
           return;
         }
+        // Don't block by transform flag
+        // because some ionic CSS technique can not trigger `transitionstart` event. 
+        // if (!cordovaGoogleMaps.transforming) {
+        //   return;
+        // }
         cordovaGoogleMaps.transforming = false;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (changes) {
@@ -159,7 +166,7 @@ if (!cordova) {
       }
 
       document.addEventListener("transitionstart", followMaps, {capture: true});
-      document.body.addEventListener("transitionend", onTransitionEnd, {capture: true});
+      document.body.parentNode.addEventListener("transitionend", onTransitionEnd, {capture: true});
       // document.body.addEventListener("transitionend", function(e) {
       //   if (!e.target.hasAttribute("__pluginDomId")) {
       //     return;

@@ -1,11 +1,40 @@
  /*****************************************************************************
  * LocationService class
  *****************************************************************************/
- var LatLng = require('./LatLng');
+var LatLng = require('./LatLng');
 
 var LocationService = function(exec) {
-
+  function _errorHandler(err) {
+    console.error(err);
+  }
   return {
+    hasPermission: function(callback) {
+      var self = this;
+
+      var resolver = function(resolve, reject) {
+        exec.call({
+          _isReady: true
+        },
+        function(hasPermission) {
+          resolve.call(self, hasPermission === 1);
+        },
+        reject.bind(self), 'LocationService', 'hasPermission', [], {sync: true});
+      };
+
+      var errorHandler = function(result) {
+        if (typeof error_callback === "function") {
+          error_callback.call(self, result);
+        } else {
+          (self.errorHandler || _errorHandler).call(self, result);
+        }
+      };
+      if (typeof callback === "function") {
+        resolver(callback, errorHandler);
+        return self;
+      } else {
+        return new Promise(resolver);
+      }
+    },
     getMyLocation: function(params, success_callback, error_callback) {
       var self = this;
       var args = [params || {}, success_callback || null, error_callback];
@@ -33,7 +62,7 @@ var LocationService = function(exec) {
         if (typeof error_callback === "function") {
           error_callback.call(self, result);
         } else {
-          self.errorHandler.call(self, result);
+          (self.errorHandler || _errorHandler).call(self, result);
         }
       };
 
