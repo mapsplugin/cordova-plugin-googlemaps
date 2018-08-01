@@ -141,9 +141,15 @@ if (!cordova) {
       }
 
       function onTransitionFinish() {
-        if (cordovaGoogleMaps.MAP_CNT === 0 || !cordovaGoogleMaps.transforming) {
+        if (cordovaGoogleMaps.MAP_CNT === 0) {
+          cordovaGoogleMaps.transforming = false;
           return;
         }
+        // Don't block by transform flag
+        // because some ionic CSS technique can not trigger `transitionstart` event. 
+        // if (!cordovaGoogleMaps.transforming) {
+        //   return;
+        // }
         cordovaGoogleMaps.transforming = false;
         var changes = cordovaGoogleMaps.followMapDivPositionOnly.call(cordovaGoogleMaps);
         if (changes) {

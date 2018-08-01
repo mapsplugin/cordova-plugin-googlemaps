@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.3.9-beta-20180718-1052" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.3.9-beta-20180731-1540" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-googlemaps</name>
     <js-module name="BaseClass" src="www/BaseClass.js">
       <runs />
@@ -267,9 +267,9 @@ The native map view is faster, use less network usage, display 3D views, and eve
 
         <!--
         Minimum required version of Android Support library v4 for this plugin.
-        https://developer.android.com/topic/libraries/support-library/revisions
+        https://developers.google.com/android/guides/releases
         -->
-        <preference name="ANDROID_SUPPORT_V4_VERSION" default="latest.release" />
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.+" />
         <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
 
 
