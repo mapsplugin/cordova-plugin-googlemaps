@@ -76,7 +76,7 @@ In order to keep this plugin as free, please consider to donate little amount fo
 
 ## Release Notes
   - **v2.3.9**
-    - Fix: polyline.setPoints() does not work in iOS
+    - Fix: `polyline.setPoints()` does not work in iOS
     - Fix: App crashes on iOS if icon url is redirected to another url
     - Fix: touch is incorrect if another div size is changed
     - Fix: can not interact with maps at all on ionic 3
