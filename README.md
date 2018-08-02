@@ -437,7 +437,7 @@ This means **you can use the native Google Maps views similar to HTML elements**
 ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/touch.png)
 
 ---------------------------------------------------------------------------------------------------------
-Contributing change
+## Contributing change
 Please read the [CONTRIBUTING.md](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/CONTRIBUTING.md) for details on how to contribute to this project.
 
 
