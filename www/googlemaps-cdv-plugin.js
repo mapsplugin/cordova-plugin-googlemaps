@@ -81,7 +81,7 @@ if (!cordova) {
       document.body.parentNode.addEventListener("scroll", cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps), true);
       window.addEventListener("resize", function() {
         cordovaGoogleMaps.transforming = true;
-        onTransitionFinish();
+        cordovaGoogleMaps.onTransitionFinish.call(cordovaGoogleMaps);
       }, true);
 
     });

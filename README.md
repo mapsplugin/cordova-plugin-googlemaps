@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.9)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.10)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -33,7 +33,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.9">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.10">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -75,6 +75,9 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.3.10**
+    - Fix: Can't find variable: `onTransitionFinish` 
+
   - **v2.3.9**
     - Fix: `polyline.setPoints()` does not work in iOS
     - Fix: App crashes on iOS if icon url is redirected to another url
