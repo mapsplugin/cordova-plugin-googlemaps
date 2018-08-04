@@ -255,30 +255,34 @@ NSDictionary *debugAttributes;
     NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
     if (cachedResponse != nil) {
       UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
-      if (self.isDebug) {
-        image = [self drawDebugInfoWithImage:image
-                                           x:x
-                                           y:y
-                                           zoom:zoom
-                                           url: url.absoluteString];
+      if (image) {
+        if (self.isDebug) {
+          image = [self drawDebugInfoWithImage:image
+                                             x:x
+                                             y:y
+                                             zoom:zoom
+                                             url: url.absoluteString];
+        }
+        [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+        return;
       }
-      [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-      return;
     }
 
     NSString *uniqueKey = url.absoluteString;
     NSData *cache = [self.imgCache objectForKey:uniqueKey];
     if (cache != nil) {
       UIImage *image = [[UIImage alloc] initWithData:cache];
-      if (self.isDebug) {
-        image = [self drawDebugInfoWithImage:image
-                                           x:x
-                                           y:y
-                                           zoom:zoom
-                                           url: url.absoluteString];
+      if (image) {
+        if (self.isDebug) {
+          image = [self drawDebugInfoWithImage:image
+                                             x:x
+                                             y:y
+                                             zoom:zoom
+                                             url: url.absoluteString];
+        }
+        [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+        return;
       }
-      [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-      return;
     }
 
     //-------------------------------------------------------------
