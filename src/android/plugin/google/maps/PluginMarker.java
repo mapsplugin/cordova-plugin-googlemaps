@@ -1143,9 +1143,14 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     };
 
-    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, onComplete);
-    task.execute();
-    iconLoadingTasks.put(taskId, task);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, onComplete);
+        task.execute();
+        iconLoadingTasks.put(taskId, task);
+      }
+    });
   }
 
 

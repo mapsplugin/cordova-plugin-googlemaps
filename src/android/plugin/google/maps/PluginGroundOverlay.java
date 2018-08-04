@@ -432,15 +432,20 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         imageLoadingTasks.remove(taskId).cancel(true);
       }
     };
-    final AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, onComplete);
-    //cordova.getActivity().runOnUiThread(new Runnable() {
-    //  @Override
-    //  public void run() {
-    //    task.execute();
-    //  }
-    //});
-    task.execute();
-    imageLoadingTasks.put(taskId, task);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AsyncLoadImage task = new AsyncLoadImage(cordova, webView, imageOptions, onComplete);
+        //cordova.getActivity().runOnUiThread(new Runnable() {
+        //  @Override
+        //  public void run() {
+        //    task.execute();
+        //  }
+        //});
+        task.execute();
+        imageLoadingTasks.put(taskId, task);
+      }
+    });
 
 
 /*

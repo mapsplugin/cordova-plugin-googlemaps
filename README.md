@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.9 beta)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.9)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -33,7 +33,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.8">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.9">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -81,6 +81,8 @@ In order to keep this plugin as free, please consider to donate little amount fo
     - Fix: touch is incorrect if another div size is changed
     - Fix: can not interact with maps at all on ionic 3
     - Remove debug code
+    - Update: code update for ionic v4 beta (You need to use `@ionic-native/google-maps@5.0.0-beta.14` )
+    - Maybe fix: app crash when map.addMarker() with icon on ionic.
 
   - **v2.3.8**
     - Hot fix: v2.3.7 does not work for iOS. Sorry about that.:pensive:
