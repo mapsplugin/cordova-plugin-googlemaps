@@ -1023,7 +1023,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.noCaching = noCaching;
     final int taskId = options.hashCode();
 
-    AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
+    final AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
         iconLoadingTasks.remove(taskId);
