@@ -410,7 +410,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       return;
     }
 
-    AsyncLoadImage.AsyncLoadImageOptions imageOptions = new AsyncLoadImage.AsyncLoadImageOptions();
+    final AsyncLoadImage.AsyncLoadImageOptions imageOptions = new AsyncLoadImage.AsyncLoadImageOptions();
     imageOptions.height = -1;
     imageOptions.width = -1;
     imageOptions.noCaching = true;
