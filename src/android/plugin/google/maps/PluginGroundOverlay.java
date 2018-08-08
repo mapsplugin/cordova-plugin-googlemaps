@@ -417,7 +417,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     imageOptions.url = imgUrl;
     final int taskId = imageOptions.hashCode();
 
-    AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
+    final AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
 
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
