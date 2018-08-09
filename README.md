@@ -75,8 +75,13 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.3.11**
+    - Fix: can't load local files if wkwebview hosts the index.html on `file://` protocol
+    - Fix: Some people can't build because of Java error
+    - Fix: Some JS errors
+
   - **v2.3.10**
-    - Fix: Can't find variable: `onTransitionFinish` 
+    - Fix: Can't find variable: `onTransitionFinish`
 
   - **v2.3.9**
     - Fix: `polyline.setPoints()` does not work in iOS
