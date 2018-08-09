@@ -56,7 +56,7 @@ if (!cordova) {
       document.addEventListener("plugin_touch", cordovaGoogleMaps.invalidate.bind(cordovaGoogleMaps));
 
       // Repositioning 30 times when the device orientaion is changed.
-      window.addEventListener("orientationchange", cordovaGoogleMaps.followMaps.bind({
+      window.addEventListener("orientationchange", cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps, {
         target: document.body
       }));
 
