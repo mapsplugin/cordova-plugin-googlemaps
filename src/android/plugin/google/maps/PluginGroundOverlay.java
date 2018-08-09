@@ -410,14 +410,14 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
       return;
     }
 
-    AsyncLoadImage.AsyncLoadImageOptions imageOptions = new AsyncLoadImage.AsyncLoadImageOptions();
+    final AsyncLoadImage.AsyncLoadImageOptions imageOptions = new AsyncLoadImage.AsyncLoadImageOptions();
     imageOptions.height = -1;
     imageOptions.width = -1;
     imageOptions.noCaching = true;
     imageOptions.url = imgUrl;
     final int taskId = imageOptions.hashCode();
 
-    AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
+    final AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
 
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
