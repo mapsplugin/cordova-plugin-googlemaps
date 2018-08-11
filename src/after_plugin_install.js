@@ -1,5 +1,12 @@
 module.exports = function(ctx) {
 
+  var versions = ctx.opts.cordova.version.split(/\./g);
+  if (versions[0] > 6) {
+    // If cordova platform version is higher than 6,
+    // cordova-cli works well, so skip it.
+    return;
+  }
+
   var fs = ctx.requireCordovaModule('fs'),
       path = ctx.requireCordovaModule('path'),
       Q = ctx.requireCordovaModule('q');
