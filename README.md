@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.10)
+# Cordova GoogleMaps plugin for iOS and Android (version 2.3.11)
 
 This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
 
@@ -33,7 +33,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.10">
+  <plugin name="cordova-plugin-googlemaps" spec="2.3.11">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -77,7 +77,7 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ## Release Notes
   - **v2.3.11**
     - Fix: can't load local files if wkwebview hosts the index.html on `file://` protocol
-    - Fix: Some people can't build because of Java error
+    - Fix: Some people can't build because of Java errors
     - Fix: Some JS errors
 
   - **v2.3.10**
